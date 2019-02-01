@@ -2,6 +2,7 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Table(name = "election_rule_t")
 public class ElectionRule implements Serializable {
@@ -9,6 +10,7 @@ public class ElectionRule implements Serializable {
      * 主键（自增）
      */
     @Id
+    @NotNull
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,34 +22,22 @@ public class ElectionRule implements Serializable {
     private String name;
 
     /**
-     * 类别(1.选课、2.登录)
+     * 类别(ELECTION选课、GENERAL登录、WITHDRAW退课)
      */
     @Column(name = "TYPE_")
     private String type;
 
     /**
-     * 规则代码
+     * java对象名
      */
-    @Column(name = "CODE_")
-    private String code;
-
-    /**
-     * 父级代码
-     */
-    @Column(name = "PARENT_CODE_")
-    private Long parentCode;
-
-    /**
-     * 参数值(如：英语小课门数限制)
-     */
-    @Column(name = "VALUE_")
-    private String value;
+    @Column(name = "SERVICE_NAME_")
+    private String serviceName;
 
     /**
      * PROJECT_ID
      */
     @Column(name = "PROJECT_ID_")
-    private Integer projectId;
+    private String projectId;
 
     /**
      * 规则描述
@@ -100,75 +90,39 @@ public class ElectionRule implements Serializable {
     }
 
     /**
-     * 获取类别(1.选课、2.登录)
+     * 获取类别(ELECTION选课、GENERAL登录、WITHDRAW退课)
      *
-     * @return TYPE_ - 类别(1.选课、2.登录)
+     * @return TYPE_ - 类别(ELECTION选课、GENERAL登录、WITHDRAW退课)
      */
     public String getType() {
         return type;
     }
 
     /**
-     * 设置类别(1.选课、2.登录)
+     * 设置类别(ELECTION选课、GENERAL登录、WITHDRAW退课)
      *
-     * @param type 类别(1.选课、2.登录)
+     * @param type 类别(ELECTION选课、GENERAL登录、WITHDRAW退课)
      */
     public void setType(String type) {
         this.type = type == null ? null : type.trim();
     }
 
     /**
-     * 获取规则代码
+     * 获取java对象名
      *
-     * @return CODE_ - 规则代码
+     * @return SERVICE_NAME_ - java对象名
      */
-    public String getCode() {
-        return code;
+    public String getServiceName() {
+        return serviceName;
     }
 
     /**
-     * 设置规则代码
+     * 设置java对象名
      *
-     * @param code 规则代码
+     * @param serviceName java对象名
      */
-    public void setCode(String code) {
-        this.code = code == null ? null : code.trim();
-    }
-
-    /**
-     * 获取父级代码
-     *
-     * @return PARENT_CODE_ - 父级代码
-     */
-    public Long getParentCode() {
-        return parentCode;
-    }
-
-    /**
-     * 设置父级代码
-     *
-     * @param parentCode 父级代码
-     */
-    public void setParentCode(Long parentCode) {
-        this.parentCode = parentCode;
-    }
-
-    /**
-     * 获取参数值(如：英语小课门数限制)
-     *
-     * @return VALUE_ - 参数值(如：英语小课门数限制)
-     */
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * 设置参数值(如：英语小课门数限制)
-     *
-     * @param value 参数值(如：英语小课门数限制)
-     */
-    public void setValue(String value) {
-        this.value = value == null ? null : value.trim();
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName == null ? null : serviceName.trim();
     }
 
     /**
@@ -176,7 +130,7 @@ public class ElectionRule implements Serializable {
      *
      * @return PROJECT_ID_ - PROJECT_ID
      */
-    public Integer getProjectId() {
+    public String getProjectId() {
         return projectId;
     }
 
@@ -185,8 +139,8 @@ public class ElectionRule implements Serializable {
      *
      * @param projectId PROJECT_ID
      */
-    public void setProjectId(Integer projectId) {
-        this.projectId = projectId;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId == null ? null : projectId.trim();
     }
 
     /**
@@ -234,9 +188,7 @@ public class ElectionRule implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", name=").append(name);
         sb.append(", type=").append(type);
-        sb.append(", code=").append(code);
-        sb.append(", parentCode=").append(parentCode);
-        sb.append(", value=").append(value);
+        sb.append(", serviceName=").append(serviceName);
         sb.append(", projectId=").append(projectId);
         sb.append(", remark=").append(remark);
         sb.append(", status=").append(status);

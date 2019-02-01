@@ -8,10 +8,8 @@
     <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
     <result column="TYPE_" jdbcType="VARCHAR" property="type" />
-    <result column="CODE_" jdbcType="VARCHAR" property="code" />
-    <result column="PARENT_CODE_" jdbcType="BIGINT" property="parentCode" />
-    <result column="VALUE_" jdbcType="VARCHAR" property="value" />
-    <result column="PROJECT_ID_" jdbcType="INTEGER" property="projectId" />
+    <result column="SERVICE_NAME_" jdbcType="VARCHAR" property="serviceName" />
+    <result column="PROJECT_ID_" jdbcType="VARCHAR" property="projectId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="STATUS_" jdbcType="INTEGER" property="status" />
   </resultMap>
