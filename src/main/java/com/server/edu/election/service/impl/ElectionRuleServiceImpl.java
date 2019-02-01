@@ -31,5 +31,10 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		List<ElectionRule> list = electionRuleDao.selectByExample(example);
 		return list;
 	}
+	
+	public ElectionRuleVo selectRuleDeatil(ElectionRuleDto electionRuleDto) {
+		ElectionRuleVo electionRuleVo = new ElectionRuleVo();
+		return electionRuleVo;
+	}
     
 }

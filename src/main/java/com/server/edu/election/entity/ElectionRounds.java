@@ -2,7 +2,12 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Table(name = "election_rounds_t")
 public class ElectionRounds implements Serializable {
@@ -79,6 +84,9 @@ public class ElectionRounds implements Serializable {
      */
     @Column(name = "CREATED_AT_")
     private Date createdAt;
+
+    @Column(name = "UPDATED_AT_")
+    private Date updatedAt;
 
     private static final long serialVersionUID = 1L;
 
@@ -298,6 +306,20 @@ public class ElectionRounds implements Serializable {
         this.createdAt = createdAt;
     }
 
+    /**
+     * @return UPDATED_AT_
+     */
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * @param updatedAt
+     */
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -316,6 +338,7 @@ public class ElectionRounds implements Serializable {
         sb.append(", endTime=").append(endTime);
         sb.append(", remark=").append(remark);
         sb.append(", createdAt=").append(createdAt);
+        sb.append(", updatedAt=").append(updatedAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

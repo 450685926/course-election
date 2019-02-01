@@ -7,9 +7,6 @@ import com.server.edu.election.entity.ElectionRule;
 
 public class ElectionRoundsDto extends ElectionRounds
 {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     
     private List<ElectionRule> electionRules;
