@@ -15,7 +15,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @Import(SpringUtils.class)
-@MapperScan("com.server.edu.election")
+@MapperScan("com.server.edu.election.dao")
 @EnableServiceComb
 public class ServiceApplication
 {

@@ -2,6 +2,7 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Table(name = "election_rule_t")
 public class ElectionRule implements Serializable {
@@ -9,6 +10,7 @@ public class ElectionRule implements Serializable {
      * 主键（自增）
      */
     @Id
+    @NotNull
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
