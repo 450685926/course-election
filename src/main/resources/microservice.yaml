@@ -1,6 +1,6 @@
 APPLICATION_ID: ${application_id}
 service_description:
-  name: election
+  name: electionservice
   description: 选课微服务
   version: 0.0.1
   #environment: ${dev_type}

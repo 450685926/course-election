@@ -19,4 +19,24 @@
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
+  
+  <select id="listPage" resultMap="BaseResultMap">
+  	select * from election_rounds_t 
+  	<where>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.electionObj)">
+  		ELECTION_OBJ_ = #{round.electionObj}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.mode)">
+  		and MODE_ = #{round.mode}
+  		</if>
+  	</where>
+  </select>
+  
+  <insert id="saveRoundRefRule">
+  	insert into election_rounds_ref_rule_t(ROUNDS_ID_, RULE_ID_) values(#{roundId}, #{ruleId})
+  </insert>
+  
+  <delete id="deleteAllRefRule">
+  	delete from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
+  </delete>
 </mapper>
