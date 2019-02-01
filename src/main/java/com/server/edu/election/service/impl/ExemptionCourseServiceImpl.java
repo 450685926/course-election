@@ -6,11 +6,15 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dao.ExemptionCourseDao;
+import com.server.edu.election.dao.ExemptionCourseMaterialDao;
+import com.server.edu.election.dao.ExemptionCourseRuleDao;
 import com.server.edu.election.dao.ExemptionCourseScoreDao;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionCourse;
+import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
+import com.server.edu.election.vo.ExemptionCourseRuleVo;
 import com.server.edu.election.vo.ExemptionCourseScoreVo;
 import com.server.edu.election.vo.ExemptionCourseVo;
 import com.server.edu.util.CollectionUtil;
@@ -41,6 +45,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     @Autowired
     private ExemptionCourseScoreDao scoreDao;
+
+    @Autowired
+    private ExemptionCourseRuleDao ruleDao;
+
+    @Autowired
+    private ExemptionCourseMaterialDao materialDao;
 
     /**
     *@Description: 分页查询免修免考课程
@@ -157,6 +167,56 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         PageHelper.startPage(courseScoreDto.getPageNum_(), courseScoreDto.getPageSize_());
         Page<ExemptionCourseScoreVo> exemptionScore = scoreDao.findExemptionScore(courseScoreDto.getCondition());
         return new PageResult<>(exemptionScore);
+    }
+
+
+    /**
+    *@Description: 查询免修免考规则
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/1 16:22
+    */
+    @Override
+    public PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRule> rulePageCondition) {
+        PageHelper.startPage(rulePageCondition.getPageNum_(), rulePageCondition.getPageSize_());
+        Page<ExemptionCourseRuleVo> exemptionCourseRule = ruleDao.findExemptionCourseRule(rulePageCondition.getCondition());
+        if(exemptionCourseRule!=null){
+            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            }
+            List<ExemptionCourseRuleVo> result = exemptionCourseRule.getResult();
+            if(CollectionUtil.isNotEmpty(result)){
+                for (ExemptionCourseRuleVo exemptionCourseRuleVo : result) {
+                    String calendarName=schoolCalendarMap.get(exemptionCourseRuleVo.getCalendarId());
+                    if(StringUtils.isNotEmpty(calendarName)) {
+                        exemptionCourseRuleVo.setCalendarName(calendarName);
+                    }
+                }
+            }
+        }
+        return new PageResult<>(exemptionCourseRule);
+    }
+
+    /**
+    *@Description: 删除申请规则
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/1 17:47
+    */
+    @Override
+    public String deleteExemptionCourseRule(List<Long> ids, Integer applyType) {
+        if(CollectionUtil.isEmpty(ids) || applyType==null){
+            return "common.parameterError";
+        }
+        ruleDao.deleteExemptionCourseRule(ids);
+        if(applyType==1){//材料申请
+            materialDao.deleteExemptionCourseMaterial(ids);
+        }
+        return "common.deleteSuccess";
     }
 
 }

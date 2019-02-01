@@ -8,7 +8,9 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionCourse;
+import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.service.ExemptionCourseService;
+import com.server.edu.election.vo.ExemptionCourseRuleVo;
 import com.server.edu.election.vo.ExemptionCourseScoreVo;
 import com.server.edu.election.vo.ExemptionCourseVo;
 import io.swagger.annotations.ApiOperation;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -84,5 +87,25 @@ public class ExemptionController {
         return RestResult.successData(exemptionScore);
     }
 
-    //免修免考成绩导入
+    //免修免考成绩导入todo
+
+    @ApiOperation(value = "查询免修免考申请规则")
+    @PostMapping("/findExemptionCourseRule")
+    public RestResult<PageResult<ExemptionCourseRuleVo>> findExemptionCourseRule(@RequestBody PageCondition<ExemptionCourseRule> courseRule){
+        PageResult<ExemptionCourseRuleVo> exemptionRule = exemptionCourseService.findExemptionRule(courseRule);
+        return RestResult.successData(exemptionRule);
+    }
+
+
+    @LogRecord(title="删除免修免考申请规则",type = AuditType.DELETE)
+    @ApiOperation(value = "删除免修免考申请规则")
+    @PostMapping("/deleteExemptionCourseRule")
+    public RestResult<String> deleteExemptionCourseRule(@RequestBody List<Long> ids, @RequestParam Integer applyType){
+        String s = exemptionCourseService.deleteExemptionCourseRule(ids, applyType);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+
+
+
 }

@@ -4,6 +4,8 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionCourse;
+import com.server.edu.election.entity.ExemptionCourseRule;
+import com.server.edu.election.vo.ExemptionCourseRuleVo;
 import com.server.edu.election.vo.ExemptionCourseScoreVo;
 import com.server.edu.election.vo.ExemptionCourseVo;
 
@@ -18,4 +20,8 @@ public interface ExemptionCourseService {
     String updateExemptionCourse(ExemptionCourse exemptionCourse);
 
     PageResult<ExemptionCourseScoreVo> findExemptionScore(PageCondition<ExemptionCourseScoreDto> courseScoreDto);
+
+    PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRule> rulePageCondition);
+
+    String deleteExemptionCourseRule(List<Long> ids,Integer applyType);
 }
