@@ -8,6 +8,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +28,7 @@ import io.swagger.annotations.SwaggerDefinition;
 public class ElectionRuleController
 {
 	private static Logger LOG =
-	        LoggerFactory.getLogger("TeachingClassChangeContoller");
+	        LoggerFactory.getLogger("ElectionRuleController");
 	@Autowired
 	private ElectionRuleService service;
 	 /**

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.election.dao.ElectionRuleDao;
@@ -15,6 +16,7 @@ import com.server.edu.election.vo.ElectionRuleVo;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
+@Primary
 public class ElectionRuleServiceImpl implements ElectionRuleService
 {
 	@Autowired
