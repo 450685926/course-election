@@ -7,13 +7,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * @description: 重修收费管理
+ * @description: 重修不收费类型
  * @author: bear
- * @create: 2019-01-31 19:31
+ * @create: 2019-02-01 11:37
  */
-
 @CodeI18n
-public class RebuildCourseCharge implements Serializable {
+public class RebuildCourseNoChargeType implements Serializable {
     private Long id;
 
     @Code2Text(transformer = "X_PYCC")
@@ -22,9 +21,13 @@ public class RebuildCourseCharge implements Serializable {
     @Code2Text(transformer = "X_XXXS")
     private String formLearning;
 
-    private Integer isCharge;
+    @Code2Text(transformer = "X_ZXJH")
+    private String spcialPlan;
 
-    private Integer unitPrice;
+    @Code2Text(transformer = "G_XJZT")
+    private String registrationStatus;
+
+    private Integer certificateType;
 
     public Long getId() {
         return id;
@@ -50,35 +53,45 @@ public class RebuildCourseCharge implements Serializable {
         this.formLearning = formLearning == null ? null : formLearning.trim();
     }
 
-    public Integer getIsCharge() {
-        return isCharge;
+    public String getSpcialPlan() {
+        return spcialPlan;
     }
 
-    public void setIsCharge(Integer isCharge) {
-        this.isCharge = isCharge;
+    public void setSpcialPlan(String spcialPlan) {
+        this.spcialPlan = spcialPlan == null ? null : spcialPlan.trim();
     }
 
-    public Integer getUnitPrice() {
-        return unitPrice;
+    public String getRegistrationStatus() {
+        return registrationStatus;
     }
 
-    public void setUnitPrice(Integer unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setRegistrationStatus(String registrationStatus) {
+        this.registrationStatus = registrationStatus == null ? null : registrationStatus.trim();
+    }
+
+    public Integer getCertificateType() {
+        return certificateType;
+    }
+
+    public void setCertificateType(Integer certificateType) {
+        this.certificateType = certificateType;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RebuildCourseCharge that = (RebuildCourseCharge) o;
+        RebuildCourseNoChargeType that = (RebuildCourseNoChargeType) o;
         return Objects.equals(trainingLevel, that.trainingLevel) &&
                 Objects.equals(formLearning, that.formLearning) &&
-                Objects.equals(isCharge, that.isCharge);
+                Objects.equals(spcialPlan, that.spcialPlan) &&
+                Objects.equals(registrationStatus, that.registrationStatus) &&
+                Objects.equals(certificateType, that.certificateType);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(trainingLevel, formLearning, isCharge);
+        return Objects.hash(trainingLevel, formLearning, spcialPlan, registrationStatus, certificateType);
     }
 }
