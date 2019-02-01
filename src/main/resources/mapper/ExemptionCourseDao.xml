@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ExemptionCourseDao">
+    <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ExemptionCourse">
+        <id column="ID_" jdbcType="BIGINT" property="id" />
+        <result column="NAME_" jdbcType="VARCHAR" property="name" />
+        <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+        <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+        <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+        <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+        <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+        <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+        <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        ID_, NAME_, COURSE_CODE_,  CALENDAR_ID_, TRAINING_LEVEL_, FORM_LEARNING_,
+        FACULTY_, REMARK_, CREATED_AT_
+    </sql>
+    <resultMap id="VoBaseResultMap" type="com.server.edu.election.vo.ExemptionCourseVo" extends="BaseResultMap">
+    </resultMap>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from exemption_course_t
+        where ID_ = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from exemption_course_t
+        where ID_ = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.server.edu.election.entity.ExemptionCourse">
+        insert into exemption_course_t (ID_, NAME_, COURSE_CODE_,
+         CALENDAR_ID_, TRAINING_LEVEL_,
+        FORM_LEARNING_, FACULTY_, REMARK_,
+        CREATED_AT_)
+        values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{courseCode,jdbcType=VARCHAR},
+         #{calendarId,jdbcType=BIGINT}, #{trainingLevel,jdbcType=VARCHAR},
+        #{formLearning,jdbcType=VARCHAR}, #{faculty,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR},
+        #{createdAt,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" parameterType="com.server.edu.election.entity.ExemptionCourse">
+        insert into exemption_course_t
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                ID_,
+            </if>
+            <if test="name != null">
+                NAME_,
+            </if>
+            <if test="courseCode != null">
+                COURSE_CODE_,
+            </if>
+
+            <if test="calendarId != null">
+                CALENDAR_ID_,
+            </if>
+            <if test="trainingLevel != null">
+                TRAINING_LEVEL_,
+            </if>
+            <if test="formLearning != null">
+                FORM_LEARNING_,
+            </if>
+            <if test="faculty != null">
+                FACULTY_,
+            </if>
+            <if test="remark != null">
+                REMARK_,
+            </if>
+            <if test="createdAt != null">
+                CREATED_AT_,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="courseCode != null">
+                #{courseCode,jdbcType=VARCHAR},
+            </if>
+
+            <if test="calendarId != null">
+                #{calendarId,jdbcType=BIGINT},
+            </if>
+            <if test="trainingLevel != null">
+                #{trainingLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="formLearning != null">
+                #{formLearning,jdbcType=VARCHAR},
+            </if>
+            <if test="faculty != null">
+                #{faculty,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="createdAt != null">
+                #{createdAt,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.server.edu.election.entity.ExemptionCourse">
+        update exemption_course_t
+        <set>
+            <if test="name != null">
+                NAME_ = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="courseCode != null">
+                COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR},
+            </if>
+
+            <if test="calendarId != null">
+                CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT},
+            </if>
+            <if test="trainingLevel != null">
+                TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="formLearning != null">
+                FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR},
+            </if>
+            <if test="faculty != null">
+                FACULTY_ = #{faculty,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                REMARK_ = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="createdAt != null">
+                CREATED_AT_ = #{createdAt,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where ID_ = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.server.edu.election.entity.ExemptionCourse">
+        update exemption_course_t
+        set NAME_ = #{name,jdbcType=VARCHAR},
+        COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR},
+        CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT},
+        TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR},
+        FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR},
+        FACULTY_ = #{faculty,jdbcType=VARCHAR},
+        REMARK_ = #{remark,jdbcType=VARCHAR},
+        CREATED_AT_ = #{createdAt,jdbcType=TIMESTAMP}
+        where ID_ = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="findExemptionCourse" resultMap="VoBaseResultMap" parameterType="com.server.edu.election.entity.ExemptionCourse">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_course_t
+        <where>
+            <if test="calendarId!=null and calendarId>0 ">
+                and CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="trainingLevel!=null and trainingLevel !='' ">
+                and TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR}
+            </if>
+            <if test="name != null and name != ''">
+                and (COURSE_CODE_ like concat('%',#{name},'%') or NAME_ like concat('%',#{name},'%') )
+            </if>
+            <if test="formLearning != null and formLearning != ''">
+                and FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR}
+            </if>
+            <if test="courseCode != null and courseCode !='' ">
+                and COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteExemptionCourseByIds" parameterType="java.util.List">
+        delete from exemption_course_t
+        where ID_ in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
