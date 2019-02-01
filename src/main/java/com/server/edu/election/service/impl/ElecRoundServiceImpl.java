@@ -11,18 +11,31 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dao.ElectionRoundsDao;
+import com.server.edu.election.dao.ElecRoundStuDao;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.ElectionRule;
-import com.server.edu.election.service.ElectionRoundService;
+import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.util.CollectionUtil;
 
+/**
+ * 选课轮次管理
+ * 
+ * 
+ * @author  OuYangGuoDong
+ * @version  [版本号, 2019年2月1日]
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
 @Service
-public class ElectionRoundServiceImpl implements ElectionRoundService
+public class ElecRoundServiceImpl implements ElecRoundService
 {
     @Autowired
-    private ElectionRoundsDao roundsDao;
+    private ElecRoundsDao roundsDao;
+    
+    @Autowired
+    private ElecRoundStuDao elecRoundStuDao;
     
     @Override
     public PageResult<ElectionRounds> listPage(
@@ -80,13 +93,15 @@ public class ElectionRoundServiceImpl implements ElectionRoundService
         }
     }
     
+    @Transactional
     @Override
     public void delete(List<Long> ids)
     {
         for (Long id : ids)
         {
-            roundsDao.deleteByPrimaryKey(id);
-            roundsDao.deleteAllRefRule(id);
+            roundsDao.deleteByPrimaryKey(id);//删除轮次
+            roundsDao.deleteAllRefRule(id);//删除关联规则
+            elecRoundStuDao.deleteByRoundId(id);//删除可选课名单
         }
     }
     

@@ -11,7 +11,7 @@ import com.server.edu.election.entity.ElectionRounds;
 
 import tk.mybatis.mapper.common.Mapper;
 
-public interface ElectionRoundsDao extends Mapper<ElectionRounds>
+public interface ElecRoundsDao extends Mapper<ElectionRounds>
 {
     /**
      * 分页查询轮次数据

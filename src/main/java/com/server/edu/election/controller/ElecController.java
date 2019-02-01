@@ -10,9 +10,9 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
 @SwaggerDefinition(info = @Info(title = "选课", version = ""))
-@RestSchema(schemaId = "ElectionController")
+@RestSchema(schemaId = "ElecController")
 @RequestMapping("election")
-public class ElectionController
+public class ElecController
 {
     /**
      * 检查数据准备状态

@@ -20,19 +20,19 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.service.ElectionRoundService;
+import com.server.edu.election.service.ElecRoundService;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
 @SwaggerDefinition(info = @Info(title = "选课轮次管理", version = ""))
-@RestSchema(schemaId = "ElectionRoundController")
+@RestSchema(schemaId = "ElecRoundController")
 @RequestMapping("electionRound")
-public class ElectionRoundController
+public class ElecRoundController
 {
     @Autowired
-    private ElectionRoundService electionRoundService;
+    private ElecRoundService electionRoundService;
     
     /**
      * 分页查询

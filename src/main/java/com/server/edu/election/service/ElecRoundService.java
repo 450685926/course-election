@@ -7,7 +7,15 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
 
-public interface ElectionRoundService
+/**
+ * 选课轮次管理 
+ * 
+ * @author  OuYangGuoDong
+ * @version  [版本号, 2019年2月1日]
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public interface ElecRoundService
 {
     /**
      * 分页查询
