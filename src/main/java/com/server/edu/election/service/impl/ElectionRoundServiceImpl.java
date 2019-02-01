@@ -71,9 +71,12 @@ public class ElectionRoundServiceImpl implements ElectionRoundService
         roundsDao.updateByPrimaryKeySelective(dto);
         
         roundsDao.deleteAllRefRule(dto.getId());
-        for (ElectionRule rule : dto.getElectionRules())
+        if (CollectionUtil.isNotEmpty(dto.getElectionRules()))
         {
-            roundsDao.saveRoundRefRule(dto.getId(), rule.getId());
+            for (ElectionRule rule : dto.getElectionRules())
+            {
+                roundsDao.saveRoundRefRule(dto.getId(), rule.getId());
+            }
         }
     }
     
@@ -82,7 +85,7 @@ public class ElectionRoundServiceImpl implements ElectionRoundService
     {
         for (Long id : ids)
         {
-            roundsDao.deleteByPrimaryKey(ids);
+            roundsDao.deleteByPrimaryKey(id);
             roundsDao.deleteAllRefRule(id);
         }
     }
