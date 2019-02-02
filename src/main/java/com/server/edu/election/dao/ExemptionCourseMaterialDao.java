@@ -23,4 +23,6 @@ public interface ExemptionCourseMaterialDao {
     int updateByPrimaryKey(ExemptionCourseMaterial record);
 
     void deleteExemptionCourseMaterial(List<Long> list);
+
+    void addExemptionMaterial(List<ExemptionCourseMaterial> list);
 }

@@ -2,9 +2,11 @@ package com.server.edu.election.service;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseRule;
+import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.election.vo.ExemptionCourseRuleVo;
 import com.server.edu.election.vo.ExemptionCourseScoreVo;
 import com.server.edu.election.vo.ExemptionCourseVo;
@@ -24,4 +26,9 @@ public interface ExemptionCourseService {
     PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRule> rulePageCondition);
 
     String deleteExemptionCourseRule(List<Long> ids,Integer applyType);
+
+    String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo,Integer applyType);
+
+    PageResult<ExemptionApplyManageVo> findExemptionApply(PageCondition<ExemptionApplyCondition> condition);
 }
+

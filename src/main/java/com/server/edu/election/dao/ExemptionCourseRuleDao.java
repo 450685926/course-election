@@ -22,4 +22,7 @@ public interface ExemptionCourseRuleDao {
     Page<ExemptionCourseRuleVo> findExemptionCourseRule(ExemptionCourseRule courseRule);
 
     void deleteExemptionCourseRule(List<Long> list);
+
+    void addExemptionCourseRule(ExemptionCourseRuleVo scoreRule);
+
 }

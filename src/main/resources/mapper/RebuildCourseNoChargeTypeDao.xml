@@ -33,9 +33,7 @@
     <insert id="insertSelective" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType">
         insert into rebuild_course_nocharge_type_t
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                ID_,
-            </if>
+
             <if test="trainingLevel != null">
                 TRAINING_LEVEL_,
             </if>
@@ -53,9 +51,7 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
+
             <if test="trainingLevel != null">
                 #{trainingLevel,jdbcType=VARCHAR},
             </if>

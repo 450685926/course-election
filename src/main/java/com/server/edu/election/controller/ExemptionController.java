@@ -6,10 +6,12 @@ import com.server.edu.common.log.LogRecord;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
+import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.service.ExemptionCourseService;
+import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.election.vo.ExemptionCourseRuleVo;
 import com.server.edu.election.vo.ExemptionCourseScoreVo;
 import com.server.edu.election.vo.ExemptionCourseVo;
@@ -106,6 +108,21 @@ public class ExemptionController {
     }
 
 
+    @LogRecord(title="新增免修免考申请规则",type = AuditType.INSERT)
+    @ApiOperation(value = "新增免修免考申请规则")
+    @PostMapping("/addExemptionCourseRule")
+    public RestResult<String> addExemptionCourseRule(@RequestBody ExemptionCourseRuleVo courseRuleVo,@RequestParam Integer applyType){
+        String s = exemptionCourseService.addExemptionCourseRule(courseRuleVo, applyType);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+    //修改免修免考规则todo
 
 
+    @ApiOperation(value = "查询免修免考申请管理")
+    @PostMapping("/findExemptionApply")
+    public RestResult<PageResult<ExemptionApplyManageVo>> findExemptionApply(@RequestBody PageCondition<ExemptionApplyCondition> condition){
+        PageResult<ExemptionApplyManageVo> exemptionApply = exemptionCourseService.findExemptionApply(condition);
+        return RestResult.successData(exemptionApply);
+    }
 }
