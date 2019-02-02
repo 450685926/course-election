@@ -20,7 +20,7 @@ public class Student4Elc
     
     private String name;
     
-    //@Code2Text(transformer="G_XBIE")
+    @Code2Text(transformer="G_XBIE")
     private Integer sex;
     
     /**学院*/

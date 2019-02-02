@@ -30,7 +30,7 @@ import io.swagger.annotations.SwaggerDefinition;
 
 @SwaggerDefinition(info = @Info(title = "可选课学生管理", version = ""))
 @RestSchema(schemaId = "ElecRoundStuController")
-@RequestMapping("electionRoundStu")
+@RequestMapping("elecRoundStu")
 public class ElecRoundStuController
 {
     @Autowired
