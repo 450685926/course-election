@@ -106,6 +106,13 @@ public class ExemptionController {
     }
 
 
+    @LogRecord(title="新增免修免考申请规则",type = AuditType.INSERT)
+    @ApiOperation(value = "新增免修免考申请规则")
+    @PostMapping("/addExemptionCourseRule")
+    public RestResult<String> addExemptionCourseRule(@RequestBody ExemptionCourseRuleVo courseRuleVo,@RequestParam Integer applyType){
+        String s = exemptionCourseService.addExemptionCourseRule(courseRuleVo, applyType);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
 
 
 }

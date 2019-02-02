@@ -18,7 +18,7 @@ public class ExemptionCourseScore implements Serializable{
 
     private String courseCode;
 
-    private Integer score;
+    private Double score;
 
     public Long getId() {
         return id;
@@ -60,11 +60,11 @@ public class ExemptionCourseScore implements Serializable{
         this.courseCode = courseCode == null ? null : courseCode.trim();
     }
 
-    public Integer getScore() {
+    public Double getScore() {
         return score;
     }
 
-    public void setScore(Integer score) {
+    public void setScore(Double score) {
         this.score = score;
     }
 }

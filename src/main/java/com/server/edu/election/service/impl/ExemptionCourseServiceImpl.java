@@ -5,13 +5,16 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.ExemptionCourseDao;
 import com.server.edu.election.dao.ExemptionCourseMaterialDao;
 import com.server.edu.election.dao.ExemptionCourseRuleDao;
 import com.server.edu.election.dao.ExemptionCourseScoreDao;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionCourse;
+import com.server.edu.election.entity.ExemptionCourseMaterial;
 import com.server.edu.election.entity.ExemptionCourseRule;
+import com.server.edu.election.entity.ExemptionCourseScore;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.vo.ExemptionCourseRuleVo;
@@ -24,10 +27,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -156,7 +156,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     }
 
     /**
-    *@Description: 查询免修免考入学成绩
+    *@Description: 查询免修免考入学成绩//todo导入成绩
     *@Param: 
     *@return:
     *@Author: bear
@@ -202,7 +202,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     /**
     *@Description: 删除申请规则
-    *@Param:
+    *@Param: id  applyType申请类型
     *@return:
     *@Author: bear
     *@date: 2019/2/1 17:47
@@ -217,6 +217,68 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
             materialDao.deleteExemptionCourseMaterial(ids);
         }
         return "common.deleteSuccess";
+    }
+
+
+    /**
+    *@Description: 新增免修免考申请规则
+    *@Param: courseCode 以逗号隔开
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/2 9:28
+    */
+    @Override
+    public String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo, Integer applyType) {
+        String courseCode = courseRuleVo.getCourseCode();
+        Long calendarId = courseRuleVo.getCalendarId();
+        if("".equals(courseCode) || calendarId==null){
+            return "common.parameterError";
+        }
+        if(applyType==0){//入学成绩规则
+            String[] strings = courseCode.split(",");//拿到所有课程代码//根据学期，代码获取人数，分数线
+            List<String> stringList = Arrays.asList(strings);
+
+            List<ExemptionCourseScore> courseScore = scoreDao.findCourseScore(calendarId, stringList);
+            if(CollectionUtil.isEmpty(courseScore)){
+                return "学期对应课程成绩没有导入，无法生成对应规则";
+            }
+            int number=courseScore.size();
+            double score=0;
+            if(courseRuleVo.getPencent()!=null &&courseRuleVo.getPencent()!=0){//按规则计算
+                int percent=courseRuleVo.getPencent();
+                int round = (int)Math.round(number * percent * 0.1 / 10);
+                double totalScore=0;
+                for (int i = 0; i < round; i++) {
+                    totalScore+=courseScore.get(i).getScore();
+                }
+                score=(double)(Math.round((totalScore/round)*10))/10;
+                courseRuleVo.setMinimumPassScore(score);
+            }
+            if(courseRuleVo.getMinimumPassScore()!=null){//指定分数线
+                score=(double)(Math.round((courseRuleVo.getMinimumPassScore())*10))/10;
+                courseRuleVo.setMinimumPassScore(score);
+            }
+            courseRuleVo.setNumber(number);
+            courseRuleVo.setApplyType(applyType);
+            ruleDao.addExemptionCourseRule(courseRuleVo);
+
+            return "common.addsuccess";
+        }else{
+            List<ExemptionCourseMaterial> list = courseRuleVo.getList();
+            if(CollectionUtil.isNotEmpty(list)){
+                courseRuleVo.setApplyType(applyType);
+                ruleDao.addExemptionCourseRule(courseRuleVo);
+                Long ruleId = courseRuleVo.getId();
+                for (ExemptionCourseMaterial exemptionCourseMaterial : list) {
+                    exemptionCourseMaterial.setExemptionRuleId(ruleId);
+                }
+                materialDao.addExemptionMaterial(list);
+                return "common.addsuccess";
+            }else{
+                return "common.parameterError";
+            }
+        }
+
     }
 
 }

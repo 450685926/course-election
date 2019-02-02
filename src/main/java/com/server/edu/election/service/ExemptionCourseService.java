@@ -24,4 +24,6 @@ public interface ExemptionCourseService {
     PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRule> rulePageCondition);
 
     String deleteExemptionCourseRule(List<Long> ids,Integer applyType);
+
+    String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo,Integer applyType);
 }
