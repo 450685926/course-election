@@ -109,7 +109,7 @@ public class ElecRoundStuController
      * @return
      */
     @ApiOperation(value = "条件删除可选课学生")
-    @PutMapping("/deleteByCondition")
+    @DeleteMapping("/deleteByCondition")
     public RestResult<?> deleteByCondition(
         @RequestBody @Valid @NotNull ElecRoundStuQuery condition)
     {

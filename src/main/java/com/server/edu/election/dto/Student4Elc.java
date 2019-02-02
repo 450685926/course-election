@@ -42,7 +42,6 @@ public class Student4Elc
     private String grade;
     
     /**学籍状态*/
-    @Code2Text(transformer = "X_PYCC")
     private String registrationStatus;
     
     /**注册状态*/
@@ -50,9 +49,6 @@ public class Student4Elc
     
     /**入学季节*/
     private String enrolSeason;
-    
-    /**是否已缴费*/
-    private String paymentStatus;
     
     /**培养类别*/
     private String trainingCategory;
@@ -71,9 +67,6 @@ public class Student4Elc
     
     /**专项计划*/
     private String spcialPlan;
-    
-    /**入学时间*/
-    private Long enrolDate;
     
     /**在读状态*/
     private String leaveSchool;
@@ -100,26 +93,6 @@ public class Student4Elc
     public void setLeaveSchool(String leaveSchool)
     {
         this.leaveSchool = leaveSchool;
-    }
-    
-    public Long getEnrolDate()
-    {
-        return enrolDate;
-    }
-    
-    public void setEnrolDate(Long enrolDate)
-    {
-        this.enrolDate = enrolDate;
-    }
-    
-    public String getPaymentStatus()
-    {
-        return paymentStatus;
-    }
-    
-    public void setPaymentStatus(String paymentStatus)
-    {
-        this.paymentStatus = paymentStatus;
     }
     
     public String getTrainingCategory()
