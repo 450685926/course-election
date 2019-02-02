@@ -149,7 +149,11 @@ public class ElecRoundStuController
             return RestResult.error("文件不能为空");
         }
         
-        file.getContentType();
+        String originalFilename = file.getOriginalFilename();
+        if (!originalFilename.endsWith(".xls"))
+        {
+            return RestResult.error("请使用1999-2003(.xls)类型的Excle");
+        }
         
         try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
         {
