@@ -75,7 +75,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void addByCondition(ElecRoundStuQuery stu)
     {
-        List<Student4Elc> listStudent = elecRoundStuDao.listStudent(stu);
+        List<Student4Elc> listStudent =
+            elecRoundStuDao.listNotExistStudent(stu);
+        
         if (CollectionUtil.isNotEmpty(listStudent))
         {
             for (Student4Elc info : listStudent)
@@ -89,9 +91,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void delete(Long roundId, List<String> studentCodes)
     {
-        for (String code : studentCodes)
+        if (CollectionUtil.isNotEmpty(studentCodes))
         {
-            elecRoundStuDao.delete(roundId, code);
+            elecRoundStuDao.delete(roundId, studentCodes);
         }
     }
     
@@ -99,13 +101,17 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void deleteByCondition(ElecRoundStuQuery stu)
     {
-        Page<Student4Elc> listStudent = elecRoundStuDao.listPage(stu, stu.getRoundId());
+        Page<Student4Elc> listStudent =
+            elecRoundStuDao.listPage(stu, stu.getRoundId());
+        
+        List<String> studentCodes = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(listStudent))
         {
             for (Student4Elc info : listStudent)
             {
-                elecRoundStuDao.delete(stu.getRoundId(), info.getStudentId());
+                studentCodes.add(info.getStudentId());
             }
+            elecRoundStuDao.delete(stu.getRoundId(), studentCodes);
         }
     }
 }

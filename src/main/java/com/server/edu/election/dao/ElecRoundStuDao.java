@@ -31,13 +31,13 @@ public interface ElecRoundStuDao
         @Param("roundId") Long roundId);
     
     /**
-     * 根据条件查询满足条件的学生
+     * 根据条件查询满足条件并且没有添加过的的学生
      * 
      * @param stu
      * @return
      * @see [类、类#方法、类#成员]
      */
-    List<Student4Elc> listStudent(@Param("stu") ElecRoundStuQuery stu);
+    List<Student4Elc> listNotExistStudent(@Param("stu") ElecRoundStuQuery stu);
     
     /**
      * 查询存在的学号
@@ -76,7 +76,7 @@ public interface ElecRoundStuDao
      * @see [类、类#方法、类#成员]
      */
     void delete(@Param("roundId") Long roundId,
-        @Param("studentId") String studentId);
+        @Param("studentCodes") List<String> studentCodes);
     
     /**
      * 删除指定轮次的学生名单

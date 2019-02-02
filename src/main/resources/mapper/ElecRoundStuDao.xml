@@ -36,7 +36,7 @@
   	</where>
   </select>
   
-  <select id="listStudent" resultMap="BaseResultMap">
+  <select id="listNotExistStudent" resultMap="BaseResultMap">
   	select t1.* from student_t t1 
   	<where>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.studentId)">
@@ -57,6 +57,7 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.grade)">
   		and t1.GRADE_ = #{stu.grade}
   		</if>
+  		and t1.STUDENT_CODE_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
   	</where>
   </select>
   
@@ -78,7 +79,10 @@
   </insert>
   
   <delete id="delete">
-  	delete from election_rounds_stu_t where ROUNDS_ID_ = #{roundId} and STUDENT_ID_ = #{studentId}
+  	delete from election_rounds_stu_t where ROUNDS_ID_ = #{roundId} and STUDENT_ID_ IN
+  	<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">  
+       #{id}  
+    </foreach>
   </delete>
   
   <delete id="deleteByRoundId">
