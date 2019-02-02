@@ -194,7 +194,7 @@ public class ElecRoundStuController
         Resource resource = new ClassPathResource("/excel/keXuanKeMingDan.xls");
         
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, "application/x-msdownload")
+            .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
             .header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment;filename=" + "keXuanKeMingDan.xls")
             .body(resource);
