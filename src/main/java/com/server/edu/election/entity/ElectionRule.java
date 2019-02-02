@@ -1,8 +1,15 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Table(name = "election_rule_t")
 public class ElectionRule implements Serializable {
@@ -30,6 +37,7 @@ public class ElectionRule implements Serializable {
     /**
      * java对象名
      */
+    @JsonIgnore
     @Column(name = "SERVICE_NAME_")
     private String serviceName;
 

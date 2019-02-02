@@ -15,7 +15,6 @@ import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.util.CollectionUtil;
 
@@ -66,11 +65,11 @@ public class ElecRoundServiceImpl implements ElecRoundService
         dto.setUpdatedAt(date);
         roundsDao.insertSelective(dto);
         
-        if (CollectionUtil.isNotEmpty(dto.getElectionRules()))
+        if (CollectionUtil.isNotEmpty(dto.getRuleIds()))
         {
-            for (ElectionRule rule : dto.getElectionRules())
+            for (Long ruleId : dto.getRuleIds())
             {
-                roundsDao.saveRoundRefRule(dto.getId(), rule.getId());
+                roundsDao.saveRoundRefRule(dto.getId(), ruleId);
             }
         }
     }
@@ -84,11 +83,11 @@ public class ElecRoundServiceImpl implements ElecRoundService
         roundsDao.updateByPrimaryKeySelective(dto);
         
         roundsDao.deleteAllRefRule(dto.getId());
-        if (CollectionUtil.isNotEmpty(dto.getElectionRules()))
+        if (CollectionUtil.isNotEmpty(dto.getRuleIds()))
         {
-            for (ElectionRule rule : dto.getElectionRules())
+            for (Long ruleId : dto.getRuleIds())
             {
-                roundsDao.saveRoundRefRule(dto.getId(), rule.getId());
+                roundsDao.saveRoundRefRule(dto.getId(), ruleId);
             }
         }
     }
