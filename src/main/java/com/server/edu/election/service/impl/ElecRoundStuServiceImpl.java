@@ -12,9 +12,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.StudentInfo;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
@@ -31,16 +31,16 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     private ElecRoundsDao elecRoundsDao;
     
     @Override
-    public PageResult<StudentInfo> listPage(
+    public PageResult<Student4Elc> listPage(
         PageCondition<ElecRoundStuQuery> condition)
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         
         ElecRoundStuQuery stu = condition.getCondition();
-        Page<StudentInfo> listPage =
+        Page<Student4Elc> listPage =
             elecRoundStuDao.listPage(stu, stu.getRoundId());
         
-        PageResult<StudentInfo> result = new PageResult<>(listPage);
+        PageResult<Student4Elc> result = new PageResult<>(listPage);
         return result;
     }
     
@@ -54,10 +54,12 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             throw new ParameterValidateException("选课轮次不存在");
         }
         List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes);
+        List<String> listAddedStu =
+            elecRoundStuDao.listAddedStu(roundId, studentCodes);
         List<String> notExistStu = new ArrayList<>();
         for (String code : studentCodes)
         {
-            if (listExistStu.contains(code))
+            if (listExistStu.contains(code) && !listAddedStu.contains(code))
             {
                 elecRoundStuDao.add(roundId, code);
             }
@@ -73,10 +75,10 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void addByCondition(ElecRoundStuQuery stu)
     {
-        List<StudentInfo> listStudent = elecRoundStuDao.listStudent(stu);
+        List<Student4Elc> listStudent = elecRoundStuDao.listStudent(stu);
         if (CollectionUtil.isNotEmpty(listStudent))
         {
-            for (StudentInfo info : listStudent)
+            for (Student4Elc info : listStudent)
             {
                 elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
             }
@@ -97,10 +99,10 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void deleteByCondition(ElecRoundStuQuery stu)
     {
-        List<StudentInfo> listStudent = elecRoundStuDao.listStudent(stu);
+        Page<Student4Elc> listStudent = elecRoundStuDao.listPage(stu, stu.getRoundId());
         if (CollectionUtil.isNotEmpty(listStudent))
         {
-            for (StudentInfo info : listStudent)
+            for (Student4Elc info : listStudent)
             {
                 elecRoundStuDao.delete(stu.getRoundId(), info.getStudentId());
             }

@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
-import com.server.edu.common.rest.StudentInfo;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 
 /**
@@ -27,7 +27,7 @@ public interface ElecRoundStuDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    Page<StudentInfo> listPage(@Param("stu") ElecRoundStuQuery stu,
+    Page<Student4Elc> listPage(@Param("stu") ElecRoundStuQuery stu,
         @Param("roundId") Long roundId);
     
     /**
@@ -37,15 +37,26 @@ public interface ElecRoundStuDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    List<StudentInfo> listStudent(@Param("stu") ElecRoundStuQuery stu);
+    List<Student4Elc> listStudent(@Param("stu") ElecRoundStuQuery stu);
+    
     /**
-     * 查询不存在的学号
+     * 查询存在的学号
      * 
      * @param studentCodes
      * @return
      * @see [类、类#方法、类#成员]
      */
     List<String> listExistStu(@Param("studentCodes") List<String> studentCodes);
+    
+    /**
+     * 查询已经增加过的学号
+     * 
+     * @param studentCodes
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<String> listAddedStu(@Param("roundId") Long roundId,
+        @Param("studentCodes") List<String> studentCodes);
     
     /**
      * 添加可选课学生名单
@@ -66,6 +77,7 @@ public interface ElecRoundStuDao
      */
     void delete(@Param("roundId") Long roundId,
         @Param("studentId") String studentId);
+    
     /**
      * 删除指定轮次的学生名单
      * 
