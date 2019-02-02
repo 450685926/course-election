@@ -41,9 +41,7 @@
     <insert id="insertSelective" parameterType="com.server.edu.election.entity.ExemptionCourse">
         insert into exemption_course_t
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                ID_,
-            </if>
+
             <if test="name != null">
                 NAME_,
             </if>
@@ -71,9 +69,7 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
+
             <if test="name != null">
                 #{name,jdbcType=VARCHAR},
             </if>

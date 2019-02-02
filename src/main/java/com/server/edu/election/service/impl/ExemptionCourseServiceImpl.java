@@ -6,10 +6,8 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.dao.ExemptionCourseDao;
-import com.server.edu.election.dao.ExemptionCourseMaterialDao;
-import com.server.edu.election.dao.ExemptionCourseRuleDao;
-import com.server.edu.election.dao.ExemptionCourseScoreDao;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseMaterial;
@@ -17,6 +15,7 @@ import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.entity.ExemptionCourseScore;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
+import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.election.vo.ExemptionCourseRuleVo;
 import com.server.edu.election.vo.ExemptionCourseScoreVo;
 import com.server.edu.election.vo.ExemptionCourseVo;
@@ -51,6 +50,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     @Autowired
     private ExemptionCourseMaterialDao materialDao;
+
+    @Autowired
+    private ExemptionApplyDao applyDao;
 
     /**
     *@Description: 分页查询免修免考课程
@@ -279,6 +281,22 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
             }
         }
 
+    }
+
+    //修改申请规则待做
+
+    /**
+    *@Description: 查询免修免考管理
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/2 17:39
+    */
+    @Override
+    public PageResult<ExemptionApplyManageVo> findExemptionApply(PageCondition<ExemptionApplyCondition> condition) {
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<ExemptionApplyManageVo> exemptionApply = applyDao.findExemptionApply(condition.getCondition());
+        return new PageResult<>(exemptionApply);
     }
 
 }

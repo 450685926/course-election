@@ -282,9 +282,7 @@
         </selectKey>
         insert into exemption_rule_t
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                ID_,
-            </if>
+
             <if test="calendarId != null">
                 CALENDAR_ID_,
             </if>
@@ -338,9 +336,7 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
+
             <if test="calendarId != null">
                 #{calendarId,jdbcType=BIGINT},
             </if>
