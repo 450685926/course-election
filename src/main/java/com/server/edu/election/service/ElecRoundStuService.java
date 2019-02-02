@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.StudentInfo;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 
 /**
@@ -18,7 +18,7 @@ import com.server.edu.election.query.ElecRoundStuQuery;
  */
 public interface ElecRoundStuService
 {
-    PageResult<StudentInfo> listPage(PageCondition<ElecRoundStuQuery> condition);
+    PageResult<Student4Elc> listPage(PageCondition<ElecRoundStuQuery> condition);
     
     /**
      * 根据学号来添加

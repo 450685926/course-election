@@ -1,13 +1,14 @@
 package com.server.edu.election.query;
 
-import com.server.edu.common.rest.StudentInfo;
+import javax.validation.constraints.NotNull;
 
-public class ElecRoundStuQuery extends StudentInfo
+import com.server.edu.election.dto.Student4Elc;
+
+public class ElecRoundStuQuery extends Student4Elc
 {
-    private static final long serialVersionUID = 1L;
-    
+    @NotNull
     private Long roundId;
-
+    
     public Long getRoundId()
     {
         return roundId;
@@ -17,6 +18,5 @@ public class ElecRoundStuQuery extends StudentInfo
     {
         this.roundId = roundId;
     }
-    
     
 }

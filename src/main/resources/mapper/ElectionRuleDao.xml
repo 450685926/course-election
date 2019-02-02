@@ -13,8 +13,13 @@
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="STATUS_" jdbcType="INTEGER" property="status" />
   </resultMap>
+  <resultMap id="VoBaseResultMap" type="com.server.edu.election.vo.ElectionRuleVo" extends="BaseResultMap"></resultMap>
   
   <select id="selectByRoundId" resultMap="BaseResultMap">
   	select * from election_rule_t where id_ in(select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId})
+  </select>
+  
+  <select id="listAllByProjectId" resultMap="VoBaseResultMap">
+  	select * from election_rule_t where PROJECT_ID_ = #{projectId}
   </select>
 </mapper>
