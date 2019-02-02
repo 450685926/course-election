@@ -87,7 +87,7 @@ public class ElecRoundStuController
         String add = elecRoundStuService.add(roundId, studentCodes);
         if (StringUtils.isNotBlank(add))
         {
-            add = "学号" + add + "已经添加或错误";
+            add = "学号" + add + "已经添加或不存在";
         }
         return RestResult.success(add);
     }
