@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.TeachingClassDto;
 import com.server.edu.election.entity.ElectionRounds;
 
@@ -21,6 +22,24 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
      * @see [类、类#方法、类#成员]
      */
     Page<ElectionRounds> listPage(@Param("round") ElectionRounds round);
+    
+    /**
+     * 查询一个
+     * 
+     * @param roundId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    ElectionRoundsDto getOne(@Param("roundId") Long roundId);
+    
+    /**
+     * 查询所有关联的规则ID
+     * 
+     * @param roundId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<Long> listAllRefRuleId(@Param("roundId") Long roundId);
     
     /**
      * 保存轮次与规则关系

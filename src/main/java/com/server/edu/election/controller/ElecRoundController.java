@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,15 +46,17 @@ public class ElecRoundController
     public RestResult<PageResult<ElectionRounds>> page(
         @RequestBody PageCondition<ElectionRounds> condition)
     {
-        PageResult<ElectionRounds> page = electionRoundService.listPage(condition);
+        PageResult<ElectionRounds> page =
+            electionRoundService.listPage(condition);
         
         return RestResult.successData(page);
     }
     
     @ApiOperation(value = "根据ID查询轮次信息")
     @GetMapping("/{roundId}")
-    public RestResult<ElectionRoundsDto> get(Long roundId){
-        
+    public RestResult<ElectionRoundsDto> get(
+        @PathVariable("roundId") Long roundId)
+    {
         ElectionRoundsDto electionRoundsDto = electionRoundService.get(roundId);
         
         return RestResult.successData(electionRoundsDto);

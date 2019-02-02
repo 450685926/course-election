@@ -20,6 +20,8 @@
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
   
+  <resultMap id="DtoBaseResultMap" type="com.server.edu.election.dto.TeachingClassDto" extends="BaseResultMap"></resultMap>
+  
   <select id="listPage" resultMap="BaseResultMap">
   	select * from election_rounds_t 
   	<where>
@@ -32,6 +34,10 @@
   	</where>
   </select>
   
+  <select id="getOne" resultMap="DtoBaseResultMap">
+  	select * from election_rounds_t where ID_ = #{roundId}
+  </select>
+  
   <insert id="saveRoundRefRule">
   	insert into election_rounds_ref_rule_t(ROUNDS_ID_, RULE_ID_) values(#{roundId}, #{ruleId})
   </insert>
@@ -39,4 +45,8 @@
   <delete id="deleteAllRefRule">
   	delete from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
   </delete>
+  
+  <select id="listAllRefRuleId" resultType="long">
+  	select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
+  </select>
 </mapper>

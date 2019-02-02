@@ -52,8 +52,10 @@ public class ElecRoundServiceImpl implements ElecRoundService
     @Override
     public ElectionRoundsDto get(Long roundId)
     {
-        ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
-        return null;
+        ElectionRoundsDto round = roundsDao.getOne(roundId);
+        List<Long> ruleIds = roundsDao.listAllRefRuleId(roundId);
+        round.setRuleIds(ruleIds);
+        return round;
     }
     
     @Transactional
