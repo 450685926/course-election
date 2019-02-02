@@ -20,7 +20,7 @@
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
   
-  <resultMap id="DtoBaseResultMap" type="com.server.edu.election.dto.TeachingClassDto" extends="BaseResultMap"></resultMap>
+  <resultMap id="DtoBaseResultMap" type="com.server.edu.election.dto.ElectionRoundsDto" extends="BaseResultMap"></resultMap>
   
   <select id="listPage" resultMap="BaseResultMap">
   	select * from election_rounds_t 
