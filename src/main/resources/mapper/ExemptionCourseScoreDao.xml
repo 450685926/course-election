@@ -7,7 +7,7 @@
         <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentCode" />
         <result column="STUDENT_NAME_" jdbcType="VARCHAR" property="studentName" />
         <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
-        <result column="SCORE_" jdbcType="INTEGER" property="score" />
+        <result column="SCORE_" jdbcType="DOUBLE" property="score" />
     </resultMap>
     <sql id="Base_Column_List">
         ID_, CALENDAR_ID_, STUDENT_CODE_, STUDENT_NAME_, COURSE_CODE_, SCORE_
@@ -27,7 +27,7 @@
         STUDENT_NAME_, COURSE_CODE_, SCORE_
         )
         values (#{id,jdbcType=BIGINT}, #{calendarId,jdbcType=BIGINT}, #{studentCode,jdbcType=VARCHAR},
-        #{studentName,jdbcType=VARCHAR}, #{courseCode,jdbcType=VARCHAR}, #{score,jdbcType=INTEGER}
+        #{studentName,jdbcType=VARCHAR}, #{courseCode,jdbcType=VARCHAR}, #{score,jdbcType=DOUBLE}
         )
     </insert>
     <insert id="insertSelective" parameterType="com.server.edu.election.entity.ExemptionCourseScore">
@@ -69,7 +69,7 @@
                 #{courseCode,jdbcType=VARCHAR},
             </if>
             <if test="score != null">
-                #{score,jdbcType=INTEGER},
+                #{score,jdbcType=DOUBLE},
             </if>
         </trim>
     </insert>
@@ -89,7 +89,7 @@
                 COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR},
             </if>
             <if test="score != null">
-                SCORE_ = #{score,jdbcType=INTEGER},
+                SCORE_ = #{score,jdbcType=DOUBLE},
             </if>
         </set>
         where ID_ = #{id,jdbcType=BIGINT}
@@ -100,7 +100,7 @@
         STUDENT_CODE_ = #{studentCode,jdbcType=VARCHAR},
         STUDENT_NAME_ = #{studentName,jdbcType=VARCHAR},
         COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR},
-        SCORE_ = #{score,jdbcType=INTEGER}
+        SCORE_ = #{score,jdbcType=DOUBLE}
         where ID_ = #{id,jdbcType=BIGINT}
     </update>
 
@@ -147,5 +147,23 @@
                     and (st.STUDENT_CODE_ like concat('%',#{condition},'%') or st.NAME_ like concat('%',#{condition},'%') )
                 </if>
             </where>
+    </select>
+
+    <select id="findCourseScore" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_score_t
+        <where>
+            <if test="calendarId !=null">
+                and CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="list !=null and list.size() > 0 ">
+                and COURSE_CODE_ in
+                <foreach collection="list" item="code" open="("  separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        order by SCORE_ desc
     </select>
 </mapper>

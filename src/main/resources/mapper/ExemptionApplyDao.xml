@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ExemptionApplyDao">
+    <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ExemptionApplyManage">
+        <id column="ID_" jdbcType="BIGINT" property="id" />
+        <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+        <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
+        <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentCode" />
+        <result column="NAME_" jdbcType="VARCHAR" property="name" />
+        <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+        <result column="APPLY_TYPE_" jdbcType="INTEGER" property="applyType" />
+        <result column="SCORE_" jdbcType="VARCHAR" property="score" />
+        <result column="EXAMINE_RESULT_" jdbcType="INTEGER" property="examineResult" />
+        <result column="AUDITOR_" jdbcType="VARCHAR" property="auditor" />
+        <result column="EXEMPTION_TYPE_" jdbcType="VARCHAR" property="exemptionType" />
+        <result column="MATERIAL_IP_" jdbcType="VARCHAR" property="materialIp" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        ID_, COURSE_CODE_, COURSE_NAME_, STUDENT_CODE_, NAME_, CALENDAR_ID_, APPLY_TYPE_,
+        SCORE_, EXAMINE_RESULT_, AUDITOR_, EXEMPTION_TYPE_, MATERIAL_IP_
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from exemption_apply_manage_t
+        where ID_ = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from exemption_apply_manage_t
+        where ID_ = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.server.edu.election.entity.ExemptionApplyManage">
+        insert into exemption_apply_manage_t (ID_, COURSE_CODE_, COURSE_NAME_,
+        STUDENT_CODE_, NAME_, CALENDAR_ID_,
+        APPLY_TYPE_, SCORE_, EXAMINE_RESULT_,
+        AUDITOR_, EXEMPTION_TYPE_, MATERIAL_IP_
+        )
+        values (#{id,jdbcType=BIGINT}, #{courseCode,jdbcType=VARCHAR}, #{courseName,jdbcType=VARCHAR},
+        #{studentCode,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{calendarId,jdbcType=BIGINT},
+        #{applyType,jdbcType=INTEGER}, #{score,jdbcType=VARCHAR}, #{examineResult,jdbcType=INTEGER},
+        #{auditor,jdbcType=VARCHAR}, #{exemptionType,jdbcType=VARCHAR}, #{materialIp,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.server.edu.election.entity.ExemptionApplyManage">
+        insert into exemption_apply_manage_t
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                ID_,
+            </if>
+            <if test="courseCode != null">
+                COURSE_CODE_,
+            </if>
+            <if test="courseName != null">
+                COURSE_NAME_,
+            </if>
+            <if test="studentCode != null">
+                STUDENT_CODE_,
+            </if>
+            <if test="name != null">
+                NAME_,
+            </if>
+            <if test="calendarId != null">
+                CALENDAR_ID_,
+            </if>
+            <if test="applyType != null">
+                APPLY_TYPE_,
+            </if>
+            <if test="score != null">
+                SCORE_,
+            </if>
+            <if test="examineResult != null">
+                EXAMINE_RESULT_,
+            </if>
+            <if test="auditor != null">
+                AUDITOR_,
+            </if>
+            <if test="exemptionType != null">
+                EXEMPTION_TYPE_,
+            </if>
+            <if test="materialIp != null">
+                MATERIAL_IP_,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="courseCode != null">
+                #{courseCode,jdbcType=VARCHAR},
+            </if>
+            <if test="courseName != null">
+                #{courseName,jdbcType=VARCHAR},
+            </if>
+            <if test="studentCode != null">
+                #{studentCode,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="calendarId != null">
+                #{calendarId,jdbcType=BIGINT},
+            </if>
+            <if test="applyType != null">
+                #{applyType,jdbcType=INTEGER},
+            </if>
+            <if test="score != null">
+                #{score,jdbcType=VARCHAR},
+            </if>
+            <if test="examineResult != null">
+                #{examineResult,jdbcType=INTEGER},
+            </if>
+            <if test="auditor != null">
+                #{auditor,jdbcType=VARCHAR},
+            </if>
+            <if test="exemptionType != null">
+                #{exemptionType,jdbcType=VARCHAR},
+            </if>
+            <if test="materialIp != null">
+                #{materialIp,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.server.edu.election.entity.ExemptionApplyManage">
+        update exemption_apply_manage_t
+        <set>
+            <if test="courseCode != null">
+                COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR},
+            </if>
+            <if test="courseName != null">
+                COURSE_NAME_ = #{courseName,jdbcType=VARCHAR},
+            </if>
+            <if test="studentCode != null">
+                STUDENT_CODE_ = #{studentCode,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                NAME_ = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="calendarId != null">
+                CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT},
+            </if>
+            <if test="applyType != null">
+                APPLY_TYPE_ = #{applyType,jdbcType=INTEGER},
+            </if>
+            <if test="score != null">
+                SCORE_ = #{score,jdbcType=VARCHAR},
+            </if>
+            <if test="examineResult != null">
+                EXAMINE_RESULT_ = #{examineResult,jdbcType=INTEGER},
+            </if>
+            <if test="auditor != null">
+                AUDITOR_ = #{auditor,jdbcType=VARCHAR},
+            </if>
+            <if test="exemptionType != null">
+                EXEMPTION_TYPE_ = #{exemptionType,jdbcType=VARCHAR},
+            </if>
+            <if test="materialIp != null">
+                MATERIAL_IP_ = #{materialIp,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where ID_ = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.server.edu.election.entity.ExemptionApplyManage">
+        update exemption_apply_manage_t
+        set COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR},
+        COURSE_NAME_ = #{courseName,jdbcType=VARCHAR},
+        STUDENT_CODE_ = #{studentCode,jdbcType=VARCHAR},
+        NAME_ = #{name,jdbcType=VARCHAR},
+        CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT},
+        APPLY_TYPE_ = #{applyType,jdbcType=INTEGER},
+        SCORE_ = #{score,jdbcType=VARCHAR},
+        EXAMINE_RESULT_ = #{examineResult,jdbcType=INTEGER},
+        AUDITOR_ = #{auditor,jdbcType=VARCHAR},
+        EXEMPTION_TYPE_ = #{exemptionType,jdbcType=VARCHAR},
+        MATERIAL_IP_ = #{materialIp,jdbcType=VARCHAR}
+        where ID_ = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="findExemptionApply" parameterType="com.server.edu.election.dto.ExemptionApplyCondition" resultType="com.server.edu.election.vo.ExemptionApplyManageVo">
+
+    </select>
+</mapper>

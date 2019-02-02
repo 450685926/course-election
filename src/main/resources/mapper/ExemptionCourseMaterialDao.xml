@@ -98,4 +98,19 @@
             #{id}
         </foreach>
     </delete>
+
+    <insert id="addExemptionMaterial">
+        insert into exemption_material_extension_t ( EXEMPTION_RULE_ID_, EXEMPTION_TYPE_,
+        ENGLISH_, EXPLAIN_)
+        values
+        <foreach item="item" collection="list" index="index"
+                 separator=",">
+            (
+            #{item.exemptionRuleId,jdbcType=BIGINT},
+            #{item.exemptionType,jdbcType=VARCHAR},
+            #{item.english,jdbcType=VARCHAR},
+            #{item.explain,jdbcType=VARCHAR}
+           )
+        </foreach>
+</insert>
 </mapper>

@@ -36,7 +36,7 @@ public class ExemptionCourseRule implements Serializable{
 
     private Integer grade;
 
-    private Integer minimumPassScore;
+    private Double minimumPassScore;
 
     private Integer pencent;
 
@@ -126,11 +126,11 @@ public class ExemptionCourseRule implements Serializable{
         this.grade = grade;
     }
 
-    public Integer getMinimumPassScore() {
+    public Double getMinimumPassScore() {
         return minimumPassScore;
     }
 
-    public void setMinimumPassScore(Integer minimumPassScore) {
+    public void setMinimumPassScore(Double minimumPassScore) {
         this.minimumPassScore = minimumPassScore;
     }
 
