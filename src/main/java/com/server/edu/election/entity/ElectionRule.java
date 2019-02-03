@@ -56,6 +56,7 @@ public class ElectionRule implements Serializable {
     /**
      * 是否启用0否，1是
      */
+    @NotNull
     @Column(name = "STATUS_")
     private Integer status;
 

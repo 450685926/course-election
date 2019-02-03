@@ -13,6 +13,8 @@ public interface ElectionRuleDao extends Mapper<ElectionRule>
 {
     
     List<ElectionRule> selectByRoundId(@Param("roundId") Long roundId);
+
+    List<ElectionRule> selectTplOfRule(Long tplId);
     
     /**
      * 根据projectId查询所有规则

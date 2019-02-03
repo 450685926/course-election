@@ -24,24 +24,22 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
-@SwaggerDefinition(info = @Info(title = "选课规则参数", version = ""))
+@SwaggerDefinition(info = @Info(title = "选课规则", version = ""))
 @RestSchema(schemaId = "ElectionRuleController")
 @RequestMapping("electionRule")
 public class ElectionRuleController
 {
-    private static Logger LOG =
-        LoggerFactory.getLogger("ElectionRuleController");
-    
-    @Autowired
-    private ElectionRuleService service;
-    
-    /**
-    * 选课规则
-    * 
-    * @param condition
-    * @return
-    * @see [类、类#方法、类#成员]
-    */
+	private static Logger LOG =
+	        LoggerFactory.getLogger("ElectionRuleController");
+	@Autowired
+	private ElectionRuleService service;
+	 /**
+     * 选课规则
+     * 
+     * @param electionRuleDto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
     @ApiOperation(value = "选课规则")
     @PostMapping("/ruleList")
     public RestResult<List<ElectionRule>> ruleList(
@@ -53,23 +51,58 @@ public class ElectionRuleController
         return RestResult.successData(ruleList);
     }
     
-    /**
-    * 选课规则详情
-    * 
-    * @param condition
-    * @return
-    * @see [类、类#方法、类#成员]
-    */
+	 /**
+     * 选课规则详情
+     * 
+     * @param electionRuleDto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
     @ApiOperation(value = "选课规则详情")
     @PostMapping("/ruleDeatil")
     public RestResult<ElectionRuleVo> ruleDeatil(
         @Valid @RequestBody ElectionRuleDto electionRuleDto)
         throws Exception
     {
-        LOG.info("ruleList.start");
-        ElectionRuleVo ruleList = service.selectRuleDeatil(electionRuleDto);
+        LOG.info("ruleDeatil.start");
+        ElectionRuleVo ruleList =service.selectRuleDeatil(electionRuleDto);
         return RestResult.successData(ruleList);
     }
+    
+	 /**
+     * 修改规则
+     * 
+     * @param electionRuleDto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "修改规则")
+    @PostMapping("/updateRule")
+    public RestResult<Integer> updateRule(
+        @Valid @RequestBody ElectionRuleDto electionRuleDto)
+        throws Exception
+    {
+        LOG.info("updateStatus.start");
+        return service.updateRule(electionRuleDto);
+    }
+    
+	 /**
+     * 修改规则参数
+     * 
+     * @param electionRuleDto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "修改规则参数")
+    @PostMapping("/updateRuleParameter")
+    public RestResult<Integer> updateRuleParameter(
+        @Valid @RequestBody ElectionRuleDto electionRuleDto)
+        throws Exception
+    {
+        LOG.info("updateStatus.start");
+        return service.updateRuleParameter(electionRuleDto);
+    }
+    
     
     /**
      * 通过projectId查询规则

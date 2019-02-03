@@ -10,6 +10,7 @@
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
     <result column="VALUE_" jdbcType="VARCHAR" property="value" />
     <result column="TITLE_" jdbcType="VARCHAR" property="title" />
+    <result column="STATUS_" jdbcType="INTEGER" property="status" />
     <result column="RULE_ID_" jdbcType="BIGINT" property="ruleId" />
   </resultMap>
 </mapper>
