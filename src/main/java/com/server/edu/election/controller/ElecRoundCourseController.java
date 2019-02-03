@@ -85,7 +85,7 @@ public class ElecRoundCourseController
     }
     
     /**
-     * 条件添加可选课学生
+     * 添加全部
      *
      * @param round
      * @return
@@ -117,7 +117,7 @@ public class ElecRoundCourseController
     }
     
     /**
-     * 条件删除可选课学生
+     * 删除全部
      *
      * @param round
      * @return
