@@ -8,6 +8,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 @Table(name = "election_rounds_t")
 public class ElectionRounds implements Serializable {
@@ -22,24 +25,28 @@ public class ElectionRounds implements Serializable {
     /**
      * 校历ID（学年学期）
      */
+    @NotNull
     @Column(name = "CALENDAR_ID_")
     private Long calendarId;
 
     /**
      * 第几轮
      */
+    @NotNull
     @Column(name = "TURN_")
     private Integer turn;
 
     /**
      * 选课对象(STU学生，DEPART_ADMIN教务员，MANAGER_ADMIN管理员)
      */
+    @NotBlank
     @Column(name = "ELECTION_OBJ_")
     private String electionObj;
 
     /**
      * 选课模式(1正常,2实践课,3结业生,4留学结业生)
      */
+    @NotNull
     @Column(name = "MODE_")
     private Integer mode;
 
@@ -52,18 +59,21 @@ public class ElectionRounds implements Serializable {
     /**
      * 轮次名称
      */
+    @NotBlank
     @Column(name = "NAME_")
     private String name;
 
     /**
      * 是否开启(0否,1是)
      */
+    @NotNull
     @Column(name = "OPEN_FLAG_")
     private Integer openFlag;
 
     /**
      * 开始时间
      */
+    @NotNull
     @Column(name = "BEGIN_TIME_")
     private Date beginTime;
 
@@ -76,6 +86,7 @@ public class ElectionRounds implements Serializable {
     /**
      * 备注
      */
+    @NotBlank
     @Column(name = "REMARK_")
     private String remark;
 

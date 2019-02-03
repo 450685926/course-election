@@ -6,6 +6,7 @@ import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRule;
 
 public class ElectionRuleVo extends ElectionRule{
+	private static final long serialVersionUID = 1L;
 	private List<ElectionParameter>  list;
 	//0:未选中，1选中
 	private Integer checkIndex;
@@ -34,6 +35,4 @@ public class ElectionRuleVo extends ElectionRule{
 		this.checkIndex = checkIndex;
 	}
 	
-	
-
 }

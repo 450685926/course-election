@@ -17,7 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
-import com.server.edu.election.dao.ElectionRoundsDao;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dto.TeachingClassDto;
 import com.server.edu.election.entity.ElectionRounds;
 
@@ -39,7 +39,7 @@ public class RoundLessonDataProvider
     private RedisTemplate<String, String> redisTemplate;
     
     @Autowired
-    private ElectionRoundsDao roundsDao;
+    private ElecRoundsDao roundsDao;
     
     static final String KEY = "elect";
     

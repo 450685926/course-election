@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -18,6 +19,7 @@ import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.service.ElectionRuleService;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -95,5 +97,29 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		result = electionParameterDao.batchUpdateStatus(list);
 		return RestResult.success();
 	}
-	
+    
+    
+    @Override
+    public List<ElectionRuleVo> listAll(String projectId)
+    {
+        List<ElectionRuleVo> rules =
+            electionRuleDao.listAllByProjectId(projectId);
+        
+        List<ElectionParameter> parameters = electionParameterDao.selectAll();
+        for (ElectionRuleVo rule : rules)
+        {
+            if (CollectionUtil.isNotEmpty(parameters))
+            {
+                List<ElectionParameter> params = parameters.stream()
+                    .filter(param -> param.getRuleId().equals(rule.getId()))
+                    .collect(Collectors.toList());
+                if (CollectionUtil.isNotEmpty(params))
+                {
+                    rule.setList(params);
+                }
+            }
+        }
+        return rules;
+    }
+    
 }

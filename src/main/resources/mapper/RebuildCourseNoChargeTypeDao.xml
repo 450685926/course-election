@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.RebuildCourseNoChargeTypeDao">
+    <resultMap id="BaseResultMap" type="com.server.edu.election.entity.RebuildCourseNoChargeType">
+        <id column="ID_" jdbcType="BIGINT" property="id" />
+        <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+        <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+        <result column="SPCIAL_PLAN_" jdbcType="VARCHAR" property="spcialPlan" />
+        <result column="REGISTRATION_STATUS_" jdbcType="VARCHAR" property="registrationStatus" />
+        <result column="CERTIFICATE_TYPE_" jdbcType="INTEGER" property="certificateType" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        ID_, TRAINING_LEVEL_, FORM_LEARNING_, SPCIAL_PLAN_, REGISTRATION_STATUS_, CERTIFICATE_TYPE_
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from rebuild_course_nocharge_type_t
+        where ID_ = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from rebuild_course_nocharge_type_t
+        where ID_ = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType">
+        insert into rebuild_course_nocharge_type_t (ID_, TRAINING_LEVEL_, FORM_LEARNING_,
+        SPCIAL_PLAN_, REGISTRATION_STATUS_, CERTIFICATE_TYPE_
+        )
+        values (#{id,jdbcType=BIGINT}, #{trainingLevel,jdbcType=VARCHAR}, #{formLearning,jdbcType=VARCHAR},
+        #{spcialPlan,jdbcType=VARCHAR}, #{registrationStatus,jdbcType=VARCHAR}, #{certificateType,jdbcType=INTEGER}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType">
+        insert into rebuild_course_nocharge_type_t
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="trainingLevel != null">
+                TRAINING_LEVEL_,
+            </if>
+            <if test="formLearning != null">
+                FORM_LEARNING_,
+            </if>
+            <if test="spcialPlan != null">
+                SPCIAL_PLAN_,
+            </if>
+            <if test="registrationStatus != null">
+                REGISTRATION_STATUS_,
+            </if>
+            <if test="certificateType != null">
+                CERTIFICATE_TYPE_,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+            <if test="trainingLevel != null">
+                #{trainingLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="formLearning != null">
+                #{formLearning,jdbcType=VARCHAR},
+            </if>
+            <if test="spcialPlan != null">
+                #{spcialPlan,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationStatus != null">
+                #{registrationStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="certificateType != null">
+                #{certificateType,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType">
+        update rebuild_course_nocharge_type_t
+        <set>
+            <if test="trainingLevel != null">
+                TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="formLearning != null">
+                FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR},
+            </if>
+            <if test="spcialPlan != null">
+                SPCIAL_PLAN_ = #{spcialPlan,jdbcType=VARCHAR},
+            </if>
+            <if test="registrationStatus != null">
+                REGISTRATION_STATUS_ = #{registrationStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="certificateType != null">
+                CERTIFICATE_TYPE_ = #{certificateType,jdbcType=INTEGER},
+            </if>
+        </set>
+        where ID_ = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType">
+        update rebuild_course_nocharge_type_t
+        set TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR},
+        FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR},
+        SPCIAL_PLAN_ = #{spcialPlan,jdbcType=VARCHAR},
+        REGISTRATION_STATUS_ = #{registrationStatus,jdbcType=VARCHAR},
+        CERTIFICATE_TYPE_ = #{certificateType,jdbcType=INTEGER}
+        where ID_ = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="findCourseNoChargeType" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from rebuild_course_nocharge_type_t
+        <where>
+            <if test="trainingLevel !=null and trainingLevel !='' ">
+                and TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
+            </if>
+            <if test="formLearning !=null and formLearning!='' ">
+                and FORM_LEARNING_ =#{formLearning,jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by ID_ DESC
+    </select>
+
+    <delete id="deleteRebuildCourseNoChargeType" parameterType="java.util.List">
+        delete from rebuild_course_nocharge_type_t
+        where ID_ in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

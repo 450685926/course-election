@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.dao.ElectionRoundsDao;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.LessonDto;
@@ -24,10 +24,10 @@ import com.server.edu.election.service.rule.defaults.BKCoursePlanPrepare;
 import com.server.edu.election.service.rule.defaults.CourseGradePrepare;
 import com.server.edu.util.CollectionUtil;
 
-public class ElectionServiceImpl implements ElectionService
+public class ElecServiceImpl implements ElectionService
 {
     @Autowired
-    private ElectionRoundsDao roundsDao;
+    private ElecRoundsDao roundsDao;
     
     @Autowired
     private ElectionRuleDao ruleDao;

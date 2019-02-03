@@ -137,12 +137,12 @@ public class ElectionTplController {
      */
     @ApiOperation(value = " 删除选课方案模板")
     @GetMapping("/delete")
-    public RestResult<ElectionTplVo> delete(
+    public RestResult<Integer> delete(
         @RequestParam("ids") List<Long> ids)
         throws Exception
     {
         LOG.info("getTpl.start");
-        ElectionTplVo electionTplVo =electionTplService.delete(ids);
-        return RestResult.successData(electionTplVo);
+        int result  =electionTplService.delete(ids);
+        return RestResult.successData(result);
     }
 }

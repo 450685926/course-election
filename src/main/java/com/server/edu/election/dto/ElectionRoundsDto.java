@@ -3,22 +3,21 @@ package com.server.edu.election.dto;
 import java.util.List;
 
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.ElectionRule;
 
 public class ElectionRoundsDto extends ElectionRounds
 {
     private static final long serialVersionUID = 1L;
     
-    private List<ElectionRule> electionRules;
-
-    public List<ElectionRule> getElectionRules()
+    private List<Long> ruleIds;
+    
+    public List<Long> getRuleIds()
     {
-        return electionRules;
+        return ruleIds;
     }
-
-    public void setElectionRules(List<ElectionRule> electionRules)
+    
+    public void setRuleIds(List<Long> ruleIds)
     {
-        this.electionRules = electionRules;
+        this.ruleIds = ruleIds;
     }
     
 }

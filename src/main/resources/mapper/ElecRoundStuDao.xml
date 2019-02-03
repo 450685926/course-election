@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ElecRoundStuDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.dto.Student4Elc">
+    <result column="STUDENT_CODE_" jdbcType="BIGINT" property="studentId" />
+    <result column="NAME_" jdbcType="INTEGER" property="name" />
+    <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+    <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+    <result column="IS_OVERSEAS_" jdbcType="VARCHAR" property="isOverseas" />
+    <result column="GRADE_" jdbcType="INTEGER" property="grade" />
+  </resultMap>
+  
+  <select id="listPage" resultMap="BaseResultMap">
+  	select t1.* from student_t t1 
+  	join election_rounds_stu_t t2 ON t1.STUDENT_CODE_ = t2.STUDENT_ID_ AND t2.ROUNDS_ID_ = #{roundId}
+  	<where>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.studentId)">
+  		t1.STUDENT_CODE_ = #{stu.studentId}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.name)">
+  		and t1.NAME_ = #{stu.name}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.faculty)">
+  		and t1.FACULTY_ = #{stu.faculty}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.profession)">
+  		and t1.PROFESSION_ = #{stu.profession}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.isOverseas)">
+  		and t1.IS_OVERSEAS_ = #{stu.isOverseas}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.grade)">
+  		and t1.GRADE_ = #{stu.grade}
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="listNotExistStudent" resultMap="BaseResultMap">
+  	select t1.* from student_t t1 
+  	<where>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.studentId)">
+  		t1.STUDENT_CODE_ = #{stu.studentId}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.name)">
+  		and t1.NAME_ = #{stu.name}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.faculty)">
+  		and t1.FACULTY_ = #{stu.faculty}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.profession)">
+  		and t1.PROFESSION_ = #{stu.profession}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.isOverseas)">
+  		and t1.IS_OVERSEAS_ = #{stu.isOverseas}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.grade)">
+  		and t1.GRADE_ = #{stu.grade}
+  		</if>
+  		and t1.STUDENT_CODE_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
+  	</where>
+  </select>
+  
+  <select id="listExistStu" resultType="string">
+  	select STUDENT_CODE_ from student_t where STUDENT_CODE_ IN
+  	<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">  
+       #{id}  
+    </foreach>
+  </select>
+  <select id="listAddedStu" resultType="string">
+  	select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{roundId} and STUDENT_ID_ IN
+  	<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">  
+       #{id}  
+    </foreach>
+  </select>
+  
+  <insert id="add">
+  	insert into election_rounds_stu_t(ROUNDS_ID_, STUDENT_ID_) values(#{roundId}, #{studentId})
+  </insert>
+  
+  <delete id="delete">
+  	delete from election_rounds_stu_t where ROUNDS_ID_ = #{roundId} and STUDENT_ID_ IN
+  	<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">  
+       #{id}  
+    </foreach>
+  </delete>
+  
+  <delete id="deleteByRoundId">
+    delete from election_rounds_stu_t where ROUNDS_ID_ = #{roundId}
+  </delete>
+</mapper>

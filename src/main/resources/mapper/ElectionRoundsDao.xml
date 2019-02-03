@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.server.edu.election.dao.ElectionRoundsDao">
+<mapper namespace="com.server.edu.election.dao.ElecRoundsDao">
   <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElectionRounds">
     <!--
       WARNING - @mbg.generated
@@ -19,4 +19,34 @@
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
+  
+  <resultMap id="DtoBaseResultMap" type="com.server.edu.election.dto.ElectionRoundsDto" extends="BaseResultMap"></resultMap>
+  
+  <select id="listPage" resultMap="BaseResultMap">
+  	select * from election_rounds_t 
+  	<where>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.electionObj)">
+  		ELECTION_OBJ_ = #{round.electionObj}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.mode)">
+  		and MODE_ = #{round.mode}
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="getOne" resultMap="DtoBaseResultMap">
+  	select * from election_rounds_t where ID_ = #{roundId}
+  </select>
+  
+  <insert id="saveRoundRefRule">
+  	insert into election_rounds_ref_rule_t(ROUNDS_ID_, RULE_ID_) values(#{roundId}, #{ruleId})
+  </insert>
+  
+  <delete id="deleteAllRefRule">
+  	delete from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
+  </delete>
+  
+  <select id="listAllRefRuleId" resultType="long">
+  	select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
+  </select>
 </mapper>

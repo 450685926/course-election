@@ -8,14 +8,15 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElectionRuleDto;
-import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRule;
-import com.server.edu.election.service.ElectionParameterService;
 import com.server.edu.election.service.ElectionRuleService;
 import com.server.edu.election.vo.ElectionRuleVo;
 
@@ -23,8 +24,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
-@SwaggerDefinition(info = @Info(title = "选课规则参数", version = ""))
-@RestSchema(schemaId="ElectionRuleController")
+@SwaggerDefinition(info = @Info(title = "选课规则", version = ""))
+@RestSchema(schemaId = "ElectionRuleController")
 @RequestMapping("electionRule")
 public class ElectionRuleController
 {
@@ -32,8 +33,6 @@ public class ElectionRuleController
 	        LoggerFactory.getLogger("ElectionRuleController");
 	@Autowired
 	private ElectionRuleService service;
-	@Autowired
-	private ElectionParameterService electionParameterService;
 	 /**
      * 选课规则
      * 
@@ -48,7 +47,7 @@ public class ElectionRuleController
         throws Exception
     {
         LOG.info("ruleList.start");
-        List<ElectionRule> ruleList =service.list(electionRuleDto);
+        List<ElectionRule> ruleList = service.list(electionRuleDto);
         return RestResult.successData(ruleList);
     }
     
@@ -104,22 +103,21 @@ public class ElectionRuleController
         return service.updateRuleParameter(electionRuleDto);
     }
     
-	 /**
-     * 修改参数状态
+    
+    /**
+     * 通过projectId查询规则
      * 
-     * @param electionRuleDto
+     * @param projectId
      * @return
      * @see [类、类#方法、类#成员]
      */
-    @ApiOperation(value = "修改参数状态")
-    @PostMapping("/updateParameter")
-    public RestResult<Integer> updateParameter(
-        @Valid @RequestBody ElectionParameter electionParameter)
-        throws Exception
+    @GetMapping("/byProject/{projectId}")
+    public RestResult<List<ElectionRuleVo>> getAllList(
+        @PathVariable("projectId") String projectId)
     {
-        LOG.info("updateStatus.start");
-        int result =electionParameterService.updateParameter(electionParameter);
-        return RestResult.successData(result);
+        List<ElectionRuleVo> listAll = service.listAll(projectId);
+        
+        return RestResult.successData(listAll);
     }
     
 }
