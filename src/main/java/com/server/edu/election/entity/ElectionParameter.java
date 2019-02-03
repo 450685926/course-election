@@ -2,10 +2,12 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Table(name = "election_parameter_t")
 public class ElectionParameter implements Serializable {
     @Id
+    @NotNull
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,6 +35,13 @@ public class ElectionParameter implements Serializable {
      */
     @Column(name = "TITLE_")
     private String title;
+
+    /**
+     * 是否启用0否，1是
+     */
+    @NotNull
+    @Column(name = "STATUS_")
+    private Integer status;
 
     /**
      * 选课规则ID
@@ -129,6 +138,24 @@ public class ElectionParameter implements Serializable {
     }
 
     /**
+     * 获取是否启用0否，1是
+     *
+     * @return STATUS_ - 是否启用0否，1是
+     */
+    public Integer getStatus() {
+        return status;
+    }
+
+    /**
+     * 设置是否启用0否，1是
+     *
+     * @param status 是否启用0否，1是
+     */
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    /**
      * 获取选课规则ID
      *
      * @return RULE_ID_ - 选课规则ID
@@ -157,6 +184,7 @@ public class ElectionParameter implements Serializable {
         sb.append(", name=").append(name);
         sb.append(", value=").append(value);
         sb.append(", title=").append(title);
+        sb.append(", status=").append(status);
         sb.append(", ruleId=").append(ruleId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
