@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ElecRoundCourseDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.CourseOpen">
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+    <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
+    <result column="COURSE_NAME_EN_" jdbcType="VARCHAR" property="courseNameEn" />
+    <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective" />
+    <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+    <result column="TERM_" jdbcType="VARCHAR" property="term" />
+    <result column="CROSS_TERM_" jdbcType="INTEGER" property="crossTerm" />
+    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+    <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+    <result column="NATURE_" jdbcType="INTEGER" property="nature" />
+    <result column="PERIOD_" jdbcType="DOUBLE" property="period" />
+    <result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+    <result column="NUMBER_" jdbcType="INTEGER" property="number" />
+    <result column="IS_OPEN_" jdbcType="INTEGER" property="isOpen" />
+    <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  
+  <resultMap type="com.server.edu.election.dto.CourseOpenDto" id="CourseOpenDtoMap" extends="BaseResultMap"></resultMap>
+  
+  <select id="listPage" resultMap="CourseOpenDtoMap">
+  	select t1.* from course_open_t t1 
+  	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
+  	where t1.CALENDAR_ID_ = #{query.calendarId} and t2.ROUNDS_ID_ = #{query.roundId}
+  </select>
+  
+  <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
+  	select t1.* from course_open_t t1 
+  	where t1.CALENDAR_ID_ = #{query.calendarId}
+  	and t1.COURSE_CODE_ NOT IN (
+  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
+  	)
+  </select>
+  
+  <select id="listAddedCourse" resultType="string">
+  	select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{roundId} and COURSE_CODE_ IN
+  	<foreach item="id" collection="courseCodes"  index="index" open="(" separator="," close=")">  
+       #{id}  
+    </foreach>
+  </select>
+  
+  <insert id="add">
+  	insert into election_rounds_cour_t(ROUNDS_ID_, COURSE_CODE_) values(#{roundId}, #{courseCode})
+  </insert>
+  
+  <delete id="delete">
+  	delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId} and COURSE_CODE_ IN
+  	<foreach item="id" collection="courseCodes"  index="index" open="(" separator="," close=")">  
+       #{id}  
+    </foreach>
+  </delete>
+  
+  <delete id="deleteByRoundId">
+    delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId}
+  </delete>
+</mapper>
