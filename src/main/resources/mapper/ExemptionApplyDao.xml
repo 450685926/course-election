@@ -44,9 +44,7 @@
     <insert id="insertSelective" parameterType="com.server.edu.election.entity.ExemptionApplyManage">
         insert into exemption_apply_manage_t
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                ID_,
-            </if>
+
             <if test="courseCode != null">
                 COURSE_CODE_,
             </if>
@@ -82,9 +80,7 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
+
             <if test="courseCode != null">
                 #{courseCode,jdbcType=VARCHAR},
             </if>
@@ -176,6 +172,50 @@
     </update>
 
     <select id="findExemptionApply" parameterType="com.server.edu.election.dto.ExemptionApplyCondition" resultType="com.server.edu.election.vo.ExemptionApplyManageVo">
-
+      SELECT ex.COURSE_CODE_ courseCode,c.NAME_ courseName,ex.STUDENT_CODE_ studentCode,ex.NAME_ name,ex.EXAMINE_RESULT_ examineResult,
+        ex.AUDITOR_ auditor,s.FACULTY_ faculty,s.PROFESSION_ profession
+        FROM `exemption_apply_manage_t` ex
+      LEFT JOIN student_t s on s.STUDENT_CODE_=ex.STUDENT_CODE_
+        left JOIN course_t c on c.CODE_=ex.COURSE_CODE_
+      <where>
+          <if test="calendarId !=null">
+              and ex.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+          </if>
+          <if test="grade !=null">
+            and s.GRADE_ =#{grade,jdbcType=INTEGER}
+          </if>
+          <if test="trainingLevel!=null and trainingLevel !='' ">
+              and s.FORM_LEARNING_ =#{trainingLevel,jdbcType=VARCHAR}
+          </if>
+          <if test="trainingCategory!=null and trainingCategory !='' ">
+              and s.TRAINING_CATEGORY_ =#{trainingCategory,jdbcType=VARCHAR}
+          </if>
+          <if test="faculty!=null and faculty !='' ">
+              and s.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+          </if>
+          <if test="profession!=null and profession !='' ">
+              and s.PROFESSION_ =#{profession,jdbcType=VARCHAR}
+          </if>
+          <if test="formLearning!=null and formLearning !='' ">
+              and s.FORM_LEARNING_ =#{formLearning,jdbcType=VARCHAR}
+          </if>
+          <if test="degreeCategory!=null and degreeCategory !='' ">
+              and s.DEGREE_CATEGORY_ =#{degreeCategory,jdbcType=VARCHAR}
+          </if>
+          <if test="campus!=null and campus !='' ">
+              and s.CAMPUS_ =#{campus,jdbcType=VARCHAR}
+          </if>
+          <if test="examineResult!=null and examineResult !='' ">
+              and ex.EXAMINE_RESULT_ =#{examineResult,jdbcType=VARCHAR}
+          </if>
+          <if test="courseCode!=null and courseCode !='' ">
+              and ex.COURSE_CODE_ like CONCAT('%', #{courseCode,jdbcType=VARCHAR}, '%')
+          </if>
+          <if test="studentCode!=null and studentCode !='' ">
+              and ex.STUDENT_CODE_ =#{studentCode,jdbcType=VARCHAR}
+          </if>
+      </where>
+        order by ex.ID_ desc
     </select>
+
 </mapper>

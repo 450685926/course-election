@@ -2,14 +2,13 @@ package com.server.edu.election.service;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
+import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseRule;
-import com.server.edu.election.vo.ExemptionApplyManageVo;
-import com.server.edu.election.vo.ExemptionCourseRuleVo;
-import com.server.edu.election.vo.ExemptionCourseScoreVo;
-import com.server.edu.election.vo.ExemptionCourseVo;
+import com.server.edu.election.vo.*;
 
 import java.util.List;
 
@@ -30,5 +29,9 @@ public interface ExemptionCourseService {
     String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo,Integer applyType);
 
     PageResult<ExemptionApplyManageVo> findExemptionApply(PageCondition<ExemptionApplyCondition> condition);
+
+    String addExemptionApply(ExemptionApplyManage applyManage);
+
+    RestResult<ExemptionCourseMaterialVo> addExemptionApplyConditionLimit(ExemptionApplyManage applyManage);
 }
 

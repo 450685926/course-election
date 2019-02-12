@@ -391,5 +391,29 @@
         </trim>
     </insert>
 
-
+    <select id="findScoreOrMaterial" resultType="com.server.edu.election.vo.ExemptionCourseRuleVo">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_rule_t
+        <where>
+            <if test="calendarId !=null">
+                and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="courseCode !=null and courseCode !='' ">
+                and COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+            </if>
+            <if test="student.grade !=null">
+                and GRADE_ =#{student.grade,jdbcType=INTEGER}
+            </if>
+            <if test="student.trainingLevel != null and student.trainingLevel !='' ">
+                and TRAINING_LEVEL_ =#{student.trainingLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="student.trainingCategory != null and student.trainingCategory !='' ">
+                and TRAINING_CATEGORY_ =#{student.trainingCategory,jdbcType=VARCHAR},
+            </if>
+            <if test="applyType !=null">
+                and APPLY_TYPE_ =#{applyType,jdbcType=INTEGER}
+            </if>
+        </where>
+    </select>
 </mapper>

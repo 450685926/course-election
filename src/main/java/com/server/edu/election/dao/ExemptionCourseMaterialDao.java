@@ -25,4 +25,6 @@ public interface ExemptionCourseMaterialDao {
     void deleteExemptionCourseMaterial(List<Long> list);
 
     void addExemptionMaterial(List<ExemptionCourseMaterial> list);
+
+    List<ExemptionCourseMaterial> findMaterialById(Long id);
 }

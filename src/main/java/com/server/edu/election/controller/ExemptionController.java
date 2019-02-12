@@ -8,13 +8,11 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
+import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.service.ExemptionCourseService;
-import com.server.edu.election.vo.ExemptionApplyManageVo;
-import com.server.edu.election.vo.ExemptionCourseRuleVo;
-import com.server.edu.election.vo.ExemptionCourseScoreVo;
-import com.server.edu.election.vo.ExemptionCourseVo;
+import com.server.edu.election.vo.*;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
@@ -125,4 +123,21 @@ public class ExemptionController {
         PageResult<ExemptionApplyManageVo> exemptionApply = exemptionCourseService.findExemptionApply(condition);
         return RestResult.successData(exemptionApply);
     }
+
+    @LogRecord(title="新增免修免考申请",type = AuditType.INSERT)
+    @ApiOperation(value = "新增免修免考申请管理")
+    @PostMapping("/addExemptionApply")
+    public RestResult<String> addExemptionApply(@RequestBody ExemptionApplyManage applyManage){
+        String s = exemptionCourseService.addExemptionApply(applyManage);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+
+
+    @ApiOperation(value = "新增免修免考申请条件限制")
+    @PostMapping("/addExemptionApplyConditionLimit")
+    public RestResult<ExemptionCourseMaterialVo> addExemptionApplyConditionLimit(@RequestBody ExemptionApplyManage applyManage){
+    return exemptionCourseService.addExemptionApplyConditionLimit(applyManage);
+    }
+
 }
