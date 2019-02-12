@@ -15,7 +15,13 @@ public class ElecRoundCourseQuery
     
     private String courseName;
     
+    /** 学院 */
     private String faculty;
+    
+    /**培养层次*/
+    private String trainingLevel;
+    /**课程性质*/
+    private String nature;
     
     public Long getRoundId()
     {
@@ -65,6 +71,26 @@ public class ElecRoundCourseQuery
     public void setFaculty(String faculty)
     {
         this.faculty = faculty;
+    }
+
+    public String getTrainingLevel()
+    {
+        return trainingLevel;
+    }
+
+    public void setTrainingLevel(String trainingLevel)
+    {
+        this.trainingLevel = trainingLevel;
+    }
+
+    public String getNature()
+    {
+        return nature;
+    }
+
+    public void setNature(String nature)
+    {
+        this.nature = nature;
     }
     
 }

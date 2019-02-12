@@ -28,15 +28,37 @@
   <select id="listPage" resultMap="CourseOpenDtoMap">
   	select t1.* from course_open_t t1 
   	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
-  	where t1.CALENDAR_ID_ = #{query.calendarId} and t2.ROUNDS_ID_ = #{query.roundId}
+  	<where>
+	  	t1.CALENDAR_ID_ = #{query.calendarId} and t2.ROUNDS_ID_ = #{query.roundId}
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+  		and t1.FACULTY_ = #{query.faculty}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+  		and t1.TRAINING_LEVEL_ = #{stu.trainingLevel}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+  		and t1.NATURE_ = #{query.nature}
+  		</if>
+  	</where> 
   </select>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
   	select t1.* from course_open_t t1 
-  	where t1.CALENDAR_ID_ = #{query.calendarId}
-  	and t1.COURSE_CODE_ NOT IN (
-  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
-  	)
+  	<where>
+	  	t1.CALENDAR_ID_ = #{query.calendarId}
+	  	and t1.COURSE_CODE_ NOT IN (
+	  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
+	  	)
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+  		and t1.FACULTY_ = #{query.faculty}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+  		and t1.TRAINING_LEVEL_ = #{stu.trainingLevel}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+  		and t1.NATURE_ = #{query.nature}
+  		</if>
+  	</where> 
   </select>
   
   <select id="listAddedCourse" resultType="string">
