@@ -34,7 +34,7 @@
   		and t1.FACULTY_ = #{query.faculty}
   		</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
-  		and t1.TRAINING_LEVEL_ = #{stu.trainingLevel}
+  		and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
   		</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
   		and t1.NATURE_ = #{query.nature}
@@ -53,7 +53,7 @@
   		and t1.FACULTY_ = #{query.faculty}
   		</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
-  		and t1.TRAINING_LEVEL_ = #{stu.trainingLevel}
+  		and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
   		</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
   		and t1.NATURE_ = #{query.nature}
