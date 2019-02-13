@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.ElectionRuleDto;
@@ -18,6 +19,7 @@ import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.service.ElectionRuleService;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -126,6 +128,18 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
             }
         }
         return rules;
+    }
+    
+    @Override
+	public int batchUpdate(ElectionRuleDto electionRuleDto) {
+    	if(CollectionUtil.isEmpty(electionRuleDto.getRuleIds())||electionRuleDto.getStatus()==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+    	}
+    	int result = electionRuleDao.batchUpdate(electionRuleDto);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.rule")));
+		}
+		return result;
     }
     
 }

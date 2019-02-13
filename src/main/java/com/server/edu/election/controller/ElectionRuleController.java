@@ -105,6 +105,25 @@ public class ElectionRuleController
         return service.updateRuleParameter(electionRuleDto);
     }
     
+    /**
+     * 批量停用/启用选课规则
+     * 
+     * @param dto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = " 批量停用/启用选课规则")
+    @PostMapping("/batchUpdate")
+    public RestResult<Integer> batchUpdate(
+        @RequestBody  ElectionRuleDto dto)
+        throws Exception
+    {
+        LOG.info("update.start");
+        int result =service.batchUpdate(dto);
+        return RestResult.successData(result);
+    
+    }
+    
     
     /**
      * 通过projectId查询规则
