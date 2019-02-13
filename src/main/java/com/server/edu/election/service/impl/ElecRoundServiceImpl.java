@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +16,10 @@ import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.ElecRoundService;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 选课轮次管理
@@ -63,6 +65,16 @@ public class ElecRoundServiceImpl implements ElecRoundService
     @Override
     public void add(ElectionRoundsDto dto)
     {
+        Example example = new Example(ElectionRounds.class);
+        example.createCriteria()
+            .andEqualTo("calendarId", dto.getCalendarId())
+            .andEqualTo("turn", dto.getTurn())
+            .andEqualTo("mode", dto.getMode());
+        int count = roundsDao.selectCountByExample(example);
+        if (count > 0)
+        {
+            throw new ParameterValidateException("当前学期轮次重复");
+        }
         Date date = new Date();
         dto.setCreatedAt(date);
         dto.setUpdatedAt(date);
@@ -81,6 +93,17 @@ public class ElecRoundServiceImpl implements ElecRoundService
     @Override
     public void update(ElectionRoundsDto dto)
     {
+        Example example = new Example(ElectionRounds.class);
+        example.createCriteria()
+            .andEqualTo("calendarId", dto.getCalendarId())
+            .andEqualTo("turn", dto.getTurn())
+            .andEqualTo("mode", dto.getMode())
+            .andNotEqualTo("id", dto.getId());
+        int count = roundsDao.selectCountByExample(example);
+        if (count > 0)
+        {
+            throw new ParameterValidateException("当前学期轮次重复");
+        }
         Date date = new Date();
         dto.setUpdatedAt(date);
         roundsDao.updateByPrimaryKeySelective(dto);

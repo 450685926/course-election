@@ -22,4 +22,15 @@
     <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
     <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
   </resultMap>
+    <sql id="Base_Column_List">
+        ID_, STUDENT_CODE_, NAME_, SEX_, FORM_LEARNING_, IS_OVERSEAS_, TRAINING_LEVEL_, FACULTY_,
+        PROFESSION_, GRADE_, SPCIAL_PLAN_, REGISTRATION_STATUS_, ENROL_SEASON_, CAMPUS_,
+        TRAINING_CATEGORY_, DEGREE_CATEGORY_
+    </sql>
+    <select id="findStudentByCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from student_t
+        where STUDENT_CODE_=#{studentCode,jdbcType=VARCHAR}
+    </select>
 </mapper>
