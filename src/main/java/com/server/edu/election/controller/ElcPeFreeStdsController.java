@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
@@ -79,7 +78,7 @@ public class ElcPeFreeStdsController {
     @ApiOperation(value = "添加体院课不限选名单")
     @PostMapping("/add")
     public RestResult<Integer> add(
-    		@RequestParam("studentIds") @NotEmpty List<String> studentIds)
+    		@RequestBody @NotEmpty List<String> studentIds)
         throws Exception
     {
         LOG.info("add.start");
@@ -97,7 +96,7 @@ public class ElcPeFreeStdsController {
     @ApiOperation(value = "删除体院课不限选名单")
     @PostMapping("/delete")
     public RestResult<Integer> delete(
-    		@RequestParam("ids") @NotEmpty List<Long> ids)
+    		@RequestBody @NotEmpty List<Long> ids)
         throws Exception
     {
         LOG.info("delete.start");

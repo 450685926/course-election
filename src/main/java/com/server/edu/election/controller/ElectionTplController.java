@@ -135,9 +135,9 @@ public class ElectionTplController {
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = " 删除选课方案模板")
-    @GetMapping("/delete")
+    @PostMapping("/delete")
     public RestResult<Integer> delete(
-        @RequestParam("ids") @NotEmpty List<Long> ids)
+    		@RequestBody @NotEmpty List<Long> ids)
         throws Exception
     {
         LOG.info("getTpl.start");
