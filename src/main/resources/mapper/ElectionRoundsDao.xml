@@ -25,11 +25,11 @@
   <select id="listPage" resultMap="BaseResultMap">
   	select * from election_rounds_t 
   	<where>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.electionObj)">
-  		ELECTION_OBJ_ = #{round.electionObj}
-  		</if>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.mode)">
+  		PROJECT_ID_ = #{round.projectId}
+  		and CALENDAR_ID_ = #{round.calendarId}
   		and MODE_ = #{round.mode}
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.electionObj)">
+  		and ELECTION_OBJ_ = #{round.electionObj}
   		</if>
   	</where>
   </select>

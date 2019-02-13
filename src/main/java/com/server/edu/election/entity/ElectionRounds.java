@@ -53,6 +53,7 @@ public class ElectionRounds implements Serializable {
     /**
      * PROJECT_ID
      */
+    @NotNull
     @Column(name = "PROJECT_ID_")
     private Integer projectId;
 
