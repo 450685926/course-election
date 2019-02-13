@@ -105,6 +105,18 @@ public class Student implements Serializable {
     @Column(name = "DEGREE_CATEGORY_")
     private String degreeCategory;
 
+    /**
+     * 研究方向
+     */
+    @Column(name = "RESEARCH_DIRECTION_")
+    private String researchDirection;
+
+    /**
+     * 学生类别
+     */
+    @Column(name = "STUDENT_CATEGORY_")
+    private String studentCategory;
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -455,6 +467,22 @@ public class Student implements Serializable {
      */
     public void setDegreeCategory(String degreeCategory) {
         this.degreeCategory = degreeCategory == null ? null : degreeCategory.trim();
+    }
+
+    public String getResearchDirection() {
+        return researchDirection;
+    }
+
+    public void setResearchDirection(String researchDirection) {
+        this.researchDirection = researchDirection;
+    }
+
+    public String getStudentCategory() {
+        return studentCategory;
+    }
+
+    public void setStudentCategory(String studentCategory) {
+        this.studentCategory = studentCategory;
     }
 
     @Override
