@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElectionRuleDto;
@@ -30,7 +32,7 @@ import io.swagger.annotations.SwaggerDefinition;
 public class ElectionRuleController
 {
 	private static Logger LOG =
-	        LoggerFactory.getLogger("ElectionRuleController");
+	        LoggerFactory.getLogger(ElectionRuleController.class);
 	@Autowired
 	private ElectionRuleService service;
 	 /**
@@ -59,13 +61,13 @@ public class ElectionRuleController
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "选课规则详情")
-    @PostMapping("/ruleDeatil")
+    @GetMapping("/ruleDeatil")
     public RestResult<ElectionRuleVo> ruleDeatil(
-        @Valid @RequestBody ElectionRuleDto electionRuleDto)
+    		@RequestParam("id") @NotNull Long id)
         throws Exception
     {
         LOG.info("ruleDeatil.start");
-        ElectionRuleVo ruleList =service.selectRuleDeatil(electionRuleDto);
+        ElectionRuleVo ruleList =service.selectRuleDeatil(id);
         return RestResult.successData(ruleList);
     }
     

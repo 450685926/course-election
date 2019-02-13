@@ -11,7 +11,7 @@ public interface ElectionRuleService
 {
     List<ElectionRule> list(ElectionRuleDto electionRuleDto);
     
-    ElectionRuleVo selectRuleDeatil(ElectionRuleDto electionRuleDto);
+    ElectionRuleVo selectRuleDeatil(Long id);
     
     RestResult<Integer> updateRule(ElectionRuleDto electionRuleDto);
     

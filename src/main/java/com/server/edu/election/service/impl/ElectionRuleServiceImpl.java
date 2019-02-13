@@ -18,7 +18,6 @@ import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.service.ElectionRuleService;
 import com.server.edu.election.vo.ElectionRuleVo;
-import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -31,6 +30,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 	private ElectionRuleDao electionRuleDao;
 	@Autowired
 	private ElectionParameterDao electionParameterDao;
+	@Override
 	public List<ElectionRule> list(ElectionRuleDto electionRuleDto){
 		Example example = new Example(ElectionRule.class);
 		Example.Criteria criteria = example.createCriteria();
@@ -40,13 +40,17 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		if(electionRuleDto.getStatus()!=null) {
 			criteria.andEqualTo("status",electionRuleDto.getStatus());
 		}
+		if(StringUtils.isNotBlank(electionRuleDto.getName())) {
+			criteria.andLike("name",electionRuleDto.getName());
+		}
 		List<ElectionRule> list = electionRuleDao.selectByExample(example);
 		return list;
 	}
 	
-	public ElectionRuleVo selectRuleDeatil(ElectionRuleDto electionRuleDto) {
+	@Override
+	public ElectionRuleVo selectRuleDeatil(Long id) {
 		ElectionRuleVo electionRuleVo = new ElectionRuleVo();
-		ElectionRule electionRule = electionRuleDao.selectByPrimaryKey(electionRuleDto.getId());
+		ElectionRule electionRule = electionRuleDao.selectByPrimaryKey(id);
 		BeanUtils.copyProperties(electionRule, electionRuleVo);
 		Example example = new Example(ElectionParameter.class);
 		Example.Criteria criteria = example.createCriteria();
@@ -56,6 +60,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		return electionRuleVo;
 	}
 	
+	@Override
 	public RestResult<Integer> updateRule(ElectionRuleDto electionRuleDto) {
 		int result = 0;
 		ElectionRule electionRule = new ElectionRule();
@@ -75,6 +80,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		return RestResult.success();
 	}
 	
+	@Override
 	public RestResult<Integer> updateRuleParameter(ElectionRuleDto electionRuleDto) {
 		int result = 0;
 		ElectionRule electionRule = new ElectionRule();

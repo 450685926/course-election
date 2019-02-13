@@ -1,227 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.server.edu.election.dao.StudentDao">
-    <resultMap id="BaseResultMap" type="com.server.edu.election.entity.Student">
-        <id column="ID_" jdbcType="BIGINT" property="id" />
-        <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentCode" />
-        <result column="NAME_" jdbcType="VARCHAR" property="name" />
-        <result column="SEX_" jdbcType="INTEGER" property="sex" />
-        <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
-        <result column="IS_OVERSEAS_" jdbcType="VARCHAR" property="isOverseas" />
-        <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
-        <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
-        <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
-        <result column="GRADE_" jdbcType="INTEGER" property="grade" />
-        <result column="SPCIAL_PLAN_" jdbcType="VARCHAR" property="spcialPlan" />
-        <result column="REGISTRATION_STATUS_" jdbcType="VARCHAR" property="registrationStatus" />
-        <result column="ENROL_SEASON_" jdbcType="VARCHAR" property="enrolSeason" />
-        <result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
-        <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
-        <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
-    </resultMap>
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.Student">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentCode" />
+    <result column="NAME_" jdbcType="VARCHAR" property="name" />
+    <result column="SEX_" jdbcType="INTEGER" property="sex" />
+    <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+    <result column="IS_OVERSEAS_" jdbcType="VARCHAR" property="isOverseas" />
+    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+    <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+    <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+    <result column="GRADE_" jdbcType="INTEGER" property="grade" />
+    <result column="SPCIAL_PLAN_" jdbcType="VARCHAR" property="spcialPlan" />
+    <result column="REGISTRATION_STATUS_" jdbcType="VARCHAR" property="registrationStatus" />
+    <result column="ENROL_SEASON_" jdbcType="VARCHAR" property="enrolSeason" />
+    <result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
+    <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
+    <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+  </resultMap>
     <sql id="Base_Column_List">
         ID_, STUDENT_CODE_, NAME_, SEX_, FORM_LEARNING_, IS_OVERSEAS_, TRAINING_LEVEL_, FACULTY_,
         PROFESSION_, GRADE_, SPCIAL_PLAN_, REGISTRATION_STATUS_, ENROL_SEASON_, CAMPUS_,
         TRAINING_CATEGORY_, DEGREE_CATEGORY_
     </sql>
-    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List" />
-        from student_t
-        where ID_ = #{id,jdbcType=BIGINT}
-    </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-        delete from student_t
-        where ID_ = #{id,jdbcType=BIGINT}
-    </delete>
-    <insert id="insert" parameterType="com.server.edu.election.entity.Student">
-        insert into student_t (ID_, STUDENT_CODE_, NAME_,
-        SEX_, FORM_LEARNING_, IS_OVERSEAS_,
-        TRAINING_LEVEL_, FACULTY_, PROFESSION_,
-        GRADE_, SPCIAL_PLAN_, REGISTRATION_STATUS_,
-        ENROL_SEASON_, CAMPUS_, TRAINING_CATEGORY_,
-        DEGREE_CATEGORY_)
-        values (#{id,jdbcType=BIGINT}, #{studentCode,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
-        #{sex,jdbcType=INTEGER}, #{formLearning,jdbcType=VARCHAR}, #{isOverseas,jdbcType=VARCHAR},
-        #{trainingLevel,jdbcType=VARCHAR}, #{faculty,jdbcType=VARCHAR}, #{profession,jdbcType=VARCHAR},
-        #{grade,jdbcType=INTEGER}, #{spcialPlan,jdbcType=VARCHAR}, #{registrationStatus,jdbcType=VARCHAR},
-        #{enrolSeason,jdbcType=VARCHAR}, #{campus,jdbcType=VARCHAR}, #{trainingCategory,jdbcType=VARCHAR},
-        #{degreeCategory,jdbcType=VARCHAR})
-    </insert>
-    <insert id="insertSelective" parameterType="com.server.edu.election.entity.Student">
-        insert into student_t
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                ID_,
-            </if>
-            <if test="studentCode != null">
-                STUDENT_CODE_,
-            </if>
-            <if test="name != null">
-                NAME_,
-            </if>
-            <if test="sex != null">
-                SEX_,
-            </if>
-            <if test="formLearning != null">
-                FORM_LEARNING_,
-            </if>
-            <if test="isOverseas != null">
-                IS_OVERSEAS_,
-            </if>
-            <if test="trainingLevel != null">
-                TRAINING_LEVEL_,
-            </if>
-            <if test="faculty != null">
-                FACULTY_,
-            </if>
-            <if test="profession != null">
-                PROFESSION_,
-            </if>
-            <if test="grade != null">
-                GRADE_,
-            </if>
-            <if test="spcialPlan != null">
-                SPCIAL_PLAN_,
-            </if>
-            <if test="registrationStatus != null">
-                REGISTRATION_STATUS_,
-            </if>
-            <if test="enrolSeason != null">
-                ENROL_SEASON_,
-            </if>
-            <if test="campus != null">
-                CAMPUS_,
-            </if>
-            <if test="trainingCategory != null">
-                TRAINING_CATEGORY_,
-            </if>
-            <if test="degreeCategory != null">
-                DEGREE_CATEGORY_,
-            </if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id,jdbcType=BIGINT},
-            </if>
-            <if test="studentCode != null">
-                #{studentCode,jdbcType=VARCHAR},
-            </if>
-            <if test="name != null">
-                #{name,jdbcType=VARCHAR},
-            </if>
-            <if test="sex != null">
-                #{sex,jdbcType=INTEGER},
-            </if>
-            <if test="formLearning != null">
-                #{formLearning,jdbcType=VARCHAR},
-            </if>
-            <if test="isOverseas != null">
-                #{isOverseas,jdbcType=VARCHAR},
-            </if>
-            <if test="trainingLevel != null">
-                #{trainingLevel,jdbcType=VARCHAR},
-            </if>
-            <if test="faculty != null">
-                #{faculty,jdbcType=VARCHAR},
-            </if>
-            <if test="profession != null">
-                #{profession,jdbcType=VARCHAR},
-            </if>
-            <if test="grade != null">
-                #{grade,jdbcType=INTEGER},
-            </if>
-            <if test="spcialPlan != null">
-                #{spcialPlan,jdbcType=VARCHAR},
-            </if>
-            <if test="registrationStatus != null">
-                #{registrationStatus,jdbcType=VARCHAR},
-            </if>
-            <if test="enrolSeason != null">
-                #{enrolSeason,jdbcType=VARCHAR},
-            </if>
-            <if test="campus != null">
-                #{campus,jdbcType=VARCHAR},
-            </if>
-            <if test="trainingCategory != null">
-                #{trainingCategory,jdbcType=VARCHAR},
-            </if>
-            <if test="degreeCategory != null">
-                #{degreeCategory,jdbcType=VARCHAR},
-            </if>
-        </trim>
-    </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.server.edu.election.entity.Student">
-        update student_t
-        <set>
-            <if test="studentCode != null">
-                STUDENT_CODE_ = #{studentCode,jdbcType=VARCHAR},
-            </if>
-            <if test="name != null">
-                NAME_ = #{name,jdbcType=VARCHAR},
-            </if>
-            <if test="sex != null">
-                SEX_ = #{sex,jdbcType=INTEGER},
-            </if>
-            <if test="formLearning != null">
-                FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR},
-            </if>
-            <if test="isOverseas != null">
-                IS_OVERSEAS_ = #{isOverseas,jdbcType=VARCHAR},
-            </if>
-            <if test="trainingLevel != null">
-                TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR},
-            </if>
-            <if test="faculty != null">
-                FACULTY_ = #{faculty,jdbcType=VARCHAR},
-            </if>
-            <if test="profession != null">
-                PROFESSION_ = #{profession,jdbcType=VARCHAR},
-            </if>
-            <if test="grade != null">
-                GRADE_ = #{grade,jdbcType=INTEGER},
-            </if>
-            <if test="spcialPlan != null">
-                SPCIAL_PLAN_ = #{spcialPlan,jdbcType=VARCHAR},
-            </if>
-            <if test="registrationStatus != null">
-                REGISTRATION_STATUS_ = #{registrationStatus,jdbcType=VARCHAR},
-            </if>
-            <if test="enrolSeason != null">
-                ENROL_SEASON_ = #{enrolSeason,jdbcType=VARCHAR},
-            </if>
-            <if test="campus != null">
-                CAMPUS_ = #{campus,jdbcType=VARCHAR},
-            </if>
-            <if test="trainingCategory != null">
-                TRAINING_CATEGORY_ = #{trainingCategory,jdbcType=VARCHAR},
-            </if>
-            <if test="degreeCategory != null">
-                DEGREE_CATEGORY_ = #{degreeCategory,jdbcType=VARCHAR},
-            </if>
-        </set>
-        where ID_ = #{id,jdbcType=BIGINT}
-    </update>
-    <update id="updateByPrimaryKey" parameterType="com.server.edu.election.entity.Student">
-        update student_t
-        set STUDENT_CODE_ = #{studentCode,jdbcType=VARCHAR},
-        NAME_ = #{name,jdbcType=VARCHAR},
-        SEX_ = #{sex,jdbcType=INTEGER},
-        FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR},
-        IS_OVERSEAS_ = #{isOverseas,jdbcType=VARCHAR},
-        TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR},
-        FACULTY_ = #{faculty,jdbcType=VARCHAR},
-        PROFESSION_ = #{profession,jdbcType=VARCHAR},
-        GRADE_ = #{grade,jdbcType=INTEGER},
-        SPCIAL_PLAN_ = #{spcialPlan,jdbcType=VARCHAR},
-        REGISTRATION_STATUS_ = #{registrationStatus,jdbcType=VARCHAR},
-        ENROL_SEASON_ = #{enrolSeason,jdbcType=VARCHAR},
-        CAMPUS_ = #{campus,jdbcType=VARCHAR},
-        TRAINING_CATEGORY_ = #{trainingCategory,jdbcType=VARCHAR},
-        DEGREE_CATEGORY_ = #{degreeCategory,jdbcType=VARCHAR}
-        where ID_ = #{id,jdbcType=BIGINT}
-    </update>
-
     <select id="findStudentByCode" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"></include>
