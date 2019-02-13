@@ -2,7 +2,12 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Table(name = "elc_course_takes_t")
 public class ElcCourseTake implements Serializable {
@@ -15,10 +20,10 @@ public class ElcCourseTake implements Serializable {
     private Long id;
 
     /**
-     * 学生ID
+     * 学号
      */
     @Column(name = "STUDENT_ID_")
-    private Long studentId;
+    private String studentId;
 
     /**
      * 校历ID（学年学期）
@@ -39,6 +44,12 @@ public class ElcCourseTake implements Serializable {
     private Long teachingClassId;
 
     /**
+     * 修读类别(1正常修读,2重修,3免修不免考,4免修)
+     */
+    @Column(name = "COURSE_TAKE_TYPE_")
+    private Integer courseTakeType;
+
+    /**
      * 第几轮
      */
     @Column(name = "TURN_")
@@ -49,6 +60,18 @@ public class ElcCourseTake implements Serializable {
      */
     @Column(name = "CHOOSE_OBJ_")
     private Integer chooseObj;
+
+    /**
+     * 重修费是否支付(0否，1是)
+     */
+    @Column(name = "PAID_")
+    private Integer paid;
+
+    /**
+     * 账单ID
+     */
+    @Column(name = "BILL_ID_")
+    private Long billId;
 
     /**
      * 创建时间
@@ -77,21 +100,21 @@ public class ElcCourseTake implements Serializable {
     }
 
     /**
-     * 获取学生ID
+     * 获取学号
      *
-     * @return STUDENT_ID_ - 学生ID
+     * @return STUDENT_ID_ - 学号
      */
-    public Long getStudentId() {
+    public String getStudentId() {
         return studentId;
     }
 
     /**
-     * 设置学生ID
+     * 设置学号
      *
-     * @param studentId 学生ID
+     * @param studentId 学号
      */
-    public void setStudentId(Long studentId) {
-        this.studentId = studentId;
+    public void setStudentId(String studentId) {
+        this.studentId = studentId == null ? null : studentId.trim();
     }
 
     /**
@@ -149,6 +172,24 @@ public class ElcCourseTake implements Serializable {
     }
 
     /**
+     * 获取修读类别(1正常修读,2重修,3免修不免考,4免修)
+     *
+     * @return COURSE_TAKE_TYPE_ - 修读类别(1正常修读,2重修,3免修不免考,4免修)
+     */
+    public Integer getCourseTakeType() {
+        return courseTakeType;
+    }
+
+    /**
+     * 设置修读类别(1正常修读,2重修,3免修不免考,4免修)
+     *
+     * @param courseTakeType 修读类别(1正常修读,2重修,3免修不免考,4免修)
+     */
+    public void setCourseTakeType(Integer courseTakeType) {
+        this.courseTakeType = courseTakeType;
+    }
+
+    /**
      * 获取第几轮
      *
      * @return TURN_ - 第几轮
@@ -185,6 +226,42 @@ public class ElcCourseTake implements Serializable {
     }
 
     /**
+     * 获取重修费是否支付(0否，1是)
+     *
+     * @return PAID_ - 重修费是否支付(0否，1是)
+     */
+    public Integer getPaid() {
+        return paid;
+    }
+
+    /**
+     * 设置重修费是否支付(0否，1是)
+     *
+     * @param paid 重修费是否支付(0否，1是)
+     */
+    public void setPaid(Integer paid) {
+        this.paid = paid;
+    }
+
+    /**
+     * 获取账单ID
+     *
+     * @return BILL_ID_ - 账单ID
+     */
+    public Long getBillId() {
+        return billId;
+    }
+
+    /**
+     * 设置账单ID
+     *
+     * @param billId 账单ID
+     */
+    public void setBillId(Long billId) {
+        this.billId = billId;
+    }
+
+    /**
      * 获取创建时间
      *
      * @return CREATED_AT_ - 创建时间
@@ -213,8 +290,11 @@ public class ElcCourseTake implements Serializable {
         sb.append(", calendarId=").append(calendarId);
         sb.append(", courseId=").append(courseId);
         sb.append(", teachingClassId=").append(teachingClassId);
+        sb.append(", courseTakeType=").append(courseTakeType);
         sb.append(", turn=").append(turn);
         sb.append(", chooseObj=").append(chooseObj);
+        sb.append(", paid=").append(paid);
+        sb.append(", billId=").append(billId);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

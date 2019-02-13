@@ -6,14 +6,36 @@
       WARNING - @mbg.generated
     -->
     <id column="ID_" jdbcType="BIGINT" property="id" />
-    <result column="STUDENT_ID_" jdbcType="BIGINT" property="studentId" />
+    <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
     <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
     <result column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
     <result column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
+    <result column="COURSE_TAKE_TYPE_" jdbcType="INTEGER" property="courseTakeType" />
     <result column="TURN_" jdbcType="INTEGER" property="turn" />
     <result column="CHOOSE_OBJ_" jdbcType="INTEGER" property="chooseObj" />
+    <result column="PAID_" jdbcType="INTEGER" property="paid" />
+    <result column="BILL_ID_" jdbcType="BIGINT" property="billId" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
+  <resultMap type="com.server.edu.election.vo.ElcCourseTakeVo" id="VoResultMap" extends="BaseResultMap">
+  	<result column="NAME_" jdbcType="VARCHAR" property="studentName" />
+  	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
+  	<result column="CAMPUS_" jdbcType="VARCHAR" property="profession" />
+  	<result column="CAMPUS_" jdbcType="VARCHAR" property="courseName" />
+  
+  </resultMap>
+  <select id="listPage" resultMap="VoResultMap">
+  	select t1.STUDENT_ID_, t2.NAME_, t2.CAMPUS_
+  	from elc_course_takes_t t1
+  	left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+  	left join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	<where>
+  	 t1.CALENDAR_ID_ =#{take.calendarIdcalendarId,jdbcType=BIGINT}
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(take.courseTakeType)">
+  	 t1.COURSE_TAKE_TYPE_ = #{take.courseTakeType}
+  	 </if>
+  	</where>
+  </select>
 
   <select id="findIsEletionCourse" resultType="int">
       SELECT COUNT(ID_) FROM `elc_course_takes_t` WHERE COURSE_ID_ in (select ID_ from course_t where CODE_ =#{courseCode,jdbcType=VARCHAR})
