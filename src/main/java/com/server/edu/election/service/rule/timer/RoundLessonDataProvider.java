@@ -22,7 +22,7 @@ import com.server.edu.election.dto.TeachingClassDto;
 import com.server.edu.election.entity.ElectionRounds;
 
 /**
- * 提供profileId 到 教学任务json的提供者<br>
+ * 提供roundId 到 教学任务json的提供者<br>
  * 每隔10分钟秒刷新profile的教学任务json<br>
  * 每隔10分钟，清理已经过期的profile
  */
@@ -47,25 +47,23 @@ public class RoundLessonDataProvider
     {
         scheduledThreadPool.schedule(() -> {
             /*
-             * profileId -> lessonId -> json
+             * roundId -> lessonId -> json
              */
-            HashOperations<String, String, List<String>> ops =
+            HashOperations<String, String, String> ops =
                 redisTemplate.opsForHash();
             /** 一小时后即将开始的选课参数 */
             List<ElectionRounds> selectBeStart = roundsDao.selectBeStart();
-            Map<String, List<String>> map = new HashMap<>();
+            Map<String, String> map = new HashMap<>();
             for (ElectionRounds round : selectBeStart)
             {
                 List<TeachingClassDto> lessons =
                     roundsDao.selectTeachingClassByRoundId(round.getId());
-                List<String> list = new ArrayList<>();
                 for (TeachingClassDto lesson : lessons)
                 {
-                    list.add(JSONObject.toJSONString(lesson));
+                    map.put(lesson.getCode(), JSONObject.toJSONString(lesson));
                 }
-                map.put(round.getId().toString(), list);
+                ops.putAll(KEY+ round.getId(), map);
             }
-            ops.putAll(KEY, map);
             
         }, 10, TimeUnit.MINUTES);
     }
