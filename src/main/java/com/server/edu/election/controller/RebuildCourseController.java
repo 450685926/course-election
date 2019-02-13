@@ -7,8 +7,10 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
 import com.server.edu.election.entity.RebuildCourseCharge;
+import com.server.edu.election.entity.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.vo.StudentVo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
@@ -100,4 +102,21 @@ public class RebuildCourseController {
         String s = service.editCourseNoChargeType(courseNoCharge);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
+
+
+
+    @ApiOperation(value = "查询未缴费的课程名单")//查询条件待做todo
+    @PostMapping("/findCourseNoChargeList")
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCourseNoChargeType> condition) {
+        PageResult<RebuildCourseNoChargeList> noChargeType = service.findCourseNoChargeList(condition);
+        return RestResult.successData(noChargeType);
+    }
+
+    @ApiOperation(value = "查询学生的未缴费课程数")//查询条件待做todo
+    @PostMapping("/findCourseNoChargeStudentList")
+    public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(@RequestBody PageCondition<RebuildCourseNoChargeType> condition) {
+        PageResult<StudentVo> noChargeType = service.findCourseNoChargeStudentList(condition);
+        return RestResult.successData(noChargeType);
+    }
+
 }

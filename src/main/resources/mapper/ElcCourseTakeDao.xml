@@ -20,4 +20,27 @@
       and STUDENT_ID_ in (select ID_ from student_t where STUDENT_CODE_ =#{studentCode,jdbcType=VARCHAR})
       and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   </select>
+
+  <select id="findCourseNoChargeList" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType" resultType="com.server.edu.election.entity.RebuildCourseNoChargeList">
+    SELECT el.ID_ id,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,el.PAID_ paid,te.WEEK_HOUR_ weekHour
+    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.ID_
+    LEFT JOIN course_t co on el.COURSE_ID_=co.ID_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
+    <where>
+      <if test="true">
+        and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
+      </if>
+    </where>
+  </select>
+
+  <select id="findCourseNoChargeStudentList" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType" resultType="com.server.edu.election.vo.StudentVo">
+    SELECT st.ID_ id, st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,
+    st.GRADE_  grade, st.FACULTY_ faculty,st.PROFESSION_ profession,st.TRAINING_LEVEL_ trainingLevel,COUNT(el.ID_) rebuildNumber FROM `elc_course_takes_t` el
+    LEFT JOIN student_t st on st.ID_=el.STUDENT_ID_
+    <where>
+      <if test="true">
+        and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
+      </if>
+    </where>
+    GROUP BY el.STUDENT_ID_
+  </select>
 </mapper>

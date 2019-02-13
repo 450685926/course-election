@@ -385,4 +385,80 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         }
     }
 
+    /**
+    *@Description: 查询学生信息
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/13 10:47
+    */
+    @Override
+    public RestResult<Student> findStudentMessage(String studentCode) {
+        if("".equals(studentCode)){
+            return RestResult.fail("common.parameterError");
+        }
+        Student student = studentDao.findStudentByCode(studentCode);
+        return RestResult.successData(student);
+    }
+
+    /**
+    *@Description: 删除申请免修免考人
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/13 11:05
+    */
+    @Override
+    public String deleteExemptionApply(List<Long> ids) {
+        if(CollectionUtil.isEmpty(ids)){
+            return "common.parameterError";
+        }
+        applyDao.deleteExemptionApply(ids);
+        return "common.deleteSuccess";
+    }
+
+    /**
+    *@Description: 批量审批
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/13 11:21
+    */
+    @Override
+    public String approvalExemptionApply(List<Long> ids,Integer status) {
+        if(CollectionUtil.isEmpty(ids)){
+            return "common.parameterError";
+        }
+        String score="";
+        if(status==1){
+            score="免修";
+        }
+        applyDao.approvalExemptionApply(ids,status,score);
+        return "common.editSuccess";
+    }
+
+    /**
+    *@Description: 编辑申请人信息
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/13 14:03
+    */
+    @Override
+    public String editExemptionApply(ExemptionApplyManage applyManage) {
+        if(applyManage.getId()==null){
+            return "common.parameterError";
+        }
+
+        if(applyManage.getApplyType()==0){//成绩申请
+            applyManage.setScore("免修");
+            applyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
+        }else{
+            applyManage.setScore("");
+            applyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
+        }
+        applyDao.updateByPrimaryKeySelective(applyManage);
+        return "common.editSuccess";
+    }
+
 }

@@ -4,11 +4,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.RebuildCourseChargeDao;
 import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
 import com.server.edu.election.entity.RebuildCourseCharge;
+import com.server.edu.election.entity.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.vo.StudentVo;
 import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -32,6 +35,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private RebuildCourseNoChargeTypeDao noChargeTypeDao;
+
+    @Autowired
+    private ElcCourseTakeDao courseTakeDao;
 
     /**
     *@Description: 查询收费管理
@@ -194,6 +200,35 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         }
         noChargeTypeDao.updateByPrimaryKeySelective(courseNoCharge);
         return "common.editSuccess";
+    }
+
+    /**
+    *@Description: 查询未缴费课程名单
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/13 15:17
+    */
+    @Override
+    public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseNoChargeType> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
+        return new PageResult<>(courseNoChargeList);
+    }
+
+    
+    /**
+    *@Description: 重新汇总名单
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/13 16:19
+    */
+    @Override
+    public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseNoChargeType> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<StudentVo> courseNoChargeStudentList = courseTakeDao.findCourseNoChargeStudentList(condition.getCondition());
+        return new PageResult<>(courseNoChargeStudentList);
     }
 
 }

@@ -11,6 +11,7 @@ import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseRule;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.vo.*;
 import io.swagger.annotations.ApiOperation;
@@ -18,10 +19,7 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -140,4 +138,35 @@ public class ExemptionController {
     return exemptionCourseService.addExemptionApplyConditionLimit(applyManage);
     }
 
+
+    @ApiOperation(value = "查询学生信息")
+    @GetMapping("/findStudentMessage")
+    public RestResult<Student> findStudentMessage(@RequestParam  String studentCode){
+        return exemptionCourseService.findStudentMessage(studentCode);
+    }
+
+    @LogRecord(title="删除免修免考申请",type = AuditType.DELETE)
+    @ApiOperation(value = "删除免修免考申请")
+    @PostMapping("/deleteExemptionApply")
+    public RestResult<String> deleteExemptionApply(@RequestBody List<Long>  ids){
+        String s= exemptionCourseService.deleteExemptionApply(ids);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+    @LogRecord(title="审批免修免考申请",type = AuditType.UPDATE)
+    @ApiOperation(value = "审批免修免考申请")
+    @PostMapping("/approvalExemptionApply")
+    public RestResult<String> approvalExemptionApply(@RequestBody List<Long>  ids,@RequestParam Integer status){
+        String s= exemptionCourseService.approvalExemptionApply(ids,status);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+
+    @LogRecord(title="编辑免修免考申请",type = AuditType.UPDATE)
+    @ApiOperation(value = "编辑免修免考申请")
+    @PostMapping("/editExemptionApply")
+    public RestResult<String> editExemptionApply(@RequestBody ExemptionApplyManage applyManage){
+        String s= exemptionCourseService.editExemptionApply(applyManage);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
 }
