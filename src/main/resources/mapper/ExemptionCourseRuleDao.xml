@@ -391,7 +391,7 @@
         </trim>
     </insert>
 
-    <select id="findScoreOrMaterial" resultType="com.server.edu.election.vo.ExemptionCourseRuleVo">
+    <select id="findScoreOrMaterial" resultMap="VoBaseResultMap">
         select
         <include refid="Base_Column_List"></include>
         from exemption_rule_t
@@ -406,10 +406,10 @@
                 and GRADE_ =#{student.grade,jdbcType=INTEGER}
             </if>
             <if test="student.trainingLevel != null and student.trainingLevel !='' ">
-                and TRAINING_LEVEL_ =#{student.trainingLevel,jdbcType=VARCHAR},
+                and TRAINING_LEVEL_ =#{student.trainingLevel,jdbcType=VARCHAR}
             </if>
             <if test="student.trainingCategory != null and student.trainingCategory !='' ">
-                and TRAINING_CATEGORY_ =#{student.trainingCategory,jdbcType=VARCHAR},
+                and TRAINING_CATEGORY_ =#{student.trainingCategory,jdbcType=VARCHAR}
             </if>
             <if test="applyType !=null">
                 and APPLY_TYPE_ =#{applyType,jdbcType=INTEGER}

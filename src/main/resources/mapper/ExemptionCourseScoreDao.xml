@@ -177,7 +177,7 @@
         order by SCORE_ desc
     </select>
 
-    <select id="findStudentScore">
+    <select id="findStudentScore" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"></include>
         from exemption_score_t

@@ -347,7 +347,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         course.setCalendarId(applyManage.getCalendarId());
         course.setCourseCode(applyManage.getCourseCode());
         Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(course);
-        if(exemptionCourse==null){
+        if(exemptionCourse==null||CollectionUtil.isEmpty(exemptionCourse.getResult())){
             return RestResult.fail("该课程不在免修免考范围内");
         }
         //已选课不能免修

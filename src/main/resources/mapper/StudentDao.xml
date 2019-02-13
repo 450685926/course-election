@@ -222,7 +222,7 @@
         where ID_ = #{id,jdbcType=BIGINT}
     </update>
 
-    <select id="findStudentByCode">
+    <select id="findStudentByCode" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"></include>
         from student_t
