@@ -8,6 +8,7 @@ import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseRule;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.vo.*;
 
 import java.util.List;
@@ -33,5 +34,15 @@ public interface ExemptionCourseService {
     String addExemptionApply(ExemptionApplyManage applyManage);
 
     RestResult<ExemptionCourseMaterialVo> addExemptionApplyConditionLimit(ExemptionApplyManage applyManage);
+    RestResult<Student> findStudentMessage(String studentCode);
+
+    //批量删除
+    String deleteExemptionApply(List<Long> ids);
+
+    //批量审批
+    String approvalExemptionApply(List<Long> ids,Integer status);
+
+    //编辑
+    String editExemptionApply(ExemptionApplyManage applyManage);
 }
 

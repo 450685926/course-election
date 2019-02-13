@@ -172,8 +172,8 @@
     </update>
 
     <select id="findExemptionApply" parameterType="com.server.edu.election.dto.ExemptionApplyCondition" resultType="com.server.edu.election.vo.ExemptionApplyManageVo">
-      SELECT ex.COURSE_CODE_ courseCode,c.NAME_ courseName,ex.STUDENT_CODE_ studentCode,ex.NAME_ name,ex.EXAMINE_RESULT_ examineResult,
-        ex.AUDITOR_ auditor,s.FACULTY_ faculty,s.PROFESSION_ profession
+      SELECT ex.ID_ id,ex.APPLY_TYPE_ applyType,ex.COURSE_CODE_ courseCode,c.NAME_ courseName,ex.STUDENT_CODE_ studentCode,ex.NAME_ name,ex.EXAMINE_RESULT_ examineResult,
+        ex.AUDITOR_ auditor,ex.EXEMPTION_TYPE_ exemptionType,ex.MATERIAL_IP_ materialIp,s.FACULTY_ faculty,s.PROFESSION_ profession
         FROM `exemption_apply_manage_t` ex
       LEFT JOIN student_t s on s.STUDENT_CODE_=ex.STUDENT_CODE_
         left JOIN course_t c on c.CODE_=ex.COURSE_CODE_
@@ -218,4 +218,17 @@
         order by ex.ID_ desc
     </select>
 
+    <delete id="deleteExemptionApply" parameterType="java.util.List">
+        delete from exemption_apply_manage_t where ID_ in
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </delete>
+    <update id="approvalExemptionApply" parameterType="java.util.List">
+        update exemption_apply_manage_t set EXAMINE_RESULT_ =#{status,jdbcType=INTEGER} , SCORE_ =#{score,jdbcType=VARCHAR}
+        where ID_ in
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </update>
 </mapper>
