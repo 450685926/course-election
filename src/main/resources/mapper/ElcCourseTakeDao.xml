@@ -14,4 +14,10 @@
     <result column="CHOOSE_OBJ_" jdbcType="INTEGER" property="chooseObj" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
+
+  <select id="findIsEletionCourse" resultType="int">
+      SELECT COUNT(ID_) FROM `elc_course_takes_t` WHERE COURSE_ID_ in (select ID_ from course_t where CODE_ =#{courseCode,jdbcType=VARCHAR})
+      and STUDENT_ID_ in (select ID_ from student_t where STUDENT_CODE_ =#{studentCode,jdbcType=VARCHAR})
+      and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+  </select>
 </mapper>

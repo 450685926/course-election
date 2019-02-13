@@ -151,11 +151,21 @@
 
     <select id="findCourseScore" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List"></include>
-        from exemption_score_t
+        sc.ID_, sc.CALENDAR_ID_, sc.STUDENT_CODE_, sc.STUDENT_NAME_, sc.COURSE_CODE_, sc.SCORE_
+        from exemption_score_t sc
+        LEFT JOIN student_t st on sc.STUDENT_CODE_ =st.STUDENT_CODE_
         <where>
-            <if test="calendarId !=null">
-                and CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            <if test="courseRule.calendarId !=null">
+                and sc.CALENDAR_ID_ = #{courseRule.calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="courseRule.grade !=null">
+                and st.GRADE_ =#{courseRule.grade,jdbcType=INTEGER}
+            </if>
+            <if test="courseRule.trainingLevel !=null and courseRule.trainingLevel!='' ">
+                and st.TRAINING_LEVEL_ =#{courseRule.trainingLevel,jdbcType=VARCHAR}
+            </if>
+            <if test="courseRule.trainingCategory !=null and courseRule.trainingCategory!='' ">
+                and st.TRAINING_CATEGORY_ =#{courseRule.trainingCategory,jdbcType=VARCHAR}
             </if>
             <if test="list !=null and list.size() > 0 ">
                 and COURSE_CODE_ in
@@ -165,5 +175,14 @@
             </if>
         </where>
         order by SCORE_ desc
+    </select>
+
+    <select id="findStudentScore" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_score_t
+        where CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
+        and STUDENT_CODE_ =#{studentCode,jdbcType=VARCHAR}
+        and COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
     </select>
 </mapper>

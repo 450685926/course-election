@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.server.edu.election.dto.ElectionRuleDto;
 import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.vo.ElectionRuleVo;
 
@@ -24,5 +25,7 @@ public interface ElectionRuleDao extends Mapper<ElectionRule>
      * @see [类、类#方法、类#成员]
      */
     List<ElectionRuleVo> listAllByProjectId(@Param("projectId") String projectId);
+    
+    int batchUpdate(ElectionRuleDto electionRuleDto);
     
 }

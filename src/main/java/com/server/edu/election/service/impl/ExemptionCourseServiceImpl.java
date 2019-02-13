@@ -4,21 +4,16 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
-import com.server.edu.election.entity.ExemptionCourse;
-import com.server.edu.election.entity.ExemptionCourseMaterial;
-import com.server.edu.election.entity.ExemptionCourseRule;
-import com.server.edu.election.entity.ExemptionCourseScore;
+import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
-import com.server.edu.election.vo.ExemptionApplyManageVo;
-import com.server.edu.election.vo.ExemptionCourseRuleVo;
-import com.server.edu.election.vo.ExemptionCourseScoreVo;
-import com.server.edu.election.vo.ExemptionCourseVo;
+import com.server.edu.election.vo.*;
 import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +48,15 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     @Autowired
     private ExemptionApplyDao applyDao;
+
+    @Autowired
+    private ElcCourseTakeDao elcCourseTakeDao;
+
+    @Autowired
+    private StudentDao studentDao;
+
+    private static final Integer SUCCESS_STATUS=1;//免修申请审批状态通过
+    private static final Integer STATUS=0;//免修申请审批状态初始化
 
     /**
     *@Description: 分页查询免修免考课程
@@ -236,11 +240,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if("".equals(courseCode) || calendarId==null){
             return "common.parameterError";
         }
-        if(applyType==0){//入学成绩规则
-            String[] strings = courseCode.split(",");//拿到所有课程代码//根据学期，代码获取人数，分数线
+        if(applyType==0){//入学成绩规则（）
+            String[] strings = courseCode.split(",");//拿到所有课程代码//根据学期（年级，培养类别），代码获取人数，分数线
             List<String> stringList = Arrays.asList(strings);
 
-            List<ExemptionCourseScore> courseScore = scoreDao.findCourseScore(calendarId, stringList);
+            List<ExemptionCourseScore> courseScore = scoreDao.findCourseScore(courseRuleVo, stringList);
             if(CollectionUtil.isEmpty(courseScore)){
                 return "学期对应课程成绩没有导入，无法生成对应规则";
             }
@@ -297,6 +301,88 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         Page<ExemptionApplyManageVo> exemptionApply = applyDao.findExemptionApply(condition.getCondition());
         return new PageResult<>(exemptionApply);
+    }
+
+    /**
+    *@Description: 新增免修免考
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/12 10:44
+    */
+    @Override
+    public String addExemptionApply(ExemptionApplyManage applyManage) {//材料上传todo
+        if("".equals(applyManage.getApplyType())){
+            return "common.parameterError";
+        }
+        if(applyManage.getApplyType()==0){//成绩申请
+            applyManage.setScore("免修");
+            applyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
+        }else{
+            applyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
+        }
+        applyDao.insertSelective(applyManage);
+        return "common.addsuccess";
+    }
+
+    /**
+    *@Description: 申请条件限制
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/12 12:52
+    */
+    @Override
+    public RestResult<ExemptionCourseMaterialVo> addExemptionApplyConditionLimit(ExemptionApplyManage applyManage) {
+        ExemptionCourseMaterialVo courseMaterialVo=new ExemptionCourseMaterialVo();
+        Long calendarId = applyManage.getCalendarId();
+        String courseCode = applyManage.getCourseCode();
+        String studentCode = applyManage.getStudentCode();
+        if(calendarId==null||"".equals(courseCode)||"".equals(studentCode)){
+            return RestResult.fail("common.parameterError");
+        }
+        //个人计划中的课程待做（页面可以直接下拉个人计划课程）
+        //查询该课程是否在免修范围内
+        ExemptionCourse course=new ExemptionCourse();
+        course.setCalendarId(applyManage.getCalendarId());
+        course.setCourseCode(applyManage.getCourseCode());
+        Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(course);
+        if(exemptionCourse==null||CollectionUtil.isEmpty(exemptionCourse.getResult())){
+            return RestResult.fail("该课程不在免修免考范围内");
+        }
+        //已选课不能免修
+        int i = elcCourseTakeDao.findIsEletionCourse(studentCode, calendarId, courseCode);
+        if(i!=0){
+            return RestResult.fail("该课程已经选课，不能申请免修免考");
+        }
+
+        Student student = studentDao.findStudentByCode(studentCode);
+        if(applyManage.getApplyType()==0){//成绩申请条件限制
+        //查询成绩，校验规则
+            ExemptionCourseScore studentScore = scoreDao.findStudentScore(calendarId, studentCode, courseCode);
+            if(studentScore==null){
+                return RestResult.fail("该学生没有入学考试成绩");
+            }
+            Double score = studentScore.getScore();
+            ExemptionCourseRuleVo scoreOrMaterial = ruleDao.findScoreOrMaterial(calendarId, courseCode, student,applyManage.getApplyType());
+            if(scoreOrMaterial==null){
+                return RestResult.fail("没有该入学成绩规则");
+            }
+            Double minimumPassScore = scoreOrMaterial.getMinimumPassScore();
+            courseMaterialVo.setScore(score);
+            courseMaterialVo.setMinimumPassScore(minimumPassScore);
+            return RestResult.successData(courseMaterialVo);
+
+        }else{//材料规则限制
+            student.setGrade(null);
+            ExemptionCourseRuleVo courseRuleVo = ruleDao.findScoreOrMaterial(calendarId, courseCode, student,applyManage.getApplyType());
+            if(courseRuleVo==null){
+                return RestResult.fail("没有该材料申请规则");
+            }
+            List<ExemptionCourseMaterial> materialById = materialDao.findMaterialById(courseRuleVo.getId());
+            courseMaterialVo.setList(materialById);
+            return RestResult.successData(courseMaterialVo);
+        }
     }
 
 }

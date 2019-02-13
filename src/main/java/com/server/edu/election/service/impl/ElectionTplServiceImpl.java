@@ -1,9 +1,7 @@
 package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -56,8 +54,9 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 		//选课方案模板
 		List<ElectionTpl> list = electionTplDao.selectByExample(example);
 		if(CollectionUtil.isNotEmpty(list)) {
-			BeanUtils.copyProperties(list, tplList);
-			tplList.forEach(temp->{
+			list.forEach(temp->{
+				ElectionTplVo electionTplVo = new ElectionTplVo();
+				BeanUtils.copyProperties(temp, electionTplVo);
 				//查询选课方案对应的规则
 				List<ElectionRule> ruleList = electionRuleDao.selectTplOfRule(temp.getId());
 				StringBuilder stringBuilder = new StringBuilder();
@@ -65,7 +64,8 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 					stringBuilder.append(c.getName());
 					stringBuilder.append("\n");
 				});
-				temp.setRules(stringBuilder.toString());
+				electionTplVo.setRules(stringBuilder.toString());
+				tplList.add(electionTplVo);
 			});
 		}
 		PageInfo<ElectionTplVo> pageInfo =new PageInfo<>(tplList);
@@ -131,10 +131,21 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 		if(CollectionUtil.isEmpty(list)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("electionRuleDto.ruleIsNotNull"));
 		}
-		Map<String,Object> map = new HashMap<>();
-		map.put("ruleIds", list);
-		map.put("tplId", dto.getId());
-		result = electionTplRefRuleDao.batchUpdate(map);
+		Example refExample = new Example(ElectionTplRefRule.class);
+		Example.Criteria refCriteria = refExample.createCriteria();
+		refCriteria.andEqualTo("tplId", dto.getId());
+		result = electionTplRefRuleDao.deleteByExample(refExample);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.tpl")));
+		}
+		List<ElectionTplRefRule> refList = new ArrayList<ElectionTplRefRule>();
+		list.forEach(temp->{
+			ElectionTplRefRule electionTplRefRule = new ElectionTplRefRule();
+			electionTplRefRule.setRuleId(temp);
+			electionTplRefRule.setTplId(dto.getId());
+			refList.add(electionTplRefRule);
+		});
+		result = electionTplRefRuleDao.batchInsert(refList);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.tplRefRule")));
 		}
@@ -194,20 +205,22 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 		List<ElectionRule> ruleList = electionRuleDao.selectByExample(ruleExample);
 		List<ElectionRuleVo> copyList = new ArrayList<>();
 		if(CollectionUtil.isNotEmpty(ruleList)) {
-			BeanUtils.copyProperties(ruleList, copyList);
 			//选中加钩子
-			copyList.forEach(temp->{
+			ruleList.forEach(temp->{
+				ElectionRuleVo electionRuleVo = new ElectionRuleVo();
+				BeanUtils.copyProperties(temp, electionRuleVo);
 				Example example = new Example(ElectionParameter.class);
 				Example.Criteria parameterCriteria = example.createCriteria();
-				parameterCriteria.andEqualTo("ruleId",temp.getId());
+				parameterCriteria.andEqualTo("ruleId",electionRuleVo.getId());
 				List<ElectionParameter> parameters = electionParameterDao.selectByExample(example);
-				temp.setList(parameters);
-				temp.setCheckIndex(ElectionRuleVo.unCheck);
+				electionRuleVo.setList(parameters);
+				electionRuleVo.setCheckIndex(ElectionRuleVo.unCheck);
 				if(CollectionUtil.isNotEmpty(checkRuleIds)) {
-					if(checkRuleIds.contains(temp.getId())){
-						temp.setCheckIndex(ElectionRuleVo.check);
+					if(checkRuleIds.contains(electionRuleVo.getId())){
+						electionRuleVo.setCheckIndex(ElectionRuleVo.check);
 					}
 				}
+				copyList.add(electionRuleVo);
 			});
 		}
 		electionTplVo.setList(copyList);
