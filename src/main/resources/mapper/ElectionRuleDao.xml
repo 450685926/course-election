@@ -36,4 +36,11 @@
   <select id="listAllByProjectId" resultMap="VoBaseResultMap">
   	select * from election_rule_t where PROJECT_ID_ = #{projectId}
   </select>
+  
+  <update id="batchUpdate" parameterType="com.server.edu.election.dto.ElectionRuleDto">
+    update election_rule_t set STATUS_ =#{status} where ID_ in 
+    <foreach item="id" collection="ruleIds"  index="index" open="(" separator="," close=")">  
+       #{id}  
+    </foreach> 
+  </update>
 </mapper>

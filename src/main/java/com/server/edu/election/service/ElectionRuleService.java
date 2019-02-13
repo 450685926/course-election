@@ -24,5 +24,13 @@ public interface ElectionRuleService
      * @see [类、类#方法、类#成员]
      */
     List<ElectionRuleVo> listAll(String projectId);
+    /**
+     * 批量修改选课规则
+     * 
+     * @param electionRuleDto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int batchUpdate(ElectionRuleDto electionRuleDto);
     
 }
