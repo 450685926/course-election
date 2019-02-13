@@ -59,9 +59,9 @@ public class ElecServiceImpl implements ElectionService
         return null;
     }
     
-    private String profileKey(Long profileId)
+    private String cacheKey(Long roundId)
     {
-        return ElectionRounds.class.getName() + profileId.toString();
+        return ElectionRounds.class.getName() + roundId.toString();
     }
     
     /**
@@ -71,7 +71,7 @@ public class ElecServiceImpl implements ElectionService
      */
     private synchronized void rebuildExecutors(ElectionRounds profile)
     {
-        String profileKey = profileKey(profile.getId());
+        String profileKey = cacheKey(profile.getId());
         ElectionRounds exists = profiles.get(profileKey);
         if (null != exists
             && !exists.getUpdatedAt().before(profile.getUpdatedAt()))
@@ -129,7 +129,7 @@ public class ElecServiceImpl implements ElectionService
         }
         
         List<AbstractElectRuleExecutor> executors =
-            rules.get(profileKey(rounds.getId()));
+            rules.get(cacheKey(rounds.getId()));
         for (AbstractElectRuleExecutor executor : executors)
         {
             executor.prepare(state);

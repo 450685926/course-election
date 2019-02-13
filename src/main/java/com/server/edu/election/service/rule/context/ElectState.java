@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import com.server.edu.common.rest.StudentInfo;
 import com.server.edu.election.dto.LessonDto;
@@ -25,7 +24,7 @@ public class ElectState implements Serializable
     /** 学生选课用的简要信息 */
     private StudentInfo std;
     
-    private Long profileId;
+    private Long roundId;
     
     private Long semesterId;
     
@@ -36,10 +35,10 @@ public class ElectState implements Serializable
     private final List<LessonDto> electedCourses = new ArrayList<>();
     
     /** profile对应的可选任务Id */
-    private final List<Long> electableLessonIds = new ArrayList<>();
+    //private final List<Long> electableLessonIds = new ArrayList<>();
     
     /** 时间占用表 */
-    private TimeUnit table;
+    //private TimeUnit table;
     
     /** 建议必修课 */
     private Set<Long> compulsoryCourseIds = new HashSet<>();
@@ -202,10 +201,10 @@ public class ElectState implements Serializable
         return std;
     }
     
-    public TimeUnit getTable()
-    {
-        return table;
-    }
+//    public TimeUnit getTable()
+//    {
+//        return table;
+//    }
     
     public Set<Long> getCompulsoryCourseIds()
     {
@@ -225,10 +224,10 @@ public class ElectState implements Serializable
         return false;
     }
     
-    public void setTable(TimeUnit table)
-    {
-        this.table = table;
-    }
+//    public void setTable(TimeUnit table)
+//    {
+//        this.table = table;
+//    }
     
     public void setCompulsoryCourseIds(Set<Long> compulsoryCourseIds)
     {
@@ -255,14 +254,14 @@ public class ElectState implements Serializable
         return electedCourses;
     }
     
-    public List<Long> getElectableLessonIds()
-    {
-        return electableLessonIds;
-    }
+//    public List<Long> getElectableLessonIds()
+//    {
+//        return electableLessonIds;
+//    }
     
-    public Long getProfileId()
+    public Long getRoundId()
     {
-        return profileId;
+        return roundId;
     }
     
     public Long getSemesterId()
