@@ -3,8 +3,10 @@ package com.server.edu.election.controller;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.ElectionRuleDto;
 import com.server.edu.election.dto.ElectionTplDto;
-import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.service.ElectionTplService;
-import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.election.vo.ElectionTplVo;
 
 import io.swagger.annotations.ApiOperation;
@@ -33,7 +32,7 @@ import io.swagger.annotations.SwaggerDefinition;
 @RequestMapping("electionTpl")
 public class ElectionTplController {
 	private static Logger LOG =
-	        LoggerFactory.getLogger("ElectionTplController");
+	        LoggerFactory.getLogger(ElectionTplController.class);
 	@Autowired
 	private ElectionTplService electionTplService;
 	 /**
@@ -98,10 +97,10 @@ public class ElectionTplController {
      * @return
      * @see [类、类#方法、类#成员]
      */
-    @ApiOperation(value = "修改选课方案模板")
+    @ApiOperation(value = "停用/启用选课方案模板")
     @PostMapping("/updateStatus")
     public RestResult<Integer> updateStatus(
-        @RequestBody @Valid ElectionTplDto dto)
+        @RequestBody  ElectionTplDto dto)
         throws Exception
     {
         LOG.info("update.start");
@@ -120,7 +119,7 @@ public class ElectionTplController {
     @ApiOperation(value = "选课方案模板")
     @GetMapping("/getTpl")
     public RestResult<ElectionTplVo> getTpl(
-        @RequestParam("id") Long id)
+        @RequestParam("id") @NotNull Long id)
         throws Exception
     {
         LOG.info("getTpl.start");
@@ -136,9 +135,9 @@ public class ElectionTplController {
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = " 删除选课方案模板")
-    @GetMapping("/delete")
+    @PostMapping("/delete")
     public RestResult<Integer> delete(
-        @RequestParam("ids") List<Long> ids)
+    		@RequestBody @NotEmpty List<Long> ids)
         throws Exception
     {
         LOG.info("getTpl.start");

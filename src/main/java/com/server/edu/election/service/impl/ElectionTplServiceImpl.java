@@ -41,6 +41,7 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 	private ElectionParameterDao electionParameterDao;
 	@Autowired
 	private ElectionTplRefRuleDao electionTplRefRuleDao;
+	@Override
 	public PageInfo<ElectionTplVo> list(PageCondition<ElectionTplDto> condition){
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElectionTplVo> tplList = new ArrayList<>();
@@ -71,6 +72,7 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 		return pageInfo;
 	}
 	
+	@Override
 	public int add(ElectionTplDto dto) {
 		int result = Constants.ZERO;
 		//判断模板名称是否存在
@@ -88,23 +90,24 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionRuleDto.tpl")));
 		}
 		List<Long> list = dto.getRuleIds();
-		if(CollectionUtil.isNotEmpty(list)) {
-			List<ElectionTplRefRule> refList = new ArrayList<>();
-			list.forEach(temp->{
-				ElectionTplRefRule electionTplRefRule = new ElectionTplRefRule();
-				electionTplRefRule.setTplId(electionTpl.getId());
-				electionTplRefRule.setRuleId(temp);
-				refList.add(electionTplRefRule);
-			});
-			result = electionTplRefRuleDao.batchInsert(refList);
-			if(result<=Constants.ZERO) {
-				throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionRuleDto.tplRefRule")));
-			}
-			
+		if(CollectionUtil.isEmpty(list)) {
+			throw new ParameterValidateException(I18nUtil.getMsg("electionRuleDto.ruleIsNotNull"));
+		}
+		List<ElectionTplRefRule> refList = new ArrayList<>();
+		list.forEach(temp->{
+			ElectionTplRefRule electionTplRefRule = new ElectionTplRefRule();
+			electionTplRefRule.setTplId(electionTpl.getId());
+			electionTplRefRule.setRuleId(temp);
+			refList.add(electionTplRefRule);
+		});
+		result = electionTplRefRuleDao.batchInsert(refList);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionRuleDto.tplRefRule")));
 		}
 		return result; 
 	}
 	
+	@Override
 	public int update(ElectionTplDto dto) {
 		if(dto.getId()==null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
@@ -125,19 +128,20 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.tpl")));
 		}
 		List<Long> list = dto.getRuleIds();
-		if(CollectionUtil.isNotEmpty(list)) {
-			Map<String,Object> map = new HashMap<>();
-			map.put("ruleIds", list);
-			map.put("tplId", dto.getId());
-			result = electionTplRefRuleDao.batchUpdate(map);
-			if(result<=Constants.ZERO) {
-				throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.tplRefRule")));
-			}
-			
+		if(CollectionUtil.isEmpty(list)) {
+			throw new ParameterValidateException(I18nUtil.getMsg("electionRuleDto.ruleIsNotNull"));
+		}
+		Map<String,Object> map = new HashMap<>();
+		map.put("ruleIds", list);
+		map.put("tplId", dto.getId());
+		result = electionTplRefRuleDao.batchUpdate(map);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.tplRefRule")));
 		}
 		return result; 
 	}
 	
+	@Override
 	public int updateStatus(ElectionTplDto dto) {
 		if(dto.getId()==null||dto.getStatus()==null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
@@ -151,10 +155,8 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 		return result;
 	}
 	
+	@Override
 	public int delete(List<Long> list) {
-		if(CollectionUtil.isEmpty(list)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.tpl")));
-		}
 		Example example = new Example(ElectionTpl.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andIn("id", list);
@@ -162,9 +164,17 @@ public class ElectionTplServiceImpl implements ElectionTplService {
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("electionRuleDto.tpl")));
 		}
+		Example electionTplRefRule = new Example(ElectionTplRefRule.class);
+		Example.Criteria eleCriteria = electionTplRefRule.createCriteria();
+		eleCriteria.andIn("tplId", list);
+		result =electionTplRefRuleDao.deleteByExample(electionTplRefRule);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("electionRuleDto.tpl")));
+		}
 		return result;
 	}
 	
+	@Override
 	public ElectionTplVo getTpl(Long id) {
 		ElectionTplVo electionTplVo = new ElectionTplVo();
 		ElectionTpl electionTpl = electionTplDao.selectByPrimaryKey(id);
