@@ -1,6 +1,7 @@
 package com.server.edu.election.dao;
 
 
+import com.server.edu.election.vo.StudentVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
