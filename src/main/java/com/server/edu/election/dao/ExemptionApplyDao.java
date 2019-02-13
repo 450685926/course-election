@@ -19,4 +19,5 @@ public interface ExemptionApplyDao {
     int updateByPrimaryKey(ExemptionApplyManage record);
 
     Page<ExemptionApplyManageVo> findExemptionApply(ExemptionApplyCondition condition);
+
 }
