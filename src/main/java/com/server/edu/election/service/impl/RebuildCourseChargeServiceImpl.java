@@ -7,6 +7,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.RebuildCourseChargeDao;
 import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
+import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
@@ -210,7 +211,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/2/13 15:17
     */
     @Override
-    public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseNoChargeType> condition) {
+    public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
         return new PageResult<>(courseNoChargeList);
@@ -225,10 +226,62 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/2/13 16:19
     */
     @Override
-    public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseNoChargeType> condition) {
+    public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCoursePaymentCondition > condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> courseNoChargeStudentList = courseTakeDao.findCourseNoChargeStudentList(condition.getCondition());
         return new PageResult<>(courseNoChargeStudentList);
+    }
+
+
+    /**
+    *@Description: 移动到回收站
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/14 10:56
+    */
+    @Override
+    public String moveToRecycle(List<RebuildCourseNoChargeList> list) {
+        if(CollectionUtil.isEmpty(list)){
+            return "common.parameterError";
+        }
+        //调用退课接口todo
+        /**增加到回收站*/
+        courseChargeDao.addCourseStudentToRecycle(list);
+        return "common.deleteSuccess";
+    }
+
+
+    /**
+    *@Description: 查询回收站
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/14 11:32
+    */
+    @Override
+    public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCoursePaymentCondition> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<RebuildCourseNoChargeList> recycleCourse = courseChargeDao.findRecycleCourse(condition.getCondition());
+        return new PageResult<>(recycleCourse);
+    }
+
+    /**
+    *@Description: 从回收站回复数据
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/14 14:03
+    */
+    @Override
+    public String moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list) {
+        if(CollectionUtil.isEmpty(list)){
+            return "common.parameterError";
+        }
+        //调用选课接口todo
+        /**从回收站删除*/
+        courseChargeDao.recoveryDataFromRecycleCourse(list);
+        return "common.deleteSuccess";
     }
 
 }

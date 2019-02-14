@@ -10,6 +10,16 @@ import com.server.edu.election.entity.Student;
 public class StudentVo extends Student {
     private Integer rebuildNumber;
 
+    private Long calendarId;
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
+
     public Integer getRebuildNumber() {
         return rebuildNumber;
     }
