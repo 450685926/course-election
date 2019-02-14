@@ -36,6 +36,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public PageResult<RollBookList> findRollBookList(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         Page<RollBookList> rollBookList = courseTakeDao.findRollBookList(condition.getCondition());
+
         return new PageResult<>(rollBookList);
     }
 }

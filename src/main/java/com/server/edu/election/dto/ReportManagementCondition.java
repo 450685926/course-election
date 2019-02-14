@@ -6,7 +6,7 @@ package com.server.edu.election.dto;
  * @create: 2019-02-14 15:18
  */
 public class ReportManagementCondition extends ExemptionCourseScoreDto {
-    private Integer electCourseStatus;//选课状态
+    private Integer electCourseStatus;//选课状态0,1
     private String nature;
     private Integer isRebuildCourse;//是否重修
 
