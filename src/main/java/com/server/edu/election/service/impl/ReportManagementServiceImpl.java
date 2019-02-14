@@ -5,12 +5,18 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @description: 报表管理实现类
@@ -36,7 +42,25 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public PageResult<RollBookList> findRollBookList(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         Page<RollBookList> rollBookList = courseTakeDao.findRollBookList(condition.getCondition());
-
+        if(rollBookList!=null){
+            List<RollBookList> result = rollBookList.getResult();
+            if(CollectionUtil.isNotEmpty(result)){
+                //通过classCode 查询老师封装rollBookList
+                List<ClassTeacherDto> teacher = courseTakeDao.findTeacherByClassCode(result);
+                if(CollectionUtil.isNotEmpty(teacher)){
+                    Map<String, List<ClassTeacherDto>> collect = teacher.stream().collect(Collectors.groupingBy(ClassTeacherDto::getClassCode));
+                    for (RollBookList bookList : result) {
+                        List<ClassTeacherDto> classTeacherDtos = collect.get(bookList.getCalssCode());
+                        if(CollectionUtil.isNotEmpty(classTeacherDtos)){//属性为空，报错
+                            List<String> names = classTeacherDtos.stream().map(ClassTeacherDto::getTeacherName).collect(Collectors.toList());
+                            if(CollectionUtil.isNotEmpty(names)){
+                                bookList.setTeacherName(String.join(",",names));
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return new PageResult<>(rollBookList);
     }
 }

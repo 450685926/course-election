@@ -219,4 +219,18 @@
         </where>
         GROUP BY el.TEACHING_CLASS_ID_
     </select>
+
+    <select id="findTeacherByClassCode" parameterType="java.util.List" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        select cl.CODE_ classCode,ro.TEACHER_CODE_ teacherCode,te.TEACHER_NAME_  teacherName from teaching_class_t cl
+        LEFT JOIN teaching_class_arrange_time_t ti on cl.ID_=ti.TEACHING_CLASS_ID_
+        LEFT JOIN teaching_class_arrange_room_t ro on ro.ARRANGE_TIME_ID_=ti.ID_
+        LEFT JOIN teaching_class_teacher_t te on te.TEACHER_CODE_=ro.TEACHER_CODE_
+        <where>
+            and cl.CODE_ in
+            <foreach collection="list" open="(" close=")" separator="," item="item">
+                #{item.calssCode,jdbcType=VARCHAR}
+            </foreach>
+        </where>
+        GROUP BY ro.TEACHER_CODE_
+    </select>
 </mapper>

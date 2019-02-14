@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 
 
+import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.entity.RollBookList;
@@ -17,6 +18,8 @@ import com.server.edu.election.vo.ElcCourseTakeVo;
 
 
 import tk.mybatis.mapper.common.Mapper;
+
+import java.util.List;
 
 public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 {
@@ -47,4 +50,7 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 
     /**查询点名册教学班和老师*/
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);
+
+    /**查询教学班对应老师姓名*/
+    List<ClassTeacherDto> findTeacherByClassCode(List<RollBookList> list);
 }

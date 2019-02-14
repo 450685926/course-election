@@ -1,5 +1,8 @@
 package com.server.edu.election.entity;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
 import java.io.Serializable;
 
 /**
@@ -7,6 +10,7 @@ import java.io.Serializable;
  * @author: bear
  * @create: 2019-02-14 17:54
  */
+@CodeI18n
 public class RollBookList implements Serializable {
     private Long calendarId;
     private String calssCode;
@@ -15,6 +19,8 @@ public class RollBookList implements Serializable {
     private String label;
     private Integer selectCourseNumber;
     private Integer numberLimit;
+
+    @Code2Text(transformer="X_YX")
     private String faculty;
     private String teacherName;
 
