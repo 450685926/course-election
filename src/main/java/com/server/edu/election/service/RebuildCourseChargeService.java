@@ -2,6 +2,7 @@ package com.server.edu.election.service;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
@@ -27,9 +28,17 @@ public interface RebuildCourseChargeService {
     String editCourseNoChargeType(RebuildCourseNoChargeType courseNoCharge);
 
     //查询未缴费课程名单
-    PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseNoChargeType> condition);
+    PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition);
 
     //查询学生未缴费课程门数
-    PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseNoChargeType> condition);
+    PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCoursePaymentCondition > condition);
+    /**移动到回收站*/
+    String moveToRecycle(List<RebuildCourseNoChargeList> list);
+
+    /**查询回收站*/
+    PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCoursePaymentCondition> condition);
+
+    /**从回收站回复数据*/
+    String moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
 }
 
