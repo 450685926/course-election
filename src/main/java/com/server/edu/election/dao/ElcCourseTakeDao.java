@@ -6,8 +6,10 @@ import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
+import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.RebuildCourseNoChargeList;
+import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.StudentVo;
@@ -49,4 +51,7 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     /**查询学生重修未缴费总门数*/
     Page<StudentVo> findCourseNoChargeStudentList(
             RebuildCoursePaymentCondition  condition);
+
+    /**查询点名册教学班和老师*/
+    Page<RollBookList> findRollBookList(ReportManagementCondition condition);
 }

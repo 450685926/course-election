@@ -48,6 +48,7 @@ public class Student4Elc
     private String registerStatus;
     
     /**入学季节*/
+    @Code2Text(transformer = "X_RXJJ")
     private String enrolSeason;
     
     /**培养类别*/

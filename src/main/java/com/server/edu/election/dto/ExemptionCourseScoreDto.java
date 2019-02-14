@@ -1,11 +1,13 @@
 package com.server.edu.election.dto;
 
+import java.io.Serializable;
+
 /**
  * @description: 免修免考成绩查询条件
  * @author: bear
  * @create: 2019-01-31 09:49
  */
-public class ExemptionCourseScoreDto {
+public class ExemptionCourseScoreDto implements Serializable{
     private  Long calendarId;
     private Integer grade;
     private String  trainingCategory;

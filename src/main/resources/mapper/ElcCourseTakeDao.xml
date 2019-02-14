@@ -193,4 +193,30 @@
     </where>
     GROUP BY el.STUDENT_ID_
   </select>
+
+    <select id="findRollBookList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.entity.RollBookList">
+        SELECT el.CALENDAR_ID_ calendarId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,ss.NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
+        LEFT JOIN course_t co on co.ID_=el.COURSE_ID_
+        LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
+        LEFT JOIN (select COURSE_ID_,COUNT(ID_) NUMBER_ from elc_course_takes_t GROUP BY COURSE_ID_) ss on ss.COURSE_ID_=el.COURSE_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and el.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and co.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and co.TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+                and cl.CAMPUS_ =#{campus,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and co.FORM_LEARNING_ =#{formLearning,jdbcType=VARCHAR}
+            </if>
+
+        </where>
+        GROUP BY el.TEACHING_CLASS_ID_
+    </select>
 </mapper>
