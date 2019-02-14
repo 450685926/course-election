@@ -10,9 +10,10 @@ import java.io.Serializable;
 
 public class RebuildCourseNoChargeList implements Serializable{
     private Long id;
+    private Long calendarId;
     private String studentCode;
     private String studentName;
-    private String code;
+    private String code;//课程代码
     private String codeName;
     private String nature;
     private Double credits;
@@ -20,6 +21,50 @@ public class RebuildCourseNoChargeList implements Serializable{
     private Double weekHour;
     private Integer endWeek;
     private Integer startWeek;
+    private String label;
+    private Long courseId;//课程序号
+    private Long teachingClassId;
+    private String teachingClassCode;
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId) {
+        this.courseId = courseId;
+    }
+
+    public Long getTeachingClassId() {
+        return teachingClassId;
+    }
+
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
+    }
+
+    public String getTeachingClassCode() {
+        return teachingClassCode;
+    }
+
+    public void setTeachingClassCode(String teachingClassCode) {
+        this.teachingClassCode = teachingClassCode;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
 
     public Long getId() {
         return id;
