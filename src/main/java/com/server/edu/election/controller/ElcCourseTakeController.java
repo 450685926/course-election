@@ -4,7 +4,9 @@ import javax.validation.Valid;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -55,39 +57,45 @@ public class ElcCourseTakeController
         return RestResult.successData(list);
     }
     
-    /**
-     * 分页查询
-     *
-     * @param condition
-     * @return
-     */
-    @ApiOperation(value = "分页查询已添加课程信息")
+    @ApiOperation(value = "学生的选退课信息")
+    @PostMapping("/historyPage")
+    public RestResult<PageResult<ElcCourseTakeVo>> historyPage(
+        @RequestBody @Valid PageCondition<ElcCourseTakeQuery> condition)
+        throws Exception
+    {
+        PageResult<ElcCourseTakeVo> list =
+            courseTakeService.listHistoryPage(condition);
+        
+        return RestResult.successData(list);
+    }
+    
+    @ApiOperation(value = "分页查询已可选课程信息")
     @PostMapping("/coursePage")
     public RestResult<PageResult<CourseOpenDto>> coursePage(
         @RequestBody PageCondition<ElecRoundCourseQuery> query)
     {
         ValidatorUtil.validateAndThrow(query.getCondition());
-        PageResult<CourseOpenDto> page = roundCourseService.listPage(query);
+        PageResult<CourseOpenDto> page =
+            roundCourseService.listTeachingClassPage(query);
         
         return RestResult.successData(page);
     }
     
-    @ApiOperation(value = "给学生加课")
-    @PostMapping("/add")
-    public RestResult<?> add(
-        @RequestBody ElcCourseTakeDto value)
+    @ApiOperation(value = "学生加课")
+    @PutMapping()
+    public RestResult<?> add(@RequestBody ElcCourseTakeDto value)
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
+        
         courseTakeService.add(value.getCalendarId(),
             value.getTeachingClassIds(),
             value.getStudentId());
         return RestResult.success();
     }
     
-    @ApiOperation(value = "给学生退课")
-    @PostMapping("/withdraw")
-    public RestResult<?> withdraw(
-        @RequestBody ElcCourseTakeDto value)
+    @ApiOperation(value = "学生退课")
+    @DeleteMapping()
+    public RestResult<?> withdraw(@RequestBody ElcCourseTakeDto value)
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
         
