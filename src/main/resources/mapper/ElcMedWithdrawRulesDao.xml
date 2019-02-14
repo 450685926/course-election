@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ElcMedWithdrawRulesDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElcMedWithdrawRules">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="PROJECT_ID" jdbcType="INTEGER" property="projectId" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="OPEN_FLAG_" jdbcType="BIT" property="openFlag" />
+    <result column="COURSE_END_WEEK_" jdbcType="INTEGER" property="courseEndWeek" />
+    <result column="ENGLISH_COURSE_" jdbcType="BIT" property="englishCourse" />
+    <result column="PE_COURSE_" jdbcType="BIT" property="peCourse" />
+    <result column="PRACTICE_COURSE_" jdbcType="BIT" property="practiceCourse" />
+    <result column="RETAKE_COURSE_" jdbcType="BIT" property="retakeCourse" />
+    <result column="PRICE_" jdbcType="DOUBLE" property="price" />
+    <result column="BEGIN_TIME_" jdbcType="TIMESTAMP" property="beginTime" />
+    <result column="END_TIME_" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+</mapper>
