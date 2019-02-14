@@ -54,6 +54,20 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     }
     
     @Override
+    public PageResult<CourseOpenDto> listTeachingClassPage(
+        PageCondition<ElecRoundCourseQuery> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        ElecRoundCourseQuery query = condition.getCondition();
+        Page<CourseOpenDto> listPage =
+            roundCourseDao.listTeachingClassPage(query);
+        
+        PageResult<CourseOpenDto> result = new PageResult<>(listPage);
+        
+        return result;
+    }
+    
+    @Override
     public void add(Long roundId, List<String> courseCodes)
     {
         ElectionRounds rounds = elecRoundsDao.selectByPrimaryKey(roundId);

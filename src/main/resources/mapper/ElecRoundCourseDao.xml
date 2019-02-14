@@ -23,11 +23,35 @@
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
   
-  <resultMap type="com.server.edu.election.dto.CourseOpenDto" id="CourseOpenDtoMap" extends="BaseResultMap"></resultMap>
+  <resultMap type="com.server.edu.election.dto.CourseOpenDto" id="CourseOpenDtoMap" extends="BaseResultMap">
+  	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
+  </resultMap>
   
   <select id="listPage" resultMap="CourseOpenDtoMap">
   	select t1.* from course_open_t t1 
   	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
+  	<where>
+	  	t1.CALENDAR_ID_ = #{query.calendarId} 
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
+  		and t2.ROUNDS_ID_ = #{query.roundId}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+  		and t1.FACULTY_ = #{query.faculty}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+  		and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+  		and t1.NATURE_ = #{query.nature}
+  		</if>
+  	</where> 
+  </select>
+  
+  <select id="listTeachingClassPage" resultMap="CourseOpenDtoMap">
+  	select t1.*, t4.CODE_ AS teachingClassCode from course_open_t t1 
+  	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
+  	JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
+  	JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId} 
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">

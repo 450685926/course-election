@@ -23,6 +23,16 @@ public interface ElcCourseTakeService
         PageCondition<ElcCourseTakeQuery> page);
     
     /**
+     * 查询学生的选退课信息
+     * 
+     * @param page
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<ElcCourseTakeVo> listHistoryPage(
+        PageCondition<ElcCourseTakeQuery> page);
+    
+    /**
      * 为指定学生加课
      * 
      * @param teachingClassIds
