@@ -3,6 +3,8 @@ package com.server.edu.election.dao;
 
 
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.vo.StudentVo;
 
 import org.apache.ibatis.annotations.Param;
@@ -42,4 +44,7 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     /**查询学生重修未缴费总门数*/
     Page<StudentVo> findCourseNoChargeStudentList(
             RebuildCoursePaymentCondition  condition);
+
+    /**查询点名册教学班和老师*/
+    Page<RollBookList> findRollBookList(ReportManagementCondition condition);
 }

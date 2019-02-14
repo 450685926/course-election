@@ -27,7 +27,7 @@ public class RebuildCourseNoChargeType implements Serializable {
     @Code2Text(transformer = "G_XJZT")
     private String registrationStatus;
 
-    private Integer certificateType;
+    private Integer certificateType;//结业证书类型
 
     public Long getId() {
         return id;
