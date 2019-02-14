@@ -15,7 +15,16 @@ import tk.mybatis.mapper.common.Mapper;
 public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 {
     /**分页查询选课名单*/
-    Page<ElcCourseTakeVo> listPage(@Param("take") ElcCourseTakeQuery take);
+    Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
+    
+    /**
+     * 根据教学班ID查询课程信息
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Long getCourseIdByClassId(@Param("teachingClassId") Long teachingClassId);
     
     /**判断申请免修免考课程是否已经选课*/
     int findIsEletionCourse(@Param("studentCode") String studentCode,
