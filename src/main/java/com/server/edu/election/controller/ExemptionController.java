@@ -31,7 +31,7 @@ import java.util.List;
 
 @SwaggerDefinition(info = @Info(title = "免修免考管理", version = ""))
 @RestSchema(schemaId = "ExemptionController")
-@RequestMapping("/Exemption")
+@RequestMapping("/exemption")
 public class ExemptionController {
 
     @Autowired
