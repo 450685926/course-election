@@ -53,6 +53,12 @@ public class TeachingClass extends BaseEntity
     private String code;
     
     /**
+     * 教学班名称
+     */
+    @Column(name = "NAME_")
+    private String name;
+    
+    /**
      * 是否多媒体课程(1:是，0：否)
      */
     @Column(name = "IS_MEDIA_")
@@ -646,4 +652,14 @@ public class TeachingClass extends BaseEntity
     public void setEndWeek(Integer endWeek) {
         this.endWeek = endWeek;
     }
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+    
+    
 }

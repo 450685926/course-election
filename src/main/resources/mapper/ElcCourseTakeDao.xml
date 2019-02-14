@@ -19,22 +19,74 @@
   </resultMap>
   <resultMap type="com.server.edu.election.vo.ElcCourseTakeVo" id="VoResultMap" extends="BaseResultMap">
   	<result column="NAME_" jdbcType="VARCHAR" property="studentName" />
+  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
-  	<result column="CAMPUS_" jdbcType="VARCHAR" property="profession" />
-  	<result column="CAMPUS_" jdbcType="VARCHAR" property="courseName" />
-  
+  	<result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+  	<result column="courseName" jdbcType="VARCHAR" property="courseName" />
+  	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+  	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
   </resultMap>
+  
   <select id="listPage" resultMap="VoResultMap">
-  	select t1.STUDENT_ID_, t2.NAME_, t2.CAMPUS_
+  	select 
+  		t1.STUDENT_ID_, t1.COURSE_TAKE_TYPE_, 
+  		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
+  		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
+  		t4.CODE_ as teachingClassCode
   	from elc_course_takes_t t1
-  	left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-  	left join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+  	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
-  	 t1.CALENDAR_ID_ =#{take.calendarIdcalendarId,jdbcType=BIGINT}
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(take.courseTakeType)">
-  	 t1.COURSE_TAKE_TYPE_ = #{take.courseTakeType}
+  	 t1.CALENDAR_ID_ =#{query.calendarIdcalendarId,jdbcType=BIGINT}
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
+  	 t1.STUDENT_ID_ = #{query.studentId}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
+  	 t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
+  	 t2.NAME_ = #{query.stuName}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuFaculty)">
+  	 t2.FACULTY_ = #{query.stuFaculty}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuProfession)">
+  	 t2.PROFESSION_ = #{query.stuProfession}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+  	 t3.CODE_ = #{query.courseCode}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
+  	 t4.CODE_ = #{query.teachingClassCode}
   	 </if>
   	</where>
+  </select>
+  
+  <select id="listHistoryPage" resultMap="VoResultMap">
+  	select 
+  		t1.STUDENT_ID_, t1.COURSE_TAKE_TYPE_, 
+  		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
+  		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
+  		t4.CODE_ as teachingClassCode
+  	from election_log_t t1
+  	join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+  	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
+  	<where>
+  	 t1.CALENDAR_ID_ =#{query.calendarIdcalendarId,jdbcType=BIGINT}
+  	 t1.STUDENT_ID_ = #{query.studentId}
+  	</where>
+  </select>
+  
+  <select id="getCourseIdByClassId" resultType="long">
+  	select id_ from course_t where code_ = (
+  		select COURSE_CODE_ from course_open_t where id_ = (
+  			select COURSE_OPEN_ID_ from teaching_task_t where id_ = (
+  				select TASK_ID_ from teaching_class_t where id_ = #{teachingClassId}
+  			)
+  		)
+  	)
   </select>
 
   <select id="findIsEletionCourse" resultType="int">
