@@ -1,7 +1,14 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 @Table(name = "election_constants_t")
 public class ElectionConstants implements Serializable {
@@ -19,18 +26,21 @@ public class ElectionConstants implements Serializable {
     /**
      * 培养层次(专科   本科   硕士   博士    其他    预科)
      */
+    @NotBlank
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
 
     /**
      * 规则键值
      */
+    @NotBlank
     @Column(name = "KEY_")
     private String key;
 
     /**
      * 规则名称
      */
+    @NotBlank
     @Column(name = "NAME_")
     private String name;
 
@@ -43,6 +53,7 @@ public class ElectionConstants implements Serializable {
     /**
      * 规则参数值
      */
+    @NotBlank
     @Column(name = "VALUE_")
     private String value;
 
