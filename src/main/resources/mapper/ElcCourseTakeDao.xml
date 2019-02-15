@@ -38,7 +38,7 @@
   	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
   	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
-  	 t1.CALENDAR_ID_ =#{query.calendarIdcalendarId,jdbcType=BIGINT}
+  	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
   	 t1.STUDENT_ID_ = #{query.studentId}
   	 </if>
@@ -74,7 +74,7 @@
   	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
   	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
-  	 t1.CALENDAR_ID_ =#{query.calendarIdcalendarId,jdbcType=BIGINT}
+  	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
   	 t1.STUDENT_ID_ = #{query.studentId}
   	</where>
   </select>
