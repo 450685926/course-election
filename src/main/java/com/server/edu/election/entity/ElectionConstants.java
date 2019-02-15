@@ -1,14 +1,7 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.validator.constraints.NotBlank;
+import javax.persistence.*;
 
 @Table(name = "election_constants_t")
 public class ElectionConstants implements Serializable {
@@ -20,21 +13,24 @@ public class ElectionConstants implements Serializable {
     /**
      * 项目id
      */
-    @NotBlank
     @Column(name = "PROJECT_ID_")
     private String projectId;
 
     /**
+     * 培养层次(专科   本科   硕士   博士    其他    预科)
+     */
+    @Column(name = "TRAINING_LEVEL_")
+    private String trainingLevel;
+
+    /**
      * 规则键值
      */
-    @NotBlank
     @Column(name = "KEY_")
     private String key;
 
     /**
      * 规则名称
      */
-    @NotBlank
     @Column(name = "NAME_")
     private String name;
 
@@ -47,7 +43,6 @@ public class ElectionConstants implements Serializable {
     /**
      * 规则参数值
      */
-    @NotBlank
     @Column(name = "VALUE_")
     private String value;
 
@@ -83,6 +78,24 @@ public class ElectionConstants implements Serializable {
      */
     public void setProjectId(String projectId) {
         this.projectId = projectId == null ? null : projectId.trim();
+    }
+
+    /**
+     * 获取培养层次(专科   本科   硕士   博士    其他    预科)
+     *
+     * @return TRAINING_LEVEL_ - 培养层次(专科   本科   硕士   博士    其他    预科)
+     */
+    public String getTrainingLevel() {
+        return trainingLevel;
+    }
+
+    /**
+     * 设置培养层次(专科   本科   硕士   博士    其他    预科)
+     *
+     * @param trainingLevel 培养层次(专科   本科   硕士   博士    其他    预科)
+     */
+    public void setTrainingLevel(String trainingLevel) {
+        this.trainingLevel = trainingLevel == null ? null : trainingLevel.trim();
     }
 
     /**
@@ -165,6 +178,7 @@ public class ElectionConstants implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", projectId=").append(projectId);
+        sb.append(", trainingLevel=").append(trainingLevel);
         sb.append(", key=").append(key);
         sb.append(", name=").append(name);
         sb.append(", remark=").append(remark);
