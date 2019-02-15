@@ -6,7 +6,9 @@ package com.server.edu.election.dao;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import org.apache.ibatis.annotations.Param;
 import com.github.pagehelper.Page;
@@ -58,9 +60,19 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);
 
     /**查询教学班对应老师姓名*/
-    List<ClassTeacherDto> findTeacherByClassCode(List<RollBookList> list);
+    List<ClassTeacherDto> findTeacherByClassCode(Long teachingClassId);
 
     /**查询点名册中学生信息*/
 
     List<StudentVo> findStudentByTeachingClassId(Long id);
+
+    /** 查询教学班时间地点*/
+
+    List<ClassTeacherDto> findClassTimeAndRoom(Long id);
+
+    /**查询学生课表*/
+    List<StudentSchoolTimetab> findSchoolTimetab(@Param("calendarId") Long calendarId, @Param("studentCode") String studentCode);
+
+    /**查询所有学生课表*/
+    Page<StudentVo> findAllSchoolTimetab(ReportManagementCondition condition);
 }

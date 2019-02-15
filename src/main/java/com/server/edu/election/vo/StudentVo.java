@@ -12,6 +12,16 @@ public class StudentVo extends Student {
 
     private Long calendarId;
 
+    private String calendarName;
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
+
     private Integer courseTakeType;
 
     public Integer getCourseTakeType() {
