@@ -40,25 +40,25 @@
   	<where>
   	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
-  	 t1.STUDENT_ID_ = #{query.studentId}
+  	 and t1.STUDENT_ID_ = #{query.studentId}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
-  	 t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
+  	 and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
-  	 t2.NAME_ = #{query.stuName}
+  	 and t2.NAME_ = #{query.stuName}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuFaculty)">
-  	 t2.FACULTY_ = #{query.stuFaculty}
+  	 and t2.FACULTY_ = #{query.stuFaculty}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuProfession)">
-  	 t2.PROFESSION_ = #{query.stuProfession}
+  	 and t2.PROFESSION_ = #{query.stuProfession}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
-  	 t3.CODE_ = #{query.courseCode}
+  	 and t3.CODE_ = #{query.courseCode}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
-  	 t4.CODE_ = #{query.teachingClassCode}
+  	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>
   	</where>
   </select>
