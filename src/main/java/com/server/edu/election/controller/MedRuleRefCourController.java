@@ -23,7 +23,7 @@ import io.swagger.annotations.SwaggerDefinition;
 
 @SwaggerDefinition(info = @Info(title = "期中退课白名单管理", version = ""))
 @RestSchema(schemaId = "MedRuleRefCourController")
-@RequestMapping("MedRuleRefCourController")
+@RequestMapping("medRuleRef")
 public class MedRuleRefCourController {
 	private static Logger LOG =
 	        LoggerFactory.getLogger(MedRuleRefCourController.class);
