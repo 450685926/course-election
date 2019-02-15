@@ -40,18 +40,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-    public PageResult<ElcCourseTakeVo> listHistoryPage(
-        PageCondition<ElcCourseTakeQuery> page)
-    {
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        Page<ElcCourseTakeVo> listPage =
-            courseTakeDao.listHistoryPage(page.getCondition());
-        
-        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
-        return result;
-    }
-    
-    @Override
     public void add(Long calendarId, List<Long> teachingClassIds,
         String studentId)
     {

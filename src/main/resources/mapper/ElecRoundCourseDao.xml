@@ -48,10 +48,12 @@
   </select>
   
   <select id="listTeachingClassPage" resultMap="CourseOpenDtoMap">
-  	select t1.*, t4.CODE_ AS teachingClassCode from course_open_t t1 
-  	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
+  	select t1.*, t4.CODE_ AS teachingClassCode 
+	from course_open_t t1 
   	JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
   	JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
+	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
+	join election_rounds_t t5 ON t5.CALENDAR_ID_ = t1.CALENDAR_ID_
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId} 
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
@@ -70,9 +72,13 @@
   </select>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
-  	select t1.* from course_open_t t1 
+  	select DISTINCT t1.* 
+	from course_open_t t1 
+  	JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
+  	JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId}
+	  	and t1.IS_OPEN_ = 1
 	  	and t1.COURSE_CODE_ NOT IN (
 	  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
 	  	)

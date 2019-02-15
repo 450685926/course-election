@@ -1,6 +1,5 @@
 package com.server.edu.election.service.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +10,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.service.ElcLogService;
-
-import tk.mybatis.mapper.entity.Example;
-import tk.mybatis.mapper.entity.Example.Criteria;
+import com.server.edu.election.vo.ElcLogVo;
 
 @Service
 public class ElcLogServiceImpl implements ElcLogService
@@ -22,30 +19,12 @@ public class ElcLogServiceImpl implements ElcLogService
     private ElcLogDao elcLogDao;
     
     @Override
-    public PageResult<ElcLog> listPage(PageCondition<ElcLog> page)
+    public PageResult<ElcLogVo> listPage(PageCondition<ElcLog> page)
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         
-        Example example = new Example(ElcLog.class);
         
-        ElcLog log = page.getCondition();
-        Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("calendarId", log.getCalendarId());
-        
-        if (StringUtils.isNotBlank(log.getStudentId()))
-        {
-            criteria.andEqualTo("studentId", log.getStudentId());
-        }
-        if (log.getType() != null)
-        {
-            criteria.andEqualTo("type", log.getType());
-        }
-        if (log.getMode() != null)
-        {
-            criteria.andEqualTo("mode", log.getMode());
-        }
-        
-        Page<ElcLog> p = (Page<ElcLog>)elcLogDao.selectByExample(example);
+        Page<ElcLogVo> p = elcLogDao.listPage(page.getCondition());
         
         return new PageResult<>(p);
     }

@@ -26,15 +26,6 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
     
     /**
-     * 查询学生的选退课信息
-     * 
-     * @param take
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
-    Page<ElcCourseTakeVo> listHistoryPage(@Param("query") ElcCourseTakeQuery take);
-    
-    /**
      * 根据教学班ID查询课程信息
      * 
      * @param teachingClassId

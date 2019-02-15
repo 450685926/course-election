@@ -40,42 +40,26 @@
   	<where>
   	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
-  	 t1.STUDENT_ID_ = #{query.studentId}
+  	 and t1.STUDENT_ID_ = #{query.studentId}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
-  	 t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
+  	 and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
-  	 t2.NAME_ = #{query.stuName}
+  	 and t2.NAME_ = #{query.stuName}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuFaculty)">
-  	 t2.FACULTY_ = #{query.stuFaculty}
+  	 and t2.FACULTY_ = #{query.stuFaculty}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuProfession)">
-  	 t2.PROFESSION_ = #{query.stuProfession}
+  	 and t2.PROFESSION_ = #{query.stuProfession}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
-  	 t3.CODE_ = #{query.courseCode}
+  	 and t3.CODE_ = #{query.courseCode}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
-  	 t4.CODE_ = #{query.teachingClassCode}
+  	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>
-  	</where>
-  </select>
-  
-  <select id="listHistoryPage" resultMap="VoResultMap">
-  	select 
-  		t1.STUDENT_ID_, t1.COURSE_TAKE_TYPE_, 
-  		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
-  		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
-  		t4.CODE_ as teachingClassCode
-  	from election_log_t t1
-  	join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-  	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
-  	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
-  	<where>
-  	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
-  	 and t1.STUDENT_ID_ = #{query.studentId}
   	</where>
   </select>
   

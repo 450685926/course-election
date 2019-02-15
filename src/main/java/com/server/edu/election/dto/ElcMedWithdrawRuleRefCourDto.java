@@ -6,8 +6,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcMedWithdrawRuleRefCour;
-
+@CodeI18n
 public class ElcMedWithdrawRuleRefCourDto extends ElcMedWithdrawRuleRefCour {
     private static final long serialVersionUID = 1L;
     //校历id
