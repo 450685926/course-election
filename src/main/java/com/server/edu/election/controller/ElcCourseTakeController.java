@@ -57,18 +57,6 @@ public class ElcCourseTakeController
         return RestResult.successData(list);
     }
     
-    @ApiOperation(value = "学生的选退课信息")
-    @PostMapping("/historyPage")
-    public RestResult<PageResult<ElcCourseTakeVo>> historyPage(
-        @RequestBody @Valid PageCondition<ElcCourseTakeQuery> condition)
-        throws Exception
-    {
-        PageResult<ElcCourseTakeVo> list =
-            courseTakeService.listHistoryPage(condition);
-        
-        return RestResult.successData(list);
-    }
-    
     @ApiOperation(value = "分页查询已可选课程信息")
     @PostMapping("/coursePage")
     public RestResult<PageResult<CourseOpenDto>> coursePage(

@@ -63,22 +63,6 @@
   	</where>
   </select>
   
-  <select id="listHistoryPage" resultMap="VoResultMap">
-  	select 
-  		t1.STUDENT_ID_, t1.COURSE_TAKE_TYPE_, 
-  		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
-  		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
-  		t4.CODE_ as teachingClassCode
-  	from election_log_t t1
-  	join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-  	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
-  	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
-  	<where>
-  	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
-  	 and t1.STUDENT_ID_ = #{query.studentId}
-  	</where>
-  </select>
-  
   <select id="getCourseIdByClassId" resultType="long">
   	select id_ from course_t where code_ = (
   		select COURSE_CODE_ from course_open_t where id_ = (
