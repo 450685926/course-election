@@ -75,7 +75,7 @@
   	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
   	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
-  	 t1.STUDENT_ID_ = #{query.studentId}
+  	 and t1.STUDENT_ID_ = #{query.studentId}
   	</where>
   </select>
   
