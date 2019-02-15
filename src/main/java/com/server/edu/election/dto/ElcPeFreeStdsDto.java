@@ -2,8 +2,9 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcPeFreeStds;
-
+@CodeI18n
 public class ElcPeFreeStdsDto extends ElcPeFreeStds {
     private static final long serialVersionUID = 1L;
     
