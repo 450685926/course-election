@@ -3,6 +3,7 @@ package com.server.edu.election.service;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.vo.ElcLogVo;
 
 public interface ElcLogService
 {
@@ -13,6 +14,6 @@ public interface ElcLogService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    PageResult<ElcLog> listPage(
+    PageResult<ElcLogVo> listPage(
         PageCondition<ElcLog> page);
 }

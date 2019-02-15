@@ -13,6 +13,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.service.ElcLogService;
+import com.server.edu.election.vo.ElcLogVo;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -35,11 +36,11 @@ public class ElcLogController
      */
     @ApiOperation(value = "选课日志列表")
     @PostMapping("/page")
-    public RestResult<PageResult<ElcLog>> list(
+    public RestResult<PageResult<ElcLogVo>> list(
         @RequestBody @Valid PageCondition<ElcLog> condition)
         throws Exception
     {
-        PageResult<ElcLog> list = service.listPage(condition);
+        PageResult<ElcLogVo> list = service.listPage(condition);
         
         return RestResult.successData(list);
     }
