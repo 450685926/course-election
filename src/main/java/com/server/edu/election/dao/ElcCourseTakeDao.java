@@ -59,4 +59,8 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 
     /**查询教学班对应老师姓名*/
     List<ClassTeacherDto> findTeacherByClassCode(List<RollBookList> list);
+
+    /**查询点名册中学生信息*/
+
+    List<StudentVo> findStudentByTeachingClassId(Long id);
 }

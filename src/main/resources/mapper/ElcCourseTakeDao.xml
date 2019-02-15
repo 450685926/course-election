@@ -195,7 +195,7 @@
   </select>
 
     <select id="findRollBookList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.entity.RollBookList">
-        SELECT el.CALENDAR_ID_ calendarId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,ss.NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
+        SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,ss.NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on co.ID_=el.COURSE_ID_
         LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
         LEFT JOIN (select COURSE_ID_,COUNT(ID_) NUMBER_ from elc_course_takes_t GROUP BY COURSE_ID_) ss on ss.COURSE_ID_=el.COURSE_ID_

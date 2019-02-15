@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.PreviewRollBookList;
 import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.service.ReportManagementService;
@@ -42,5 +43,16 @@ public class ReportManagementController {
     public RestResult<PageResult<RollBookList>> findRollBookList(@RequestBody PageCondition<ReportManagementCondition> condition){
         PageResult<RollBookList> bookList = managementService.findRollBookList(condition);
         return RestResult.successData(bookList);
+    }
+
+
+    @ApiOperation(value = "预览点名册")
+    @PostMapping("/previewRollBookList")
+    public RestResult<PreviewRollBookList> findPreviewRollBookList(@RequestBody RollBookList bookList){
+        if(bookList.getCalssCode()==null||bookList.getTeachingClassId()==null){
+            return RestResult.fail("common.parameterError");
+        }
+        PreviewRollBookList previewRollBookList = managementService.findPreviewRollBookList(bookList);
+        return RestResult.successData(previewRollBookList);
     }
 }

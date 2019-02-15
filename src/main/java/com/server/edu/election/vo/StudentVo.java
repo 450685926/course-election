@@ -12,6 +12,16 @@ public class StudentVo extends Student {
 
     private Long calendarId;
 
+    private Integer courseTakeType;
+
+    public Integer getCourseTakeType() {
+        return courseTakeType;
+    }
+
+    public void setCourseTakeType(Integer courseTakeType) {
+        this.courseTakeType = courseTakeType;
+    }
+
     public Long getCalendarId() {
         return calendarId;
     }

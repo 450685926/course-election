@@ -12,7 +12,9 @@ import java.io.Serializable;
  */
 @CodeI18n
 public class RollBookList implements Serializable {
+    private Long id;
     private Long calendarId;
+    private Long teachingClassId;
     private String calssCode;
     private String courseCode;
     private String courseName;
@@ -23,6 +25,22 @@ public class RollBookList implements Serializable {
     @Code2Text(transformer="X_YX")
     private String faculty;
     private String teacherName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getTeachingClassId() {
+        return teachingClassId;
+    }
+
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
+    }
 
     public Long getCalendarId() {
         return calendarId;
