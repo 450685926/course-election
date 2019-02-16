@@ -8,9 +8,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
-import com.server.edu.common.validator.AddGroup;
+import org.hibernate.validator.constraints.NotBlank;
+
+import com.server.edu.common.validator.DelGroup;
 
 @Table(name = "elc_course_takes_t")
 public class ElcCourseTake implements Serializable
@@ -26,14 +27,13 @@ public class ElcCourseTake implements Serializable
     /**
      * 学号
      */
-    @NotNull(groups = {AddGroup.class})
+    @NotBlank(groups= {DelGroup.class})
     @Column(name = "STUDENT_ID_")
     private String studentId;
     
     /**
      * 校历ID（学年学期）
      */
-    @NotNull(groups = {AddGroup.class})
     @Column(name = "CALENDAR_ID_")
     private Long calendarId;
     
@@ -46,6 +46,7 @@ public class ElcCourseTake implements Serializable
     /**
      * 教学班ID
      */
+    @NotBlank(groups= {DelGroup.class})
     @Column(name = "TEACHING_CLASS_ID_")
     private Long teachingClassId;
     

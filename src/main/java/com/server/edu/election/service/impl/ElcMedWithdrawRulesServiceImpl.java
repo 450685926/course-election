@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcMedWithdrawRulesDao;
 import com.server.edu.election.entity.ElcMedWithdrawRules;
 import com.server.edu.election.service.ElcMedWithdrawRulesService;
+import com.server.edu.election.vo.ElcMedWithdrawRulesVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
 
@@ -94,8 +96,14 @@ public class ElcMedWithdrawRulesServiceImpl implements ElcMedWithdrawRulesServic
 	}
 	
 	@Override
-	public ElcMedWithdrawRules getRule(Long id) {
+	public ElcMedWithdrawRulesVo getRule(Long id) {
+		ElcMedWithdrawRulesVo elcMedWithdrawRulesVo = new ElcMedWithdrawRulesVo();
 		ElcMedWithdrawRules elcMedWithdrawRules = elcMedWithdrawRulesDao.selectByPrimaryKey(id);
-		return elcMedWithdrawRules;
+		if(elcMedWithdrawRules!=null) {
+			BeanUtils.copyProperties(elcMedWithdrawRules, elcMedWithdrawRulesVo);
+			elcMedWithdrawRulesVo.setBeginTimeL(elcMedWithdrawRulesVo.getBeginTime().getTime());
+			elcMedWithdrawRulesVo.setEndTimeL(elcMedWithdrawRulesVo.getEndTime().getTime());
+		}
+		return elcMedWithdrawRulesVo;
 	}
 }

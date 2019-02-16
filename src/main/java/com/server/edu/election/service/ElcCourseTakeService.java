@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 
@@ -29,7 +31,16 @@ public interface ElcCourseTakeService
      * @param studentId
      * @see [类、类#方法、类#成员]
      */
-    void add(Long calendarId, List<Long> teachingClassIds, String studentId);
+    String add(ElcCourseTakeAddDto add);
+    
+    /**
+     * 
+     * 通过Excel添加
+     * @param calendarId
+     * @param datas
+     * @see [类、类#方法、类#成员]
+     */
+    String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas);
     
     /**
      * 为指定学生退课
@@ -38,5 +49,5 @@ public interface ElcCourseTakeService
      * @param studentId
      * @see [类、类#方法、类#成员]
      */
-    void withdraw(List<Long> teachingClassIds, String studentId);
+    void withdraw(List<ElcCourseTake> value);
 }

@@ -19,9 +19,9 @@
   </resultMap>
   <resultMap type="com.server.edu.election.vo.ElcCourseTakeVo" id="VoResultMap" extends="BaseResultMap">
   	<result column="NAME_" jdbcType="VARCHAR" property="studentName" />
-  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
   	<result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
   	<result column="courseName" jdbcType="VARCHAR" property="courseName" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
@@ -29,7 +29,7 @@
   
   <select id="listPage" resultMap="VoResultMap">
   	select 
-  		t1.STUDENT_ID_, t1.COURSE_TAKE_TYPE_, 
+  		t1.*,
   		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
   		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
   		t4.CODE_ as teachingClassCode
@@ -63,14 +63,22 @@
   	</where>
   </select>
   
-  <select id="getCourseIdByClassId" resultType="long">
-  	select id_ from course_t where code_ = (
-  		select COURSE_CODE_ from course_open_t where id_ = (
-  			select COURSE_OPEN_ID_ from teaching_task_t where id_ = (
-  				select TASK_ID_ from teaching_class_t where id_ = #{teachingClassId}
-  			)
-  		)
-  	)
+  <select id="getTeachingClassInfo" resultMap="VoResultMap">
+  	select 
+  		class.id_ as TEACHING_CLASS_ID_ , class.code_ as teachingClassCode, 
+  		cour.id_ as COURSE_ID_, cour.code_ as courseCode
+	from teaching_class_t class
+	left join teaching_task_t task ON task.id_ = class.TASK_ID_
+	left join course_open_t open ON open.id_ = task.COURSE_OPEN_ID_
+	left join course_t cour ON cour.code_ = open.COURSE_CODE_
+	<where>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassId)">
+			class.id_ = #{teachingClassId}
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
+			and class.code_ = #{code}
+		</if>
+	</where> 
   </select>
 
   <select id="findIsEletionCourse" resultType="int">

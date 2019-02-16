@@ -61,7 +61,7 @@ public class ElcMedWithdrawApplyController {
     		@RequestBody @NotEmpty List<Long> ids)
         throws Exception
     {
-        LOG.info("add.start");
+        LOG.info("approval.start");
         int result =elcMedWithdrawApplyService.approval(ids);
         return RestResult.successData(result);
     }

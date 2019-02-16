@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import com.server.edu.election.entity.ElcMedWithdrawRuleRefCour;
 import com.server.edu.election.service.MedRuleRefCourService;
 import com.server.edu.election.vo.ElcMedWithdrawRuleRefCourVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.util.CollectionUtil;
 @Service
 public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 	@Autowired
@@ -43,6 +45,26 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 			ElcMedWithdrawRuleRefCour elcMedWithdrawRuleRefCour = new ElcMedWithdrawRuleRefCour();
 			elcMedWithdrawRuleRefCour.setMedWithdrawRuleId(elcMedWithdrawRuleRefCourDto.getMedWithdrawRuleId());
 			elcMedWithdrawRuleRefCour.setTeachingClassId(temp);
+			refList.add(elcMedWithdrawRuleRefCour);
+		});
+		int result= elcMedWithdrawRuleRefCourDao.batchInsert(refList);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.rule")));
+		}
+		return result;
+		
+	}
+	
+	@Override
+	public int addAll(ElcMedWithdrawRuleRefCourDto dto) {
+		List<ElcMedWithdrawRuleRefCourVo> list= elcMedWithdrawRuleRefCourDao.selectUnMedRuleRefCours(dto);
+		if(CollectionUtil.isEmpty(list)) {
+			throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.isNull"));
+		}
+		List<ElcMedWithdrawRuleRefCour> refList = new ArrayList<>();
+		list.forEach(temp->{
+			ElcMedWithdrawRuleRefCour elcMedWithdrawRuleRefCour = new ElcMedWithdrawRuleRefCour();
+			BeanUtils.copyProperties(temp, elcMedWithdrawRuleRefCour);
 			refList.add(elcMedWithdrawRuleRefCour);
 		});
 		int result= elcMedWithdrawRuleRefCourDao.batchInsert(refList);
