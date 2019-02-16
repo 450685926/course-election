@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.server.edu.common.validator.AddGroup;
@@ -21,7 +20,7 @@ import com.server.edu.common.validator.DelGroup;
  */
 public class ElcCourseTakeAddDto
 {
-    @NotNull(groups = {AddGroup.class, DelGroup.class,})
+    @NotNull(groups = {AddGroup.class, DelGroup.class})
     private Long calendarId;
     
     /**
@@ -33,11 +32,12 @@ public class ElcCourseTakeAddDto
     /**
      * 教学班ID
      */
-    @NotEmpty(groups = {AddGroup.class, DelGroup.class})
+    @NotEmpty(groups = {AddGroup.class})
     private List<Long> teachingClassIds;
     
-    @NotBlank(groups = {DelGroup.class})
     private String studentId;
+    
+    private String teachingClassCode;
     
     public Long getCalendarId()
     {
@@ -77,6 +77,16 @@ public class ElcCourseTakeAddDto
     public void setStudentId(String studentId)
     {
         this.studentId = studentId;
+    }
+    
+    public String getTeachingClassCode()
+    {
+        return teachingClassCode;
+    }
+    
+    public void setTeachingClassCode(String teachingClassCode)
+    {
+        this.teachingClassCode = teachingClassCode;
     }
     
 }

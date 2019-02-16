@@ -161,14 +161,8 @@ public class ElecRoundStuController
             designer.setDataStartRowIdx(1);
             designer.setConfigs(new ArrayList<>());
             
-            designer.getConfigs().add(new ExcelParseConfig("studentId", 0)
-            {
-                @Override
-                public Object handler(String value)
-                {
-                    return value;
-                }
-            });
+            designer.getConfigs().add(new ExcelParseConfig("studentId", 0));
+            
             List<Student4Elc> parseExcel = GeneralExcelUtil
                 .parseExcel(workbook, designer, Student4Elc.class);
             

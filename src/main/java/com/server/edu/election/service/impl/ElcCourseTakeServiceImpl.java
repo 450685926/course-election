@@ -1,9 +1,9 @@
 package com.server.edu.election.service.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,26 +41,85 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-    public void add(ElcCourseTakeAddDto add)
+    public String add(ElcCourseTakeAddDto add)
     {
+        StringBuilder sb = new StringBuilder();
         Date date = new Date();
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
         List<Long> teachingClassIds = add.getTeachingClassIds();
         for (String studentId : studentIds)
         {
-            List<Long> courseIds = new ArrayList<>();
-            for (Long teachingClassId : teachingClassIds)
+            for (int i = 0; i < teachingClassIds.size(); i++)
             {
+                Long teachingClassId = teachingClassIds.get(i);
                 ElcCourseTake record = new ElcCourseTake();
                 record.setStudentId(studentId);
                 record.setTeachingClassId(teachingClassId);
                 int selectCount = courseTakeDao.selectCount(record);
                 if (selectCount == 0)
                 {
-                    Long courseId =
-                        courseTakeDao.getCourseIdByClassId(teachingClassId);
-                    if (null != courseId && !courseIds.contains(courseId))
+                    ElcCourseTakeVo vo = courseTakeDao
+                        .getTeachingClassInfo(teachingClassId, null);
+                    if (null != vo && vo.getCourseId() != null)
+                    {
+                        ElcCourseTake take = new ElcCourseTake();
+                        take.setCalendarId(calendarId);
+                        take.setChooseObj(ChooseObj.ADMIN.type());
+                        take.setCourseId(vo.getCourseId());
+                        take.setCourseTakeType(CourseTakeType.NORMAL.type());
+                        take.setCreatedAt(date);
+                        take.setStudentId(studentId);
+                        take.setTeachingClassId(teachingClassId);
+                        take.setTurn(0);
+                        courseTakeDao.insertSelective(take);
+                    }
+                    else
+                    {
+                        String code = teachingClassId.toString();
+                        if (vo != null)
+                        {
+                            code = vo.getTeachingClassCode();
+                        }
+                        sb.append("教学班[" + code + "]对应的课程不存在,");
+                    }
+                }
+            }
+        }
+        
+        if (sb.length() > 0)
+        {
+            return sb.substring(0, sb.length() - 1);
+        }
+        return StringUtils.EMPTY;
+    }
+    
+    @Override
+    public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas)
+    {
+        StringBuilder sb = new StringBuilder();
+        Date date = new Date();
+        for (ElcCourseTakeAddDto data : datas)
+        {
+            String studentId = StringUtils.trim(data.getStudentId());
+            String teachingClassCode =
+                StringUtils.trim(data.getTeachingClassCode());
+            
+            if (StringUtils.isNotBlank(studentId)
+                && StringUtils.isNotBlank(teachingClassCode))
+            {
+                ElcCourseTakeVo vo = this.courseTakeDao
+                    .getTeachingClassInfo(null, teachingClassCode);
+                Long courseId = vo.getCourseId();
+                Long teachingClassId = vo.getTeachingClassId();
+                
+                if (null != vo && vo.getCourseId() != null)
+                {
+                    ElcCourseTake record = new ElcCourseTake();
+                    record.setStudentId(studentId);
+                    record.setTeachingClassId(teachingClassId);
+                    int selectCount = courseTakeDao.selectCount(record);
+                    if (selectCount == 0)
                     {
                         ElcCourseTake take = new ElcCourseTake();
                         take.setCalendarId(calendarId);
@@ -73,10 +132,24 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                         take.setTurn(0);
                         courseTakeDao.insertSelective(take);
                     }
-                    courseIds.add(courseId);
                 }
+                else
+                {
+                    String code = teachingClassId.toString();
+                    if (vo != null)
+                    {
+                        code = vo.getTeachingClassCode();
+                    }
+                    sb.append("教学班[" + code + "]对应的课程不存在,");
+                }
+                
             }
         }
+        if (sb.length() > 0)
+        {
+            return sb.substring(0, sb.length() - 1);
+        }
+        return StringUtils.EMPTY;
     }
     
     @Override

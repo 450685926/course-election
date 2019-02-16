@@ -31,7 +31,16 @@ public interface ElcCourseTakeService
      * @param studentId
      * @see [类、类#方法、类#成员]
      */
-    void add(ElcCourseTakeAddDto add);
+    String add(ElcCourseTakeAddDto add);
+    
+    /**
+     * 
+     * 通过Excel添加
+     * @param calendarId
+     * @param datas
+     * @see [类、类#方法、类#成员]
+     */
+    String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas);
     
     /**
      * 为指定学生退课

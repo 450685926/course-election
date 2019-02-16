@@ -1,7 +1,5 @@
 package com.server.edu.election.dao;
 
-
-
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -22,13 +20,16 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
     
     /**
-     * 根据教学班ID查询课程信息
+     * 根据教学班ID，教学班code查询课程id与教学班id
      * 
      * @param teachingClassId
+     * @param teachingClassCode 
      * @return
      * @see [类、类#方法、类#成员]
      */
-    Long getCourseIdByClassId(@Param("teachingClassId") Long teachingClassId);
+    ElcCourseTakeVo getTeachingClassInfo(
+        @Param("teachingClassId") Long teachingClassId,
+        @Param("code") String teachingClassCode);
     
     /**判断申请免修免考课程是否已经选课*/
     int findIsEletionCourse(@Param("studentCode") String studentCode,
@@ -37,12 +38,12 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     
     /**查询重修未缴费课程名单*/
     Page<RebuildCourseNoChargeList> findCourseNoChargeList(
-        RebuildCoursePaymentCondition  condition);
-
+        RebuildCoursePaymentCondition condition);
+    
     /**查询学生重修未缴费总门数*/
     Page<StudentVo> findCourseNoChargeStudentList(
-            RebuildCoursePaymentCondition  condition);
-
+        RebuildCoursePaymentCondition condition);
+    
     /**查询点名册教学班和老师*/
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);
 }
