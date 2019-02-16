@@ -5,6 +5,7 @@ import java.util.List;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.election.entity.ElcMedWithdrawRules;
+import com.server.edu.election.vo.ElcMedWithdrawRulesVo;
 
 public interface ElcMedWithdrawRulesService {
 	 PageInfo<ElcMedWithdrawRules> list(PageCondition<ElcMedWithdrawRules> condition);
@@ -15,6 +16,6 @@ public interface ElcMedWithdrawRulesService {
 	 
 	 int delete(List<Long> ids);
 	 
-	 ElcMedWithdrawRules getRule(Long id);
+	 ElcMedWithdrawRulesVo getRule(Long id);
 
 }
