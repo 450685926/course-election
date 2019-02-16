@@ -9,6 +9,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import com.server.edu.common.validator.DelGroup;
+
 @Table(name = "elc_course_takes_t")
 public class ElcCourseTake implements Serializable
 {
@@ -23,6 +27,7 @@ public class ElcCourseTake implements Serializable
     /**
      * 学号
      */
+    @NotBlank(groups= {DelGroup.class})
     @Column(name = "STUDENT_ID_")
     private String studentId;
     
@@ -41,6 +46,7 @@ public class ElcCourseTake implements Serializable
     /**
      * 教学班ID
      */
+    @NotBlank(groups= {DelGroup.class})
     @Column(name = "TEACHING_CLASS_ID_")
     private Long teachingClassId;
     

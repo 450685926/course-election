@@ -19,9 +19,9 @@
   </resultMap>
   <resultMap type="com.server.edu.election.vo.ElcCourseTakeVo" id="VoResultMap" extends="BaseResultMap">
   	<result column="NAME_" jdbcType="VARCHAR" property="studentName" />
-  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
   	<result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
   	<result column="courseName" jdbcType="VARCHAR" property="courseName" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
@@ -29,7 +29,7 @@
   
   <select id="listPage" resultMap="VoResultMap">
   	select 
-  		t1.STUDENT_ID_, t1.COURSE_TAKE_TYPE_, 
+  		t1.*,
   		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
   		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
   		t4.CODE_ as teachingClassCode

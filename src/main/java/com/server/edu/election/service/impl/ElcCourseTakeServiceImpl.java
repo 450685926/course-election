@@ -80,14 +80,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-    public void withdraw(List<ElcCourseTakeAddDto> value)
+    public void withdraw(List<ElcCourseTake> value)
     {
-        for (ElcCourseTakeAddDto add : value)
+        for (ElcCourseTake take : value)
         {
             Example example = new Example(ElcCourseTake.class);
             example.createCriteria()
-                .andEqualTo("studentId", add.getStudentId())
-                .andIn("teachingClassId", add.getTeachingClassIds());
+                .andEqualTo("studentId", take.getStudentId())
+                .andEqualTo("teachingClassId", take.getTeachingClassId());
             courseTakeDao.deleteByExample(example);
         }
     }

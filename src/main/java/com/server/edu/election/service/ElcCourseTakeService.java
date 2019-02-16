@@ -5,6 +5,7 @@ import java.util.List;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 
@@ -39,5 +40,5 @@ public interface ElcCourseTakeService
      * @param studentId
      * @see [类、类#方法、类#成员]
      */
-    void withdraw(List<ElcCourseTakeAddDto> value);
+    void withdraw(List<ElcCourseTake> value);
 }
