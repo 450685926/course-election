@@ -24,6 +24,9 @@ cse:
       serverUri: https://cse.cn-east-2.myhuaweicloud.com:443
   rest:
     address: 0.0.0.0:8113
+  uploads:
+    directory: /home/edu/cacheFile/
+    maxSize: -1
   #When a local project is deployed as a container outside a cluster, you need to delete all monitor and credentials comments and configure the AK/SK.
 #addressResolver:
   #servers: 114.114.114.114
