@@ -110,11 +110,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             {
                 ElcCourseTakeVo vo = this.courseTakeDao
                     .getTeachingClassInfo(null, teachingClassCode);
-                Long courseId = vo.getCourseId();
-                Long teachingClassId = vo.getTeachingClassId();
                 
                 if (null != vo && vo.getCourseId() != null)
                 {
+                    Long courseId = vo.getCourseId();
+                    Long teachingClassId = vo.getTeachingClassId();
                     ElcCourseTake record = new ElcCourseTake();
                     record.setStudentId(studentId);
                     record.setTeachingClassId(teachingClassId);
@@ -135,12 +135,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 }
                 else
                 {
-                    String code = teachingClassId.toString();
-                    if (vo != null)
-                    {
-                        code = vo.getTeachingClassCode();
-                    }
-                    sb.append("教学班[" + code + "]对应的课程不存在,");
+                    sb.append("教学班[" + teachingClassCode + "]对应的课程不存在,");
                 }
                 
             }
