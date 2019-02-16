@@ -1,21 +1,10 @@
 package com.server.edu.election.dto;
 
-import java.util.List;
-
-import org.hibernate.validator.constraints.NotEmpty;
-
-import com.server.edu.common.validator.AddGroup;
 import com.server.edu.election.entity.ElcCourseTake;
 
 public class ElcCourseTakeDto extends ElcCourseTake
 {
     private static final long serialVersionUID = 1L;
-    
-    /**
-     * 教学班ID
-     */
-    @NotEmpty(groups = {AddGroup.class})
-    private List<Long> teachingClassIds;
     
     /**1.实践课程 0.教学*/
     private Integer lessonType;
@@ -45,14 +34,4 @@ public class ElcCourseTakeDto extends ElcCourseTake
         this.campus = campus;
     }
 
-    public List<Long> getTeachingClassIds()
-    {
-        return teachingClassIds;
-    }
-
-    public void setTeachingClassIds(List<Long> teachingClassIds)
-    {
-        this.teachingClassIds = teachingClassIds;
-    }
-    
 }

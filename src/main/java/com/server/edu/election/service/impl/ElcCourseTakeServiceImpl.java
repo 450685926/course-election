@@ -14,6 +14,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
@@ -40,39 +41,55 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-    public void add(Long calendarId, List<Long> teachingClassIds,
-        String studentId)
+    public void add(ElcCourseTakeAddDto add)
     {
-        List<Long> courseIds = new ArrayList<>();
         Date date = new Date();
-        for (Long teachingClassId : teachingClassIds)
+        Long calendarId = add.getCalendarId();
+        List<String> studentIds = add.getStudentIds();
+        List<Long> teachingClassIds = add.getTeachingClassIds();
+        for (String studentId : studentIds)
         {
-            Long courseId = courseTakeDao.getCourseIdByClassId(teachingClassId);
-            if (null != courseId && !courseIds.contains(courseId))
+            List<Long> courseIds = new ArrayList<>();
+            for (Long teachingClassId : teachingClassIds)
             {
-                ElcCourseTake take = new ElcCourseTake();
-                take.setCalendarId(calendarId);
-                take.setChooseObj(ChooseObj.ADMIN.type());
-                take.setCourseId(courseId);
-                take.setCourseTakeType(CourseTakeType.NORMAL.type());
-                take.setCreatedAt(date);
-                take.setStudentId(studentId);
-                take.setTeachingClassId(teachingClassId);
-                take.setTurn(0);
-                courseTakeDao.insertSelective(take);
+                ElcCourseTake record = new ElcCourseTake();
+                record.setStudentId(studentId);
+                record.setTeachingClassId(teachingClassId);
+                int selectCount = courseTakeDao.selectCount(record);
+                if (selectCount == 0)
+                {
+                    Long courseId =
+                        courseTakeDao.getCourseIdByClassId(teachingClassId);
+                    if (null != courseId && !courseIds.contains(courseId))
+                    {
+                        ElcCourseTake take = new ElcCourseTake();
+                        take.setCalendarId(calendarId);
+                        take.setChooseObj(ChooseObj.ADMIN.type());
+                        take.setCourseId(courseId);
+                        take.setCourseTakeType(CourseTakeType.NORMAL.type());
+                        take.setCreatedAt(date);
+                        take.setStudentId(studentId);
+                        take.setTeachingClassId(teachingClassId);
+                        take.setTurn(0);
+                        courseTakeDao.insertSelective(take);
+                    }
+                    courseIds.add(courseId);
+                }
             }
-            courseIds.add(courseId);
         }
     }
     
     @Override
-    public void withdraw(List<Long> teachingClassIds, String studentId)
+    public void withdraw(List<ElcCourseTakeAddDto> value)
     {
-        Example example = new Example(ElcCourseTake.class);
-        example.createCriteria()
-            .andEqualTo("studentId", studentId)
-            .andIn("teachingClassId", teachingClassIds);
-        courseTakeDao.deleteByExample(example);
+        for (ElcCourseTakeAddDto add : value)
+        {
+            Example example = new Example(ElcCourseTake.class);
+            example.createCriteria()
+                .andEqualTo("studentId", add.getStudentId())
+                .andIn("teachingClassId", add.getTeachingClassIds());
+            courseTakeDao.deleteByExample(example);
+        }
     }
     
 }

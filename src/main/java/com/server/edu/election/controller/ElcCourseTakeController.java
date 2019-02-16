@@ -1,8 +1,11 @@
 package com.server.edu.election.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +19,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.CourseOpenDto;
-import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
@@ -71,24 +74,21 @@ public class ElcCourseTakeController
     
     @ApiOperation(value = "学生加课")
     @PutMapping()
-    public RestResult<?> add(@RequestBody ElcCourseTakeDto value)
+    public RestResult<?> add(@RequestBody ElcCourseTakeAddDto value)
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
         
-        courseTakeService.add(value.getCalendarId(),
-            value.getTeachingClassIds(),
-            value.getStudentId());
+        courseTakeService.add(value);
         return RestResult.success();
     }
     
     @ApiOperation(value = "学生退课")
     @DeleteMapping()
-    public RestResult<?> withdraw(@RequestBody ElcCourseTakeDto value)
+    public RestResult<?> withdraw(@RequestBody @NotEmpty List<ElcCourseTakeAddDto> value)
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
         
-        courseTakeService.withdraw(value.getTeachingClassIds(),
-            value.getStudentId());
+        courseTakeService.withdraw(value);
         
         return RestResult.success();
     }
