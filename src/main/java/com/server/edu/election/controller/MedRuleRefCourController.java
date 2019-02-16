@@ -66,6 +66,23 @@ public class MedRuleRefCourController {
         return RestResult.successData(result);
     }
     
+    /**
+     * 全量添加退课白名单
+     * 
+     * @param 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "全量添加退课白名单")
+    @PostMapping("/addAll")
+    public RestResult<Integer> addAll(@RequestBody ElcMedWithdrawRuleRefCourDto dto)
+        throws Exception
+    {
+        LOG.info("addAll.start");
+        int result =medRuleRefCourService.addAll(dto);
+        return RestResult.successData(result);
+    }
+    
     
     
 

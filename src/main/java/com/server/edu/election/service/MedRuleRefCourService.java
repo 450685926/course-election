@@ -8,4 +8,5 @@ import com.server.edu.election.vo.ElcMedWithdrawRuleRefCourVo;
 public interface MedRuleRefCourService {
 	PageInfo<ElcMedWithdrawRuleRefCourVo> list(PageCondition<ElcMedWithdrawRuleRefCourDto> condition);
 	int add(ElcMedWithdrawRuleRefCourDto elcMedWithdrawRuleRefCourDto);
+	int addAll(ElcMedWithdrawRuleRefCourDto dto);
 }

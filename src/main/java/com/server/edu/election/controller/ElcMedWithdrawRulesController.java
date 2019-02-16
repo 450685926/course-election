@@ -21,6 +21,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ElcMedWithdrawRules;
 import com.server.edu.election.service.ElcMedWithdrawRulesService;
+import com.server.edu.election.vo.ElcMedWithdrawRulesVo;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -116,12 +117,12 @@ public class ElcMedWithdrawRulesController {
      */
     @ApiOperation(value = "退课规则")
     @GetMapping("/getRule")
-    public RestResult<ElcMedWithdrawRules> getRule(
+    public RestResult<ElcMedWithdrawRulesVo> getRule(
         @RequestParam("id") @NotNull Long id)
         throws Exception
     {
         LOG.info("getRule.start");
-        ElcMedWithdrawRules elcMedWithdrawRules =elcMedWithdrawRulesService.getRule(id);
+        ElcMedWithdrawRulesVo elcMedWithdrawRules =elcMedWithdrawRulesService.getRule(id);
         return RestResult.successData(elcMedWithdrawRules);
     }
     
