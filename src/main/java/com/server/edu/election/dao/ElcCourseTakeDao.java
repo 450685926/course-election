@@ -3,10 +3,7 @@ package com.server.edu.election.dao;
 
 
 
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.RebuildCoursePaymentCondition;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
@@ -66,4 +63,13 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 
     /**查询所有学生课表*/
     Page<StudentVo> findAllSchoolTimetab(ReportManagementCondition condition);
+
+    /**教师上课时间地点详情*/
+    List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId);
+
+    /**查询教师名称*/
+    String findClassTeacherByTeacherCode(String teacherCode);
+
+    /**查询教师对应教学班*/
+    Page<ClassCodeToTeacher> findAllClassTeacher(ClassCodeToTeacher condition);
 }

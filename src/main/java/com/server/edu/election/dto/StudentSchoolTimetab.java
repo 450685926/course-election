@@ -26,6 +26,24 @@ public class StudentSchoolTimetab  {
     private String campus;
     private Long teachingClassId;
     private String classCode;
+    private String className;
+    private String teacherCode;
+
+    public String getTeacherCode() {
+        return teacherCode;
+    }
+
+    public void setTeacherCode(String teacherCode) {
+        this.teacherCode = teacherCode;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
     public String getClassCode() {
         return classCode;

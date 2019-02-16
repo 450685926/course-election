@@ -2,11 +2,12 @@ package com.server.edu.election.service;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
+
+import java.util.List;
 
 public interface ReportManagementService {
     /**点名册*/
@@ -20,4 +21,10 @@ public interface ReportManagementService {
 
     /**查询所有学生课表*/
     PageResult<StudentVo> findAllSchoolTimetab(PageCondition<ReportManagementCondition> condition);
+
+    /**查询课表对应教师详细信息*/
+    List<StudentSchoolTimetab> findStudentAndTeacherTime( Long teachingClassId);
+
+    /**查询教学班对应老师信息*/
+    PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition);
 }

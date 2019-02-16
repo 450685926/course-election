@@ -3,8 +3,7 @@ package com.server.edu.election.controller;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
@@ -15,6 +14,8 @@ import io.swagger.annotations.SwaggerDefinition;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @description: 报表管理
@@ -75,4 +76,22 @@ public class ReportManagementController {
         return RestResult.successData(allSchoolTimetab);
     }
 
+
+    @ApiOperation(value = "查询学生课表对应老师时间地点")
+    @GetMapping("/findStudentAndTeacherTime")
+    public RestResult<List<StudentSchoolTimetab>> findStudentAndTeacherTime(@RequestParam Long teachingClassId){
+        if(teachingClassId==null){
+            return RestResult.fail("common.parameterError");
+        }
+        List<StudentSchoolTimetab> studentAndTeacherTime = managementService.findStudentAndTeacherTime(teachingClassId);
+        return RestResult.successData(studentAndTeacherTime);
+    }
+
+
+    @ApiOperation(value = "查询所有教学班对应老师信息")
+    @PostMapping("/findAllClassTeacher")
+    public RestResult<PageResult<ClassCodeToTeacher>> findAllClassTeacher(@RequestBody PageCondition<ClassCodeToTeacher> condition){
+        PageResult<ClassCodeToTeacher> allClassTeacher = managementService.findAllClassTeacher(condition);
+        return RestResult.successData(allClassTeacher);
+    }
 }

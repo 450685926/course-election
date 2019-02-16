@@ -7,10 +7,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -167,6 +164,95 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
         }
         return new PageResult<>(allSchoolTimetab);
+    }
+
+    /**
+    *@Description: 教师上课时间地点详情
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/16 10:18
+    */
+    @Override
+    public List<StudentSchoolTimetab> findStudentAndTeacherTime(Long teachingClassId) {
+        List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
+        List<StudentSchoolTimetab> list=new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(classTeacherDtos)){
+            Map<String, List<ClassTeacherDto>> listMap = classTeacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTeacherCode));
+            for (List<ClassTeacherDto> teacherDtoList : listMap.values()) {
+                Map<Long, List<ClassTeacherDto>> roomList = teacherDtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
+                for (List<ClassTeacherDto> teacherDtos : roomList.values()) {
+                    Map<String, List<ClassTeacherDto>> byRoomList = teacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getRoomID));
+                    for (List<ClassTeacherDto> dtos : byRoomList.values()) {
+                        StudentSchoolTimetab timetab=new StudentSchoolTimetab();
+                        ClassTeacherDto classTeacherDto = dtos.get(0);
+                        String teacherCode = classTeacherDto.getTeacherCode();
+                        Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                        String week = findWeek(dayOfWeek);
+                        Integer timeStart = classTeacherDto.getTimeStart();
+                        Integer timeEnd = classTeacherDto.getTimeEnd();
+                        String roomID = classTeacherDto.getRoomID();
+                        List<Integer> integerList = dtos.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                        Integer maxWeek = Collections.max(integerList);
+                        Integer minWeek = Collections.min(integerList);
+                        String strWeek="[";
+                        String strTime=timeStart+"-"+timeEnd;
+                        int size = dtos.size();//判断是否连续
+                        if(minWeek+size-1==maxWeek){//连续拼接周次
+                            strWeek+=minWeek+"-"+maxWeek+"]";
+                        }else{
+                            for(int i=0;i<dtos.size();i++){
+                                Integer weekNumber = dtos.get(i).getWeekNumber();
+                                if(i!=dtos.size()-1){
+                                    strWeek+=weekNumber+",";
+                                }else{
+                                    strWeek+=weekNumber+"]";
+                                }
+                            }
+                        }
+                        String time=week+" "+strTime+" "+strWeek;
+                        String name = courseTakeDao.findClassTeacherByTeacherCode(teacherCode);
+                        timetab.setTime(time);
+                        timetab.setRoom(roomID);
+                        timetab.setTeacherCode(teacherCode);
+                        timetab.setTeacherName(name);
+                        list.add(timetab);
+                    }
+                }
+            }
+        }
+
+        return list;
+    }
+
+    /**
+    *@Description:教师对应教学班信息
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/16 17:45
+    */
+    @Override
+    public PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition) {
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<ClassCodeToTeacher> allClassTeacher = courseTakeDao.findAllClassTeacher(condition.getCondition());
+        if(allClassTeacher!=null){
+            List<ClassCodeToTeacher> result = allClassTeacher.getResult();
+            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            }
+            if(schoolCalendarMap.size()!=0){
+                for (ClassCodeToTeacher toTeacher : result) {
+                    String s = schoolCalendarMap.get(toTeacher.getCalendarId());
+                    if(StringUtils.isNotEmpty(s)) {
+                        toTeacher.setCalendarName(s);
+                    }
+                }
+            }
+        }
+        return new PageResult<>(allClassTeacher);
     }
 
     //导出待做todo
