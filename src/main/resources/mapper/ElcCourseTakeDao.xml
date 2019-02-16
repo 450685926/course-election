@@ -313,7 +313,7 @@
                 and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-                and co.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+                and co.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and co.NATURE_ =#{nature,jdbcType=VARCHAR}
