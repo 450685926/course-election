@@ -23,15 +23,15 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.key>1.8</java.key>
-		<cse.key>2.3.47</cse.key>
-		<mapper.starter.key>2.0.3-beta1</mapper.starter.key>
-		<org.apache.servicecomb.key>1.1.0.B019</org.apache.servicecomb.key>
-		<pagehelper.starter.key>1.2.5</pagehelper.starter.key>
-		<fastjson.key>1.2.47</fastjson.key>
-		<poi.key>3.17</poi.key>
+		<java.version>1.8</java.version>
+		<cse.version>2.3.47</cse.version>
+		<mapper.starter.version>2.0.3-beta1</mapper.starter.version>
+		<org.apache.servicecomb.version>1.1.0.B019</org.apache.servicecomb.version>
+		<pagehelper.starter.version>1.2.5</pagehelper.starter.version>
+		<fastjson.version>1.2.47</fastjson.version>
+		<poi.version>3.17</poi.version>
 		<commonstarter.varsion>1.0.2-SNAPSHOT</commonstarter.varsion>
-		<jackson.key>2.9.5</jackson.key>
+		<jackson.version>2.9.5</jackson.version>
 	</properties>
 
 	<dependencies>
@@ -46,12 +46,12 @@
 		<dependency>
 			<groupId>org.apache.servicecomb</groupId>
 			<artifactId>spring-boot-starter-provider</artifactId>
-			<version>${org.apache.servicecomb.key}</version>
+			<version>${org.apache.servicecomb.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.huawei.paas.cse</groupId>
 			<artifactId>cse-solution-service-engine</artifactId>
-			<version>${cse.key}</version>
+			<version>${cse.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -114,7 +114,7 @@
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
-			<version>${pagehelper.starter.key}</version>
+			<version>${pagehelper.starter.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.mybatis.spring.boot</groupId>
@@ -126,7 +126,7 @@
 		<dependency>
 			<groupId>tk.mybatis</groupId>
 			<artifactId>mapper-spring-boot-starter</artifactId>
-			<version>${mapper.starter.key}</version>
+			<version>${mapper.starter.version}</version>
 		</dependency>
 		<!-- 持久化API -->
 		<dependency>
@@ -139,7 +139,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>${fastjson.key}</version>
+			<version>${fastjson.version}</version>
 		</dependency>
 		
         <!-- org.mockito -->
