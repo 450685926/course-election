@@ -50,4 +50,5 @@ public interface ElcCourseTakeService
      * @see [类、类#方法、类#成员]
      */
     void withdraw(List<ElcCourseTake> value);
+    
 }

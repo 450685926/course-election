@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -13,6 +12,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +31,8 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.entity.ElcCourseTake;
@@ -39,6 +41,10 @@ import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecRoundCourseService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.util.ExportUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelCell;
+import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
@@ -62,6 +68,12 @@ public class ElcCourseTakeController
     @Autowired
     private ElecRoundCourseService roundCourseService;
     
+    @Autowired
+    private DictionaryService dictionaryService;
+    
+    @Value("${cache.directory}")
+    private String cacheDirectory;
+    
     /**
      * 上课名单列表
      * 
@@ -72,9 +84,11 @@ public class ElcCourseTakeController
     @ApiOperation(value = "上课名单列表")
     @PostMapping("/page")
     public RestResult<PageResult<ElcCourseTakeVo>> page(
-        @RequestBody @Valid PageCondition<ElcCourseTakeQuery> condition)
+        @RequestBody PageCondition<ElcCourseTakeQuery> condition)
         throws Exception
     {
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+        
         PageResult<ElcCourseTakeVo> list =
             courseTakeService.listPage(condition);
         
@@ -138,7 +152,8 @@ public class ElcCourseTakeController
             designer.setConfigs(new ArrayList<>());
             
             designer.getConfigs().add(new ExcelParseConfig("studentId", 0));
-            designer.getConfigs().add(new ExcelParseConfig("teachingClassCode", 1));
+            designer.getConfigs()
+                .add(new ExcelParseConfig("teachingClassCode", 1));
             
             List<ElcCourseTakeAddDto> datas = GeneralExcelUtil
                 .parseExcel(workbook, designer, ElcCourseTakeAddDto.class);
@@ -165,6 +180,62 @@ public class ElcCourseTakeController
             .header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment;filename=" + "shangKeMingDan.xls")
             .body(resource);
+    }
+    
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "导出")})
+    @PostMapping(value = "/export")
+    public ResponseEntity<Resource> export(
+        @RequestBody ElcCourseTakeQuery query)
+        throws Exception
+    {
+        ValidatorUtil.validateAndThrow(query);
+        
+        PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
+        page.setCondition(query);
+        page.setPageNum_(1);
+        page.setPageSize_(1000);
+        
+        List<ElcCourseTakeVo> datas = new ArrayList<>();
+        
+        PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
+        while (datas.size() < res.getTotal_())
+        {
+            datas.addAll(res.getList());
+            page.setPageNum_(page.getPageNum_() + 1);
+            if (datas.size() < res.getTotal_())
+            {
+                res = courseTakeService.listPage(page);
+            }
+        }
+        
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.addCell("学号", "studentId");
+        design.addCell("姓名", "studentName");
+        design.addCell("课程序号", "teachingClassCode");
+        design.addCell("课程代码", "courseCode");
+        design.addCell("课程名称", "courseName");
+        design.addCell("专业", "profession")
+            .setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.G_ZY.getType(), value);
+                    return dict;
+                });
+        design.addCell("校区", "campus")
+            .setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_XQ.getType(), value);
+                    return dict;
+                });
+        design.addCell("学分", "credits");
+        design.addCell("修读类别", "courseTakeType");
+        design.setDatas(datas);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        
+        return ExportUtil
+            .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
     }
     
 }
