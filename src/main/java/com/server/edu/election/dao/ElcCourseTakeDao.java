@@ -1,18 +1,22 @@
 package com.server.edu.election.dao;
 
+
 import org.apache.ibatis.annotations.Param;
 
+
+import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
+import com.server.edu.election.vo.StudentVo;
+import org.apache.ibatis.annotations.Param;
 import com.github.pagehelper.Page;
-import com.server.edu.election.dto.RebuildCoursePaymentCondition;
-import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.RebuildCourseNoChargeList;
-import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.election.vo.StudentVo;
-
 import tk.mybatis.mapper.common.Mapper;
+
+import java.util.List;
 
 public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 {
@@ -46,4 +50,30 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     
     /**查询点名册教学班和老师*/
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);
+
+    /**查询教学班对应老师姓名*/
+    List<ClassTeacherDto> findTeacherByClassCode(Long teachingClassId);
+
+    /**查询点名册中学生信息*/
+
+    List<StudentVo> findStudentByTeachingClassId(Long id);
+
+    /** 查询教学班时间地点*/
+
+    List<ClassTeacherDto> findClassTimeAndRoom(Long id);
+
+    /**查询学生课表*/
+    List<StudentSchoolTimetab> findSchoolTimetab(@Param("calendarId") Long calendarId, @Param("studentCode") String studentCode);
+
+    /**查询所有学生课表*/
+    Page<StudentVo> findAllSchoolTimetab(ReportManagementCondition condition);
+
+    /**教师上课时间地点详情*/
+    List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId);
+
+    /**查询教师名称*/
+    String findClassTeacherByTeacherCode(String teacherCode);
+
+    /**查询教师对应教学班*/
+    Page<ClassCodeToTeacher> findAllClassTeacher(ClassCodeToTeacher condition);
 }
