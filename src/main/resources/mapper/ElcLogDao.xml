@@ -17,6 +17,8 @@
     <result column="CREATE_BY_" jdbcType="VARCHAR" property="createBy" />
     <result column="CREATE_IP_" jdbcType="VARCHAR" property="createIp" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="CREATE_NAME_" jdbcType="VARCHAR" property="createName" />
+
   </resultMap>
   
   <resultMap type="com.server.edu.election.vo.ElcLogVo" id="VoElcLogMap" extends="BaseResultMap">
