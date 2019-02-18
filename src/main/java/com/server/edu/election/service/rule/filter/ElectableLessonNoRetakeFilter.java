@@ -34,7 +34,7 @@ public class ElectableLessonNoRetakeFilter extends AbstractElectableLessonFilter
         //        // 在ElectState中放入这个后，学生就不能选重修课了
         //        ElectState state = electContext.getState();
         //        state.getParams().put(PARAM, true);
-        //        courseGradePrepare.prepare(electContext);
+        //        courseGradePrepare.run(electContext);
         //        
         //        // add by qj，在不允许重修（也就是新选课）的轮次，上个学期新选的但成绩没有出来的课程，本轮次是不允许出现的
         //        // 为了获得这个效果，暂时设置这些课程为不通过

@@ -36,7 +36,7 @@ public class PlanCourseGroupCreditsChecker extends AbstractElectRuleExecutor
     @Override
     public void prepare(ElectState context)
     {
-        //planCreditLimitPrepare.prepare(context);
+        //planCreditLimitPrepare.run(context);
     }
     
 }
