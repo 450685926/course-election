@@ -25,7 +25,7 @@ public class CantRetakeExceptLoserDownFilter
         //		// 在ElectState中放入这个后，学生就不能选重修课了
         //		ElectState state = electContext.getState();
         //		state.getParams().put(PARAM, true);
-        //		courseGradePrepare.prepare(electContext);
+        //		courseGradePrepare.run(electContext);
         //		Semester semester = electContext.getProfile().getSemester();
         //		// 判断是否为留降级学生
         //		/*OqlBuilder query = OqlBuilder.from(LoserDownStudent.class, "l");

@@ -1,0 +1,82 @@
+package com.server.edu.election.studentelec.context;
+
+import com.server.edu.election.studentelec.utils.ElecStatus;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 学生选课返回<br>
+ * 两个用途<br>
+ * 1. 登录选课界面时预加载数据的请求，只需要studentId status，前端会定时执行请求直到status变为ready 即加载完成
+ * 2. 选课，两个接口
+ *  2.1. 选课请求,选课时发送一次，此时应该返回status=processing
+ *  2.2  获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
+ */
+public class ElecRespose {
+    private ElecStatus status;
+
+    private String studentId;
+    private String studentName;
+
+    /** 选课成功集合 教学班id*/
+    private List<Long> successCourses;
+
+    /** 选课失败集合 教学班id*/
+    private List<Long> failedCourses;
+
+    /** 选课失败原因 key为教学班id value为原因说明*/
+    private Map<Long,String> failedReasons;
+
+    public ElecRespose(ElecStatus status) {
+        this.status = status;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public List<Long> getSuccessCourses() {
+        return successCourses;
+    }
+
+    public void setSuccessCourses(List<Long> successCourses) {
+        this.successCourses = successCourses;
+    }
+
+    public List<Long> getFailedCourses() {
+        return failedCourses;
+    }
+
+    public void setFailedCourses(List<Long> failedCourses) {
+        this.failedCourses = failedCourses;
+    }
+
+    public Map<Long, String> getFailedReasons() {
+        return failedReasons;
+    }
+
+    public void setFailedReasons(Map<Long, String> failedReasons) {
+        this.failedReasons = failedReasons;
+    }
+
+    public ElecStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ElecStatus status) {
+        this.status = status;
+    }
+}

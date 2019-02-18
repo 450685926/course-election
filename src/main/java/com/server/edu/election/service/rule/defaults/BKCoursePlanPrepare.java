@@ -36,11 +36,11 @@ public class BKCoursePlanPrepare extends AbstractElectRuleExecutor {
 //		if (CollectionUtils.isNotEmpty(peFreeStds)) {
 //			state.getParams().put("PEFree", true);
 //		}
-//		/*super.prepare(context);
+//		/*super.run(context);
 //		state.getParams().remove("PECourseCodes");*/
 //		
 //		if (context.isPreparedData(PreparedDataName.COURSE_PLAN)) return;
-//		currentTermPrepare.prepare(context);
+//		currentTermPrepare.run(context);
 //
 //		CoursePlan plan = context.getPlan();
 //		// 选课计划

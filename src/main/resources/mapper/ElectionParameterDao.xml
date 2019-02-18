@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml key="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.server.edu.election.dao.ElectionParameterDao">
   <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElectionParameter">
@@ -10,7 +10,7 @@
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
     <result column="VALUE_" jdbcType="VARCHAR" property="value" />
     <result column="TITLE_" jdbcType="VARCHAR" property="title" />
-    <result column="STATUS_" jdbcType="INTEGER" property="status" />
+    <result column="STATUS_" jdbcType="INTEGER" property="value" />
     <result column="RULE_ID_" jdbcType="BIGINT" property="ruleId" />
   </resultMap>
 </mapper>
