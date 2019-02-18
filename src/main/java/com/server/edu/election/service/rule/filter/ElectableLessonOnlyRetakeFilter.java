@@ -34,7 +34,7 @@ public class ElectableLessonOnlyRetakeFilter
     @Override
     public void prepare(ElectState context)
     {
-        //courseGradePrepare.prepare(context);
+        //courseGradePrepare.run(context);
     }
     
 }
