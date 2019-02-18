@@ -10,6 +10,14 @@ public class ElcLogVo extends ElcLog
 {
     
     private static final long serialVersionUID = 1L;
+    /**选课*/
+    public static final Integer TYPE_1 = 1;
+    /**退课*/
+    public static final Integer TYPE_2 = 2;
+    /**1自选，2代选*/
+    public static final Integer MODE_1 = 1;
+    /**1自选，2代选*/
+    public static final Integer MODE_2 = 2;
     
     private String studentName;
     
