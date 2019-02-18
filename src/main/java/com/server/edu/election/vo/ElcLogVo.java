@@ -20,7 +20,17 @@ public class ElcLogVo extends ElcLog
     /**专业*/
     @Code2Text(DictTypeEnum.G_ZY)
     private String profession;
-    
+
+    private String calendarName;
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
+
     public String getStudentName()
     {
         return studentName;

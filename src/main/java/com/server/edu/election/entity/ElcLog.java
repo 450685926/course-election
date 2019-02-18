@@ -97,6 +97,11 @@ public class ElcLog implements Serializable {
     @Column(name = "CREATE_NAME_")
     private String createName;
 
+    /**
+     * 选退课失败原因
+     * */
+    private String content;
+
     private static final long serialVersionUID = 1L;
 
     public String getCreateName() {
@@ -105,6 +110,14 @@ public class ElcLog implements Serializable {
 
     public void setCreateName(String createName) {
         this.createName = createName;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     /**

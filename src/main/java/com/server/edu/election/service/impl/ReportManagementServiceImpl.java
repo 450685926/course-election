@@ -6,12 +6,14 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.util.CollectionUtil;
@@ -38,6 +40,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private ElcLogDao elcLogDao;
     /**
     *@Description: 查询点名册
     *@Param:
@@ -291,6 +296,39 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
 
         return list;
+    }
+
+    /**
+    *@Description: 选退课日志
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/18 16:30
+    */
+    @Override
+    public PageResult<ElcLogVo> findCourseLog(PageCondition<ElcLogVo> condition) {
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<ElcLogVo> courseLog = elcLogDao.findCourseLog(condition.getCondition());
+        if(courseLog !=null){
+            List<ElcLogVo> result = courseLog.getResult();
+            if(CollectionUtil.isNotEmpty(result)){
+                List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+                Map<Long, String> schoolCalendarMap = new HashMap<>();
+                for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                    schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+                }
+                if(schoolCalendarMap.size()!=0){
+                    for (ElcLogVo elcLogVo : result) {
+                        String s = schoolCalendarMap.get(elcLogVo.getCalendarId());
+                        if(StringUtils.isNotEmpty(s)) {
+                            elcLogVo.setCalendarName(s);
+                        }
+                    }
+                }
+            }
+
+        }
+        return new PageResult<>(courseLog);
     }
 
     //导出待做todo

@@ -4,6 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.RollBookList;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 
@@ -30,4 +31,10 @@ public interface ReportManagementService {
 
     /**查询教师课表*/
     List<ClassTeacherDto> findTeacherTimetable(Long calendarId,String teacherCode);
+
+    /**
+     * 查询选课日志
+     * */
+    PageResult<ElcLogVo> findCourseLog(
+            PageCondition<ElcLogVo> condition);
 }

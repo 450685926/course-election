@@ -18,6 +18,8 @@
     <result column="CREATE_IP_" jdbcType="VARCHAR" property="createIp" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="CREATE_NAME_" jdbcType="VARCHAR" property="createName" />
+    <result column="CONTENT_" jdbcType="VARCHAR" property="content" />
+
 
   </resultMap>
   
@@ -44,5 +46,26 @@
 	  	</if>
   	</where>
   </select>
-  
+
+    <select id="findCourseLog" parameterType="com.server.edu.election.vo.ElcLogVo" resultMap="VoElcLogMap">
+        select t1.*,t2.NAME_ from  election_log_t t1
+        left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.teachingClassCode)">
+                and t1.TEACHING_CLASS_CODE_ like concat('%',#{elcLog.teachingClassCode},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.courseCode)">
+                and t1.COURSE_CODE_ like concat('%',#{elcLog.courseCode},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.courseName)">
+                and t1.COURSE_NAME_ like concat('%',#{elcLog.courseName},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.calendarId)">
+                and t1.CALENDAR_ID_ =#{elcLog.calendarId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.content)">
+                and (t1.STUDENT_ID_ like concat('%',#{elcLog.content},'%') or t2.NAME_ like concat('%',#{elcLog.content},'%'))
+            </if>
+        </where>
+    </select>
 </mapper>
