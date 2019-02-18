@@ -174,17 +174,17 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/16 10:18
     */
     @Override
-    public List<StudentSchoolTimetab> findStudentAndTeacherTime(Long teachingClassId) {
+    public List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId) {
         List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
-        List<StudentSchoolTimetab> list=new ArrayList<>();
+        List<ClassTeacherDto> list=new ArrayList<>();
         if(CollectionUtil.isNotEmpty(classTeacherDtos)){
-            Map<String, List<ClassTeacherDto>> listMap = classTeacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTeacherCode));
+            Map<String, List<ClassTeacherDto>> listMap = classTeacherDtos.stream().filter((ClassTeacherDto dto)->dto.getTeacherCode()!=null).collect(Collectors.groupingBy(ClassTeacherDto::getTeacherCode));
             for (List<ClassTeacherDto> teacherDtoList : listMap.values()) {
                 Map<Long, List<ClassTeacherDto>> roomList = teacherDtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
                 for (List<ClassTeacherDto> teacherDtos : roomList.values()) {
                     Map<String, List<ClassTeacherDto>> byRoomList = teacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getRoomID));
                     for (List<ClassTeacherDto> dtos : byRoomList.values()) {
-                        StudentSchoolTimetab timetab=new StudentSchoolTimetab();
+                        ClassTeacherDto timetab=new ClassTeacherDto();
                         ClassTeacherDto classTeacherDto = dtos.get(0);
                         String teacherCode = classTeacherDto.getTeacherCode();
                         Integer dayOfWeek = classTeacherDto.getDayOfWeek();
@@ -216,6 +216,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         timetab.setRoom(roomID);
                         timetab.setTeacherCode(teacherCode);
                         timetab.setTeacherName(name);
+                        timetab.setRemark(classTeacherDto.getRemark());
+                        timetab.setTeachingLanguage(classTeacherDto.getTeachingLanguage());
+                        timetab.setClassCode(classTeacherDto.getClassCode());
+                        timetab.setTeachingClassId(classTeacherDto.getTeachingClassId());
                         list.add(timetab);
                     }
                 }
@@ -253,6 +257,40 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
         }
         return new PageResult<>(allClassTeacher);
+    }
+
+    /**
+    *@Description: 查询教师课表
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/18 10:56
+    */
+    @Override
+    public List<ClassTeacherDto> findTeacherTimetable(Long calendarId, String teacherCode) {
+        //查询所有教学班
+        List<ClassTeacherDto> list=new ArrayList<>();
+        List<ClassTeacherDto> classId = courseTakeDao.findAllTeachingClassId(calendarId);
+        if(CollectionUtil.isNotEmpty(classId)){
+            for (ClassTeacherDto classTeacherDto : classId) {
+                List<ClassTeacherDto> teacherTime = findStudentAndTeacherTime(classTeacherDto.getTeachingClassId());
+                if(CollectionUtil.isNotEmpty(teacherTime)){
+                    List<ClassTeacherDto> collect = teacherTime.stream().filter((ClassTeacherDto timrTab) -> timrTab.getTeacherCode().equals(teacherCode)).collect(Collectors.toList());
+                    if(CollectionUtil.isNotEmpty(collect)){
+                        for (ClassTeacherDto teacherDto : collect) {
+                            teacherDto.setCourseCode(classTeacherDto.getCourseCode());
+                            teacherDto.setCourseName(classTeacherDto.getCourseName());
+                            teacherDto.setLabel(classTeacherDto.getLabel());
+                            teacherDto.setWeekHour(classTeacherDto.getWeekHour());
+                            teacherDto.setCredits(classTeacherDto.getCredits());
+                        }
+                    }
+                    list.addAll(collect);
+                }
+            }
+        }
+
+        return list;
     }
 
     //导出待做todo
