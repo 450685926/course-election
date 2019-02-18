@@ -230,7 +230,20 @@ public class ElcCourseTakeController
                     return dict;
                 });
         design.addCell("学分", "credits");
-        design.addCell("修读类别", "courseTakeType");
+        design.addCell("修读类别", "courseTakeType")
+        .setValueHandler(
+            (String value, Object rawData, GeneralExcelCell cell) -> {
+                if("1".equals(value)) {
+                    return "正常修读";
+                }else if("2".equals(value)) {
+                    return "重修";
+                }else if("3".equals(value)) {
+                    return "免修不免考";
+                }else if("4".equals(value)) {
+                    return "免修";
+                }
+                return value;
+            });
         design.setDatas(datas);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         

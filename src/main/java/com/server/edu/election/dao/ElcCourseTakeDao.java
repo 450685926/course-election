@@ -1,22 +1,24 @@
 package com.server.edu.election.dao;
 
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
-
-import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
-import org.apache.ibatis.annotations.Param;
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.RebuildCoursePaymentCondition;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.RebuildCourseNoChargeList;
+import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
-import tk.mybatis.mapper.common.Mapper;
+import com.server.edu.election.vo.StudentVo;
 
-import java.util.List;
+import tk.mybatis.mapper.common.Mapper;
 
 public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 {
