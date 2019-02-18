@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ElecRushCourseServiceImpl extends AbstractElecQueueComsumerService<ElecRequest>
-        implements ElecRushCourseService {
-    private static final Logger LOG = LoggerFactory.getLogger(ElecRushCourseServiceImpl.class);
+public class StudentElecRushCourseServiceImpl extends AbstractElecQueueComsumerService<ElecRequest>
+        implements StudentElecRushCourseService {
+    private static final Logger LOG = LoggerFactory.getLogger(StudentElecRushCourseServiceImpl.class);
 
     @Autowired
-    protected ElecRushCourseServiceImpl(ElecQueueService queueService) {
+    protected StudentElecRushCourseServiceImpl(ElecQueueService queueService) {
         super(4, QueueGroups.STUDENT_ELEC, queueService);
         super.listen("thread-rushcourses");
     }

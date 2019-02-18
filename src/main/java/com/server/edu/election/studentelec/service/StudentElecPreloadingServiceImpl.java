@@ -14,14 +14,14 @@ import org.springframework.stereotype.Service;
  * @author liuzheng 2019/2/13 19:29
  */
 @Service
-public class ElecPreloadingServiceImpl extends AbstractElecQueueComsumerService<ElecRequest>
-        implements ElecStudentPreloadingService {
-    private static final Logger LOG = LoggerFactory.getLogger(ElecStudentPreloadingService.class);
-    private final ElecStatusService elecStatusService;
+public class StudentElecPreloadingServiceImpl extends AbstractElecQueueComsumerService<ElecRequest>
+        implements StudentElecPreloadingService {
+    private static final Logger LOG = LoggerFactory.getLogger(StudentElecPreloadingService.class);
+    private final StudentElecStatusService elecStatusService;
 
 
     @Autowired
-    public ElecPreloadingServiceImpl(ElecQueueService elecQueueService, ElecStatusService elecStatusService) {
+    public StudentElecPreloadingServiceImpl(ElecQueueService elecQueueService, StudentElecStatusService elecStatusService) {
         // TODO 几个线 程应该是可配置的
         super(4, QueueGroups.STUDENT_LOADING, elecQueueService);
         this.elecStatusService = elecStatusService;

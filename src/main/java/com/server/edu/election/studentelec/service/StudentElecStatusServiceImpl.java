@@ -6,20 +6,19 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
 
 @Service
-public class ElecStatusServiceImpl implements ElecStatusService {
+public class StudentElecStatusServiceImpl implements StudentElecStatusService {
 
     private final StringRedisTemplate redisTemplate;
     // 用于储存加锁的key
     private final ThreadLocal<String> threadKey = new ThreadLocal<>();
 
     @Autowired
-    public ElecStatusServiceImpl(StringRedisTemplate redisTemplate) {
+    public StudentElecStatusServiceImpl(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

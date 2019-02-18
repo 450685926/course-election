@@ -8,7 +8,7 @@ import com.server.edu.election.studentelec.utils.ElecStatus;
  * 修改状态应该加锁
  * @author liuzheng 2019/2/15 10:09
  */
-public interface ElecStatusService {
+public interface StudentElecStatusService {
     /**
      * 给status 加锁，并返回key用于解锁
      * @return true 成功 false 失败

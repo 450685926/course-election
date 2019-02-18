@@ -8,7 +8,7 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 /**
  * 选课请求的主入口
  */
-public interface ElecService {
+public interface StudentElecService {
     /**
      * 加载学生数据
      * @return 当前状态

@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ElecServiceImpl implements ElecService{
-    private final ElecStatusService elecStatusService;
+public class StudentElecServiceImpl implements StudentElecService {
+    private final StudentElecStatusService elecStatusService;
     private final ElecQueueService queueService;
 
     @Autowired
-    public ElecServiceImpl(ElecStatusService elecStatusService, ElecQueueService queueService) {
+    public StudentElecServiceImpl(StudentElecStatusService elecStatusService, ElecQueueService queueService) {
         this.elecStatusService = elecStatusService;
         this.queueService = queueService;
     }

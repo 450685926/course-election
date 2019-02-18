@@ -1,9 +1,7 @@
 package com.server.edu.election.controller;
 
-import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.service.ElecService;
-import com.server.edu.election.studentelec.utils.ElecStatus;
+import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -23,10 +21,10 @@ import io.swagger.annotations.SwaggerDefinition;
 @RequestMapping("student")
 public class ElecController
 {
-    private final ElecService elecService;
+    private final StudentElecService elecService;
 
     @Autowired
-    public ElecController(ElecService elecService) {
+    public ElecController(StudentElecService elecService) {
         this.elecService = elecService;
     }
 
