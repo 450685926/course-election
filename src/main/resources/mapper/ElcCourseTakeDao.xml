@@ -34,8 +34,8 @@
   		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
   		t4.CODE_ as teachingClassCode
   	from elc_course_takes_t t1
-  	join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-  	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+  	left join course_t t3 ON t3.ID_ = t1.COURSE_ID_
   	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
   	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
