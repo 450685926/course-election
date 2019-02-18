@@ -24,6 +24,7 @@ import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElecRoundCourseService;
+import com.server.edu.election.validate.RoundGroup;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -51,7 +52,7 @@ public class ElecRoundCourseController
     public RestResult<PageResult<CourseOpenDto>> page(
         @RequestBody PageCondition<ElecRoundCourseQuery> query)
     {
-        ValidatorUtil.validateAndThrow(query.getCondition());
+        ValidatorUtil.validateAndThrow(query.getCondition(), RoundGroup.class);
         PageResult<CourseOpenDto> page = service.listPage(query);
         
         return RestResult.successData(page);
@@ -62,7 +63,7 @@ public class ElecRoundCourseController
     public RestResult<PageResult<CourseOpenDto>> pageUnAdd(
         @RequestBody PageCondition<ElecRoundCourseQuery> query)
     {
-        ValidatorUtil.validateAndThrow(query.getCondition());
+        ValidatorUtil.validateAndThrow(query.getCondition(), RoundGroup.class);
         PageResult<CourseOpenDto> page = service.listUnAddPage(query);
         
         return RestResult.successData(page);

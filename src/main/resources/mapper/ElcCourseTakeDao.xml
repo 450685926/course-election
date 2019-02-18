@@ -20,49 +20,308 @@
   <resultMap type="com.server.edu.election.vo.ElcCourseTakeVo" id="VoResultMap" extends="BaseResultMap">
   	<result column="NAME_" jdbcType="VARCHAR" property="studentName" />
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
-  	<result column="CAMPUS_" jdbcType="VARCHAR" property="profession" />
-  	<result column="CAMPUS_" jdbcType="VARCHAR" property="courseName" />
-  
+  	<result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
+  	<result column="courseName" jdbcType="VARCHAR" property="courseName" />
+  	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+  	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
   </resultMap>
+  
   <select id="listPage" resultMap="VoResultMap">
-  	select t1.STUDENT_ID_, t2.NAME_, t2.CAMPUS_
+  	select 
+  		t1.*,
+  		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
+  		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
+  		t4.CODE_ as teachingClassCode
   	from elc_course_takes_t t1
-  	left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-  	left join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+  	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
-  	 t1.CALENDAR_ID_ =#{take.calendarIdcalendarId,jdbcType=BIGINT}
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(take.courseTakeType)">
-  	 t1.COURSE_TAKE_TYPE_ = #{take.courseTakeType}
+  	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
+  	 and t1.STUDENT_ID_ = #{query.studentId}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
+  	 and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
+  	 and t2.NAME_ = #{query.stuName}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuFaculty)">
+  	 and t2.FACULTY_ = #{query.stuFaculty}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuProfession)">
+  	 and t2.PROFESSION_ = #{query.stuProfession}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+  	 and t3.CODE_ = #{query.courseCode}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
+  	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>
   	</where>
+  </select>
+  
+  <select id="getTeachingClassInfo" resultMap="VoResultMap">
+  	select 
+  		class.id_ as TEACHING_CLASS_ID_ , class.code_ as teachingClassCode, 
+  		cour.id_ as COURSE_ID_, cour.code_ as courseCode
+	from teaching_class_t class
+	left join teaching_task_t task ON task.id_ = class.TASK_ID_
+	left join course_open_t open ON open.id_ = task.COURSE_OPEN_ID_
+	left join course_t cour ON cour.code_ = open.COURSE_CODE_
+	<where>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassId)">
+			class.id_ = #{teachingClassId}
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
+			and class.code_ = #{code}
+		</if>
+	</where> 
   </select>
 
   <select id="findIsEletionCourse" resultType="int">
       SELECT COUNT(ID_) FROM `elc_course_takes_t` WHERE COURSE_ID_ in (select ID_ from course_t where CODE_ =#{courseCode,jdbcType=VARCHAR})
-      and STUDENT_ID_ in (select ID_ from student_t where STUDENT_CODE_ =#{studentCode,jdbcType=VARCHAR})
+      and STUDENT_ID_ =#{studentCode}
       and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   </select>
 
-  <select id="findCourseNoChargeList" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType" resultType="com.server.edu.election.entity.RebuildCourseNoChargeList">
-    SELECT el.ID_ id,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,el.PAID_ paid,te.WEEK_HOUR_ weekHour
-    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.ID_
+  <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.entity.RebuildCourseNoChargeList">
+    SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,co.LABEL_ label,el.PAID_ paid,te.WEEK_HOUR_ weekHour
+    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
     LEFT JOIN course_t co on el.COURSE_ID_=co.ID_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
       </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+            and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
+            and st.STUDENT_CODE_ like CONCAT('%', #{studentCode,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
+            and te.CODE_ like CONCAT('%', #{classCode,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+            and st.NAME_ like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+            and st.GRADE_ =#{grade,jdbcType=INTEGER}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+            and st.TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
+            and st.STUDENT_CATEGORY_ =#{studentCategory,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+            and st.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+            and st.PROFESSION_ =#{profession,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(researchDirection)">
+            and st.RESEARCH_DIRECTION_ =#{researchDirection,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openFaculty)">
+            and co.COLLEGE_ =#{openFaculty,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(label)">
+            and co.LABEL_ like CONCAT('%', #{label,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseId)">
+            and co.ID_ like CONCAT('%', #{courseId,jdbcType=BIGINT}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
+            and co.CODE_ like CONCAT('%', #{code,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+            and co.NAME_ like CONCAT('%', #{name,jdbcType=VARCHAR}, '%')
+        </if>
     </where>
   </select>
 
-  <select id="findCourseNoChargeStudentList" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType" resultType="com.server.edu.election.vo.StudentVo">
-    SELECT st.ID_ id, st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,
-    st.GRADE_  grade, st.FACULTY_ faculty,st.PROFESSION_ profession,st.TRAINING_LEVEL_ trainingLevel,COUNT(el.ID_) rebuildNumber FROM `elc_course_takes_t` el
-    LEFT JOIN student_t st on st.ID_=el.STUDENT_ID_
+  <select id="findCourseNoChargeStudentList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.StudentVo">
+    SELECT st.ID_ id, el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,
+    st.GRADE_  grade, st.FACULTY_ faculty,st.PROFESSION_ profession,st.TRAINING_LEVEL_ trainingLevel,st.STUDENT_CATEGORY_ studentCategory,COUNT(el.ID_) rebuildNumber FROM `elc_course_takes_t` el
+    LEFT JOIN student_t st on st.STUDENT_CODE_=el.STUDENT_ID_
+      LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
       </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+            and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
+            and st.STUDENT_CODE_ like CONCAT('%', #{studentCode,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
+            and te.CODE_ like CONCAT('%', #{classCode,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+            and st.NAME_ like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+            and st.GRADE_ =#{grade,jdbcType=INTEGER}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+            and st.TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
+            and st.STUDENT_CATEGORY_ =#{studentCategory,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+            and st.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+            and st.PROFESSION_ =#{profession,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(researchDirection)">
+            and st.RESEARCH_DIRECTION_ =#{researchDirection,jdbcType=VARCHAR}
+        </if>
     </where>
     GROUP BY el.STUDENT_ID_
   </select>
+
+    <select id="findRollBookList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.entity.RollBookList">
+        SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,ss.NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
+        LEFT JOIN course_t co on co.ID_=el.COURSE_ID_
+        LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
+        LEFT JOIN (select COURSE_ID_,COUNT(ID_) NUMBER_ from elc_course_takes_t GROUP BY COURSE_ID_) ss on ss.COURSE_ID_=el.COURSE_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and el.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and co.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and co.TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+                and cl.CAMPUS_ =#{campus,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and co.FORM_LEARNING_ =#{formLearning,jdbcType=VARCHAR}
+            </if>
+
+        </where>
+        GROUP BY el.TEACHING_CLASS_ID_
+    </select>
+
+    <select id="findTeacherByClassCode" parameterType="java.util.List" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        select cl.ID_ teachingClassId,cl.CODE_ classCode,ro.TEACHER_CODE_ teacherCode,te.TEACHER_NAME_  teacherName from teaching_class_t cl
+        LEFT JOIN teaching_class_arrange_time_t ti on cl.ID_=ti.TEACHING_CLASS_ID_
+        LEFT JOIN teaching_class_arrange_room_t ro on ro.ARRANGE_TIME_ID_=ti.ID_
+        LEFT JOIN teaching_class_teacher_t te on te.TEACHER_CODE_=ro.TEACHER_CODE_
+        where cl.ID_=#{teachingClassId,jdbcType=BIGINT}
+        GROUP BY ro.TEACHER_CODE_
+    </select>
+
+    <select id="findStudentByTeachingClassId" resultType="com.server.edu.election.vo.StudentVo">
+        SELECT st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,st.GRADE_ grade,st.FACULTY_ faculty,st.TRAINING_LEVEL_ trainingLevel,el.COURSE_TAKE_TYPE_ courseTakeType FROM `elc_course_takes_t` el
+        LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+        where TEACHING_CLASS_ID_= #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findClassTimeAndRoom" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        select ti.ID_ timeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd, ro.WEEK_NUMBER_ weekNumber,ro.ROOM_ID_ roomID from teaching_class_arrange_time_t  ti LEFT JOIN
+        teaching_class_arrange_room_t ro on ti.ID_=ro.ARRANGE_TIME_ID_
+        WHERE TEACHING_CLASS_ID_ =#{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findSchoolTimetab" resultType="com.server.edu.election.dto.StudentSchoolTimetab">
+        SELECT el.CALENDAR_ID_ calendarId,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
+        te.CAMPUS_ campus,te.REMARK_ remark,te.CODE_ classCode ,te.NAME_ className FROM `elc_course_takes_t` el
+        LEFT JOIN course_t co on el.COURSE_ID_ =co.ID_
+        LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
+        LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
+        where el.STUDENT_ID_=#{studentCode,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT};
+    </select>
+
+    <select id="findAllSchoolTimetab" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.vo.StudentVo">
+        SELECT el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,st.GRADE_ grade,st.FACULTY_ faculty,st.PROFESSION_ profession,
+        st.TRAINING_LEVEL_ trainingLevel,st.FORM_LEARNING_ formLearning FROM `elc_course_takes_t` el
+        LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
+                and (st.STUDENT_CODE_ like concat('%',#{condition},'%') or st.NAME_ like concat('%',#{condition},'%') )
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and st.GRADE_ =#{grade,jdbcType=INTEGER}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and st.TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and st.FORM_LEARNING_ =#{formLearning,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+                and st.TRAINING_CATEGORY_ =#{trainingCategory,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and st.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                and st.PROFESSION_ =#{profession,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+                and st.CAMPUS_ =#{campus,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+                and st.IS_OVERSEAS_ =#{isOverseas,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(enrolSeason)">
+                and st.ENROL_SEASON_ =#{enrolSeason,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(registrationStatus)">
+                and st.REGISTRATION_STATUS_ =#{registrationStatus,jdbcType=VARCHAR}
+            </if>
+
+        </where>
+        GROUP BY STUDENT_ID_,CALENDAR_ID_ order by el.ID_
+    </select>
+
+    <select id="findStudentAndTeacherTime" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT te.ID_ timeId,te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart,te.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber,ro.ROOM_ID_ roomID,ro.TEACHER_CODE_ teacherCode
+        FROM `teaching_class_arrange_time_t` te
+        LEFT JOIN teaching_class_arrange_room_t ro on te.ID_ =ro.ARRANGE_TIME_ID_
+        where te.TEACHING_CLASS_ID_=#{teachingClassId,jdbcType=BIGINT}
+    </select>
+
+    <select id="findClassTeacherByTeacherCode" resultType="java.lang.String">
+        SELECT TEACHER_NAME_ FROM `teaching_class_teacher_t` where TEACHER_CODE_=#{teacherCode,jdbcType=VARCHAR} GROUP BY TEACHER_CODE_
+    </select>
+
+    <select id="findAllClassTeacher" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
+        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassCode,cl.CODE_ classCode,co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.COLLEGE_ faculty,tch.TEACHER_CODE_ teacherCode,tch.TEACHER_NAME_ teacherName,tch.SEX_ sex FROM `elc_course_takes_t` el
+        LEFT JOIN course_t co on co.CODE_=el.COURSE_ID_
+        LEFT JOIN teaching_class_t cl on el.TEACHING_CLASS_ID_=cl.ID_
+        LEFT JOIN (select ti.TEACHING_CLASS_ID_,ro.TEACHER_CODE_ ,ch.TEACHER_NAME_,ch.SEX_ from teaching_class_arrange_time_t ti
+        LEFT JOIN teaching_class_arrange_room_t ro on ro.ARRANGE_TIME_ID_=ti.ID_
+        LEFT JOIN (select TEACHER_CODE_,TEACHER_NAME_,SEX_ from teaching_class_teacher_t GROUP BY TEACHER_CODE_) ch
+        on ro.TEACHER_CODE_=ch.TEACHER_CODE_
+        GROUP BY ti.TEACHING_CLASS_ID_,ro.TEACHER_CODE_) tch on tch.TEACHING_CLASS_ID_=el.TEACHING_CLASS_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and co.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+                and co.NATURE_ =#{nature,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
+                and (tch.TEACHER_CODE_ like concat('%',#{condition},'%') or tch.TEACHER_NAME_ like concat('%',#{condition},'%') )
+            </if>
+        </where>
+        GROUP BY el.CALENDAR_ID_,el.TEACHING_CLASS_ID_,tch.TEACHER_CODE_;
+    </select>
 </mapper>

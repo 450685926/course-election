@@ -11,8 +11,7 @@
   <select id="selectElcPeFreeStds" parameterType="com.server.edu.election.dto.ElcPeFreeStdsDto" resultType="com.server.edu.election.vo.ElcPeFreeStdsVo">
 	SELECT
 		t1.ID_ id,
-		t1.STUDENT_ID_ studentId, 
-		t2.STUDENT_CODE_ studentCode,
+		t2.STUDENT_CODE_ studentId,
 		t2.NAME_ name,
 		t2.GRADE_ grade,
 		t2.TRAINING_LEVEL_ trainingLevel,
@@ -57,7 +56,7 @@
       </if>      
   </select>
   
-  <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+  <insert id="batchInsert" parameterType="java.util.List">
     insert into elc_pe_free_stds_t(
        STUDENT_ID_
     )
@@ -71,7 +70,7 @@
   </insert>
   <select id="selectElcStudents" parameterType="com.server.edu.election.dto.ElcPeFreeStdsDto" resultType="com.server.edu.election.vo.ElcPeFreeStdsVo">
 	SELECT
-		t1.STUDENT_CODE_ studentCode,
+		t1.STUDENT_CODE_ studentId,
 		t1.NAME_ name,
 		t1.GRADE_ grade,
 		t1.TRAINING_LEVEL_ trainingLevel,

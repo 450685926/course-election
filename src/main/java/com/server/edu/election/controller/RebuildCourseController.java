@@ -1,26 +1,29 @@
 package com.server.edu.election.controller;
 
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.log.LogRecord;
-import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.dmskafka.entity.AuditType;
-import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.entity.RebuildCourseNoChargeList;
-import com.server.edu.election.entity.RebuildCourseNoChargeType;
-import com.server.edu.election.service.RebuildCourseChargeService;
-import com.server.edu.election.vo.StudentVo;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
+import java.util.List;
+
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.List;
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.log.LogRecord;
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.dmskafka.entity.AuditType;
+import com.server.edu.election.dto.RebuildCoursePaymentCondition;
+import com.server.edu.election.entity.RebuildCourseCharge;
+import com.server.edu.election.entity.RebuildCourseNoChargeList;
+import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.vo.StudentVo;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * @description: 重修管理
@@ -105,18 +108,41 @@ public class RebuildCourseController {
 
 
 
-    @ApiOperation(value = "查询未缴费的课程名单")//查询条件待做todo
+    @ApiOperation(value = "查询未缴费的课程名单")
     @PostMapping("/findCourseNoChargeList")
-    public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCourseNoChargeType> condition) {
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
         PageResult<RebuildCourseNoChargeList> noChargeType = service.findCourseNoChargeList(condition);
         return RestResult.successData(noChargeType);
     }
 
-    @ApiOperation(value = "查询学生的未缴费课程数")//查询条件待做todo
+    @ApiOperation(value = "查询学生的未缴费课程数")
     @PostMapping("/findCourseNoChargeStudentList")
-    public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(@RequestBody PageCondition<RebuildCourseNoChargeType> condition) {
+    public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
         PageResult<StudentVo> noChargeType = service.findCourseNoChargeStudentList(condition);
         return RestResult.successData(noChargeType);
+    }
+
+    //导入未缴费todo
+
+    @ApiOperation(value = "移动到回收站")
+    @PostMapping("/moveCourseNoChargeListToRecycle")
+    public RestResult<String> moveCourseNoChargeListToRecycle(@RequestBody List<RebuildCourseNoChargeList> list) {
+        String s = service.moveToRecycle(list);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+    @ApiOperation(value = "查询回收站")
+    @PostMapping("/findRecycleCourse")
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+        PageResult<RebuildCourseNoChargeList> noChargeType = service.findRecycleCourse(condition);
+        return RestResult.successData(noChargeType);
+    }
+
+    @ApiOperation(value = "从回收站恢复到未缴费的课程名单")
+    @PostMapping("/moveRecycleCourseToNoChargeList")
+    public RestResult<String> moveRecycleCourseToNoChargeList(@RequestBody List<RebuildCourseNoChargeList> list) {
+        String s = service.moveRecycleCourseToNoChargeList(list);
+        return RestResult.success(I18nUtil.getMsg(s,""));
     }
 
 }

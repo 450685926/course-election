@@ -37,6 +37,16 @@ public interface ElecRoundCourseService
     PageResult<CourseOpenDto> listUnAddPage(PageCondition<ElecRoundCourseQuery> condition);
     
     /**
+     * 查询已添加的教学任务中所有的教学班
+     * 
+     * @param query
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<CourseOpenDto> listTeachingClassPage(
+        PageCondition<ElecRoundCourseQuery> condition);
+    
+    /**
      * 添加
      * 
      * @param courseCodes

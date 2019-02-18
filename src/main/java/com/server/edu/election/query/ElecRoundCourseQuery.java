@@ -1,14 +1,17 @@
 package com.server.edu.election.query;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
+
+import com.server.edu.election.validate.RoundGroup;
 
 public class ElecRoundCourseQuery
 {
-    @NotNull
+    @NotNull(groups = {RoundGroup.class})
     private Long roundId;
     
     //校历id
-    @NotNull
+    @NotNull(groups = {RoundGroup.class, Default.class})
     private Long calendarId;
     
     private String courseCode;
@@ -20,6 +23,7 @@ public class ElecRoundCourseQuery
     
     /**培养层次*/
     private String trainingLevel;
+    
     /**课程性质*/
     private String nature;
     
@@ -72,22 +76,22 @@ public class ElecRoundCourseQuery
     {
         this.faculty = faculty;
     }
-
+    
     public String getTrainingLevel()
     {
         return trainingLevel;
     }
-
+    
     public void setTrainingLevel(String trainingLevel)
     {
         this.trainingLevel = trainingLevel;
     }
-
+    
     public String getNature()
     {
         return nature;
     }
-
+    
     public void setNature(String nature)
     {
         this.nature = nature;

@@ -1,10 +1,14 @@
 package com.server.edu.election.entity;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
 import java.io.Serializable;
 
 
 import javax.persistence.*;
 
+@CodeI18n
 @Table(name = "student_t")
 public class Student implements Serializable {
     /**
@@ -30,12 +34,14 @@ public class Student implements Serializable {
     /**
      * 性别(根据数据字典统一使用)
      */
+    @Code2Text(transformer = "G_XBIE")
     @Column(name = "SEX_")
     private Integer sex;
 
     /**
      * 学习形式(全日制,非全日制,其他)
      */
+    @Code2Text(transformer = "X_XXXS")
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
 
@@ -48,18 +54,21 @@ public class Student implements Serializable {
     /**
      * 培养层次(专科   本科   硕士   博士    其他    预科)
      */
+    @Code2Text(transformer = "X_PYCC")
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
 
     /**
      * 学院
      */
+    @Code2Text(transformer="X_YX")
     @Column(name = "FACULTY_")
     private String faculty;
 
     /**
      * 专业
      */
+    @Code2Text(transformer="G_ZY")
     @Column(name = "PROFESSION_")
     private String profession;
 
@@ -72,12 +81,14 @@ public class Student implements Serializable {
     /**
      * 专项计划
      */
+    @Code2Text(transformer = "X_ZXJH")
     @Column(name = "SPCIAL_PLAN_")
     private String spcialPlan;
 
     /**
      * 学籍状态
      */
+    @Code2Text(transformer = "G_XJZT")
     @Column(name = "REGISTRATION_STATUS_")
     private String registrationStatus;
 
@@ -104,6 +115,18 @@ public class Student implements Serializable {
      */
     @Column(name = "DEGREE_CATEGORY_")
     private String degreeCategory;
+
+    /**
+     * 研究方向
+     */
+    @Column(name = "RESEARCH_DIRECTION_")
+    private String researchDirection;
+
+    /**
+     * 学生类别
+     */
+    @Column(name = "STUDENT_CATEGORY_")
+    private String studentCategory;
 
     private static final long serialVersionUID = 1L;
 
@@ -455,6 +478,22 @@ public class Student implements Serializable {
      */
     public void setDegreeCategory(String degreeCategory) {
         this.degreeCategory = degreeCategory == null ? null : degreeCategory.trim();
+    }
+
+    public String getResearchDirection() {
+        return researchDirection;
+    }
+
+    public void setResearchDirection(String researchDirection) {
+        this.researchDirection = researchDirection;
+    }
+
+    public String getStudentCategory() {
+        return studentCategory;
+    }
+
+    public void setStudentCategory(String studentCategory) {
+        this.studentCategory = studentCategory;
     }
 
     @Override

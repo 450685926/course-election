@@ -1,23 +1,31 @@
 package com.server.edu.election.query;
 
+import javax.validation.constraints.NotNull;
+
 public class ElcCourseTakeQuery
 {
-    private String studentId;
-
     /**
      * 校历ID（学年学期）
      */
+    @NotNull
     private Long calendarId;
+    
+    private String studentId;
+    /**学生姓名*/
+    private String stuName;
+    /**学生学院*/
+    private String stuFaculty;
+    /**学生专业*/
+    private String stuProfession;
+    /**
+     * 课程编号
+     */
+    private String courseCode;
 
     /**
-     * 课程ID
+     * 教学班编号
      */
-    private Long courseId;
-
-    /**
-     * 教学班ID
-     */
-    private Long teachingClassId;
+    private String teachingClassCode;
 
     /**
      * 修读类别(1正常修读,2重修,3免修不免考,4免修)
@@ -44,26 +52,6 @@ public class ElcCourseTakeQuery
         this.calendarId = calendarId;
     }
 
-    public Long getCourseId()
-    {
-        return courseId;
-    }
-
-    public void setCourseId(Long courseId)
-    {
-        this.courseId = courseId;
-    }
-
-    public Long getTeachingClassId()
-    {
-        return teachingClassId;
-    }
-
-    public void setTeachingClassId(Long teachingClassId)
-    {
-        this.teachingClassId = teachingClassId;
-    }
-
     public Integer getCourseTakeType()
     {
         return courseTakeType;
@@ -74,5 +62,54 @@ public class ElcCourseTakeQuery
         this.courseTakeType = courseTakeType;
     }
 
+    public String getStuName()
+    {
+        return stuName;
+    }
 
+    public void setStuName(String stuName)
+    {
+        this.stuName = stuName;
+    }
+
+    public String getStuFaculty()
+    {
+        return stuFaculty;
+    }
+
+    public void setStuFaculty(String stuFaculty)
+    {
+        this.stuFaculty = stuFaculty;
+    }
+
+    public String getStuProfession()
+    {
+        return stuProfession;
+    }
+
+    public void setStuProfession(String stuProfession)
+    {
+        this.stuProfession = stuProfession;
+    }
+
+    public String getCourseCode()
+    {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode)
+    {
+        this.courseCode = courseCode;
+    }
+
+    public String getTeachingClassCode()
+    {
+        return teachingClassCode;
+    }
+
+    public void setTeachingClassCode(String teachingClassCode)
+    {
+        this.teachingClassCode = teachingClassCode;
+    }
+    
 }
