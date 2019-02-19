@@ -4,6 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
@@ -115,7 +116,7 @@ public class ReportManagementController {
 
     @ApiOperation(value = "查询选退课日志")
     @PostMapping("/findCourseLog")
-    public RestResult<PageResult<ElcLogVo>> findCourseLog(PageCondition<ElcLogVo> condition){
+    public RestResult<PageResult<ElcLogVo>> findCourseLog(@RequestBody PageCondition<ElcLogVo> condition){
         PageResult<ElcLogVo> courseLog = managementService.findCourseLog(condition);
         return RestResult.successData(courseLog);
     }

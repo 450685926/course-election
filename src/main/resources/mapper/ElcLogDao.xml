@@ -51,20 +51,30 @@
         select t1.*,t2.NAME_ from  election_log_t t1
         left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
         <where>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.teachingClassCode)">
-                and t1.TEACHING_CLASS_CODE_ like concat('%',#{elcLog.teachingClassCode},'%')
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+                and t1.TEACHING_CLASS_CODE_ like concat('%',#{teachingClassCode},'%')
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.courseCode)">
-                and t1.COURSE_CODE_ like concat('%',#{elcLog.courseCode},'%')
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+                and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.courseName)">
-                and t1.COURSE_NAME_ like concat('%',#{elcLog.courseName},'%')
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+                and t1.COURSE_NAME_ like concat('%',#{courseName},'%')
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.calendarId)">
-                and t1.CALENDAR_ID_ =#{elcLog.calendarId}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and t1.CALENDAR_ID_ =#{calendarId}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcLog.content)">
-                and (t1.STUDENT_ID_ like concat('%',#{elcLog.content},'%') or t2.NAME_ like concat('%',#{elcLog.content},'%'))
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(content)">
+                and (t1.STUDENT_ID_ like concat('%',#{content},'%') or t2.NAME_ like concat('%',#{content},'%'))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(startTime)">
+                <![CDATA[
+				and unix_timestamp(t1.CREATED_AT_) >= unix_timestamp(#{startTime})
+			    ]]>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(endTime)">
+                <![CDATA[
+				and unix_timestamp(t1.CREATED_AT_) <= unix_timestamp(#{endTime})
+			    ]]>
             </if>
         </where>
     </select>

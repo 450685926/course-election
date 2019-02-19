@@ -9,6 +9,7 @@ import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -156,13 +157,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         if(allSchoolTimetab!=null){
             List<StudentVo> result = allSchoolTimetab.getResult();
             List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<String, String> schoolCalendarMap = new HashMap<>();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
             for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
             }
             if(schoolCalendarMap.size()!=0){
                 for (StudentVo studentVo : result) {
-                    String s = schoolCalendarMap.get(String.valueOf(studentVo.getCalendarId()));
+                    String s = schoolCalendarMap.get(studentVo.getCalendarId());
                     if(StringUtils.isNotEmpty(s)) {
                         studentVo.setCalendarName(s);
                     }
@@ -182,14 +183,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Override
     public List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId) {
         List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
-        for (ClassTeacherDto classTeacherDto : classTeacherDtos) {
-            classTeacherDto.setStrTimeId(String.valueOf(classTeacherDto.getTimeId()));
-        }
         List<ClassTeacherDto> list=new ArrayList<>();
         if(CollectionUtil.isNotEmpty(classTeacherDtos)){
             Map<String, List<ClassTeacherDto>> listMap = classTeacherDtos.stream().filter((ClassTeacherDto dto)->dto.getTeacherCode()!=null).collect(Collectors.groupingBy(ClassTeacherDto::getTeacherCode));
             for (List<ClassTeacherDto> teacherDtoList : listMap.values()) {
-                Map<String, List<ClassTeacherDto>> roomList = teacherDtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getStrTimeId));
+                Map<Long, List<ClassTeacherDto>> roomList = teacherDtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
                 for (List<ClassTeacherDto> teacherDtos : roomList.values()) {
                     Map<String, List<ClassTeacherDto>> byRoomList = teacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getRoomID));
                     for (List<ClassTeacherDto> dtos : byRoomList.values()) {
@@ -201,16 +199,16 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         Integer timeStart = classTeacherDto.getTimeStart();
                         Integer timeEnd = classTeacherDto.getTimeEnd();
                         String roomID = classTeacherDto.getRoomID();
-                       // List<Integer> integerList = dtos.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
-                        Integer weekNumber1 = dtos.stream().max(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
-                        Integer weekNumber2 = dtos.stream().min(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
-                        //Integer maxWeek = Collections.max(integerList);
-                        //Integer minWeek = Collections.min(integerList);
+                        List<Integer> integerList = dtos.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                        //Integer weekNumber1 = dtos.stream().max(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                        //Integer weekNumber2 = dtos.stream().min(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                        Integer maxWeek = Collections.max(integerList);
+                        Integer minWeek = Collections.min(integerList);
                         String strWeek="[";
                         String strTime=timeStart+"-"+timeEnd;
                         int size = dtos.size();//判断是否连续
-                        if(weekNumber2+size-1==weekNumber1){//连续拼接周次
-                            strWeek+=weekNumber2+"-"+weekNumber1+"]";
+                        if(minWeek+size-1==maxWeek){//连续拼接周次
+                            strWeek+=minWeek+"-"+maxWeek+"]";
                         }else{
                             for(int i=0;i<dtos.size();i++){
                                 Integer weekNumber = dtos.get(i).getWeekNumber();
@@ -254,13 +252,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         if(allClassTeacher!=null){
             List<ClassCodeToTeacher> result = allClassTeacher.getResult();
             List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<String, String> schoolCalendarMap = new HashMap<>();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
             for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
             }
             if(schoolCalendarMap.size()!=0){
                 for (ClassCodeToTeacher toTeacher : result) {
-                    String s = schoolCalendarMap.get(String.valueOf(toTeacher.getCalendarId()));
+                    String s = schoolCalendarMap.get(toTeacher.getCalendarId());
                     if(StringUtils.isNotEmpty(s)) {
                         toTeacher.setCalendarName(s);
                     }
@@ -319,13 +317,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             List<ElcLogVo> result = courseLog.getResult();
             if(CollectionUtil.isNotEmpty(result)){
                 List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-                Map<String, String> schoolCalendarMap = new HashMap<>();
+                Map<Long, String> schoolCalendarMap = new HashMap<>();
                 for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                    schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
+                    schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
                 }
                 if(schoolCalendarMap.size()!=0){
                     for (ElcLogVo elcLogVo : result) {
-                        String s = schoolCalendarMap.get(String.valueOf(elcLogVo.getCalendarId()));
+                        String s = schoolCalendarMap.get(elcLogVo.getCalendarId());
                         if(StringUtils.isNotEmpty(s)) {
                             elcLogVo.setCalendarName(s);
                         }
@@ -389,7 +387,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
            //Map<Long, List<ClassTeacherDto>> collect = teacher.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTeachingClassId));
            //List<ClassTeacherDto> classTeacherDtos = collect.get(id);
            //List<ClassTeacherDto> classTeacherDtoStream = teacher.stream().filter((ClassTeacherDto dto) -> dto.getTeachingClassId().longValue() == id.longValue()).collect(Collectors.toList());
-           //if (CollectionUtil.isNotEmpty(classTeacherDtoStream)) {//属性为空，报错
+           //if (CollectionUtil.isNotEmpty(classTeacherDtoStream)) {
                names = teacher.stream().map(ClassTeacherDto::getTeacherName).filter(StringUtils::isNotBlank).collect(Collectors.toList());
            //}
        }
@@ -408,11 +406,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
        //查询教学班信息TeachingClassId查询
        StringBuilder str=new StringBuilder();
        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(id);
-       for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
-           classTeacherDto.setStrTimeId(String.valueOf(classTeacherDto.getTimeId()));
-       }
+
        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
-           Map<String, List<ClassTeacherDto>> collect = classTimeAndRoom.stream().collect(Collectors.groupingBy(ClassTeacherDto::getStrTimeId));
+           Map<Long, List<ClassTeacherDto>> collect = classTimeAndRoom.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
            if(collect.size()!=0){
                for (List<ClassTeacherDto> list : collect.values()) {
                    if(CollectionUtil.isNotEmpty(list)){
@@ -420,14 +416,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                        Integer dayOfWeek = item.getDayOfWeek();
                        Integer timeStart = item.getTimeStart();
                        Integer timeEnd = item.getTimeEnd();
-                       //List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
-                       Integer weekNumber1 = list.stream().max(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
-                       Integer weekNumber2 = list.stream().min(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
-                       //Integer maxWeek = Collections.max(integerList);
-                       //Integer minWeek = Collections.min(integerList);
+                       List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                       Integer maxWeek = Collections.max(integerList);
+                       Integer minWeek = Collections.min(integerList);
                        Set<String> rooms = list.stream().map(ClassTeacherDto::getRoomID).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
                        String roomId = String.join(",", rooms);
-                       String time=findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+weekNumber1+"-"+weekNumber2+"] "+roomId;
+                       String time=findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+minWeek+"-"+maxWeek+"] "+roomId;
                        str.append(time);
                        str.append("/");
                    }

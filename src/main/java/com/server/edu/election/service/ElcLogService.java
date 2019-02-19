@@ -18,4 +18,5 @@ public interface ElcLogService
         PageCondition<ElcLog> page);
 
 
+    void addCourseLog(ElcLog log);
 }

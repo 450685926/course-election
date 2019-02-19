@@ -28,5 +28,11 @@ public class ElcLogServiceImpl implements ElcLogService
         
         return new PageResult<>(p);
     }
-    
+
+    /**选退课日志*/
+    @Override
+    public void addCourseLog(ElcLog log) {
+        elcLogDao.insertSelective(log);
+    }
+
 }

@@ -5,6 +5,8 @@ import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcLog;
 
+import java.util.Date;
+
 @CodeI18n
 public class ElcLogVo extends ElcLog
 {
@@ -28,6 +30,26 @@ public class ElcLogVo extends ElcLog
     /**专业*/
     @Code2Text(DictTypeEnum.G_ZY)
     private String profession;
+
+    /**日志查询时间段*/
+    private Date startTime;
+    private Date endTime;
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
 
     private String calendarName;
 
