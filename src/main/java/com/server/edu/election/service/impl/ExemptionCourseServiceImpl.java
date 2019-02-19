@@ -72,13 +72,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if(exemptionCourse!=null){
             List<ExemptionCourseVo> result = exemptionCourse.getResult();
             List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            Map<String, String> schoolCalendarMap = new HashMap<>();
             for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+                schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
             }
             if(schoolCalendarMap.size()!=0){
                 for (ExemptionCourseVo exemptionCourseVo : result) {
-                    String schoolCalendarName = schoolCalendarMap.get(exemptionCourseVo.getCalendarId());
+                    String schoolCalendarName = schoolCalendarMap.get(String.valueOf(exemptionCourseVo.getCalendarId()));
                     if(StringUtils.isNotEmpty(schoolCalendarName)) {
                         exemptionCourseVo.setCalendarName(schoolCalendarName);
                     }
@@ -189,14 +189,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         Page<ExemptionCourseRuleVo> exemptionCourseRule = ruleDao.findExemptionCourseRule(rulePageCondition.getCondition());
         if(exemptionCourseRule!=null){
             List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            Map<String, String> schoolCalendarMap = new HashMap<>();
             for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+                schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
             }
             List<ExemptionCourseRuleVo> result = exemptionCourseRule.getResult();
             if(CollectionUtil.isNotEmpty(result)){
                 for (ExemptionCourseRuleVo exemptionCourseRuleVo : result) {
-                    String calendarName=schoolCalendarMap.get(exemptionCourseRuleVo.getCalendarId());
+                    String calendarName=schoolCalendarMap.get(String.valueOf(exemptionCourseRuleVo.getCalendarId()));
                     if(StringUtils.isNotEmpty(calendarName)) {
                         exemptionCourseRuleVo.setCalendarName(calendarName);
                     }

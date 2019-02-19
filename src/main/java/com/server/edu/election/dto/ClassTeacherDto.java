@@ -124,6 +124,7 @@ public class ClassTeacherDto {
     }
 
     private Long timeId;//时间Id
+    private String strTimeId;
 
     private Integer dayOfWeek;//周几
 
@@ -134,6 +135,14 @@ public class ClassTeacherDto {
     private Integer weekNumber;//排课周
 
     private String roomID;//教室
+
+    public String getStrTimeId() {
+        return strTimeId;
+    }
+
+    public void setStrTimeId(String strTimeId) {
+        this.strTimeId = strTimeId;
+    }
 
     public Long getTimeId() {
         return timeId;

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @description: 报表管理实现类
@@ -155,13 +156,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         if(allSchoolTimetab!=null){
             List<StudentVo> result = allSchoolTimetab.getResult();
             List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            Map<String, String> schoolCalendarMap = new HashMap<>();
             for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+                schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
             }
             if(schoolCalendarMap.size()!=0){
                 for (StudentVo studentVo : result) {
-                    String s = schoolCalendarMap.get(studentVo.getCalendarId());
+                    String s = schoolCalendarMap.get(String.valueOf(studentVo.getCalendarId()));
                     if(StringUtils.isNotEmpty(s)) {
                         studentVo.setCalendarName(s);
                     }
@@ -181,11 +182,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Override
     public List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId) {
         List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
+        for (ClassTeacherDto classTeacherDto : classTeacherDtos) {
+            classTeacherDto.setStrTimeId(String.valueOf(classTeacherDto.getTimeId()));
+        }
         List<ClassTeacherDto> list=new ArrayList<>();
         if(CollectionUtil.isNotEmpty(classTeacherDtos)){
             Map<String, List<ClassTeacherDto>> listMap = classTeacherDtos.stream().filter((ClassTeacherDto dto)->dto.getTeacherCode()!=null).collect(Collectors.groupingBy(ClassTeacherDto::getTeacherCode));
             for (List<ClassTeacherDto> teacherDtoList : listMap.values()) {
-                Map<Long, List<ClassTeacherDto>> roomList = teacherDtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
+                Map<String, List<ClassTeacherDto>> roomList = teacherDtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getStrTimeId));
                 for (List<ClassTeacherDto> teacherDtos : roomList.values()) {
                     Map<String, List<ClassTeacherDto>> byRoomList = teacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getRoomID));
                     for (List<ClassTeacherDto> dtos : byRoomList.values()) {
@@ -248,13 +252,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         if(allClassTeacher!=null){
             List<ClassCodeToTeacher> result = allClassTeacher.getResult();
             List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            Map<String, String> schoolCalendarMap = new HashMap<>();
             for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+                schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
             }
             if(schoolCalendarMap.size()!=0){
                 for (ClassCodeToTeacher toTeacher : result) {
-                    String s = schoolCalendarMap.get(toTeacher.getCalendarId());
+                    String s = schoolCalendarMap.get(String.valueOf(toTeacher.getCalendarId()));
                     if(StringUtils.isNotEmpty(s)) {
                         toTeacher.setCalendarName(s);
                     }
@@ -313,13 +317,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             List<ElcLogVo> result = courseLog.getResult();
             if(CollectionUtil.isNotEmpty(result)){
                 List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-                Map<Long, String> schoolCalendarMap = new HashMap<>();
+                Map<String, String> schoolCalendarMap = new HashMap<>();
                 for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                    schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+                    schoolCalendarMap.put(String.valueOf(schoolCalendarVo.getId()), schoolCalendarVo.getFullName());
                 }
                 if(schoolCalendarMap.size()!=0){
                     for (ElcLogVo elcLogVo : result) {
-                        String s = schoolCalendarMap.get(elcLogVo.getCalendarId());
+                        String s = schoolCalendarMap.get(String.valueOf(elcLogVo.getCalendarId()));
                         if(StringUtils.isNotEmpty(s)) {
                             elcLogVo.setCalendarName(s);
                         }
@@ -380,11 +384,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
        List<String> names=new ArrayList<>();
        List<ClassTeacherDto> teacher = courseTakeDao.findTeacherByClassCode(id);
        if(CollectionUtil.isNotEmpty(teacher)) {
-           Map<Long, List<ClassTeacherDto>> collect = teacher.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTeachingClassId));
-           List<ClassTeacherDto> classTeacherDtos = collect.get(id);
-           if (CollectionUtil.isNotEmpty(classTeacherDtos)) {//属性为空，报错
-               names = classTeacherDtos.stream().map(ClassTeacherDto::getTeacherName).filter(StringUtils::isNotBlank).collect(Collectors.toList());
-           }
+           //Map<Long, List<ClassTeacherDto>> collect = teacher.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTeachingClassId));
+           //List<ClassTeacherDto> classTeacherDtos = collect.get(id);
+           //List<ClassTeacherDto> classTeacherDtoStream = teacher.stream().filter((ClassTeacherDto dto) -> dto.getTeachingClassId().longValue() == id.longValue()).collect(Collectors.toList());
+           //if (CollectionUtil.isNotEmpty(classTeacherDtoStream)) {//属性为空，报错
+               names = teacher.stream().map(ClassTeacherDto::getTeacherName).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+           //}
        }
        return names;
    }
@@ -401,8 +406,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
        //查询教学班信息TeachingClassId查询
        StringBuilder str=new StringBuilder();
        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(id);
+       for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+           classTeacherDto.setStrTimeId(String.valueOf(classTeacherDto.getTimeId()));
+       }
        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
-           Map<Long, List<ClassTeacherDto>> collect = classTimeAndRoom.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
+           Map<String, List<ClassTeacherDto>> collect = classTimeAndRoom.stream().collect(Collectors.groupingBy(ClassTeacherDto::getStrTimeId));
            if(collect.size()!=0){
                for (List<ClassTeacherDto> list : collect.values()) {
                    if(CollectionUtil.isNotEmpty(list)){
