@@ -51,11 +51,11 @@ public class ElectionRounds implements Serializable {
     private Integer mode;
 
     /**
-     * PROJECT_ID
+     * 管理部门id（字典取值）
      */
-    @NotNull
-    @Column(name = "PROJECT_ID_")
-    private Integer projectId;
+    @NotBlank
+    @Column(name = "MANAGER_DEPT_ID_")
+    private String projectId;
 
     /**
      * 轮次名称
@@ -195,9 +195,9 @@ public class ElectionRounds implements Serializable {
     /**
      * 获取PROJECT_ID
      *
-     * @return PROJECT_ID_ - PROJECT_ID
+     * @return MANAGER_DEPT_ID_ - PROJECT_ID
      */
-    public Integer getProjectId() {
+    public String getProjectId() {
         return projectId;
     }
 
@@ -206,7 +206,7 @@ public class ElectionRounds implements Serializable {
      *
      * @param projectId PROJECT_ID
      */
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(String projectId) {
         this.projectId = projectId;
     }
 
