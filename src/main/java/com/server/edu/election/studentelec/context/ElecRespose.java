@@ -1,9 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
-import com.server.edu.election.studentelec.utils.ElecStatus;
-
 import java.util.List;
 import java.util.Map;
+
+import com.server.edu.election.studentelec.utils.ElecStatus;
 
 /**
  * 学生选课返回<br>
@@ -26,7 +26,7 @@ public class ElecRespose {
     private List<Long> failedCourses;
 
     /** 选课失败原因 key为教学班id value为原因说明*/
-    private Map<Long,String> failedReasons;
+    private Map<String,String> failedReasons;
 
     public ElecRespose(ElecStatus status) {
         this.status = status;
@@ -64,11 +64,11 @@ public class ElecRespose {
         this.failedCourses = failedCourses;
     }
 
-    public Map<Long, String> getFailedReasons() {
+    public Map<String, String> getFailedReasons() {
         return failedReasons;
     }
 
-    public void setFailedReasons(Map<Long, String> failedReasons) {
+    public void setFailedReasons(Map<String, String> failedReasons) {
         this.failedReasons = failedReasons;
     }
 
