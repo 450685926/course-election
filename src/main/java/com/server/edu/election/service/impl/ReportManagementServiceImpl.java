@@ -5,11 +5,11 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.StudentDao;
+import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -45,6 +45,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private ElcLogDao elcLogDao;
+
+    @Autowired
+    private ElecRoundsDao elecRoundsDao;
+
+    @Autowired
+    private ElcNoSelectReasonDao reasonDao;
     /**
     *@Description: 查询点名册
     *@Param:
@@ -333,6 +339,54 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
         }
         return new PageResult<>(courseLog);
+    }
+
+    /**
+    *@Description: 查询学生课表
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/19 15:42
+    */
+    @Override
+    public PageResult<StudentSelectCourseList> findElectCourseList(PageCondition<ReportManagementCondition> condition) {
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<StudentSelectCourseList> electCourseList = elecRoundsDao.findElectCourseList(condition.getCondition());
+        if(electCourseList!=null){
+            List<StudentSelectCourseList> result = electCourseList.getResult();
+            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            }
+            if(schoolCalendarMap.size()!=0){
+                for (StudentSelectCourseList managementCondition : result) {
+                    String s = schoolCalendarMap.get(managementCondition.getCalendarId());
+                    if(StringUtils.isNotEmpty(s)){
+                        managementCondition.setCalendarName(s);
+                    }
+                }
+
+            }
+        }
+        return new PageResult<>(electCourseList);
+    }
+
+    /**
+     * 增加未选课原因
+     * */
+    @Override
+    public String addNoSelectReason(ElcNoSelectReason noSelectReason) {
+        reasonDao.deleteNoSelectReason(noSelectReason.getCalendarId(),noSelectReason.getStudentId());
+        reasonDao.insertSelective(noSelectReason);
+        return "common.editSuccess";
+    }
+
+    /**查找未选课原因*/
+    @Override
+    public ElcNoSelectReason findNoSelectReason(Long calendarId, String studentCode) {
+        ElcNoSelectReason noSelectReason = reasonDao.findNoSelectReason(calendarId, studentCode);
+        return noSelectReason;
     }
 
     //导出待做todo

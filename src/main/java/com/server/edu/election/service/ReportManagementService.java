@@ -4,6 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
@@ -38,4 +39,15 @@ public interface ReportManagementService {
      * */
     PageResult<ElcLogVo> findCourseLog(
             PageCondition<ElcLogVo> condition);
+
+    /**查询选课名单*/
+    PageResult<StudentSelectCourseList> findElectCourseList(PageCondition<ReportManagementCondition> condition);
+
+    /**未选课原因*/
+    String addNoSelectReason(ElcNoSelectReason noSelectReason);
+
+    /**查找未选课原因*/
+    ElcNoSelectReason findNoSelectReason(Long calendarId, String studentCode);
+
+
 }

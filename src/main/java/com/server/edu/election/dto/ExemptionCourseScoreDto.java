@@ -20,6 +20,15 @@ public class ExemptionCourseScoreDto implements Serializable{
     private String  isOverseas;
     private String enrolSeason;
     private String condition;
+    private String calendarName;
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
 
     public Long getCalendarId() {
         return calendarId;

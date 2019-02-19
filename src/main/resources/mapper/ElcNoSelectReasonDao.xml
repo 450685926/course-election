@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ElcNoSelectReasonDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElcNoSelectReason">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="REASON_" jdbcType="VARCHAR" property="reason" />
+  </resultMap>
+
+  <select id="findNoSelectReason" resultMap="BaseResultMap">
+    select * from elc_no_elect_reason_t
+    WHERE CALENDAR_ID_=#{calendarId} and STUDENT_ID_=#{studentCode}
+  </select>
+
+  <delete id="deleteNoSelectReason">
+    delete from elc_no_elect_reason_t
+    WHERE CALENDAR_ID_=#{calendarId} and STUDENT_ID_=#{studentCode}
+  </delete>
+</mapper>
