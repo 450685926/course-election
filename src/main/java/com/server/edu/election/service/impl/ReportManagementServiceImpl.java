@@ -201,14 +201,16 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         Integer timeStart = classTeacherDto.getTimeStart();
                         Integer timeEnd = classTeacherDto.getTimeEnd();
                         String roomID = classTeacherDto.getRoomID();
-                        List<Integer> integerList = dtos.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
-                        Integer maxWeek = Collections.max(integerList);
-                        Integer minWeek = Collections.min(integerList);
+                       // List<Integer> integerList = dtos.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                        Integer weekNumber1 = dtos.stream().max(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                        Integer weekNumber2 = dtos.stream().min(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                        //Integer maxWeek = Collections.max(integerList);
+                        //Integer minWeek = Collections.min(integerList);
                         String strWeek="[";
                         String strTime=timeStart+"-"+timeEnd;
                         int size = dtos.size();//判断是否连续
-                        if(minWeek+size-1==maxWeek){//连续拼接周次
-                            strWeek+=minWeek+"-"+maxWeek+"]";
+                        if(weekNumber2+size-1==weekNumber1){//连续拼接周次
+                            strWeek+=weekNumber2+"-"+weekNumber1+"]";
                         }else{
                             for(int i=0;i<dtos.size();i++){
                                 Integer weekNumber = dtos.get(i).getWeekNumber();
@@ -418,12 +420,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                        Integer dayOfWeek = item.getDayOfWeek();
                        Integer timeStart = item.getTimeStart();
                        Integer timeEnd = item.getTimeEnd();
-                       List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
-                       Integer maxWeek = Collections.max(integerList);
-                       Integer minWeek = Collections.min(integerList);
+                       //List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                       Integer weekNumber1 = list.stream().max(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                       Integer weekNumber2 = list.stream().min(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                       //Integer maxWeek = Collections.max(integerList);
+                       //Integer minWeek = Collections.min(integerList);
                        Set<String> rooms = list.stream().map(ClassTeacherDto::getRoomID).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
                        String roomId = String.join(",", rooms);
-                       String time=findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+minWeek+"-"+maxWeek+"] "+roomId;
+                       String time=findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+weekNumber1+"-"+weekNumber2+"] "+roomId;
                        str.append(time);
                        str.append("/");
                    }
