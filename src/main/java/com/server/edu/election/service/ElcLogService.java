@@ -16,4 +16,7 @@ public interface ElcLogService
      */
     PageResult<ElcLogVo> listPage(
         PageCondition<ElcLog> page);
+
+
+    void addCourseLog(ElcLog log);
 }

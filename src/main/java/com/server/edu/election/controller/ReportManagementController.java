@@ -4,8 +4,11 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.RollBookList;
+import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +34,9 @@ public class ReportManagementController {
 
     @Autowired
     private ReportManagementService managementService;
+
+    @Autowired
+    private ElcLogService elcLogService;
 
 
     /*@ApiOperation(value = "查询学生选课名单")
@@ -100,7 +106,7 @@ public class ReportManagementController {
 
     @ApiOperation(value = "查询老师课表")
     @GetMapping("/findTeacherTimetable")
-    public RestResult<?> findTeacherTimetable(@RequestParam Long calendarId,@RequestParam String teacherCode){
+    public RestResult<List<ClassTeacherDto>> findTeacherTimetable(@RequestParam Long calendarId,@RequestParam String teacherCode){
         if(calendarId==null|| StringUtils.isBlank(teacherCode)){
             return RestResult.fail("common.parameterError");
         }
@@ -108,7 +114,12 @@ public class ReportManagementController {
         return RestResult.successData(teacherTimetable);
     }
 
-
+    @ApiOperation(value = "查询选退课日志")
+    @PostMapping("/findCourseLog")
+    public RestResult<PageResult<ElcLogVo>> findCourseLog(@RequestBody PageCondition<ElcLogVo> condition){
+        PageResult<ElcLogVo> courseLog = managementService.findCourseLog(condition);
+        return RestResult.successData(courseLog);
+    }
 
 
 }
