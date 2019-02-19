@@ -94,13 +94,26 @@ public class ElcLog implements Serializable {
     @Column(name = "CREATED_AT_")
     private Date createdAt;
 
+    @Column(name = "CREATE_NAME_")
+    private String createName;
+
     private static final long serialVersionUID = 1L;
+
+    public String getCreateName() {
+        return createName;
+    }
+
+    public void setCreateName(String createName) {
+        this.createName = createName;
+    }
 
     /**
      * 获取主键（自增）
      *
      * @return ID_ - 主键（自增）
      */
+
+
     public Long getId() {
         return id;
     }

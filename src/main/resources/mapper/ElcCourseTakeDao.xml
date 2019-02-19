@@ -1,4 +1,4 @@
-<?xml key="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.server.edu.election.dao.ElcCourseTakeDao">
   <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElcCourseTake">
@@ -34,8 +34,8 @@
   		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
   		t4.CODE_ as teachingClassCode
   	from elc_course_takes_t t1
-  	join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-  	join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+  	left join course_t t3 ON t3.ID_ = t1.COURSE_ID_
   	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
   	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
@@ -209,7 +209,7 @@
             </if>
 
         </where>
-        GROUP BY el.TEACHING_CLASS_ID_
+        GROUP BY el.TEACHING_CLASS_ID_,el.CALENDAR_ID_
     </select>
 
     <select id="findTeacherByClassCode" parameterType="java.util.List" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -289,10 +289,11 @@
     </select>
 
     <select id="findStudentAndTeacherTime" resultType="com.server.edu.election.dto.ClassTeacherDto">
-        SELECT te.ID_ timeId,te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart,te.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber,ro.ROOM_ID_ roomID,ro.TEACHER_CODE_ teacherCode
-        FROM `teaching_class_arrange_time_t` te
+        SELECT cl.ID_ teachingClassId,cl.REMARK_ remark,cl.CODE_ classCode,cl.TEACHING_LANGUAGE_ teachingLanguage,te.ID_ timeId,te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart,te.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber,ro.ROOM_ID_ roomID,ro.TEACHER_CODE_ teacherCode
+        from teaching_class_t cl
+        LEFT JOIN `teaching_class_arrange_time_t` te on cl.ID_=te.TEACHING_CLASS_ID_
         LEFT JOIN teaching_class_arrange_room_t ro on te.ID_ =ro.ARRANGE_TIME_ID_
-        where te.TEACHING_CLASS_ID_=#{teachingClassId,jdbcType=BIGINT}
+        where cl.ID_=#{teachingClassId,jdbcType=BIGINT}
     </select>
 
     <select id="findClassTeacherByTeacherCode" resultType="java.lang.String">
@@ -324,4 +325,14 @@
         </where>
         GROUP BY el.CALENDAR_ID_,el.TEACHING_CLASS_ID_,tch.TEACHER_CODE_;
     </select>
+
+    <select id="findAllTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits FROM `elc_course_takes_t` el
+        LEFT JOIN  course_t co on co.ID_=el.COURSE_ID_
+        WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
+        GROUP BY el.TEACHING_CLASS_ID_,el.CALENDAR_ID_
+    </select>
+
+
+
 </mapper>

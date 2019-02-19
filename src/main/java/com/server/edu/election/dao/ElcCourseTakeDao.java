@@ -78,4 +78,8 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
 
     /**查询教师对应教学班*/
     Page<ClassCodeToTeacher> findAllClassTeacher(ClassCodeToTeacher condition);
+
+    /**查询某一学期所有教学班*/
+    List<ClassTeacherDto> findAllTeachingClassId(Long calendarId);
+
 }

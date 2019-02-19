@@ -23,8 +23,11 @@ public interface ReportManagementService {
     PageResult<StudentVo> findAllSchoolTimetab(PageCondition<ReportManagementCondition> condition);
 
     /**查询课表对应教师详细信息*/
-    List<StudentSchoolTimetab> findStudentAndTeacherTime( Long teachingClassId);
+    List<ClassTeacherDto> findStudentAndTeacherTime( Long teachingClassId);
 
     /**查询教学班对应老师信息*/
     PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition);
+
+    /**查询教师课表*/
+    List<ClassTeacherDto> findTeacherTimetable(Long calendarId,String teacherCode);
 }
