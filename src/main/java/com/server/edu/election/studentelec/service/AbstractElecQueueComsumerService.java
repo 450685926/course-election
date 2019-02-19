@@ -40,7 +40,7 @@ public abstract class AbstractElecQueueComsumerService<T> implements ElecQueueCo
     /** 完成一次消费 应在consume()方法执行结束 finally中执行 */
     protected void endConsume(){
         // 完成后当前容量+1
-        capacityAdd(1);
+        currentCapacity.addAndGet(1);
     }
 
     @Override
@@ -51,17 +51,11 @@ public abstract class AbstractElecQueueComsumerService<T> implements ElecQueueCo
                 if (data != null) {
                     // 如果当前容量大于0，且队列中有数据
                     // 容量-1
-                    capacityAdd(-1);
+                    currentCapacity.addAndGet(-1);
                     loadingThreadPool.execute(()-> consume(data));
                 }
             }
         }
     }
 
-    private void capacityAdd(int delta){
-        int c;
-        do {
-            c = currentCapacity.get();
-        }while (!currentCapacity.compareAndSet(c,c+delta));   //cas 直到成功
-    }
 }
