@@ -2,6 +2,8 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.StudentSelectCourseList;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -79,4 +81,7 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
      * @see [类、类#方法、类#成员]
      */
     List<TeachingClassDto> selectTeachingClassByRoundId(Long roundId);
+
+    /**查询学生选课名单*/
+    Page<StudentSelectCourseList> findElectCourseList(ReportManagementCondition condition);
 }

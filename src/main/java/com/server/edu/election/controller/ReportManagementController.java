@@ -1,10 +1,13 @@
 package com.server.edu.election.controller;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.RollBookList;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
@@ -39,12 +42,32 @@ public class ReportManagementController {
     private ElcLogService elcLogService;
 
 
-    /*@ApiOperation(value = "查询学生选课名单")
+    @ApiOperation(value = "查询学生选课名单")
     @PostMapping("/findElectCourseList")
-    public RestResult<> findElectCourseList(@RequestBody PageCondition<> condition) {
+    public RestResult<PageResult<StudentSelectCourseList>> findElectCourseList(@RequestBody PageCondition<ReportManagementCondition> condition) {
+        PageResult<StudentSelectCourseList> electCourseList = managementService.findElectCourseList(condition);
+        return RestResult.successData(electCourseList);
+    }
 
-        return RestResult.successData();
-    }*/
+    @ApiOperation(value = "新增未选课原因")
+    @PostMapping("/addNoSelectReason")
+    public RestResult<String> addNoSelectReason(@RequestBody ElcNoSelectReason noSelectReason) {
+        if(noSelectReason.getCalendarId()==null||StringUtils.isEmpty(noSelectReason.getStudentId())){
+            return RestResult.fail("common.parameterError");
+        }
+        String s = managementService.addNoSelectReason(noSelectReason);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+    @ApiOperation(value = "查找未选课原因")
+    @PostMapping("/findNoSelectReason")
+    public RestResult<ElcNoSelectReason> findNoSelectReason(@RequestParam Long calendarId,String studentCode) {
+        if(calendarId==null||StringUtils.isEmpty(studentCode)){
+            return RestResult.fail("common.parameterError");
+        }
+        ElcNoSelectReason noSelectReason = managementService.findNoSelectReason(calendarId, studentCode);
+        return RestResult.successData(noSelectReason);
+    }
 
     @ApiOperation(value = "查询点名册")
     @PostMapping("/findRollBookList")
