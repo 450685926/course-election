@@ -10,7 +10,7 @@
     <result column="TURN_" jdbcType="INTEGER" property="turn" />
     <result column="ELECTION_OBJ_" jdbcType="VARCHAR" property="electionObj" />
     <result column="MODE_" jdbcType="INTEGER" property="mode" />
-    <result column="PROJECT_ID_" jdbcType="INTEGER" property="projectId" />
+    <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="projectId" />
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
     <result column="OPEN_FLAG_" jdbcType="INTEGER" property="openFlag" />
     <result column="BEGIN_TIME_" jdbcType="TIMESTAMP" property="beginTime" />
@@ -25,7 +25,7 @@
   <select id="listPage" resultMap="BaseResultMap">
   	select * from election_rounds_t 
   	<where>
-  		PROJECT_ID_ = #{round.projectId}
+  		MANAGER_DEPT_ID_ = #{round.projectId}
   		and CALENDAR_ID_ = #{round.calendarId}
   		and MODE_ = #{round.mode}
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(round.electionObj)">
