@@ -28,7 +28,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @since  [产品/模块版本]
  */
 @CodeI18n
-@Table(name="teaching_class_t")
+@Table(name = "teaching_class_t")
 public class TeachingClass extends BaseEntity
 {
     /**
@@ -143,6 +143,12 @@ public class TeachingClass extends BaseEntity
     private Integer number;
     
     /**
+     * 选课人数
+     */
+    @Column(name = "ELC_NUMBER_")
+    private Integer elcNumber;
+    
+    /**
      * 预排课标识(0未排,1已排)
      */
     @Column(name = "PRE_ARRANGE_FLAG_")
@@ -177,22 +183,22 @@ public class TeachingClass extends BaseEntity
      */
     @Column(name = "UPDATED_AT_")
     private Date updatedAt;
-
+    
     /**
      * 总周时
      */
-    @ApiModelProperty(value="总周时",example="1")
+    @ApiModelProperty(value = "总周时", example = "1")
     @Column(name = "TOTAL_WEEK_")
     private Integer totalWeek;
-
-    @ApiModelProperty(value="开始排课周",example="")
+    
+    @ApiModelProperty(value = "开始排课周", example = "")
     @Column(name = "START_WEEK_")
     private Integer startWeek;
     
-    @ApiModelProperty(value="结束排课周",example="")
+    @ApiModelProperty(value = "结束排课周", example = "")
     @Column(name = "END_WEEK_")
     private Integer endWeek;
-
+    
     /**
      * 获取主键（自增）
      *
@@ -515,6 +521,16 @@ public class TeachingClass extends BaseEntity
         this.number = number;
     }
     
+    public Integer getElcNumber()
+    {
+        return elcNumber;
+    }
+    
+    public void setElcNumber(Integer elcNumber)
+    {
+        this.elcNumber = elcNumber;
+    }
+    
     public Integer getPreArrangeFlag()
     {
         return preArrangeFlag;
@@ -604,12 +620,13 @@ public class TeachingClass extends BaseEntity
     {
         this.updatedAt = updatedAt;
     }
-
+    
     /**
      * 拷贝教学班属性
      * @param teachingClass
      */
-    public void copy(TeachingClass teachingClass) {
+    public void copy(TeachingClass teachingClass)
+    {
         this.taskId = teachingClass.getTaskId();
         this.code = teachingClass.getCode();
         this.campus = teachingClass.getCampus();
@@ -628,38 +645,45 @@ public class TeachingClass extends BaseEntity
         this.totalWeek = teachingClass.getTotalWeek();
         this.roomType = teachingClass.getRoomType();
     }
-
-    public Integer getTotalWeek() {
+    
+    public Integer getTotalWeek()
+    {
         return totalWeek;
     }
-
-    public void setTotalWeek(Integer totalWeek) {
+    
+    public void setTotalWeek(Integer totalWeek)
+    {
         this.totalWeek = totalWeek;
     }
-
-    public Integer getStartWeek() {
+    
+    public Integer getStartWeek()
+    {
         return startWeek;
     }
-
-    public void setStartWeek(Integer startWeek) {
+    
+    public void setStartWeek(Integer startWeek)
+    {
         this.startWeek = startWeek;
     }
-
-    public Integer getEndWeek() {
+    
+    public Integer getEndWeek()
+    {
         return endWeek;
     }
-
-    public void setEndWeek(Integer endWeek) {
+    
+    public void setEndWeek(Integer endWeek)
+    {
         this.endWeek = endWeek;
     }
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
     
+    public String getName()
+    {
+        return name;
+    }
+    
+    public void setName(String name)
+    {
+        this.name = name;
+    }
     
 }
