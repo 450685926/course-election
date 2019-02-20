@@ -52,4 +52,10 @@ public interface ReportManagementService {
 
     /**代选课*/
     String otherSelectCourse(StudentSelectCourseList studentSelectCourseList);
+
+    /**导出未选课学生名单*/
+    String exportStudentNoCourseList(ReportManagementCondition condition) throws Exception;
+
+    /**导出点名册*/
+    String exportRollBookList(ReportManagementCondition condition) throws Exception;
 }

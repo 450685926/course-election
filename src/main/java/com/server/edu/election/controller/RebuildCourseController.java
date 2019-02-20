@@ -1,12 +1,21 @@
 package com.server.edu.election.controller;
 
+import java.io.File;
+import java.net.URLDecoder;
 import java.util.List;
 
+import com.server.edu.election.dto.ExemptionApplyCondition;
+import io.swagger.annotations.*;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
@@ -21,10 +30,6 @@ import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.StudentVo;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
-
 /**
  * @description: 重修管理
  * @author: bear
@@ -38,6 +43,12 @@ public class RebuildCourseController {
 
     @Autowired
     private RebuildCourseChargeService service;
+
+    private static Logger LOG =
+            LoggerFactory.getLogger(ExemptionController.class);
+
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
 
     @ApiOperation(value = "查询重修收费信息")
     @PostMapping("/findCourseCharge")
@@ -145,4 +156,43 @@ public class RebuildCourseController {
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
 
+
+    @ApiOperation(value = "导出未缴费课程名单")
+    @PostMapping("/exportNoChargeList")
+    public RestResult<String> exportNoChargeList (
+            @RequestBody RebuildCoursePaymentCondition condition)
+            throws Exception
+    {
+        LOG.info("export.start");
+        String export = service.exportNoChargeList(condition);
+        return RestResult.successData(export);
+    }
+
+    @ApiOperation(value = "导出学生课程汇总名单")
+    @PostMapping("/exportStudentNoChargeCourse")
+    public RestResult<String> exportStudentNoChargeCourse (
+            @RequestBody RebuildCoursePaymentCondition condition)
+            throws Exception
+    {
+        LOG.info("export.start");
+        String export = service.exportStudentNoChargeCourse(condition);
+        return RestResult.successData(export);
+    }
+
+
+
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName) throws Exception
+    {
+        LOG.info("export.start");
+        fileName = new String(fileName.getBytes(), "ISO8859-1");
+        Resource resource = new FileSystemResource(URLDecoder.decode(cacheDirectory + fileName,"utf-8"));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
+                .body(resource);
+    }
 }

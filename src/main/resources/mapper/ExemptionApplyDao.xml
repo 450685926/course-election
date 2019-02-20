@@ -172,7 +172,7 @@
     </update>
 
     <select id="findExemptionApply" parameterType="com.server.edu.election.dto.ExemptionApplyCondition" resultType="com.server.edu.election.vo.ExemptionApplyManageVo">
-      SELECT ex.ID_ id,ex.APPLY_TYPE_ applyType,ex.COURSE_CODE_ courseCode,c.NAME_ courseName,ex.STUDENT_CODE_ studentCode,ex.NAME_ name,ex.EXAMINE_RESULT_ examineResult,
+      SELECT ex.ID_ id,ex.CALENDAR_ID_ calendarId,ex.APPLY_TYPE_ applyType,ex.COURSE_CODE_ courseCode,c.NAME_ courseName,ex.STUDENT_CODE_ studentCode,s.NAME_ name,ex.EXAMINE_RESULT_ examineResult,
         ex.AUDITOR_ auditor,ex.EXEMPTION_TYPE_ exemptionType,ex.MATERIAL_IP_ materialIp,s.FACULTY_ faculty,s.PROFESSION_ profession
         FROM `exemption_apply_manage_t` ex
       LEFT JOIN student_t s on s.STUDENT_CODE_=ex.STUDENT_CODE_

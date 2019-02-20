@@ -14,14 +14,21 @@ import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.net.URLDecoder;
 import java.util.List;
 
 /**
@@ -40,6 +47,12 @@ public class ReportManagementController {
 
     @Autowired
     private ElcLogService elcLogService;
+
+    private static Logger LOG =
+            LoggerFactory.getLogger(ExemptionController.class);
+
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
 
 
     @ApiOperation(value = "查询学生未选课名单")
@@ -155,4 +168,42 @@ public class ReportManagementController {
     }
 
 
+    @ApiOperation(value = "导出未选课学生名单")
+    @PostMapping("/exportStudentNoCourseList")
+    public RestResult<String> exportStudentNoCourseList (
+            @RequestBody ReportManagementCondition condition)
+            throws Exception
+    {
+        LOG.info("export.start");
+        String export = managementService.exportStudentNoCourseList(condition);
+        return RestResult.successData(export);
+    }
+
+    @ApiOperation(value = "导出点名册")
+    @PostMapping("/exportRollBookList")
+    public RestResult<String> exportRollBookList (
+            @RequestBody ReportManagementCondition condition)
+            throws Exception
+    {
+        LOG.info("export.start");
+        String export = managementService.exportRollBookList(condition);
+        return RestResult.successData(export);
+    }
+
+
+
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName) throws Exception
+    {
+        LOG.info("export.start");
+        fileName = new String(fileName.getBytes(), "ISO8859-1");
+        Resource resource = new FileSystemResource(URLDecoder.decode(cacheDirectory + fileName,"utf-8"));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
+                .body(resource);
+    }
 }

@@ -3,10 +3,13 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
@@ -14,13 +17,20 @@ import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.vo.*;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,6 +64,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private DictionaryService dictionaryService;
+
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
+
 
     private static final Integer SUCCESS_STATUS=1;//免修申请审批状态通过
     private static final Integer STATUS=0;//免修申请审批状态初始化
@@ -459,6 +476,83 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         }
         applyDao.updateByPrimaryKeySelective(applyManage);
         return "common.editSuccess";
+    }
+
+    /**
+    *@Description: 免修免考申请管理导出
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/20 9:27
+    */
+    @Override
+    public String export(ExemptionApplyCondition condition) throws Exception{
+        PageCondition<ExemptionApplyCondition> pageCondition = new PageCondition<ExemptionApplyCondition>();
+        pageCondition.setCondition(condition);
+        pageCondition.setPageSize_(Constants.ZERO);
+        pageCondition.setPageNum_(Constants.ZERO);
+        PageResult<ExemptionApplyManageVo> exemptionApply = findExemptionApply(pageCondition);
+        if(exemptionApply!=null){
+            List<ExemptionApplyManageVo> list = exemptionApply.getList();
+            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            for (SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            }
+            for (ExemptionApplyManageVo exemptionApplyManageVo : list) {
+                if (0 != schoolCalendarMap.size()) {
+                    String schoolCalendarName = schoolCalendarMap.get(exemptionApplyManageVo.getCalendarId());
+                    if (StringUtils.isNotEmpty(schoolCalendarName)) {
+                        exemptionApplyManageVo.setCalendarName(schoolCalendarName);
+                    }
+                }
+
+                if(exemptionApplyManageVo.getExamineResult()==0){
+                    exemptionApplyManageVo.setExamineResultStr("待审批");
+                }else if(exemptionApplyManageVo.getExamineResult()==1){
+                    exemptionApplyManageVo.setExamineResultStr("审批通过");
+                }else{
+                    exemptionApplyManageVo.setExamineResultStr("审批未通过");
+                }
+
+            }
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            GeneralExcelDesigner design = getDesign();
+            design.setDatas(list);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "exemptionApplyManage.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
+    }
+
+    private GeneralExcelDesigner getDesign() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("exemptionApply.examineResult"), "examineResultStr");
+        design.addCell(I18nUtil.getMsg("exemptionApply.examineAuditor"), "auditor");
+        return design;
     }
 
 }

@@ -21,6 +21,24 @@ public class RollBookList implements Serializable {
     private String label;
     private Integer selectCourseNumber;
     private Integer numberLimit;
+    private String calendarName;
+    private String classCodeAndcourseName;
+
+    public String getClassCodeAndcourseName() {
+        return classCodeAndcourseName;
+    }
+
+    public void setClassCodeAndcourseName(String classCodeAndcourseName) {
+        this.classCodeAndcourseName = classCodeAndcourseName;
+    }
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
 
     @Code2Text(transformer="X_YX")
     private String faculty;

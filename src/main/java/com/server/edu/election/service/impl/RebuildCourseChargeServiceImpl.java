@@ -3,7 +3,11 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.RebuildCourseChargeDao;
 import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
@@ -11,15 +15,29 @@ import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileOutputStream;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +57,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private DictionaryService dictionaryService;
+
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
 
     /**
     *@Description: 查询收费管理
@@ -282,6 +306,146 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         /**从回收站删除*/
         courseChargeDao.recoveryDataFromRecycleCourse(list);
         return "common.deleteSuccess";
+    }
+
+   /**
+   *@Description: 导出课程汇总名单
+   *@Param: 
+   *@return: 
+   *@Author: bear
+   *@date: 2019/2/20 12:41
+   */
+    @Override
+    public String exportStudentNoChargeCourse(RebuildCoursePaymentCondition condition) throws Exception{
+        PageCondition<RebuildCoursePaymentCondition> pageCondition = new PageCondition<RebuildCoursePaymentCondition>();
+        pageCondition.setCondition(condition);
+        pageCondition.setPageSize_(Constants.ZERO);
+        pageCondition.setPageNum_(Constants.ZERO);
+        PageResult<StudentVo> result = findCourseNoChargeStudentList(pageCondition);
+        if(result!=null){
+            List<StudentVo> list = result.getList();
+            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            for (SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            }
+            for (StudentVo studentVo : list) {
+                if(0!=schoolCalendarMap.size()){
+                    String str = schoolCalendarMap.get(studentVo.getCalendarId());
+                    if (StringUtils.isNotEmpty(str)) {
+                        studentVo.setCalendarName(str);
+                    }
+                }
+            }
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            GeneralExcelDesigner design = getDesignTWo();
+            design.setDatas(list);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "studentNoChargeCourse.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
+    }
+
+    /**
+    *@Description: 导出未缴费课程名单
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/20 11:17
+    */
+    @Override
+    public String exportNoChargeList(RebuildCoursePaymentCondition condition) throws Exception{
+        PageCondition<RebuildCoursePaymentCondition> pageCondition = new PageCondition<RebuildCoursePaymentCondition>();
+        pageCondition.setCondition(condition);
+        pageCondition.setPageSize_(Constants.ZERO);
+        pageCondition.setPageNum_(Constants.ZERO);
+        PageResult<RebuildCourseNoChargeList> result = findCourseNoChargeList(pageCondition);
+        if(result!=null){
+            List<RebuildCourseNoChargeList> list = result.getList();
+            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            for (SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            }
+            for (RebuildCourseNoChargeList rebuildCourseNoChargeList : list) {
+                if (0 != schoolCalendarMap.size()) {
+                    String schoolCalendarName = schoolCalendarMap.get(rebuildCourseNoChargeList.getCalendarId());
+                    if (StringUtils.isNotEmpty(schoolCalendarName)) {
+                        rebuildCourseNoChargeList.setCalendarName(schoolCalendarName);
+                    }
+                }
+                String format = new DecimalFormat("###################.###########").format(rebuildCourseNoChargeList.getPeriod());
+                String s=rebuildCourseNoChargeList.getStartWeek()+"-"+rebuildCourseNoChargeList.getEndWeek()+
+                        "周"+format+"课时";
+                rebuildCourseNoChargeList.setCourseArr(s);
+                if(rebuildCourseNoChargeList.getId()!=null){
+                    String str=rebuildCourseNoChargeList.getPaid()==0?"未缴费":"已缴费";
+                    rebuildCourseNoChargeList.setStrPaid(str);
+                }
+
+            }
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            GeneralExcelDesigner design = getDesign();
+            design.setDatas(list);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "rebuildCourseNoChargeList.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
+    }
+
+    private GeneralExcelDesigner getDesign() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "code");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "codeName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseArr"), "courseArr");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "strPaid");
+        return design;
+    }
+
+    private GeneralExcelDesigner getDesignTWo() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.sex"), "sex").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_XBIE", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.studentCategory"), "studentCategory");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.rebuildNumber"), "rebuildNumber");
+
+        return design;
     }
 
 }

@@ -40,5 +40,11 @@ public interface RebuildCourseChargeService {
 
     /**从回收站回复数据*/
     String moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
+
+    /**导出未缴费课程名单*/
+    String exportNoChargeList(RebuildCoursePaymentCondition condition) throws Exception;
+
+    /**导出课程汇总名单*/
+    String exportStudentNoChargeCourse(RebuildCoursePaymentCondition condition) throws Exception;
 }
 
