@@ -1,23 +1,20 @@
 package com.server.edu.election.vo;
 
-import com.server.edu.dictionary.DictTypeEnum;
-import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.election.entity.TeachingClass;
 
 public class TeachingClassVo extends TeachingClass
 {
-    @Code2Text(value=DictTypeEnum.X_XQ)
-    private String campus;
+    private String courseCode;
     private String courseName;
-    @Override
-    public String getCampus()
+    private Double credits;
+    
+    public String getCourseCode()
     {
-        return campus;
+        return courseCode;
     }
-    @Override
-    public void setCampus(String campus)
+    public void setCourseCode(String courseCode)
     {
-        this.campus = campus;
+        this.courseCode = courseCode;
     }
     public String getCourseName()
     {
@@ -27,6 +24,13 @@ public class TeachingClassVo extends TeachingClass
     {
         this.courseName = courseName;
     }
-    
+    public Double getCredits()
+    {
+        return credits;
+    }
+    public void setCredits(Double credits)
+    {
+        this.credits = credits;
+    }
     
 }

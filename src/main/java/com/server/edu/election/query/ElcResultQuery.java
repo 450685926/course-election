@@ -10,6 +10,8 @@ public class ElcResultQuery
     @NotNull
     private Long calendarId;
     
+    private String campus;
+    
     /**
      * 课程编号
      */
@@ -38,6 +40,16 @@ public class ElcResultQuery
     public void setCalendarId(Long calendarId)
     {
         this.calendarId = calendarId;
+    }
+    
+    public String getCampus()
+    {
+        return campus;
+    }
+    
+    public void setCampus(String campus)
+    {
+        this.campus = campus;
     }
     
     public String getCourseCode()

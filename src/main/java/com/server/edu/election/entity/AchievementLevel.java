@@ -1,7 +1,15 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 @Table(name = "achievement_level_t")
 public class AchievementLevel implements Serializable {
@@ -16,30 +24,35 @@ public class AchievementLevel implements Serializable {
     /**
      * 方案名称
      */
+    @NotBlank
     @Column(name = "NAME_")
-    private Long name;
+    private String name;
 
     /**
      * 年级
      */
+    @NotNull
     @Column(name = "GRADE_")
     private Integer grade;
 
     /**
      * 培养层次X_PYCC
      */
+    @NotBlank
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
 
     /**
      * 学习形式X_XXXS
      */
+    @NotBlank
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
 
     /**
      * 学院
      */
+    @NotBlank
     @Column(name = "FACULTY_")
     private String faculty;
 
@@ -52,24 +65,28 @@ public class AchievementLevel implements Serializable {
     /**
      * 科目
      */
+    @NotBlank
     @Column(name = "SUBJECT_")
     private String subject;
 
     /**
      * 起始分数
      */
+    @NotBlank
     @Column(name = "MIN_SCORE_")
     private String minScore;
 
     /**
      * 结束分数
      */
+    @NotBlank
     @Column(name = "MAX_SCORE_")
     private String maxScore;
 
     /**
      * 等级
      */
+    @NotBlank
     @Column(name = "LEVEL_")
     private String level;
 
@@ -104,7 +121,7 @@ public class AchievementLevel implements Serializable {
      *
      * @return NAME_ - 方案名称
      */
-    public Long getName() {
+    public String getName() {
         return name;
     }
 
@@ -113,8 +130,8 @@ public class AchievementLevel implements Serializable {
      *
      * @param name 方案名称
      */
-    public void setName(Long name) {
-        this.name = name;
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
     }
 
     /**

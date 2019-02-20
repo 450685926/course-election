@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.CourseDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.Course">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="CODE_" jdbcType="VARCHAR" property="code" />
+    <result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+    <result column="PERIOD_" jdbcType="DOUBLE" property="period" />
+    <result column="WEEK_HOUR_" jdbcType="DOUBLE" property="weekHour" />
+    <result column="NAME_" jdbcType="VARCHAR" property="name" />
+    <result column="NAME_EN_" jdbcType="VARCHAR" property="nameEn" />
+    <result column="COLLEGE_" jdbcType="VARCHAR" property="college" />
+    <result column="NATURE_" jdbcType="VARCHAR" property="nature" />
+    <result column="LABEL_" jdbcType="VARCHAR" property="label" />
+    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+    <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+    <result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode" />
+    <result column="REMARK_" jdbcType="LONGVARCHAR" property="remark" />
+  </resultMap>
+</mapper>

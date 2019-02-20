@@ -40,7 +40,7 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService {
 		Example example = new Example(ElectionConstants.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("key",dto.getKey());
-		criteria.andEqualTo("projectId",dto.getProjectId());
+		criteria.andEqualTo("managerDeptId",dto.getManagerDeptId());
 		List<ElectionConstants> list = electionConstantsDao.selectByExample(example);
 		if(CollectionUtil.isNotEmpty(list)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("electionRuleDto.constants")));
@@ -61,7 +61,7 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService {
 		}
 		Example example = new Example(ElectionConstants.class);
 		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("projectId",dto.getProjectId());
+		criteria.andEqualTo("managerDeptId",dto.getManagerDeptId());
 		criteria.andEqualTo("key",dto.getKey());
 		criteria.andNotEqualTo("id", dto.getId());
 		List<ElectionConstants> list = electionConstantsDao.selectByExample(example);
