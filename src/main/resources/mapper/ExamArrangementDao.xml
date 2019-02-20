@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ExamArrangementDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ExamArrangement">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentCode" />
+    <result column="NAME_" jdbcType="VARCHAR" property="name" />
+    <result column="SEX_" jdbcType="INTEGER" property="sex" />
+    <result column="SUBJECT_" jdbcType="VARCHAR" property="subject" />
+    <result column="DATE_" jdbcType="TIMESTAMP" property="date" />
+    <result column="LOCATION_" jdbcType="VARCHAR" property="location" />
+    <result column="NOTICE_" jdbcType="LONGVARCHAR" property="notice" />
+  </resultMap>
+  <select id="selectExamArrangements" parameterType="com.server.edu.election.dto.ExamArrangementDto" resultMap="BaseResultMap">
+		    SELECT
+			t1.*
+		FROM
+			exam_arrangement_t t1
+		INNER JOIN student_t t2 ON t1.STUDENT_CODE_ = t2.STUDENT_CODE_
+		where 1=1
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(subject)">
+	        and t1.SUBJECT_= #{subject}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+	        and t2.GRADE_= #{grade}
+	    </if>	    
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+	        and t2.TRAINING_LEVEL_= #{trainingLevel}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+	        and t2.FORM_LEARNING_= #{formLearning}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+	        and t2.FACULTY_= #{faculty}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+	        and t2.PROFESSION_= #{profession}
+	    </if>
+  </select>
+   <insert id="batchInsert" parameterType="java.util.List">
+    insert into exam_arrangement_t(
+    STUDENT_CODE_,NAME_,SEX_,SUBJECT_,
+    DATE_,LOCATION_,NOTICE_
+    )
+    values
+    <foreach item="item" collection="list" index="index"
+             separator=",">
+      (
+      #{item.studentCode,jdbcType=VARCHAR},
+      #{item.name,jdbcType=VARCHAR},
+      #{item.sex,jdbcType=INTEGER},
+      #{item.subject,jdbcType=VARCHAR},
+      #{item.date,jdbcType=TIMESTAMP},
+      #{item.location,jdbcType=VARCHAR},
+      #{item.notice,jdbcType=LONGVARCHAR}
+      )
+    </foreach>
+  </insert>
+</mapper>

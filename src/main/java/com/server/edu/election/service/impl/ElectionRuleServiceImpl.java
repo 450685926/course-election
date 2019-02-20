@@ -100,8 +100,6 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 			}
 		}
 		List<ElectionParameter> list = electionRuleDto.getList();
-		Example example = new Example(ElectionParameter.class);
-		Example.Criteria criteria = example.createCriteria();
 		result = electionParameterDao.batchUpdateStatus(list);
 		return RestResult.success();
 	}

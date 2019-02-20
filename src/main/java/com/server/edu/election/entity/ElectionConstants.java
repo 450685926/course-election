@@ -18,10 +18,11 @@ public class ElectionConstants implements Serializable {
     private Long id;
 
     /**
-     * 项目id
+     * 管理部门id（字典取值）
      */
-    @Column(name = "PROJECT_ID_")
-    private String projectId;
+    @NotBlank
+    @Column(name = "MANAGER_DEPT_ID_")
+    private String managerDeptId;
 
     /**
      * 培养层次(专科   本科   硕士   博士    其他    预科)
@@ -73,25 +74,17 @@ public class ElectionConstants implements Serializable {
         this.id = id;
     }
 
-    /**
-     * 获取项目id
-     *
-     * @return PROJECT_ID_ - 项目id
-     */
-    public String getProjectId() {
-        return projectId;
-    }
 
-    /**
-     * 设置项目id
-     *
-     * @param projectId 项目id
-     */
-    public void setProjectId(String projectId) {
-        this.projectId = projectId == null ? null : projectId.trim();
-    }
 
-    /**
+    public String getManagerDeptId() {
+		return managerDeptId;
+	}
+
+	public void setManagerDeptId(String managerDeptId) {
+		this.managerDeptId = managerDeptId;
+	}
+
+	/**
      * 获取培养层次(专科   本科   硕士   博士    其他    预科)
      *
      * @return TRAINING_LEVEL_ - 培养层次(专科   本科   硕士   博士    其他    预科)
@@ -188,7 +181,7 @@ public class ElectionConstants implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", projectId=").append(projectId);
+        sb.append(", managerDeptId=").append(managerDeptId);
         sb.append(", trainingLevel=").append(trainingLevel);
         sb.append(", key=").append(key);
         sb.append(", name=").append(name);
