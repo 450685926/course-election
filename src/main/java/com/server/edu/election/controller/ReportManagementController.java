@@ -51,7 +51,7 @@ public class ReportManagementController {
     private static Logger LOG =
             LoggerFactory.getLogger(ExemptionController.class);
 
-    @Value("${task.cache.directory}")
+    @Value("${cache.directory}")
     private String cacheDirectory;
 
 
@@ -121,6 +121,7 @@ public class ReportManagementController {
         StudentSchoolTimetabVo schoolTimetab = managementService.findSchoolTimetab(calendarId, studentCode);
         return RestResult.successData(schoolTimetab);
     }
+
 
     @ApiOperation(value = "查询所有学生课表")
     @PostMapping("/findAllSchoolTimetab")

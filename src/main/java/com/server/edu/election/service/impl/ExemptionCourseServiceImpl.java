@@ -68,7 +68,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     @Autowired
     private DictionaryService dictionaryService;
 
-    @Value("${task.cache.directory}")
+    @Value("${cache.directory}")
     private String cacheDirectory;
 
 

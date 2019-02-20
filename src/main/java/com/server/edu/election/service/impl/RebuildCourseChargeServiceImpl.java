@@ -61,7 +61,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Autowired
     private DictionaryService dictionaryService;
 
-    @Value("${task.cache.directory}")
+    @Value("${cache.directory}")
     private String cacheDirectory;
 
     /**

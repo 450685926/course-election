@@ -47,7 +47,7 @@ public class RebuildCourseController {
     private static Logger LOG =
             LoggerFactory.getLogger(ExemptionController.class);
 
-    @Value("${task.cache.directory}")
+    @Value("${cache.directory}")
     private String cacheDirectory;
 
     @ApiOperation(value = "查询重修收费信息")
