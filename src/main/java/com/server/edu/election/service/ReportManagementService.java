@@ -50,4 +50,6 @@ public interface ReportManagementService {
     ElcNoSelectReason findNoSelectReason(Long calendarId, String studentCode);
 
 
+    /**代选课*/
+    String otherSelectCourse(StudentSelectCourseList studentSelectCourseList);
 }

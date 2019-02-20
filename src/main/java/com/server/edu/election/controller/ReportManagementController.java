@@ -42,7 +42,7 @@ public class ReportManagementController {
     private ElcLogService elcLogService;
 
 
-    @ApiOperation(value = "查询学生选课名单")
+    @ApiOperation(value = "查询学生未选课名单")
     @PostMapping("/findElectCourseList")
     public RestResult<PageResult<StudentSelectCourseList>> findElectCourseList(@RequestBody PageCondition<ReportManagementCondition> condition) {
         PageResult<StudentSelectCourseList> electCourseList = managementService.findElectCourseList(condition);
@@ -56,6 +56,16 @@ public class ReportManagementController {
             return RestResult.fail("common.parameterError");
         }
         String s = managementService.addNoSelectReason(noSelectReason);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+    @ApiOperation(value = "代选课")
+    @PostMapping("/otherSelectCourse")
+    public RestResult<String> otherSelectCourse(@RequestBody StudentSelectCourseList studentSelectCourseList) {
+        if(studentSelectCourseList==null){
+            return RestResult.fail("common.parameterError");
+        }
+        String s= managementService.otherSelectCourse(studentSelectCourseList);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
 

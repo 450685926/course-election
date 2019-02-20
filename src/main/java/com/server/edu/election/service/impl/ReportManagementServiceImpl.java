@@ -389,6 +389,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return noSelectReason;
     }
 
+    /**代选课*/
+    @Override
+    public String otherSelectCourse(StudentSelectCourseList studentSelectCourseList) {
+        //调用选课接口
+        return null;
+    }
+
     //导出待做todo
 
    /**

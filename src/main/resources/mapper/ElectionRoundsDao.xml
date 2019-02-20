@@ -94,7 +94,7 @@
         LEFT JOIN teaching_class_t cl on cl.ID_=ta.TEACHING_CLASS_ID_
         where CALENDAR_ID_=#{calendarId}) yy on tt.STUDENT_ID_=yy.STUDENT_ID_
         <where>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+            <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and yy.NATURE_=#{nature}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isRebuildCourse)">
@@ -109,6 +109,10 @@
                        and yy.CLASS_CODE_ is not NULL
                    </otherwise>
                </choose>
+            </if>-->
+            yy.CLASS_CODE_ is NULL
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
+                and (tt.STUDENT_ID_ like concat('%',#{condition},'%') or tt.NAME_ like concat('%',#{condition},'%'))
             </if>
         </where>
     </select>
