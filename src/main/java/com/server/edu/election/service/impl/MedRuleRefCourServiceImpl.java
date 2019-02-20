@@ -27,6 +27,9 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 	public PageInfo<ElcMedWithdrawRuleRefCourVo> list(PageCondition<ElcMedWithdrawRuleRefCourDto> condition){
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMedWithdrawRuleRefCourDto elcMedWithdrawRuleRefCourDto = condition.getCondition();
+		if(elcMedWithdrawRuleRefCourDto.getCalendarId()==null||elcMedWithdrawRuleRefCourDto.getMedWithdrawRuleId()==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
 		List<ElcMedWithdrawRuleRefCourVo> list = new ArrayList<>();
 		if(elcMedWithdrawRuleRefCourDto.getIsOpen()==elcMedWithdrawRuleRefCourDto.ISOPEN) {
 			list =elcMedWithdrawRuleRefCourDao.selectMedRuleRefCours(condition.getCondition());
