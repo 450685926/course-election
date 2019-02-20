@@ -47,7 +47,7 @@ public class ExemptionController {
     private static Logger LOG =
             LoggerFactory.getLogger(ExemptionController.class);
 
-    @Value("${task.cache.directory}")
+    @Value("${cache.directory}")
     private String cacheDirectory;
     /**
     *@Description: 查询免修免考课程
