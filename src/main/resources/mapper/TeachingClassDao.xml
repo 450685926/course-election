@@ -35,7 +35,7 @@
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
   </resultMap>
 
-  <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="BaseResultMap">
+  <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.*, t2.CAMPUS_,  t3.COURSE_NAME_ from 
 	teaching_class_t t1 
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
