@@ -35,4 +35,79 @@
         from student_t
         where STUDENT_CODE_=#{studentCode,jdbcType=VARCHAR}
     </select>
+    <select id="selectElcStudents" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
+			SELECT
+				t2.STUDENT_CODE_,
+				t2.NAME_,
+				t2.TRAINING_LEVEL_,
+				t2.STUDENT_CATEGORY_,
+				t2.FACULTY_,
+				t2.PROFESSION_,
+				t2.RESEARCH_DIRECTION_
+			FROM
+				elc_affinity_courses_stds_t t1
+			INNER JOIN student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_
+			where 1=1
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
+	        and t2.STUDENT_CODE_ like concat('%',#{studentCode},'%')
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+	        and t2.NAME_ like concat('%',#{name},'%')
+	    </if>
+    </select>
+    
+        <select id="selectUnElcStudents" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
+		SELECT
+			t1.STUDENT_CODE_,
+			t1.NAME_,
+			t1.TRAINING_LEVEL_,
+			t1.STUDENT_CATEGORY_,
+			t1.FACULTY_,
+			t1.PROFESSION_,
+			t1.RESEARCH_DIRECTION_
+		FROM
+			student_t t1
+		WHERE
+			STUDENT_CODE_ NOT IN (
+				SELECT
+					STUDENT_ID_
+				FROM
+					elc_affinity_courses_stds_t
+			)
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
+	        and t1.STUDENT_CODE_ like concat('%',#{studentCode},'%')
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+	        and t1.NAME_ like concat('%',#{name},'%')
+	    </if>
+    </select>
+    <select id="selectElcInvincibleStds" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
+			SELECT
+			t2.*
+			FROM
+				elc_invincible_stds_t t1
+			INNER JOIN student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_
+			where 1=1
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+	        and (t2.STUDENT_CODE_ like concat('%',#{name},'%') or t2.NAME_ like concat('%',#{name},'%'))
+	    </if>
+    </select>
+    
+    <select id="selectUnElcInvincibleStds" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
+		SELECT
+		  t1.*
+		FROM
+			student_t t1
+		WHERE
+			STUDENT_CODE_ NOT IN (
+				SELECT
+					STUDENT_ID_
+				FROM
+					elc_invincible_stds_t
+			)
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+	        and (t1.STUDENT_CODE_ like concat('%',#{name},'%') or t1.NAME_ like concat('%',#{name},'%'))
+	    </if>
+    </select>    
+    
 </mapper>

@@ -9,7 +9,7 @@
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
     <result column="TYPE_" jdbcType="VARCHAR" property="type" />
     <result column="SERVICE_NAME_" jdbcType="VARCHAR" property="serviceName" />
-    <result column="PROJECT_ID_" jdbcType="VARCHAR" property="projectId" />
+    <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="STATUS_" jdbcType="INTEGER" property="value" />
   </resultMap>

@@ -6,7 +6,7 @@
       WARNING - @mbg.generated
     -->
     <id column="ID_" jdbcType="BIGINT" property="id" />
-    <result column="PROJECT_ID_" jdbcType="VARCHAR" property="projectId" />
+    <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
     <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
     <result column="KEY_" jdbcType="VARCHAR" property="key" />
     <result column="NAME_" jdbcType="VARCHAR" property="name" />

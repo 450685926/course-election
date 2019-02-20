@@ -42,10 +42,10 @@ public class ElectionRule implements Serializable {
     private String serviceName;
 
     /**
-     * PROJECT_ID
+     * 管理部门id（字典取值）
      */
-    @Column(name = "PROJECT_ID_")
-    private String projectId;
+    @Column(name = "MANAGER_DEPT_ID_")
+    private String managerDeptId;
 
     /**
      * 规则描述
@@ -134,25 +134,17 @@ public class ElectionRule implements Serializable {
         this.serviceName = serviceName == null ? null : serviceName.trim();
     }
 
-    /**
-     * 获取PROJECT_ID
-     *
-     * @return PROJECT_ID_ - PROJECT_ID
-     */
-    public String getProjectId() {
-        return projectId;
-    }
+    
 
-    /**
-     * 设置PROJECT_ID
-     *
-     * @param projectId PROJECT_ID
-     */
-    public void setProjectId(String projectId) {
-        this.projectId = projectId == null ? null : projectId.trim();
-    }
+    public String getManagerDeptId() {
+		return managerDeptId;
+	}
 
-    /**
+	public void setManagerDeptId(String managerDeptId) {
+		this.managerDeptId = managerDeptId;
+	}
+
+	/**
      * 获取规则描述
      *
      * @return REMARK_ - 规则描述
@@ -198,7 +190,7 @@ public class ElectionRule implements Serializable {
         sb.append(", name=").append(name);
         sb.append(", type=").append(type);
         sb.append(", serviceName=").append(serviceName);
-        sb.append(", projectId=").append(projectId);
+        sb.append(", managerDeptId=").append(managerDeptId);
         sb.append(", remark=").append(remark);
         sb.append(", status=").append(status);
         sb.append(", serialVersionUID=").append(serialVersionUID);
