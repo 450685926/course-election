@@ -11,10 +11,7 @@ import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.ElcLog;
-import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.entity.RollBookList;
-import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.vo.ElcLogVo;
@@ -127,6 +124,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         Student student = studentDao.findStudentByCode(studentCode);
         Double totalCredits=0.0;
         StudentSchoolTimetabVo timetabVo=new StudentSchoolTimetabVo();
+        List<TimeTable> list=new ArrayList<>();
         timetabVo.setStudentCode(student.getStudentCode());
         timetabVo.setName(student.getName());
         timetabVo.setFaculty(student.getFaculty());
@@ -140,7 +138,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 List<ClassTeacherDto> studentAndTeacherTime = findStudentAndTeacherTime(studentSchoolTimetab.getTeachingClassId());
                 if(CollectionUtil.isNotEmpty(studentAndTeacherTime)){
                     for (ClassTeacherDto classTeacherDto : studentAndTeacherTime) {
-
+                        TimeTable timeTable=new TimeTable();
+                        String value=classTeacherDto.getTeacherName()+" "+studentSchoolTimetab.getCourseName()+"("+
+                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+classTeacherDto.getRoom()+")";
+                        timeTable.setValue(value);
+                        timeTable.setDayOfWeek(classTeacherDto.getDayOfWeek());
+                        timeTable.setTimeStart(classTeacherDto.getTimeStart());
+                        timeTable.setTimeEnd(classTeacherDto.getTimeEnd());
+                        list.add(timeTable);
                     }
                 }
                 List<String> names = findTeacherByTeachingClassId(studentSchoolTimetab.getTeachingClassId());
@@ -168,6 +173,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
         timetabVo.setList(schoolTimetab);
         timetabVo.setTotalCredits(totalCredits);
+        timetabVo.setTimeTables(list);
         return timetabVo;
     }
 

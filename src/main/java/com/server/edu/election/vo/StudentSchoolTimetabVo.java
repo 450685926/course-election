@@ -3,6 +3,7 @@ package com.server.edu.election.vo;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.TimeTable;
 
 import java.util.List;
 
@@ -14,14 +15,14 @@ import java.util.List;
 public class StudentSchoolTimetabVo extends Student {
     private Double totalCredits;
     private List<StudentSchoolTimetab> list;
-    private List<ClassTeacherDto> classList;
+    private List<TimeTable> timeTables;
 
-    public List<ClassTeacherDto> getClassList() {
-        return classList;
+    public List<TimeTable> getTimeTables() {
+        return timeTables;
     }
 
-    public void setClassList(List<ClassTeacherDto> classList) {
-        this.classList = classList;
+    public void setTimeTables(List<TimeTable> timeTables) {
+        this.timeTables = timeTables;
     }
 
     public Double getTotalCredits() {
