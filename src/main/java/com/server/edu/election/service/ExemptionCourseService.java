@@ -44,5 +44,8 @@ public interface ExemptionCourseService {
 
     //编辑
     String editExemptionApply(ExemptionApplyManage applyManage);
+
+    /**免修免考申请管理导出*/
+    String export(ExemptionApplyCondition condition) throws Exception;
 }
 

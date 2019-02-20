@@ -14,13 +14,20 @@ import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.vo.*;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.*;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.net.URLDecoder;
 import java.util.List;
 
 /**
@@ -37,7 +44,11 @@ public class ExemptionController {
     @Autowired
     private ExemptionCourseService exemptionCourseService;
 
+    private static Logger LOG =
+            LoggerFactory.getLogger(ExemptionController.class);
 
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
     /**
     *@Description: 查询免修免考课程
     *@Param:
@@ -168,5 +179,31 @@ public class ExemptionController {
     public RestResult<String> editExemptionApply(@RequestBody ExemptionApplyManage applyManage){
         String s= exemptionCourseService.editExemptionApply(applyManage);
         return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
+    @ApiOperation(value = "导出免修免考管理")
+    @PostMapping("/export")
+    public RestResult<String> export (
+            @RequestBody ExemptionApplyCondition condition)
+            throws Exception
+    {
+        LOG.info("export.start");
+        String export = exemptionCourseService.export(condition);
+        return RestResult.successData(export);
+    }
+
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName) throws Exception
+    {
+        LOG.info("export.start");
+        fileName = new String(fileName.getBytes(), "ISO8859-1");
+        Resource resource = new FileSystemResource(URLDecoder.decode(cacheDirectory + fileName,"utf-8"));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
+                .body(resource);
     }
 }

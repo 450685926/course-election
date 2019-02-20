@@ -101,6 +101,7 @@ public class Student implements Serializable {
     /**
      * 校区
      */
+    @Code2Text(transformer = "X_XQ")
     @Column(name = "CAMPUS_")
     private String campus;
 

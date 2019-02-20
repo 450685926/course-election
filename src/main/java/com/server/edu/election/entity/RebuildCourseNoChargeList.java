@@ -18,13 +18,49 @@ public class RebuildCourseNoChargeList implements Serializable{
     private String nature;
     private Double credits;
     private Integer paid;
+    private String strPaid;
     private Double weekHour;
     private Integer endWeek;
     private Integer startWeek;
     private String label;
+    private Double period;
     private Long courseId;//课程序号
     private Long teachingClassId;
     private String teachingClassCode;
+    private String courseArr;//课程按排
+    private String calendarName;
+
+    public String getStrPaid() {
+        return strPaid;
+    }
+
+    public void setStrPaid(String strPaid) {
+        this.strPaid = strPaid;
+    }
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
+
+    public String getCourseArr() {
+        return courseArr;
+    }
+
+    public void setCourseArr(String courseArr) {
+        this.courseArr = courseArr;
+    }
+
+    public Double getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(Double period) {
+        this.period = period;
+    }
 
     public Long getCalendarId() {
         return calendarId;

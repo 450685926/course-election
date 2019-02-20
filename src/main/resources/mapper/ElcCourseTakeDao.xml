@@ -89,7 +89,7 @@
 
   <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.entity.RebuildCourseNoChargeList">
     SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,co.LABEL_ label,el.PAID_ paid,te.WEEK_HOUR_ weekHour
-    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
     LEFT JOIN course_t co on el.COURSE_ID_=co.ID_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
       <if test="true">
@@ -144,7 +144,7 @@
   </select>
 
   <select id="findCourseNoChargeStudentList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.StudentVo">
-    SELECT st.ID_ id, el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,
+    SELECT  el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,
     st.GRADE_  grade, st.FACULTY_ faculty,st.PROFESSION_ profession,st.TRAINING_LEVEL_ trainingLevel,st.STUDENT_CATEGORY_ studentCategory,COUNT(el.ID_) rebuildNumber FROM `elc_course_takes_t` el
     LEFT JOIN student_t st on st.STUDENT_CODE_=el.STUDENT_ID_
       LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
@@ -187,10 +187,10 @@
   </select>
 
     <select id="findRollBookList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.entity.RollBookList">
-        SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,ss.NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
+        SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,cl.ELC_NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on co.ID_=el.COURSE_ID_
         LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
-        LEFT JOIN (select COURSE_ID_,COUNT(ID_) NUMBER_ from elc_course_takes_t GROUP BY COURSE_ID_) ss on ss.COURSE_ID_=el.COURSE_ID_
+        /*LEFT JOIN (select COURSE_ID_,COUNT(ID_) NUMBER_ from elc_course_takes_t GROUP BY COURSE_ID_) ss on ss.COURSE_ID_=el.COURSE_ID_*/
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and el.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}

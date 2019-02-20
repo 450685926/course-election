@@ -3,9 +3,12 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcLog;
@@ -17,12 +20,19 @@ import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,6 +61,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private ElcNoSelectReasonDao reasonDao;
+
+    @Autowired
+    private DictionaryService dictionaryService;
+
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
     /**
     *@Description: 查询点名册
     *@Param:
@@ -342,7 +358,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-    *@Description: 查询学生课表
+    *@Description: 查询学生未选课名单
     *@Param:
     *@return: 
     *@Author: bear
@@ -388,6 +404,148 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         ElcNoSelectReason noSelectReason = reasonDao.findNoSelectReason(calendarId, studentCode);
         return noSelectReason;
     }
+
+    /**代选课*/
+    @Override
+    public String otherSelectCourse(StudentSelectCourseList studentSelectCourseList) {
+        //调用选课接口todo
+        return null;
+    }
+
+    /**
+    *@Description: 导出未选课学生名单
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/20 15:08
+    */
+    @Override
+    public String exportStudentNoCourseList(ReportManagementCondition condition) throws Exception{
+        PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+        pageCondition.setCondition(condition);
+        pageCondition.setPageSize_(Constants.ZERO);
+        pageCondition.setPageNum_(Constants.ZERO);
+        PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+        if(electCourseList!=null){
+            List<StudentSelectCourseList> list = electCourseList.getList();
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            GeneralExcelDesigner design = getDesign();
+            design.setDatas(list);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "studentNoSelectCourseList.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
+    }
+
+    /**
+    *@Description: 导出点名册
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/2/20 15:48
+    */
+    @Override
+    public String exportRollBookList(ReportManagementCondition condition) throws Exception{
+        PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+        pageCondition.setCondition(condition);
+        pageCondition.setPageSize_(Constants.ZERO);
+        pageCondition.setPageNum_(Constants.ZERO);
+        PageResult<RollBookList> rollBookList = findRollBookList(pageCondition);
+        if(rollBookList!=null){
+            List<RollBookList> list = rollBookList.getList();
+            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
+            Map<Long, String> schoolCalendarMap = new HashMap<>();
+            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
+                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            }
+            for (RollBookList bookList : list) {
+                if(0!=schoolCalendarMap.size()){
+                    String s = schoolCalendarMap.get(bookList.getCalendarId());
+                    if(StringUtils.isNotEmpty(s)){
+                        bookList.setCalendarName(s);
+
+                    }
+                }
+                bookList.setClassCodeAndcourseName(bookList.getCourseName()+bookList.getCalssCode());
+            }
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            GeneralExcelDesigner design = getDesignTwo();
+            design.setDatas(list);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "rollBookList.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+
+        }
+        return "";
+    }
+
+    private GeneralExcelDesigner getDesignTwo() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "calssCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCodeAndcourseName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
+        design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"), "selectCourseNumber");
+        design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"), "numberLimit");
+
+        design.addCell(I18nUtil.getMsg("rollBookManage.courseOpenFaculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("rollBookManage.teacher"), "teacherName");
+        return design;
+    }
+
+    private GeneralExcelDesigner getDesign() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_PYCC", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.campus"), "campus").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_XQ", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "registrationStatus").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_XJZT", value, SessionUtils.getLang());
+                });
+
+
+        return design;
+    }
+
 
     //导出待做todo
 

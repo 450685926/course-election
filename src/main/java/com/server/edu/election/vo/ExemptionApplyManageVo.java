@@ -18,6 +18,26 @@ public class ExemptionApplyManageVo extends ExemptionApplyManage{
     @Code2Text(transformer="G_ZY")
     private String profession;
 
+    private String calendarName;
+
+    private String examineResultStr;
+
+    public String getExamineResultStr() {
+        return examineResultStr;
+    }
+
+    public void setExamineResultStr(String examineResultStr) {
+        this.examineResultStr = examineResultStr;
+    }
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
+
     public String getFaculty() {
         return faculty;
     }
