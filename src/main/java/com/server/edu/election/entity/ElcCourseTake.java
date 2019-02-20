@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.server.edu.common.validator.DelGroup;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
 
 @Table(name = "elc_course_takes_t")
 public class ElcCourseTake implements Serializable
@@ -53,6 +55,7 @@ public class ElcCourseTake implements Serializable
     /**
      * 修读类别(1正常修读,2重修,3免修不免考,4免修)
      */
+    @Code2Text(DictTypeEnum.X_XDLX)
     @Column(name = "COURSE_TAKE_TYPE_")
     private Integer courseTakeType;
     
