@@ -49,4 +49,67 @@
   <select id="listAllRefRuleId" resultType="long">
   	select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
   </select>
+
+    <select id="findElectCourseList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.dto.StudentSelectCourseList">
+        select tt.CALENDAR_ID_ calendarId,tt.STUDENT_ID_ studentCode,tt.NAME_ name,tt.GRADE_ grade,tt.TRAINING_LEVEL_ trainingLevel,tt.CAMPUS_ campus,tt.FACULTY_ faculty,tt.PROFESSION_ profession,tt.REGISTRATION_STATUS_ registrationStatus,
+        yy.COURSE_CODE_ courseCode,yy.COURSE_NAME courseName,yy.CLASS_CODE_ classCode,yy.COURSE_TAKE_TYPE_ isRebuildCourse,yy.NATURE_ nature from (SELECT CALENDAR_ID_, st.STUDENT_ID_,t1.NAME_,t1.GRADE_,t1.TRAINING_LEVEL_,t1.CAMPUS_,t1.FACULTY_,t1.PROFESSION_,t1.REGISTRATION_STATUS_ FROM `election_rounds_t` ro
+        LEFT JOIN election_rounds_stu_t st on ro.ID_=st.ROUNDS_ID_
+        LEFT JOIN student_t t1 on t1.STUDENT_CODE_=st.STUDENT_ID_
+        <where>
+            CALENDAR_ID_=#{calendarId}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and t1.GRADE_=#{grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and t1.FACULTY_=#{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                and t1.PROFESSION_=#{profession}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and t1.TRAINING_LEVEL_=#{trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+                and t1.CAMPUS_=#{campus}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(registrationStatus)">
+                and t1.REGISTRATION_STATUS_=#{registrationStatus}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+                and t1.TRAINING_CATEGORY_=#{trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and t1.FORM_LEARNING_=#{formLearning}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(enrolSeason)">
+                and t1.ENROL_SEASON_=#{enrolSeason}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+                and t1.IS_OVERSEAS_=#{isOverseas}
+            </if>
+        </where>
+        GROUP BY st.STUDENT_ID_) tt
+        LEFT JOIN (select ta.STUDENT_ID_,co.CODE_ COURSE_CODE_,co.NAME_ COURSE_NAME,cl.CODE_ CLASS_CODE_,ta.COURSE_TAKE_TYPE_,co.NATURE_ from elc_course_takes_t ta
+        LEFT JOIN course_t co on co.ID_=ta.COURSE_ID_
+        LEFT JOIN teaching_class_t cl on cl.ID_=ta.TEACHING_CLASS_ID_
+        where CALENDAR_ID_=#{calendarId}) yy on tt.STUDENT_ID_=yy.STUDENT_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+                and yy.NATURE_=#{nature}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isRebuildCourse)">
+                and yy.COURSE_TAKE_TYPE_=#{isRebuildCourse}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(electCourseStatus)">
+               <choose>
+                   <when test="electCourseStatus==0">
+                       and yy.CLASS_CODE_ is NULL
+                   </when>
+                   <otherwise>
+                       and yy.CLASS_CODE_ is not NULL
+                   </otherwise>
+               </choose>
+            </if>
+        </where>
+    </select>
 </mapper>
