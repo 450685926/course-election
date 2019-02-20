@@ -65,7 +65,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Autowired
     private DictionaryService dictionaryService;
 
-    @Value("${task.cache.directory}")
+    @Value("${cache.directory}")
     private String cacheDirectory;
     /**
     *@Description: 查询点名册
@@ -136,6 +136,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
+                }
+                List<ClassTeacherDto> studentAndTeacherTime = findStudentAndTeacherTime(studentSchoolTimetab.getTeachingClassId());
+                if(CollectionUtil.isNotEmpty(studentAndTeacherTime)){
+                    for (ClassTeacherDto classTeacherDto : studentAndTeacherTime) {
+
+                    }
                 }
                 List<String> names = findTeacherByTeachingClassId(studentSchoolTimetab.getTeachingClassId());
                 if(CollectionUtil.isNotEmpty(names)){
@@ -244,6 +250,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         String time=week+" "+strTime+" "+strWeek;
                         String name = courseTakeDao.findClassTeacherByTeacherCode(teacherCode);
                         timetab.setTime(time);
+                        timetab.setWeekNumberStr(strWeek);
+                        timetab.setDayOfWeek(dayOfWeek);
+                        timetab.setTimeStart(timeStart);
+                        timetab.setTimeEnd(timeEnd);
                         timetab.setRoom(roomID);
                         timetab.setTeacherCode(teacherCode);
                         timetab.setTeacherName(name);

@@ -23,6 +23,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcAffinityCoursesService;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
 @Service
@@ -55,9 +56,12 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService 
 		Example refExample =new Example(ElcAffinityCoursesStds.class);
 		Example.Criteria refCriteria = refExample.createCriteria();
 		refCriteria.andIn("affinityCourseId", ids);
-		result = elcAffinityCoursesStdsDao.deleteByExample(example);
-		if(result<=Constants.ZERO) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcAffinity.courses")));
+		List<ElcAffinityCoursesStds> list = elcAffinityCoursesStdsDao.selectByExample(refExample);
+		if(CollectionUtil.isNotEmpty(list)) {
+			result = elcAffinityCoursesStdsDao.deleteByExample(refExample);
+			if(result<=Constants.ZERO) {
+				throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcAffinity.courses")));
+			}
 		}
 		return result;
 	}

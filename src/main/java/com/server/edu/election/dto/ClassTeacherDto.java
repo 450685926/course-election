@@ -134,7 +134,18 @@ public class ClassTeacherDto {
 
     private Integer weekNumber;//排课周
 
+    private String weekNumberStr;
+
+
     private String roomID;//教室
+
+    public String getWeekNumberStr() {
+        return weekNumberStr;
+    }
+
+    public void setWeekNumberStr(String weekNumberStr) {
+        this.weekNumberStr = weekNumberStr;
+    }
 
     public String getStrTimeId() {
         return strTimeId;
