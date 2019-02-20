@@ -224,7 +224,7 @@ public class AchievementLevelServiceImpl implements AchievementLevelService {
 		}
 		Example refExample = new Example(AchievementCourse.class);
 		Example.Criteria refCriteria = example.createCriteria();
-		criteria.andIn("achienvementId", ids);
+		refCriteria.andIn("achienvementId", ids);
 		result = achievementCourseDao.deleteByExample(refExample);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("achievementLevel.level")));

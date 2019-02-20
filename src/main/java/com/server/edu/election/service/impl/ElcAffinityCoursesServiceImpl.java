@@ -55,7 +55,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService 
 		Example refExample =new Example(ElcAffinityCoursesStds.class);
 		Example.Criteria refCriteria = refExample.createCriteria();
 		refCriteria.andIn("affinityCourseId", ids);
-		result = elcAffinityCoursesStdsDao.deleteByExample(example);
+		result = elcAffinityCoursesStdsDao.deleteByExample(refExample);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcAffinity.courses")));
 		}
