@@ -10,7 +10,6 @@
   </resultMap>
   <select id="selectElcAffinityCourses" parameterType="com.server.edu.election.dto.ElcAffinityCoursesDto" resultType="com.server.edu.election.vo.ElcAffinityCoursesVo">
 		   SELECT
-		    t1.COURSE_ID_ courseId,
 			t2.COURSE_CODE_ courseCode,
 			t2.COURSE_NAME_ courseName,
 			t2.COURSE_NAME_EN_ courseNameEn,
@@ -18,9 +17,8 @@
 			t2.CREDITS_ credits
 		FROM
 			elc_affinity_courses_t t1
-		INNER JOIN (
+		JOIN (
 			SELECT
-				ID_,
 				COURSE_CODE_,
 				COURSE_NAME_,
 				COURSE_NAME_EN_,
@@ -31,13 +29,14 @@
 			WHERE
 				IS_OPEN_ = 1
 		) t2 ON t1.COURSE_CODE_ = t2.COURSE_CODE_
-		where 1=1
-	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-	        and t2.COURSE_CODE_ like concat('%',#{courseCode},'%')
-	    </if>
-	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-	        and t2.COURSE_NAME_ like concat('%',#{courseName},'%')
-	    </if>
+		<where>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		        and t2.COURSE_CODE_ like concat('%',#{courseCode},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		        and t2.COURSE_NAME_ like concat('%',#{courseName},'%')
+		    </if>
+		</where>
   </select>
   
    <insert id="batchInsert" parameterType="java.util.List">

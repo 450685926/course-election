@@ -30,18 +30,21 @@ import io.swagger.annotations.SwaggerDefinition;
 @SwaggerDefinition(info = @Info(title = "优选学生管理", version = ""))
 @RestSchema(schemaId = "ElcAffinityCoursesController")
 @RequestMapping("elcAffinityCourses")
-public class ElcAffinityCoursesController {
-	private static Logger LOG =
-	        LoggerFactory.getLogger(ElcAffinityCoursesController.class);
-	@Autowired
-	private ElcAffinityCoursesService elcAffinityCoursesService;
-	 /**
-     * 优先学生名单列表
-     * 
-     * @param condition
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+public class ElcAffinityCoursesController
+{
+    private static Logger LOG =
+        LoggerFactory.getLogger(ElcAffinityCoursesController.class);
+    
+    @Autowired
+    private ElcAffinityCoursesService elcAffinityCoursesService;
+    
+    /**
+    * 优先学生名单列表
+    * 
+    * @param condition
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "优先学生名单列表")
     @PostMapping("/list")
     public RestResult<PageInfo<ElcAffinityCoursesVo>> list(
@@ -49,7 +52,8 @@ public class ElcAffinityCoursesController {
         throws Exception
     {
         LOG.info("list.start");
-        PageInfo<ElcAffinityCoursesVo> list =elcAffinityCoursesService.list(condition);
+        PageInfo<ElcAffinityCoursesVo> list =
+            elcAffinityCoursesService.list(condition);
         return RestResult.successData(list);
     }
     
@@ -62,22 +66,21 @@ public class ElcAffinityCoursesController {
      */
     @ApiOperation(value = "删除")
     @PostMapping("/delete")
-    public RestResult<Integer> delete(
-    		@RequestBody @NotEmpty List<Long> ids)
+    public RestResult<Integer> delete(@RequestBody @NotEmpty List<Long> ids)
         throws Exception
     {
         LOG.info("delete.start");
-        int result =elcAffinityCoursesService.delete(ids);
+        int result = elcAffinityCoursesService.delete(ids);
         return RestResult.successData(result);
     }
     
-	 /**
-     * 优先课程列表
-     * 
-     * @param condition
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+    /**
+    * 优先课程列表
+    * 
+    * @param condition
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "优先课程列表")
     @PostMapping("/courseList")
     public RestResult<PageInfo<CourseOpen>> courseList(
@@ -85,7 +88,8 @@ public class ElcAffinityCoursesController {
         throws Exception
     {
         LOG.info("courseList.start");
-        PageInfo<CourseOpen> list =elcAffinityCoursesService.courseList(condition);
+        PageInfo<CourseOpen> list =
+            elcAffinityCoursesService.courseList(condition);
         return RestResult.successData(list);
     }
     
@@ -99,21 +103,21 @@ public class ElcAffinityCoursesController {
     @ApiOperation(value = "添加课程")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(
-    		@RequestBody @NotEmpty List<Long> ids)
+        @RequestBody @NotEmpty List<String> ids)
         throws Exception
     {
         LOG.info("addCourse.start");
-        int result =elcAffinityCoursesService.addCourse(ids);
+        int result = elcAffinityCoursesService.addCourse(ids);
         return RestResult.successData(result);
     }
     
-	 /**
-     * 优先学生列表
-     * 
-     * @param condition
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+    /**
+    * 优先学生列表
+    * 
+    * @param condition
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "优先学生列表")
     @PostMapping("/studentList")
     public RestResult<PageInfo<Student>> studentList(
@@ -121,17 +125,18 @@ public class ElcAffinityCoursesController {
         throws Exception
     {
         LOG.info("courseList.start");
-        PageInfo<Student> list =elcAffinityCoursesService.studentList(condition);
+        PageInfo<Student> list =
+            elcAffinityCoursesService.studentList(condition);
         return RestResult.successData(list);
     }
     
-	 /**
-     * 学生列表
-     * 
-     * @param condition
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+    /**
+    * 学生列表
+    * 
+    * @param condition
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "学生列表")
     @PostMapping("/getStudents")
     public RestResult<PageInfo<Student>> getStudents(
@@ -139,79 +144,82 @@ public class ElcAffinityCoursesController {
         throws Exception
     {
         LOG.info("getStudents.start");
-        PageInfo<Student> list =elcAffinityCoursesService.getStudents(condition);
+        PageInfo<Student> list =
+            elcAffinityCoursesService.getStudents(condition);
         return RestResult.successData(list);
     }
     
-	 /**
-     * 添加学生
-     * 
-     * @param ids
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+    /**
+    * 添加学生
+    * 
+    * @param ids
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "添加学生")
     @PostMapping("/addStudent")
     public RestResult<Integer> addStudent(
-    		@RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
+        @RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
         throws Exception
     {
         LOG.info("addCourse.start");
-        int result =elcAffinityCoursesService.addStudent(elcAffinityCoursesVo);
+        int result = elcAffinityCoursesService.addStudent(elcAffinityCoursesVo);
         return RestResult.successData(result);
     }
     
-	 /**
-     * 批量添加学生
-     * 
-     * @param 
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+    /**
+    * 批量添加学生
+    * 
+    * @param 
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "批量添加学生")
     @PostMapping("/batchAddStudent")
-    public RestResult<Integer> batchAddStudent(@RequestBody @NotNull Long id)
+    public RestResult<Integer> batchAddStudent(
+        @RequestBody @NotNull String courseCode)
         throws Exception
     {
         LOG.info("batchAddStudent.start");
-        int result =elcAffinityCoursesService.batchAddStudent(id);
+        int result = elcAffinityCoursesService.batchAddStudent(courseCode);
         return RestResult.successData(result);
     }
     
-	 /**
-     * 移除学生
-     * 
-     * @param ids
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+    /**
+    * 移除学生
+    * 
+    * @param ids
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "移除学生")
     @PostMapping("/deleteStudent")
     public RestResult<Integer> deleteStudent(
-    		@RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
+        @RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
         throws Exception
     {
         LOG.info("addCourse.start");
-        int result =elcAffinityCoursesService.deleteStudent(elcAffinityCoursesVo);
+        int result =
+            elcAffinityCoursesService.deleteStudent(elcAffinityCoursesVo);
         return RestResult.successData(result);
     }
     
-	 /**
-     * 移除所有学生
-     * 
-     * @param 
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+    /**
+    * 移除所有学生
+    * 
+    * @param 
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "移除所有学生")
     @PostMapping("/batchDeleteStudent")
-    public RestResult<Integer> batchDeleteStudent(@RequestBody @NotNull Long courseId)
+    public RestResult<Integer> batchDeleteStudent(
+        @RequestBody @NotNull String courseCode)
         throws Exception
     {
         LOG.info("addCourse.start");
-        int result =elcAffinityCoursesService.batchDeleteStudent(courseId);
+        int result = elcAffinityCoursesService.batchDeleteStudent(courseCode);
         return RestResult.successData(result);
     }
     
-
 }
