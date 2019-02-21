@@ -56,6 +56,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
         List<Long> teachingClassIds = add.getTeachingClassIds();
+        Integer model = add.getModel();
         for (String studentId : studentIds)
         {
             for (int i = 0; i < teachingClassIds.size(); i++)

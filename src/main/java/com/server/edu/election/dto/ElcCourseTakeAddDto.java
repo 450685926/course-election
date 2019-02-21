@@ -34,6 +34,12 @@ public class ElcCourseTakeAddDto
      */
     @NotEmpty(groups = {AddGroup.class})
     private List<Long> teachingClassIds;
+
+    /**
+     * 模式
+     * */
+    @NotEmpty(groups = {AddGroup.class})
+    private Integer model;
     
     private String studentId;
     
@@ -88,5 +94,12 @@ public class ElcCourseTakeAddDto
     {
         this.teachingClassCode = teachingClassCode;
     }
-    
+
+    public Integer getModel() {
+        return model;
+    }
+
+    public void setModel(Integer model) {
+        this.model = model;
+    }
 }
