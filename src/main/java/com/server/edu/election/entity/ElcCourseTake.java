@@ -64,6 +64,12 @@ public class ElcCourseTake implements Serializable
      */
     @Column(name = "TURN_")
     private Integer turn;
+
+    /**
+     * 选课模式
+     * */
+    @Column(name = "MODE_")
+    private Integer mode;
     
     /**
      * 选课对象(1学生，2教务员，3管理员)
@@ -310,7 +316,15 @@ public class ElcCourseTake implements Serializable
     {
         this.createdAt = createdAt;
     }
-    
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
     @Override
     public String toString()
     {

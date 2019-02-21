@@ -56,6 +56,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
         List<Long> teachingClassIds = add.getTeachingClassIds();
+        Integer mode = add.getMode();
         for (String studentId : studentIds)
         {
             for (int i = 0; i < teachingClassIds.size(); i++)
@@ -65,7 +66,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     courseTakeDao.getTeachingClassInfo(teachingClassId, null);
                 if (null != vo && vo.getCourseCode() != null)
                 {
-                    addTake(date, calendarId, studentId, vo);
+                    addTake(date, calendarId, studentId, vo,mode);
                 }
                 else
                 {
@@ -87,7 +88,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     private void addTake(Date date, Long calendarId, String studentId,
-        ElcCourseTakeVo vo)
+        ElcCourseTakeVo vo,Integer mode)
     {
         String courseCode = vo.getCourseCode();
         Long teachingClassId = vo.getTeachingClassId();
@@ -108,6 +109,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachingClassId);
+            take.setMode(mode);
             take.setTurn(0);
             courseTakeDao.insertSelective(take);
             // 添加选课日志
@@ -129,7 +131,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-    public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas)
+    public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas,Integer mode)
     {
         StringBuilder sb = new StringBuilder();
         Date date = new Date();
@@ -147,7 +149,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 if (null != vo && vo.getCourseCode() != null)
                 {
-                    addTake(date, calendarId, studentId, vo);
+                    addTake(date, calendarId, studentId, vo,mode);
                 }
                 else
                 {
