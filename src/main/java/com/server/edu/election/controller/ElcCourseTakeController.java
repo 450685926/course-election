@@ -192,7 +192,8 @@ public class ElcCourseTakeController
     
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
-        @RequestPart(name = "calendarId") @NotNull Long calendarId)
+        @RequestPart(name = "calendarId") @NotNull Long calendarId,
+                                @RequestPart(name = "mode") @NotNull Integer mode         )
     {
         if (file == null)
         {
@@ -218,7 +219,7 @@ public class ElcCourseTakeController
             List<ElcCourseTakeAddDto> datas = GeneralExcelUtil
                 .parseExcel(workbook, designer, ElcCourseTakeAddDto.class);
             
-            String msg = courseTakeService.addByExcel(calendarId, datas);
+            String msg = courseTakeService.addByExcel(calendarId, datas,mode);
             return RestResult.success(msg);
         }
         catch (Exception e)

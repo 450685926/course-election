@@ -34,6 +34,12 @@ public class ElcCourseTakeAddDto
      */
     @NotEmpty(groups = {AddGroup.class})
     private List<Long> teachingClassIds;
+
+    /**
+     * 模式
+     * */
+    @NotNull(groups = {AddGroup.class,DelGroup.class})
+    private Integer mode;
     
     private String studentId;
     
@@ -88,5 +94,12 @@ public class ElcCourseTakeAddDto
     {
         this.teachingClassCode = teachingClassCode;
     }
-    
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
 }
