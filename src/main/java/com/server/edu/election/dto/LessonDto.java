@@ -11,9 +11,9 @@ import com.server.edu.dictionary.annotation.Code2Text;
 public class LessonDto
 {
     /**
-     * 课程ID
+     * 课程代码
      */
-    private Long courseId;
+    private String courseCode;
     
     /**
      * 教学班ID
@@ -43,14 +43,14 @@ public class LessonDto
     /**是否成绩为优的课程*/
     private boolean goodFlag;
     
-    public Long getCourseId()
+    public String getCourseCode()
     {
-        return courseId;
+        return courseCode;
     }
     
-    public void setCourseId(Long courseId)
+    public void setCourseCode(String courseId)
     {
-        this.courseId = courseId;
+        this.courseCode = courseId;
     }
     
     public Long getTeachingClassId()

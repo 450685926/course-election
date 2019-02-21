@@ -106,7 +106,7 @@ public class ElecServiceImpl implements ElectionService
             if (take.getLessonType().equals(lessonType))
             {
                 LessonDto lesson = new LessonDto();
-                lesson.setCourseId(take.getCourseId());
+                lesson.setCourseCode(take.getCourseCode());
                 lesson.setTeachingClassId(take.getTeachingClassId());
                 lesson.setLessonType(take.getLessonType());
                 lesson.setCampus(take.getCampus());

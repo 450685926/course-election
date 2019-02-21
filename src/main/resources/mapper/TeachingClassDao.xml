@@ -60,5 +60,18 @@
       </if>
     </where>
   </select>
+  
+  <select id="selectOversize" resultMap="BaseResultMap">
+  	select * from teaching_class_t where id_ = #{teachingClassId} and ELC_NUMBER_ > NUMBER_
+  </select>
+  
+  <select id="selectSuggestProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">
+    select GRADE_ as grade,PROFESSION_ as profession,NUMBER_ as number 
+    from teaching_class_suggest_profession_t where TEACHING_CLASS_ID_ = #{teachingClassId}
+  </select>
+  
+  <select id="selectSuggestStudent" resultType="string">
+  	select STUDENT_ID_ from teaching_class_suggest_student_t where TEACHING_CLASS_ID_ = #{teachingClassId}
+  </select>
 
 </mapper>

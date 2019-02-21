@@ -12,6 +12,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.vo.TeachingClassVo;
@@ -30,7 +31,6 @@ public class ElcResultController
     @Autowired
     private ElcResultService elcResultService;
     
-    
     /**
      * 上课名单列表
      * 
@@ -46,10 +46,18 @@ public class ElcResultController
     {
         ValidatorUtil.validateAndThrow(condition.getCondition());
         
-        PageResult<TeachingClassVo> list =
-            elcResultService.listPage(condition);
+        PageResult<TeachingClassVo> list = elcResultService.listPage(condition);
         
         return RestResult.successData(list);
+    }
+    
+    @ApiOperation(value = "自动剔除超过人数")
+    @PostMapping("/autoRemove")
+    public RestResult<?> autoRemove(@RequestBody AutoRemoveDto dto)
+        throws Exception
+    {
+        
+        return RestResult.success();
     }
     
 }

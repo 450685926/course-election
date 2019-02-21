@@ -1,6 +1,11 @@
 package com.server.edu.election.dao;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.TeachingClassVo;
@@ -27,4 +32,28 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      */
     Page<TeachingClassVo> listPage(ElcResultQuery condition);
     
+    /**
+     * 查询教学班并且人数超过总限制
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    TeachingClass selectOversize(@Param("teachingClassId") Long teachingClassId);
+    /**
+     * 查询教学班的配课年级专业
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<SuggestProfessionDto> selectSuggestProfession(@Param("teachingClassId") Long teachingClassId);
+    /**
+     * 查询配课学生
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<String> selectSuggestStudent(@Param("teachingClassId") Long teachingClassId);
 }

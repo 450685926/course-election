@@ -40,10 +40,10 @@ public class ElcCourseTake implements Serializable
     private Long calendarId;
     
     /**
-     * 课程ID
+     * 课程code
      */
-    @Column(name = "COURSE_ID_")
-    private Long courseId;
+    @Column(name = "COURSE_CODE_")
+    private String courseCode;
     
     /**
      * 教学班ID
@@ -158,23 +158,23 @@ public class ElcCourseTake implements Serializable
     }
     
     /**
-     * 获取课程ID
+     * 获取课程Code
      *
-     * @return COURSE_ID_ - 课程ID
+     * @return 课程Code
      */
-    public Long getCourseId()
+    public String getCourseCode()
     {
-        return courseId;
+        return courseCode;
     }
     
     /**
-     * 设置课程ID
+     * 设置课程Code
      *
-     * @param courseId 课程ID
+     * @param 课程Code
      */
-    public void setCourseId(Long courseId)
+    public void setCourseId(String courseCode)
     {
-        this.courseId = courseId;
+        this.courseCode = courseCode == null ? null : courseCode.trim();
     }
     
     /**
@@ -335,7 +335,7 @@ public class ElcCourseTake implements Serializable
         sb.append(", id=").append(id);
         sb.append(", studentId=").append(studentId);
         sb.append(", calendarId=").append(calendarId);
-        sb.append(", courseId=").append(courseId);
+        sb.append(", courseCode=").append(courseCode);
         sb.append(", teachingClassId=").append(teachingClassId);
         sb.append(", courseTakeType=").append(courseTakeType);
         sb.append(", turn=").append(turn);

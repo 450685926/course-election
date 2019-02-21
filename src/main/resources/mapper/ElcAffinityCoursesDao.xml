@@ -6,7 +6,7 @@
       WARNING - @mbg.generated
     -->
     <id column="ID_" jdbcType="BIGINT" property="id" />
-    <result column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
+    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
   </resultMap>
   <select id="selectElcAffinityCourses" parameterType="com.server.edu.election.dto.ElcAffinityCoursesDto" resultType="com.server.edu.election.vo.ElcAffinityCoursesVo">
 		   SELECT
@@ -30,7 +30,7 @@
 				course_open_t
 			WHERE
 				IS_OPEN_ = 1
-		) t2 ON t1.COURSE_ID_ = t2.ID_
+		) t2 ON t1.COURSE_CODE_ = t2.COURSE_CODE_
 		where 1=1
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
 	        and t2.COURSE_CODE_ like concat('%',#{courseCode},'%')
@@ -42,13 +42,13 @@
   
    <insert id="batchInsert" parameterType="java.util.List">
     insert into elc_affinity_courses_t(
-    COURSE_ID_
+    COURSE_CODE_
     )
     values
     <foreach item="item" collection="list" index="index"
              separator=",">
       (
-      #{item.courseId,jdbcType=BIGINT}
+      #{item.courseCode,jdbcType=VARCHAR}
       )
     </foreach>
   </insert>

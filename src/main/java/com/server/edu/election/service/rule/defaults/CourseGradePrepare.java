@@ -26,12 +26,12 @@ public class CourseGradePrepare extends AbstractElectRuleExecutor
         List<Map<String, Long>> results = new ArrayList<>();//TODO
         for (Map<String, Long> map : results)
         {
-            Long courseId = map.get("courseId");
+            String courseId = map.get("courseCode").toString();
             Long passed = map.get("passed");
             if (passed == 1)
             {
                 LessonDto lesson = new LessonDto();
-                lesson.setCourseId(courseId);
+                lesson.setCourseCode(courseId);
                 lesson.setHisCoursePassed(true);
                 lesson.setHisFlag(true);
                 

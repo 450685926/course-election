@@ -7,8 +7,6 @@ import com.server.edu.election.entity.ElcAffinityCoursesStds;
 public class ElcAffinityCoursesStdsVo extends ElcAffinityCoursesStds {
     private static final long serialVersionUID = 1L;
     
-    private String studentCode;
-    
     private String studentName;
     
     @Code2Text(transformer = "X_PYCC")
@@ -29,15 +27,8 @@ public class ElcAffinityCoursesStdsVo extends ElcAffinityCoursesStds {
      * 研究方向
      */
     private String researchDirection;
-
-
-	public String getStudentCode() {
-		return studentCode;
-	}
-
-	public void setStudentCode(String studentCode) {
-		this.studentCode = studentCode;
-	}
+    
+    private Long courseId;
 
 	public String getStudentName() {
 		return studentName;
@@ -78,6 +69,16 @@ public class ElcAffinityCoursesStdsVo extends ElcAffinityCoursesStds {
 	public void setResearchDirection(String researchDirection) {
 		this.researchDirection = researchDirection;
 	}
+
+    public Long getCourseId()
+    {
+        return courseId;
+    }
+
+    public void setCourseId(Long courseId)
+    {
+        this.courseId = courseId;
+    }
 	
 	
 	

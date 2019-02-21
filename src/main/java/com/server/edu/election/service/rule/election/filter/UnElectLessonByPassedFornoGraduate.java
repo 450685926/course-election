@@ -24,7 +24,7 @@ public class UnElectLessonByPassedFornoGraduate
     public boolean isElectable(TeachingClass lesson, ElectState state)
     {
         //		Long courseId = lesson.getCourse().getId();
-        		Set<Long> passedCourses = state.getPassedCourseIds();
+        		Set<String> passedCourses = state.getPassedCourseIds();
         //		if (passedCourses.contains(courseId)) { return false; }
         //		for (ElectCourseSubstitution courseSubstitution : state.getCourseSubstitutions()) {
         //			if (courseSubstitution.getSubstitutes().contains(courseId)) {

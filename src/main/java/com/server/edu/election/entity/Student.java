@@ -1,27 +1,22 @@
 package com.server.edu.election.entity;
 
-import com.server.edu.dictionary.annotation.Code2Text;
-import com.server.edu.dictionary.annotation.CodeI18n;
-
 import java.io.Serializable;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-import javax.persistence.*;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 
 @CodeI18n
 @Table(name = "student_t")
 public class Student implements Serializable {
-    /**
-     * 学生ID
-     */
-    @Id
-    @Column(name = "ID_")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     /**
-     * 学生代码
+     * 学号
      */
+    @Id
     @Column(name = "STUDENT_CODE_")
     private String studentCode;
 
@@ -130,28 +125,6 @@ public class Student implements Serializable {
     private String studentCategory;
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 获取学生ID
-     *
-     * @return ID_ - 学生ID
-     */
-
-    public Long getId() {
-        return id;
-    }
-
-
-    /**
-     * 设置学生ID
-     *
-     * @param id 学生ID
-     */
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
 
     /**
      * 获取学生代码
@@ -503,7 +476,6 @@ public class Student implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
         sb.append(", studentCode=").append(studentCode);
         sb.append(", name=").append(name);
         sb.append(", sex=").append(sex);
