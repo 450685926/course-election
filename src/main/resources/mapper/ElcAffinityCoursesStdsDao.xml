@@ -22,8 +22,8 @@
     </foreach>
   </insert>
   
-  <select id="selectStuAndCourse" resultType="com.server.edu.election.vo.ElcAffinityCoursesStdsVo">
-  	select std.STUDENT_ID_ as studentId, cour.COURSE_ID_ as courseId
+  <select id="selectStuAndCourse" resultMap="BaseResultMap">
+  	select std.STUDENT_ID_, std.COURSE_CODE_
   	from elc_affinity_courses_stds_t std 
   </select>
 </mapper>

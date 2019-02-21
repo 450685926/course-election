@@ -3,7 +3,6 @@ package com.server.edu.election.dao;
 import java.util.List;
 
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
-import com.server.edu.election.vo.ElcAffinityCoursesStdsVo;
 
 import tk.mybatis.mapper.common.Mapper;
 
@@ -18,5 +17,5 @@ public interface ElcAffinityCoursesStdsDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    List<ElcAffinityCoursesStdsVo> selectStuAndCourse();
+    List<ElcAffinityCoursesStds> selectStuAndCourse();
 }

@@ -23,13 +23,13 @@ import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
+import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcInvincibleStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
-import com.server.edu.election.vo.ElcAffinityCoursesStdsVo;
 import com.server.edu.election.vo.TeachingClassVo;
 
 @Service
@@ -82,10 +82,10 @@ public class ElcResultServiceImpl implements ElcResultService
                 .map(mapper -> mapper.getStudentId())
                 .collect(toList());
             // 优先学生
-            List<ElcAffinityCoursesStdsVo> affinityCoursesStds =
+            List<ElcAffinityCoursesStds> affinityCoursesStds =
                 affinityCoursesStdsDao.selectStuAndCourse();
             Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
-                .map(mapper -> mapper.getCourseId() + "-"
+                .map(mapper -> mapper.getCourseCode() + "-"
                     + mapper.getStudentId())
                 .collect(toSet());
             List<SuggestProfessionDto> suggestProfessionList =
@@ -96,31 +96,33 @@ public class ElcResultServiceImpl implements ElcResultService
                 suggestProfMap.put(key(action), action.getNumber());
             });
             
-            List<String> suggestStudentList =
-                classDao.selectSuggestStudent(teachingClassId);
-            
-            List<Long> removeIds = new ArrayList<>();
-            List<Student> students = new ArrayList<>();
+            List<Student> normalStudents = new ArrayList<>();
+            List<Student> invincibleStudents = new ArrayList<>();
+            List<Student> affinityStudents = new ArrayList<>();
             for (ElcCourseTake take : takes)
             {
                 String courseCode = take.getCourseCode();
                 String studentId = take.getStudentId();
-                if (!dto.getInvincibleStu()
-                    && invincibleStdIds.contains(studentId))
+                
+                Student stu = studentDao.findStudentByCode(studentId);
+                if (invincibleStdIds.contains(studentId))
                 {
-                    break;
+                    invincibleStudents.add(stu);
                 }
-                if (!dto.getAffinityStu() && affinityCoursesStdSet
+                else if (affinityCoursesStdSet
                     .contains(courseCode + "-" + studentId))
                 {
-                    break;
+                    affinityStudents.add(stu);
                 }
-                Student stu = studentDao.findStudentByCode(studentId);
-                students.add(stu);
-                // 配课年级专业
+                normalStudents.add(stu);
+            }
+            
+            // 配课年级专业
+            for (Student stu : normalStudents)
+            {
                 if (dto.getGradAndPre())
                 {
-                   String key = stu.getGrade() + "-" + stu.getProfession();
+                    String key = stu.getGrade() + "-" + stu.getProfession();
                     if (suggestProfMap.containsKey(key))
                     {
                         break;
@@ -130,7 +132,6 @@ public class ElcResultServiceImpl implements ElcResultService
                 {
                     
                 }
-                removeIds.add(take.getId());
             }
         }
     }
