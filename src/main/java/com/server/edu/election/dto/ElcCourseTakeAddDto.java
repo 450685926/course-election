@@ -38,8 +38,8 @@ public class ElcCourseTakeAddDto
     /**
      * 模式
      * */
-    @NotEmpty(groups = {AddGroup.class})
-    private Integer model;
+    @NotNull(groups = {AddGroup.class,DelGroup.class})
+    private Integer mode;
     
     private String studentId;
     
@@ -95,11 +95,11 @@ public class ElcCourseTakeAddDto
         this.teachingClassCode = teachingClassCode;
     }
 
-    public Integer getModel() {
-        return model;
+    public Integer getMode() {
+        return mode;
     }
 
-    public void setModel(Integer model) {
-        this.model = model;
+    public void setMode(Integer mode) {
+        this.mode = mode;
     }
 }

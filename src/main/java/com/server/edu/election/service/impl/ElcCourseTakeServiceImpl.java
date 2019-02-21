@@ -56,7 +56,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
         List<Long> teachingClassIds = add.getTeachingClassIds();
-        Integer model = add.getModel();
+        Integer mode = add.getMode();
         for (String studentId : studentIds)
         {
             for (int i = 0; i < teachingClassIds.size(); i++)
@@ -66,7 +66,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     courseTakeDao.getTeachingClassInfo(teachingClassId, null);
                 if (null != vo && vo.getCourseId() != null)
                 {
-                    addTake(date, calendarId, studentId, vo,model);
+                    addTake(date, calendarId, studentId, vo,mode);
                 }
                 else
                 {
@@ -88,7 +88,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     private void addTake(Date date, Long calendarId, String studentId,
-        ElcCourseTakeVo vo,Integer model)
+        ElcCourseTakeVo vo,Integer mode)
     {
         Long courseId = vo.getCourseId();
         Long teachingClassId = vo.getTeachingClassId();
@@ -110,7 +110,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachingClassId);
-            take.setMode(model);
+            take.setMode(mode);
             take.setTurn(0);
             courseTakeDao.insertSelective(take);
             // 添加选课日志
