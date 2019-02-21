@@ -26,146 +26,189 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
+
 @Service
-public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService {
-	@Autowired
-	private ElcAffinityCoursesDao elcAffinityCoursesDao;
-	@Autowired
-	private ElcAffinityCoursesStdsDao elcAffinityCoursesStdsDao;
-	@Autowired
-	private CourseOpenDao courseOpenDao;
-	@Autowired
-	private StudentDao studentDao;
-	@Override
-	public PageInfo<ElcAffinityCoursesVo> list(PageCondition<ElcAffinityCoursesDto> condition){
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		List<ElcAffinityCoursesVo> list = elcAffinityCoursesDao.selectElcAffinityCourses(condition.getCondition());
-		PageInfo<ElcAffinityCoursesVo> pageInfo =new PageInfo<>(list);
-		return pageInfo;
-	}
-	
-	@Override
-	public int delete(List<Long> ids) {
-		Example example =new Example(ElcAffinityCourses.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andIn("courseId", ids);
-		int result = elcAffinityCoursesDao.deleteByExample(example);
-		if(result<=Constants.ZERO) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcAffinity.courses")));
-		}
-		Example refExample =new Example(ElcAffinityCoursesStds.class);
-		Example.Criteria refCriteria = refExample.createCriteria();
-		refCriteria.andIn("affinityCourseId", ids);
-		List<ElcAffinityCoursesStds> list = elcAffinityCoursesStdsDao.selectByExample(refExample);
-		if(CollectionUtil.isNotEmpty(list)) {
-			result = elcAffinityCoursesStdsDao.deleteByExample(refExample);
-			if(result<=Constants.ZERO) {
-				throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcAffinity.courses")));
-			}
-		}
-		return result;
-	}
-	
-	@Override
-	public PageInfo<CourseOpen> courseList(PageCondition<CourseOpen> condition){
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		CourseOpen courseOpen =condition.getCondition();
-		List<CourseOpen> list = courseOpenDao.selectCourseList(courseOpen);
-		PageInfo<CourseOpen> pageInfo =new PageInfo<>(list);
-		return pageInfo;
-	}
-	
-	@Override
-	public int addCourse(List<Long> ids) {
-		List<ElcAffinityCourses> list = new ArrayList<>();
-		ids.forEach(temp->{
-			ElcAffinityCourses elcAffinityCourses = new ElcAffinityCourses();
-			elcAffinityCourses.setCourseId(temp);
-			list.add(elcAffinityCourses);
-		});
-		int result = elcAffinityCoursesDao.batchInsert(list);
-		if(result<=Constants.ZERO) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcAffinity.courses")));
-		}
-		return result;
-	}
-	
-	@Override
-	public PageInfo<Student> studentList(PageCondition<Student> condition){
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		List<Student> list = studentDao.selectElcStudents(condition.getCondition());
-		PageInfo<Student> pageInfo =new PageInfo<>(list);
-		return pageInfo;
-	}
-	
-	@Override
-	public PageInfo<Student> getStudents(PageCondition<Student> condition){
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		List<Student> list = studentDao.selectUnElcStudents(condition.getCondition());
-		PageInfo<Student> pageInfo =new PageInfo<>(list);
-		return pageInfo;
-	}
-	
-	@Override
-	public int addStudent(ElcAffinityCoursesVo elcAffinityCoursesVo) {
-		List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
-		elcAffinityCoursesVo.getStudentIds().forEach(temp->{
-			ElcAffinityCoursesStds elcAffinityCoursesStds = new ElcAffinityCoursesStds();
-			elcAffinityCoursesStds.setAffinityCourseId(elcAffinityCoursesVo.getCourseId());
-			elcAffinityCoursesStds.setStudentId(temp);
-			stuList.add(elcAffinityCoursesStds);
-		});
-		int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
-		if(result<=Constants.ZERO) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcAffinity.courses")));
-		}
-		return result;
-	}
-	
-	@Override
-	public int batchAddStudent(Long courseId) {
-		Student student = new Student();
-		List<Student> list = studentDao.selectUnElcStudents(student);
-		List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
-		list.forEach(temp->{
-			ElcAffinityCoursesStds elcAffinityCoursesStds = new ElcAffinityCoursesStds();
-			elcAffinityCoursesStds.setAffinityCourseId(courseId);
-			elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
-			stuList.add(elcAffinityCoursesStds);
-		});
-		int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
-		if(result<=Constants.ZERO) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcAffinity.courses")));
-		}
-		return result;
-	}
-	
-	@Override
-	public int deleteStudent(ElcAffinityCoursesVo elcAffinityCoursesVo) {
-		Example example = new Example(ElcAffinityCoursesStds.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("affinityCourseId",elcAffinityCoursesVo.getCourseId());
-		criteria.andIn("studentId", elcAffinityCoursesVo.getStudentIds());
-		int result = elcAffinityCoursesStdsDao.deleteByExample(example);
-		if(result<=Constants.ZERO) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcAffinity.courses")));
-		}
-		return result;
-	}
-	
-	@Override
-	public int batchDeleteStudent(Long courseId) {
-		Example example = new Example(ElcAffinityCoursesStds.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("affinityCourseId",courseId);
-		int result = elcAffinityCoursesStdsDao.deleteByExample(example);
-		if(result<=Constants.ZERO) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcAffinity.courses")));
-		}
-		return result;
-	}
-	
-	
-	
-	
+public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
+{
+    @Autowired
+    private ElcAffinityCoursesDao elcAffinityCoursesDao;
+    
+    @Autowired
+    private ElcAffinityCoursesStdsDao elcAffinityCoursesStdsDao;
+    
+    @Autowired
+    private CourseOpenDao courseOpenDao;
+    
+    @Autowired
+    private StudentDao studentDao;
+    
+    @Override
+    public PageInfo<ElcAffinityCoursesVo> list(
+        PageCondition<ElcAffinityCoursesDto> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        List<ElcAffinityCoursesVo> list = elcAffinityCoursesDao
+            .selectElcAffinityCourses(condition.getCondition());
+        PageInfo<ElcAffinityCoursesVo> pageInfo = new PageInfo<>(list);
+        return pageInfo;
+    }
+    
+    @Override
+    public int delete(List<Long> ids)
+    {
+        Example example = new Example(ElcAffinityCourses.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andIn("courseId", ids);
+        int result = elcAffinityCoursesDao.deleteByExample(example);
+        if (result <= Constants.ZERO)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.failSuccess",
+                    I18nUtil.getMsg("elcAffinity.courses")));
+        }
+        Example refExample = new Example(ElcAffinityCoursesStds.class);
+        Example.Criteria refCriteria = refExample.createCriteria();
+        refCriteria.andIn("affinityCourseId", ids);
+        List<ElcAffinityCoursesStds> list =
+            elcAffinityCoursesStdsDao.selectByExample(refExample);
+        if (CollectionUtil.isNotEmpty(list))
+        {
+            result = elcAffinityCoursesStdsDao.deleteByExample(refExample);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("common.failSuccess",
+                        I18nUtil.getMsg("elcAffinity.courses")));
+            }
+        }
+        return result;
+    }
+    
+    @Override
+    public PageInfo<CourseOpen> courseList(PageCondition<CourseOpen> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        CourseOpen courseOpen = condition.getCondition();
+        List<CourseOpen> list = courseOpenDao.selectCourseList(courseOpen);
+        PageInfo<CourseOpen> pageInfo = new PageInfo<>(list);
+        return pageInfo;
+    }
+    
+    @Override
+    public int addCourse(List<String> ids)
+    {
+        List<ElcAffinityCourses> list = new ArrayList<>();
+        ids.forEach(temp -> {
+            ElcAffinityCourses elcAffinityCourses = new ElcAffinityCourses();
+            elcAffinityCourses.setCourseCode(temp);
+            list.add(elcAffinityCourses);
+        });
+        int result = elcAffinityCoursesDao.batchInsert(list);
+        if (result <= Constants.ZERO)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.saveError",
+                    I18nUtil.getMsg("elcAffinity.courses")));
+        }
+        return result;
+    }
+    
+    @Override
+    public PageInfo<Student> studentList(PageCondition<Student> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        List<Student> list =
+            studentDao.selectElcStudents(condition.getCondition());
+        PageInfo<Student> pageInfo = new PageInfo<>(list);
+        return pageInfo;
+    }
+    
+    @Override
+    public PageInfo<Student> getStudents(PageCondition<Student> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        List<Student> list =
+            studentDao.selectUnElcStudents(condition.getCondition());
+        PageInfo<Student> pageInfo = new PageInfo<>(list);
+        return pageInfo;
+    }
+    
+    @Override
+    public int addStudent(ElcAffinityCoursesVo elcAffinityCoursesVo)
+    {
+        List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
+        elcAffinityCoursesVo.getStudentIds().forEach(temp -> {
+            ElcAffinityCoursesStds elcAffinityCoursesStds =
+                new ElcAffinityCoursesStds();
+            elcAffinityCoursesStds
+                .setCourseCode(elcAffinityCoursesVo.getCourseCode());
+            elcAffinityCoursesStds.setStudentId(temp);
+            stuList.add(elcAffinityCoursesStds);
+        });
+        int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
+        if (result <= Constants.ZERO)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.saveError",
+                    I18nUtil.getMsg("elcAffinity.courses")));
+        }
+        return result;
+    }
+    
+    @Override
+    public int batchAddStudent(String courseCode)
+    {
+        Student student = new Student();
+        List<Student> list = studentDao.selectUnElcStudents(student);
+        List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
+        list.forEach(temp -> {
+            ElcAffinityCoursesStds elcAffinityCoursesStds =
+                new ElcAffinityCoursesStds();
+            elcAffinityCoursesStds.setCourseCode(courseCode);
+            elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
+            stuList.add(elcAffinityCoursesStds);
+        });
+        int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
+        if (result <= Constants.ZERO)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.saveError",
+                    I18nUtil.getMsg("elcAffinity.courses")));
+        }
+        return result;
+    }
+    
+    @Override
+    public int deleteStudent(ElcAffinityCoursesVo vo)
+    {
+        Example example = new Example(ElcAffinityCoursesStds.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("courseCode", vo.getCourseCode());
+        criteria.andIn("studentId", vo.getStudentIds());
+        int result = elcAffinityCoursesStdsDao.deleteByExample(example);
+        if (result <= Constants.ZERO)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.failSuccess",
+                    I18nUtil.getMsg("elcAffinity.courses")));
+        }
+        return result;
+    }
+    
+    @Override
+    public int batchDeleteStudent(String courseCode)
+    {
+        Example example = new Example(ElcAffinityCoursesStds.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("courseCode", courseCode);
+        int result = elcAffinityCoursesStdsDao.deleteByExample(example);
+        if (result <= Constants.ZERO)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.failSuccess",
+                    I18nUtil.getMsg("elcAffinity.courses")));
+        }
+        return result;
+    }
+    
 }
