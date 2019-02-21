@@ -133,43 +133,43 @@ public class ElectState implements Serializable
         //		this.semesterId = profile.getSemester().getId();
     }
     
-    public Set<Long> getUnPassedCourseIds()
+    public Set<String> getUnPassedCourseIds()
     {
-        Set<Long> unPassedCourseIds = new HashSet<>();
+        Set<String> unPassedCourseIds = new HashSet<>();
         if (null != electedCourses)
         {
             for (LessonDto lesson : electedCourses)
             {
                 if (!lesson.isHisCoursePassed() && lesson.isHisFlag())
                 {
-                    unPassedCourseIds.add(lesson.getCourseId());
+                    unPassedCourseIds.add(lesson.getCourseCode());
                 }
             }
         }
         return unPassedCourseIds;
     }
     
-    public Set<Long> getPassedCourseIds()
+    public Set<String> getPassedCourseIds()
     {
-        Set<Long> passedCourseIds = new HashSet<>();
+        Set<String> passedCourseIds = new HashSet<>();
         if (null != electedCourses)
         {
             for (LessonDto lesson : electedCourses)
             {
                 if (lesson.isHisCoursePassed() && lesson.isHisFlag())
                 {
-                    passedCourseIds.add(lesson.getCourseId());
+                    passedCourseIds.add(lesson.getCourseCode());
                 }
             }
         }
         return passedCourseIds;
     }
     
-    public boolean isRetakeCourse(long courseId)
+    public boolean isRetakeCourse(String courseCode)
     {
         for (LessonDto lesson : electedCourses)
         {
-            if (lesson.getCourseId().equals(courseId))
+            if (lesson.getCourseCode().equals(courseCode))
             {
                 return true;
             }
@@ -211,11 +211,11 @@ public class ElectState implements Serializable
         return compulsoryCourseIds;
     }
     
-    public boolean isCoursePass(Long courseId)
+    public boolean isCoursePass(String courseId)
     {
         for (LessonDto lesson : electedCourses)
         {
-            if (lesson.getCourseId().equals(courseId)
+            if (lesson.getCourseCode().equals(courseId)
                 && lesson.isHisCoursePassed() && lesson.isHisFlag())
             {
                 return true;

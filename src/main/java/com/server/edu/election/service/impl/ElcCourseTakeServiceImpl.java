@@ -63,7 +63,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 Long teachingClassId = teachingClassIds.get(i);
                 ElcCourseTakeVo vo =
                     courseTakeDao.getTeachingClassInfo(teachingClassId, null);
-                if (null != vo && vo.getCourseId() != null)
+                if (null != vo && vo.getCourseCode() != null)
                 {
                     addTake(date, calendarId, studentId, vo);
                 }
@@ -89,22 +89,21 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     private void addTake(Date date, Long calendarId, String studentId,
         ElcCourseTakeVo vo)
     {
-        Long courseId = vo.getCourseId();
-        Long teachingClassId = vo.getTeachingClassId();
         String courseCode = vo.getCourseCode();
+        Long teachingClassId = vo.getTeachingClassId();
         String courseName = vo.getCourseName();
         String teachingClassCode = vo.getTeachingClassCode();
         
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentId);
-        record.setCourseId(courseId);
+        record.setCourseId(courseCode);
         int selectCount = courseTakeDao.selectCount(record);
         if (selectCount == 0)
         {
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(calendarId);
             take.setChooseObj(ChooseObj.ADMIN.type());
-            take.setCourseId(courseId);
+            take.setCourseId(courseCode);
             take.setCourseTakeType(CourseTakeType.NORMAL.type());
             take.setCreatedAt(date);
             take.setStudentId(studentId);
@@ -146,7 +145,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 ElcCourseTakeVo vo = this.courseTakeDao
                     .getTeachingClassInfo(null, teachingClassCode);
                 
-                if (null != vo && vo.getCourseId() != null)
+                if (null != vo && vo.getCourseCode() != null)
                 {
                     addTake(date, calendarId, studentId, vo);
                 }

@@ -8,7 +8,7 @@
     <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
     <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
-    <result column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
+    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseId" />
     <result column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
     <result column="COURSE_TAKE_TYPE_" jdbcType="INTEGER" property="courseTakeType" />
     <result column="TURN_" jdbcType="INTEGER" property="turn" />
@@ -21,7 +21,6 @@
   	<result column="NAME_" jdbcType="VARCHAR" property="studentName" />
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
   	<result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
-  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
   	<result column="courseName" jdbcType="VARCHAR" property="courseName" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
@@ -31,11 +30,11 @@
   	select 
   		t1.*,
   		t2.NAME_, t2.CAMPUS_, t2.PROFESSION_, 
-  		t3.CODE_ as courseCode, t3.NAME_ as courseName, t3.CREDITS_,
+  		t3.NAME_ as courseName, t3.CREDITS_,
   		t4.CODE_ as teachingClassCode
   	from elc_course_takes_t t1
   	left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-  	left join course_t t3 ON t3.ID_ = t1.COURSE_ID_
+  	left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
   	join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_ 
   	<where>
   	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
