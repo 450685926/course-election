@@ -5,21 +5,11 @@ import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeList;
 import org.apache.ibatis.annotations.Param;
+import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
 
-public interface RebuildCourseChargeDao {
-    int deleteByPrimaryKey(Long id);
-
-    int insert(RebuildCourseCharge record);
-
-    int insertSelective(RebuildCourseCharge record);
-
-    RebuildCourseCharge selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(RebuildCourseCharge record);
-
-    int updateByPrimaryKey(RebuildCourseCharge record);
+public interface RebuildCourseChargeDao extends Mapper<RebuildCourseCharge> {
 
 
     Page<RebuildCourseCharge> findCourseCharge(RebuildCourseCharge condition);

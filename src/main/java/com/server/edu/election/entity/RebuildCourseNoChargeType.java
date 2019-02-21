@@ -4,94 +4,170 @@ import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
 import java.io.Serializable;
-import java.util.Objects;
+import javax.persistence.*;
 
-/**
- * @description: 重修不收费类型
- * @author: bear
- * @create: 2019-02-01 11:37
- */
 @CodeI18n
+@Table(name = "rebuild_course_nocharge_type_t")
 public class RebuildCourseNoChargeType implements Serializable {
+    @Id
+    @Column(name = "ID_")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * 培养层次 X_PYCC
+     */
     @Code2Text(transformer = "X_PYCC")
+    @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
 
+    /**
+     * 学习形式(全日制,非全日制,其他)
+     */
     @Code2Text(transformer = "X_XXXS")
+    @Column(name = "FORM_LEARNING_")
     private String formLearning;
 
+    /**
+     * 专项计划
+     */
     @Code2Text(transformer = "X_ZXJH")
+    @Column(name = "SPCIAL_PLAN_")
     private String spcialPlan;
 
+    /**
+     * 学籍状态
+     */
     @Code2Text(transformer = "G_XJZT")
+    @Column(name = "REGISTRATION_STATUS_")
     private String registrationStatus;
 
-    private Integer certificateType;//结业证书类型
+    /**
+     * 结业证书类型 1 结业生 空 未结业
+     */
+    @Column(name = "CERTIFICATE_TYPE_")
+    private Integer certificateType;
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * @return ID_
+     */
     public Long getId() {
         return id;
     }
 
+    /**
+     * @param id
+     */
     public void setId(Long id) {
         this.id = id;
     }
 
+    /**
+     * 获取培养层次 X_PYCC
+     *
+     * @return TRAINING_LEVEL_ - 培养层次 X_PYCC
+     */
     public String getTrainingLevel() {
         return trainingLevel;
     }
 
+    /**
+     * 设置培养层次 X_PYCC
+     *
+     * @param trainingLevel 培养层次 X_PYCC
+     */
     public void setTrainingLevel(String trainingLevel) {
         this.trainingLevel = trainingLevel == null ? null : trainingLevel.trim();
     }
 
+    /**
+     * 获取学习形式(全日制,非全日制,其他)
+     *
+     * @return FORM_LEARNING_ - 学习形式(全日制,非全日制,其他)
+     */
     public String getFormLearning() {
         return formLearning;
     }
 
+    /**
+     * 设置学习形式(全日制,非全日制,其他)
+     *
+     * @param formLearning 学习形式(全日制,非全日制,其他)
+     */
     public void setFormLearning(String formLearning) {
         this.formLearning = formLearning == null ? null : formLearning.trim();
     }
 
+    /**
+     * 获取专项计划
+     *
+     * @return SPCIAL_PLAN_ - 专项计划
+     */
     public String getSpcialPlan() {
         return spcialPlan;
     }
 
+    /**
+     * 设置专项计划
+     *
+     * @param spcialPlan 专项计划
+     */
     public void setSpcialPlan(String spcialPlan) {
         this.spcialPlan = spcialPlan == null ? null : spcialPlan.trim();
     }
 
+    /**
+     * 获取学籍状态
+     *
+     * @return REGISTRATION_STATUS_ - 学籍状态
+     */
     public String getRegistrationStatus() {
         return registrationStatus;
     }
 
+    /**
+     * 设置学籍状态
+     *
+     * @param registrationStatus 学籍状态
+     */
     public void setRegistrationStatus(String registrationStatus) {
         this.registrationStatus = registrationStatus == null ? null : registrationStatus.trim();
     }
 
+    /**
+     * 获取结业证书类型 1 结业生 空 未结业
+     *
+     * @return CERTIFICATE_TYPE_ - 结业证书类型 1 结业生 空 未结业
+     */
     public Integer getCertificateType() {
         return certificateType;
     }
 
+    /**
+     * 设置结业证书类型 1 结业生 空 未结业
+     *
+     * @param certificateType 结业证书类型 1 结业生 空 未结业
+     */
     public void setCertificateType(Integer certificateType) {
         this.certificateType = certificateType;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RebuildCourseNoChargeType that = (RebuildCourseNoChargeType) o;
-        return Objects.equals(trainingLevel, that.trainingLevel) &&
-                Objects.equals(formLearning, that.formLearning) &&
-                Objects.equals(spcialPlan, that.spcialPlan) &&
-                Objects.equals(registrationStatus, that.registrationStatus) &&
-                Objects.equals(certificateType, that.certificateType);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(trainingLevel, formLearning, spcialPlan, registrationStatus, certificateType);
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", trainingLevel=").append(trainingLevel);
+        sb.append(", formLearning=").append(formLearning);
+        sb.append(", spcialPlan=").append(spcialPlan);
+        sb.append(", registrationStatus=").append(registrationStatus);
+        sb.append(", certificateType=").append(certificateType);
+        sb.append(", serialVersionUID=").append(serialVersionUID);
+        sb.append("]");
+        return sb.toString();
     }
 }

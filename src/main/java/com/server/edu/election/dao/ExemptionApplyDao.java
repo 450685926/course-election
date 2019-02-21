@@ -5,21 +5,11 @@ import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
 import org.apache.ibatis.annotations.Param;
+import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
 
-public interface ExemptionApplyDao {
-    int deleteByPrimaryKey(Long id);
-
-    int insert(ExemptionApplyManage record);
-
-    int insertSelective(ExemptionApplyManage record);
-
-    ExemptionApplyManage selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(ExemptionApplyManage record);
-
-    int updateByPrimaryKey(ExemptionApplyManage record);
+public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
 
     Page<ExemptionApplyManageVo> findExemptionApply(ExemptionApplyCondition condition);
 

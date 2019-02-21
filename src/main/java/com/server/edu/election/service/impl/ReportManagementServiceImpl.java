@@ -314,9 +314,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/18 10:56
     */
     @Override
-    public List<ClassTeacherDto> findTeacherTimetable(Long calendarId, String teacherCode) {
+    public StudentSchoolTimetabVo findTeacherTimetable(Long calendarId, String teacherCode) {
         //查询所有教学班
+        StudentSchoolTimetabVo vo=new StudentSchoolTimetabVo();
         List<ClassTeacherDto> list=new ArrayList<>();
+        List<TimeTable> timeTables=new ArrayList<>();
         List<ClassTeacherDto> classId = courseTakeDao.findAllTeachingClassId(calendarId);
         if(CollectionUtil.isNotEmpty(classId)){
             for (ClassTeacherDto classTeacherDto : classId) {
@@ -325,19 +327,29 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     List<ClassTeacherDto> collect = teacherTime.stream().filter((ClassTeacherDto timrTab) -> timrTab.getTeacherCode().equals(teacherCode)).collect(Collectors.toList());
                     if(CollectionUtil.isNotEmpty(collect)){
                         for (ClassTeacherDto teacherDto : collect) {
+                            TimeTable time=new TimeTable();
                             teacherDto.setCourseCode(classTeacherDto.getCourseCode());
                             teacherDto.setCourseName(classTeacherDto.getCourseName());
                             teacherDto.setLabel(classTeacherDto.getLabel());
                             teacherDto.setWeekHour(classTeacherDto.getWeekHour());
                             teacherDto.setCredits(classTeacherDto.getCredits());
+                            teacherDto.setSelectCourseNumber(classTeacherDto.getSelectCourseNumber());
+                            time.setDayOfWeek(teacherDto.getDayOfWeek());
+                            time.setTimeStart(teacherDto.getTimeStart());
+                            time.setTimeEnd(teacherDto.getTimeEnd());
+                            String value=teacherDto.getClassCode()+classTeacherDto.getCourseName()
+                                    +"("+teacherDto.getWeekNumberStr()+teacherDto.getRoom()+")";
+                            time.setValue(value);
+                            timeTables.add(time);
                         }
                     }
                     list.addAll(collect);
                 }
             }
         }
-
-        return list;
+        vo.setTeacherDtos(list);
+        vo.setTimeTables(timeTables);
+        return vo;
     }
 
     /**

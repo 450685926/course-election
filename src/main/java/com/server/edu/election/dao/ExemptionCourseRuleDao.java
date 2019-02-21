@@ -5,21 +5,12 @@ import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.vo.ExemptionCourseRuleVo;
 import org.apache.ibatis.annotations.Param;
+import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
 
-public interface ExemptionCourseRuleDao {
-    int deleteByPrimaryKey(Long id);
+public interface ExemptionCourseRuleDao extends Mapper<ExemptionCourseRule> {
 
-    int insert(ExemptionCourseRule record);
-
-    int insertSelective(ExemptionCourseRule record);
-
-    ExemptionCourseRule selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(ExemptionCourseRule record);
-
-    int updateByPrimaryKey(ExemptionCourseRule record);
 
     Page<ExemptionCourseRuleVo> findExemptionCourseRule(ExemptionCourseRule courseRule);
 

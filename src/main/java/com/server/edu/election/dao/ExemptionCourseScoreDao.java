@@ -6,21 +6,11 @@ import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.entity.ExemptionCourseScore;
 import com.server.edu.election.vo.ExemptionCourseScoreVo;
 import org.apache.ibatis.annotations.Param;
+import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
 
-public interface ExemptionCourseScoreDao {
-    int deleteByPrimaryKey(Long id);
-
-    int insert(ExemptionCourseScore record);
-
-    int insertSelective(ExemptionCourseScore record);
-
-    ExemptionCourseScore selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(ExemptionCourseScore record);
-
-    int updateByPrimaryKey(ExemptionCourseScore record);
+public interface ExemptionCourseScoreDao extends Mapper<ExemptionCourseScore> {
 
     Page<ExemptionCourseScoreVo> findExemptionScore(ExemptionCourseScoreDto scoreDto);
 

@@ -16,6 +16,15 @@ public class StudentSchoolTimetabVo extends Student {
     private Double totalCredits;
     private List<StudentSchoolTimetab> list;
     private List<TimeTable> timeTables;
+    private List<ClassTeacherDto> teacherDtos;
+
+    public List<ClassTeacherDto> getTeacherDtos() {
+        return teacherDtos;
+    }
+
+    public void setTeacherDtos(List<ClassTeacherDto> teacherDtos) {
+        this.teacherDtos = teacherDtos;
+    }
 
     public List<TimeTable> getTimeTables() {
         return timeTables;

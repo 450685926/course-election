@@ -327,8 +327,9 @@
     </select>
 
     <select id="findAllTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
-        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits FROM `elc_course_takes_t` el
+        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber FROM `elc_course_takes_t` el
         LEFT JOIN  course_t co on co.ID_=el.COURSE_ID_
+        LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
         WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
         GROUP BY el.TEACHING_CLASS_ID_,el.CALENDAR_ID_
     </select>
