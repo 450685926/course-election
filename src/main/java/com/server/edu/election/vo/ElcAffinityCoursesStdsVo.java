@@ -3,8 +3,10 @@ package com.server.edu.election.vo;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
+
 @CodeI18n
-public class ElcAffinityCoursesStdsVo extends ElcAffinityCoursesStds {
+public class ElcAffinityCoursesStdsVo extends ElcAffinityCoursesStds
+{
     private static final long serialVersionUID = 1L;
     
     private String studentName;
@@ -15,7 +17,7 @@ public class ElcAffinityCoursesStdsVo extends ElcAffinityCoursesStds {
     /**
      * 专业
      */
-    @Code2Text(transformer="G_ZY")
+    @Code2Text(transformer = "G_ZY")
     private String profession;
     
     /**
@@ -28,58 +30,54 @@ public class ElcAffinityCoursesStdsVo extends ElcAffinityCoursesStds {
      */
     private String researchDirection;
     
-    private Long courseId;
-
-	public String getStudentName() {
-		return studentName;
-	}
-
-	public void setStudentName(String studentName) {
-		this.studentName = studentName;
-	}
-
-	public String getTrainingLevel() {
-		return trainingLevel;
-	}
-
-	public void setTrainingLevel(String trainingLevel) {
-		this.trainingLevel = trainingLevel;
-	}
-
-	public String getProfession() {
-		return profession;
-	}
-
-	public void setProfession(String profession) {
-		this.profession = profession;
-	}
-
-	public String getStudentCategory() {
-		return studentCategory;
-	}
-
-	public void setStudentCategory(String studentCategory) {
-		this.studentCategory = studentCategory;
-	}
-
-	public String getResearchDirection() {
-		return researchDirection;
-	}
-
-	public void setResearchDirection(String researchDirection) {
-		this.researchDirection = researchDirection;
-	}
-
-    public Long getCourseId()
+    public String getStudentName()
     {
-        return courseId;
+        return studentName;
     }
-
-    public void setCourseId(Long courseId)
+    
+    public void setStudentName(String studentName)
     {
-        this.courseId = courseId;
+        this.studentName = studentName;
     }
-	
-	
-	
+    
+    public String getTrainingLevel()
+    {
+        return trainingLevel;
+    }
+    
+    public void setTrainingLevel(String trainingLevel)
+    {
+        this.trainingLevel = trainingLevel;
+    }
+    
+    public String getProfession()
+    {
+        return profession;
+    }
+    
+    public void setProfession(String profession)
+    {
+        this.profession = profession;
+    }
+    
+    public String getStudentCategory()
+    {
+        return studentCategory;
+    }
+    
+    public void setStudentCategory(String studentCategory)
+    {
+        this.studentCategory = studentCategory;
+    }
+    
+    public String getResearchDirection()
+    {
+        return researchDirection;
+    }
+    
+    public void setResearchDirection(String researchDirection)
+    {
+        this.researchDirection = researchDirection;
+    }
+    
 }

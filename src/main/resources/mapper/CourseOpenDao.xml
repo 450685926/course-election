@@ -36,9 +36,9 @@
 			FROM
 				course_open_t t1
 			WHERE
-				ID_ NOT IN (
+				CODE_CODE_ NOT IN (
 					SELECT
-						COURSE_ID_
+						COURSE_CODE_
 					FROM
 						elc_affinity_courses_t
 				)

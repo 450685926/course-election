@@ -54,7 +54,7 @@ public class ElcAffinityCourses implements Serializable
     /**
      * 获取课程代码
      *
-     * @return COURSE_ID_ - 课程ID
+     * @return 代码
      */
     public String getCourseCode()
     {
