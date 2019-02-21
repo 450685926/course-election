@@ -1,6 +1,7 @@
 package com.server.edu.election.dao;
 
 import com.server.edu.election.entity.ExemptionCourseMaterial;
+import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
 
@@ -9,18 +10,8 @@ import java.util.List;
  * @author: bear
  * @create: 2019-02-01 18:34
  */
-public interface ExemptionCourseMaterialDao {
-    int deleteByPrimaryKey(Long id);
+public interface ExemptionCourseMaterialDao extends Mapper<ExemptionCourseMaterial> {
 
-    int insert(ExemptionCourseMaterial record);
-
-    int insertSelective(ExemptionCourseMaterial record);
-
-    ExemptionCourseMaterial selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(ExemptionCourseMaterial record);
-
-    int updateByPrimaryKey(ExemptionCourseMaterial record);
 
     void deleteExemptionCourseMaterial(List<Long> list);
 

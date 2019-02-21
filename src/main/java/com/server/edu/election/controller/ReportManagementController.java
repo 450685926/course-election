@@ -153,11 +153,11 @@ public class ReportManagementController {
 
     @ApiOperation(value = "查询老师课表")
     @GetMapping("/findTeacherTimetable")
-    public RestResult<List<ClassTeacherDto>> findTeacherTimetable(@RequestParam Long calendarId,@RequestParam String teacherCode){
+    public RestResult<StudentSchoolTimetabVo> findTeacherTimetable(@RequestParam Long calendarId,@RequestParam String teacherCode){
         if(calendarId==null|| StringUtils.isBlank(teacherCode)){
             return RestResult.fail("common.parameterError");
         }
-        List<ClassTeacherDto> teacherTimetable = managementService.findTeacherTimetable(calendarId, teacherCode);
+        StudentSchoolTimetabVo teacherTimetable = managementService.findTeacherTimetable(calendarId, teacherCode);
         return RestResult.successData(teacherTimetable);
     }
 

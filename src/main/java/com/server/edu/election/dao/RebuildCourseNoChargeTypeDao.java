@@ -2,21 +2,12 @@ package com.server.edu.election.dao;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
 
-public interface RebuildCourseNoChargeTypeDao {
-    int deleteByPrimaryKey(Long id);
+public interface RebuildCourseNoChargeTypeDao extends Mapper<RebuildCourseNoChargeType> {
 
-    int insert(RebuildCourseNoChargeType record);
-
-    int insertSelective(RebuildCourseNoChargeType record);
-
-    RebuildCourseNoChargeType selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(RebuildCourseNoChargeType record);
-
-    int updateByPrimaryKey(RebuildCourseNoChargeType record);
 
     Page<RebuildCourseNoChargeType> findCourseNoChargeType(RebuildCourseNoChargeType condition);
 

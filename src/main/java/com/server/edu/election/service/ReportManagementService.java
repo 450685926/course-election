@@ -32,7 +32,7 @@ public interface ReportManagementService {
     PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition);
 
     /**查询教师课表*/
-    List<ClassTeacherDto> findTeacherTimetable(Long calendarId,String teacherCode);
+    StudentSchoolTimetabVo findTeacherTimetable(Long calendarId,String teacherCode);
 
     /**
      * 查询选课日志

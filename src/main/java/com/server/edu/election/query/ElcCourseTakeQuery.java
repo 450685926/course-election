@@ -32,6 +32,19 @@ public class ElcCourseTakeQuery
      */
     private Integer courseTakeType;
 
+    /**
+     * 选课模式
+     * */
+    private Integer model;
+
+    public Integer getModel() {
+        return model;
+    }
+
+    public void setModel(Integer model) {
+        this.model = model;
+    }
+
     public String getStudentId()
     {
         return studentId;
