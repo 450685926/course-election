@@ -61,8 +61,8 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
   	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.model)">
-            and t1.MODE_ = #{query.model}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
+            and t1.MODE_ = #{query.mode}
         </if>
   	</where>
   </select>
