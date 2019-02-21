@@ -172,7 +172,7 @@ public class ElcCourseTake implements Serializable
      *
      * @param 课程Code
      */
-    public void setCourseId(String courseCode)
+    public void setCourseCode(String courseCode)
     {
         this.courseCode = courseCode == null ? null : courseCode.trim();
     }

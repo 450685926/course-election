@@ -97,14 +97,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentId);
-        record.setCourseId(courseCode);
+        record.setCourseCode(courseCode);
         int selectCount = courseTakeDao.selectCount(record);
         if (selectCount == 0)
         {
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(calendarId);
             take.setChooseObj(ChooseObj.ADMIN.type());
-            take.setCourseId(courseCode);
+            take.setCourseCode(courseCode);
             take.setCourseTakeType(CourseTakeType.NORMAL.type());
             take.setCreatedAt(date);
             take.setStudentId(studentId);
