@@ -60,8 +60,8 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
   	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.model)">
-            and t1.MODE_ = #{query.model}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
+            and t1.MODE_ = #{query.mode}
         </if>
   	</where>
   </select>
@@ -85,7 +85,7 @@
   </select>
 
   <select id="findIsEletionCourse" resultType="int">
-      SELECT COUNT(ID_) FROM `elc_course_takes_t` WHERE COURSE_ID_ in (select ID_ from course_t where CODE_ =#{courseCode,jdbcType=VARCHAR})
+      SELECT COUNT(ID_) FROM `elc_course_takes_t` WHERE COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
       and STUDENT_ID_ =#{studentCode}
       and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   </select>
@@ -93,7 +93,7 @@
   <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.entity.RebuildCourseNoChargeList">
     SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,co.LABEL_ label,el.PAID_ paid,te.WEEK_HOUR_ weekHour
     ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
-    LEFT JOIN course_t co on el.COURSE_ID_=co.ID_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
+    LEFT JOIN course_t co on el.COURSE_CODE_=co.CODE_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
@@ -133,9 +133,6 @@
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(label)">
             and co.LABEL_ like CONCAT('%', #{label,jdbcType=VARCHAR}, '%')
-        </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseId)">
-            and co.ID_ like CONCAT('%', #{courseId,jdbcType=BIGINT}, '%')
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
             and co.CODE_ like CONCAT('%', #{code,jdbcType=VARCHAR}, '%')
@@ -191,7 +188,7 @@
 
     <select id="findRollBookList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.entity.RollBookList">
         SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,cl.ELC_NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
-        LEFT JOIN course_t co on co.ID_=el.COURSE_ID_
+        LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
         /*LEFT JOIN (select COURSE_ID_,COUNT(ID_) NUMBER_ from elc_course_takes_t GROUP BY COURSE_ID_) ss on ss.COURSE_ID_=el.COURSE_ID_*/
         <where>
@@ -239,7 +236,7 @@
     <select id="findSchoolTimetab" resultType="com.server.edu.election.dto.StudentSchoolTimetab">
         SELECT el.CALENDAR_ID_ calendarId,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
         te.CAMPUS_ campus,te.REMARK_ remark,te.CODE_ classCode ,te.NAME_ className FROM `elc_course_takes_t` el
-        LEFT JOIN course_t co on el.COURSE_ID_ =co.ID_
+        LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
         LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
         where el.STUDENT_ID_=#{studentCode,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT};
@@ -305,7 +302,7 @@
 
     <select id="findAllClassTeacher" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassCode,cl.CODE_ classCode,co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.COLLEGE_ faculty,tch.TEACHER_CODE_ teacherCode,tch.TEACHER_NAME_ teacherName,tch.SEX_ sex FROM `elc_course_takes_t` el
-        LEFT JOIN course_t co on co.CODE_=el.COURSE_ID_
+        LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on el.TEACHING_CLASS_ID_=cl.ID_
         LEFT JOIN (select ti.TEACHING_CLASS_ID_,ro.TEACHER_CODE_ ,ch.TEACHER_NAME_,ch.SEX_ from teaching_class_arrange_time_t ti
         LEFT JOIN teaching_class_arrange_room_t ro on ro.ARRANGE_TIME_ID_=ti.ID_
@@ -331,7 +328,7 @@
 
     <select id="findAllTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
         SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber FROM `elc_course_takes_t` el
-        LEFT JOIN  course_t co on co.ID_=el.COURSE_ID_
+        LEFT JOIN  course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
         WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
         GROUP BY el.TEACHING_CLASS_ID_,el.CALENDAR_ID_

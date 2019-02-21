@@ -35,14 +35,14 @@ public class ElcCourseTakeQuery
     /**
      * 选课模式
      * */
-    private Integer model;
+    private Integer mode;
 
-    public Integer getModel() {
-        return model;
+    public Integer getMode() {
+        return mode;
     }
 
-    public void setModel(Integer model) {
-        this.model = model;
+    public void setMode(Integer mode) {
+        this.mode = mode;
     }
 
     public String getStudentId()
