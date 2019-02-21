@@ -90,7 +90,7 @@
         </where>
         GROUP BY st.STUDENT_ID_) tt
         LEFT JOIN (select ta.STUDENT_ID_,co.CODE_ COURSE_CODE_,co.NAME_ COURSE_NAME,cl.CODE_ CLASS_CODE_,ta.COURSE_TAKE_TYPE_,co.NATURE_ from elc_course_takes_t ta
-        LEFT JOIN course_t co on co.ID_=ta.COURSE_ID_
+        LEFT JOIN course_t co on co.CODE_=ta.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on cl.ID_=ta.TEACHING_CLASS_ID_
         where CALENDAR_ID_=#{calendarId}) yy on tt.STUDENT_ID_=yy.STUDENT_ID_
         <where>
