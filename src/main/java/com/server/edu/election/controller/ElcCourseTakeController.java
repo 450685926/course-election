@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -41,6 +43,8 @@ import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecRoundCourseService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
@@ -127,6 +131,62 @@ public class ElcCourseTakeController
         
         courseTakeService.withdraw(value);
         
+        return RestResult.success();
+    }
+    
+    @ApiOperation(value = "查询学生学期是否有选课")
+    @GetMapping("/hasElc")
+    public RestResult<Boolean> hasElc(
+        @RequestBody @Valid ElcCourseTakeQuery query)
+    {
+        if (StringUtils.isBlank(query.getStudentId()))
+        {
+            throw new ParameterValidateException("studentId not be empty");
+        }
+        
+        PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
+        condition.setPageNum_(1);
+        condition.setPageSize_(10);
+        
+        PageResult<ElcCourseTakeVo> page =
+            courseTakeService.listPage(condition);
+        
+        Boolean data = Boolean.FALSE;
+        if (CollectionUtil.isNotEmpty(page.getList()))
+        {
+            data = Boolean.TRUE;
+        }
+        
+        return RestResult.successData(data);
+    }
+    
+    @ApiOperation(value = "学生学籍异动选课列表")
+    @PostMapping("/page2StuAbnormal")
+    public RestResult<List<ElcCourseTakeVo>> page2StuAbnormal(
+        @RequestBody @Valid ElcCourseTakeQuery query)
+        throws Exception
+    {
+        PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
+        condition.setPageNum_(1);
+        condition.setPageSize_(10);
+        
+        PageResult<ElcCourseTakeVo> page =
+            courseTakeService.listPage(condition);
+        // TODO 只查询没有成绩的选课
+        
+        return RestResult.successData(page.getList());
+    }
+    
+    @ApiOperation(value = "学生学籍异动退课")
+    @DeleteMapping("/withdraw2StuAbnormal")
+    public RestResult<?> withdraw2StuAbnormal(
+        @RequestBody @Valid ElcCourseTakeQuery query)
+    {
+        if (StringUtils.isBlank(query.getStudentId()))
+        {
+            throw new ParameterValidateException("studentId not be empty");
+        }
+        // TODO 对学生无成绩的选课进行退课处理
         return RestResult.success();
     }
     
@@ -231,19 +291,26 @@ public class ElcCourseTakeController
                 });
         design.addCell("学分", "credits");
         design.addCell("修读类别", "courseTakeType")
-        .setValueHandler(
-            (String value, Object rawData, GeneralExcelCell cell) -> {
-                if("1".equals(value)) {
-                    return "正常修读";
-                }else if("2".equals(value)) {
-                    return "重修";
-                }else if("3".equals(value)) {
-                    return "免修不免考";
-                }else if("4".equals(value)) {
-                    return "免修";
-                }
-                return value;
-            });
+            .setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    if ("1".equals(value))
+                    {
+                        return "正常修读";
+                    }
+                    else if ("2".equals(value))
+                    {
+                        return "重修";
+                    }
+                    else if ("3".equals(value))
+                    {
+                        return "免修不免考";
+                    }
+                    else if ("4".equals(value))
+                    {
+                        return "免修";
+                    }
+                    return value;
+                });
         design.setDatas(datas);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         
