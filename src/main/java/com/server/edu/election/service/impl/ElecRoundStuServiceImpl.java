@@ -46,7 +46,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     
     @Transactional
     @Override
-    public String add(Long roundId, List<String> studentCodes)
+    public String add(Long roundId, List<String> studentCodes,Integer mode)//判断mode,3,4都要校验学生来源(结业生表)
     {
         ElectionRounds rounds = elecRoundsDao.selectByPrimaryKey(roundId);
         if (rounds == null)

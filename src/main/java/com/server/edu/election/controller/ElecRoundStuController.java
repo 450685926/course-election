@@ -80,11 +80,11 @@ public class ElecRoundStuController
      * @return
      */
     @ApiOperation(value = "添加可选课学生")
-    @PutMapping("/{roundId}")
+    @PutMapping("/{roundId}/{mode}")
     public RestResult<?> add(@PathVariable("roundId") @NotNull Long roundId,
-        @RequestBody @NotNull List<String> studentCodes)
+        @RequestBody @NotNull List<String> studentCodes,@PathVariable("mode") @NotNull Integer mode)
     {
-        String add = elecRoundStuService.add(roundId, studentCodes);
+        String add = elecRoundStuService.add(roundId, studentCodes,mode);
         if (StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在";
