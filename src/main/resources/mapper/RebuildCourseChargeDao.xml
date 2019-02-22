@@ -49,7 +49,7 @@
         </foreach>
     </insert>
 
-    <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.entity.RebuildCourseNoChargeList">
+    <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT re.ID_ id,re.CALENDAR_ID_ calendarId,re.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.ID_ courseId,re.COURSE_CODE_ code,co.NAME_ codeName,co.LABEL_ label,co.CREDITS_ credits FROM `rebuild_course_recycle_t` re LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
         <where>

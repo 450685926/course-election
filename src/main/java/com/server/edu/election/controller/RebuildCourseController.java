@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
-import com.server.edu.election.dto.ExemptionApplyCondition;
 import io.swagger.annotations.*;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.entity.RebuildCourseNoChargeList;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.StudentVo;

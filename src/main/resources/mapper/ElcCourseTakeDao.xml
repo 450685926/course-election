@@ -91,7 +91,7 @@
       and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   </select>
 
-  <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.entity.RebuildCourseNoChargeList">
+  <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
     SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,co.LABEL_ label,el.PAID_ paid,te.WEEK_HOUR_ weekHour
     ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
     LEFT JOIN course_t co on el.COURSE_CODE_=co.CODE_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
@@ -187,7 +187,7 @@
     GROUP BY el.STUDENT_ID_
   </select>
 
-    <select id="findRollBookList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.entity.RollBookList">
+    <select id="findRollBookList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.vo.RollBookList">
         SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ calssCode,co.CODE_ courseCode,co.NAME_ courseName,cl.ELC_NUMBER_ selectCourseNumber,cl.NUMBER_ numberLimit,co.LABEL_ label,co.COLLEGE_ faculty FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_

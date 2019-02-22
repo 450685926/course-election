@@ -1,4 +1,4 @@
-package com.server.edu.election.entity;
+package com.server.edu.election.vo;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
