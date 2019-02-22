@@ -142,7 +142,7 @@ public class ElecRoundStuController
     
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
-        @RequestPart(name = "roundId") @NotNull Long roundId)
+        @RequestPart(name = "roundId") @NotNull Long roundId,@RequestPart(name = "mode") @NotNull Integer mode)
     {
         if (file == null)
         {
@@ -175,7 +175,7 @@ public class ElecRoundStuController
                     codes.add(studentId);
                 }
             }
-            return this.add(roundId, codes);
+            return this.add(roundId, codes,mode);
         }
         catch (Exception e)
         {
