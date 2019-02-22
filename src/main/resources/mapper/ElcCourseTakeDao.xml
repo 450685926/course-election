@@ -75,8 +75,9 @@
 	left join course_open_t open ON open.id_ = task.COURSE_OPEN_ID_
 	left join course_t cour ON cour.code_ = open.COURSE_CODE_
 	<where>
+		open.CALENDAR_ID_ = #{calendarId}
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassId)">
-			class.id_ = #{teachingClassId}
+			and class.id_ = #{teachingClassId}
 		</if>
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
 			and class.code_ = #{code}
