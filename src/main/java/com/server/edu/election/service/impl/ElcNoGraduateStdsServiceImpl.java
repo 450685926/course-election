@@ -59,36 +59,35 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
     */
     @Override
     public String addOverseasOrGraduate( List<String> studentCodes,Integer mode) {
-        StringBuilder sb = new StringBuilder();
         List<String> list=new ArrayList<>();
         for (String studentCode : studentCodes) {
             Student studentByCode = studentDao.findStudentByCode(studentCode);
             if(studentByCode==null){
-                sb.append("学号"+studentCode+"不存在");
+                list.add("学号"+studentCode+"不存在");
             }else{
                 if(mode==3&&"0".equals(studentByCode.getIsOverseas())){//结业生
                     ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(studentCode);
                     if(student==null){
                         noGraduateStdsDao.addOverseasOrGraduate(studentCode);
                     }else{
-                        sb.append("学号"+studentCode+"已经添加");
+                        list.add("学号"+studentCode+"已经添加");
                     }
                 }else if(mode==4&&"1".equals(studentByCode.getIsOverseas())){//留学结业生
                     ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(studentCode);
                     if(student==null){
                         noGraduateStdsDao.addOverseasOrGraduate(studentCode);
                     }else{
-                        sb.append("学号"+studentCode+"已经添加");
+                        list.add("学号"+studentCode+"已经添加");
                     }
                 }else{
-                    sb.append("学号"+studentCode+"与是否留学不匹配");
+                    list.add("学号"+studentCode+"与是否留学不匹配");
                 }
             }
         }
 
-        if (sb.length() > 0)
+        if (list.size() > 0)
         {
-            return sb.substring(0, sb.length() - 1);
+            return String.join(",",list);
         }
         return StringUtils.EMPTY;
     }

@@ -61,4 +61,6 @@ public class OverseasAndGraduatesController {
         String s = stdsService.deleteOverseasOrGraduate(ids);
         return RestResult.success(s);
     }
+
+
 }
