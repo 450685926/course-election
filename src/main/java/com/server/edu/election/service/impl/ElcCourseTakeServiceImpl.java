@@ -1,5 +1,6 @@
 package com.server.edu.election.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -62,11 +64,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             for (int i = 0; i < teachingClassIds.size(); i++)
             {
                 Long teachingClassId = teachingClassIds.get(i);
-                ElcCourseTakeVo vo =
-                    courseTakeDao.getTeachingClassInfo(teachingClassId, null);
+                ElcCourseTakeVo vo = courseTakeDao
+                    .getTeachingClassInfo(calendarId, teachingClassId, null);
                 if (null != vo && vo.getCourseCode() != null)
                 {
-                    addTake(date, calendarId, studentId, vo,mode);
+                    addTake(date, calendarId, studentId, vo, mode);
                 }
                 else
                 {
@@ -88,7 +90,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     private void addTake(Date date, Long calendarId, String studentId,
-        ElcCourseTakeVo vo,Integer mode)
+        ElcCourseTakeVo vo, Integer mode)
     {
         String courseCode = vo.getCourseCode();
         Long teachingClassId = vo.getTeachingClassId();
@@ -131,7 +133,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-    public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas,Integer mode)
+    public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas,
+        Integer mode)
     {
         StringBuilder sb = new StringBuilder();
         Date date = new Date();
@@ -145,11 +148,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 && StringUtils.isNotBlank(teachingClassCode))
             {
                 ElcCourseTakeVo vo = this.courseTakeDao
-                    .getTeachingClassInfo(null, teachingClassCode);
+                    .getTeachingClassInfo(calendarId, null, teachingClassCode);
                 
                 if (null != vo && vo.getCourseCode() != null)
                 {
-                    addTake(date, calendarId, studentId, vo,mode);
+                    addTake(date, calendarId, studentId, vo, mode);
                 }
                 else
                 {
@@ -168,6 +171,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     public void withdraw(List<ElcCourseTake> value)
     {
+        List<ElcLog> logList = new ArrayList<>();
         for (ElcCourseTake take : value)
         {
             String studentId = take.getStudentId();
@@ -178,14 +182,15 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .andEqualTo("teachingClassId", teachingClassId);
             courseTakeDao.deleteByExample(example);
             
-            ElcCourseTakeVo vo =
-                this.courseTakeDao.getTeachingClassInfo(teachingClassId, null);
+            Long calendarId = take.getCalendarId();
+            ElcCourseTakeVo vo = this.courseTakeDao
+                .getTeachingClassInfo(calendarId, teachingClassId, null);
             if (null != vo)
             {
                 String teachingClassCode = vo.getTeachingClassCode();
                 // 添加选课日志
                 ElcLog log = new ElcLog();
-                log.setCalendarId(take.getCalendarId());
+                log.setCalendarId(calendarId);
                 log.setCourseCode(vo.getCourseCode());
                 log.setCourseName(vo.getCourseName());
                 Session currentSession = SessionUtils.getCurrentSession();
@@ -197,8 +202,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setTeachingClassCode(teachingClassCode);
                 log.setTurn(0);
                 log.setType(ElcLogVo.TYPE_2);
-                this.elcLogDao.insertSelective(log);
+                logList.add(log);
             }
+        }
+        if (CollectionUtil.isNotEmpty(logList))
+        {
+            this.elcLogDao.insertList(logList);
         }
     }
     

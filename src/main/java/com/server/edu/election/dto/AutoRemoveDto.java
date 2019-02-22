@@ -14,6 +14,9 @@ import javax.validation.constraints.NotNull;
 public class AutoRemoveDto
 {
     @NotNull
+    private Long calendarId;
+    
+    @NotNull
     private Long teachingClassId;
     
     /**删除特殊学生*/
@@ -30,6 +33,16 @@ public class AutoRemoveDto
     
     /**按教学班对应专业配比人数进行筛选*/
     private Boolean gradAndPrePeople;
+    
+    public Long getCalendarId()
+    {
+        return calendarId;
+    }
+    
+    public void setCalendarId(Long calendarId)
+    {
+        this.calendarId = calendarId;
+    }
     
     public Long getTeachingClassId()
     {

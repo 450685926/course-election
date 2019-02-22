@@ -1,14 +1,14 @@
 package com.server.edu.election.service.impl;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +19,35 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
+import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcCourseTake;
-import com.server.edu.election.entity.ElcInvincibleStds;
+import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
+import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
+import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
+import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.TeachingClassVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class ElcResultServiceImpl implements ElcResultService
 {
+    Logger logger = LoggerFactory.getLogger(getClass());
+    
     @Autowired
     private TeachingClassDao classDao;
     
@@ -48,7 +61,13 @@ public class ElcResultServiceImpl implements ElcResultService
     private ElcAffinityCoursesStdsDao affinityCoursesStdsDao;
     
     @Autowired
+    private TeachingClassElectiveRestrictAttrDao classElectiveRestrictAttrDao;
+    
+    @Autowired
     private StudentDao studentDao;
+    
+    @Autowired
+    private ElcLogDao elcLogDao;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -60,7 +79,7 @@ public class ElcResultServiceImpl implements ElcResultService
         return new PageResult<>(listPage);
     }
     
-    static String key(SuggestProfessionDto dto)
+    String key(SuggestProfessionDto dto)
     {
         return dto.getGrade() + "-" + dto.getProfession();
     }
@@ -76,62 +95,142 @@ public class ElcResultServiceImpl implements ElcResultService
             param.setTeachingClassId(teachingClassId);
             List<ElcCourseTake> takes = courseTakeDao.select(param);
             // 特殊学生
-            List<ElcInvincibleStds> invincibleStds =
-                invincibleStdsDao.selectAll();
-            List<String> invincibleStdIds = invincibleStds.stream()
-                .map(mapper -> mapper.getStudentId())
-                .collect(toList());
+            List<String> invincibleStdIds =
+                invincibleStdsDao.selectAllStudentId();
             // 优先学生
             List<ElcAffinityCoursesStds> affinityCoursesStds =
                 affinityCoursesStdsDao.selectStuAndCourse();
             Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
-                .map(mapper -> mapper.getCourseCode() + "-"
-                    + mapper.getStudentId())
+                .map(aff -> aff.getCourseCode() + "-" + aff.getStudentId())
                 .collect(toSet());
-            List<SuggestProfessionDto> suggestProfessionList =
-                classDao.selectSuggestProfession(teachingClassId);
             
-            Map<String, Integer> suggestProfMap = new HashMap<>();
-            suggestProfessionList.stream().forEach(action -> {
-                suggestProfMap.put(key(action), action.getNumber());
-            });
-            
-            List<Student> normalStudents = new ArrayList<>();
-            List<Student> invincibleStudents = new ArrayList<>();
-            List<Student> affinityStudents = new ArrayList<>();
+            List<Student> normalStus = new ArrayList<>();
+            List<Student> invincibleStus = new ArrayList<>();
+            List<Student> affinityStus = new ArrayList<>();
+            //把学生分类(普通学生、优先学生、特殊学生)
             for (ElcCourseTake take : takes)
             {
                 String courseCode = take.getCourseCode();
                 String studentId = take.getStudentId();
-                
                 Student stu = studentDao.findStudentByCode(studentId);
                 if (invincibleStdIds.contains(studentId))
                 {
-                    invincibleStudents.add(stu);
+                    invincibleStus.add(stu);
                 }
                 else if (affinityCoursesStdSet
                     .contains(courseCode + "-" + studentId))
                 {
-                    affinityStudents.add(stu);
+                    affinityStus.add(stu);
                 }
-                normalStudents.add(stu);
+                else
+                {
+                    normalStus.add(stu);
+                }
             }
             
-            // 配课年级专业
-            for (Student stu : normalStudents)
+            if (!Boolean.TRUE.equals(dto.getInvincibleStu()))
             {
-                if (dto.getGradAndPre())
+                invincibleStus.clear();
+            }
+            if (!Boolean.TRUE.equals(dto.getAffinityStu()))
+            {
+                affinityStus.clear();
+            }
+            
+            List<String> removeStus = new ArrayList<>();
+            if (invincibleStus.size() + affinityStus.size()
+                + normalStus.size() > teachingClass.getNumber())
+            {
+                GradAndPreFilter gradAndPreFilter =
+                    new GradAndPreFilter(dto, classDao);
+                gradAndPreFilter.init();
+                ClassElcConditionFilter elcConditionFilter =
+                    new ClassElcConditionFilter(dto,
+                        classElectiveRestrictAttrDao);
+                elcConditionFilter.init();
+                
+                // 这里做三次的原因是因为有三种学生类型
+                for (int i = 0; i < 3; i++)
                 {
-                    String key = stu.getGrade() + "-" + stu.getProfession();
-                    if (suggestProfMap.containsKey(key))
+                    List<Student> stuList = normalStus.size() > 0 ? normalStus
+                        : (affinityStus.size() > 0 ? affinityStus
+                            : invincibleStus);
+                    
+                    if (CollectionUtil.isEmpty(stuList))
                     {
-                        break;
+                        continue;
+                    }
+                    gradAndPreFilter.execute(stuList, removeStus);
+                    elcConditionFilter.execute(stuList, removeStus);
+                    
+                    //执行完后人数还是超过上限则进行随机删除
+                    int overSize = (invincibleStus.size() + affinityStus.size()
+                        + normalStus.size()) - teachingClass.getNumber();
+                    if (overSize > 0)
+                    {
+                        GradAndPreFilter
+                            .randomRemove(removeStus, overSize, stuList);
                     }
                 }
-                if (dto.getGradAndPrePeople())
+                
+                removeAndRecordLog(dto,
+                    teachingClassId,
+                    teachingClass,
+                    removeStus);
+            }
+        }
+    }
+    
+    public void removeAndRecordLog(AutoRemoveDto dto, Long teachingClassId,
+        TeachingClass teachingClass, List<String> removeStus)
+    {
+        if (CollectionUtil.isNotEmpty(removeStus))
+        {
+            Long calendarId = dto.getCalendarId();
+            ElcCourseTakeVo teachingClassInfo =
+                courseTakeDao.getTeachingClassInfo(calendarId,
+                    teachingClassId,
+                    teachingClass.getCode());
+            List<ElcLog> logList = new ArrayList<>();
+            Date date = new Date();
+            //记录选课日志
+            if (null != teachingClassInfo)
+            {
+                Example example = new Example(ElcCourseTake.class);
+                example.createCriteria()
+                    .andEqualTo("calendarId", calendarId)
+                    .andEqualTo("teachingClassId", teachingClassId)
+                    .andIn("studentId", removeStus);
+                //删除选课信息
+                courseTakeDao.deleteByExample(example);
+                
+                for (String studentId : removeStus)
                 {
-                    
+                    // 添加选课日志
+                    ElcLog log = new ElcLog();
+                    log.setCalendarId(calendarId);
+                    log.setCourseCode(teachingClassInfo.getCourseCode());
+                    log.setCourseName(teachingClassInfo.getCourseName());
+                    Session currentSession = SessionUtils.getCurrentSession();
+                    log.setCreateBy(currentSession.getUid());
+                    log.setCreatedAt(date);
+                    log.setCreateIp(currentSession.getIp());
+                    log.setMode(ElcLogVo.MODE_2);
+                    log.setStudentId(studentId);
+                    log.setTeachingClassCode(teachingClass.getCode());
+                    log.setTurn(0);
+                    log.setType(ElcLogVo.TYPE_2);
+                    logList.add(log);
                 }
+                elcLogDao.insertList(logList);
+            }
+            else
+            {
+                logger.warn(
+                    "not find teachingClassInfo calendarId={},teachingClassId={},teachingClassCode={}",
+                    calendarId,
+                    teachingClassId,
+                    teachingClass.getCode());
             }
         }
     }

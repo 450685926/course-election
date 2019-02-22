@@ -1,6 +1,5 @@
 package com.server.edu.election.dao;
 
-
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
@@ -19,8 +18,10 @@ import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.common.MySqlMapper;
 
-public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
+public interface ElcCourseTakeDao
+    extends Mapper<ElcCourseTake>, MySqlMapper<ElcCourseTake>
 {
     /**分页查询选课名单*/
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
@@ -33,7 +34,7 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
      * @return
      * @see [类、类#方法、类#成员]
      */
-    ElcCourseTakeVo getTeachingClassInfo(
+    ElcCourseTakeVo getTeachingClassInfo(@Param("calendarId") Long calendarId,
         @Param("teachingClassId") Long teachingClassId,
         @Param("code") String teachingClassCode);
     
@@ -52,34 +53,36 @@ public interface ElcCourseTakeDao extends Mapper<ElcCourseTake>
     
     /**查询点名册教学班和老师*/
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);
-
+    
     /**查询教学班对应老师姓名*/
     List<ClassTeacherDto> findTeacherByClassCode(Long teachingClassId);
-
+    
     /**查询点名册中学生信息*/
-
+    
     List<StudentVo> findStudentByTeachingClassId(Long id);
-
+    
     /** 查询教学班时间地点*/
-
+    
     List<ClassTeacherDto> findClassTimeAndRoom(Long id);
-
+    
     /**查询学生课表*/
-    List<StudentSchoolTimetab> findSchoolTimetab(@Param("calendarId") Long calendarId, @Param("studentCode") String studentCode);
-
+    List<StudentSchoolTimetab> findSchoolTimetab(
+        @Param("calendarId") Long calendarId,
+        @Param("studentCode") String studentCode);
+    
     /**查询所有学生课表*/
     Page<StudentVo> findAllSchoolTimetab(ReportManagementCondition condition);
-
+    
     /**教师上课时间地点详情*/
     List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId);
-
+    
     /**查询教师名称*/
     String findClassTeacherByTeacherCode(String teacherCode);
-
+    
     /**查询教师对应教学班*/
     Page<ClassCodeToTeacher> findAllClassTeacher(ClassCodeToTeacher condition);
-
+    
     /**查询某一学期所有教学班*/
     List<ClassTeacherDto> findAllTeachingClassId(Long calendarId);
-
+    
 }

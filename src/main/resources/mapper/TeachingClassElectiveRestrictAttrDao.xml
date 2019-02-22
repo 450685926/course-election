@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.TeachingClassElectiveRestrictAttr">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
+    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+    <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
+    <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+    <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
+    <result column="SPCIAL_PLAN_" jdbcType="VARCHAR" property="spcialPlan" />
+    <result column="IS_OVERSEAS_" jdbcType="VARCHAR" property="isOverseas" />
+    <result column="IS_DIVSEX_" jdbcType="VARCHAR" property="isDivsex" />
+    <result column="NUMBER_MALE_" jdbcType="INTEGER" property="numberMale" />
+    <result column="NUMBER_FEMALE_" jdbcType="INTEGER" property="numberFemale" />
+    <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  
+  <select id="selectRestrictProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">
+    select GRADE_ as grade,PROFESSION_ as profession,NUMBER_ as number 
+    from teaching_class_elective_restrict_profession_t where TEACHING_CLASS_ID_ = #{teachingClassId}
+  </select>
+  
+  <select id="selectRestrictStudent" resultType="string">
+  	select STUDENT_ID_ from teaching_class_elective_restrict_student_t where TEACHING_CLASS_ID_ = #{teachingClassId}
+  </select>
+  
+</mapper>
