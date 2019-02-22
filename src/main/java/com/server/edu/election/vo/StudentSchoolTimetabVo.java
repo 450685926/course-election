@@ -3,7 +3,6 @@ package com.server.edu.election.vo;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.entity.TimeTable;
 
 import java.util.List;
 

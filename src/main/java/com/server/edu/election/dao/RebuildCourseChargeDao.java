@@ -3,8 +3,7 @@ package com.server.edu.election.dao;
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.entity.RebuildCourseNoChargeList;
-import org.apache.ibatis.annotations.Param;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;

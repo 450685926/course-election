@@ -1,4 +1,4 @@
-package com.server.edu.election.entity;
+package com.server.edu.election.vo;
 
 import java.io.Serializable;
 

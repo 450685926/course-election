@@ -4,7 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.entity.RebuildCourseNoChargeList;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.vo.StudentVo;
 

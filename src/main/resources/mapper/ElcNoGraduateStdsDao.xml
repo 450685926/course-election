@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ElcNoGraduateStdsDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElcNoGraduateStds">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
+    <result column="GRADUATE_YEAR" jdbcType="INTEGER" property="graduateYear" />
+    <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+
+  <select id="findOverseasOrGraduate" parameterType="com.server.edu.election.vo.ElcNoGraduateStdsVo" resultType="com.server.edu.election.vo.ElcNoGraduateStdsVo">
+    select el.ID_ id,st.STUDENT_CODE_ studentId,st.NAME_ studentName,st.FACULTY_ faculty,st.PROFESSION_ profession,el.REMARK_ remark from elc_no_graduate_stds_t el
+    left join student_t st on st.STUDENT_CODE_=el.STUDENT_ID_
+    <where>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+        and st.IS_OVERSEAS_=
+        <choose>
+          <when test="mode==3">(0)</when>
+          <otherwise>(1)</otherwise>
+        </choose>
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+        and el.STUDENT_ID_ like concat('%',#{studentId},'%')
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+        and st.NAME_ like concat('%',#{studentName},'%')
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+        and st.GRADE_ =#{grade}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+        and st.TRAINING_LEVEL_ =#{trainingLevel}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
+        and st.STUDENT_CATEGORY_ =#{studentCategory}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+        and st.FACULTY_ =#{faculty}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+        and st.PROFESSION_ =#{profession}
+      </if>
+    </where>
+  </select>
+
+  <select id="findStudentByCode" resultType="com.server.edu.election.entity.ElcNoGraduateStds">
+      select * FROM elc_no_graduate_stds_t WHERE STUDENT_ID_=#{studentCode}
+  </select>
+
+  <select id="addOverseasOrGraduate" parameterType="java.util.List">
+      insert into elc_no_graduate_stds_t(STUDENT_ID_) VALUES (#{code})
+  </select>
+
+  <delete id="deleteOverseasOrGraduate" parameterType="java.util.List">
+    delete from elc_no_graduate_stds_t
+    where ID_ in
+    <foreach collection="list" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>
