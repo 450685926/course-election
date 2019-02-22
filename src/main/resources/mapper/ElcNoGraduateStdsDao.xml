@@ -46,7 +46,7 @@
     </where>
   </select>
 
-  <select id="findStudentByCode" resultType="com.server.edu.election.entity.ElcNoGraduateStds">
+  <select id="findStudentByCode" resultMap="BaseResultMap">
       select * FROM elc_no_graduate_stds_t WHERE STUDENT_ID_=#{studentCode}
   </select>
 
