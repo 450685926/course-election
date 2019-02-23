@@ -36,7 +36,7 @@
 			FROM
 				course_open_t t1
 			WHERE
-				CODE_CODE_ NOT IN (
+				COURSE_CODE_ NOT IN (
 					SELECT
 						COURSE_CODE_
 					FROM
