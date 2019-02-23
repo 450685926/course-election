@@ -90,6 +90,7 @@ public class Student implements Serializable {
     /**
      * 入学季节
      */
+    @Code2Text(transformer = "X_RXJJ")
     @Column(name = "ENROL_SEASON_")
     private String enrolSeason;
 
@@ -109,6 +110,7 @@ public class Student implements Serializable {
     /**
      * 学位类别
      */
+    @Code2Text(transformer = "X_XWLX")
     @Column(name = "DEGREE_CATEGORY_")
     private String degreeCategory;
 

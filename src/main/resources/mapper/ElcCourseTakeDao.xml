@@ -342,5 +342,22 @@
         </foreach>
     </delete>
 
-
+    <select id="findStudentList" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultType="com.server.edu.election.entity.Student">
+        select st.STUDENT_CODE_ studentCode, st.NAME_ name,st.TRAINING_LEVEL_ trainingLevel, st.FACULTY_ faculty, st.PROFESSION_ profession from student_t st
+        <where>
+            STUDENT_CODE_ in
+            (select DISTINCT STUDENT_ID_ from election_rounds_stu_t
+            WHERE ROUNDS_ID_ in (SELECT ID_ FROM `election_rounds_t`
+            where CALENDAR_ID_=#{calendarId} and MODE_=#{mode}))
+              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuName)">
+                  and (st.STUDENT_CODE_ like concat ('%',#{stuName},'%') or st.NAME_ like concat ('%',#{stuName},'%'))
+              </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuFaculty)">
+                    and st.FACULTY_ =#{stuFaculty}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuProfession)">
+                    and st.PROFESSION_ =#{stuProfession}
+                </if>
+        </where>
+    </select>
 </mapper>

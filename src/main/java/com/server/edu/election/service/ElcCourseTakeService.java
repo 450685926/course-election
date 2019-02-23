@@ -6,6 +6,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 
@@ -50,5 +51,15 @@ public interface ElcCourseTakeService
      * @see [类、类#方法、类#成员]
      */
     void withdraw(List<ElcCourseTake> value);
+
+
+    /**
+    *@Description: 加课学生名单
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/23 14:15
+    */
+    PageResult<Student> findStudentList(PageCondition<ElcCourseTakeQuery> condition);
     
 }
