@@ -163,13 +163,24 @@ public class ElcResultServiceImpl implements ElcResultService
                     gradAndPreFilter.execute(stuList, removeStus);
                     elcConditionFilter.execute(stuList, removeStus);
                     
-                    //执行完后人数还是超过上限则进行随机删除
-                    int overSize = (invincibleStus.size() + affinityStus.size()
-                        + normalStus.size()) - teachingClass.getNumber();
-                    if (overSize > 0)
+                    if (CollectionUtil.isEmpty(stuList))
                     {
-                        GradAndPreFilter
-                            .randomRemove(removeStus, overSize, stuList);
+                        //执行完后人数还是超过上限则进行随机删除
+                        int overSize = (invincibleStus.size()
+                            + affinityStus.size() + normalStus.size())
+                            - teachingClass.getNumber();
+                        if (overSize > 0)
+                        {
+                            // 1.普通人数小于超出人数则说明优先人数的人也超了这时需要清空普通人数
+                            // 2.普通人数大于超出人数则说明只有普通人数超了，普通人数需要等于超出人数
+                            int limitNumber = overSize;
+                            if (stuList.size() < overSize)
+                            {
+                                limitNumber = 0;
+                            }
+                            GradAndPreFilter
+                                .randomRemove(removeStus, limitNumber, stuList);
+                        }
                     }
                 }
                 
