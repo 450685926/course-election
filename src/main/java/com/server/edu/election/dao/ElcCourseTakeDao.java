@@ -84,5 +84,9 @@ public interface ElcCourseTakeDao
     
     /**查询某一学期所有教学班*/
     List<ClassTeacherDto> findAllTeachingClassId(Long calendarId);
-    
+
+
+    /**通过学生删除课程*/
+
+    void deleteStudentById(List<String> list);
 }

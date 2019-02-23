@@ -335,6 +335,12 @@
         GROUP BY el.TEACHING_CLASS_ID_,el.CALENDAR_ID_
     </select>
 
+    <delete id="deleteStudentById" parameterType="java.util.List">
+        delete from elc_course_takes_t where STUDENT_ID_ in
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </delete>
 
 
 </mapper>

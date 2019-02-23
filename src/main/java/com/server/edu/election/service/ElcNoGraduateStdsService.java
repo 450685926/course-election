@@ -14,5 +14,5 @@ public interface ElcNoGraduateStdsService {
     String addOverseasOrGraduate(List<String> studentCodes, Integer mode);
 
     /**删除结业生*/
-    String deleteOverseasOrGraduate(List<Long> ids);
+    String deleteOverseasOrGraduate(List<String> codes);
 }

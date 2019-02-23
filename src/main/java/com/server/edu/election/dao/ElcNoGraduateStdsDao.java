@@ -19,5 +19,5 @@ public interface ElcNoGraduateStdsDao extends Mapper<ElcNoGraduateStds> {
     void addOverseasOrGraduate(String code);
 
     /**删除结业生*/
-    void deleteOverseasOrGraduate(List<Long> list);
+    void deleteOverseasOrGraduate(List<String> list);
 }

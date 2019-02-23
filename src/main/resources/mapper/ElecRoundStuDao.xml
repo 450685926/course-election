@@ -88,4 +88,11 @@
   <delete id="deleteByRoundId">
     delete from election_rounds_stu_t where ROUNDS_ID_ = #{roundId}
   </delete>
+
+	<delete id="deleteBystudentId" parameterType="java.util.List">
+		delete from election_rounds_stu_t where STUDENT_ID_ in
+		<foreach collection="list" open="(" separator="," close=")" item="id">
+			#{id}
+		</foreach>
+	</delete>
 </mapper>
