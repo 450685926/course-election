@@ -8,7 +8,7 @@
     <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
     <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
-    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseId" />
+    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
     <result column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
     <result column="COURSE_TAKE_TYPE_" jdbcType="INTEGER" property="courseTakeType" />
     <result column="TURN_" jdbcType="INTEGER" property="turn" />
