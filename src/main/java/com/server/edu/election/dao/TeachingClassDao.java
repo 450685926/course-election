@@ -31,6 +31,31 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     Page<TeachingClassVo> listPage(ElcResultQuery condition);
+    /**
+     * 对选课人数进行自增，不会判断限制人数
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int increElcNumber(@Param("teachingClassId") Long teachingClassId);
+    
+    /**
+     * 对选课人数进行自减，选课人数需要大于0
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int decrElcNumber(@Param("teachingClassId") Long teachingClassId);
+    /**
+     * 
+     * 对选课人数进行自增，只有在限制人数大于选课人数时才增加
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int increElcNumberAtomic(@Param("teachingClassId") Long teachingClassId);
     
     /**
      * 查询教学班并且人数超过总限制

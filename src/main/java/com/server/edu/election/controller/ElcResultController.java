@@ -58,6 +58,7 @@ public class ElcResultController
      * @return
      * @see [类、类#方法、类#成员]
      */
+    @ApiOperation(value = "调整教学班容量")
     @PostMapping("/adjustClassNumber")
     public RestResult<?> adjustClassNumber(
         @RequestBody TeachingClass teachingClass)

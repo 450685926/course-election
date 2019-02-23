@@ -11,7 +11,7 @@
     <result column="SERVICE_NAME_" jdbcType="VARCHAR" property="serviceName" />
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
-    <result column="STATUS_" jdbcType="INTEGER" property="value" />
+    <result column="STATUS_" jdbcType="INTEGER" property="status" />
   </resultMap>
   <resultMap id="VoBaseResultMap" type="com.server.edu.election.vo.ElectionRuleVo" extends="BaseResultMap"></resultMap>
   
@@ -34,11 +34,11 @@
 		INNER JOIN election_rule_t t2 ON t1.RULE_ID_ = t2.ID_
   </select> 
   <select id="listAllByProjectId" resultMap="VoBaseResultMap">
-  	select * from election_rule_t where PROJECT_ID_ = #{projectId}
+  	select * from election_rule_t where MANAGER_DEPT_ID_ = #{projectId}
   </select>
   
   <update id="batchUpdate" parameterType="com.server.edu.election.dto.ElectionRuleDto">
-    update election_rule_t set STATUS_ =#{value} where ID_ in
+    update election_rule_t set STATUS_ =#{status} where ID_ in
     <foreach item="id" collection="ruleIds"  index="index" open="(" separator="," close=")">  
        #{id}  
     </foreach> 

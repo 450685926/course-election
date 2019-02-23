@@ -2,12 +2,17 @@ package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -17,6 +22,7 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -33,8 +39,13 @@ import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 {
+    Logger logger = LoggerFactory.getLogger(getClass());
+    
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+    
+    @Autowired
+    private TeachingClassDao classDao;
     
     @Autowired
     private ElcLogDao elcLogDao;
@@ -51,6 +62,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return result;
     }
     
+    @Transactional
     @Override
     public String add(ElcCourseTakeAddDto add)
     {
@@ -90,6 +102,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return StringUtils.EMPTY;
     }
     
+    @Transactional
     private void addTake(Date date, Long calendarId, String studentId,
         ElcCourseTakeVo vo, Integer mode)
     {
@@ -115,6 +128,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             take.setMode(mode);
             take.setTurn(0);
             courseTakeDao.insertSelective(take);
+            // 增加选课人数
+            classDao.increElcNumber(teachingClassId);
             // 添加选课日志
             ElcLog log = new ElcLog();
             log.setCalendarId(calendarId);
@@ -133,6 +148,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
     
+    @Transactional
     @Override
     public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas,
         Integer mode)
@@ -169,27 +185,45 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return StringUtils.EMPTY;
     }
     
+    @Transactional
     @Override
     public void withdraw(List<ElcCourseTake> value)
     {
+        Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
+        
         List<ElcLog> logList = new ArrayList<>();
         for (ElcCourseTake take : value)
         {
+            Long calendarId = take.getCalendarId();
             String studentId = take.getStudentId();
             Long teachingClassId = take.getTeachingClassId();
+            //删除选课记录
             Example example = new Example(ElcCourseTake.class);
             example.createCriteria()
+                .andEqualTo("calendarId", calendarId)
                 .andEqualTo("studentId", studentId)
                 .andEqualTo("teachingClassId", teachingClassId);
             courseTakeDao.deleteByExample(example);
+            //减少选课人数
+            classDao.decrElcNumber(teachingClassId);
             
-            Long calendarId = take.getCalendarId();
-            ElcCourseTakeVo vo = this.courseTakeDao
-                .getTeachingClassInfo(calendarId, teachingClassId, null);
+            ElcCourseTakeVo vo = null;
+            String key = calendarId + "-" + teachingClassId;
+            if (!classInfoMap.containsKey(key))
+            {
+                vo = this.courseTakeDao
+                    .getTeachingClassInfo(calendarId, teachingClassId, null);
+                classInfoMap.put(key, vo);
+            }
+            else
+            {
+                vo = classInfoMap.get(key);
+            }
+            
+            // 记录退课日志
             if (null != vo)
             {
                 String teachingClassCode = vo.getTeachingClassCode();
-                // 添加选课日志
                 ElcLog log = new ElcLog();
                 log.setCalendarId(calendarId);
                 log.setCourseCode(vo.getCourseCode());
@@ -204,6 +238,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setTurn(0);
                 log.setType(ElcLogVo.TYPE_2);
                 logList.add(log);
+            }
+            else
+            {
+                logger.warn(
+                    "not find teachingClassInfo calendarId={},teachingClassId={}",
+                    calendarId,
+                    teachingClassId);
             }
         }
         if (CollectionUtil.isNotEmpty(logList))

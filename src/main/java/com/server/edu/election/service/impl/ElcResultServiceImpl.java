@@ -3,7 +3,6 @@ package com.server.edu.election.service.impl;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +18,6 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
-import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
@@ -27,21 +25,15 @@ import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcCourseTake;
-import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
+import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
-import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.TeachingClassVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
-
-import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class ElcResultServiceImpl implements ElcResultService
@@ -67,7 +59,7 @@ public class ElcResultServiceImpl implements ElcResultService
     private StudentDao studentDao;
     
     @Autowired
-    private ElcLogDao elcLogDao;
+    private ElcCourseTakeService courseTakeService;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -207,51 +199,16 @@ public class ElcResultServiceImpl implements ElcResultService
         if (CollectionUtil.isNotEmpty(removeStus))
         {
             Long calendarId = dto.getCalendarId();
-            ElcCourseTakeVo teachingClassInfo =
-                courseTakeDao.getTeachingClassInfo(calendarId,
-                    teachingClassId,
-                    teachingClass.getCode());
-            List<ElcLog> logList = new ArrayList<>();
-            Date date = new Date();
-            //记录选课日志
-            if (null != teachingClassInfo)
+            List<ElcCourseTake> values = new ArrayList<>();
+            for (String studentId : removeStus)
             {
-                Example example = new Example(ElcCourseTake.class);
-                example.createCriteria()
-                    .andEqualTo("calendarId", calendarId)
-                    .andEqualTo("teachingClassId", teachingClassId)
-                    .andIn("studentId", removeStus);
-                //删除选课信息
-                courseTakeDao.deleteByExample(example);
-                
-                for (String studentId : removeStus)
-                {
-                    // 添加选课日志
-                    ElcLog log = new ElcLog();
-                    log.setCalendarId(calendarId);
-                    log.setCourseCode(teachingClassInfo.getCourseCode());
-                    log.setCourseName(teachingClassInfo.getCourseName());
-                    Session currentSession = SessionUtils.getCurrentSession();
-                    log.setCreateBy(currentSession.getUid());
-                    log.setCreatedAt(date);
-                    log.setCreateIp(currentSession.getIp());
-                    log.setMode(ElcLogVo.MODE_2);
-                    log.setStudentId(studentId);
-                    log.setTeachingClassCode(teachingClass.getCode());
-                    log.setTurn(0);
-                    log.setType(ElcLogVo.TYPE_2);
-                    logList.add(log);
-                }
-                elcLogDao.insertList(logList);
+                ElcCourseTake t = new ElcCourseTake();
+                t.setCalendarId(calendarId);
+                t.setStudentId(studentId);
+                t.setTeachingClassId(teachingClassId);
+                values.add(t);
             }
-            else
-            {
-                logger.warn(
-                    "not find teachingClassInfo calendarId={},teachingClassId={},teachingClassCode={}",
-                    calendarId,
-                    teachingClassId,
-                    teachingClass.getCode());
-            }
+            courseTakeService.withdraw(values);
         }
     }
     

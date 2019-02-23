@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -36,6 +37,7 @@ public class ElcCourseTake implements Serializable
     /**
      * 校历ID（学年学期）
      */
+    @NotNull(groups= {DelGroup.class})
     @Column(name = "CALENDAR_ID_")
     private Long calendarId;
     

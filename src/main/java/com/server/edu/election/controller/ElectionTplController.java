@@ -28,20 +28,23 @@ import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
 @SwaggerDefinition(info = @Info(title = "选课方案模板", version = ""))
-@RestSchema(schemaId="ElectionTplController")
+@RestSchema(schemaId = "ElectionTplController")
 @RequestMapping("electionTpl")
-public class ElectionTplController {
-	private static Logger LOG =
-	        LoggerFactory.getLogger(ElectionTplController.class);
-	@Autowired
-	private ElectionTplService electionTplService;
-	 /**
-     * 选课方案模板列表
-     * 
-     * @param condition
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+public class ElectionTplController
+{
+    private static Logger LOG =
+        LoggerFactory.getLogger(ElectionTplController.class);
+    
+    @Autowired
+    private ElectionTplService electionTplService;
+    
+    /**
+    * 选课方案模板列表
+    * 
+    * @param condition
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "选课方案模板列表")
     @PostMapping("/tplList")
     public RestResult<PageInfo<ElectionTplVo>> tplList(
@@ -49,10 +52,9 @@ public class ElectionTplController {
         throws Exception
     {
         LOG.info("list.start");
-        PageInfo<ElectionTplVo> tplList =electionTplService.list(condition);
+        PageInfo<ElectionTplVo> tplList = electionTplService.list(condition);
         return RestResult.successData(tplList);
     }
-    
     
     /**
      * 添加选课方案模板
@@ -63,12 +65,11 @@ public class ElectionTplController {
      */
     @ApiOperation(value = "添加选课方案模板")
     @PostMapping("/add")
-    public RestResult<Integer> add(
-        @RequestBody @Valid ElectionTplDto dto)
+    public RestResult<Integer> add(@RequestBody @Valid ElectionTplDto dto)
         throws Exception
     {
         LOG.info("add.start");
-        int result =electionTplService.add(dto);
+        int result = electionTplService.add(dto);
         return RestResult.successData(result);
     }
     
@@ -81,12 +82,11 @@ public class ElectionTplController {
      */
     @ApiOperation(value = "修改选课方案模板")
     @PostMapping("/update")
-    public RestResult<Integer> update(
-        @RequestBody @Valid ElectionTplDto dto)
+    public RestResult<Integer> update(@RequestBody @Valid ElectionTplDto dto)
         throws Exception
     {
         LOG.info("update.start");
-        int result =electionTplService.update(dto);
+        int result = electionTplService.update(dto);
         return RestResult.successData(result);
     }
     
@@ -99,14 +99,13 @@ public class ElectionTplController {
      */
     @ApiOperation(value = "停用/启用选课方案模板")
     @PostMapping("/updateStatus")
-    public RestResult<Integer> updateStatus(
-        @RequestBody  ElectionTplDto dto)
+    public RestResult<Integer> updateStatus(@RequestBody ElectionTplDto dto)
         throws Exception
     {
         LOG.info("update.start");
-        int result =electionTplService.updateStatus(dto);
+        int result = electionTplService.updateStatus(dto);
         return RestResult.successData(result);
-    
+        
     }
     
     /**
@@ -123,7 +122,7 @@ public class ElectionTplController {
         throws Exception
     {
         LOG.info("getTpl.start");
-        ElectionTplVo electionTplVo =electionTplService.getTpl(id);
+        ElectionTplVo electionTplVo = electionTplService.getTpl(id);
         return RestResult.successData(electionTplVo);
     }
     
@@ -136,12 +135,11 @@ public class ElectionTplController {
      */
     @ApiOperation(value = " 删除选课方案模板")
     @PostMapping("/delete")
-    public RestResult<Integer> delete(
-    		@RequestBody @NotEmpty List<Long> ids)
+    public RestResult<Integer> delete(@RequestBody @NotEmpty List<Long> ids)
         throws Exception
     {
         LOG.info("getTpl.start");
-        int result  =electionTplService.delete(ids);
+        int result = electionTplService.delete(ids);
         return RestResult.successData(result);
     }
 }
