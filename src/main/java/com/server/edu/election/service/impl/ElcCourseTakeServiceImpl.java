@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,5 +252,19 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             this.elcLogDao.insertList(logList);
         }
     }
-    
+
+    /**
+    *@Description: 查找加课学生
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/23 14:17
+    */
+    @Override
+    public PageResult<Student> findStudentList(PageCondition<ElcCourseTakeQuery> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<Student> page=courseTakeDao.findStudentList(condition.getCondition());
+        return new PageResult<>(page);
+    }
+
 }

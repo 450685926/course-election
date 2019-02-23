@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.entity.Student;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -89,4 +90,7 @@ public interface ElcCourseTakeDao
     /**通过学生删除课程*/
 
     void deleteStudentById(List<String> list);
+
+    /**查找当前学期下的可选课学生*/
+    Page<Student> findStudentList(ElcCourseTakeQuery condition);
 }

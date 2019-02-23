@@ -90,4 +90,13 @@ public interface ElecRoundStuDao
      * */
 
     void deleteBystudentId(List<String> list);
+
+    /**
+     * 根据条件查询mode 模式 满足条件并且没有添加过的的学生
+     *
+     * @param stu
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<String> notExistStudent(@Param("stu") ElecRoundStuQuery stu);
 }

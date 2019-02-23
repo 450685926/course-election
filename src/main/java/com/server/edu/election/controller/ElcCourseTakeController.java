@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -318,5 +319,29 @@ public class ElcCourseTakeController
         return ExportUtil
             .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
     }
-    
+
+
+    /**
+    *@Description: 根据学期模式查找可以加课的学生
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/23 14:16
+    */
+    @ApiOperation(value = "加课学生列表")
+    @PostMapping("/studentPage")
+    public RestResult<PageResult<Student>> studentPage(
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition) throws Exception{
+
+        {
+            ValidatorUtil.validateAndThrow(condition.getCondition());
+
+            PageResult<Student> list =
+                    courseTakeService.findStudentList(condition);
+
+            return RestResult.successData(list);
+        }
+
+
+    }
 }
