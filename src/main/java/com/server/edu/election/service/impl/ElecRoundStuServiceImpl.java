@@ -108,14 +108,24 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void addByCondition(ElecRoundStuQuery stu)
     {
-        List<Student4Elc> listStudent =
-            elecRoundStuDao.listNotExistStudent(stu);
-        
-        if (CollectionUtil.isNotEmpty(listStudent))
-        {
-            for (Student4Elc info : listStudent)
+        if(stu.getMode()==1||stu.getMode()==2){//来源学生
+
+            List<Student4Elc> listStudent =
+                    elecRoundStuDao.listNotExistStudent(stu);
+
+            if (CollectionUtil.isNotEmpty(listStudent))
             {
-                elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
+                for (Student4Elc info : listStudent)
+                {
+                    elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
+                }
+            }
+        }else{//选课学生来源与结业表
+            List<String> stringList = elecRoundStuDao.notExistStudent(stu);
+            if(CollectionUtil.isNotEmpty(stringList)){
+                for (String s : stringList) {
+                    elecRoundStuDao.add(stu.getRoundId(), s);
+                }
             }
         }
     }
