@@ -80,15 +80,18 @@ public class ElecRoundStuController
      * @return
      */
     @ApiOperation(value = "添加可选课学生")
-    @PutMapping("/{roundId}")
+    @PutMapping("/{roundId}/{mode}")
     public RestResult<?> add(@PathVariable("roundId") @NotNull Long roundId,
-        @RequestBody @NotNull List<String> studentCodes)
+        @RequestBody @NotNull List<String> studentCodes,@PathVariable("mode") @NotNull Integer mode)
     {
-        String add = elecRoundStuService.add(roundId, studentCodes);
-        if (StringUtils.isNotBlank(add))
+        String add = elecRoundStuService.add(roundId, studentCodes,mode);
+        if ((mode==1||mode==2)&&StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在";
+        }else if(StringUtils.isNotBlank(add)){
+            add = "学号" + add + "已经添加或不存在,或与是否留学不匹配";
         }
+
         return RestResult.success(add);
     }
     
@@ -142,7 +145,7 @@ public class ElecRoundStuController
     
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
-        @RequestPart(name = "roundId") @NotNull Long roundId)
+        @RequestPart(name = "roundId") @NotNull Long roundId,@RequestPart(name = "mode") @NotNull Integer mode)
     {
         if (file == null)
         {
@@ -175,7 +178,7 @@ public class ElecRoundStuController
                     codes.add(studentId);
                 }
             }
-            return this.add(roundId, codes);
+            return this.add(roundId, codes,mode);
         }
         catch (Exception e)
         {

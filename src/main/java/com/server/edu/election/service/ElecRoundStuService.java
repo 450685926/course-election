@@ -27,7 +27,7 @@ public interface ElecRoundStuService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    String add(Long roundId, List<String> studentCodes);
+    String add(Long roundId, List<String> studentCodes,Integer mode);
     
     /**
      * 通过条件添加学生
