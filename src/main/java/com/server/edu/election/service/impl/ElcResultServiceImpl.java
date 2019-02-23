@@ -79,6 +79,15 @@ public class ElcResultServiceImpl implements ElcResultService
         return new PageResult<>(listPage);
     }
     
+    @Override
+    public void adjustClassNumber(TeachingClass teachingClass)
+    {
+        TeachingClass record = new TeachingClass();
+        record.setId(teachingClass.getId());
+        record.setNumber(teachingClass.getNumber());
+        classDao.updateByPrimaryKeySelective(record);
+    }
+    
     String key(SuggestProfessionDto dto)
     {
         return dto.getGrade() + "-" + dto.getProfession();

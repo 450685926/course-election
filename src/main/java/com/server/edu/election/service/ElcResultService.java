@@ -3,6 +3,7 @@ package com.server.edu.election.service;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.TeachingClassVo;
 
@@ -16,6 +17,14 @@ public interface ElcResultService
      * @see [类、类#方法、类#成员]
      */
     PageResult<TeachingClassVo> listPage(PageCondition<ElcResultQuery> page);
+    
+    /**
+     * 调整教学班容量
+     * 
+     * @param teachingClass
+     * @see [类、类#方法、类#成员]
+     */
+    void adjustClassNumber(TeachingClass teachingClass);
     
     /**
      * 自动剔除超过人数

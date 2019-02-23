@@ -13,6 +13,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.vo.TeachingClassVo;
@@ -51,12 +52,27 @@ public class ElcResultController
         return RestResult.successData(list);
     }
     
+    /**
+     * 调整教学班容量
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @PostMapping("/adjustClassNumber")
+    public RestResult<?> adjustClassNumber(
+        @RequestBody TeachingClass teachingClass)
+    {
+        elcResultService.adjustClassNumber(teachingClass);
+        
+        return RestResult.success();
+    }
+    
     @ApiOperation(value = "自动剔除超过人数")
     @PostMapping("/autoRemove")
     public RestResult<?> autoRemove(@RequestBody AutoRemoveDto dto)
         throws Exception
     {
-        
+        elcResultService.autoRemove(dto);
         return RestResult.success();
     }
     
