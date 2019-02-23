@@ -85,10 +85,13 @@ public class ElecRoundStuController
         @RequestBody @NotNull List<String> studentCodes,@PathVariable("mode") @NotNull Integer mode)
     {
         String add = elecRoundStuService.add(roundId, studentCodes,mode);
-        if (StringUtils.isNotBlank(add))
+        if ((mode==1||mode==2)&&StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在";
+        }else if(StringUtils.isNotBlank(add)){
+            add = "学号" + add + "已经添加或不存在,或与身份不匹配";
         }
+
         return RestResult.success(add);
     }
     

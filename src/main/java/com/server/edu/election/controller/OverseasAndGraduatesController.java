@@ -54,11 +54,11 @@ public class OverseasAndGraduatesController {
 
     @ApiOperation(value = "删除留学结业生")
     @PostMapping("/deleteOverseasOrGraduate")
-    public RestResult<String> deleteOverseasOrGraduate(@RequestBody List<Long> ids){
-        if(CollectionUtil.isEmpty(ids)){
+    public RestResult<String> deleteOverseasOrGraduate(@RequestBody List<String> codes){
+        if(CollectionUtil.isEmpty(codes)){
             return RestResult.fail("common.parameterError");
         }
-        String s = stdsService.deleteOverseasOrGraduate(ids);
+        String s = stdsService.deleteOverseasOrGraduate(codes);
         return RestResult.success(s);
     }
 

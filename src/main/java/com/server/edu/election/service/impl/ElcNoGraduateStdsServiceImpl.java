@@ -4,7 +4,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoGraduateStdsDao;
+import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
@@ -34,6 +36,12 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
 
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private ElecRoundStuDao roundStuDao;
+
+    @Autowired
+    private ElcCourseTakeDao takeDao;
     
     /**
     *@Description: 查询留学生结业名单
@@ -100,8 +108,12 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
     *@date: 2019/2/22 12:35
     */
     @Override
-    public String deleteOverseasOrGraduate(List<Long> ids) {
-        noGraduateStdsDao.deleteOverseasOrGraduate(ids);
+    public String deleteOverseasOrGraduate(List<String> ids) {
+        noGraduateStdsDao.deleteOverseasOrGraduate(ids);//删除结业生表
+        /*//删除轮次已选学生
+        roundStuDao.deleteBystudentId(ids);
+        //删除该学生选择课程
+        takeDao.deleteStudentById(ids);*/
         return "common.deleteSuccess";
     }
 

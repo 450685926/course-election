@@ -3,6 +3,10 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.server.edu.election.dao.ElcNoGraduateStdsDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.entity.ElcNoGraduateStds;
+import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,12 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     
     @Autowired
     private ElecRoundsDao elecRoundsDao;
+
+    @Autowired
+    private StudentDao studentDao;
+
+    @Autowired
+    private ElcNoGraduateStdsDao noGraduateStdsDao;
     
     @Override
     public PageResult<Student4Elc> listPage(
@@ -61,7 +71,30 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         {
             if (listExistStu.contains(code) && !listAddedStu.contains(code))
             {
-                elecRoundStuDao.add(roundId, code);
+                Student studentByCode = studentDao.findStudentByCode(code);
+                if(mode==3&&"0".equals(studentByCode.getIsOverseas())){//结业生
+                    ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
+                    if(student!=null){
+                        elecRoundStuDao.add(roundId, code);
+                    }else{
+                            //添加学生不再结业表中
+                        notExistStu.add(code);
+                    }
+
+                }else if(mode==4&&"1".equals(studentByCode.getIsOverseas())){//留学结业生
+                    ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
+                    if(student!=null){
+                        elecRoundStuDao.add(roundId, code);
+                    }else{
+                        //添加学生不再留学结业表中
+                        notExistStu.add(code);
+                    }
+
+                }else if (mode==1||mode==2){
+                    elecRoundStuDao.add(roundId, code);
+                }else {
+                    notExistStu.add(code);
+                }
             }
             else
             {

@@ -84,4 +84,10 @@ public interface ElecRoundStuDao
      * @see [类、类#方法、类#成员]
      */
     void deleteByRoundId(@Param("roundId") Long roundId);
+
+    /**
+     * 删除结业生表中学生，轮次中学生和可选课学生相应删除
+     * */
+
+    void deleteBystudentId(List<String> list);
 }
