@@ -181,5 +181,10 @@ public class CultureSerivceInvoker
         }*/
         return restResult;
     }
-    
+
+    /**查询实践课*/
+    public static List<String> findPracticalCourse(){
+        RestResult<List<String>> list = ServicePathEnum.CULTURESERVICE.postForObject("/courses/findPracticalCourse", null, RestResult.class);
+        return list.getData();
+    }
 }

@@ -35,7 +35,7 @@ public interface ElecRoundCourseDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    Page<CourseOpenDto> listUnAddPage(@Param("query") ElecRoundCourseQuery query);
+    Page<CourseOpenDto> listUnAddPage(@Param("query") ElecRoundCourseQuery query,@Param("list") List<String> list);
     /**
      * 查询已添加的教学任务中所有的教学班
      * 
