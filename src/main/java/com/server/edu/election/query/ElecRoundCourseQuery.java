@@ -30,6 +30,7 @@ public class ElecRoundCourseQuery
     /**课程性质*/
     private String nature;
 
+
     public Integer getMode() {
         return mode;
     }
