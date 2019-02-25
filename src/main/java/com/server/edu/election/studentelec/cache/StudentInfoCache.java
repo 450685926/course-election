@@ -7,7 +7,7 @@ public class StudentInfoCache {
     private String major;
     private Integer grade;
     private String trainingLevel;
-    private String EnglishLevel;
+    private String englishLevel;
 
     /** 是否留学生 */
     private boolean isAboard;
@@ -65,11 +65,11 @@ public class StudentInfoCache {
     }
 
     public String getEnglishLevel() {
-        return EnglishLevel;
+        return englishLevel;
     }
 
     public void setEnglishLevel(String englishLevel) {
-        EnglishLevel = englishLevel;
+        this.englishLevel = englishLevel;
     }
 
     public boolean isAboard() {

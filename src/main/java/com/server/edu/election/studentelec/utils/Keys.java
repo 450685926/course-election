@@ -1,9 +1,11 @@
 package com.server.edu.election.studentelec.utils;
 
 public class Keys {
+    
+    public static final String STD = "elec-std-";
 
     /** 所有轮次的信息 */
-    public static final String ROUND_KEY="elecrounds";
+    public static final String ROUND_KEY="elec-rounds";
 
     /** 学生状态锁  format参数 roundid studentid*/
     public static final String STD_STATUS_LOCK ="elec-stdlock-%s-%s";

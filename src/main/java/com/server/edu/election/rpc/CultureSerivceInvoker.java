@@ -182,4 +182,23 @@ public class CultureSerivceInvoker
         return restResult;
     }
     
+    /**
+     * 根据学号查询培养计划中所有的课程号
+     * 
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public static List<String> getCourseCodes(String studentId)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<String>> restResult =
+            ServicePathEnum.CULTURESERVICE.getForObject(
+                "cultureservice/studentCultureRel/courseCodes/{studentId}",
+                RestResult.class,
+                studentId);
+        
+        return restResult.getData();
+    }
+    
 }
