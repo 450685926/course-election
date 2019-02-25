@@ -25,6 +25,7 @@
   	<result column="courseName" jdbcType="VARCHAR" property="courseName" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
+  	<result column="courseCode" jdbcType="VARCHAR" property="courseCode" />
   </resultMap>
   
   <select id="listPage" resultMap="VoResultMap">
