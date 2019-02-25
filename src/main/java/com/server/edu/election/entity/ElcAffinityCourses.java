@@ -7,9 +7,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.NotBlank;
 
 @Table(name = "elc_affinity_courses_t")
 public class ElcAffinityCourses implements Serializable
@@ -18,7 +18,6 @@ public class ElcAffinityCourses implements Serializable
      * 主键（自增）
      */
     @Id
-    @NotNull
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +25,7 @@ public class ElcAffinityCourses implements Serializable
     /**
      * 课程ID
      */
+    @NotBlank
     @Column(name = "COURSE_CODE_")
     private String courseCode;
     

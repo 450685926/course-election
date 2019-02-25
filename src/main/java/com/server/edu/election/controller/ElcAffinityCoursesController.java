@@ -66,11 +66,11 @@ public class ElcAffinityCoursesController
      */
     @ApiOperation(value = "删除")
     @PostMapping("/delete")
-    public RestResult<Integer> delete(@RequestBody @NotEmpty List<Long> ids)
+    public RestResult<Integer> delete(@RequestBody @NotEmpty List<String> courseCodes)
         throws Exception
     {
         LOG.info("delete.start");
-        int result = elcAffinityCoursesService.delete(ids);
+        int result = elcAffinityCoursesService.delete(courseCodes);
         return RestResult.successData(result);
     }
     

@@ -54,11 +54,11 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int delete(List<Long> ids)
+    public int delete(List<String> courseCodes)
     {
         Example example = new Example(ElcAffinityCourses.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andIn("courseId", ids);
+        criteria.andIn("courseCode", courseCodes);
         int result = elcAffinityCoursesDao.deleteByExample(example);
         if (result <= Constants.ZERO)
         {
@@ -68,7 +68,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         }
         Example refExample = new Example(ElcAffinityCoursesStds.class);
         Example.Criteria refCriteria = refExample.createCriteria();
-        refCriteria.andIn("affinityCourseId", ids);
+        refCriteria.andIn("courseCode", courseCodes);
         List<ElcAffinityCoursesStds> list =
             elcAffinityCoursesStdsDao.selectByExample(refExample);
         if (CollectionUtil.isNotEmpty(list))

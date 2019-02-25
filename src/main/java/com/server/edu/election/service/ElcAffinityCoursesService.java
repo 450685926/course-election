@@ -14,7 +14,7 @@ public interface ElcAffinityCoursesService
     PageInfo<ElcAffinityCoursesVo> list(
         PageCondition<ElcAffinityCoursesDto> condition);
     
-    int delete(List<Long> ids);
+    int delete(List<String> courseCodes);
     
     PageInfo<CourseOpen> courseList(PageCondition<CourseOpen> condition);
     
