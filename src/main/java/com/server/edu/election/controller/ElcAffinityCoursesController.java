@@ -3,9 +3,9 @@ package com.server.edu.election.controller;
 import java.util.List;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
@@ -162,7 +163,7 @@ public class ElcAffinityCoursesController
         @RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
         throws Exception
     {
-        LOG.info("addCourse.start");
+        LOG.info("addStudent.start");
         int result = elcAffinityCoursesService.addStudent(elcAffinityCoursesVo);
         return RestResult.successData(result);
     }
@@ -177,7 +178,7 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "批量添加学生")
     @PostMapping("/batchAddStudent")
     public RestResult<Integer> batchAddStudent(
-        @RequestBody @NotNull String courseCode)
+    		@RequestParam("courseCode")  @NotBlank String courseCode)
         throws Exception
     {
         LOG.info("batchAddStudent.start");
@@ -198,7 +199,7 @@ public class ElcAffinityCoursesController
         @RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
         throws Exception
     {
-        LOG.info("addCourse.start");
+        LOG.info("deleteStudent.start");
         int result =
             elcAffinityCoursesService.deleteStudent(elcAffinityCoursesVo);
         return RestResult.successData(result);
@@ -214,10 +215,10 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "移除所有学生")
     @PostMapping("/batchDeleteStudent")
     public RestResult<Integer> batchDeleteStudent(
-        @RequestBody @NotNull String courseCode)
+    		@RequestParam("courseCode")  @NotBlank String courseCode)
         throws Exception
     {
-        LOG.info("addCourse.start");
+        LOG.info("batchDeleteStudent.start");
         int result = elcAffinityCoursesService.batchDeleteStudent(courseCode);
         return RestResult.successData(result);
     }
