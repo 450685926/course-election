@@ -89,13 +89,17 @@ public class ElcLog implements Serializable {
     private String createIp;
 
     /**
+     * 操作人姓名
+     */
+    @Column(name = "CREATE_NAME_")
+    private String createName;
+
+    /**
      * 创建时间
      */
     @Column(name = "CREATED_AT_")
     private Date createdAt;
 
-    @Column(name = "CREATE_NAME_")
-    private String createName;
 
     /**
      * 选退课失败原因
@@ -337,6 +341,8 @@ public class ElcLog implements Serializable {
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
+
+
 
     @Override
     public String toString() {
