@@ -147,8 +147,10 @@ public class CultureSerivceInvoker
         String labelName = null;
         try
         {
+            @SuppressWarnings("rawtypes")
             RestResult result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/coursesLabel/{id}", RestResult.class, labelId);
+            @SuppressWarnings("unchecked")
             HashMap<String, Object> mapResult =
                 (HashMap<String, Object>)result.getData();
             if (mapResult != null)
@@ -201,4 +203,14 @@ public class CultureSerivceInvoker
         return restResult.getData();
     }
     
+    /**查询实践课*/
+    public static List<String> findPracticalCourse()
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<String>> list = ServicePathEnum.CULTURESERVICE
+            .postForObject("/courses/findPracticalCourse",
+                null,
+                RestResult.class);
+        return list.getData();
+    }
 }

@@ -13,7 +13,10 @@ public class ElecRoundCourseQuery
     //校历id
     @NotNull(groups = {RoundGroup.class, Default.class})
     private Long calendarId;
-    
+    //选课模式
+    @NotNull(groups = {RoundGroup.class})
+    private Integer mode;
+
     private String courseCode;
     
     private String courseName;
@@ -26,7 +29,15 @@ public class ElecRoundCourseQuery
     
     /**课程性质*/
     private String nature;
-    
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
     public Long getRoundId()
     {
         return roundId;

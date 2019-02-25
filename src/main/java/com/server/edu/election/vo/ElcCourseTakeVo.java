@@ -13,7 +13,10 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String studentName;
     
     private String courseName;
-    
+
+    private String courseCode;
+
+
     /**学分*/
     private Double credits;
     
@@ -87,4 +90,13 @@ public class ElcCourseTakeVo extends ElcCourseTake
         this.teachingClassCode = teachingClassCode;
     }
 
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
 }

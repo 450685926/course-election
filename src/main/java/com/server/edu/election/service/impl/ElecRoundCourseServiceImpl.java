@@ -1,7 +1,9 @@
 package com.server.edu.election.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,10 +46,14 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     public PageResult<CourseOpenDto> listUnAddPage(
         PageCondition<ElecRoundCourseQuery> condition)
     {
+        List<String> practicalCourse=new ArrayList<>();
+        if(condition.getCondition().getMode()==2){//实践课
+             practicalCourse = CultureSerivceInvoker.findPracticalCourse();
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
-        Page<CourseOpenDto> listPage = roundCourseDao.listUnAddPage(query);
-        
+        Page<CourseOpenDto> listPage = roundCourseDao.listUnAddPage(query,practicalCourse);
+
         PageResult<CourseOpenDto> result = new PageResult<>(listPage);
         
         return result;
@@ -90,7 +96,11 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     @Override
     public void addAll(ElecRoundCourseQuery condition)
     {
-        Page<CourseOpenDto> listPage = roundCourseDao.listUnAddPage(condition);
+        List<String> practicalCourse=new ArrayList<>();
+        if(condition.getMode()==2){//实践课
+            practicalCourse = CultureSerivceInvoker.findPracticalCourse();
+        }
+        Page<CourseOpenDto> listPage = roundCourseDao.listUnAddPage(condition,practicalCourse);
         for (CourseOpenDto courseOpenDto : listPage)
         {
             roundCourseDao.add(condition.getRoundId(),
