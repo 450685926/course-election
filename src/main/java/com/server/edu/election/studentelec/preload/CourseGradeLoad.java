@@ -22,10 +22,16 @@ import com.server.edu.election.studentelec.context.ElecContext;
 public class CourseGradeLoad implements DataProLoad
 {
     @Override
+    public int order()
+    {
+        return 1;
+    }
+
+    @Override
     public void load(ElecContext context)
     {
      // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
-        // 查询学生课程成绩
+        // 1. 查询学生课程成绩
         List<Map<String, Long>> results = new ArrayList<>();//TODO
         List<CompletedCourse> completedCourses = context.getCompletedCourses();
         for (Map<String, Long> map : results)
@@ -35,12 +41,12 @@ public class CourseGradeLoad implements DataProLoad
             if (passed == 1)
             {
                 CompletedCourse lesson = new CompletedCourse();
-                lesson.setCourseId(courseId);
                 lesson.setCourseCode("");
                 lesson.setCourseName("");
                 completedCourses.add(lesson);
             }
         }
+        // 2. 非本学期的选课并且没有成功的
     }
     
 }

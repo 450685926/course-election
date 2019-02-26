@@ -1,11 +1,21 @@
 package com.server.edu.election.studentelec.service.impl;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.preload.DataProLoad;
 import com.server.edu.election.studentelec.service.AbstractElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecPreloadingService;
@@ -25,15 +35,20 @@ public class StudentElecPreloadingServiceImpl
     private static final Logger LOG =
         LoggerFactory.getLogger(StudentElecPreloadingService.class);
     
-    private final StudentElecStatusService elecStatusService;
+    @Autowired
+    private StudentElecStatusService elecStatusService;
     
     @Autowired
-    public StudentElecPreloadingServiceImpl(ElecQueueService<ElecRequest> elecQueueService,
-        StudentElecStatusService elecStatusService)
+    private ElecRoundsDao roundsDao;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
+    
+    public StudentElecPreloadingServiceImpl(
+        ElecQueueService<ElecRequest> elecQueueService)
     {
         // TODO 几个线 程应该是可配置的
         super(4, QueueGroups.STUDENT_LOADING, elecQueueService);
-        this.elecStatusService = elecStatusService;
         super.listen("thread-student-preload");
     }
     
@@ -46,10 +61,33 @@ public class StudentElecPreloadingServiceImpl
         {
             if (elecStatusService.tryLock(roundId, studentId))
             {
-                // TODO 缓存学生数据
-                // ....
-                System.out.println("假装加载数据");
-                Thread.sleep(2000);
+                ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
+                
+                // 缓存学生数据
+                Map<String, DataProLoad> beansOfType =
+                    applicationContext.getBeansOfType(DataProLoad.class);
+                
+                List<DataProLoad> values =
+                    new ArrayList<>(beansOfType.values());
+                
+                //排序
+                values.sort(new Comparator<DataProLoad>()
+                {
+                    @Override
+                    public int compare(DataProLoad o1, DataProLoad o2)
+                    {
+                        return o1.order() > o2.order() ? 1
+                            : (o1.order() < o2.order() ? -1 : 0);
+                    }
+                });
+                
+                ElecContext context = new ElecContext(studentId, round);
+                for (DataProLoad load : values)
+                {
+                    load.load(context);
+                }
+                //保存数据
+                context.save();
                 
                 //完成后设置当前状态为Ready
                 elecStatusService
@@ -68,7 +106,7 @@ public class StudentElecPreloadingServiceImpl
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
     }
 }

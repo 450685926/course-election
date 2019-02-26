@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.server.edu.dictionary.utils.SpringUtils;
@@ -17,6 +18,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 @Import(SpringUtils.class)
 @MapperScan("com.server.edu.election.dao")
 @EnableServiceComb
+@EnableScheduling
 public class ServiceApplication
 {
     @Bean
