@@ -147,8 +147,10 @@ public class CultureSerivceInvoker
         String labelName = null;
         try
         {
+            @SuppressWarnings("rawtypes")
             RestResult result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/coursesLabel/{id}", RestResult.class, labelId);
+            @SuppressWarnings("unchecked")
             HashMap<String, Object> mapResult =
                 (HashMap<String, Object>)result.getData();
             if (mapResult != null)
@@ -181,10 +183,34 @@ public class CultureSerivceInvoker
         }*/
         return restResult;
     }
-
+    
+    /**
+     * 根据学号查询培养计划中所有的课程号
+     * 
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public static List<String> getCourseCodes(String studentId)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<String>> restResult =
+            ServicePathEnum.CULTURESERVICE.getForObject(
+                "cultureservice/studentCultureRel/courseCodes/{studentId}",
+                RestResult.class,
+                studentId);
+        
+        return restResult.getData();
+    }
+    
     /**查询实践课*/
-    public static List<String> findPracticalCourse(){
-        RestResult<List<String>> list = ServicePathEnum.CULTURESERVICE.postForObject("/courses/findPracticalCourse", null, RestResult.class);
+    public static List<String> findPracticalCourse()
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<String>> list = ServicePathEnum.CULTURESERVICE
+            .postForObject("/courses/findPracticalCourse",
+                null,
+                RestResult.class);
         return list.getData();
     }
 }
