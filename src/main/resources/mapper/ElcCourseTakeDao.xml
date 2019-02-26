@@ -70,7 +70,7 @@
   <select id="getTeachingClassInfo" resultMap="VoResultMap">
   	select 
   		class.id_ as TEACHING_CLASS_ID_ , class.code_ as teachingClassCode, 
-  		cour.id_ as COURSE_ID_, cour.code_ as courseCode, open.COURSE_NAME_ as courseName
+  		cour.id_ as COURSE_ID_, open.COURSE_CODE_, open.COURSE_NAME_ as courseName
 	from teaching_class_t class
 	left join teaching_task_t task ON task.id_ = class.TASK_ID_
 	left join course_open_t open ON open.id_ = task.COURSE_OPEN_ID_
