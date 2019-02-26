@@ -14,7 +14,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     private String courseName;
 
-    private String courseCode;
+
 
 
     /**学分*/
@@ -91,12 +91,5 @@ public class ElcCourseTakeVo extends ElcCourseTake
     }
 
 
-    public String getCourseCode() {
-        return courseCode;
-    }
 
-
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode;
-    }
 }
