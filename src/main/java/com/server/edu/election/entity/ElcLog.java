@@ -104,6 +104,7 @@ public class ElcLog implements Serializable {
     /**
      * 选退课失败原因
      * */
+    @Column(name = "CONTENT_")
     private String content;
 
     private static final long serialVersionUID = 1L;
