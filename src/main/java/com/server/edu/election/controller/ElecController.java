@@ -70,7 +70,9 @@ public class ElecController
         {
             return RestResult.fail("not a student");
         }
-        return elecService.loading(roundId, session.realUid());
+        ElecRespose response =
+            elecService.getElectResult(roundId, session.realUid());
+        return RestResult.successData(response);
     }
     
 }

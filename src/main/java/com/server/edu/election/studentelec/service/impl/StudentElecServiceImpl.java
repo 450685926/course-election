@@ -9,6 +9,7 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.StudentElecStatusService;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 
@@ -99,7 +100,6 @@ public class StudentElecServiceImpl implements StudentElecService
                     {
                         return RestResult.fail("请稍后再试");
                     }
-                    
                 }
             }
             finally
@@ -108,6 +108,22 @@ public class StudentElecServiceImpl implements StudentElecService
             }
         }
         return RestResult.successData(new ElecRespose(currentStatus));
+    }
+    
+    @Override
+    public ElecRespose getElectResult(Integer roundId, String studentId)
+    {
+        ElecStatus currentStatus =
+            elecStatusService.getElecStatus(roundId, studentId);
+        
+        ElecContextUtil contextUtil = ElecContextUtil.create(studentId);
+        ElecRespose response = contextUtil
+            .getObject(ElecRespose.class.getSimpleName(), ElecRespose.class);
+        if (response == null)
+        {
+            response = new ElecRespose(currentStatus);
+        }
+        return response;
     }
     
     private boolean loadingInQueue(Integer roundId, String studentId)
