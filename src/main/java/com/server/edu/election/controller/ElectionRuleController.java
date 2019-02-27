@@ -53,6 +53,24 @@ public class ElectionRuleController
         return RestResult.successData(ruleList);
     }
     
+    
+	 /**
+     * 选课规则参数
+     * 
+     * @param electionRuleDto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "选课规则参数")
+    @PostMapping("/ruleParamers")
+    public RestResult<List<ElectionRuleVo>> ruleParamers(
+        @RequestBody ElectionRuleDto electionRuleDto)
+        throws Exception
+    {
+        LOG.info("ruleList.start");
+        List<ElectionRuleVo> ruleList = service.ruleParamers(electionRuleDto);
+        return RestResult.successData(ruleList);
+    }
 	 /**
      * 选课规则详情
      * 
