@@ -12,6 +12,7 @@ public interface StudentDao extends Mapper<Student> {
     List<Student> selectElcStudents(Student student);
     List<Student> selectUnElcStudents(Student student);
     List<Student> selectElcInvincibleStds(Student student);
+    List<Student> selectUnElcInvincibleStds(Student student);
 }
 
 
