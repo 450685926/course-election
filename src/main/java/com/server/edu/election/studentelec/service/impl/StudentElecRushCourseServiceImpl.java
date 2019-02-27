@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -57,8 +59,15 @@ public class StudentElecRushCourseServiceImpl
         List<AbstractRuleExceutor> exceutors = new ArrayList<>();
         for (ElectionRuleVo ruleVo : rules)
         {
-            exceutors.add(map.get(ruleVo.getServiceName()));
+            AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
+            if (null != excetor)
+            {
+                excetor.setProjectId(ruleVo.getManagerDeptId());
+                excetor.setType(ElectRuleType.valueOf(ruleVo.getType()));
+                exceutors.add(excetor);
+            }
         }
+        Collections.sort(exceutors);
         
         List<ElecCourseClass> successList = new ArrayList<>();
         for (Long teachClassId : elecTeachingClasses)

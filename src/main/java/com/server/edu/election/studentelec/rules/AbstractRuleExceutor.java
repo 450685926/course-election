@@ -23,16 +23,16 @@ public abstract class AbstractRuleExceutor
         return this.getOrder() - rule.getOrder();
     }
     
-    private Long projectId;
+    private String projectId;
     
     private ElectRuleType type;
     
-    public Long getProjectId()
+    public String getProjectId()
     {
         return projectId;
     }
 
-    public void setProjectId(Long projectId)
+    public void setProjectId(String projectId)
     {
         this.projectId = projectId;
     }
