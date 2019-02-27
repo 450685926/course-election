@@ -36,7 +36,7 @@ public class ElcInvincibleStdsServiceImpl implements ElcInvincibleStdsService {
 	@Override
 	public PageInfo<Student> getStudents(PageCondition<Student> condition){
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		List<Student> list = studentDao.selectUnElcStudents(condition.getCondition());
+		List<Student> list = studentDao.selectUnElcInvincibleStds(condition.getCondition());
 		PageInfo<Student> pageInfo =new PageInfo<>(list);
 		return pageInfo;
 	}
