@@ -8,6 +8,7 @@ import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoGraduateStdsDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dto.GraduateExcelDto;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcNoGraduateStdsService;
@@ -43,7 +44,7 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
 
     @Autowired
     private ElcCourseTakeDao takeDao;
-    
+
     
     /**
     *@Description: 查询留学生结业名单
@@ -121,7 +122,7 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
 
     /**批量导入结业生*/
     @Override
-    public String addExcel(List<ElcNoGraduateStds> datas, Integer mode) {
+    public String addExcel(List<GraduateExcelDto> datas, Integer mode) {
         StringBuilder sb = new StringBuilder();
         ElcNoGraduateStdsVo vo=new ElcNoGraduateStdsVo();
         List<String> stringList  =new ArrayList<>();
@@ -131,17 +132,21 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
             List<ElcNoGraduateStdsVo> result = overseasOrGraduate.getResult();
              stringList = result.stream().map(ElcNoGraduateStdsVo::getStudentId).collect(Collectors.toList());
         }
-        for (ElcNoGraduateStds data : datas) {
+        for (GraduateExcelDto data : datas) {
             String studentId = StringUtils.trim(data.getStudentId());
+            String graduateYearStr = StringUtils.trim(data.getGraduateYearStr());
+            String remark = StringUtils.trim(data.getRemark());
             if(StringUtils.isNotBlank(studentId)){
                  Student studentByCode = studentDao.findStudentByCode(studentId);
                  if(studentByCode!=null){//学号存在
                     if(mode==3&&"0".equals(studentByCode.getIsOverseas())&&!stringList.contains(studentId)){
                         //插入
-                        noGraduateStdsDao.insertSelective(data);
+                        ElcNoGraduateStds stds = add(studentId, graduateYearStr, remark);
+                        noGraduateStdsDao.insertSelective(stds);
                     }else if(mode==4&&"1".equals(studentByCode.getIsOverseas())&&!stringList.contains(studentId)){
                         //插入
-                        noGraduateStdsDao.insertSelective(data);
+                        ElcNoGraduateStds stds = add(studentId, graduateYearStr, remark);
+                        noGraduateStdsDao.insertSelective(stds);
                     }else{//学号已经存在或与是否留学不匹配
                         sb.append(studentId+"学号存在或与是否留学不匹配");
                     }
@@ -158,4 +163,17 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
         return StringUtils.EMPTY;
     }
 
+
+    private ElcNoGraduateStds add(String studentId,String graduateYearStr,String remark ){
+        ElcNoGraduateStds stds=new ElcNoGraduateStds();
+        if(StringUtils.isNotBlank(graduateYearStr)){
+            int year = Integer.parseInt(graduateYearStr);
+            stds.setGraduateYear(year);
+        }else{
+            stds.setGraduateYear(null);
+        }
+        stds.setStudentId(studentId);
+        stds.setRemark(remark);
+        return stds;
+    }
 }

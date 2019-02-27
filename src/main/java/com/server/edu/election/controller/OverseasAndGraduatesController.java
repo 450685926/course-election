@@ -4,6 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 
+import com.server.edu.election.dto.GraduateExcelDto;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.service.ElcNoGraduateStdsService;
 import com.server.edu.election.vo.ElcNoGraduateStdsVo;
@@ -99,10 +100,10 @@ public class OverseasAndGraduatesController {
             designer.setConfigs(new ArrayList<>());
 
             designer.getConfigs().add(new ExcelParseConfig("studentId", 0));
-            designer.getConfigs().add(new ExcelParseConfig("graduateYear", 1));
+            designer.getConfigs().add(new ExcelParseConfig("graduateYearStr", 1));
             designer.getConfigs().add(new ExcelParseConfig("remark", 2));
-            List<ElcNoGraduateStds> datas = GeneralExcelUtil
-                    .parseExcel(workbook, designer, ElcNoGraduateStds.class);
+            List<GraduateExcelDto> datas = GeneralExcelUtil
+                    .parseExcel(workbook, designer, GraduateExcelDto.class);
 
             String msg =stdsService.addExcel(datas,mode);
             return RestResult.success(msg);

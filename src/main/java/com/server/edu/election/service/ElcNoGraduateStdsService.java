@@ -2,6 +2,7 @@ package com.server.edu.election.service;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dto.GraduateExcelDto;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.vo.ElcNoGraduateStdsVo;
 
@@ -18,5 +19,5 @@ public interface ElcNoGraduateStdsService {
     String deleteOverseasOrGraduate(List<String> codes);
 
     /**批量导入结业生*/
-    String addExcel(List<ElcNoGraduateStds> datas, Integer mode);
+    String addExcel(List<GraduateExcelDto> datas, Integer mode);
 }
