@@ -20,5 +20,5 @@ public interface StudentElecService {
      * @param elecRequest
      * @return
      */
-    RestResult<ElecRespose> elect(Integer roundId, String studentId, ElecRequest elecRequest);
+    RestResult<ElecRespose> elect(ElecRequest elecRequest);
 }

@@ -51,7 +51,6 @@ public class StudentElecServiceImpl implements StudentElecService
                     {
                         return RestResult.fail("请稍后再试");
                     }
-                    
                 }
                 else
                 {
@@ -68,14 +67,14 @@ public class StudentElecServiceImpl implements StudentElecService
     }
     
     @Override
-    public RestResult<ElecRespose> elect(Integer roundId, String studentId,
-        ElecRequest elecRequest)
+    public RestResult<ElecRespose> elect(ElecRequest elecRequest)
     {
         if (elecRequest.getElecTeachingClasses().size() == 0)
         {
             return RestResult.fail("你没选择任何课程");
         }
-        elecRequest.setStudentId(studentId);
+        Integer roundId = elecRequest.getRoundId();
+        String studentId = elecRequest.getStudentId();
         ElecStatus currentStatus =
             elecStatusService.getElecStatus(roundId, studentId);
         if (ElecStatus.Ready.equals(currentStatus)
