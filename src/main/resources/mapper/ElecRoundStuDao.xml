@@ -102,7 +102,7 @@
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.mode)">
 				and t1.IS_OVERSEAS_=
 				<choose>
-					<when test="mode==3">(0)</when>
+					<when test="stu.mode==3">(0)</when>
 					<otherwise>(1)</otherwise>
 				</choose>
 			</if>
