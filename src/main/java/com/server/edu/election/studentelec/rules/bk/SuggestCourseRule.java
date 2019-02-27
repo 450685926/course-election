@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
@@ -35,7 +36,7 @@ public class SuggestCourseRule extends AbstractRuleExceutor
      * FIXME 这个数据有多少???
      */
     @Override
-    public boolean checkRule(ElecContext context)
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
         //		List<Course> courses = (List<Course>) state.getParams().get(PARAM_NAME);
         //		if(courses == null) {

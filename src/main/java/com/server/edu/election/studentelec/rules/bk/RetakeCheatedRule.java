@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -87,7 +88,7 @@ public class RetakeCheatedRule extends AbstractRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContext context)
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
         //		Map<Long,Course> cheatedCourses = (Map<Long, Course>) state.getParams().get(STATE_PARAM_CHECTED_COURSES);
         //		Set<Long> cheatedCourseSubstitutionIds = (Set <Long>) state.getParams().get(STATE_PARAM_CHECTED_SUB_COURSES);

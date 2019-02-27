@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
@@ -29,7 +30,7 @@ public class CanNotRetakeClassForNewComRule
      * FIXME 这个数据有多少???
      */
     @Override
-    public boolean checkRule(ElecContext context)
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
         //		if(null == state.getParams().get(RULE_PARAM_FOR_NEW_ELECT)){
         //			OqlBuilder<Long> query = OqlBuilder.from(CourseGrade.class.getName(),"courseGrade");

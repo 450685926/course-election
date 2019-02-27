@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
@@ -21,7 +22,7 @@ public class CampusRule extends AbstractRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContext context)
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
         ElecRequest request = context.getRequest();
 //        if (null == lesson.getCampus())

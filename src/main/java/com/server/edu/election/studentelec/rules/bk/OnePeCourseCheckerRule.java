@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -20,7 +21,7 @@ public class OnePeCourseCheckerRule extends AbstractRuleExceutor {
 	 * 执行选课操作时
 	 */
 	@Override
-    public boolean checkRule(ElecContext context) {
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass) {
 //		ElectionCourseContext electContext = (ElectionCourseContext) context;
 //		// 如果是换课，那么不检查这个玩意儿
 //		if(ElectRuleType.EXCHANGE.equals(electContext.getOp())) {

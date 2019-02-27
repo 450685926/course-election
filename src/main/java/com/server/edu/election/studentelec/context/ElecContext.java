@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.ValueOperations;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.Keys;
 
@@ -25,7 +24,7 @@ public class ElecContext
     private String studentId;
     
     /**轮次*/
-    private ElectionRounds round;
+    private Long roundId;
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
@@ -46,10 +45,10 @@ public class ElecContext
     
     private ElecRespose respose;
     
-    public ElecContext(String studentId, ElectionRounds round)
+    public ElecContext(String studentId, Long roundId)
     {
         this.studentId = studentId;
-        this.round = round;
+        this.roundId = roundId;
         this.redisTemplate = SpringUtils.getBean(StringRedisTemplate.class);
         String value = this.getByKey("stdInfo");
         if (StringUtils.isNoneBlank(value))
@@ -134,14 +133,9 @@ public class ElecContext
         return studentInfo;
     }
     
-    public ElectionRounds getRound()
+    public Long getRoundId()
     {
-        return round;
-    }
-    
-    public void setRound(ElectionRounds round)
-    {
-        this.round = round;
+        return roundId;
     }
     
     public List<CompletedCourse> getCompletedCourses()

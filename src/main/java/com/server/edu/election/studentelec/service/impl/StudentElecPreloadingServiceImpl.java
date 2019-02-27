@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.preload.DataProLoad;
@@ -39,9 +37,6 @@ public class StudentElecPreloadingServiceImpl
     private StudentElecStatusService elecStatusService;
     
     @Autowired
-    private ElecRoundsDao roundsDao;
-    
-    @Autowired
     private ApplicationContext applicationContext;
     
     public StudentElecPreloadingServiceImpl(
@@ -61,8 +56,6 @@ public class StudentElecPreloadingServiceImpl
         {
             if (elecStatusService.tryLock(roundId, studentId))
             {
-                ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
-                
                 // 缓存学生数据
                 Map<String, DataProLoad> beansOfType =
                     applicationContext.getBeansOfType(DataProLoad.class);
@@ -73,7 +66,7 @@ public class StudentElecPreloadingServiceImpl
                 //排序
                 Collections.sort(values);
                 
-                ElecContext context = new ElecContext(studentId, round);
+                ElecContext context = new ElecContext(studentId, roundId.longValue());
                 for (DataProLoad load : values)
                 {
                     load.load(context);

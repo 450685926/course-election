@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -25,7 +26,7 @@ public class EnglishAbilityCheckerRule extends AbstractRuleExceutor
      * 执行选课操作时
      */
     @Override
-    public boolean checkRule(ElecContext context)
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
         //        Map<Long, Set<String>> courseId2Abilities =
         //            (Map<Long, Set<String>>)state.getParams().get(PARAM_ENG_COURSES);

@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -21,7 +22,7 @@ public class CantRetakeExceptLoserDownRule extends AbstractRuleExceutor
     //	protected SemesterService semesterService;
     
     @Override
-    public boolean checkRule(ElecContext context)
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
         // result = (Boolean)state.getParams().get(PARAM1) || !state.isRetakeCourse(lesson.getCourse().getId());
         //      if (!result) {

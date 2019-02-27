@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -12,7 +13,7 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 public class StdPayCostCheckerRule extends AbstractRuleExceutor {
 
 	@Override
-    public boolean checkRule(ElecContext context) {
+    public boolean checkRule(ElecContext context, ElecCourseClass courseClass) {
 //		ElectionCourseContext electContext = (ElectionCourseContext) context;
 //		if(null == electContext.getStudent()) {
 //			electContext.addError(new ElectMessage("缺少登陆学生信息", ElectRuleType.GENERAL, false, null));
