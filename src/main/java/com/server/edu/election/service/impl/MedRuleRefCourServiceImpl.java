@@ -69,6 +69,7 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 		list.forEach(temp->{
 			ElcMedWithdrawRuleRefCour elcMedWithdrawRuleRefCour = new ElcMedWithdrawRuleRefCour();
 			BeanUtils.copyProperties(temp, elcMedWithdrawRuleRefCour);
+			elcMedWithdrawRuleRefCour.setMedWithdrawRuleId(dto.getMedWithdrawRuleId());
 			refList.add(elcMedWithdrawRuleRefCour);
 		});
 		result= elcMedWithdrawRuleRefCourDao.batchInsert(refList);
