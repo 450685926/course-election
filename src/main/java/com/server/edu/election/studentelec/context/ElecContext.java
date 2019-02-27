@@ -20,7 +20,6 @@ import com.server.edu.election.studentelec.utils.Keys;
  */
 public class ElecContext
 {
-    
     private StringRedisTemplate redisTemplate;
     
     private String studentId;

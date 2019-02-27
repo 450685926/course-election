@@ -20,13 +20,13 @@ import com.server.edu.election.studentelec.context.ElecCourse;
  * @since  [产品/模块版本]
  */
 @Component
-public class SuggestCourseLoad implements DataProLoad
+public class SuggestCourseLoad extends DataProLoad
 {
     @Autowired
     private TeachingClassDao classDao;
     
     @Override
-    public int order()
+    public int getOrder()
     {
         return 3;
     }

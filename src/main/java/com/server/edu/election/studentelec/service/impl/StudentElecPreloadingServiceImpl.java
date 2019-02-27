@@ -1,7 +1,7 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -71,15 +71,7 @@ public class StudentElecPreloadingServiceImpl
                     new ArrayList<>(beansOfType.values());
                 
                 //排序
-                values.sort(new Comparator<DataProLoad>()
-                {
-                    @Override
-                    public int compare(DataProLoad o1, DataProLoad o2)
-                    {
-                        return o1.order() > o2.order() ? 1
-                            : (o1.order() < o2.order() ? -1 : 0);
-                    }
-                });
+                Collections.sort(values);
                 
                 ElecContext context = new ElecContext(studentId, round);
                 for (DataProLoad load : values)

@@ -16,12 +16,13 @@ public interface RuleExecutor {
     void setType(ElectRuleType type);
     
     ElectRuleType getType();
+    
+    int getOrder();
 
     /**
      * 检查选课规则
      * @return true通过，false不通过
      */
     boolean checkRule(ElecContext context);
-
 
 }

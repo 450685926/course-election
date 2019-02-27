@@ -18,10 +18,10 @@ import com.server.edu.election.studentelec.context.ElecContext;
  * @since  [产品/模块版本]
  */
 @Component
-public class StudentInfoLoad implements DataProLoad
+public class StudentInfoLoad extends DataProLoad
 {
     @Override
-    public int order()
+    public int getOrder()
     {
         return 0;
     }

@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.service.impl;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class StudentElecRushCourseServiceImpl
     public void consume(ElecRequest data)
     {
         LOG.info("");
+        
+        List<Long> elecTeachingClasses = data.getElecTeachingClasses();
         // TODO 检查约束条件，抢课
         // 检查约束
         // 抢课
