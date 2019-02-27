@@ -13,5 +13,8 @@ import com.server.edu.election.studentelec.context.ElecContext;
  */
 public interface DataProLoad
 {
+    /**执行优先级，越小越先执行*/
+    int order();
+    /**加载数据*/
     void load(ElecContext context);
 }

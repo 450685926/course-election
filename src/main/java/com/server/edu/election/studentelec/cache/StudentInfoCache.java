@@ -4,8 +4,9 @@ public class StudentInfoCache {
     private String studentId;
     private String studentName;
     private String sex;
-    private String major;
-    private Integer grade;
+    private String campus;
+    private String major;//专业
+    private Integer grade;//年级
     private String trainingLevel;
     private String englishLevel;
 
@@ -38,6 +39,16 @@ public class StudentInfoCache {
 
     public void setSex(String sex) {
         this.sex = sex;
+    }
+
+    public String getCampus()
+    {
+        return campus;
+    }
+
+    public void setCampus(String campus)
+    {
+        this.campus = campus;
     }
 
     public String getMajor() {

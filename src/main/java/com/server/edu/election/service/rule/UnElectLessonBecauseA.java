@@ -39,11 +39,4 @@ public class UnElectLessonBecauseA extends AbstractElectableLessonFilter
         return false;
     }
     
-    @Override
-    public void prepare(ElectState context)
-    {
-        // TODO Auto-generated method stub
-        
-    }
-    
 }

@@ -33,7 +33,7 @@ public class CantRetakeExceptLoserDownFilter
         //		.where("l.std.id=:stdId", electContext.getStudent().getId())
         //		.where("l.semester.id=:semesterId or l.semester.id =:semesterId1", semester.getId(),semesterService.getPrevSemester(semester).getId());
         //		List res = entityDao.search(query);*/
-        //		
+        //		//学籍异动信息
         //		OqlBuilder<StdAlteration> builder = OqlBuilder.from(
         //				StdAlteration.class, "stdAlteration");
         //		builder.where("stdAlteration.effective = 1");

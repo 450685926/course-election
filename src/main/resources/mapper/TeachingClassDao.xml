@@ -85,5 +85,21 @@
   <select id="selectSuggestStudent" resultType="string">
   	select STUDENT_ID_ from teaching_class_suggest_student_t where TEACHING_CLASS_ID_ = #{teachingClassId}
   </select>
+  
+  <select id="selectSuggestCourse" resultType="com.server.edu.election.studentelec.context.ElecCourse">
+  	SELECT cour.id_ as courseId, cour.code_ as courseCode, open.COURSE_NAME_ as courseName 
+	from course_t cour
+	join course_open_t open ON open.COURSE_CODE_ = cour.code_
+	join teaching_task_t task ON task.COURSE_OPEN_ID_ = open.id_
+	join teaching_class_t class ON task.id_ = class.TASK_ID_
+	where(
+		select TEACHING_CLASS_ID_ from teaching_class_suggest_student_t where STUDENT_ID_ = #{stu.sutdentId}
+		UNION
+		select TEACHING_CLASS_ID_ from teaching_class_suggest_profession_t 
+		where GRADE_ = #{stu.grade} and PROFESSION_ = #{stu.major}
+	)
+	GROUP BY cour.id_, cour.code_, open.COURSE_NAME_ 
+  </select>
+  
 
 </mapper>

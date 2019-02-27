@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +10,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.Keys;
 
@@ -22,6 +24,9 @@ public class ElecContext
     private StringRedisTemplate redisTemplate;
     
     private String studentId;
+    
+    /**轮次*/
+    private ElectionRounds round;
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
@@ -42,14 +47,20 @@ public class ElecContext
     
     private ElecRespose respose;
     
-    public ElecContext(String studentId)
+    public ElecContext(String studentId, ElectionRounds round)
     {
         this.studentId = studentId;
+        this.round = round;
         this.redisTemplate = SpringUtils.getBean(StringRedisTemplate.class);
         String value = this.getByKey("stdInfo");
         if (StringUtils.isNoneBlank(value))
         {
             studentInfo = JSONObject.parseObject(value, StudentInfoCache.class);
+        }
+        else
+        {
+            studentInfo = new StudentInfoCache();
+            studentInfo.setStudentId(studentId);
         }
         String text = this.getByKey("CompletedCourses");
         if (StringUtils.isNoneBlank(text))
@@ -57,20 +68,36 @@ public class ElecContext
             completedCourses =
                 JSONObject.parseArray(text, CompletedCourse.class);
         }
+        else
+        {
+            completedCourses = new ArrayList<>();
+        }
         text = this.getByKey("SelectedCourses");
         if (StringUtils.isNoneBlank(text))
         {
             selectedCourses = JSONObject.parseArray(text, SelectedCourse.class);
+        }
+        else
+        {
+            selectedCourses = new ArrayList<>();
         }
         text = this.getByKey("ApplyForDropCourses");
         if (StringUtils.isNoneBlank(text))
         {
             applyForDropCourses = JSONObject.parseArray(text, ElecCourse.class);
         }
+        else
+        {
+            applyForDropCourses = new ArrayList<>();
+        }
         text = this.getByKey("PlanCourses");
         if (StringUtils.isNoneBlank(text))
         {
             planCourses = JSONObject.parseArray(text, ElecCourse.class);
+        }
+        else
+        {
+            planCourses = new ArrayList<>();
         }
     }
     
@@ -103,12 +130,19 @@ public class ElecContext
             JSON.toJSONString(value));
     }
     
-    public String getStudentId() {
-        return this.studentId;
-    }
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
+    }
+    
+    public ElectionRounds getRound()
+    {
+        return round;
+    }
+    
+    public void setRound(ElectionRounds round)
+    {
+        this.round = round;
     }
     
     public List<CompletedCourse> getCompletedCourses()

@@ -3,7 +3,10 @@ package com.server.edu.election.service.rule.withdraw;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.service.rule.context.AbstractElectRuleExecutor;
 import com.server.edu.election.service.rule.context.ElectState;
-
+/**
+ * 指定课程不能退课
+ * 
+ */
 public class AssignedWithdrawPrepare extends AbstractElectRuleExecutor
 {
     public static final String ERROR_WITHDRAW_ASSIGNED =

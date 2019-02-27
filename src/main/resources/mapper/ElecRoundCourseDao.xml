@@ -49,12 +49,12 @@
   </select>
   
   <select id="listTeachingClassPage" resultMap="CourseOpenDtoMap">
-  	select t1.*, t4.ID_ AS teachingClassId, t4.CODE_ AS teachingClassCode
+  	<!-- select t1.*, t4.ID_ AS teachingClassId, t4.CODE_ AS teachingClassCode
 	from course_open_t t1 
   	JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
   	JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
 	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
-	join election_rounds_t t5 ON t5.CALENDAR_ID_ = t1.CALENDAR_ID_
+	join election_rounds_t t5 ON t5.CALENDAR_ID_ = t1.CALENDAR_ID_ 
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId} 
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
@@ -69,7 +69,23 @@
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
   		and t1.NATURE_ = #{query.nature}
   		</if>
-  	</where> 
+  	</where> -->
+  	select op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode from course_open_t op
+	  join teaching_task_t ta on op.ID_=ta.COURSE_OPEN_ID_
+	  JOIN teaching_class_t cl on cl.TASK_ID_=ta.ID_
+	  <where>
+		  op.COURSE_CODE_ in
+		  (SELECT DISTINCT co.COURSE_CODE_ FROM `election_rounds_t` el
+		  join election_rounds_cour_t co on el.ID_=co.ROUNDS_ID_
+		  where el.CALENDAR_ID_=#{query.calendarId} and el.MODE_=#{query.mode})
+		  and op.IS_OPEN_=1 and op.CALENDAR_ID_=#{query.calendarId}
+		  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+			  and cl.CODE_ like concat ('%',{query.courseCode},'%')
+		  </if>
+		  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+			  and (op.COURSE_CODE_ like concat ('%',{query.courseName},'%') or op.COURSE_NAME_ like concat ('%',{query.courseName},'%'))
+		  </if>
+	  </where>
   </select>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
@@ -122,4 +138,15 @@
   <delete id="deleteByRoundId">
     delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId}
   </delete>
+  
+  <select id="selectTeachingClassByRoundId" resultMap="CourseOpenDtoMap">
+  	  select op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode 
+  	  from course_open_t op
+	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
+	  JOIN teaching_class_t cl ON cl.TASK_ID_=ta.ID_
+	  JOIN election_rounds_cour_t co ON co.COURSE_CODE_ = op.COURSE_CODE_
+	  where
+		 co.ROUNDS_ID_ = #{roundId}
+  </select>
+  
 </mapper>
