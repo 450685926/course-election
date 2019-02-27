@@ -51,7 +51,7 @@ public class RoundDataProvider
     {
     }
     
-    @Scheduled(cron = "0 0/10 * * *")
+    @Scheduled(cron = "0 0/10 * * * *")
     public void load()
     {
         /*
