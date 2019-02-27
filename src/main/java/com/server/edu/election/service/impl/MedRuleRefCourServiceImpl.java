@@ -60,9 +60,10 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 	
 	@Override
 	public int addAll(ElcMedWithdrawRuleRefCourDto dto) {
+		int result = Constants.ZERO;
 		List<ElcMedWithdrawRuleRefCourVo> list= elcMedWithdrawRuleRefCourDao.selectUnMedRuleRefCours(dto);
 		if(CollectionUtil.isEmpty(list)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.isNull"));
+			return result;
 		}
 		List<ElcMedWithdrawRuleRefCour> refList = new ArrayList<>();
 		list.forEach(temp->{
@@ -70,7 +71,7 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 			BeanUtils.copyProperties(temp, elcMedWithdrawRuleRefCour);
 			refList.add(elcMedWithdrawRuleRefCour);
 		});
-		int result= elcMedWithdrawRuleRefCourDao.batchInsert(refList);
+		result= elcMedWithdrawRuleRefCourDao.batchInsert(refList);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.rule")));
 		}
