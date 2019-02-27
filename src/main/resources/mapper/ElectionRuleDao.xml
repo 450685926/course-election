@@ -15,7 +15,7 @@
   </resultMap>
   <resultMap id="VoBaseResultMap" type="com.server.edu.election.vo.ElectionRuleVo" extends="BaseResultMap"></resultMap>
   
-  <select id="selectByRoundId" resultMap="BaseResultMap">
+  <select id="selectByRoundId" resultMap="VoBaseResultMap">
   	select * from election_rule_t where id_ in(select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId})
   </select>
   

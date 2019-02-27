@@ -12,6 +12,9 @@ public class ElecCourse
     
     private String nameEn;
     
+    /**校区*/
+    private String campus;
+    
     private List<Long> teachClassIds;
     
     public String getCourseCode()
@@ -52,6 +55,16 @@ public class ElecCourse
     public void setNameEn(String nameEn)
     {
         this.nameEn = nameEn;
+    }
+    
+    public String getCampus()
+    {
+        return campus;
+    }
+    
+    public void setCampus(String campus)
+    {
+        this.campus = campus;
     }
     
     public List<Long> getTeachClassIds()

@@ -20,5 +20,14 @@ public interface StudentElecService {
      * @param elecRequest
      * @return
      */
-    RestResult<ElecRespose> elect(Integer roundId, String studentId, ElecRequest elecRequest);
+    RestResult<ElecRespose> elect(ElecRequest elecRequest);
+    /**
+     * 获取学生选课结果
+     * 
+     * @param roundId
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    ElecRespose getElectResult(Integer roundId, String studentId);
 }

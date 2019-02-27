@@ -1,18 +1,10 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
-import com.server.edu.election.studentelec.utils.Keys;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.studentelec.utils.ElecStatus;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -20,13 +12,8 @@ import com.server.edu.election.studentelec.utils.Keys;
  */
 public class ElecContext
 {
-    
-    private StringRedisTemplate redisTemplate;
-    
-    private String studentId;
-    
     /**轮次*/
-    private ElectionRounds round;
+    private Long roundId;
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
@@ -47,58 +34,34 @@ public class ElecContext
     
     private ElecRespose respose;
     
-    public ElecContext(String studentId, ElectionRounds round)
+    private ElecContextUtil contextUtil;
+    
+    public ElecContext(String studentId, Long roundId)
     {
-        this.studentId = studentId;
-        this.round = round;
-        this.redisTemplate = SpringUtils.getBean(StringRedisTemplate.class);
-        String value = this.getByKey("stdInfo");
-        if (StringUtils.isNoneBlank(value))
-        {
-            studentInfo = JSONObject.parseObject(value, StudentInfoCache.class);
-        }
-        else
+        this.roundId = roundId;
+        this.contextUtil = ElecContextUtil.create(studentId);
+        
+        studentInfo =
+            this.contextUtil.getObject(StudentInfoCache.class.getSimpleName(),
+                StudentInfoCache.class);
+        if (null == studentInfo)
         {
             studentInfo = new StudentInfoCache();
             studentInfo.setStudentId(studentId);
         }
-        String text = this.getByKey("CompletedCourses");
-        if (StringUtils.isNoneBlank(text))
+        respose = this.contextUtil.getObject(ElecRespose.class.getSimpleName(),
+            ElecRespose.class);
+        if (null == respose)
         {
-            completedCourses =
-                JSONObject.parseArray(text, CompletedCourse.class);
+            respose = new ElecRespose(ElecStatus.Init);
         }
-        else
-        {
-            completedCourses = new ArrayList<>();
-        }
-        text = this.getByKey("SelectedCourses");
-        if (StringUtils.isNoneBlank(text))
-        {
-            selectedCourses = JSONObject.parseArray(text, SelectedCourse.class);
-        }
-        else
-        {
-            selectedCourses = new ArrayList<>();
-        }
-        text = this.getByKey("ApplyForDropCourses");
-        if (StringUtils.isNoneBlank(text))
-        {
-            applyForDropCourses = JSONObject.parseArray(text, ElecCourse.class);
-        }
-        else
-        {
-            applyForDropCourses = new ArrayList<>();
-        }
-        text = this.getByKey("PlanCourses");
-        if (StringUtils.isNoneBlank(text))
-        {
-            planCourses = JSONObject.parseArray(text, ElecCourse.class);
-        }
-        else
-        {
-            planCourses = new ArrayList<>();
-        }
+        completedCourses =
+            this.contextUtil.getList("CompletedCourses", CompletedCourse.class);
+        selectedCourses =
+            this.contextUtil.getList("SelectedCourses", SelectedCourse.class);
+        applyForDropCourses =
+            this.contextUtil.getList("ApplyForDropCourses", ElecCourse.class);
+        planCourses = this.contextUtil.getList("PlanCourses", ElecCourse.class);
     }
     
     /**
@@ -107,27 +70,14 @@ public class ElecContext
      */
     public void save()
     {
-        save("stdInfo", this.studentInfo);
-        save("CompletedCourses", this.completedCourses);
-        save("SelectedCourses", this.selectedCourses);
-        save("ApplyForDropCourses", this.applyForDropCourses);
-        save("PlanCourses", this.planCourses);
-    }
-    
-    private String getByKey(String key)
-    {
-        ValueOperations<String, String> opsForValue =
-            this.redisTemplate.opsForValue();
-        String value = opsForValue.get(Keys.STD + key + "-" + studentId);
-        return value;
-    }
-    
-    private void save(String key, Object value)
-    {
-        ValueOperations<String, String> opsForValue =
-            this.redisTemplate.opsForValue();
-        opsForValue.set(Keys.STD + key + "-" + studentId,
-            JSON.toJSONString(value));
+        this.contextUtil.save(StudentInfoCache.class.getSimpleName(),
+            this.studentInfo);
+        this.contextUtil.save(ElecRespose.class.getSimpleName(),
+            this.respose);
+        this.contextUtil.save("CompletedCourses", this.completedCourses);
+        this.contextUtil.save("SelectedCourses", this.selectedCourses);
+        this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
+        this.contextUtil.save("PlanCourses", this.planCourses);
     }
     
     public StudentInfoCache getStudentInfo()
@@ -135,14 +85,9 @@ public class ElecContext
         return studentInfo;
     }
     
-    public ElectionRounds getRound()
+    public Long getRoundId()
     {
-        return round;
-    }
-    
-    public void setRound(ElectionRounds round)
-    {
-        this.round = round;
+        return roundId;
     }
     
     public List<CompletedCourse> getCompletedCourses()

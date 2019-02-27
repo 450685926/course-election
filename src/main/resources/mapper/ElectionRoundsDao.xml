@@ -49,6 +49,10 @@
   <select id="listAllRefRuleId" resultType="long">
   	select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
   </select>
+  
+  <select id="selectWillBeStart" resultMap="BaseResultMap">
+  	select * from election_rounds_t where DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_ and OPEN_FLAG_ = 1
+  </select>
 
     <select id="findElectCourseList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.dto.StudentSelectCourseList">
         select tt.CALENDAR_ID_ calendarId,tt.STUDENT_ID_ studentCode,tt.NAME_ name,tt.GRADE_ grade,tt.TRAINING_LEVEL_ trainingLevel,tt.CAMPUS_ campus,tt.FACULTY_ faculty,tt.PROFESSION_ profession,tt.REGISTRATION_STATUS_ registrationStatus,

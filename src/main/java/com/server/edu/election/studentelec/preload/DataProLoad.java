@@ -11,10 +11,17 @@ import com.server.edu.election.studentelec.context.ElecContext;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public interface DataProLoad
+public abstract class DataProLoad implements Comparable<DataProLoad>
 {
     /**执行优先级，越小越先执行*/
-    int order();
+    public abstract int getOrder();
+    
+    @Override
+    public int compareTo(DataProLoad rule)
+    {
+        return this.getOrder() - rule.getOrder();
+    }
+    
     /**加载数据*/
-    void load(ElecContext context);
+    public abstract void load(ElecContext context);
 }

@@ -69,8 +69,7 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
      * @return
      * @see [类、类#方法、类#成员]
      */
-    @Select("select * from election_rounds_t where DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_ and OPEN_FLAG_ = 1")
-    List<ElectionRounds> selectBeStart();
+    List<ElectionRounds> selectWillBeStart();
     
     /**查询学生选课名单*/
     Page<StudentSelectCourseList> findElectCourseList(ReportManagementCondition condition);

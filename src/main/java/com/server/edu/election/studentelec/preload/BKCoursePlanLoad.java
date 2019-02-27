@@ -19,13 +19,13 @@ import tk.mybatis.mapper.entity.Example;
  * 
  */
 @Component
-public class BKCoursePlanLoad implements DataProLoad
+public class BKCoursePlanLoad extends DataProLoad
 {
     @Autowired
     private CourseDao courseDao;
     
     @Override
-    public int order()
+    public int getOrder()
     {
         return 2;
     }

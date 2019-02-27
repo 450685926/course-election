@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.rules;
 
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourseClass;
 
 /**
  * 
@@ -12,16 +13,19 @@ import com.server.edu.election.studentelec.context.ElecContext;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public interface RuleExecutor {
+public interface RuleExecutor
+{
     void setType(ElectRuleType type);
     
     ElectRuleType getType();
-
+    
+    int getOrder();
+    
     /**
-     * 检查选课规则
+     *  检查选课规则
+     * @param context 选课上下文
+     * @param courseClass 教学班
      * @return true通过，false不通过
      */
-    boolean checkRule(ElecContext context);
-
-
+    boolean checkRule(ElecContext context, ElecCourseClass courseClass);
 }
