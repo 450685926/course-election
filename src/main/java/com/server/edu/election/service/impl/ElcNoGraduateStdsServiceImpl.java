@@ -123,7 +123,7 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
     /**批量导入结业生*/
     @Override
     public String addExcel(List<GraduateExcelDto> datas, Integer mode) {
-        StringBuilder sb = new StringBuilder();
+        List<String> list=new ArrayList<>();
         ElcNoGraduateStdsVo vo=new ElcNoGraduateStdsVo();
         List<String> stringList  =new ArrayList<>();
         vo.setMode(mode);
@@ -148,17 +148,17 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
                         ElcNoGraduateStds stds = add(studentId, graduateYearStr, remark);
                         noGraduateStdsDao.insertSelective(stds);
                     }else{//学号已经存在或与是否留学不匹配
-                        sb.append(studentId+"学号存在或与是否留学不匹配");
+                        list.add(studentId+"学号存在或与是否留学不匹配");
                     }
                  }else{//学号不存在
-                        sb.append(studentId+"学号不存在");
+                     list.add(studentId+"学号不存在");
                  }
              }
 
         }
 
-        if(sb.length() > 0){
-            return sb.toString();
+        if(list.size() > 0){
+            return org.apache.commons.lang.StringUtils.join(list,",");
         }
         return StringUtils.EMPTY;
     }

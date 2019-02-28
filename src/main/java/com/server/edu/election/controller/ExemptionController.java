@@ -8,26 +8,32 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
-import com.server.edu.election.entity.ExemptionApplyManage;
-import com.server.edu.election.entity.ExemptionCourse;
-import com.server.edu.election.entity.ExemptionCourseRule;
-import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.*;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.vo.*;
+import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.parse.ExcelParseConfig;
+import com.server.edu.util.excel.parse.ExcelParseDesigner;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +55,9 @@ public class ExemptionController {
 
     @Value("${cache.directory}")
     private String cacheDirectory;
+
+    static Logger logger =
+            LoggerFactory.getLogger(ExemptionController.class);
     /**
     *@Description: 查询免修免考课程
     *@Param:
@@ -204,6 +213,66 @@ public class ExemptionController {
                 .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
+                .body(resource);
+    }
+
+    @PostMapping(value = "/upload")
+    public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
+                                @RequestPart(name = "calendarId") @NotNull Long calendarId)
+    {
+        if (file == null)
+        {
+            return RestResult.error("文件不能为空");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (!originalFilename.endsWith(".xls"))
+        {
+            return RestResult.error("请使用1999-2003(.xls)类型的Excle");
+        }
+
+        try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
+        {
+            ExcelParseDesigner designer = new ExcelParseDesigner();
+            designer.setDataStartRowIdx(1);
+            designer.setConfigs(new ArrayList<>());
+
+            designer.getConfigs().add(new ExcelParseConfig("studentCode", 0));
+            designer.getConfigs().add(new ExcelParseConfig("courseCode", 1));
+            designer.getConfigs().add(new ExcelParseConfig("score", 2){
+                public Object handler(String value)
+                {
+                    if(StringUtils.isNotBlank(value)){
+                        return Double.valueOf(value);
+                    }
+                    return null;
+                }
+            });
+            List<ExemptionCourseScore> datas = GeneralExcelUtil
+                    .parseExcel(workbook, designer, ExemptionCourseScore.class);
+
+            String msg =exemptionCourseService.addExcel(datas,calendarId);
+            return RestResult.success(msg);
+
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage(), e);
+            return RestResult.error("解析文件错误" + e.getMessage());
+        }
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "下载模版")})
+    @GetMapping(value = "/downloadTemplate")
+    public ResponseEntity<Resource> downloadTemplate()
+    {
+        Resource resource = new ClassPathResource("/excel/ruXueScore.xls");
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename=" + "ruXueScore.xls")
                 .body(resource);
     }
 }

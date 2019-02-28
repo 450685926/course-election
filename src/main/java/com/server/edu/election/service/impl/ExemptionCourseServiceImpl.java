@@ -179,7 +179,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     }
 
     /**
-    *@Description: 查询免修免考入学成绩//todo导入成绩
+    *@Description: 查询免修免考入学成绩
     *@Param: 
     *@return:
     *@Author: bear
@@ -272,7 +272,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
                 int round = (int)Math.round(number * percent * 0.1 / 10);
                 double totalScore=0;
                 for (int i = 0; i < round; i++) {
-                    totalScore+=courseScore.get(i).getScore();
+                    if(courseScore.get(i).getScore()!=null){
+                        totalScore+=courseScore.get(i).getScore();
+                    }
                 }
                 score=(double)(Math.round((totalScore/round)*10))/10;
                 courseRuleVo.setMinimumPassScore(score);
@@ -530,6 +532,35 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
             return fileName;
         }
         return "";
+    }
+
+    /**
+    *@Description: 导入入学成绩
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/28 10:48
+    */
+    @Override
+    public String addExcel(List<ExemptionCourseScore> datas, Long calendarId) {
+        List<String> list=new ArrayList<>();
+        for (ExemptionCourseScore data : datas) {
+            //查询是否有该课程该学期成绩
+            ExemptionCourseScore studentScore = scoreDao.findStudentScore(calendarId, data.getStudentCode(), data.getCourseCode());
+            if(studentScore==null){//没有成绩
+                data.setCalendarId(calendarId);
+                scoreDao.insertSelective(data);
+            }else{//有成绩不能导入
+                list.add(data.getStudentCode()+" "+data.getCourseCode());
+            }
+        }
+
+        if(list.size()>0){
+            list.add("成绩存在");
+            return StringUtils.join(list,",");
+        }
+
+        return StringUtils.EMPTY;
     }
 
     private GeneralExcelDesigner getDesign() {
