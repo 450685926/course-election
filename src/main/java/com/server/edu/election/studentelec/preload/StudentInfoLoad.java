@@ -27,16 +27,23 @@ public class StudentInfoLoad extends DataProLoad
     }
     
     @Autowired
-   private StudentDao studentDao;
+    private StudentDao studentDao;
+    
     @Override
     public void load(ElecContext context)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
         
         Student stu = studentDao.findStudentByCode(studentInfo.getStudentId());
+        if (null == stu)
+        {
+            String msg = String.format("student not find studentId=%s",
+                studentInfo.getStudentId());
+            throw new RuntimeException(msg);
+        }
         studentInfo.setGrade(stu.getGrade());
         studentInfo.setMajor(stu.getProfession());
-        studentInfo.setSex(stu.getSex().toString());
+        studentInfo.setSex(stu.getSex());
         studentInfo.setStudentName(stu.getName());
         studentInfo.setCampus(stu.getCampus());
         // 是否留学生
@@ -44,7 +51,6 @@ public class StudentInfoLoad extends DataProLoad
         
         // 1. 查询学生是否为留降级学生
         // 3. 是否缴费
-        
         
     }
     

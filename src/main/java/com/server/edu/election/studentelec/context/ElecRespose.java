@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +19,6 @@ public class ElecRespose
 {
     private ElecStatus status;
     
-    private String studentId;
-    
-    private String studentName;
-    
     /** 选课成功集合 教学班id*/
     private List<Long> successCourses;
     
@@ -29,35 +26,19 @@ public class ElecRespose
     private List<Long> failedCourses;
     
     /** 选课失败原因 key为教学班id value为原因说明*/
-    private Map<Long, String> failedReasons = new HashMap<>();
+    private Map<String, String> failedReasons;
     
     public ElecRespose(ElecStatus status)
     {
         this.status = status;
     }
     
-    public String getStudentId()
-    {
-        return studentId;
-    }
-    
-    public void setStudentId(String studentId)
-    {
-        this.studentId = studentId;
-    }
-    
-    public String getStudentName()
-    {
-        return studentName;
-    }
-    
-    public void setStudentName(String studentName)
-    {
-        this.studentName = studentName;
-    }
-    
     public List<Long> getSuccessCourses()
     {
+        if (successCourses == null)
+        {
+            successCourses = new ArrayList<>();
+        }
         return successCourses;
     }
     
@@ -68,6 +49,10 @@ public class ElecRespose
     
     public List<Long> getFailedCourses()
     {
+        if (failedCourses == null)
+        {
+            failedCourses = new ArrayList<>();
+        }
         return failedCourses;
     }
     
@@ -75,13 +60,17 @@ public class ElecRespose
     {
         this.failedCourses = failedCourses;
     }
-    /** 选课失败原因 key为教学班id value为原因说明*/
-    public Map<Long, String> getFailedReasons()
+    
+    public Map<String, String> getFailedReasons()
     {
+        if (failedReasons == null)
+        {
+            failedReasons = new HashMap<>();
+        }
         return failedReasons;
     }
     
-    public void setFailedReasons(Map<Long, String> failedReasons)
+    public void setFailedReasons(Map<String, String> failedReasons)
     {
         this.failedReasons = failedReasons;
     }

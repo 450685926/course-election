@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -42,11 +41,10 @@ public class CanNotRetakeClassForNewComRule
     {
     	Long id =courseClass.getTeacherClassId();
     	if(id!=null) {
-    		TeachingClass teachingClass = teachingClassDao.selectByPrimaryKey(id);
-    		if(teachingClass!=null) {
-    			if(Constants.REBUILD_CALSS.equals(teachingClass.getClassType())) {
+    		if(courseClass.getTeacherClassType()!=null) {
+    			if(Constants.REBUILD_CALSS.equals(courseClass.getTeacherClassType())) {
     	    		 ElecRespose respose = context.getRespose();
-    	    		 respose.getFailedReasons().put(courseClass.getTeacherClassId(), I18nUtil.getMsg("ruleCheck.canNotRetakeClassForNewCom"));
+    	    		 respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(), I18nUtil.getMsg("ruleCheck.canNotRetakeClassForNewCom"));
     	    		 return false;
     			}
     		}

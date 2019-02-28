@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
@@ -32,16 +31,15 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor {
 		List<CompletedCourse> completedCourses = context.getCompletedCourses();
 		Long id = courseClass.getTeacherClassId();
 		if (id != null) {
-    		TeachingClass teachingClass = teachingClassDao.selectByPrimaryKey(id);
-			if (teachingClass!=null && CollectionUtil.isNotEmpty(completedCourses)) {
+			if (courseClass.getTeacherClassType()!=null && CollectionUtil.isNotEmpty(completedCourses)) {
 				if (courseClass.getCourseCode() != null) {
 					List<CompletedCourse> list = completedCourses.stream()
 							.filter(c -> courseClass.getCourseCode().equals(c.getCourseCode()))
 							.collect(Collectors.toList());
 					if (list.size() > Constants.ONE) {
-						if (Constants.REBUILD_CALSS.equals(teachingClass.getClassType())) {
+						if (Constants.REBUILD_CALSS.equals(courseClass.getTeacherClassType())) {
 							ElecRespose respose = context.getRespose();
-							respose.getFailedReasons().put(courseClass.getTeacherClassId(),
+							respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
 									I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
 							return false;
 						} 

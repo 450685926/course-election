@@ -3,11 +3,13 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -28,6 +30,10 @@ public class NoRetakeRule extends AbstractRuleExceutor
 			if(teachingClass!=null) {
 				if(Constants.ORDINARY_CALSS.equals(teachingClass.getClassType())) {
 					return true;
+				}else {
+	    			ElecRespose respose = context.getRespose();
+					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							I18nUtil.getMsg("ruleCheck.exemptionCourseNotTake"));
 				}
 			}
     	}

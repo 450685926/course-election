@@ -17,7 +17,7 @@ import com.server.edu.election.studentelec.preload.DataProLoad;
 import com.server.edu.election.studentelec.service.AbstractElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecPreloadingService;
-import com.server.edu.election.studentelec.service.StudentElecStatusService;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 
@@ -34,49 +34,57 @@ public class StudentElecPreloadingServiceImpl
         LoggerFactory.getLogger(StudentElecPreloadingService.class);
     
     @Autowired
-    private StudentElecStatusService elecStatusService;
-    
-    @Autowired
     private ApplicationContext applicationContext;
     
     public StudentElecPreloadingServiceImpl(
         ElecQueueService<ElecRequest> elecQueueService)
     {
-        // TODO 几个线 程应该是可配置的
+        // 使用4个线程来执行初始化数据操作
         super(4, QueueGroups.STUDENT_LOADING, elecQueueService);
-        super.listen("thread-student-preload");
     }
     
     @Override
     public void consume(ElecRequest preloadRequest)
     {
-        Integer roundId = preloadRequest.getRoundId();
+        Long roundId = preloadRequest.getRoundId();
         String studentId = preloadRequest.getStudentId();
         try
         {
-            if (elecStatusService.tryLock(roundId, studentId))
+            if (ElecContextUtil.tryLock(roundId, studentId))
             {
-                // 缓存学生数据
-                Map<String, DataProLoad> beansOfType =
-                    applicationContext.getBeansOfType(DataProLoad.class);
-                
-                List<DataProLoad> values =
-                    new ArrayList<>(beansOfType.values());
-                
-                //排序
-                Collections.sort(values);
-                
-                ElecContext context = new ElecContext(studentId, roundId.longValue());
-                for (DataProLoad load : values)
+                try
                 {
-                    load.load(context);
+                    Map<String, DataProLoad> beansOfType =
+                        applicationContext.getBeansOfType(DataProLoad.class);
+                    
+                    List<DataProLoad> values =
+                        new ArrayList<>(beansOfType.values());
+                    //排序
+                    Collections.sort(values);
+                    
+                    ElecContext context =
+                        new ElecContext(studentId, roundId.longValue());
+                    for (DataProLoad load : values)
+                    {
+                        load.load(context);
+                    }
+                    //保存数据
+                    context.saveToCache();
+                    
+                    //完成后设置当前状态为Ready
+                    ElecContextUtil
+                        .setElecStatus(roundId, studentId, ElecStatus.Ready);
                 }
-                //保存数据
-                context.save();
-                
-                //完成后设置当前状态为Ready
-                elecStatusService
-                    .setElecStatus(roundId, studentId, ElecStatus.Ready);
+                catch (Exception e)
+                {
+                    LOG.error(e.getMessage(), e);
+                    ElecContextUtil
+                        .setElecStatus(roundId, studentId, ElecStatus.Init);
+                }
+                finally
+                {
+                    ElecContextUtil.unlock(roundId, studentId);
+                }
             }
             else
             {
@@ -86,7 +94,7 @@ public class StudentElecPreloadingServiceImpl
                     "预加载状态异常 unexpected status,roundId:{},studentId:{}, status:{}",
                     roundId,
                     studentId,
-                    elecStatusService.getElecStatus(roundId, studentId));
+                    ElecContextUtil.getElecStatus(roundId, studentId));
             }
         }
         catch (Exception e)

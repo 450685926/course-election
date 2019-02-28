@@ -61,7 +61,7 @@ public class RoundDataProvider
     {
     }
     
-    @Scheduled(cron = "0 0/10 * * * *")
+    @Scheduled(cron = "0 30 * * * *")
     public void load()
     {
         /*
@@ -75,11 +75,16 @@ public class RoundDataProvider
         for (ElectionRounds round : selectBeStart)
         {
             Date endTime = round.getEndTime();
-            long endMinutes = TimeUnit.MICROSECONDS
+            long endMinutes = TimeUnit.MILLISECONDS
                 .toMinutes(endTime.getTime() - now.getTime()) + 3;
             
             Long roundId = round.getId();
             cacheRoundRule(ops, roundId, endMinutes);
+            // 缓存轮次信息
+            ops.set(String.format(Keys.ROUND_KEY, roundId),
+                JSON.toJSONString(round),
+                endMinutes,
+                TimeUnit.MINUTES);
             
             // 加载所有教学班与课程数据到缓存中
             List<CourseOpenDto> lessons =
@@ -162,11 +167,22 @@ public class RoundDataProvider
                     rule.getList().add(param);
                 }
             }
-            ops.set(String.format(Keys.ROUND_RULE, roundId, rule.getId()),
+            ops.set(
+                String.format(Keys.ROUND_RULE, roundId, rule.getServiceName()),
                 JSON.toJSONString(rule),
                 timeout,
                 TimeUnit.MINUTES);
         }
+    }
+    
+    public ElectionRounds getRound(Long roundId)
+    {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String redisKey = String.format(Keys.ROUND_KEY, roundId);
+        String string = ops.get(redisKey);
+        
+        ElectionRounds round = JSON.parseObject(string, ElectionRounds.class);
+        return round;
     }
     
     public List<ElectionRuleVo> getRules(Long roundId)
@@ -189,6 +205,17 @@ public class RoundDataProvider
             }
         }
         return lessons;
+    }
+    
+    public ElectionRuleVo getRule(Long roundId, String serviceName)
+    {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        
+        String text =
+            ops.get(String.format(Keys.ROUND_RULE, roundId, serviceName));
+        
+        ElectionRuleVo vo = JSON.parseObject(text, ElectionRuleVo.class);
+        return vo;
     }
     
     public ElecCourse getCourse(Long roundId, String courseCode)
