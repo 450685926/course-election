@@ -26,12 +26,6 @@ public class ExemptionCourseScore implements Serializable {
     private String studentCode;
 
     /**
-     * 学生姓名
-     */
-    @Column(name = "STUDENT_NAME_")
-    private String studentName;
-
-    /**
      * 课程代码
      */
     @Column(name = "COURSE_CODE_")
@@ -99,23 +93,6 @@ public class ExemptionCourseScore implements Serializable {
         this.studentCode = studentCode == null ? null : studentCode.trim();
     }
 
-    /**
-     * 获取学生姓名
-     *
-     * @return STUDENT_NAME_ - 学生姓名
-     */
-    public String getStudentName() {
-        return studentName;
-    }
-
-    /**
-     * 设置学生姓名
-     *
-     * @param studentName 学生姓名
-     */
-    public void setStudentName(String studentName) {
-        this.studentName = studentName == null ? null : studentName.trim();
-    }
 
     /**
      * 获取课程代码
@@ -162,7 +139,6 @@ public class ExemptionCourseScore implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", calendarId=").append(calendarId);
         sb.append(", studentCode=").append(studentCode);
-        sb.append(", studentName=").append(studentName);
         sb.append(", courseCode=").append(courseCode);
         sb.append(", score=").append(score);
         sb.append(", serialVersionUID=").append(serialVersionUID);

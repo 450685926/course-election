@@ -3,42 +3,33 @@
 <mapper namespace="com.server.edu.election.dao.ExemptionCourseDao">
     <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ExemptionCourse">
         <id column="ID_" jdbcType="BIGINT" property="id" />
-        <result column="NAME_" jdbcType="VARCHAR" property="name" />
         <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
         <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
-        <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
-        <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
-        <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
         <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
         <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     </resultMap>
-    <sql id="Base_Column_List">
-        ID_, NAME_, COURSE_CODE_,  CALENDAR_ID_, TRAINING_LEVEL_, FORM_LEARNING_,
-        FACULTY_, REMARK_, CREATED_AT_
-    </sql>
-    <resultMap id="VoBaseResultMap" type="com.server.edu.election.vo.ExemptionCourseVo" extends="BaseResultMap">
-    </resultMap>
 
-
-    <select id="findExemptionCourse" resultMap="VoBaseResultMap" parameterType="com.server.edu.election.entity.ExemptionCourse">
+    <select id="findExemptionCourse" resultType="com.server.edu.election.vo.ExemptionCourseVo" parameterType="com.server.edu.election.vo.ExemptionCourseVo">
         select
-        <include refid="Base_Column_List"></include>
-        from exemption_course_t
+          co.ID_ id,co.COURSE_CODE_ courseCode,co.CALENDAR_ID_ calendarId,ct.NAME_ courseName,ct.TRAINING_LEVEL_ trainingLevel,ct.FORM_LEARNING_ formLearning,
+        ct.COLLEGE_ faculty
+        from exemption_course_t co
+        left join course_t ct on co.COURSE_CODE_=ct.CODE_
         <where>
-            <if test="calendarId!=null and calendarId>0 ">
-                and CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and co.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
-            <if test="trainingLevel!=null and trainingLevel !='' ">
-                and TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and ct.TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR}
             </if>
-            <if test="name != null and name != ''">
-                and (COURSE_CODE_ like concat('%',#{name},'%') or NAME_ like concat('%',#{name},'%') )
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+                and (ct.CODE_ like concat('%',#{courseName},'%') or ct.NAME_ like concat('%',#{courseName},'%') )
             </if>
-            <if test="formLearning != null and formLearning != ''">
-                and FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and ct.FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR}
             </if>
-            <if test="courseCode != null and courseCode !='' ">
-                and COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+                and co.COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR}
             </if>
         </where>
     </select>

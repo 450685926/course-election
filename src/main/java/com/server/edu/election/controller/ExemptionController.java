@@ -68,7 +68,7 @@ public class ExemptionController {
 
     @ApiOperation(value = "查询免修免考课程信息")
     @PostMapping("/findExemptionCourse")
-    public RestResult<PageResult<ExemptionCourseVo>> findMasterCourse(@RequestBody PageCondition<ExemptionCourse> condition) {
+    public RestResult<PageResult<ExemptionCourseVo>> findMasterCourse(@RequestBody PageCondition<ExemptionCourseVo> condition) {
         PageResult<ExemptionCourseVo> exemptionCourse = exemptionCourseService.findExemptionCourse(condition);
         return RestResult.successData(exemptionCourse);
     }
