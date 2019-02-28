@@ -1,17 +1,16 @@
 package com.server.edu.election.controller;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.Valid;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.StudentElecService;
@@ -33,47 +32,68 @@ public class ElecController
      * 进入选课,此时要加载数据
      * 登录选课界面时预加载数据的请求，只需要包括studentId status，前端会定时执行请求直到status变为ready 即加载完成
      */
-    @PostMapping("{roundId}/loading")
+    @PostMapping("/loading")
     public RestResult<ElecRespose> studentLoading(
-        @PathVariable("roundId") @NotNull Long roundId)
+        @RequestBody @Valid ElecRequest elecRequest)
     {
         Session session = SessionUtils.getCurrentSession();
-        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+        
+        String studentId = elecRequest.getStudentId();
+        if (session.getMock())
         {
-            return RestResult.fail("not a student");
+            if (session.realType() != UserTypeEnum.STUDENT.getValue())
+            {
+                return RestResult.fail("not a student");
+            }
+            studentId = session.realUid();
         }
-        return elecService.loading(roundId, session.realUid());
+        return elecService.loading(elecRequest.getRoundId(), studentId);
     }
     
     /**
      * 选课请求,选课时发送一次，此时应该返回ElecRespose.status=processing
      */
     @PostMapping("/elect")
-    public RestResult<ElecRespose> elect(@RequestBody ElecRequest elecRequest)
+    public RestResult<ElecRespose> elect(
+        @RequestBody @Valid ElecRequest elecRequest)
     {
         Session session = SessionUtils.getCurrentSession();
-        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+        if (session.getMock())
         {
-            return RestResult.fail("not a student");
+            if (session.realType() != UserTypeEnum.STUDENT.getValue())
+            {
+                return RestResult.fail("not a student");
+            }
+            elecRequest.setChooseObj(ChooseObj.STU.type());
+            elecRequest.setStudentId(session.realUid());
         }
-        elecRequest.setStudentId(session.getUid());
+        
+        if (elecRequest.getChooseObj() == null)
+        {
+            elecRequest.setChooseObj(ChooseObj.ADMIN.type());
+        }
         return elecService.elect(elecRequest);
     }
     
     /**
      * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
      */
-    @GetMapping("{roundId}/electRes")
+    @PostMapping("/electRes")
     public RestResult<ElecRespose> getElect(
-        @PathVariable("roundId") @NotNull Long roundId)
+        @RequestBody @Valid ElecRequest elecRequest)
     {
         Session session = SessionUtils.getCurrentSession();
-        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+        String studentId = elecRequest.getStudentId();
+        if (session.getMock())
         {
-            return RestResult.fail("not a student");
+            if (session.realType() != UserTypeEnum.STUDENT.getValue())
+            {
+                return RestResult.fail("not a student");
+            }
+            studentId = session.realUid();
         }
         ElecRespose response =
-            elecService.getElectResult(roundId, session.realUid());
+            elecService.getElectResult(elecRequest.getRoundId(), studentId);
         return RestResult.successData(response);
     }
     

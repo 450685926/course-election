@@ -54,15 +54,17 @@ public class StudentElecRushCourseServiceImpl
     }
     
     @Override
-    public void consume(ElecRequest data)
+    public void consume(ElecRequest request)
     {
         LOG.info("");
-        Long roundId = data.getRoundId();
-        String studentId = data.getStudentId();
+        Long roundId = request.getRoundId();
+        String studentId = request.getStudentId();
         try
         {
             ElecContext context = new ElecContext(studentId, roundId);
-            List<Long> elecTeachingClasses = data.getElecTeachingClasses();
+            context.setRequest(request);
+            
+            List<Long> elecTeachingClasses = request.getElecTeachingClasses();
             ElectionRounds round = dataProvider.getRound(roundId);
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
