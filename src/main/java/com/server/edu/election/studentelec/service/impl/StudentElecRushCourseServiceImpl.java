@@ -12,10 +12,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.service.AbstractElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -61,6 +63,7 @@ public class StudentElecRushCourseServiceImpl
         {
             ElecContext context = new ElecContext(studentId, roundId);
             List<Long> elecTeachingClasses = data.getElecTeachingClasses();
+            ElectionRounds round = dataProvider.getRound(roundId);
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
             // 获取执行规则
@@ -114,7 +117,13 @@ public class StudentElecRushCourseServiceImpl
             for (ElecCourseClass courseClass : successList)
             {
                 elecService.saveElc(context, courseClass);
-                // context.getSelectedCourses().add(courseClass); TODO
+                
+                SelectedCourse course = new SelectedCourse(courseClass);
+//                course.setPublicElec();
+                course.setSelectedRound(round.getTurn());
+//                course.setTime(time);
+//                course.setWeeks(weeks);
+                context.getSelectedCourses().add(course);
             }
             // 数据保存到缓存
             context.saveToCache();
@@ -124,7 +133,6 @@ public class StudentElecRushCourseServiceImpl
             // 不管选课有没有成功，结束时表示可以进行下一个选课请求
             ElecContextUtil.setElecStatus(roundId, studentId, ElecStatus.Ready);
         }
-        
         
     }
 }

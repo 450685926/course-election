@@ -1,12 +1,12 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -26,14 +26,13 @@ public class NoRetakeRule extends AbstractRuleExceutor
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
     	if(courseClass.getTeacherClassId()!=null) {
-    		TeachingClass teachingClass = teachingClassDao.selectByPrimaryKey(courseClass.getTeacherClassId());
-			if(teachingClass!=null) {
-				if(Constants.ORDINARY_CALSS.equals(teachingClass.getClassType())) {
+			if(StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
+				if(Constants.ORDINARY_CALSS.equals(courseClass.getTeacherClassType())) {
 					return true;
 				}else {
 	    			ElecRespose respose = context.getRespose();
 					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
-							I18nUtil.getMsg("ruleCheck.exemptionCourseNotTake"));
+							I18nUtil.getMsg("ruleCheck.noRetake"));
 				}
 			}
     	}

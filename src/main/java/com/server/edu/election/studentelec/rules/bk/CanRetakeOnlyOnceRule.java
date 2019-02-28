@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor {
 		Long id = courseClass.getTeacherClassId();
 		if (id != null) {
 			if (courseClass.getTeacherClassType()!=null && CollectionUtil.isNotEmpty(completedCourses)) {
-				if (courseClass.getCourseCode() != null) {
+				if (StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
 					List<CompletedCourse> list = completedCourses.stream()
 							.filter(c -> courseClass.getCourseCode().equals(c.getCourseCode()))
 							.collect(Collectors.toList());

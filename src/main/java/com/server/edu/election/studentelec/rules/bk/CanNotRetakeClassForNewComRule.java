@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +42,7 @@ public class CanNotRetakeClassForNewComRule
     {
     	Long id =courseClass.getTeacherClassId();
     	if(id!=null) {
-    		if(courseClass.getTeacherClassType()!=null) {
+    		if(StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
     			if(Constants.REBUILD_CALSS.equals(courseClass.getTeacherClassType())) {
     	    		 ElecRespose respose = context.getRespose();
     	    		 respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(), I18nUtil.getMsg("ruleCheck.canNotRetakeClassForNewCom"));
