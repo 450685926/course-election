@@ -11,7 +11,7 @@ import com.server.edu.election.vo.*;
 import java.util.List;
 
 public interface ExemptionCourseService {
-    PageResult<ExemptionCourseVo> findExemptionCourse(PageCondition<ExemptionCourse> condition);
+    PageResult<ExemptionCourseVo> findExemptionCourse(PageCondition<ExemptionCourseVo> condition);
     String deleteExemptionCourse(List<Long> ids);
 
     String addExemptionCourse(ExemptionCourse exemptionCourse);

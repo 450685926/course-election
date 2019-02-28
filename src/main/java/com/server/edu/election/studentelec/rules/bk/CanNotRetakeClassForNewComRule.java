@@ -1,9 +1,15 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
@@ -17,6 +23,8 @@ public class CanNotRetakeClassForNewComRule
 {
     private static final String RULE_PARAM_FOR_NEW_ELECT =
         "CAN_NOT_RETAKE_CLASS_FOR_NEW";
+    @Autowired
+    private TeachingClassDao teachingClassDao;
     
     @Override
     public int getOrder()
@@ -32,25 +40,17 @@ public class CanNotRetakeClassForNewComRule
     @Override
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
-        //		if(null == state.getParams().get(RULE_PARAM_FOR_NEW_ELECT)){
-        //			OqlBuilder<Long> query = OqlBuilder.from(CourseGrade.class.getName(),"courseGrade");
-        //			query.select("distinct courseGrade.course.id")
-        //			.where("courseGrade.std.id =:StdId",state.getStd().getId());
-        ////			.where("courseTake.semester.id =:semesterId",state.getSemesterId());
-        //			List<Long> courseIds = entityDao.search(query);
-        //			state.getParams().put(RULE_PARAM_FOR_NEW_ELECT,courseIds);
-        //			
-        //		}
-        //		
-        //		List<Long> electedCourseIds =(List<Long>)state.getParams().get(RULE_PARAM_FOR_NEW_ELECT);
-        //		
-        //		//Lesson lesson1 = entityDao.get(Lesson.class, lesson.getId());
-        //		boolean elected = electedCourseIds.contains(lesson.getCourse().getId());
-        //		if(!elected&&lesson.getTags().size()>0){
-//      context.addMessage(new ElectMessage("新选课程不能选重修班", ElectRuleType.ELECTION, false, context.getLesson()));
-        //			return false;
-        //		}
-        
+    	Long id =courseClass.getTeacherClassId();
+    	if(id!=null) {
+    		if(StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
+    			if(Constants.REBUILD_CALSS.equals(courseClass.getTeacherClassType())) {
+    	    		 ElecRespose respose = context.getRespose();
+    	    		 respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(), I18nUtil.getMsg("ruleCheck.canNotRetakeClassForNewCom"));
+    	    		 return false;
+    			}
+    		}
+    	}
+    	
         return true;
     }
 
