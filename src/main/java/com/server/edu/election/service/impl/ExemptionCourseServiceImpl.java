@@ -83,7 +83,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/1/31 10:05
     */
     @Override
-    public PageResult<ExemptionCourseVo> findExemptionCourse(PageCondition<ExemptionCourse> condition) {
+    public PageResult<ExemptionCourseVo> findExemptionCourse(PageCondition<ExemptionCourseVo> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(condition.getCondition());
         if(exemptionCourse!=null){
@@ -135,7 +135,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     @Override
     @Transactional
     public String addExemptionCourse(ExemptionCourse exemptionCourse) {
-        ExemptionCourse ex=new ExemptionCourse();
+        ExemptionCourseVo ex=new ExemptionCourseVo();
         ex.setCalendarId(exemptionCourse.getCalendarId());
         ex.setCourseCode(exemptionCourse.getCourseCode());
         Page<ExemptionCourseVo> exCourse = exemptionCourseDao.findExemptionCourse(ex);
@@ -157,7 +157,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     @Override
     @Transactional
     public String updateExemptionCourse(ExemptionCourse exemptionCourse) {
-        ExemptionCourse ex=new ExemptionCourse();
+        ExemptionCourseVo ex=new ExemptionCourseVo();
         Page<ExemptionCourseVo> exCourse = exemptionCourseDao.findExemptionCourse(ex);
         if(exCourse!=null&&exCourse.getResult().size()>0){
             List<ExemptionCourseVo> result = exCourse.getResult();
