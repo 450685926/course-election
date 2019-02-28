@@ -5,10 +5,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
-import com.server.edu.election.entity.ExemptionApplyManage;
-import com.server.edu.election.entity.ExemptionCourse;
-import com.server.edu.election.entity.ExemptionCourseRule;
-import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.*;
 import com.server.edu.election.vo.*;
 
 import java.util.List;
@@ -47,5 +44,8 @@ public interface ExemptionCourseService {
 
     /**免修免考申请管理导出*/
     String export(ExemptionApplyCondition condition) throws Exception;
+
+    /**导入入学成绩*/
+    String addExcel(List<ExemptionCourseScore> datas, Long calendarId);
 }
 
