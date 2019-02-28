@@ -14,25 +14,18 @@ import com.server.edu.election.studentelec.rules.RulePriority;
 @Component("OnlyRetakeFilter")
 public class OnlyRetakeFilter extends AbstractRuleExceutor
 {
-    
-    //    @Autowired
-    //	protected CourseGradePrepare courseGradePrepare;
-    
     @Override
     public int getOrder()
     {
         return RulePriority.FIRST.ordinal();
     }
     
-    // @Override
     @Override
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
-        //return state.isRetakeCourse(lesson.getCourse().getId());
-        //      if (!result) {
-        //          context.addMessage(new ElectMessage("只能选择重修课", ElectRuleType.ELECTION, false, context.getLesson()));
-        //      }
-        //courseGradePrepare.run(context);
+    	if(courseClass.getTeacherClassId()!=null) {
+    		
+    	}
         return false;
     }
     
