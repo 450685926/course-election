@@ -5,12 +5,11 @@
         <id column="ID_" jdbcType="BIGINT" property="id" />
         <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
         <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentCode" />
-        <result column="STUDENT_NAME_" jdbcType="VARCHAR" property="studentName" />
         <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
         <result column="SCORE_" jdbcType="DOUBLE" property="score" />
     </resultMap>
     <sql id="Base_Column_List">
-        ID_, CALENDAR_ID_, STUDENT_CODE_, STUDENT_NAME_, COURSE_CODE_, SCORE_
+        ID_, CALENDAR_ID_, STUDENT_CODE_,  COURSE_CODE_, SCORE_
     </sql>
 
 
@@ -61,7 +60,7 @@
 
     <select id="findCourseScore" resultMap="BaseResultMap">
         select
-        sc.ID_, sc.CALENDAR_ID_, sc.STUDENT_CODE_, sc.STUDENT_NAME_, sc.COURSE_CODE_, sc.SCORE_
+        sc.ID_, sc.CALENDAR_ID_, sc.STUDENT_CODE_,  sc.COURSE_CODE_, sc.SCORE_
         from exemption_score_t sc
         LEFT JOIN student_t st on sc.STUDENT_CODE_ =st.STUDENT_CODE_
         <where>
@@ -78,7 +77,7 @@
                 and st.TRAINING_CATEGORY_ =#{courseRule.trainingCategory,jdbcType=VARCHAR}
             </if>
             <if test="list !=null and list.size() > 0 ">
-                and COURSE_CODE_ in
+                and sc.COURSE_CODE_ in
                 <foreach collection="list" item="code" open="("  separator="," close=")">
                     #{code}
                 </foreach>
