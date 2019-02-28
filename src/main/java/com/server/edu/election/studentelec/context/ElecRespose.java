@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class ElecRespose
     private List<Long> failedCourses;
     
     /** 选课失败原因 key为教学班id value为原因说明*/
-    private Map<String, String> failedReasons;
+    private Map<Long, String> failedReasons = new HashMap<>();
     
     public ElecRespose(ElecStatus status)
     {
@@ -74,13 +75,13 @@ public class ElecRespose
     {
         this.failedCourses = failedCourses;
     }
-    
-    public Map<String, String> getFailedReasons()
+    /** 选课失败原因 key为教学班id value为原因说明*/
+    public Map<Long, String> getFailedReasons()
     {
         return failedReasons;
     }
     
-    public void setFailedReasons(Map<String, String> failedReasons)
+    public void setFailedReasons(Map<Long, String> failedReasons)
     {
         this.failedReasons = failedReasons;
     }
