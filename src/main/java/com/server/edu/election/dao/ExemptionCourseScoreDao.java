@@ -20,4 +20,5 @@ public interface ExemptionCourseScoreDao extends Mapper<ExemptionCourseScore> {
     ExemptionCourseScore findStudentScore(@Param("calendarId") Long calendarId,@Param("studentCode") String studentCode,@Param("courseCode") String courseCode);
 
 
+
 }
