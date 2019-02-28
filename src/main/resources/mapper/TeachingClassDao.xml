@@ -93,7 +93,7 @@
 	join teaching_task_t task ON task.COURSE_OPEN_ID_ = open.id_
 	join teaching_class_t class ON task.id_ = class.TASK_ID_
 	where(
-		select TEACHING_CLASS_ID_ from teaching_class_suggest_student_t where STUDENT_ID_ = #{stu.sutdentId}
+		select TEACHING_CLASS_ID_ from teaching_class_suggest_student_t where STUDENT_ID_ = #{stu.studentId}
 		UNION
 		select TEACHING_CLASS_ID_ from teaching_class_suggest_profession_t 
 		where GRADE_ = #{stu.grade} and PROFESSION_ = #{stu.major}

@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.preload;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.entity.Course;
-import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -34,8 +34,9 @@ public class BKCoursePlanLoad extends DataProLoad
     public void load(ElecContext context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        List<String> courseCodes =
-            CultureSerivceInvoker.getCourseCodes(stu.getStudentId());
+        List<String> courseCodes = new ArrayList<>();
+//            CultureSerivceInvoker.getCourseCodes(stu.getStudentId());
+        courseCodes.add("041352");
         
         List<ElecCourse> planCourses = context.getPlanCourses();
         

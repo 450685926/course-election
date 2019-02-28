@@ -6,7 +6,7 @@ public class StudentInfoCache
     
     private String studentName;
     
-    private String sex;
+    private Integer sex;
     
     /**校区*/
     private String campus;
@@ -50,12 +50,12 @@ public class StudentInfoCache
         this.studentName = studentName;
     }
     
-    public String getSex()
+    public Integer getSex()
     {
         return sex;
     }
     
-    public void setSex(String sex)
+    public void setSex(Integer sex)
     {
         this.sex = sex;
     }

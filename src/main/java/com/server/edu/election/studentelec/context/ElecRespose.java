@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +19,6 @@ public class ElecRespose
 {
     private ElecStatus status;
     
-    private String studentId;
-    
-    private String studentName;
-    
     /** 选课成功集合 教学班id*/
     private List<Long> successCourses;
     
@@ -35,28 +33,12 @@ public class ElecRespose
         this.status = status;
     }
     
-    public String getStudentId()
-    {
-        return studentId;
-    }
-    
-    public void setStudentId(String studentId)
-    {
-        this.studentId = studentId;
-    }
-    
-    public String getStudentName()
-    {
-        return studentName;
-    }
-    
-    public void setStudentName(String studentName)
-    {
-        this.studentName = studentName;
-    }
-    
     public List<Long> getSuccessCourses()
     {
+        if (successCourses == null)
+        {
+            successCourses = new ArrayList<>();
+        }
         return successCourses;
     }
     
@@ -67,6 +49,10 @@ public class ElecRespose
     
     public List<Long> getFailedCourses()
     {
+        if (failedCourses == null)
+        {
+            failedCourses = new ArrayList<>();
+        }
         return failedCourses;
     }
     
@@ -77,6 +63,10 @@ public class ElecRespose
     
     public Map<String, String> getFailedReasons()
     {
+        if (failedReasons == null)
+        {
+            failedReasons = new HashMap<>();
+        }
         return failedReasons;
     }
     

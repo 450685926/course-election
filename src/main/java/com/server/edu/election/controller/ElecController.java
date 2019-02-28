@@ -1,5 +1,7 @@
 package com.server.edu.election.controller;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +35,7 @@ public class ElecController
      */
     @PostMapping("{roundId}/loading")
     public RestResult<ElecRespose> studentLoading(
-        @PathVariable("roundId") Integer roundId)
+        @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
@@ -61,9 +63,9 @@ public class ElecController
     /**
      * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
      */
-    @GetMapping("{roundId}/elect")
+    @GetMapping("{roundId}/electRes")
     public RestResult<ElecRespose> getElect(
-        @PathVariable("roundId") Integer roundId)
+        @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
         if (session.realType() != UserTypeEnum.STUDENT.getValue())

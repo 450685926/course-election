@@ -9,46 +9,7 @@ package com.server.edu.election.studentelec.utils;
  * <li>Processing 选课中
  * </ul>
  */
-public enum ElecStatus {
-    Refuse(-1),
-    Init(0),
-    Loading(1),
-    Ready(2),
-    Processing(3);
-
-    private int value;
-
-    ElecStatus(int value){
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-
-
-    @Override
-    public String toString() {
-        return ""+ value;
-    }
-
-    public static ElecStatus getStatus(int value){
-        return getStatus(String.valueOf(value));
-    }
-    public static ElecStatus getStatus(String value){
-        switch (value) {
-            case "0":
-                return Init;
-            case "1":
-                return Loading;
-            case "2":
-                return Ready;
-            case "3":
-                return Processing;
-            default:
-                throw new RuntimeException("invalid elecstatus: "+value);
-        }
-    }
-
+public enum ElecStatus
+{
+    Refuse, Init, Loading, Ready, Processing;
 }

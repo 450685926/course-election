@@ -39,7 +39,7 @@ public class ElecContext
     public ElecContext(String studentId, Long roundId)
     {
         this.roundId = roundId;
-        this.contextUtil = ElecContextUtil.create(studentId);
+        this.contextUtil = ElecContextUtil.create(roundId, studentId);
         
         studentInfo =
             this.contextUtil.getObject(StudentInfoCache.class.getSimpleName(),
@@ -68,10 +68,11 @@ public class ElecContext
      * 保存到redis中
      * 
      */
-    public void save()
+    public void saveToCache()
     {
         this.contextUtil.save(StudentInfoCache.class.getSimpleName(),
             this.studentInfo);
+        this.respose.setStatus(null);
         this.contextUtil.save(ElecRespose.class.getSimpleName(),
             this.respose);
         this.contextUtil.save("CompletedCourses", this.completedCourses);
