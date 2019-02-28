@@ -1,5 +1,6 @@
 package com.server.edu.election.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,9 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		if(StringUtils.isNotBlank(electionRuleDto.getType())) {
 			criteria.andEqualTo("type",electionRuleDto.getType());
 		}
+		if(StringUtils.isNotBlank(electionRuleDto.getManagerDeptId())) {
+			criteria.andEqualTo("managerDeptId",electionRuleDto.getManagerDeptId());
+		}
 		if(electionRuleDto.getStatus()!=null) {
 			criteria.andEqualTo("status",electionRuleDto.getStatus());
 		}
@@ -46,6 +50,29 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 			criteria.andLike("name",electionRuleDto.getName());
 		}
 		List<ElectionRule> list = electionRuleDao.selectByExample(example);
+		return list;
+	}
+	
+	@Override
+	public List<ElectionRuleVo> ruleParamers(ElectionRuleDto electionRuleDto){
+		List<ElectionRule> ruleList = list(electionRuleDto);
+		List<ElectionParameter> parameters = electionParameterDao.selectAll();
+		List<ElectionRuleVo> list = new ArrayList<>();
+		ruleList.forEach(temp->{
+			if(CollectionUtil.isNotEmpty(parameters)) {
+				ElectionRuleVo electionRuleVo = new ElectionRuleVo();
+				BeanUtils.copyProperties(temp, electionRuleVo);
+				electionRuleVo.setCheckIndex(Constants.ZERO);
+                List<ElectionParameter> params = parameters.stream()
+                        .filter(param -> param.getRuleId().equals(temp.getId()))
+                        .collect(Collectors.toList());
+                    if (CollectionUtil.isNotEmpty(params))
+                    {
+                    	electionRuleVo.setList(params);
+                    }
+                    list.add(electionRuleVo);
+			}
+		});
 		return list;
 	}
 	
