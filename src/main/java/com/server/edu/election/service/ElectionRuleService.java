@@ -7,9 +7,10 @@ import com.server.edu.election.dto.ElectionRuleDto;
 import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.vo.ElectionRuleVo;
 
-public interface ElectionRuleService
-{
+public interface ElectionRuleService{
     List<ElectionRule> list(ElectionRuleDto electionRuleDto);
+
+    List<ElectionRuleVo> ruleParamers(ElectionRuleDto electionRuleDto);
     
     ElectionRuleVo selectRuleDeatil(Long id);
     
