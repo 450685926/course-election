@@ -15,6 +15,8 @@ public class ElecCourseClass extends ElecCourse
     
     private String teacherClassCode;
     
+    private String teacherClassType;
+    
     public ElecCourseClass()
     {
     }
@@ -47,5 +49,15 @@ public class ElecCourseClass extends ElecCourse
     {
         this.teacherClassCode = teacherClassCode;
     }
+
+	public String getTeacherClassType() {
+		return teacherClassType;
+	}
+
+	public void setTeacherClassType(String teacherClassType) {
+		this.teacherClassType = teacherClassType;
+	}
+    
+    
     
 }
