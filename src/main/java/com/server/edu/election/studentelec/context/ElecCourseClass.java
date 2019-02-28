@@ -15,6 +15,19 @@ public class ElecCourseClass extends ElecCourse
     
     private String teacherClassCode;
     
+    public ElecCourseClass()
+    {
+    }
+    
+    public ElecCourseClass(ElecCourse course)
+    {
+        this.setCampus(course.getCampus());
+        this.setCourseCode(course.getCourseCode());
+        this.setCourseName(course.getCourseName());
+        this.setCredits(course.getCredits());
+        this.setNameEn(course.getNameEn());
+    }
+    
     public Long getTeacherClassId()
     {
         return teacherClassId;
