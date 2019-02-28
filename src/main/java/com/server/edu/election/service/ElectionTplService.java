@@ -14,7 +14,7 @@ public interface ElectionTplService {
 	
 	int update(ElectionTplDto dto);
 	
-	ElectionTplVo getTpl(Long id);
+	ElectionTplVo getTpl(Long id,String managerDeptId);
 	
 	int updateStatus(ElectionTplDto dto);
 	

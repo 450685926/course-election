@@ -40,6 +40,9 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		if(StringUtils.isNotBlank(electionRuleDto.getType())) {
 			criteria.andEqualTo("type",electionRuleDto.getType());
 		}
+		if(StringUtils.isNotBlank(electionRuleDto.getManagerDeptId())) {
+			criteria.andEqualTo("managerDeptId",electionRuleDto.getManagerDeptId());
+		}
 		if(electionRuleDto.getStatus()!=null) {
 			criteria.andEqualTo("status",electionRuleDto.getStatus());
 		}

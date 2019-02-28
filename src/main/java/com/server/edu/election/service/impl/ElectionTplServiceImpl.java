@@ -238,10 +238,13 @@ public class ElectionTplServiceImpl implements ElectionTplService
     }
     
     @Override
-    public ElectionTplVo getTpl(Long id)
+    public ElectionTplVo getTpl(Long id,String managerDeptId)
     {
         ElectionTplVo electionTplVo = new ElectionTplVo();
         ElectionTpl electionTpl = electionTplDao.selectByPrimaryKey(id);
+        if(electionTpl==null) {
+        	return electionTplVo;
+        }
         //选中的规则参数
         BeanUtils.copyProperties(electionTpl, electionTplVo);
         List<ElectionRule> checkRuleList = electionRuleDao.selectTplOfRule(id);
@@ -256,7 +259,8 @@ public class ElectionTplServiceImpl implements ElectionTplService
         Example ruleExample = new Example(ElectionRule.class);
         Example.Criteria criteria = ruleExample.createCriteria();
         criteria.andEqualTo("status", ElectionRuleVo.enable);
-        List<ElectionRule> ruleList =
+        criteria.andEqualTo("managerDeptId", managerDeptId);
+        List<ElectionRule> ruleList = 
             electionRuleDao.selectByExample(ruleExample);
         List<ElectionRuleVo> copyList = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(ruleList))
