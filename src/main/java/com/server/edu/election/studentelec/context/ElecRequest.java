@@ -3,6 +3,9 @@ package com.server.edu.election.studentelec.context;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
+
+import com.server.edu.election.validate.AgentElcGroup;
 
 /**
  * 学生选课请求<br>
@@ -12,13 +15,15 @@ import javax.validation.constraints.NotNull;
  */
 public class ElecRequest
 {
-    @NotNull
+    @NotNull(groups = {AgentElcGroup.class, Default.class})
     private Long roundId;
+    
     /**
      * 选课对象(1学生，2教务员，3管理员)
      */
     private Integer chooseObj;
     
+    @NotNull(groups = {AgentElcGroup.class})
     private String studentId;
     
     /** 选课集合 教学班ID*/
@@ -53,12 +58,12 @@ public class ElecRequest
     {
         this.roundId = roundId;
     }
-
+    
     public Integer getChooseObj()
     {
         return chooseObj;
     }
-
+    
     public void setChooseObj(Integer chooseObj)
     {
         this.chooseObj = chooseObj;

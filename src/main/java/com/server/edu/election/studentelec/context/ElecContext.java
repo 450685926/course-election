@@ -59,12 +59,17 @@ public class ElecContext
     {
         this.contextUtil.save(StudentInfoCache.class.getSimpleName(),
             this.studentInfo);
-        this.respose.setStatus(null);
-        this.contextUtil.save(ElecRespose.class.getSimpleName(), this.respose);
+        this.saveResponse();
         this.contextUtil.save("CompletedCourses", this.completedCourses);
         this.contextUtil.save("SelectedCourses", this.selectedCourses);
         this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
         this.contextUtil.save("PlanCourses", this.planCourses);
+    }
+    
+    public void saveResponse()
+    {
+        this.respose.setStatus(null);
+        this.contextUtil.save(ElecRespose.class.getSimpleName(), this.respose);
     }
     
     public StudentInfoCache getStudentInfo()

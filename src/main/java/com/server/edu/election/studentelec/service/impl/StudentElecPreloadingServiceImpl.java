@@ -52,6 +52,8 @@ public class StudentElecPreloadingServiceImpl
         {
             if (ElecContextUtil.tryLock(roundId, studentId))
             {
+                ElecContext context =
+                    new ElecContext(studentId, roundId.longValue());
                 try
                 {
                     Map<String, DataProLoad> beansOfType =
@@ -62,8 +64,6 @@ public class StudentElecPreloadingServiceImpl
                     //排序
                     Collections.sort(values);
                     
-                    ElecContext context =
-                        new ElecContext(studentId, roundId.longValue());
                     for (DataProLoad load : values)
                     {
                         load.load(context);
@@ -77,6 +77,9 @@ public class StudentElecPreloadingServiceImpl
                 }
                 catch (Exception e)
                 {
+                    context.getRespose().getFailedReasons().put("loadFail", e.getMessage());
+                    context.saveResponse();
+                    
                     LOG.error(e.getMessage(), e);
                     ElecContextUtil
                         .setElecStatus(roundId, studentId, ElecStatus.Init);

@@ -67,7 +67,9 @@ public class StudentElecServiceImpl implements StudentElecService
                 return RestResult.fail("请稍后再试");
             }
         }
-        return RestResult.successData(new ElecRespose(currentStatus));
+        ElecRespose response = this.getElectResult(roundId, studentId);
+        
+        return RestResult.successData(response);
     }
     
     @Override
