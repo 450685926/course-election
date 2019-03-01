@@ -12,6 +12,8 @@ public class CompletedCourse extends ElecCourse{
 
     /** 是否作弊 */
     private boolean cheat;
+    /** 是否为优级 */
+    private boolean excellent;
 
     public String getRank() {
         return rank;
@@ -36,4 +38,14 @@ public class CompletedCourse extends ElecCourse{
     public void setCheat(boolean cheat) {
         this.cheat = cheat;
     }
+
+	public boolean isExcellent() {
+		return excellent;
+	}
+
+	public void setExcellent(boolean excellent) {
+		this.excellent = excellent;
+	}
+    
+    
 }

@@ -62,7 +62,7 @@ public class Course implements Serializable {
     private String nature;
 
     /**
-     * 课程类别
+     * 课程分类(研究生，字典取值X_KCFL)
      */
     @Column(name = "LABEL_")
     private String label;
@@ -84,6 +84,24 @@ public class Course implements Serializable {
      */
     @Column(name = "ASSESSMENT_MODE_")
     private String assessmentMode;
+
+    /**
+     * 是否跨学期(1是0否)
+     */
+    @Column(name = "CROSS_TERM_")
+    private Integer crossTerm;
+
+    /**
+     * 是否为公共选修课(1:是，0：否)
+     */
+    @Column(name = "IS_ELECTIVE_")
+    private Integer isElective;
+
+    /**
+     * 管理部门id（字典取值）
+     */
+    @Column(name = "MANAGER_DEPT_ID_")
+    private String managerDeptId;
 
     /**
      * 备注
@@ -256,18 +274,18 @@ public class Course implements Serializable {
     }
 
     /**
-     * 获取课程类别
+     * 获取课程分类(研究生，字典取值X_KCFL)
      *
-     * @return LABEL_ - 课程类别
+     * @return LABEL_ - 课程分类(研究生，字典取值X_KCFL)
      */
     public String getLabel() {
         return label;
     }
 
     /**
-     * 设置课程类别
+     * 设置课程分类(研究生，字典取值X_KCFL)
      *
-     * @param label 课程类别
+     * @param label 课程分类(研究生，字典取值X_KCFL)
      */
     public void setLabel(String label) {
         this.label = label == null ? null : label.trim();
@@ -328,6 +346,60 @@ public class Course implements Serializable {
     }
 
     /**
+     * 获取是否跨学期(1是0否)
+     *
+     * @return CROSS_TERM_ - 是否跨学期(1是0否)
+     */
+    public Integer getCrossTerm() {
+        return crossTerm;
+    }
+
+    /**
+     * 设置是否跨学期(1是0否)
+     *
+     * @param crossTerm 是否跨学期(1是0否)
+     */
+    public void setCrossTerm(Integer crossTerm) {
+        this.crossTerm = crossTerm;
+    }
+
+    /**
+     * 获取是否为公共选修课(1:是，0：否)
+     *
+     * @return IS_ELECTIVE_ - 是否为公共选修课(1:是，0：否)
+     */
+    public Integer getIsElective() {
+        return isElective;
+    }
+
+    /**
+     * 设置是否为公共选修课(1:是，0：否)
+     *
+     * @param isElective 是否为公共选修课(1:是，0：否)
+     */
+    public void setIsElective(Integer isElective) {
+        this.isElective = isElective;
+    }
+
+    /**
+     * 获取管理部门id（字典取值）
+     *
+     * @return MANAGER_DEPT_ID_ - 管理部门id（字典取值）
+     */
+    public String getManagerDeptId() {
+        return managerDeptId;
+    }
+
+    /**
+     * 设置管理部门id（字典取值）
+     *
+     * @param managerDeptId 管理部门id（字典取值）
+     */
+    public void setManagerDeptId(String managerDeptId) {
+        this.managerDeptId = managerDeptId == null ? null : managerDeptId.trim();
+    }
+
+    /**
      * 获取备注
      *
      * @return REMARK_ - 备注
@@ -364,6 +436,9 @@ public class Course implements Serializable {
         sb.append(", trainingLevel=").append(trainingLevel);
         sb.append(", formLearning=").append(formLearning);
         sb.append(", assessmentMode=").append(assessmentMode);
+        sb.append(", crossTerm=").append(crossTerm);
+        sb.append(", isElective=").append(isElective);
+        sb.append(", managerDeptId=").append(managerDeptId);
         sb.append(", remark=").append(remark);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
