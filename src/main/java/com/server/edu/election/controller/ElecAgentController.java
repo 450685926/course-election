@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.StudentElecService;
@@ -83,6 +84,18 @@ public class ElecAgentController
         
         String studentId = elecRequest.getStudentId();
         return elecService.loading(elecRequest.getRoundId(), studentId);
+    }
+    
+    @ApiOperation(value = "获取学生选课数据")
+    @PostMapping("/getData")
+    public RestResult<ElecContext> getData(@RequestBody ElecRequest elecRequest)
+    {
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        
+        String studentId = elecRequest.getStudentId();
+        ElecContext c = new ElecContext(studentId, elecRequest.getRoundId());
+        
+        return RestResult.successData(c);
     }
     
     /**

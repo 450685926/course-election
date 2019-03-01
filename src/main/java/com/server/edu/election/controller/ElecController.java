@@ -22,6 +22,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.StudentElecService;
@@ -88,6 +89,22 @@ public class ElecController
             return RestResult.fail("not a student");
         }
         return elecService.loading(roundId, session.realUid());
+    }
+    
+    @ApiOperation(value = "获取学生选课数据")
+    @PostMapping("/{roundId}/getData")
+    public RestResult<ElecContext> getData(
+        @PathVariable("roundId") @NotNull Long roundId)
+    {
+        Session session = SessionUtils.getCurrentSession();
+        
+        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+        {
+            return RestResult.fail("not a student");
+        }
+        ElecContext c = new ElecContext(session.realUid(), roundId);
+        
+        return RestResult.successData(c);
     }
     
     /**
