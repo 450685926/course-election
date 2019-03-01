@@ -576,12 +576,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/3/1 10:57
     */
     @Override
-    public String addExcel(List<ExemptionApplyManage> datas, Long calendarId, String auditor) {
+    public String addExcelApply(List<ExemptionApplyManage> datas, Long calendarId) {
         List<String> list =new ArrayList<>();
         for (ExemptionApplyManage data : datas) {
             data.setCalendarId(calendarId);
-            data.setAuditor(auditor);
-
             //查询是否重复申请
             ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(data.getCalendarId(), data.getStudentCode(), data.getCourseCode());
             if(exemptionApplyManageVo!=null){

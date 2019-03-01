@@ -49,6 +49,6 @@ public interface ExemptionCourseService {
     String addExcel(List<ExemptionCourseScore> datas, Long calendarId);
 
     /**导入免修申请*/
-    String addExcel(List<ExemptionApplyManage> datas, Long calendarId, String auditor);
+    String addExcelApply(List<ExemptionApplyManage> datas, Long calendarId);
 }
 

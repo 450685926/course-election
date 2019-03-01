@@ -321,8 +321,7 @@ public class ExemptionController {
     */
     @PostMapping(value = "/uploadApply")
     public RestResult<?> uploadApply(@RequestPart(name = "file") MultipartFile file,
-                                @RequestPart(name = "calendarId") @NotNull Long calendarId,
-                                @RequestPart(name = "auditor") String auditor)
+                                @RequestPart(name = "calendarId") @NotNull Long calendarId)
     {
         if (file == null)
         {
@@ -355,7 +354,7 @@ public class ExemptionController {
             List<ExemptionApplyManage> datas = GeneralExcelUtil
                     .parseExcel(workbook, designer, ExemptionApplyManage.class);
 
-            String msg =exemptionCourseService.addExcel(datas,calendarId,auditor);
+            String msg =exemptionCourseService.addExcelApply(datas,calendarId);
             return RestResult.success(msg);
 
         }
