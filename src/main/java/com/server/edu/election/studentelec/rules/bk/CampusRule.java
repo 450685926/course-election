@@ -1,10 +1,13 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourseClass;
-import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
@@ -24,23 +27,17 @@ public class CampusRule extends AbstractRuleExceutor
     @Override
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
-        ElecRequest request = context.getRequest();
-//        if (null == lesson.getCampus())
-//        {
-//            return true;
-//        }
-//        else
-//        {
-//            if (lesson.getCampus().equals(state.getStd().getCampus()))
-//            {
-//                return true;
-//            }
-//            new ElectMessage("只开放给"
-//                + lesson.getCampus() + "校区的同学选课",
-//                ElectRuleType.ELECTION, false, null);
-//            return false;
-//        }
-        return true;
+    	 StudentInfoCache studentInfo = context.getStudentInfo();
+    	 if(StringUtils.isBlank(courseClass.getCampus())) {
+    		 return true;
+    	 }else {
+    		 if(courseClass.getCampus().equals(studentInfo.getCampus())) {
+    			 return true;
+    		 }
+    		 ElecRespose respose = context.getRespose();
+    		 respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(), I18nUtil.getMsg("ruleCheck.campus"));
+    		 return false;
+    	 }
     }
     
     

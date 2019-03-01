@@ -155,6 +155,7 @@ public class StudentElecServiceImpl implements StudentElecService
     public void saveElc(ElecContext context, ElecCourseClass courseClass)
     {
         StudentInfoCache stu = context.getStudentInfo();
+        ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
         Date date = new Date();
         String studentId = stu.getStudentId();
@@ -185,7 +186,7 @@ public class StudentElecServiceImpl implements StudentElecService
         
         ElcCourseTake take = new ElcCourseTake();
         take.setCalendarId(round.getCalendarId());
-        take.setChooseObj(ChooseObj.ADMIN.type());
+        take.setChooseObj(request.getChooseObj());
         take.setCourseCode(courseCode);
         take.setCourseTakeType(CourseTakeType.NORMAL.type());
         take.setCreatedAt(date);
@@ -203,7 +204,9 @@ public class StudentElecServiceImpl implements StudentElecService
         log.setCreateBy(currentSession.getUid());
         log.setCreatedAt(date);
         log.setCreateIp(currentSession.getIp());
-        log.setMode(ElcLogVo.MODE_1);
+        log.setMode(
+            ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
+                : ElcLogVo.MODE_2);
         log.setStudentId(studentId);
         log.setTeachingClassCode(teacherClassCode);
         log.setTurn(round.getTurn());
