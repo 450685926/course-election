@@ -14,7 +14,7 @@ public class ExemptionApplyCondition {
     private String faculty;
     private String  profession;
     private String campus;
-    private String examineResult;
+    private Integer examineResult;
     private String courseCode;
     private String studentCode;
     private String degreeCategory;
@@ -83,11 +83,11 @@ public class ExemptionApplyCondition {
         this.campus = campus;
     }
 
-    public String getExamineResult() {
+    public Integer getExamineResult() {
         return examineResult;
     }
 
-    public void setExamineResult(String examineResult) {
+    public void setExamineResult(Integer examineResult) {
         this.examineResult = examineResult;
     }
 

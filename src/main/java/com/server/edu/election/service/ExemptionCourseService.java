@@ -37,7 +37,7 @@ public interface ExemptionCourseService {
     String deleteExemptionApply(List<Long> ids);
 
     //批量审批
-    String approvalExemptionApply(List<Long> ids,Integer status);
+    String approvalExemptionApply(List<Long> ids,Integer status,String auditor);
 
     //编辑
     String editExemptionApply(ExemptionApplyManage applyManage);
@@ -47,5 +47,8 @@ public interface ExemptionCourseService {
 
     /**导入入学成绩*/
     String addExcel(List<ExemptionCourseScore> datas, Long calendarId);
+
+    /**导入免修申请*/
+    String addExcel(List<ExemptionApplyManage> datas, Long calendarId, String auditor);
 }
 

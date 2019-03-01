@@ -176,8 +176,8 @@ public class ExemptionController {
     @LogRecord(title="审批免修免考申请",type = AuditType.UPDATE)
     @ApiOperation(value = "审批免修免考申请")
     @PostMapping("/approvalExemptionApply")
-    public RestResult<String> approvalExemptionApply(@RequestBody List<Long>  ids,@RequestParam Integer status){
-        String s= exemptionCourseService.approvalExemptionApply(ids,status);
+    public RestResult<String> approvalExemptionApply(@RequestBody List<Long>  ids,@RequestParam Integer status,@RequestParam String auditor){
+        String s= exemptionCourseService.approvalExemptionApply(ids,status,auditor);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
 
@@ -216,6 +216,13 @@ public class ExemptionController {
                 .body(resource);
     }
 
+    /**
+    *@Description: 导入成绩
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/1 10:24
+    */
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
                                 @RequestPart(name = "calendarId") @NotNull Long calendarId)
@@ -262,6 +269,13 @@ public class ExemptionController {
         }
     }
 
+    /**
+    *@Description: 下载成绩模板
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/1 10:25
+    */
     @ApiResponses({
             @ApiResponse(code = 200, response = File.class, message = "下载模版")})
     @GetMapping(value = "/downloadTemplate")
@@ -275,4 +289,82 @@ public class ExemptionController {
                         "attachment;filename=" + "ruXueScore.xls")
                 .body(resource);
     }
+
+    /**
+    *@Description: 免修申请模板
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/1 10:24
+    */
+
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "下载模版")})
+    @GetMapping(value = "/downloadApplyTemplate")
+    public ResponseEntity<Resource> downloadApplyTemplate()
+    {
+        Resource resource = new ClassPathResource("/excel/mianXiuApply.xls");
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename=" + "mianXiuApply.xls")
+                .body(resource);
+    }
+
+    /**
+    *@Description: 导入免修申请
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/3/1 10:44
+    */
+    @PostMapping(value = "/uploadApply")
+    public RestResult<?> uploadApply(@RequestPart(name = "file") MultipartFile file,
+                                @RequestPart(name = "calendarId") @NotNull Long calendarId,
+                                @RequestPart(name = "auditor") String auditor)
+    {
+        if (file == null)
+        {
+            return RestResult.error("文件不能为空");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (!originalFilename.endsWith(".xls"))
+        {
+            return RestResult.error("请使用1999-2003(.xls)类型的Excle");
+        }
+
+        try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
+        {
+            ExcelParseDesigner designer = new ExcelParseDesigner();
+            designer.setDataStartRowIdx(1);
+            designer.setConfigs(new ArrayList<>());
+
+            designer.getConfigs().add(new ExcelParseConfig("studentCode", 0));
+            designer.getConfigs().add(new ExcelParseConfig("courseCode", 1));
+            designer.getConfigs().add(new ExcelParseConfig("applyType", 2){
+                public Object handler(String value)
+                {
+                    if(StringUtils.isNotBlank(value)){
+                        return Integer.valueOf(value);
+                    }
+                    return null;
+                }
+            });
+            List<ExemptionApplyManage> datas = GeneralExcelUtil
+                    .parseExcel(workbook, designer, ExemptionApplyManage.class);
+
+            String msg =exemptionCourseService.addExcel(datas,calendarId,auditor);
+            return RestResult.success(msg);
+
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage(), e);
+            return RestResult.error("解析文件错误" + e.getMessage());
+        }
+    }
+
+
 }
