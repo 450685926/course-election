@@ -1,6 +1,7 @@
 package com.server.edu.election.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -50,10 +51,13 @@ public class ElecController
     {
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
+        Date date = new Date();
         for (ElectionRounds round : allRound)
         {
             if (StringUtils.equals(round.getProjectId(), projectId)
-                && StringUtils.equals(electionObj, round.getElectionObj()))
+                && StringUtils.equals(electionObj, round.getElectionObj())
+                && date.after(round.getBeginTime())
+                && date.before(round.getEndTime()))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules =
