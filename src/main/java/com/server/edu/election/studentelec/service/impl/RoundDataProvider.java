@@ -61,7 +61,7 @@ public class RoundDataProvider
     {
     }
     
-    @Scheduled(cron = "0 30 * * * *")
+    @Scheduled(cron = "0 0/2 * * * *")
     public void load()
     {
         /*
@@ -175,6 +175,23 @@ public class RoundDataProvider
         }
     }
     
+    public List<ElectionRounds> getAllRound()
+    {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String redisKey = String.format(Keys.ROUND_KEY, "*");
+        Set<String> keys = redisTemplate.keys(redisKey);
+        List<String> texts = ops.multiGet(keys);
+        
+        List<ElectionRounds> list = new ArrayList<>();
+        for (String str : texts)
+        {
+            ElectionRounds round = JSON.parseObject(str, ElectionRounds.class);
+            list.add(round);
+        }
+        
+        return list;
+    }
+    
     public ElectionRounds getRound(Long roundId)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -190,7 +207,7 @@ public class RoundDataProvider
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         
         Set<String> keys =
-            redisTemplate.keys(String.format(Keys.ROUND_RULE_PREFIX, roundId));
+            redisTemplate.keys(String.format(Keys.ROUND_RULE, roundId, "*"));
         
         List<String> list = ops.multiGet(keys);
         
@@ -282,8 +299,8 @@ public class RoundDataProvider
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         
-        Set<String> keys = redisTemplate
-            .keys(String.format(Keys.ROUND_COURSE_PREFIX, roundId));
+        Set<String> keys =
+            redisTemplate.keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
         
         List<String> list = ops.multiGet(keys);
         
