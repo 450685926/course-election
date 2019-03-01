@@ -16,6 +16,8 @@ import org.springframework.data.redis.core.ValueOperations;
 
 import com.alibaba.fastjson.JSON;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.ElecRespose;
 
 /**
  * 选课上下文工具类
@@ -52,6 +54,30 @@ public class ElecContextUtil
         return SpringUtils.getBean(StringRedisTemplate.class);
     }
     
+    public StudentInfoCache getStudentInfo()
+    {
+        StudentInfoCache studentInfo =
+            getObject(StudentInfoCache.class.getSimpleName(),
+                StudentInfoCache.class);
+        if (null == studentInfo)
+        {
+            studentInfo = new StudentInfoCache();
+            studentInfo.setStudentId(studentId);
+        }
+        return studentInfo;
+    }
+    
+    public ElecRespose getElecRespose()
+    {
+        ElecRespose respose =
+            getObject(ElecRespose.class.getSimpleName(), ElecRespose.class);
+        if (null == respose)
+        {
+            respose = new ElecRespose(ElecStatus.Init);
+        }
+        return respose;
+    }
+    
     public <T> T getObject(String type, Class<T> clazz)
     {
         String value = getByKey(type);
@@ -83,7 +109,7 @@ public class ElecContextUtil
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
         opsForValue.set(Keys.STD + type + "-" + roundId + "-" + studentId,
-            JSON.toJSONString(value));
+            JSON.toJSONString(value), 5, TimeUnit.DAYS);
     }
     
     /**

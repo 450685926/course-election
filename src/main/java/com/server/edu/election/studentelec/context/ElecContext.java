@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
-import com.server.edu.election.studentelec.utils.ElecStatus;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -41,20 +40,8 @@ public class ElecContext
         this.roundId = roundId;
         this.contextUtil = ElecContextUtil.create(roundId, studentId);
         
-        studentInfo =
-            this.contextUtil.getObject(StudentInfoCache.class.getSimpleName(),
-                StudentInfoCache.class);
-        if (null == studentInfo)
-        {
-            studentInfo = new StudentInfoCache();
-            studentInfo.setStudentId(studentId);
-        }
-        respose = this.contextUtil.getObject(ElecRespose.class.getSimpleName(),
-            ElecRespose.class);
-        if (null == respose)
-        {
-            respose = new ElecRespose(ElecStatus.Init);
-        }
+        studentInfo = contextUtil.getStudentInfo();
+        respose = this.contextUtil.getElecRespose();
         completedCourses =
             this.contextUtil.getList("CompletedCourses", CompletedCourse.class);
         selectedCourses =
@@ -72,13 +59,17 @@ public class ElecContext
     {
         this.contextUtil.save(StudentInfoCache.class.getSimpleName(),
             this.studentInfo);
-        this.respose.setStatus(null);
-        this.contextUtil.save(ElecRespose.class.getSimpleName(),
-            this.respose);
+        this.saveResponse();
         this.contextUtil.save("CompletedCourses", this.completedCourses);
         this.contextUtil.save("SelectedCourses", this.selectedCourses);
         this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
         this.contextUtil.save("PlanCourses", this.planCourses);
+    }
+    
+    public void saveResponse()
+    {
+        this.respose.setStatus(null);
+        this.contextUtil.save(ElecRespose.class.getSimpleName(), this.respose);
     }
     
     public StudentInfoCache getStudentInfo()

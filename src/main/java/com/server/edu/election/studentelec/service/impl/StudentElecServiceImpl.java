@@ -67,7 +67,9 @@ public class StudentElecServiceImpl implements StudentElecService
                 return RestResult.fail("请稍后再试");
             }
         }
-        return RestResult.successData(new ElecRespose(currentStatus));
+        ElecRespose response = this.getElectResult(roundId, studentId);
+        
+        return RestResult.successData(response);
     }
     
     @Override
@@ -119,9 +121,8 @@ public class StudentElecServiceImpl implements StudentElecService
     {
         ElecContextUtil contextUtil =
             ElecContextUtil.create(roundId, studentId);
-        ElecRespose response = contextUtil
-            .getObject(ElecRespose.class.getSimpleName(), ElecRespose.class);
         
+        ElecRespose response = contextUtil.getElecRespose();
         ElecStatus status = ElecContextUtil.getElecStatus(roundId, studentId);
         if (response == null)
         {
@@ -155,6 +156,7 @@ public class StudentElecServiceImpl implements StudentElecService
     public void saveElc(ElecContext context, ElecCourseClass courseClass)
     {
         StudentInfoCache stu = context.getStudentInfo();
+        ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
         Date date = new Date();
         String studentId = stu.getStudentId();
@@ -185,7 +187,7 @@ public class StudentElecServiceImpl implements StudentElecService
         
         ElcCourseTake take = new ElcCourseTake();
         take.setCalendarId(round.getCalendarId());
-        take.setChooseObj(ChooseObj.ADMIN.type());
+        take.setChooseObj(request.getChooseObj());
         take.setCourseCode(courseCode);
         take.setCourseTakeType(CourseTakeType.NORMAL.type());
         take.setCreatedAt(date);
@@ -203,7 +205,9 @@ public class StudentElecServiceImpl implements StudentElecService
         log.setCreateBy(currentSession.getUid());
         log.setCreatedAt(date);
         log.setCreateIp(currentSession.getIp());
-        log.setMode(ElcLogVo.MODE_1);
+        log.setMode(
+            ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
+                : ElcLogVo.MODE_2);
         log.setStudentId(studentId);
         log.setTeachingClassCode(teacherClassCode);
         log.setTurn(round.getTurn());

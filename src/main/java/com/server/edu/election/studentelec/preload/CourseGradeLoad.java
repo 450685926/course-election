@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.entity.Student;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.CompletedCourse;
@@ -27,11 +31,25 @@ public class CourseGradeLoad extends DataProLoad
         return 1;
     }
 
+    @Autowired
+    private StudentDao studentDao;
+
     @Override
     public void load(ElecContext context)
     {
      // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
         // 1. 查询学生课程成绩
+        StudentInfoCache studentInfo = context.getStudentInfo();
+
+        Student stu = studentDao.findStudentByCode(studentInfo.getStudentId());
+        if (null == stu)
+        {
+            String msg = String.format("student not find studentId=%s",
+                    studentInfo.getStudentId());
+            throw new RuntimeException(msg);
+        }
+
+
         List<Map<String, Long>> results = new ArrayList<>();//TODO
         List<CompletedCourse> completedCourses = context.getCompletedCourses();
         for (Map<String, Long> map : results)

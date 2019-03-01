@@ -334,6 +334,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if("".equals(applyManage.getApplyType())){
             return "common.parameterError";
         }
+        //查询是否重复申请
+        ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
+        if(exemptionApplyManageVo!=null){
+            return "common.exist";
+        }
         if(applyManage.getApplyType()==0){//成绩申请
             applyManage.setScore("免修");
             applyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
@@ -444,7 +449,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/2/13 11:21
     */
     @Override
-    public String approvalExemptionApply(List<Long> ids,Integer status) {
+    public String approvalExemptionApply(List<Long> ids,Integer status,String auditor) {
         if(CollectionUtil.isEmpty(ids)){
             return "common.parameterError";
         }
@@ -452,7 +457,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if(status==1){
             score="免修";
         }
-        applyDao.approvalExemptionApply(ids,status,score);
+        applyDao.approvalExemptionApply(ids,status,score,auditor);
         return "common.editSuccess";
     }
 
@@ -563,6 +568,41 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         return StringUtils.EMPTY;
     }
 
+    /**
+    *@Description: 导入免修申请
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/1 10:57
+    */
+    @Override
+    public String addExcelApply(List<ExemptionApplyManage> datas, Long calendarId) {
+        List<String> list =new ArrayList<>();
+        for (ExemptionApplyManage data : datas) {
+            data.setCalendarId(calendarId);
+            //查询是否重复申请
+            ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(data.getCalendarId(), data.getStudentCode(), data.getCourseCode());
+            if(exemptionApplyManageVo!=null){
+                list.add(data.getStudentCode());
+            }else{
+                if(data.getApplyType()==0){//成绩申请
+                    data.setScore("免修");
+                    data.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
+                }else{
+                    data.setExamineResult(ExemptionCourseServiceImpl.STATUS);
+                }
+                applyDao.insertSelective(data);
+            }
+        }
+
+        if(list.size()>0){
+            list.add("该学期课程已经申请");
+            return StringUtils.join(list,",");
+        }
+
+        return StringUtils.EMPTY;
+    }
+
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
@@ -585,5 +625,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         design.addCell(I18nUtil.getMsg("exemptionApply.examineAuditor"), "auditor");
         return design;
     }
+
+
 
 }
