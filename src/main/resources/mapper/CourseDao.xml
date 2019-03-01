@@ -18,6 +18,9 @@
     <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
     <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
     <result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode" />
+    <result column="CROSS_TERM_" jdbcType="INTEGER" property="crossTerm" />
+    <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective" />
+    <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
     <result column="REMARK_" jdbcType="LONGVARCHAR" property="remark" />
   </resultMap>
 </mapper>
