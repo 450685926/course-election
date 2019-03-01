@@ -30,6 +30,9 @@ public class StudentInfoCache
     /** 是否留级降级 */
     private boolean isRepeater;
     
+    /** 是否结业生 */
+    private boolean isGraduate;
+    
     public String getStudentId()
     {
         return studentId;
@@ -139,4 +142,14 @@ public class StudentInfoCache
     {
         isRepeater = repeater;
     }
+
+	public boolean isGraduate() {
+		return isGraduate;
+	}
+
+	public void setGraduate(boolean isGraduate) {
+		this.isGraduate = isGraduate;
+	}
+    
+    
 }
