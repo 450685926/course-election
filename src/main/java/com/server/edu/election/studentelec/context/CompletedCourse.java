@@ -7,8 +7,19 @@ public class CompletedCourse extends ElecCourse{
     /** 成绩 */
     private String score;
 
+    /**等级*/
+    private String rank;
+
     /** 是否作弊 */
     private boolean cheat;
+
+    public String getRank() {
+        return rank;
+    }
+
+    public void setRank(String rank) {
+        this.rank = rank;
+    }
 
     public String getScore() {
         return score;

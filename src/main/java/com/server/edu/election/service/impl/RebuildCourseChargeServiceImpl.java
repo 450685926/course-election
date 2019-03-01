@@ -301,7 +301,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         if(CollectionUtil.isEmpty(list)){
             return "common.parameterError";
         }
-        //调用选课接口todo
+        //添加到选课表
+        courseTakeDao.addCourseTakeFromRecycle(list);
         /**从回收站删除*/
         courseChargeDao.recoveryDataFromRecycleCourse(list);
         return "common.deleteSuccess";
