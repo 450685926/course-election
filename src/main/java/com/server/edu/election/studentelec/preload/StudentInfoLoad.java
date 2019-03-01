@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.preload;
 
+import com.server.edu.election.dao.ElcLoserDownStdsDao;
+import com.server.edu.election.entity.ElcLoserDownStds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,9 @@ public class StudentInfoLoad extends DataProLoad
     
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private ElcLoserDownStdsDao elcLoserDownStdsDao;
     
     @Override
     public void load(ElecContext context)
@@ -50,7 +55,14 @@ public class StudentInfoLoad extends DataProLoad
         studentInfo.setAboard("1".equals(stu.getIsOverseas()));
         
         // 1. 查询学生是否为留降级学生
-        // 3. 是否缴费
+        ElcLoserDownStds loserDownStds = elcLoserDownStdsDao.findLoserDownStds(context.getRoundId(), stu.getStudentCode());
+        if(loserDownStds==null){
+            studentInfo.setRepeater(false);
+        }else{
+            studentInfo.setRepeater(true);
+        }
+
+        // 3. 是否缴费//todo
         
     }
     
