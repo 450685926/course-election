@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -33,7 +34,7 @@ public class UnElectLessonByPassed extends AbstractRuleExceutor
         /** 已完成课程 */
         List<CompletedCourse> completedCourses =  context.getCompletedCourses();
         if(courseClass.getTeacherClassId()!=null&&CollectionUtil.isNotEmpty(completedCourses)) {
-        	if(courseClass.getCourseCode()!=null) {
+        	if(StringUtils.isNotBlank(courseClass.getCourseCode())) {
         		List<CompletedCourse> list = completedCourses.stream().filter(temp->courseClass.getCourseCode().equals(temp.getCourseCode())).collect(Collectors.toList());
         		if(CollectionUtil.isEmpty(list)) {
         			return true;
