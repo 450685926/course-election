@@ -119,9 +119,8 @@ public class StudentElecServiceImpl implements StudentElecService
     {
         ElecContextUtil contextUtil =
             ElecContextUtil.create(roundId, studentId);
-        ElecRespose response = contextUtil
-            .getObject(ElecRespose.class.getSimpleName(), ElecRespose.class);
         
+        ElecRespose response = contextUtil.getElecRespose();
         ElecStatus status = ElecContextUtil.getElecStatus(roundId, studentId);
         if (response == null)
         {
