@@ -3,7 +3,9 @@ package com.server.edu.election.studentelec.preload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.election.dao.ElcNoGraduateStdsDao;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -28,6 +30,8 @@ public class StudentInfoLoad extends DataProLoad
     
     @Autowired
     private StudentDao studentDao;
+    @Autowired
+    private ElcNoGraduateStdsDao elcNoGraduateStdsDao;
     
     @Override
     public void load(ElecContext context)
@@ -48,7 +52,12 @@ public class StudentInfoLoad extends DataProLoad
         studentInfo.setCampus(stu.getCampus());
         // 是否留学生
         studentInfo.setAboard("1".equals(stu.getIsOverseas()));
-        
+        //是否结业生
+        studentInfo.setGraduate(false);
+        ElcNoGraduateStds elcNoGraduateStds = elcNoGraduateStdsDao.findStudentByCode(studentInfo.getStudentId());
+        if(elcNoGraduateStds!=null) {
+        	studentInfo.setGraduate(true);
+        }
         // 1. 查询学生是否为留降级学生
         // 3. 是否缴费
         
