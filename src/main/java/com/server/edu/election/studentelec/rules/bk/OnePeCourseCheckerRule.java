@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,7 @@ public class OnePeCourseCheckerRule extends AbstractRuleExceutor {
 		if(StringUtils.isNotBlank(courseClass.getCourseCode())) {
 			//体育课程代码
 			ElectionConstants electionConstants = electionConstantsDao.selectByPrimaryKey(2L);
-			List<SelectedCourse> selectedCourses = context.getSelectedCourses();
+			Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 			if(courseClass.getTeacherClassId()!=null&&electionConstants!=null) {
 				String courseCodes = electionConstants.getValue();
 				if(CollectionUtil.isNotEmpty(selectedCourses)) {

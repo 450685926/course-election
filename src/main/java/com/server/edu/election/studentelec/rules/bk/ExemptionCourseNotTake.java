@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,7 @@ public class ExemptionCourseNotTake extends AbstractRuleExceutor
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
     	//免修申请课程
-    	List<ElecCourse> applyForDropCourses =context.getApplyForDropCourses(); 
+        Set<ElecCourse> applyForDropCourses =context.getApplyForDropCourses(); 
     	if(StringUtils.isNotBlank(courseClass.getCourseCode())&&CollectionUtil.isNotEmpty(applyForDropCourses)){
     		List<ElecCourse> list = applyForDropCourses.stream().filter(elecCourse->courseClass.getCourseCode().equals(elecCourse.getCourseCode())).collect(Collectors.toList());
     		if(CollectionUtil.isEmpty(list)) {

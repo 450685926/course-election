@@ -3,13 +3,14 @@ package com.server.edu.election.studentelec.preload;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 
@@ -51,7 +52,7 @@ public class CourseGradeLoad extends DataProLoad
 
 
         List<Map<String, Long>> results = new ArrayList<>();//TODO
-        List<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         for (Map<String, Long> map : results)
         {
             Long courseId = map.get("courseCode");

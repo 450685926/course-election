@@ -1,6 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
+import java.util.Set;
 
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -18,16 +18,16 @@ public class ElecContext
     private StudentInfoCache studentInfo;
     
     /** 已完成课程 */
-    private List<CompletedCourse> completedCourses;
+    private Set<CompletedCourse> completedCourses;
     
     /** 已选择课程 */
-    private List<SelectedCourse> selectedCourses;
+    private Set<SelectedCourse> selectedCourses;
     
     /** 免修申请课程 */
-    private List<ElecCourse> applyForDropCourses;
+    private Set<ElecCourse> applyForDropCourses;
     
     /** 个人计划内课程 */
-    private List<ElecCourse> planCourses;
+    private Set<ElecCourse> planCourses;
     
     private ElecRequest request;
     
@@ -43,12 +43,12 @@ public class ElecContext
         studentInfo = contextUtil.getStudentInfo();
         respose = this.contextUtil.getElecRespose();
         completedCourses =
-            this.contextUtil.getList("CompletedCourses", CompletedCourse.class);
+            this.contextUtil.getSet("CompletedCourses", CompletedCourse.class);
         selectedCourses =
-            this.contextUtil.getList("SelectedCourses", SelectedCourse.class);
+            this.contextUtil.getSet("SelectedCourses", SelectedCourse.class);
         applyForDropCourses =
-            this.contextUtil.getList("ApplyForDropCourses", ElecCourse.class);
-        planCourses = this.contextUtil.getList("PlanCourses", ElecCourse.class);
+            this.contextUtil.getSet("ApplyForDropCourses", ElecCourse.class);
+        planCourses = this.contextUtil.getSet("PlanCourses", ElecCourse.class);
     }
     
     /**
@@ -82,22 +82,22 @@ public class ElecContext
         return roundId;
     }
     
-    public List<CompletedCourse> getCompletedCourses()
+    public Set<CompletedCourse> getCompletedCourses()
     {
         return completedCourses;
     }
     
-    public List<SelectedCourse> getSelectedCourses()
+    public Set<SelectedCourse> getSelectedCourses()
     {
         return selectedCourses;
     }
     
-    public List<ElecCourse> getApplyForDropCourses()
+    public Set<ElecCourse> getApplyForDropCourses()
     {
         return applyForDropCourses;
     }
     
-    public List<ElecCourse> getPlanCourses()
+    public Set<ElecCourse> getPlanCourses()
     {
         return planCourses;
     }

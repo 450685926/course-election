@@ -4,7 +4,9 @@ import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -84,6 +86,12 @@ public class ElecContextUtil
         return JSON.parseObject(value, clazz);
     }
     
+    public <T> Set<T> getSet(String type, Class<T> clazz)
+    {
+        List<T> list = getList(type, clazz);
+        return new HashSet<>(list);
+    }
+    
     public <T> List<T> getList(String type, Class<T> clazz)
     {
         String value = getByKey(type);
@@ -109,7 +117,9 @@ public class ElecContextUtil
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
         opsForValue.set(Keys.STD + type + "-" + roundId + "-" + studentId,
-            JSON.toJSONString(value), 5, TimeUnit.DAYS);
+            JSON.toJSONString(value),
+            5,
+            TimeUnit.DAYS);
     }
     
     /**

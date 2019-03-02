@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,7 @@ public class UnElectBecauseARule extends AbstractRuleExceutor
     @Override
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
-    	List<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
     	if(CollectionUtil.isNotEmpty(completedCourses)&&courseClass.getTeacherClassId()!=null) {
     		List<CompletedCourse> list = completedCourses.stream().filter(temp->temp.isExcellent()).collect(Collectors.toList());
     		if(CollectionUtil.isNotEmpty(list)) {
