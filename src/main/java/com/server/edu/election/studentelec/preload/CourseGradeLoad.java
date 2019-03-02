@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.context.TimeUnit;
 import com.server.edu.election.vo.SelectedCourseVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -80,7 +82,7 @@ public class CourseGradeLoad extends DataProLoad
             }
         }
         //2.学生已选择课程
-        List<SelectedCourse> selectedCourses = new ArrayList<>();
+        Set<SelectedCourse> selectedCourses =context.getSelectedCourses();
         //得到校历id
         ElectionRounds electionRounds = elecRoundsDao.selectByPrimaryKey(context.getRoundId());
         if(electionRounds==null) {
@@ -93,16 +95,35 @@ public class CourseGradeLoad extends DataProLoad
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentId",studentInfo.getStudentId());
         criteria.andEqualTo("calendarId",calendarId);
+        //选课集合
         List<ElcCourseTake> elcCourseTake = elcCourseTakeDao.selectByExample(example);
         if(CollectionUtil.isNotEmpty(elcCourseTake)) {
         	 Map<String,Object> map = new HashMap<>();
              map.put("studentId", studentInfo.getStudentId());
              map.put("calendarId", calendarId);
+             //按周数拆分的选课数据集合
              List<SelectedCourseVo> list = elcCourseTakeDao.findSelectedCourses(map);
              elcCourseTake.forEach(c->{
              	SelectedCourse selectedCourse = new SelectedCourse();
-             	selectedCourse.setSelectedRound(c.getTurn());
-             	selectedCourse.setChooseObj(c.getChooseObj());
+             	//一个教学班的课程信息
+             	List<SelectedCourseVo> voList = list.stream().filter(temp->temp.getTeachingclassId().equals(c.getTeachingClassId())).collect(Collectors.toList());
+             	//一个教学班的排课时间信息
+             	List<TimeUnit> timeUnits =  new ArrayList<>();
+             	voList.forEach(temp->{
+             		TimeUnit timeUnit = new TimeUnit();
+             		timeUnit.setArrangeTimeId(temp.getArrangeTimeId());
+             		timeUnit.setTimeStart(temp.getTimeStart());
+             		timeUnit.setTimeEnd(temp.getTimeEnd());
+             		timeUnits.add(timeUnit);
+             	});
+             	timeUnits.stream().distinct().collect(Collectors.toList());
+             	timeUnits.forEach(temp->{
+             		List<Integer> weeks = voList.stream().filter(vo->temp.getArrangeTimeId().equals(vo.getArrangeTimeId())).map(vo->vo.getWeek()).collect(Collectors.toList());
+             		temp.setWeeks(weeks);
+             	});
+             	BeanUtils.copyProperties(selectedCourse, voList.get(0));
+             	selectedCourse.setTimes(timeUnits);
+             	selectedCourses.add(selectedCourse);
              });
         }
         // 3. 非本学期的选课并且没有成功的

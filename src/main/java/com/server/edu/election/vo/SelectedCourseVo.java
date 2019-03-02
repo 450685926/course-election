@@ -3,10 +3,20 @@ package com.server.edu.election.vo;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 
 public class SelectedCourseVo extends SelectedCourse {
+	private Long arrangeTimeId;
     private int timeStart;
     private int timeEnd;
     private int dayOfWeek;
-    private int weeks;
+    private int week;
+    
+    
+	public Long getArrangeTimeId() {
+		return arrangeTimeId;
+	}
+	
+	public void setArrangeTimeId(Long arrangeTimeId) {
+		this.arrangeTimeId = arrangeTimeId;
+	}
 	public int getTimeStart() {
 		return timeStart;
 	}
@@ -25,11 +35,11 @@ public class SelectedCourseVo extends SelectedCourse {
 	public void setDayOfWeek(int dayOfWeek) {
 		this.dayOfWeek = dayOfWeek;
 	}
-	public int getWeeks() {
-		return weeks;
+	public int getWeek() {
+		return week;
 	}
-	public void setWeeks(int weeks) {
-		this.weeks = weeks;
+	public void setWeek(int week) {
+		this.week = week;
 	}
     
     
