@@ -176,6 +176,11 @@ public class RoundDataProvider
         }
     }
     
+    /**
+     * 获取所有将要开始的轮次
+     * 
+     * @return
+     */
     public List<ElectionRounds> getAllRound()
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -193,6 +198,12 @@ public class RoundDataProvider
         return list;
     }
     
+    /**
+     * 获取轮次
+     * 
+     * @param roundId
+     * @return
+     */
     public ElectionRounds getRound(Long roundId)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -203,6 +214,12 @@ public class RoundDataProvider
         return round;
     }
     
+    /**
+     * 获取选择规则列表
+     * 
+     * @param roundId 轮次
+     * @return
+     */
     public List<ElectionRuleVo> getRules(Long roundId)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -224,7 +241,13 @@ public class RoundDataProvider
         }
         return lessons;
     }
-    
+    /**
+     * 获取选课规则
+     * 
+     * @param roundId 轮次
+     * @param serviceName 服务名
+     * @return
+     */
     public ElectionRuleVo getRule(Long roundId, String serviceName)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -235,7 +258,13 @@ public class RoundDataProvider
         ElectionRuleVo vo = JSON.parseObject(text, ElectionRuleVo.class);
         return vo;
     }
-    
+    /**
+     * 获取课程信息
+     * 
+     * @param roundId 轮次
+     * @param courseCode 课程代码
+     * @return
+     */
     public CourseCache getCourse(Long roundId, String courseCode)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
@@ -247,11 +276,27 @@ public class RoundDataProvider
         return lesson;
     }
     
+    /**
+     * 
+     * 通过轮次与课程代码获取教学班信息
+     * @param roundId
+     * @param courseCode
+     * @return
+     */
     public List<TeachingClassCache> getTeachClasss(Long roundId,
         String courseCode)
     {
+        List<TeachingClassCache> lessons = new ArrayList<>();
         CourseCache course = this.getCourse(roundId, courseCode);
+        if (course == null)
+        {
+            return lessons;
+        }
         Set<Long> teachClassIds = course.getTeachClassIds();
+        if (CollectionUtil.isEmpty(teachClassIds))
+        {
+            return lessons;
+        }
         List<String> keys = new ArrayList<>();
         for (Long teachClassId : teachClassIds)
         {
@@ -259,7 +304,6 @@ public class RoundDataProvider
                 String.format(Keys.ROUND_CLASS, roundId, teachClassId);
             keys.add(classKey);
         }
-        List<TeachingClassCache> lessons = new ArrayList<>();
         
         if (CollectionUtil.isNotEmpty(keys))
         {
@@ -277,7 +321,13 @@ public class RoundDataProvider
         }
         return lessons;
     }
-    
+    /**
+     * 获取指定教学班信息
+     * 
+     * @param roundId 轮次
+     * @param teachClassId 教学班ID
+     * @return
+     */
     public TeachingClassCache getTeachClass(Long roundId, Long teachClassId)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
