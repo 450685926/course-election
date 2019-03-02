@@ -20,6 +20,7 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.vo.SelectedCourseVo;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -93,20 +94,17 @@ public class CourseGradeLoad extends DataProLoad
         criteria.andEqualTo("studentId",studentInfo.getStudentId());
         criteria.andEqualTo("calendarId",calendarId);
         List<ElcCourseTake> elcCourseTake = elcCourseTakeDao.selectByExample(example);
-        if(CollectionUtil.isEmpty(elcCourseTake)) {
-            String msg = String.format("elcCourseTake is null=%s",
-            		calendarId);
-            throw new RuntimeException(msg);
+        if(CollectionUtil.isNotEmpty(elcCourseTake)) {
+        	 Map<String,Object> map = new HashMap<>();
+             map.put("studentId", studentInfo.getStudentId());
+             map.put("calendarId", calendarId);
+             List<SelectedCourseVo> list = elcCourseTakeDao.findSelectedCourses(map);
+             elcCourseTake.forEach(c->{
+             	SelectedCourse selectedCourse = new SelectedCourse();
+             	selectedCourse.setSelectedRound(c.getTurn());
+             	selectedCourse.setChooseObj(c.getChooseObj());
+             });
         }
-        Map<String,Object> map = new HashMap<>();
-        map.put("studentId", studentInfo.getStudentId());
-        map.put("calendarId", calendarId);
-        List<SelectedCourse> list = elcCourseTakeDao.findSelectedCourses(map);
-        elcCourseTake.forEach(c->{
-        	SelectedCourse selectedCourse = new SelectedCourse();
-        	selectedCourse.setSelectedRound(c.getTurn());
-        	selectedCourse.setChooseObj(c.getChooseObj());
-        });
         // 3. 非本学期的选课并且没有成功的
     }
     

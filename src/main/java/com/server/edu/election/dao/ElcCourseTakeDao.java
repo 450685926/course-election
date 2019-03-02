@@ -14,10 +14,10 @@ import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
-import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.SelectedCourseVo;
 import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
@@ -101,7 +101,7 @@ public interface ElcCourseTakeDao
 
     void addCourseTakeFromRecycle(List<RebuildCourseNoChargeList> list);
     /**已选择课程信息*/
-    List<SelectedCourse> findSelectedCourses(Map<String, Object> map);
+    List<SelectedCourseVo> findSelectedCourses(Map<String, Object> map);
     
     
 }
