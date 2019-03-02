@@ -50,5 +50,8 @@ public interface ExemptionCourseService {
 
     /**导入免修申请*/
     String addExcelApply(List<ExemptionApplyManage> datas, Long calendarId);
+
+    /**免修新增规则下拉取值*/
+    RestResult<List<ExemptionCourseVo>> filterCourseCode(ExemptionCourseRuleVo courseRuleVo, Integer applyType);
 }
 
