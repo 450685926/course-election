@@ -4,14 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.Student;
-import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.Student;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 查询学生有成绩的课程
@@ -33,6 +42,10 @@ public class CourseGradeLoad extends DataProLoad
 
     @Autowired
     private StudentDao studentDao;
+    @Autowired
+    private ElecRoundsDao elecRoundsDao;
+    @Autowired
+    private ElcCourseTakeDao elcCourseTakeDao;
 
     @Override
     public void load(ElecContext context)
@@ -48,8 +61,7 @@ public class CourseGradeLoad extends DataProLoad
                     studentInfo.getStudentId());
             throw new RuntimeException(msg);
         }
-
-
+        BeanUtils.copyProperties(stu, studentInfo);
         List<Map<String, Long>> results = new ArrayList<>();//TODO
         List<CompletedCourse> completedCourses = context.getCompletedCourses();
         for (Map<String, Long> map : results)
@@ -64,7 +76,32 @@ public class CourseGradeLoad extends DataProLoad
                 completedCourses.add(lesson);
             }
         }
-        // 2. 非本学期的选课并且没有成功的
+        //2.学生已选择课程
+        List<SelectedCourse> selectedCourses = new ArrayList<>();
+        //得到校历id
+        ElectionRounds electionRounds = elecRoundsDao.selectByPrimaryKey(context.getRoundId());
+        if(electionRounds==null) {
+            String msg = String.format("electionRounds not find roundId=%s",
+            		context.getRoundId());
+            throw new RuntimeException(msg);
+        }
+        Long calendarId  = electionRounds.getCalendarId();
+        Example example = new Example(ElcCourseTake.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("studentId",studentInfo.getStudentId());
+        criteria.andEqualTo("calendarId",calendarId);
+        List<ElcCourseTake> elcCourseTake = elcCourseTakeDao.selectByExample(example);
+        if(CollectionUtil.isEmpty(elcCourseTake)) {
+            String msg = String.format("elcCourseTake is null=%s",
+            		calendarId);
+            throw new RuntimeException(msg);
+        }
+        elcCourseTake.forEach(c->{
+        	SelectedCourse selectedCourse = new SelectedCourse();
+        	selectedCourse.setSelectedRound(c.getTurn());
+        	selectedCourse.setChooseObj(c.getChooseObj());
+        });
+        // 3. 非本学期的选课并且没有成功的
     }
     
 }

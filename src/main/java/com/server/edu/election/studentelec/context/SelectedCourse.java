@@ -19,6 +19,11 @@ public class SelectedCourse extends ElecCourse
     /** 时间*/
     private TimeUnit time;
     
+    /**
+     * 选课对象(1学生，2教务员，3管理员)
+     */
+    private Integer chooseObj;
+    
     public SelectedCourse()
     {
         
@@ -72,4 +77,14 @@ public class SelectedCourse extends ElecCourse
     {
         this.time = time;
     }
+
+	public Integer getChooseObj() {
+		return chooseObj;
+	}
+
+	public void setChooseObj(Integer chooseObj) {
+		this.chooseObj = chooseObj;
+	}
+    
+    
 }
