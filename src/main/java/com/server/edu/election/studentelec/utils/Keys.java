@@ -19,6 +19,7 @@ public class Keys
     
     /** 学生状态锁  format参数 roundid studentid*/
     public static final String STD_STATUS_LOCK = "elec-stdlock-%s-%s";
+    public static final String STD_STATUS_LOCK_PATTERN = "elec-stdlock-*";
     
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
     public static final String STD_STATUS = "elec-stdstatus-%s-%s";
