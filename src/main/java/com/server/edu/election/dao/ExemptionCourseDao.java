@@ -16,5 +16,4 @@ public interface ExemptionCourseDao extends Mapper<ExemptionCourse> {
     //批量删除
     void  deleteExemptionCourseByIds(List<Long> list);
 
-
 }

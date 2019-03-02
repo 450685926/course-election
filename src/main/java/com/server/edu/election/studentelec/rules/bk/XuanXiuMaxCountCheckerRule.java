@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +39,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractRuleExceutor {
 	@Override
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass) {
 		if(StringUtils.isNotBlank(courseClass.getCourseCode())&&courseClass.getTeacherClassId()!=null){
-			List<SelectedCourse> selectedCourses = context.getSelectedCourses();
+		    Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 			if(CollectionUtil.isNotEmpty(selectedCourses)) {
 				List<SelectedCourse> list = selectedCourses.stream().filter(c->c.isPublicElec()).collect(Collectors.toList());
 				int stsNum= list.size();

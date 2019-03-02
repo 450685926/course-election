@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,7 @@ public class WithdrawTimeCheckerRule extends AbstractRuleExceutor
     @Override
     public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
     {
-    	List<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         // TODO Auto-generated method stub
     	if(courseClass.getTeacherClassId()!=null&&CollectionUtil.isNotEmpty(selectedCourses)&&StringUtils.isNotBlank(courseClass.getCourseCode())) {
     		List<SelectedCourse> list = selectedCourses.stream().filter(c->courseClass.getCourseCode().equals(c.getCourseCode())).collect(Collectors.toList());

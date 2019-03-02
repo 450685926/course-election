@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +30,7 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor {
 	@Override
 	public boolean checkRule(ElecContext context, ElecCourseClass courseClass) {
 		// TODO Auto-generated method stub
-		List<CompletedCourse> completedCourses = context.getCompletedCourses();
+	    Set<CompletedCourse> completedCourses = context.getCompletedCourses();
 		Long id = courseClass.getTeacherClassId();
 		if (id != null) {
 			if (courseClass.getTeacherClassType()!=null && CollectionUtil.isNotEmpty(completedCourses)) {

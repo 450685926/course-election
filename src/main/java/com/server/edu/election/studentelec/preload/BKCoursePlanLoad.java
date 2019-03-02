@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,7 @@ public class BKCoursePlanLoad extends DataProLoad
 //            CultureSerivceInvoker.getCourseCodes(stu.getStudentId());
         courseCodes.add("041352");
         
-        List<ElecCourse> planCourses = context.getPlanCourses();
+        Set<ElecCourse> planCourses = context.getPlanCourses();
         
         Example example = new Example(Course.class);
         example.createCriteria().andIn("code", courseCodes);

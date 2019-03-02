@@ -1,5 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 课程教学班
  * 
@@ -49,15 +53,38 @@ public class ElecCourseClass extends ElecCourse
     {
         this.teacherClassCode = teacherClassCode;
     }
-
-	public String getTeacherClassType() {
-		return teacherClassType;
-	}
-
-	public void setTeacherClassType(String teacherClassType) {
-		this.teacherClassType = teacherClassType;
-	}
     
+    public String getTeacherClassType()
+    {
+        return teacherClassType;
+    }
     
+    public void setTeacherClassType(String teacherClassType)
+    {
+        this.teacherClassType = teacherClassType;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.teacherClassId, this.teacherClassCode);
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        
+        if (obj instanceof ElecCourseClass)
+        {
+            ElecCourseClass o = (ElecCourseClass)obj;
+            return StringUtils.equals(this.teacherClassCode, o.teacherClassCode)
+                && this.teacherClassId.equals(o.teacherClassId);
+        }
+        return false;
+    }
     
 }

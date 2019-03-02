@@ -13,11 +13,11 @@ public class SelectedCourse extends ElecCourse
     /** 是否公选课 */
     private boolean isPublicElec;
     
-    /** 上课周 */
-    private List<Integer> weeks;
+    /** 上课时间 */
+    private List<TimeUnit> times;
     
-    /** 时间*/
-    private TimeUnit time;
+    /** 教学班Id */
+    private Long teachingclassId;
     
     /**
      * 选课对象(1学生，2教务员，3管理员)
@@ -58,25 +58,14 @@ public class SelectedCourse extends ElecCourse
         isPublicElec = publicElec;
     }
     
-    public List<Integer> getWeeks()
-    {
-        return weeks;
-    }
-    
-    public void setWeeks(List<Integer> weeks)
-    {
-        this.weeks = weeks;
-    }
-    
-    public TimeUnit getTime()
-    {
-        return time;
-    }
-    
-    public void setTime(TimeUnit time)
-    {
-        this.time = time;
-    }
+
+	public List<TimeUnit> getTimes() {
+		return times;
+	}
+
+	public void setTimes(List<TimeUnit> times) {
+		this.times = times;
+	}
 
 	public Integer getChooseObj() {
 		return chooseObj;
@@ -85,6 +74,16 @@ public class SelectedCourse extends ElecCourse
 	public void setChooseObj(Integer chooseObj) {
 		this.chooseObj = chooseObj;
 	}
+
+	public Long getTeachingclassId() {
+		return teachingclassId;
+	}
+
+	public void setTeachingclassId(Long teachingclassId) {
+		this.teachingclassId = teachingclassId;
+	}
+	
+	
     
     
 }

@@ -1,8 +1,10 @@
 package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +65,7 @@ public class CourseGradeLoad extends DataProLoad
         }
         BeanUtils.copyProperties(stu, studentInfo);
         List<Map<String, Long>> results = new ArrayList<>();//TODO
-        List<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         for (Map<String, Long> map : results)
         {
             Long courseId = map.get("courseCode");
@@ -96,6 +98,11 @@ public class CourseGradeLoad extends DataProLoad
             		calendarId);
             throw new RuntimeException(msg);
         }
+        Map<String,Object> map = new HashMap<>();
+        map.put("studentId", studentInfo.getStudentId());
+        map.put("calendarId", calendarId);
+        List<SelectedCourse> list = elcCourseTakeDao.findSelectedCourses(map);
+        
         elcCourseTake.forEach(c->{
         	SelectedCourse selectedCourse = new SelectedCourse();
         	selectedCourse.setSelectedRound(c.getTurn());

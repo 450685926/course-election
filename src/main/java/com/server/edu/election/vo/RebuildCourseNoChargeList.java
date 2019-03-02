@@ -29,6 +29,42 @@ public class RebuildCourseNoChargeList implements Serializable{
     private String teachingClassCode;
     private String courseArr;//课程按排
     private String calendarName;
+    private Integer courseTakeType;
+    private Integer mode;
+    private Integer turn;
+    private Integer chooseObj;
+
+    public Integer getCourseTakeType() {
+        return courseTakeType;
+    }
+
+    public void setCourseTakeType(Integer courseTakeType) {
+        this.courseTakeType = courseTakeType;
+    }
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
+    public Integer getTurn() {
+        return turn;
+    }
+
+    public void setTurn(Integer turn) {
+        this.turn = turn;
+    }
+
+    public Integer getChooseObj() {
+        return chooseObj;
+    }
+
+    public void setChooseObj(Integer chooseObj) {
+        this.chooseObj = chooseObj;
+    }
 
     public String getStrPaid() {
         return strPaid;

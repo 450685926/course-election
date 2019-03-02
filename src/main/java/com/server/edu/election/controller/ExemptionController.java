@@ -366,4 +366,14 @@ public class ExemptionController {
     }
 
 
+
+    @ApiOperation(value = "免修免考下拉代码取值")
+    @PostMapping("/findCourseCode")
+    public RestResult<List<ExemptionCourseVo>> findCourseCode(@RequestBody ExemptionCourseRuleVo courseRuleVo,@RequestParam Integer applyType){
+        if(courseRuleVo.getCalendarId()==null||applyType==null){
+            return RestResult.fail("common.parameterError");
+        }
+        return exemptionCourseService.filterCourseCode(courseRuleVo,applyType);
+    }
+
 }
