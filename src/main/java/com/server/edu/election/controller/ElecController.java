@@ -22,6 +22,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -105,6 +106,18 @@ public class ElecController
         ElecContext c = new ElecContext(session.realUid(), roundId);
         
         return RestResult.successData(c);
+    }
+    
+    @ApiOperation(value = "获取课程对应的教学班数据")
+    @PostMapping("/getTeachClass")
+    public RestResult<List<TeachingClassCache>> getTeachClass(
+        @RequestParam("roundId") @NotNull Long roundId,
+        @RequestParam("courseCode") @NotBlank String courseCode)
+    {
+        List<TeachingClassCache> teachClasss =
+            dataProvider.getTeachClasss(roundId, courseCode);
+        
+        return RestResult.successData(teachClasss);
     }
     
     /**

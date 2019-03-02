@@ -4,6 +4,9 @@ import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
+/**
+ * 学生信息缓存对象
+ */
 @CodeI18n
 public class StudentInfoCache
 {

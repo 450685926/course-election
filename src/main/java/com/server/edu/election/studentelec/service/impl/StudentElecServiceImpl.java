@@ -16,8 +16,8 @@ import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -153,7 +153,7 @@ public class StudentElecServiceImpl implements StudentElecService
     
     @Transactional
     @Override
-    public void saveElc(ElecContext context, ElecCourseClass courseClass)
+    public void saveElc(ElecContext context, TeachingClassCache courseClass)
     {
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();

@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,8 +16,6 @@ public class ElecCourse
     
     /**校区*/
     private String campus;
-    
-    private List<Long> teachClassIds;
     
     public String getCourseCode()
     {
@@ -68,16 +65,6 @@ public class ElecCourse
     public void setCampus(String campus)
     {
         this.campus = campus;
-    }
-    
-    public List<Long> getTeachClassIds()
-    {
-        return teachClassIds;
-    }
-    
-    public void setTeachClassIds(List<Long> teachClassIds)
-    {
-        this.teachClassIds = teachClassIds;
     }
     
     @Override
