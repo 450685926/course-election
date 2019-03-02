@@ -102,7 +102,7 @@ public class CourseGradeLoad extends DataProLoad
         map.put("studentId", studentInfo.getStudentId());
         map.put("calendarId", calendarId);
         List<SelectedCourse> list = elcCourseTakeDao.findSelectedCourses(map);
-        
+        if()
         elcCourseTake.forEach(c->{
         	SelectedCourse selectedCourse = new SelectedCourse();
         	selectedCourse.setSelectedRound(c.getTurn());
