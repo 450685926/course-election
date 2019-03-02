@@ -3,12 +3,22 @@ package com.server.edu.election.studentelec.context;
 import java.util.List;
 
 public class TimeUnit {
+	private Long arrangeTimeId;
     private int timeStart;
     private int timeEnd;
     private int dayOfWeek;
     private List<Integer> weeks;
     
-    public int getTimeStart() {
+    
+    public Long getArrangeTimeId() {
+		return arrangeTimeId;
+	}
+
+	public void setArrangeTimeId(Long arrangeTimeId) {
+		this.arrangeTimeId = arrangeTimeId;
+	}
+
+	public int getTimeStart() {
         return timeStart;
     }
 
