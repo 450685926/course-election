@@ -4,10 +4,10 @@ import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +20,8 @@ import com.alibaba.fastjson.JSON;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.DateUtil;
 
 /**
  * 选课上下文工具类
@@ -170,15 +172,55 @@ public class ElecContextUtil
                 TimeUnit.HOURS);
     }
     
+    public static void main(String[] args)
+    {
+        System.out.println(DateUtil.addHour(new Date(), -1).getTime());
+    }
+    
+    /**
+     * 需要处理加锁成功后程序挂了，这个时候值没有设置超时将会一直无法选课
+     * 
+     */
+    public static void delDeadLock()
+    {
+        Set<String> keys =
+            getRedisTemplate().keys(Keys.STD_STATUS_LOCK_PATTERN);
+        if (CollectionUtil.isNotEmpty(keys))
+        {
+            Long now = new Date().getTime();
+            List<String> values =
+                getRedisTemplate().opsForValue().multiGet(keys);
+            
+            int index = 0;
+            List<String> delKeys = new ArrayList<>();
+            for (String key : keys)
+            {
+                String timeStr = values.get(index);
+                if (StringUtils.isNumeric(timeStr))
+                {
+                    Long time = Long.valueOf(timeStr);
+                    long hours = TimeUnit.MILLISECONDS.toHours(now - time);
+                    if (hours >= 1)// 超过一个小时的锁认为是死锁，删除掉
+                    {
+                        delKeys.add(key);
+                    }
+                }
+                index++;
+            }
+            getRedisTemplate().delete(delKeys);
+        }
+    }
+    
     /**
      * 给status 加锁，并返回key用于解锁
      * @return true 成功 false 失败
      */
     public static boolean tryLock(Long roundId, String studentId)
     {
-        String value = UUID.randomUUID().toString();
+        long value = System.currentTimeMillis();
         String redisKey = String.format(STD_STATUS_LOCK, roundId, studentId);
-        if (getRedisTemplate().opsForValue().setIfAbsent(redisKey, value))
+        if (getRedisTemplate().opsForValue()
+            .setIfAbsent(redisKey, String.valueOf(value)))
         {
             return true;
         }
