@@ -1,8 +1,8 @@
 package com.server.edu.election.studentelec.rules;
 
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
 
 /**
  * 
@@ -27,5 +27,5 @@ public interface RuleExecutor
      * @param courseClass 教学班
      * @return true通过，false不通过
      */
-    boolean checkRule(ElecContext context, ElecCourseClass courseClass);
+    boolean checkRule(ElecContext context, TeachingClassCache courseClass);
 }

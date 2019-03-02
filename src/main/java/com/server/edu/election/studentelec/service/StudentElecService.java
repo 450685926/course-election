@@ -1,8 +1,8 @@
 package com.server.edu.election.studentelec.service;
 
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 
@@ -43,5 +43,5 @@ public interface StudentElecService
      * @param courseClass
      * @see [类、类#方法、类#成员]
      */
-    void saveElc(ElecContext context, ElecCourseClass courseClass);
+    void saveElc(ElecContext context, TeachingClassCache courseClass);
 }

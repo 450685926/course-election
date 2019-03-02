@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
@@ -85,10 +85,10 @@ public class StudentElecRushCourseServiceImpl
             Collections.sort(exceutors);
             
             ElecRespose respose = context.getRespose();
-            List<ElecCourseClass> successList = new ArrayList<>();
+            List<TeachingClassCache> successList = new ArrayList<>();
             for (Long teachClassId : elecTeachingClasses)
             {
-                ElecCourseClass teachClass =
+                TeachingClassCache teachClass =
                     dataProvider.getTeachClass(roundId, teachClassId);
                 if (teachClass == null)
                 {
@@ -116,7 +116,7 @@ public class StudentElecRushCourseServiceImpl
             }
             
             // 对校验成功的课程进行入库保存
-            for (ElecCourseClass courseClass : successList)
+            for (TeachingClassCache courseClass : successList)
             {
                 elecService.saveElc(context, courseClass);
                 
