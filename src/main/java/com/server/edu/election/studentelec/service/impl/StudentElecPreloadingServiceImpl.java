@@ -74,6 +74,8 @@ public class StudentElecPreloadingServiceImpl
                     //完成后设置当前状态为Ready
                     ElecContextUtil
                         .setElecStatus(roundId, studentId, ElecStatus.Ready);
+                    context.getRespose().getFailedReasons().clear();
+                    context.saveResponse();
                 }
                 catch (Exception e)
                 {

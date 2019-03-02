@@ -85,6 +85,10 @@ public class StudentElecRushCourseServiceImpl
             Collections.sort(exceutors);
             
             ElecRespose respose = context.getRespose();
+            respose.getFailedCourses().clear();
+            respose.getSuccessCourses().clear();
+            respose.getFailedReasons().clear();
+            
             List<TeachingClassCache> successList = new ArrayList<>();
             for (Long teachClassId : elecTeachingClasses)
             {
