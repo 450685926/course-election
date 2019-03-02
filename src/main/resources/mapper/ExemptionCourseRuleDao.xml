@@ -198,4 +198,25 @@
             </if>
         </where>
     </select>
+
+    <select id="findRuleExist" resultType="java.lang.String">
+        select COURSE_CODE_ from exemption_rule_t
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseRuleVo.calendarId)">
+                and CALENDAR_ID_=#{courseRuleVo.calendarId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseRuleVo.grade)">
+                and GRADE_=#{courseRuleVo.grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseRuleVo.trainingLevel)">
+                and TRAINING_LEVEL_=#{courseRuleVo.trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseRuleVo.trainingCategory)">
+                and TRAINING_CATEGORY_=#{courseRuleVo.trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(applyType)">
+                and APPLY_TYPE_=#{applyType}
+            </if>
+        </where>
+    </select>
 </mapper>
