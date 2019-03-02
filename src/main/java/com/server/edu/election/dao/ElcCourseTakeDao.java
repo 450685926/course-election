@@ -93,4 +93,9 @@ public interface ElcCourseTakeDao
 
     /**查找当前学期下的可选课学生*/
     Page<Student> findStudentList(ElcCourseTakeQuery condition);
+
+
+    /**从回收站回复到选课表*/
+
+    void addCourseTakeFromRecycle(List<RebuildCourseNoChargeList> list);
 }

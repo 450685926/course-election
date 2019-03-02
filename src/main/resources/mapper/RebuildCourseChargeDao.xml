@@ -37,20 +37,29 @@
     </delete>
 
     <insert id="addCourseStudentToRecycle" parameterType="java.util.List">
-        insert into rebuild_course_recycle_t(CALENDAR_ID_,STUDENT_CODE_,COURSE_CODE_)
+        insert into rebuild_course_recycle_t
+        (CALENDAR_ID_,STUDENT_CODE_,COURSE_CODE_,TEACHING_CLASS_ID_,COURSE_TAKE_TYPE_,TURN_,MODE_,CHOOSE_OBJ_,PAID_)
         VALUES
         <foreach item="item" collection="list" index="index"
                  separator=",">
             (
             #{item.calendarId,jdbcType=BIGINT},
             #{item.studentCode,jdbcType=VARCHAR},
-            #{item.code,jdbcType=VARCHAR}
+            #{item.code,jdbcType=VARCHAR},
+            #{item.teachingClassId,jdbcType=VARCHAR},
+            #{item.courseTakeType,jdbcType=INTEGER},
+            #{item.turn,jdbcType=INTEGER},
+            #{item.mode,jdbcType=INTEGER},
+            #{item.chooseObj,jdbcType=INTEGER},
+            #{item.paid,jdbcType=INTEGER}
             )
         </foreach>
     </insert>
 
     <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
-        SELECT re.ID_ id,re.CALENDAR_ID_ calendarId,re.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.ID_ courseId,re.COURSE_CODE_ code,co.NAME_ codeName,co.LABEL_ label,co.CREDITS_ credits FROM `rebuild_course_recycle_t` re LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
+        SELECT re.ID_ id,re.CALENDAR_ID_ calendarId,re.STUDENT_CODE_ studentCode,re.TEACHING_CLASS_ID_ teachingClassId,re.COURSE_TAKE_TYPE_ courseTakeType,re.TURN_ turn,re.MODE_ mode,re.CHOOSE_OBJ_ chooseObj,re.PAID_ paid
+        st.NAME_ studentName,co.ID_ courseId,re.COURSE_CODE_ code,co.NAME_ codeName,co.LABEL_ label,co.CREDITS_ credits FROM `rebuild_course_recycle_t` re
+        LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">

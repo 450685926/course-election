@@ -603,6 +603,33 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         return StringUtils.EMPTY;
     }
 
+    /**
+    *@Description: 新增下拉代码取值
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/2 9:59
+    */
+    @Override
+    public RestResult<List<ExemptionCourseVo>> filterCourseCode(ExemptionCourseRuleVo courseRuleVo, Integer applyType) {
+        //查询学期所有免修课程
+        ExemptionCourseVo vo=new ExemptionCourseVo();
+        vo.setCalendarId(courseRuleVo.getCalendarId());
+        Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(vo);
+        if(exemptionCourse!=null){
+            List<ExemptionCourseVo> result = exemptionCourse.getResult();
+            //查询该条件下已有规则课程代码
+           List<String> courseCodes= ruleDao.findRuleExist(courseRuleVo,applyType);
+           if(CollectionUtil.isNotEmpty(result)){
+               List<ExemptionCourseVo> collect = result.stream().filter((ExemptionCourseVo courseVo) -> !courseCodes.contains(courseVo.getCourseCode())).collect(Collectors.toList());
+               return RestResult.successData(collect);
+           }
+        }
+
+        return RestResult.fail("请先添加免修免考课程");
+
+    }
+
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
