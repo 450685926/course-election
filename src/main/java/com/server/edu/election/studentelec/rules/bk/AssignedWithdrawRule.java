@@ -2,8 +2,8 @@ package com.server.edu.election.studentelec.rules.bk;
 
 import org.springframework.stereotype.Component;
 
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -11,13 +11,11 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
  * 
  */
 @Component("AssignedWithdrawRule")
-public class AssignedWithdrawRule extends AbstractRuleExceutor
-{
-    @Override
-    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
-    {
-        // TODO Auto-generated method stub
-        return false;
-    }
-    
+public class AssignedWithdrawRule extends AbstractRuleExceutor {
+	@Override
+	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

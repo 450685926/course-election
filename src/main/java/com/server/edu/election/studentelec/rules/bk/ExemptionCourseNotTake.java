@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.util.CollectionUtil;
@@ -20,25 +20,25 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("ExemptionCourseNotTake")
-public class ExemptionCourseNotTake extends AbstractRuleExceutor
-{
-    @Override
-    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
-    {
-    	//免修申请课程
-        Set<ElecCourse> applyForDropCourses =context.getApplyForDropCourses(); 
-    	if(StringUtils.isNotBlank(courseClass.getCourseCode())&&CollectionUtil.isNotEmpty(applyForDropCourses)){
-    		List<ElecCourse> list = applyForDropCourses.stream().filter(elecCourse->courseClass.getCourseCode().equals(elecCourse.getCourseCode())).collect(Collectors.toList());
-    		if(CollectionUtil.isEmpty(list)) {
-    			return true;
-    		}else {
-    			ElecRespose respose = context.getRespose();
+public class ExemptionCourseNotTake extends AbstractRuleExceutor {
+	@Override
+	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
+		// 免修申请课程
+		Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
+		if (StringUtils.isNotBlank(courseClass.getCourseCode()) && CollectionUtil.isNotEmpty(applyForDropCourses)) {
+			List<ElecCourse> list = applyForDropCourses.stream()
+					.filter(elecCourse -> courseClass.getCourseCode().equals(elecCourse.getCourseCode()))
+					.collect(Collectors.toList());
+			if (CollectionUtil.isEmpty(list)) {
+				return true;
+			} else {
+				ElecRespose respose = context.getRespose();
 				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
 						I18nUtil.getMsg("ruleCheck.exemptionCourseNotTake"));
-    		}
-    	}
-        // TODO Auto-generated method stub
-        return false;
-    }
-    
+			}
+		}
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

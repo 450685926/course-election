@@ -3,7 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -11,23 +11,19 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
  * 
  */
 @Component("LimitCountCheckerRule")
-public class LimitCountCheckerRule extends AbstractRuleExceutor
-{
-    
-    public LimitCountCheckerRule()
-    {
-        super();
-    }
-    
-    @Override
-    public int getOrder()
-    {
-        return Integer.MAX_VALUE;
-    }
-    
-    @Override
-    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
-    {
+public class LimitCountCheckerRule extends AbstractRuleExceutor {
+
+	public LimitCountCheckerRule() {
+		super();
+	}
+
+	@Override
+	public int getOrder() {
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 //        ElectionCourseContext electContext = (ElectionCourseContext)context;
 //        // 获取匹配的授课对象组
 //        List<CourseLimitGroup> limitGroups =
@@ -97,18 +93,17 @@ public class LimitCountCheckerRule extends AbstractRuleExceutor
 //                }
 //            }
 //        }
-        return true;
-    }
-    
-    public void prepare()
-    {
+		return true;
+	}
+
+	public void prepare() {
 //        if (!context.isPreparedData(PreparedDataName.CHECK_MAX_LIMIT_COUNT))
 //        {
 //            context.getState().setCheckMaxLimitCount(true);
 //            context.addPreparedDataName(PreparedDataName.CHECK_MAX_LIMIT_COUNT);
 //        }
-    }
-    
+	}
+
 //    protected List<CourseLimitGroup> matchCourseLimitGroup(CourseTake take,
 //        ElectState state)
 //    {

@@ -8,7 +8,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
@@ -17,26 +17,24 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
  *
  */
 @Component("NoRetakeRule")
-public class NoRetakeRule extends AbstractRuleExceutor
-{
+public class NoRetakeRule extends AbstractRuleExceutor {
 	@Autowired
 	private TeachingClassDao teachingClassDao;
-    
-    @Override
-    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
-    {
-    	if(courseClass.getTeacherClassId()!=null) {
-			if(StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
-				if(Constants.ORDINARY_CALSS.equals(courseClass.getTeacherClassType())) {
+
+	@Override
+	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
+		if (courseClass.getTeacherClassId() != null) {
+			if (StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
+				if (Constants.ORDINARY_CALSS.equals(courseClass.getTeacherClassType())) {
 					return true;
-				}else {
-	    			ElecRespose respose = context.getRespose();
+				} else {
+					ElecRespose respose = context.getRespose();
 					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.noRetake"));
 				}
 			}
-    	}
-        return false;
-    }
-    
+		}
+		return false;
+	}
+
 }

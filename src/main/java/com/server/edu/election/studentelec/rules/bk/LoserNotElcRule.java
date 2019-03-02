@@ -3,7 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -11,13 +11,11 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
  * 
  */
 @Component("LoserNotElcRule")
-public class LoserNotElcRule extends AbstractRuleExceutor
-{
-    private static final String PARAM = "IS_LOSER";
-    
-    @Override
-    public boolean checkRule(ElecContext context, ElecCourseClass courseClass)
-    {
+public class LoserNotElcRule extends AbstractRuleExceutor {
+	private static final String PARAM = "IS_LOSER";
+
+	@Override
+	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 //        ElectionCourseContext electContext = (ElectionCourseContext)context;
 //        
 //        Boolean isLoser =
@@ -43,6 +41,6 @@ public class LoserNotElcRule extends AbstractRuleExceutor
 //                ElectRuleType.GENERAL, false, null));
 //        }
 //        return !isLoser.booleanValue();
-        return false;
-    }
+		return false;
+	}
 }

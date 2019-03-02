@@ -13,7 +13,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourseClass;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.util.CollectionUtil;
@@ -28,12 +28,12 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor {
 	private TeachingClassDao teachingClassDao;
 
 	@Override
-	public boolean checkRule(ElecContext context, ElecCourseClass courseClass) {
+	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		// TODO Auto-generated method stub
-	    Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
 		Long id = courseClass.getTeacherClassId();
 		if (id != null) {
-			if (courseClass.getTeacherClassType()!=null && CollectionUtil.isNotEmpty(completedCourses)) {
+			if (courseClass.getTeacherClassType() != null && CollectionUtil.isNotEmpty(completedCourses)) {
 				if (StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
 					List<CompletedCourse> list = completedCourses.stream()
 							.filter(c -> courseClass.getCourseCode().equals(c.getCourseCode()))
@@ -44,7 +44,7 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor {
 							respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
 									I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
 							return false;
-						} 
+						}
 					}
 				}
 			}
