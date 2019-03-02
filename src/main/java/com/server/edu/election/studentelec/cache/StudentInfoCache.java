@@ -1,22 +1,35 @@
 package com.server.edu.election.studentelec.cache;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
+@CodeI18n
 public class StudentInfoCache
 {
     private String studentId;
     
     private String studentName;
     
+    @Code2Text(transformer = "G_XBIE")
     private Integer sex;
     
     /**校区*/
+    @Code2Text(transformer = "X_XQ")
     private String campus;
     
+    /**学院*/
+    @Code2Text(DictTypeEnum.X_YX)
+    private String faculty;
+    
     /**专业*/
+    @Code2Text(DictTypeEnum.G_ZY)
     private String major;
     
     /**年级*/
     private Integer grade;
     
+    @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
     
     private String englishLevel;
@@ -71,6 +84,16 @@ public class StudentInfoCache
     public void setCampus(String campus)
     {
         this.campus = campus;
+    }
+    
+    public String getFaculty()
+    {
+        return faculty;
+    }
+    
+    public void setFaculty(String faculty)
+    {
+        this.faculty = faculty;
     }
     
     public String getMajor()
@@ -142,14 +165,15 @@ public class StudentInfoCache
     {
         isRepeater = repeater;
     }
-
-	public boolean isGraduate() {
-		return isGraduate;
-	}
-
-	public void setGraduate(boolean isGraduate) {
-		this.isGraduate = isGraduate;
-	}
     
+    public boolean isGraduate()
+    {
+        return isGraduate;
+    }
+    
+    public void setGraduate(boolean isGraduate)
+    {
+        this.isGraduate = isGraduate;
+    }
     
 }
