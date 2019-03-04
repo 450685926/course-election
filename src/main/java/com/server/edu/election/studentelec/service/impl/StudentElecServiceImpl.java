@@ -29,8 +29,6 @@ import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElectionRuleVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 
 @Service
 public class StudentElecServiceImpl implements StudentElecService
@@ -206,10 +204,9 @@ public class StudentElecServiceImpl implements StudentElecService
         log.setCalendarId(round.getCalendarId());
         log.setCourseCode(courseCode);
         log.setCourseName(courseName);
-        Session currentSession = SessionUtils.getCurrentSession();
-        log.setCreateBy(currentSession.getUid());
+        log.setCreateBy(request.getCreateBy());
         log.setCreatedAt(date);
-        log.setCreateIp(currentSession.getIp());
+        log.setCreateIp(request.getRequestIp());
         log.setMode(
             ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
                 : ElcLogVo.MODE_2);
