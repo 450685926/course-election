@@ -28,6 +28,8 @@ public class ElecRequest
     
     /** 选课集合 教学班ID*/
     private List<Long> elecTeachingClasses;
+    /**退课集合 教学班ID*/
+    private List<Long> withdrawTeachClasss;
     
     public String getStudentId()
     {
@@ -67,5 +69,15 @@ public class ElecRequest
     public void setChooseObj(Integer chooseObj)
     {
         this.chooseObj = chooseObj;
+    }
+
+    public List<Long> getWithdrawTeachClasss()
+    {
+        return withdrawTeachClasss;
+    }
+
+    public void setWithdrawTeachClasss(List<Long> withdrawTeachClasss)
+    {
+        this.withdrawTeachClasss = withdrawTeachClasss;
     }
 }

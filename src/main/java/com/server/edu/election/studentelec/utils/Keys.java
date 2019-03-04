@@ -11,7 +11,7 @@ public class Keys
     /**轮次-教学班 elec-round-roundid-class-classid*/
     public static final String ROUND_CLASS = "elec-round-%s-class-%s";
     
-    /** 轮次信息 elec-round-%s */
+    /** 轮次信息 elec-rounData-%s */
     public static final String ROUND_KEY = "elec-rounData-%s";
     
     /** 轮次的规则信息 elec-round-%s-rule-%s */

@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,16 +74,30 @@ public class RoundDataProvider
         List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
         
         Date now = new Date();
+        Set<String> keys =
+            redisTemplate.keys(String.format(Keys.ROUND_KEY, "*"));
+        List<String> deleteRoundKeys = new ArrayList<>();
         for (ElectionRounds round : selectBeStart)
         {
+            Long roundId = round.getId();
+            String key = String.format(Keys.ROUND_KEY, roundId);
+            // 不存在的数据需要删除的Key
+            if (!keys.contains(key))
+            {
+                deleteRoundKeys.add(key);
+                continue;
+            }
+            
             Date endTime = round.getEndTime();
             long endMinutes = TimeUnit.MILLISECONDS
                 .toMinutes(endTime.getTime() - now.getTime()) + 3;
+            // 删除之前的数据
+            deleteCache(roundId);
             
-            Long roundId = round.getId();
+            // 缓存轮次规则数据
             cacheRoundRule(ops, roundId, endMinutes);
             // 缓存轮次信息
-            ops.set(String.format(Keys.ROUND_KEY, roundId),
+            ops.set(key,
                 JSON.toJSONString(round),
                 endMinutes,
                 TimeUnit.MINUTES);
@@ -104,6 +119,37 @@ public class RoundDataProvider
                 cacheCourse(ops, endMinutes, roundId, teachClassIds, cour);
             }
         }
+        
+        if (CollectionUtil.isNotEmpty(deleteRoundKeys))
+        {
+            for (String key : deleteRoundKeys)
+            {
+                String roundId =
+                    key.replace(String.format(Keys.ROUND_KEY, ""), "");
+                if (StringUtils.isNumeric(roundId))
+                {
+                    deleteCache(Long.valueOf(roundId));
+                }
+            }
+        }
+    }
+    
+    private void deleteCache(Long roundId)
+    {
+        // 删除旧数据
+        redisTemplate.delete(String.format(Keys.ROUND_KEY, roundId));
+        
+        Set<String> keys1 =
+            redisTemplate.keys(String.format(Keys.ROUND_RULE, roundId, "*"));
+        redisTemplate.delete(keys1);
+        
+        keys1 =
+            redisTemplate.keys(String.format(Keys.ROUND_CLASS, roundId, "*"));
+        redisTemplate.delete(keys1);
+        
+        keys1 =
+            redisTemplate.keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
+        redisTemplate.delete(keys1);
     }
     
     /**缓存课程*/
@@ -241,6 +287,7 @@ public class RoundDataProvider
         }
         return lessons;
     }
+    
     /**
      * 获取选课规则
      * 
@@ -258,6 +305,7 @@ public class RoundDataProvider
         ElectionRuleVo vo = JSON.parseObject(text, ElectionRuleVo.class);
         return vo;
     }
+    
     /**
      * 获取课程信息
      * 
@@ -321,6 +369,7 @@ public class RoundDataProvider
         }
         return lessons;
     }
+    
     /**
      * 获取指定教学班信息
      * 
