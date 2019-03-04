@@ -1,7 +1,12 @@
 package com.server.edu.election.rpc;
 
+import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.entity.StudentScore;
+import com.server.edu.common.rest.RestResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * 成绩模块微服务调用
@@ -16,5 +21,15 @@ public class ScoreServiceInvoker {
             LoggerFactory.getLogger(ScoreServiceInvoker.class);
 
 
+    public static List<StudentScore> findStuScoreBest(String studentCode)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<StudentScore>> restResult =
+                ServicePathEnum.SCORESERVICE.getForObject(
+                        "/studentScoreCount/findStudentScoreGood/{studentCode}",
+                        RestResult.class,
+                        studentCode);
 
+        return restResult.getData();
+    }
 }

@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.entity.StudentScore;
+import com.server.edu.election.rpc.ScoreServiceInvoker;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,6 +70,8 @@ public class CourseGradeLoad extends DataProLoad
                 studentInfo.getStudentId());
             throw new RuntimeException(msg);
         }
+        List<StudentScore> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentInfo.getStudentId());
+
         BeanUtils.copyProperties(stu, studentInfo);
         List<Map<String, Long>> results = new ArrayList<>();//TODO
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
