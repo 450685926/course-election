@@ -83,7 +83,7 @@ public class StudentElecRushCourseServiceImpl
                 }
             }
             Collections.sort(exceutors);
-            
+            LOG.info("---- exceutors:{} ----", exceutors.size());
             ElecRespose respose = context.getRespose();
             respose.getFailedCourses().clear();
             respose.getSuccessCourses().clear();
