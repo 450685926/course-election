@@ -173,7 +173,8 @@ public class StudentElecServiceImpl implements StudentElecService
             if (count == 0)
             {
                 respose.getFailedCourses().add(teacherClassId);
-                //respose.getFailedReasons().put(key, "人数已满") TODO
+                respose.getFailedReasons()
+                    .put(teacherClassId + "Type", rule.getServiceName());
                 return;
             }
         }
