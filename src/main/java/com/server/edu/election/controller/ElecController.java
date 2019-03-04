@@ -135,6 +135,8 @@ public class ElecController
         }
         elecRequest.setChooseObj(ChooseObj.STU.type());
         elecRequest.setStudentId(session.realUid());
+        elecRequest.setCreateBy(session.getUid());
+        elecRequest.setRequestIp(session.getIp());
         
         return elecService.elect(elecRequest);
     }

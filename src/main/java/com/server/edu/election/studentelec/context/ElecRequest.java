@@ -31,6 +31,10 @@ public class ElecRequest
     /**退课集合 教学班ID*/
     private List<Long> withdrawTeachClasss;
     
+    private String createBy;
+    
+    private String requestIp;
+    
     public String getStudentId()
     {
         return studentId;
@@ -80,4 +84,25 @@ public class ElecRequest
     {
         this.withdrawTeachClasss = withdrawTeachClasss;
     }
+
+    public String getCreateBy()
+    {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy)
+    {
+        this.createBy = createBy;
+    }
+
+    public String getRequestIp()
+    {
+        return requestIp;
+    }
+
+    public void setRequestIp(String requestIp)
+    {
+        this.requestIp = requestIp;
+    }
+    
 }

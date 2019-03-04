@@ -27,6 +27,8 @@ import com.server.edu.election.validate.AgentElcGroup;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -110,7 +112,9 @@ public class ElecAgentController
         {
             throw new ParameterValidateException("chooseObj not be null");
         }
-        
+        Session session = SessionUtils.getCurrentSession();
+        elecRequest.setCreateBy(session.getUid());
+        elecRequest.setRequestIp(session.getIp());
         return elecService.elect(elecRequest);
     }
     
