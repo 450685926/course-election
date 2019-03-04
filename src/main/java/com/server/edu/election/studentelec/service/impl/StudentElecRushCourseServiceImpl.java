@@ -105,6 +105,8 @@ public class StudentElecRushCourseServiceImpl
                     {
                         // 校验不通过时跳过后面的校验进行下一个
                         allSuccess = false;
+                        respose.getFailedCourses().add(teachClassId);
+                        respose.getFailedReasons().put(teachClassId+"Type", exceutor.getClass().getSimpleName());
                         break;
                     }
                 }
@@ -112,10 +114,6 @@ public class StudentElecRushCourseServiceImpl
                 {
                     respose.getSuccessCourses().add(teachClassId);
                     successList.add(teachClass);
-                }
-                else
-                {
-                    respose.getFailedCourses().add(teachClassId);
                 }
             }
             
