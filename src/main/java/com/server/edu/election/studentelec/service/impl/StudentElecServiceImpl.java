@@ -2,6 +2,8 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ import com.server.edu.session.util.entity.Session;
 @Service
 public class StudentElecServiceImpl implements StudentElecService
 {
+    Logger LOG = LoggerFactory.getLogger(getClass());
     @Autowired
     private ElecQueueService<ElecRequest> queueService;
     
@@ -168,6 +171,7 @@ public class StudentElecServiceImpl implements StudentElecService
         Long teacherClassId = courseClass.getTeacherClassId();
         if (rule != null)
         {
+            LOG.info("---- LimitCountCheckerRule ----");
             // 增加选课人数
             int count = classDao.increElcNumberAtomic(teacherClassId);
             if (count == 0)
