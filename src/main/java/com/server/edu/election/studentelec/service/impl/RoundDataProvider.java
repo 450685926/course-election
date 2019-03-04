@@ -76,16 +76,14 @@ public class RoundDataProvider
         Date now = new Date();
         Set<String> keys =
             redisTemplate.keys(String.format(Keys.ROUND_KEY, "*"));
-        List<String> deleteRoundKeys = new ArrayList<>();
         for (ElectionRounds round : selectBeStart)
         {
             Long roundId = round.getId();
             String key = String.format(Keys.ROUND_KEY, roundId);
             // 不存在的数据需要删除的Key
-            if (!keys.contains(key))
+            if (keys.contains(key))
             {
-                deleteRoundKeys.add(key);
-                continue;
+                keys.remove(key);
             }
             
             Date endTime = round.getEndTime();
@@ -120,9 +118,9 @@ public class RoundDataProvider
             }
         }
         
-        if (CollectionUtil.isNotEmpty(deleteRoundKeys))
+        if (CollectionUtil.isNotEmpty(keys))
         {
-            for (String key : deleteRoundKeys)
+            for (String key : keys)
             {
                 String roundId =
                     key.replace(String.format(Keys.ROUND_KEY, ""), "");
