@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -133,5 +134,24 @@ public class ElecAgentController
             elecService.getElectResult(elecRequest.getRoundId(), studentId);
         return RestResult.successData(response);
     }
+
+    /**
+    *@Description: 通过学号和轮次获取学生信息
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/5 14:13
+    */
+    @ApiOperation(value = "查询轮次学生信息")
+    @PostMapping("/findStuRound")
+    public RestResult<Student> findStuRound(
+            @RequestBody ElecRequest elecRequest)
+    {
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+
+        Student stu=elecService.findStuRound(elecRequest.getRoundId(), elecRequest.getStudentId());
+        return RestResult.successData(stu);
+    }
+
     
 }

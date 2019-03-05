@@ -121,4 +121,5 @@
 			and t2.STUDENT_ID_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
 		</where>
 	</select>
+
 </mapper>

@@ -109,5 +109,12 @@
 	        and (t1.STUDENT_CODE_ like concat('%',#{name},'%') or t1.NAME_ like concat('%',#{name},'%'))
 	    </if>
     </select>    
-    
+
+	<select id="findStuRound" resultMap="BaseResultMap">
+		select 
+		<include refid="Base_Column_List"></include>
+		from student_t t1
+		join election_rounds_stu_t t2 on t2.STUDENT_ID_=t1.STUDENT_CODE_
+		WHERE t2.STUDENT_ID_=#{studentId} and t2.ROUNDS_ID_=#{roundId}
+	</select>
 </mapper>

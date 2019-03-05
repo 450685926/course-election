@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.entity.StudentScore;
+import com.server.edu.election.rpc.ScoreServiceInvoker;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,21 +70,25 @@ public class CourseGradeLoad extends DataProLoad
                 studentInfo.getStudentId());
             throw new RuntimeException(msg);
         }
+        List<StudentScore> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentInfo.getStudentId());
+
         BeanUtils.copyProperties(stu, studentInfo);
-        List<Map<String, Long>> results = new ArrayList<>();//TODO
+
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        for (Map<String, Long> map : results)
-        {
-            Long courseId = map.get("courseCode");
-            Long passed = map.get("passed");
-            if (passed == 1)
-            {
+        if(CollectionUtil.isNotEmpty(stuScoreBest)){
+
+            for (StudentScore studentScore : stuScoreBest) {
                 CompletedCourse lesson = new CompletedCourse();
-                lesson.setCourseCode("");
-                lesson.setCourseName("");
+                lesson.setCourseCode(studentScore.getCourseCode());
+                lesson.setCourseName(studentScore.getCourseName());
+                lesson.setScore(studentScore.getTotalMarkScore());
+                lesson.setCredits(studentScore.getCredit());
+                lesson.setExcellent(true);
                 completedCourses.add(lesson);
             }
         }
+
+
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         //得到校历id
