@@ -5,6 +5,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import com.server.edu.election.validate.AgentElcGroup;
 
 /**
@@ -23,7 +25,7 @@ public class ElecRequest
      */
     private Integer chooseObj;
     
-    @NotNull(groups = {AgentElcGroup.class})
+    @NotBlank(groups = {AgentElcGroup.class})
     private String studentId;
     
     /** 选课集合 教学班ID*/
