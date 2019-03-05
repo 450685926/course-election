@@ -2,6 +2,8 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.Date;
 
+import com.server.edu.election.dao.*;
+import com.server.edu.election.entity.Student;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRounds;
@@ -49,6 +48,9 @@ public class StudentElecServiceImpl implements StudentElecService
     
     @Autowired
     private RoundDataProvider dataProvider;
+
+    @Autowired
+    private StudentDao stuDao;
     
     @Override
     public RestResult<ElecRespose> loading(Long roundId, String studentId)
@@ -216,5 +218,12 @@ public class StudentElecServiceImpl implements StudentElecService
         log.setType(ElcLogVo.TYPE_1);
         this.elcLogDao.insertSelective(log);
     }
-    
+
+    /**根据轮次查询学生信息*/
+    @Override
+    public Student findStuRound(Long roundId, String studentId) {
+        Student stu= stuDao.findStuRound(roundId,studentId);
+        return stu;
+    }
+
 }
