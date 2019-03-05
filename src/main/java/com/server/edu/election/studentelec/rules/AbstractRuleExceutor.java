@@ -27,16 +27,18 @@ public abstract class AbstractRuleExceutor
     
     private ElectRuleType type;
     
+    private String description;
+    
     public String getProjectId()
     {
         return projectId;
     }
-
+    
     public void setProjectId(String projectId)
     {
         this.projectId = projectId;
     }
-
+    
     @Override
     public void setType(ElectRuleType type)
     {
@@ -47,6 +49,16 @@ public abstract class AbstractRuleExceutor
     public ElectRuleType getType()
     {
         return this.type;
+    }
+    
+    public String getDescription()
+    {
+        return description;
+    }
+    
+    public void setDescription(String description)
+    {
+        this.description = description;
     }
     
 }

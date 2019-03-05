@@ -22,9 +22,6 @@ public class ElecRespose
     /** 选课成功集合 教学班id*/
     private List<Long> successCourses;
     
-    /** 选课失败集合 教学班id*/
-    private List<Long> failedCourses;
-    
     /** 选课失败原因 key为教学班id value为原因说明*/
     private Map<String, String> failedReasons;
     
@@ -49,20 +46,6 @@ public class ElecRespose
     public void setSuccessCourses(List<Long> successCourses)
     {
         this.successCourses = successCourses;
-    }
-    
-    public List<Long> getFailedCourses()
-    {
-        if (failedCourses == null)
-        {
-            failedCourses = new ArrayList<>();
-        }
-        return failedCourses;
-    }
-    
-    public void setFailedCourses(List<Long> failedCourses)
-    {
-        this.failedCourses = failedCourses;
     }
     
     public Map<String, String> getFailedReasons()

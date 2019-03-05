@@ -79,13 +79,13 @@ public class StudentElecRushCourseServiceImpl
                 {
                     excetor.setProjectId(ruleVo.getManagerDeptId());
                     excetor.setType(ElectRuleType.valueOf(ruleVo.getType()));
+                    excetor.setDescription(ruleVo.getName());
                     exceutors.add(excetor);
                 }
             }
             Collections.sort(exceutors);
             LOG.info("---- exceutors:{} ----", exceutors.size());
             ElecRespose respose = context.getRespose();
-            respose.getFailedCourses().clear();
             respose.getSuccessCourses().clear();
             respose.getFailedReasons().clear();
             
@@ -105,8 +105,9 @@ public class StudentElecRushCourseServiceImpl
                     {
                         // 校验不通过时跳过后面的校验进行下一个
                         allSuccess = false;
-                        respose.getFailedCourses().add(teachClassId);
-                        respose.getFailedReasons().put(teachClassId+"Type", exceutor.getClass().getSimpleName());
+                        respose.getFailedReasons()
+                            .put(teachClassId.toString(),
+                                exceutor.getDescription());
                         break;
                     }
                 }
@@ -123,10 +124,10 @@ public class StudentElecRushCourseServiceImpl
                 elecService.saveElc(context, courseClass);
                 
                 SelectedCourse course = new SelectedCourse(courseClass);
-//                course.setPublicElec();
+                //                course.setPublicElec();
                 course.setSelectedRound(round.getTurn());
-//                course.setTime(time);
-//                course.setWeeks(weeks);
+                //                course.setTime(time);
+                //                course.setWeeks(weeks);
                 context.getSelectedCourses().add(course);
             }
             // 数据保存到缓存
