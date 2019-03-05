@@ -34,6 +34,7 @@ import com.server.edu.election.vo.ElectionRuleVo;
 public class StudentElecServiceImpl implements StudentElecService
 {
     Logger LOG = LoggerFactory.getLogger(getClass());
+    
     @Autowired
     private ElecQueueService<ElecRequest> queueService;
     
@@ -174,9 +175,8 @@ public class StudentElecServiceImpl implements StudentElecService
             int count = classDao.increElcNumberAtomic(teacherClassId);
             if (count == 0)
             {
-                respose.getFailedCourses().add(teacherClassId);
                 respose.getFailedReasons()
-                    .put(teacherClassId + "Type", rule.getServiceName());
+                    .put(teacherClassId.toString(), rule.getName());
                 return;
             }
         }
