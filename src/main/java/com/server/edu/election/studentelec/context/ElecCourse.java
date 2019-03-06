@@ -17,6 +17,9 @@ public class ElecCourse
     /**校区*/
     private String campus;
     
+    /** 是否公选课 */
+    private boolean publicElec;
+    
     public String getCourseCode()
     {
         return courseCode;
@@ -67,12 +70,22 @@ public class ElecCourse
         this.campus = campus;
     }
     
+    public boolean isPublicElec()
+    {
+        return publicElec;
+    }
+    
+    public void setPublicElec(boolean publicElec)
+    {
+        this.publicElec = publicElec;
+    }
+    
     @Override
     public int hashCode()
     {
         return Objects.hashCode(this.courseCode);
     }
-
+    
     @Override
     public boolean equals(Object obj)
     {

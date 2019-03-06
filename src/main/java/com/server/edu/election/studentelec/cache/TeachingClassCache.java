@@ -144,7 +144,7 @@ public class TeachingClassCache extends ElecCourse
         {
             TeachingClassCache o = (TeachingClassCache)obj;
             return StringUtils.equals(this.teacherClassCode, o.teacherClassCode)
-                && this.teacherClassId.equals(o.teacherClassId);
+                && Objects.equals(this.teacherClassId, o.teacherClassId);
         }
         return false;
     }
