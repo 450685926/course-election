@@ -32,4 +32,18 @@ public class ScoreServiceInvoker {
 
         return restResult.getData();
     }
+
+    public static StudentScore findViolationStu(String studentCode,String courseCode)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<StudentScore> restResult =
+                ServicePathEnum.SCORESERVICE.getForObject(
+                        "/studentScoreCount/findViolationStu/?studentCode={studentCode}&courseCode={courseCode}",
+                        RestResult.class,
+                        studentCode,courseCode);
+
+        return restResult.getData();
+    }
+
+
 }

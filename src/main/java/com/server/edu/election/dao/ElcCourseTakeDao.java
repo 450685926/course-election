@@ -1,7 +1,6 @@
 package com.server.edu.election.dao;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -101,7 +100,7 @@ public interface ElcCourseTakeDao
 
     void addCourseTakeFromRecycle(List<RebuildCourseNoChargeList> list);
     /**已选择课程信息*/
-    List<SelectedCourseVo> findSelectedCourses(Map<String, Object> map);
+    List<SelectedCourseVo> findSelectedCourses(List<Long> list);
     
     
 }

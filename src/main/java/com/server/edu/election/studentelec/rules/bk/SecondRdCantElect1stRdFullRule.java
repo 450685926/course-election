@@ -25,83 +25,8 @@ public class SecondRdCantElect1stRdFullRule extends AbstractRuleExceutor {
 		return Integer.MAX_VALUE;
 	}
 
-	public void prepare() {
-		// context.getState().getParams().put(PARAM, true);
-	}
-
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		// ElectionCourseContext electContext = (ElectionCourseContext) context;
-		// // 如果不是选课那就算了
-		// ElectRuleType eltype = electContext.getOp();
-		// if(!ElectRuleType.ELECTION.equals(eltype) &&
-		// !ElectRuleType.EXCHANGE.equals(eltype)) {
-		// return true;
-		// }
-		// Lesson lesson = electContext.getCourseTake().getLesson();
-		// // 第一轮选课人数
-		// StringBuilder queryStr = new StringBuilder();
-		//// queryStr
-		//// .append("select l.limit_count, l.reserved_count, (select count(*) from
-		// t_course_takes t where t.lesson_id=l.id and t.remark='1')")
-		//// .append(" from t_lessons l where l.id=").append(lesson.getId());
-		//
-		// queryStr.append(
-		// "select count(take.id) as allCount ,sum((case std.gender_id when 1 then 1
-		// end)) as male, sum((case std.gender_id when 2 then 1 end)) as female")
-		// .append(" from t_course_takes take join c_students std on std.id =
-		// take.std_id join t_lessons lesson on lesson.id = take.lesson_id")
-		// .append(" where take.remark='1' and lesson.id=").append(lesson.getId());
-		// List<Object[]> counts = (List)entityDao.search(new
-		// SqlQuery(queryStr.toString()));
-		// if(CollectionUtils.isEmpty(counts)) {
-		// return true;
-		// }
-		// Object[] count = counts.get(0);
-		// int limitCount = lesson.getTeachClass().getLimitCount();
-		// int reservedCount = lesson.getTeachClass().getReservedCount();
-		// int firstRdCount = 0 ;
-		// if(count[0] != null) {
-		// firstRdCount = ((Number)count[0]).intValue();
-		// }
-		// if(limitCount - reservedCount - firstRdCount <= 0) {
-		// context.addMessage(new ElectMessage("第一轮已选满，不能再选", ElectRuleType.ELECTION,
-		// false, lesson));
-		// return false;
-		// }
-		//
-		// //男女生判断
-		// Integer male = lesson.getTeachClass().getMale();
-		// Integer female = lesson.getTeachClass().getFemale();
-		// if (male == null || female == null) {
-		// return true;
-		// }
-		// if (male == 0 || female == 0) {
-		// return true;
-		// }
-		// int maleCount = 0;
-		// int femaleCount = 0;
-		// if(null != count[1]){
-		// maleCount = ((Number)count[1]).intValue();
-		// }
-		// if(null != count[2]){
-		// femaleCount = ((Number)count[2]).intValue();
-		// }
-		//
-		// Long genderId = electContext.getState().getStd().getGenderId();
-		// if(genderId == 1l){//男生上限判断
-		// if (maleCount >= male) {
-		// context.addMessage(new ElectMessage("男生上限已满，不能再选",
-		// ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }else if (genderId == 2l){//女生上限判断
-		// if (femaleCount >= female) {
-		// context.addMessage(new ElectMessage("女生上限已满，不能再选",
-		// ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }
 
 		return true;
 	}
