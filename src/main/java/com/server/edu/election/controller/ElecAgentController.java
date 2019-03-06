@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -158,7 +157,7 @@ public class ElecAgentController
     }
     
     @ApiOperation(value = "清除学生选课缓存数据")
-    @GetMapping("/clearCache")
+    @PostMapping("/clearCache")
     public RestResult<?> clearCache(@RequestBody ElecRequest elecRequest)
     {
         ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
