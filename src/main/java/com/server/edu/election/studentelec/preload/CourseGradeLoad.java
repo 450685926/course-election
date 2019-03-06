@@ -1,24 +1,22 @@
 package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.entity.StudentScore;
-import com.server.edu.election.rpc.ScoreServiceInvoker;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.entity.StudentScore;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -110,12 +108,10 @@ public class CourseGradeLoad extends DataProLoad
             elcCourseTakeDao.selectByExample(example);
         if (CollectionUtil.isNotEmpty(elcCourseTake))
         {
-            Map<String, Object> map = new HashMap<>();
-            map.put("studentId", studentInfo.getStudentId());
-            map.put("calendarId", calendarId);
-            //按周数拆分的选课数据集合
+        	List<Long> elcCourseTakeIds = elcCourseTake.stream().map(temp->temp.getId()).collect(Collectors.toList());
+        	//按周数拆分的选课数据集合
             List<SelectedCourseVo> list =
-                elcCourseTakeDao.findSelectedCourses(map);
+                elcCourseTakeDao.findSelectedCourses(elcCourseTakeIds);
             elcCourseTake.forEach(c -> {
                 SelectedCourse selectedCourse = new SelectedCourse();
                 //一个教学班的课程信息
@@ -141,7 +137,7 @@ public class CourseGradeLoad extends DataProLoad
                         .collect(Collectors.toList());
                     temp.setWeeks(weeks);
                 });
-                BeanUtils.copyProperties(selectedCourse, voList.get(0));
+                BeanUtils.copyProperties(voList.get(0), selectedCourse);
                 selectedCourse.setTimes(timeUnits);
                 selectedCourses.add(selectedCourse);
             });

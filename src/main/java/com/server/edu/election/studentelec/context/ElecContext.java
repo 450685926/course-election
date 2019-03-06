@@ -20,7 +20,7 @@ public class ElecContext
     /** 已完成课程 */
     private Set<CompletedCourse> completedCourses;
     
-    /** 已选择课程 */
+    /** 本学期已选择课程 */
     private Set<SelectedCourse> selectedCourses;
     
     /** 免修申请课程 */

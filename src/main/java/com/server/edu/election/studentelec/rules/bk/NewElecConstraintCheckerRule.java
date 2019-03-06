@@ -12,6 +12,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
+import java.util.DoubleSummaryStatistics;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,13 +74,14 @@ public class NewElecConstraintCheckerRule extends AbstractRuleExceutor {
 					num = Double.parseDouble(credits);
 					Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 					Set<SelectedCourse> collect = selectedCourses.stream().filter(selectedCourse -> selectedCourse.isRebuildElec() == false).collect(Collectors.toSet());
-						
-					if(size<num){
+					double size = collect.stream().collect(Collectors.summingDouble(SelectedCourse::getCredits));//已经新选学分
+					Double curCredits = courseClass.getCredits();//当前课程学分
+					if(curCredits+size<=num){
 						return true;
 					}else{
 						ElecRespose respose = context.getRespose();
 						respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
-								I18nUtil.getMsg("ruleCheck.rebuildElecNumberLimit"));
+								I18nUtil.getMsg("ruleCheck.creditsLimit"));
 					}
 				} catch (NumberFormatException e) {
 					e.printStackTrace();

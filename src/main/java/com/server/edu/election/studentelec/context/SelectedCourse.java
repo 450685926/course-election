@@ -1,6 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
 import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 已选择课程
@@ -10,12 +13,14 @@ public class SelectedCourse extends ElecCourse
     /** 选择该门课时的轮次 */
     private Integer selectedRound;
     
+
     /** 是否公选课 */
     private boolean isPublicElec;
 
     /**是否重修课*/
     private boolean isRebuildElec;
     
+
     /** 上课时间 */
     private List<TimeUnit> times;
     
@@ -50,25 +55,18 @@ public class SelectedCourse extends ElecCourse
     {
         this.selectedRound = selectedRound;
     }
-    
-    public boolean isPublicElec()
-    {
-        return isPublicElec;
-    }
-    
-    public void setPublicElec(boolean publicElec)
-    {
-        isPublicElec = publicElec;
-    }
-    
 
-	public List<TimeUnit> getTimes() {
-		return times;
-	}
+    public List<TimeUnit> getTimes()
+    {
+        return times;
+    }
 
-	public void setTimes(List<TimeUnit> times) {
-		this.times = times;
-	}
+    public void setTimes(List<TimeUnit> times)
+    {
+        this.times = times;
+    }
+
+
 
 	public Integer getChooseObj() {
 		return chooseObj;
@@ -93,4 +91,39 @@ public class SelectedCourse extends ElecCourse
     public void setRebuildElec(boolean rebuildElec) {
         isRebuildElec = rebuildElec;
     }
+
+    @Override
+    public boolean isPublicElec() {
+        return isPublicElec;
+    }
+
+    @Override
+    public void setPublicElec(boolean publicElec) {
+        isPublicElec = publicElec;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.teachingclassId, this.getCourseCode());
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        
+        if (obj instanceof SelectedCourse)
+        {
+            SelectedCourse o = (SelectedCourse)obj;
+            return Objects.equals(this.teachingclassId, o.teachingclassId)
+                && StringUtils.equals(this.getCourseCode(), o.getCourseCode());
+        }
+        return false;
+    }
+    
+
 }
