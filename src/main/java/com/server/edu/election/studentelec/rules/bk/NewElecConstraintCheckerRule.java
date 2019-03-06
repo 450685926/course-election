@@ -1,10 +1,20 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.SelectedCourse;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+
+import java.util.DoubleSummaryStatistics;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 选课限制检查器<br>
@@ -16,81 +26,73 @@ public class NewElecConstraintCheckerRule extends AbstractRuleExceutor {
 
 	public static final String STATE_PARAM = "NEW_ELECT_CONS";
 
-	public void prepare() {
-		// Student std = context.getStudent();
-		//// if(context.getState().getParams().get(STATE_PARAM) == null) {
-		// OqlBuilder<ElectionConstraintBean> query = OqlBuilder
-		// .from(ElectionConstraintBean.class, "cons")
-		// .where("cons.std.id = :stdId", std.getId())
-		// .where("cons.semester.id = :semesterId", context.getState().getSemesterId());
-		// ElectionConstraintBean cons = entityDao.uniqueResult(query);
-		// // unproxy hibernate
-		// if(cons!= null){
-		// cons.setSemester(Model.newInstance(Semester.class,
-		// cons.getSemester().getId()));
-		// cons.setStd(Model.newInstance(Student.class, cons.getStd().getId()));
-		// context.getState().getParams().put(STATE_PARAM, cons);
-		// }
-	}
+	@Autowired
+	private ElectionConstantsDao constantsDao;
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		// ElectionCourseContext electContext = (ElectionCourseContext) context;
-		// ElectState state = electContext.getState();
-		// Lesson lesson = electContext.getLesson();
-		//
-		// ElectionConstraintBean cons = (ElectionConstraintBean)
-		// state.getParams().get(STATE_PARAM);
-		// if(cons == null) {
-		// electContext.addMessage(new ElectMessage("您缺少选课学分限制，无法选课。请联系管理员。",
-		// ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		//
-		// if(ElectRuleType.EXCHANGE.equals(electContext.getOp())) {
-		// return true;
-		// }
-		//
-		// // 总的学分上限（包含重修和新选的）
-		// if(cons.getMaxCredits() != null) {
-		// if(cons.getGotCredits() + lesson.getCourse().getCredits() >
-		// cons.getMaxCredits()) {
-		// electContext.addMessage(new ElectMessage("本学期选课学分已达总学分上限：" +
-		// cons.getMaxCredits(), ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }
-		//
-		// // 总的门数上限（包含重修和新选的）
-		// if(cons.getMaxCourseCount() != null) {
-		// if(cons.getGotCourseCount() + 1 > cons.getMaxCourseCount()) {
-		// electContext.addMessage(new ElectMessage("本学期选课门数已达总门数上限：" +
-		// cons.getMaxCourseCount(), ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }
-		//
-		// if(state.isRetakeCourse(lesson.getCourse().getId())) {
-		// // 重修门数上限
-		// if(cons.getMaxRetakeCourseCount() != null) {
-		// if(cons.getGotRetakeCourseCount() + 1 > cons.getMaxRetakeCourseCount()) {
-		// electContext.addMessage(new ElectMessage("本学期重修课门数已达上限：" +
-		// cons.getMaxRetakeCourseCount(), ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }
-		// } else {
-		// // 新选学分上限
-		// if(cons.getMaxNewCredits() != null) {
-		// if(cons.getGotNewCredits() + lesson.getCourse().getCredits() >
-		// cons.getMaxNewCredits()) {
-		// electContext.addMessage(new ElectMessage("本学期新选学分已达上限：" +
-		// cons.getMaxNewCredits(), ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }
-		// }
-		return true;
+
+		if(courseClass.getTeacherClassId()!=null){
+			if("1".equals(courseClass.getTeacherClassType())){//重修
+				String number = constantsDao.findRebuildCourseNumber();
+				if(StringUtils.isBlank(number)){
+					ElecRespose respose = context.getRespose();
+					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							I18nUtil.getMsg("ruleCheck.rebuildElcNumNotExist"));
+					return false;
+				}
+				int totalNumber = 0;
+				try {
+					totalNumber = Integer.parseInt(number);
+					Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+					Set<SelectedCourse> collect = selectedCourses.stream().filter(selectedCourse -> selectedCourse.isRebuildElec() == true).collect(Collectors.toSet());
+					int size = collect.size();//已选重修门数
+					if(size<totalNumber){
+						return true;
+					}else{
+						ElecRespose respose = context.getRespose();
+						respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+								I18nUtil.getMsg("ruleCheck.rebuildElecNumberLimit"));
+					}
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+					ElecRespose respose = context.getRespose();
+					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							I18nUtil.getMsg("ruleCheck.psrseError"));
+
+				}
+			}else{//新选
+				String credits = constantsDao.findNewCreditsLimit();
+				if(StringUtils.isBlank(credits)){
+					ElecRespose respose = context.getRespose();
+					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							I18nUtil.getMsg("ruleCheck.rebuildElcNumNotExist"));
+					return false;
+				}
+				double num = 0.0;
+				try {
+					num = Double.parseDouble(credits);
+					Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+					Set<SelectedCourse> collect = selectedCourses.stream().filter(selectedCourse -> selectedCourse.isRebuildElec() == false).collect(Collectors.toSet());
+					double size = collect.stream().collect(Collectors.summingDouble(SelectedCourse::getCredits));//已经新选学分
+					Double curCredits = courseClass.getCredits();//当前课程学分
+					if(curCredits+size<=num){
+						return true;
+					}else{
+						ElecRespose respose = context.getRespose();
+						respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+								I18nUtil.getMsg("ruleCheck.creditsLimit"));
+					}
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+					ElecRespose respose = context.getRespose();
+					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							I18nUtil.getMsg("ruleCheck.psrseError"));
+
+				}
+			}
+		}
+		return false;
 	}
 
 }
