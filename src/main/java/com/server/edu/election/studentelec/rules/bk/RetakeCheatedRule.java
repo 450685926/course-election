@@ -45,6 +45,10 @@ public class RetakeCheatedRule extends AbstractRuleExceutor {
 					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
 							I18nUtil.getMsg(studentScore.getRemark()));
 				}
+			}else{
+				ElecRespose respose = context.getRespose();
+				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+						I18nUtil.getMsg("ruleCheck.scoreNotExist"));
 			}
 		}
 		return false;

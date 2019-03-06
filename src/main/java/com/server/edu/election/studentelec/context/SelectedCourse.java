@@ -12,6 +12,9 @@ public class SelectedCourse extends ElecCourse
     
     /** 是否公选课 */
     private boolean isPublicElec;
+
+    /**是否重修课*/
+    private boolean isRebuildElec;
     
     /** 上课时间 */
     private List<TimeUnit> times;
@@ -82,8 +85,12 @@ public class SelectedCourse extends ElecCourse
 	public void setTeachingclassId(Long teachingclassId) {
 		this.teachingclassId = teachingclassId;
 	}
-	
-	
-    
-    
+
+    public boolean isRebuildElec() {
+        return isRebuildElec;
+    }
+
+    public void setRebuildElec(boolean rebuildElec) {
+        isRebuildElec = rebuildElec;
+    }
 }
