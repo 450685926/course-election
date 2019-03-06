@@ -5,22 +5,17 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+
 /**
  * 已选择课程
  */
 public class SelectedCourse extends ElecCourse
 {
-    /** 选择该门课时的轮次 */
-    private Integer selectedRound;
-    
-
-    /** 是否公选课 */
-    private boolean isPublicElec;
-
     /**是否重修课*/
     private boolean isRebuildElec;
     
-
     /** 上课时间 */
     private List<TimeUnit> times;
     
@@ -31,6 +26,17 @@ public class SelectedCourse extends ElecCourse
      * 选课对象(1学生，2教务员，3管理员)
      */
     private Integer chooseObj;
+    
+    /**
+     * 修读类别(1正常修读,2重修,3免修不免考,4免修)
+     */
+    @Code2Text(DictTypeEnum.X_XDLX)
+    private Integer courseTakeType;
+    
+    /**
+     * 第几轮
+     */
+    private Integer turn;
     
     public SelectedCourse()
     {
@@ -46,62 +52,66 @@ public class SelectedCourse extends ElecCourse
         this.setNameEn(course.getNameEn());
     }
     
-    public Integer getSelectedRound()
-    {
-        return selectedRound;
-    }
-    
-    public void setSelectedRound(Integer selectedRound)
-    {
-        this.selectedRound = selectedRound;
-    }
-
     public List<TimeUnit> getTimes()
     {
         return times;
     }
-
+    
     public void setTimes(List<TimeUnit> times)
     {
         this.times = times;
     }
-
-
-
-	public Integer getChooseObj() {
-		return chooseObj;
-	}
-
-	public void setChooseObj(Integer chooseObj) {
-		this.chooseObj = chooseObj;
-	}
-
-	public Long getTeachingclassId() {
-		return teachingclassId;
-	}
-
-	public void setTeachingclassId(Long teachingclassId) {
-		this.teachingclassId = teachingclassId;
-	}
-
-    public boolean isRebuildElec() {
+    
+    public Integer getChooseObj()
+    {
+        return chooseObj;
+    }
+    
+    public void setChooseObj(Integer chooseObj)
+    {
+        this.chooseObj = chooseObj;
+    }
+    
+    public Long getTeachingclassId()
+    {
+        return teachingclassId;
+    }
+    
+    public void setTeachingclassId(Long teachingclassId)
+    {
+        this.teachingclassId = teachingclassId;
+    }
+    
+    public boolean isRebuildElec()
+    {
         return isRebuildElec;
     }
-
-    public void setRebuildElec(boolean rebuildElec) {
+    
+    public void setRebuildElec(boolean rebuildElec)
+    {
         isRebuildElec = rebuildElec;
     }
-
-    @Override
-    public boolean isPublicElec() {
-        return isPublicElec;
+    
+    public Integer getCourseTakeType()
+    {
+        return courseTakeType;
     }
-
-    @Override
-    public void setPublicElec(boolean publicElec) {
-        isPublicElec = publicElec;
+    
+    public void setCourseTakeType(Integer courseTakeType)
+    {
+        this.courseTakeType = courseTakeType;
     }
-
+    
+    public Integer getTurn()
+    {
+        return turn;
+    }
+    
+    public void setTurn(Integer turn)
+    {
+        this.turn = turn;
+    }
+    
     @Override
     public int hashCode()
     {
@@ -125,5 +135,4 @@ public class SelectedCourse extends ElecCourse
         return false;
     }
     
-
 }
