@@ -16,7 +16,7 @@ public class ElecContext
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
-
+    
     /** 已完成课程 */
     private Set<CompletedCourse> completedCourses;
     
@@ -28,6 +28,9 @@ public class ElecContext
     
     /** 个人计划内课程 */
     private Set<ElecCourse> planCourses;
+    
+    /** 通识选修课程 */
+    private Set<ElecCourse> publicCourses;
     
     private ElecRequest request;
     
@@ -49,6 +52,8 @@ public class ElecContext
         applyForDropCourses =
             this.contextUtil.getSet("ApplyForDropCourses", ElecCourse.class);
         planCourses = this.contextUtil.getSet("PlanCourses", ElecCourse.class);
+        publicCourses =
+            this.contextUtil.getSet("publicCourses", ElecCourse.class);
     }
     
     /**
@@ -100,6 +105,11 @@ public class ElecContext
     public Set<ElecCourse> getPlanCourses()
     {
         return planCourses;
+    }
+    
+    public Set<ElecCourse> getPublicCourses()
+    {
+        return publicCourses;
     }
     
     public ElecRequest getRequest()
