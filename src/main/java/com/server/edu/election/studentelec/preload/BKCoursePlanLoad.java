@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -9,9 +8,11 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.entity.Course;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -35,24 +36,26 @@ public class BKCoursePlanLoad extends DataProLoad
     public void load(ElecContext context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        List<String> courseCodes = new ArrayList<>();
-//            CultureSerivceInvoker.getCourseCodes(stu.getStudentId());
-        courseCodes.add("041352");
+        List<String> courseCodes =
+            CultureSerivceInvoker.getCourseCodes(stu.getStudentId());
         
-        Set<ElecCourse> planCourses = context.getPlanCourses();
-        
-        Example example = new Example(Course.class);
-        example.createCriteria().andIn("code", courseCodes);
-        List<Course> list = courseDao.selectByExample(example);
-        
-        for (Course course : list)
+        if (CollectionUtil.isNotEmpty(courseCodes))
         {
-            ElecCourse c = new ElecCourse();
-            c.setCourseCode(course.getCode());
-            c.setCourseName(course.getName());
-            c.setCredits(course.getCredits());
-            c.setNameEn(course.getNameEn());
-            planCourses.add(c);
+            Set<ElecCourse> planCourses = context.getPlanCourses();
+            
+            Example example = new Example(Course.class);
+            example.createCriteria().andIn("code", courseCodes);
+            List<Course> list = courseDao.selectByExample(example);
+            
+            for (Course course : list)
+            {
+                ElecCourse c = new ElecCourse();
+                c.setCourseCode(course.getCode());
+                c.setCourseName(course.getName());
+                c.setCredits(course.getCredits());
+                c.setNameEn(course.getNameEn());
+                planCourses.add(c);
+            }
         }
         
     }
