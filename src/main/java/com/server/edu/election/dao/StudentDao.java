@@ -18,6 +18,9 @@ public interface StudentDao extends Mapper<Student> {
 
     /**根据轮次查询学生信息*/
     Student findStuRound(@Param("roundId") Long roundId, @Param("studentId")String studentId);
+
+    /**是否是预警学生*/
+    Student isLoserStu(@Param("roundId") Long roundId, @Param("studentId")String studentId);
 }
 
 
