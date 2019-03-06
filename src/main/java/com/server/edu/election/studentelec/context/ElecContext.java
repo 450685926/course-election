@@ -16,7 +16,7 @@ public class ElecContext
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
-    
+
     /** 已完成课程 */
     private Set<CompletedCourse> completedCourses;
     

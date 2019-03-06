@@ -13,6 +13,14 @@ public class SelectedCourse extends ElecCourse
     /** 选择该门课时的轮次 */
     private Integer selectedRound;
     
+
+    /** 是否公选课 */
+    private boolean isPublicElec;
+
+    /**是否重修课*/
+    private boolean isRebuildElec;
+    
+
     /** 上课时间 */
     private List<TimeUnit> times;
     
@@ -47,37 +55,53 @@ public class SelectedCourse extends ElecCourse
     {
         this.selectedRound = selectedRound;
     }
-    
+
     public List<TimeUnit> getTimes()
     {
         return times;
     }
-    
+
     public void setTimes(List<TimeUnit> times)
     {
         this.times = times;
     }
-    
-    public Integer getChooseObj()
-    {
-        return chooseObj;
+
+
+
+	public Integer getChooseObj() {
+		return chooseObj;
+	}
+
+	public void setChooseObj(Integer chooseObj) {
+		this.chooseObj = chooseObj;
+	}
+
+	public Long getTeachingclassId() {
+		return teachingclassId;
+	}
+
+	public void setTeachingclassId(Long teachingclassId) {
+		this.teachingclassId = teachingclassId;
+	}
+
+    public boolean isRebuildElec() {
+        return isRebuildElec;
     }
-    
-    public void setChooseObj(Integer chooseObj)
-    {
-        this.chooseObj = chooseObj;
+
+    public void setRebuildElec(boolean rebuildElec) {
+        isRebuildElec = rebuildElec;
     }
-    
-    public Long getTeachingclassId()
-    {
-        return teachingclassId;
+
+    @Override
+    public boolean isPublicElec() {
+        return isPublicElec;
     }
-    
-    public void setTeachingclassId(Long teachingclassId)
-    {
-        this.teachingclassId = teachingclassId;
+
+    @Override
+    public void setPublicElec(boolean publicElec) {
+        isPublicElec = publicElec;
     }
-    
+
     @Override
     public int hashCode()
     {
@@ -101,4 +125,5 @@ public class SelectedCourse extends ElecCourse
         return false;
     }
     
+
 }
