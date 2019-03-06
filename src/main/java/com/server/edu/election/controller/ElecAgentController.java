@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -19,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.validate.AgentElcGroup;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -134,7 +136,7 @@ public class ElecAgentController
             elecService.getElectResult(elecRequest.getRoundId(), studentId);
         return RestResult.successData(response);
     }
-
+    
     /**
     *@Description: 通过学号和轮次获取学生信息
     *@Param:
@@ -145,13 +147,26 @@ public class ElecAgentController
     @ApiOperation(value = "查询轮次学生信息")
     @PostMapping("/findStuRound")
     public RestResult<Student> findStuRound(
-            @RequestBody ElecRequest elecRequest)
+        @RequestBody ElecRequest elecRequest)
     {
         ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
-
-        Student stu=elecService.findStuRound(elecRequest.getRoundId(), elecRequest.getStudentId());
+        
+        Student stu = elecService.findStuRound(elecRequest.getRoundId(),
+            elecRequest.getStudentId());
         return RestResult.successData(stu);
     }
-
+    
+    @ApiOperation(value = "清除学生选课缓存数据")
+    @PostMapping("/clearCache")
+    public RestResult<?> clearCache(@RequestBody ElecRequest elecRequest)
+    {
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        
+        ElecContextUtil.setElecStatus(elecRequest.getRoundId(),
+            elecRequest.getStudentId(),
+            ElecStatus.Init);
+        
+        return RestResult.success();
+    }
     
 }

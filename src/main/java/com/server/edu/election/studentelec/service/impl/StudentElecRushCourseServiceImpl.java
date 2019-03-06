@@ -125,7 +125,7 @@ public class StudentElecRushCourseServiceImpl
                 
                 SelectedCourse course = new SelectedCourse(courseClass);
                 //                course.setPublicElec();
-                course.setSelectedRound(round.getTurn());
+                course.setTurn(round.getTurn());
                 //                course.setTime(time);
                 //                course.setWeeks(weeks);
                 context.getSelectedCourses().add(course);

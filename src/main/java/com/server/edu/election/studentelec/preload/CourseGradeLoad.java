@@ -138,6 +138,8 @@ public class CourseGradeLoad extends DataProLoad
                     temp.setWeeks(weeks);
                 });
                 BeanUtils.copyProperties(voList.get(0), selectedCourse);
+                selectedCourse.setTurn(c.getTurn());
+                selectedCourse.setCourseTakeType(c.getCourseTakeType());
                 selectedCourse.setTimes(timeUnits);
                 selectedCourses.add(selectedCourse);
             });
