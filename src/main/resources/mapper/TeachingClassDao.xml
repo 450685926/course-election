@@ -101,6 +101,15 @@
 	GROUP BY cour.id_, cour.code_, open.COURSE_NAME_ 
   </select>
   
+
+    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+        select ti.ID_ arrangeTimeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber
+        from teaching_class_t t2
+        join teaching_class_arrange_time_t ti on t2.ID_ = ti.TEACHING_CLASS_ID_
+        join teaching_class_arrange_room_t ro on ti.ID_=ro.ARRANGE_TIME_ID_
+        where t2.ID_=#{teachingClassId}
+    </select>
+
   <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
 		 SELECT
 			t2.ID_ teachClassId,

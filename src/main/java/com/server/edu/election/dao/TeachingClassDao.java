@@ -93,7 +93,13 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     List<ElecCourse> selectSuggestCourse(@Param("stu") StudentInfoCache stu);
+
+
+    /**通过teachingClassId查询时间*/
+    List<ClassTimeUnit> findTeachingClassIdTime(Long teachingClassId);
+
     
     /**获取上课时间*/
     List<ClassTimeUnit> getClassTimes(List<Long> list);
+
 }
