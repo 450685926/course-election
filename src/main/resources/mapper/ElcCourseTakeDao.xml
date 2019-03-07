@@ -382,37 +382,18 @@
         </foreach>
     </insert>
     
-    <select id="findSelectedCourses" parameterType="java.util.List" resultType="com.server.edu.election.vo.SelectedCourseVo">
-		 SELECT
-			t1.TEACHING_CLASS_ID_ teachingclassId,
-			t1.TURN_ trun,
-			t1.CHOOSE_OBJ_ chooseObj,
-			t1.PAID_ paid,
-			t2.CAMPUS_ campus,
-			t3.ID_ arrangeTimeId,
-			t3.TIME_START_ timeStart,
-			t3.TIME_END_ timeEnd,
-			t3.DAY_OF_WEEK_ dayOfWeek,
-			t4.WEEK_NUMBER_ weekNumber,
-			t5.IS_ELECTIVE_ isElective,
-			t5.CODE_ courseCode,
-			t5.NAME_ courseName,
-			t5.NAME_EN_ nameEn
-		FROM
-			(
-				SELECT
-					*
-				FROM
-					elc_course_takes_t
-				WHERE
-					ID_ in
-			        <foreach collection="list" open="(" separator="," close=")" item="id">
-                       #{id}
-                    </foreach>
-			) t1
-		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_ID_ = t2.ID_
-		INNER JOIN teaching_class_arrange_time_t t3 ON t2.ID_ = t3.TEACHING_CLASS_ID_
-		INNER JOIN teaching_class_arrange_room_t t4 ON t4.ARRANGE_TIME_ID_ = t3.ID_
-		INNER JOIN course_t t5 ON t1.COURSE_CODE_ = t5.CODE_
+    <select id="findSelectedCourses" resultMap="VoResultMap">
+      select
+	      t1.*,
+	      t3.NAME_ as courseName, t3.CREDITS_,
+	      t4.CODE_ as teachingClassCode
+	      from elc_course_takes_t t1
+	      join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+	      join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+      <where>
+  	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+  	 	and t1.STUDENT_ID_ = #{studentId}
+  	 </where>
     </select>
+    
 </mapper>

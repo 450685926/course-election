@@ -36,7 +36,7 @@ public class OnePeCourseCheckerRule extends AbstractRuleExceutor {
 			// 体育课程代码
 			ElectionConstants electionConstants = electionConstantsDao.selectByPrimaryKey(2L);
 			Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-			if (courseClass.getTeacherClassId() != null && electionConstants != null) {
+			if (courseClass.getTeachClassId() != null && electionConstants != null) {
 				String courseCodes = electionConstants.getValue();
 				if (CollectionUtil.isNotEmpty(selectedCourses)) {
 					List<SelectedCourse> list = selectedCourses.stream()
@@ -47,7 +47,7 @@ public class OnePeCourseCheckerRule extends AbstractRuleExceutor {
 							return true;
 						} else {
 							ElecRespose respose = context.getRespose();
-							respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 									I18nUtil.getMsg("ruleCheck.onePeCourseChecker"));
 						}
 					}

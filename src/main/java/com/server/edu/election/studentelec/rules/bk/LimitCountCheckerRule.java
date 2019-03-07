@@ -26,14 +26,14 @@ public class LimitCountCheckerRule extends AbstractRuleExceutor {
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		if(courseClass.getTeacherClassId()!=null){
+		if(courseClass.getTeachClassId()!=null){
 			Integer maxNumber = courseClass.getMaxNumber();
 			Integer currentNumber = courseClass.getCurrentNumber();
 			if(maxNumber!=null&&currentNumber!=null&&currentNumber<maxNumber){
 				return true;
 			}else{
 				ElecRespose respose = context.getRespose();
-				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+				respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 						I18nUtil.getMsg("ruleCheck.limitCount"));
 			}
 		}

@@ -1,18 +1,19 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
+
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.context.TimeUnit;
-import com.server.edu.election.vo.SelectedCourseVo;
+
 import com.server.edu.util.CollectionUtil;
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.server.edu.election.entity.ElcCourseTake;
-import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
@@ -34,42 +35,30 @@ public class TimeConflictCheckerRule extends AbstractRuleExceutor {
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		Long teacherClassId = courseClass.getTeacherClassId();//通过teachingClassId查询时间
-		if(teacherClassId!=null){
-			List<SelectedCourseVo> teachingClassTime = teachingClassDao.findTeachingClassIdTime(teacherClassId);
+		Long teachClassId = courseClass.getTeachClassId();//通过teachingClassId查询时间
+		if(teachClassId!=null){
+			List<ClassTimeUnit> teachingClassTime = teachingClassDao.findTeachingClassIdTime(teachClassId);
 			if(CollectionUtil.isNotEmpty(teachingClassTime)){
-				List<TimeUnit> list=new ArrayList<>();
-				Map<Long, List<SelectedCourseVo>> collect = teachingClassTime.stream().collect(Collectors.groupingBy(SelectedCourseVo::getArrangeTimeId));
-				for (List<SelectedCourseVo> selectedCourseVos : collect.values()) {
-					TimeUnit timeUnit=new TimeUnit();
-					int dayOfWeek = selectedCourseVos.get(0).getDayOfWeek();
-					int timeStart = selectedCourseVos.get(0).getTimeStart();
-					int timeEnd = selectedCourseVos.get(0).getTimeEnd();
-					timeUnit.setDayOfWeek(dayOfWeek);
-					timeUnit.setTimeStart(timeStart);
-					timeUnit.setTimeEnd(timeEnd);
-					selectedCourseVos.forEach(temp->{
-						timeUnit.getWeeks().add(temp.getWeek());
-					});
-					list.add(timeUnit);
-				}
 				Set<SelectedCourse> selectedCourses = context.getSelectedCourses();//已经选择的课程，时间班级
 				if(CollectionUtil.isNotEmpty(selectedCourses)){
-					selectedCourses.forEach(temp ->{
-						List<TimeUnit> times = temp.getTimes();//比较是否冲突
-						times.forEach(timeUnit -> {
-							list.forEach(vo->{
-								if(timeUnit.getDayOfWeek()==vo.getDayOfWeek()&&){
-
+					for (SelectedCourse selectedCours : selectedCourses) {
+						List<ClassTimeUnit> times = selectedCours.getTimes();
+						for (ClassTimeUnit v0 : teachingClassTime) {
+							for (ClassTimeUnit v1 : times) {
+								if(v0.getDayOfWeek()==v1.getDayOfWeek() && v0.getTimeStart()==v1.getTimeStart() && v0.getWeekNumber().intValue()==v1.getWeekNumber().intValue()){
+									ElecRespose respose = context.getRespose();
+									respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+											I18nUtil.getMsg("ruleCheck.timeConflict"));
+									return false;
 								}
-							});
-						});
-					});
+							}
+						}
+					}
+					return true;
+
 				}else{
 					return true;
 				}
-			}else{//教学班按排没有上课时间
-				return false;
 			}
 		}
 		return false;

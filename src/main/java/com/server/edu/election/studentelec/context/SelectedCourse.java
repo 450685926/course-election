@@ -17,10 +17,10 @@ public class SelectedCourse extends ElecCourse
     private boolean isRebuildElec;
     
     /** 上课时间 */
-    private List<TimeUnit> times;
+    private List<ClassTimeUnit> times;
     
     /** 教学班Id */
-    private Long teachingclassId;
+    private Long teachClassId;
     
     /**
      * 选课对象(1学生，2教务员，3管理员)
@@ -52,12 +52,12 @@ public class SelectedCourse extends ElecCourse
         this.setNameEn(course.getNameEn());
     }
     
-    public List<TimeUnit> getTimes()
+    public List<ClassTimeUnit> getTimes()
     {
         return times;
     }
     
-    public void setTimes(List<TimeUnit> times)
+    public void setTimes(List<ClassTimeUnit> times)
     {
         this.times = times;
     }
@@ -72,14 +72,14 @@ public class SelectedCourse extends ElecCourse
         this.chooseObj = chooseObj;
     }
     
-    public Long getTeachingclassId()
+    public Long getTeachClassId()
     {
-        return teachingclassId;
+        return teachClassId;
     }
     
-    public void setTeachingclassId(Long teachingclassId)
+    public void setTeachClassId(Long teachClassId)
     {
-        this.teachingclassId = teachingclassId;
+        this.teachClassId = teachClassId;
     }
     
     public boolean isRebuildElec()
@@ -115,7 +115,7 @@ public class SelectedCourse extends ElecCourse
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.teachingclassId, this.getCourseCode());
+        return Objects.hash(this.teachClassId, this.getCourseCode());
     }
     
     @Override
@@ -129,7 +129,7 @@ public class SelectedCourse extends ElecCourse
         if (obj instanceof SelectedCourse)
         {
             SelectedCourse o = (SelectedCourse)obj;
-            return Objects.equals(this.teachingclassId, o.teachingclassId)
+            return Objects.equals(this.teachClassId, o.teachClassId)
                 && StringUtils.equals(this.getCourseCode(), o.getCourseCode());
         }
         return false;

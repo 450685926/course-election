@@ -32,12 +32,12 @@ public class NewElecConstraintCheckerRule extends AbstractRuleExceutor {
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 
-		if(courseClass.getTeacherClassId()!=null){
-			if("1".equals(courseClass.getTeacherClassType())){//重修
+		if(courseClass.getTeachClassId()!=null){
+			if("1".equals(courseClass.getTeachClassType())){//重修
 				String number = constantsDao.findRebuildCourseNumber();
 				if(StringUtils.isBlank(number)){
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.rebuildElcNumNotExist"));
 					return false;
 				}
@@ -51,13 +51,13 @@ public class NewElecConstraintCheckerRule extends AbstractRuleExceutor {
 						return true;
 					}else{
 						ElecRespose respose = context.getRespose();
-						respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+						respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 								I18nUtil.getMsg("ruleCheck.rebuildElecNumberLimit"));
 					}
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.psrseError"));
 
 				}
@@ -65,7 +65,7 @@ public class NewElecConstraintCheckerRule extends AbstractRuleExceutor {
 				String credits = constantsDao.findNewCreditsLimit();
 				if(StringUtils.isBlank(credits)){
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.rebuildElcNumNotExist"));
 					return false;
 				}
@@ -80,13 +80,13 @@ public class NewElecConstraintCheckerRule extends AbstractRuleExceutor {
 						return true;
 					}else{
 						ElecRespose respose = context.getRespose();
-						respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+						respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 								I18nUtil.getMsg("ruleCheck.creditsLimit"));
 					}
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.psrseError"));
 
 				}

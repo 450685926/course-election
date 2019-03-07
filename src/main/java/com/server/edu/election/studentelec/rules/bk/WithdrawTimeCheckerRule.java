@@ -26,7 +26,7 @@ public class WithdrawTimeCheckerRule extends AbstractRuleExceutor {
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 		// TODO Auto-generated method stub
-		if (courseClass.getTeacherClassId() != null && CollectionUtil.isNotEmpty(selectedCourses)
+		if (courseClass.getTeachClassId() != null && CollectionUtil.isNotEmpty(selectedCourses)
 				&& StringUtils.isNotBlank(courseClass.getCourseCode())) {
 			List<SelectedCourse> list = selectedCourses.stream()
 					.filter(c -> courseClass.getCourseCode().equals(c.getCourseCode())).collect(Collectors.toList());
@@ -34,7 +34,7 @@ public class WithdrawTimeCheckerRule extends AbstractRuleExceutor {
 				return true;
 			} else {
 				ElecRespose respose = context.getRespose();
-				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+				respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 						I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
 			}
 		}

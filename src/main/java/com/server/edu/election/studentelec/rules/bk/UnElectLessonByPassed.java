@@ -31,7 +31,7 @@ public class UnElectLessonByPassed extends AbstractRuleExceutor {
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		/** 已完成课程 */
 		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-		if (courseClass.getTeacherClassId() != null && CollectionUtil.isNotEmpty(completedCourses)) {
+		if (courseClass.getTeachClassId() != null && CollectionUtil.isNotEmpty(completedCourses)) {
 			if (StringUtils.isNotBlank(courseClass.getCourseCode())) {
 				List<CompletedCourse> list = completedCourses.stream()
 						.filter(temp -> courseClass.getCourseCode().equals(temp.getCourseCode()))
@@ -40,7 +40,7 @@ public class UnElectLessonByPassed extends AbstractRuleExceutor {
 					return true;
 				} else {
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.unElectLessonByPassed"));
 				}
 			}

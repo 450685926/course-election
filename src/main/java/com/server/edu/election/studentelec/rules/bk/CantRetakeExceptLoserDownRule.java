@@ -25,14 +25,14 @@ public class CantRetakeExceptLoserDownRule extends AbstractRuleExceutor {
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		StudentInfoCache studentInfo = context.getStudentInfo();
-		if (StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
-			if (StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
-				if (Constants.REBUILD_CALSS.equals(courseClass.getTeacherClassType())) {
+		if (StringUtils.isNotBlank(courseClass.getTeachClassType())) {
+			if (StringUtils.isNotBlank(courseClass.getTeachClassType())) {
+				if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType())) {
 					if (studentInfo.isRepeater()) {
 						return true;
 					} else {
 						ElecRespose respose = context.getRespose();
-						respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+						respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 								I18nUtil.getMsg("ruleCheck.cantRetakeExceptLoserDown"));
 					}
 				}

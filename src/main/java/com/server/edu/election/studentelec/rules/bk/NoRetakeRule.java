@@ -23,13 +23,13 @@ public class NoRetakeRule extends AbstractRuleExceutor {
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		if (courseClass.getTeacherClassId() != null) {
-			if (StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
-				if (Constants.ORDINARY_CALSS.equals(courseClass.getTeacherClassType())) {
+		if (courseClass.getTeachClassId() != null) {
+			if (StringUtils.isNotBlank(courseClass.getTeachClassType())) {
+				if (Constants.ORDINARY_CALSS.equals(courseClass.getTeachClassType())) {
 					return true;
 				} else {
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.noRetake"));
 				}
 			}

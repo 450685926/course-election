@@ -31,17 +31,17 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor {
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		// TODO Auto-generated method stub
 		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-		Long id = courseClass.getTeacherClassId();
+		Long id = courseClass.getTeachClassId();
 		if (id != null) {
-			if (courseClass.getTeacherClassType() != null && CollectionUtil.isNotEmpty(completedCourses)) {
-				if (StringUtils.isNotBlank(courseClass.getTeacherClassType())) {
+			if (courseClass.getTeachClassType() != null && CollectionUtil.isNotEmpty(completedCourses)) {
+				if (StringUtils.isNotBlank(courseClass.getTeachClassType())) {
 					List<CompletedCourse> list = completedCourses.stream()
 							.filter(c -> courseClass.getCourseCode().equals(c.getCourseCode()))
 							.collect(Collectors.toList());
 					if (list.size() > Constants.ONE) {
-						if (Constants.REBUILD_CALSS.equals(courseClass.getTeacherClassType())) {
+						if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType())) {
 							ElecRespose respose = context.getRespose();
-							respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 									I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
 							return false;
 						}

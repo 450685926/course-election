@@ -24,10 +24,10 @@ public class UnElectLessonByPassedFornoGraduate extends AbstractRuleExceutor {
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		StudentInfoCache studentInfo = context.getStudentInfo();
-		if (courseClass.getTeacherClassId() != null && studentInfo != null) {
+		if (courseClass.getTeachClassId() != null && studentInfo != null) {
 			if (studentInfo.isGraduate()) {
 				ElecRespose respose = context.getRespose();
-				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+				respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 						I18nUtil.getMsg("ruleCheck.unElectLessonByPassedFornoGraduate"));
 				return false;
 			}

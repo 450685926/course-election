@@ -18,12 +18,12 @@ public class StdPayCostCheckerRule extends AbstractRuleExceutor {
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		StudentInfoCache studentInfo = context.getStudentInfo();
-		if (studentInfo != null && courseClass.getTeacherClassId() != null) {
+		if (studentInfo != null && courseClass.getTeachClassId() != null) {
 			if (studentInfo.isPaid()) {
 				return true;
 			} else {
 				ElecRespose respose = context.getRespose();
-				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+				respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 						I18nUtil.getMsg("ruleCheck.stdPayCostChecker"));
 				return false;
 			}
