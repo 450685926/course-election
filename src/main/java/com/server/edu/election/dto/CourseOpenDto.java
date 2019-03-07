@@ -10,8 +10,6 @@ public class CourseOpenDto extends CourseOpen
     
     private String teachingClassCode;
 
-
-
     public Long getRoundId()
     {
         return roundId;

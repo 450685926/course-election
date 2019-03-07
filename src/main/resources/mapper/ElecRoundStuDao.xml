@@ -96,13 +96,13 @@
 		</foreach>
 	</delete>
 
-	<select id="notExistStudent">
+	<select id="notExistStudent" resultType="java.lang.String">
 		select t2.STUDENT_ID_ from elc_no_graduate_stds_t t2 LEFT JOIN student_t t1 on t2.STUDENT_ID_=t1.STUDENT_CODE_
 		<where>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.mode)">
 				and t1.IS_OVERSEAS_=
 				<choose>
-					<when test="mode==3">(0)</when>
+					<when test="stu.mode==3">(0)</when>
 					<otherwise>(1)</otherwise>
 				</choose>
 			</if>
@@ -121,4 +121,5 @@
 			and t2.STUDENT_ID_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
 		</where>
 	</select>
+
 </mapper>

@@ -194,9 +194,8 @@ public class CultureSerivceInvoker
     public static List<String> getCourseCodes(String studentId)
     {
         @SuppressWarnings("unchecked")
-        RestResult<List<String>> restResult =
-            ServicePathEnum.CULTURESERVICE.getForObject(
-                "cultureservice/studentCultureRel/courseCodes/{studentId}",
+        RestResult<List<String>> restResult = ServicePathEnum.CULTURESERVICE
+            .getForObject("/studentCultureRel/courseCodes/{studentId}",
                 RestResult.class,
                 studentId);
         

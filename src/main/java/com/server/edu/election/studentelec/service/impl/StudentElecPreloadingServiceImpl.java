@@ -1,15 +1,23 @@
 package com.server.edu.election.studentelec.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.preload.DataProLoad;
 import com.server.edu.election.studentelec.service.AbstractElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecPreloadingService;
-import com.server.edu.election.studentelec.service.StudentElecStatusService;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 
@@ -25,35 +33,69 @@ public class StudentElecPreloadingServiceImpl
     private static final Logger LOG =
         LoggerFactory.getLogger(StudentElecPreloadingService.class);
     
-    private final StudentElecStatusService elecStatusService;
-    
     @Autowired
-    public StudentElecPreloadingServiceImpl(ElecQueueService<ElecRequest> elecQueueService,
-        StudentElecStatusService elecStatusService)
+    private ApplicationContext applicationContext;
+    
+    public StudentElecPreloadingServiceImpl(
+        ElecQueueService<ElecRequest> elecQueueService)
     {
-        // TODO 几个线 程应该是可配置的
+        // 使用4个线程来执行初始化数据操作
         super(4, QueueGroups.STUDENT_LOADING, elecQueueService);
-        this.elecStatusService = elecStatusService;
-        super.listen("thread-student-preload");
     }
     
     @Override
     public void consume(ElecRequest preloadRequest)
     {
-        Integer roundId = preloadRequest.getRoundId();
+        Long roundId = preloadRequest.getRoundId();
         String studentId = preloadRequest.getStudentId();
         try
         {
-            if (elecStatusService.tryLock(roundId, studentId))
+            if (ElecContextUtil.tryLock(roundId, studentId))
             {
-                // TODO 缓存学生数据
-                // ....
-                System.out.println("假装加载数据");
-                Thread.sleep(2000);
-                
-                //完成后设置当前状态为Ready
-                elecStatusService
-                    .setElecStatus(roundId, studentId, ElecStatus.Ready);
+                ElecContext context =
+                    new ElecContext(studentId, roundId.longValue());
+                try
+                {
+                    Map<String, DataProLoad> beansOfType =
+                        applicationContext.getBeansOfType(DataProLoad.class);
+                    
+                    List<DataProLoad> values =
+                        new ArrayList<>(beansOfType.values());
+                    //排序
+                    Collections.sort(values);
+                    
+                    context.getApplyForDropCourses().clear();
+                    context.getCompletedCourses().clear();
+                    context.getPlanCourses().clear();
+                    context.getSelectedCourses().clear();
+                    context.getRespose().getFailedReasons().clear();
+                    context.getRespose().getSuccessCourses().clear();
+                    for (DataProLoad load : values)
+                    {
+                        load.load(context);
+                    }
+                    //保存数据
+                    context.saveToCache();
+                    
+                    //完成后设置当前状态为Ready
+                    ElecContextUtil
+                        .setElecStatus(roundId, studentId, ElecStatus.Ready);
+                    context.getRespose().getFailedReasons().clear();
+                    context.saveResponse();
+                }
+                catch (Exception e)
+                {
+                    context.getRespose().getFailedReasons().put("loadFail", e.getMessage());
+                    context.saveResponse();
+                    
+                    LOG.error(e.getMessage(), e);
+                    ElecContextUtil
+                        .setElecStatus(roundId, studentId, ElecStatus.Init);
+                }
+                finally
+                {
+                    ElecContextUtil.unlock(roundId, studentId);
+                }
             }
             else
             {
@@ -63,12 +105,12 @@ public class StudentElecPreloadingServiceImpl
                     "预加载状态异常 unexpected status,roundId:{},studentId:{}, status:{}",
                     roundId,
                     studentId,
-                    elecStatusService.getElecStatus(roundId, studentId));
+                    ElecContextUtil.getElecStatus(roundId, studentId));
             }
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOG.error(e.getMessage(), e);
         }
     }
 }

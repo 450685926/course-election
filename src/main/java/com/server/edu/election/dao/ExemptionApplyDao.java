@@ -17,5 +17,12 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
     void deleteExemptionApply(List<Long> ids);
 
     //批量审批
-    void approvalExemptionApply(@Param("list") List<Long> list,@Param("status") Integer status,@Param("score") String score);
+    void approvalExemptionApply(@Param("list") List<Long> list,
+                                @Param("status") Integer status,@Param("score") String score,@Param("auditor") String auditor);
+
+    /**查询是否重复申请*/
+
+    ExemptionApplyManage applyRepeat(@Param("calendarId") Long calendarId,
+                                       @Param("studentCode")String studentCode,
+                                       @Param("courseCode")String courseCode);
 }

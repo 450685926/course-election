@@ -8,7 +8,6 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ExemptionApplyCondition;
@@ -83,7 +82,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/1/31 10:05
     */
     @Override
-    public PageResult<ExemptionCourseVo> findExemptionCourse(PageCondition<ExemptionCourse> condition) {
+    public PageResult<ExemptionCourseVo> findExemptionCourse(PageCondition<ExemptionCourseVo> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(condition.getCondition());
         if(exemptionCourse!=null){
@@ -135,7 +134,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     @Override
     @Transactional
     public String addExemptionCourse(ExemptionCourse exemptionCourse) {
-        ExemptionCourse ex=new ExemptionCourse();
+        ExemptionCourseVo ex=new ExemptionCourseVo();
         ex.setCalendarId(exemptionCourse.getCalendarId());
         ex.setCourseCode(exemptionCourse.getCourseCode());
         Page<ExemptionCourseVo> exCourse = exemptionCourseDao.findExemptionCourse(ex);
@@ -157,7 +156,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     @Override
     @Transactional
     public String updateExemptionCourse(ExemptionCourse exemptionCourse) {
-        ExemptionCourse ex=new ExemptionCourse();
+        ExemptionCourseVo ex=new ExemptionCourseVo();
         Page<ExemptionCourseVo> exCourse = exemptionCourseDao.findExemptionCourse(ex);
         if(exCourse!=null&&exCourse.getResult().size()>0){
             List<ExemptionCourseVo> result = exCourse.getResult();
@@ -179,7 +178,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     }
 
     /**
-    *@Description: 查询免修免考入学成绩//todo导入成绩
+    *@Description: 查询免修免考入学成绩
     *@Param: 
     *@return:
     *@Author: bear
@@ -272,7 +271,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
                 int round = (int)Math.round(number * percent * 0.1 / 10);
                 double totalScore=0;
                 for (int i = 0; i < round; i++) {
-                    totalScore+=courseScore.get(i).getScore();
+                    if(courseScore.get(i).getScore()!=null){
+                        totalScore+=courseScore.get(i).getScore();
+                    }
                 }
                 score=(double)(Math.round((totalScore/round)*10))/10;
                 courseRuleVo.setMinimumPassScore(score);
@@ -331,6 +332,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     public String addExemptionApply(ExemptionApplyManage applyManage) {//材料上传todo
         if("".equals(applyManage.getApplyType())){
             return "common.parameterError";
+        }
+        //查询是否重复申请
+        ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
+        if(exemptionApplyManageVo!=null){
+            return "common.exist";
         }
         if(applyManage.getApplyType()==0){//成绩申请
             applyManage.setScore("免修");
@@ -442,7 +448,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/2/13 11:21
     */
     @Override
-    public String approvalExemptionApply(List<Long> ids,Integer status) {
+    public String approvalExemptionApply(List<Long> ids,Integer status,String auditor) {
         if(CollectionUtil.isEmpty(ids)){
             return "common.parameterError";
         }
@@ -450,7 +456,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if(status==1){
             score="免修";
         }
-        applyDao.approvalExemptionApply(ids,status,score);
+        applyDao.approvalExemptionApply(ids,status,score,auditor);
         return "common.editSuccess";
     }
 
@@ -532,6 +538,97 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         return "";
     }
 
+    /**
+    *@Description: 导入入学成绩
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/2/28 10:48
+    */
+    @Override
+    public String addExcel(List<ExemptionCourseScore> datas, Long calendarId) {
+        List<String> list=new ArrayList<>();
+        for (ExemptionCourseScore data : datas) {
+            //查询是否有该课程该学期成绩
+            ExemptionCourseScore studentScore = scoreDao.findStudentScore(calendarId, data.getStudentCode(), data.getCourseCode());
+            if(studentScore==null){//没有成绩
+                data.setCalendarId(calendarId);
+                scoreDao.insertSelective(data);
+            }else{//有成绩不能导入
+                list.add(data.getStudentCode()+" "+data.getCourseCode());
+            }
+        }
+
+        if(list.size()>0){
+            list.add("成绩存在");
+            return StringUtils.join(list,",");
+        }
+
+        return StringUtils.EMPTY;
+    }
+
+    /**
+    *@Description: 导入免修申请
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/1 10:57
+    */
+    @Override
+    public String addExcelApply(List<ExemptionApplyManage> datas, Long calendarId) {
+        List<String> list =new ArrayList<>();
+        for (ExemptionApplyManage data : datas) {
+            data.setCalendarId(calendarId);
+            //查询是否重复申请
+            ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(data.getCalendarId(), data.getStudentCode(), data.getCourseCode());
+            if(exemptionApplyManageVo!=null){
+                list.add(data.getStudentCode());
+            }else{
+                if(data.getApplyType()==0){//成绩申请
+                    data.setScore("免修");
+                    data.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
+                }else{
+                    data.setExamineResult(ExemptionCourseServiceImpl.STATUS);
+                }
+                applyDao.insertSelective(data);
+            }
+        }
+
+        if(list.size()>0){
+            list.add("该学期课程已经申请");
+            return StringUtils.join(list,",");
+        }
+
+        return StringUtils.EMPTY;
+    }
+
+    /**
+    *@Description: 新增下拉代码取值
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/3/2 9:59
+    */
+    @Override
+    public RestResult<List<ExemptionCourseVo>> filterCourseCode(ExemptionCourseRuleVo courseRuleVo, Integer applyType) {
+        //查询学期所有免修课程
+        ExemptionCourseVo vo=new ExemptionCourseVo();
+        vo.setCalendarId(courseRuleVo.getCalendarId());
+        Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(vo);
+        if(exemptionCourse!=null){
+            List<ExemptionCourseVo> result = exemptionCourse.getResult();
+            //查询该条件下已有规则课程代码
+           List<String> courseCodes= ruleDao.findRuleExist(courseRuleVo,applyType);
+           if(CollectionUtil.isNotEmpty(result)){
+               List<ExemptionCourseVo> collect = result.stream().filter((ExemptionCourseVo courseVo) -> !courseCodes.contains(courseVo.getCourseCode())).collect(Collectors.toList());
+               return RestResult.successData(collect);
+           }
+        }
+
+        return RestResult.fail("请先添加免修免考课程");
+
+    }
+
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
@@ -554,5 +651,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         design.addCell(I18nUtil.getMsg("exemptionApply.examineAuditor"), "auditor");
         return design;
     }
+
+
 
 }

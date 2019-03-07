@@ -13,4 +13,12 @@
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="VALUE_" jdbcType="LONGVARCHAR" property="value" />
   </resultMap>
+
+  <select id="findRebuildCourseNumber" resultType="java.lang.String">
+    SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='MAXRETAKECOURSECOUNT'
+  </select>
+
+  <select id="findNewCreditsLimit" resultType="java.lang.String">
+    SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='MAXNEWCREDITS'
+  </select>
 </mapper>

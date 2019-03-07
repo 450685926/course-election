@@ -6,11 +6,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -116,13 +116,13 @@ public class ElectionTplController
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "选课方案模板")
-    @GetMapping("/getTpl")
+    @PostMapping("/getTpl")
     public RestResult<ElectionTplVo> getTpl(
-        @RequestParam("id") @NotNull Long id)
+        @RequestParam("id") @NotNull Long id,@RequestParam("managerDeptId") @NotBlank String managerDeptId)
         throws Exception
     {
         LOG.info("getTpl.start");
-        ElectionTplVo electionTplVo = electionTplService.getTpl(id);
+        ElectionTplVo electionTplVo = electionTplService.getTpl(id,managerDeptId);
         return RestResult.successData(electionTplVo);
     }
     

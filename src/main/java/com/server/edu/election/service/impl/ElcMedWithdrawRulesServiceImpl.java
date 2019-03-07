@@ -76,7 +76,7 @@ public class ElcMedWithdrawRulesServiceImpl implements ElcMedWithdrawRulesServic
 		if(CollectionUtil.isNotEmpty(list)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("elcMedWithdraw.rule")));
 		}
-		int result = elcMedWithdrawRulesDao.insertSelective(elcMedWithdrawRules);
+		int result = elcMedWithdrawRulesDao.updateByPrimaryKeySelective(elcMedWithdrawRules);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("elcMedWithdraw.rule")));
 		}

@@ -81,4 +81,13 @@ public interface ElecRoundCourseDao
      * @see [类、类#方法、类#成员]
      */
     void deleteByRoundId(@Param("roundId") Long roundId);
+    
+    /**
+     * 查询轮次所有可选课程
+     * 
+     * @param roundId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<CourseOpenDto> selectTeachingClassByRoundId(@Param("roundId")Long roundId);
 }

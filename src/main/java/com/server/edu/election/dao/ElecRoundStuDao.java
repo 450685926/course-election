@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.entity.Student;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -99,4 +100,5 @@ public interface ElecRoundStuDao
      * @see [类、类#方法、类#成员]
      */
     List<String> notExistStudent(@Param("stu") ElecRoundStuQuery stu);
+
 }

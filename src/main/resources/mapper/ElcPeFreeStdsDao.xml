@@ -86,7 +86,7 @@
 				elc_pe_free_stds_t
 		)
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(codeAndName)">
-        and (t1.STUDENT_CODE_ like concat('%',#{codeAndName},'%') or t2.NAME_ like concat('%',#{codeAndName},'%'))
+        and (t1.STUDENT_CODE_ like concat('%',#{codeAndName},'%') or t1.NAME_ like concat('%',#{codeAndName},'%'))
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
         and t1.GRADE_ = #{grade}

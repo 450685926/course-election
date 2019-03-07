@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,70 +15,60 @@ import com.server.edu.election.studentelec.utils.ElecStatus;
  *  2.1. 选课请求,选课时发送一次，此时应该返回status=processing
  *  2.2  获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
  */
-public class ElecRespose {
+public class ElecRespose
+{
     private ElecStatus status;
-
-    private String studentId;
-    private String studentName;
-
+    
     /** 选课成功集合 教学班id*/
     private List<Long> successCourses;
-
-    /** 选课失败集合 教学班id*/
-    private List<Long> failedCourses;
-
+    
     /** 选课失败原因 key为教学班id value为原因说明*/
-    private Map<String,String> failedReasons;
-
-    public ElecRespose(ElecStatus status) {
+    private Map<String, String> failedReasons;
+    
+    public ElecRespose() {
+        
+    }
+    
+    public ElecRespose(ElecStatus status)
+    {
         this.status = status;
     }
-
-    public String getStudentId() {
-        return studentId;
-    }
-
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
-    }
-
-    public String getStudentName() {
-        return studentName;
-    }
-
-    public void setStudentName(String studentName) {
-        this.studentName = studentName;
-    }
-
-    public List<Long> getSuccessCourses() {
+    
+    public List<Long> getSuccessCourses()
+    {
+        if (successCourses == null)
+        {
+            successCourses = new ArrayList<>();
+        }
         return successCourses;
     }
-
-    public void setSuccessCourses(List<Long> successCourses) {
+    
+    public void setSuccessCourses(List<Long> successCourses)
+    {
         this.successCourses = successCourses;
     }
-
-    public List<Long> getFailedCourses() {
-        return failedCourses;
-    }
-
-    public void setFailedCourses(List<Long> failedCourses) {
-        this.failedCourses = failedCourses;
-    }
-
-    public Map<String, String> getFailedReasons() {
+    
+    public Map<String, String> getFailedReasons()
+    {
+        if (failedReasons == null)
+        {
+            failedReasons = new HashMap<>();
+        }
         return failedReasons;
     }
-
-    public void setFailedReasons(Map<String, String> failedReasons) {
+    
+    public void setFailedReasons(Map<String, String> failedReasons)
+    {
         this.failedReasons = failedReasons;
     }
-
-    public ElecStatus getStatus() {
+    
+    public ElecStatus getStatus()
+    {
         return status;
     }
-
-    public void setStatus(ElecStatus status) {
+    
+    public void setStatus(ElecStatus status)
+    {
         this.status = status;
     }
 }

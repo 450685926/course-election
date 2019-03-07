@@ -1,77 +1,152 @@
 package com.server.edu.election.studentelec.cache;
 
-public class TeachingClassCache implements CacheEntity {
-    private Long teachingClassId;
-    private Long courseId;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.server.edu.election.studentelec.context.ElecCourse;
+
+/**
+ * 教学班缓存对象
+ * 
+ */
+public class TeachingClassCache extends ElecCourse
+{
+    private Long teacherClassId;
+    
+    private String teacherClassCode;
+    
+    private String teacherClassType;
+    
     /** 是否实践课*/
-    private boolean isPractice = false;
+    private Boolean isPractice = false;
+    
     /** 是否重修班*/
-    private boolean isRetraining = false;
+    private Boolean isRetraining = false;
+    
     /** 是否公选课*/
-    private boolean isPublicElective = false;
+    private Boolean isPublicElective = false;
+    
     /** 最大人数 */
     private Integer maxNumber;
+    
     /** 当前人数 */
     private Integer currentNumber;
-
-    @Override
-    public String getKey() {
-        return String.valueOf(teachingClassId);
+    
+    public TeachingClassCache()
+    {
     }
-
-    public Long getTeachingClassId() {
-        return teachingClassId;
+    
+    public TeachingClassCache(ElecCourse course)
+    {
+        this.setCampus(course.getCampus());
+        this.setCourseCode(course.getCourseCode());
+        this.setCourseName(course.getCourseName());
+        this.setCredits(course.getCredits());
+        this.setNameEn(course.getNameEn());
     }
-
-    public void setTeachingClassId(Long teachingClassId) {
-        this.teachingClassId = teachingClassId;
+    
+    public Long getTeacherClassId()
+    {
+        return teacherClassId;
     }
-
-    public Long getCourseId() {
-        return courseId;
+    
+    public void setTeacherClassId(Long teacherClassId)
+    {
+        this.teacherClassId = teacherClassId;
     }
-
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
+    
+    public String getTeacherClassCode()
+    {
+        return teacherClassCode;
     }
-
-    public boolean isPractice() {
+    
+    public void setTeacherClassCode(String teacherClassCode)
+    {
+        this.teacherClassCode = teacherClassCode;
+    }
+    
+    public String getTeacherClassType()
+    {
+        return teacherClassType;
+    }
+    
+    public void setTeacherClassType(String teacherClassType)
+    {
+        this.teacherClassType = teacherClassType;
+    }
+    
+    public Boolean isPractice()
+    {
         return isPractice;
     }
-
-    public void setPractice(boolean practice) {
+    
+    public void setPractice(Boolean practice)
+    {
         isPractice = practice;
     }
-
-    public boolean isRetraining() {
+    
+    public boolean isRetraining()
+    {
         return isRetraining;
     }
-
-    public void setRetraining(boolean retraining) {
+    
+    public void setRetraining(Boolean retraining)
+    {
         isRetraining = retraining;
     }
-
-    public boolean isPublicElective() {
+    
+    public Boolean isPublicElective()
+    {
         return isPublicElective;
     }
-
-    public void setPublicElective(boolean publicElective) {
+    
+    public void setPublicElective(Boolean publicElective)
+    {
         isPublicElective = publicElective;
     }
-
-    public Integer getMaxNumber() {
+    
+    public Integer getMaxNumber()
+    {
         return maxNumber;
     }
-
-    public void setMaxNumber(Integer maxNumber) {
+    
+    public void setMaxNumber(Integer maxNumber)
+    {
         this.maxNumber = maxNumber;
     }
-
-    public Integer getCurrentNumber() {
+    
+    public Integer getCurrentNumber()
+    {
         return currentNumber;
     }
-
-    public void setCurrentNumber(Integer currentNumber) {
+    
+    public void setCurrentNumber(Integer currentNumber)
+    {
         this.currentNumber = currentNumber;
     }
+    
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.teacherClassId, this.teacherClassCode);
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        
+        if (obj instanceof TeachingClassCache)
+        {
+            TeachingClassCache o = (TeachingClassCache)obj;
+            return StringUtils.equals(this.teacherClassCode, o.teacherClassCode)
+                && Objects.equals(this.teacherClassId, o.teacherClassId);
+        }
+        return false;
+    }
+    
 }

@@ -1,16 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
+import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
-import com.server.edu.election.studentelec.utils.Keys;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -18,117 +11,105 @@ import com.server.edu.election.studentelec.utils.Keys;
  */
 public class ElecContext
 {
-    
-    private StringRedisTemplate redisTemplate;
-    
-    private String studentId;
+    /**轮次*/
+    private Long roundId;
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
     
     /** 已完成课程 */
-    private List<CompletedCourse> completedCourses;
+    private Set<CompletedCourse> completedCourses;
     
-    /** 已选择课程 */
-    private List<SelectedCourse> selectedCourses;
+    /** 本学期已选择课程 */
+    private Set<SelectedCourse> selectedCourses;
     
     /** 免修申请课程 */
-    private List<ElecCourse> applyForDropCourses;
+    private Set<ElecCourse> applyForDropCourses;
     
     /** 个人计划内课程 */
-    private List<ElecCourse> planCourses;
+    private Set<ElecCourse> planCourses;
+    
+    /** 通识选修课程 */
+    private Set<ElecCourse> publicCourses;
     
     private ElecRequest request;
     
     private ElecRespose respose;
     
-    public ElecContext(String studentId)
+    private ElecContextUtil contextUtil;
+    
+    public ElecContext(String studentId, Long roundId)
     {
-        this.studentId = studentId;
-        this.redisTemplate = SpringUtils.getBean(StringRedisTemplate.class);
-        String value = this.getByKey("stdInfo");
-        if (StringUtils.isNoneBlank(value))
-        {
-            studentInfo = JSONObject.parseObject(value, StudentInfoCache.class);
-        }
-        String text = this.getByKey("CompletedCourses");
-        if (StringUtils.isNoneBlank(text))
-        {
-            completedCourses =
-                JSONObject.parseArray(text, CompletedCourse.class);
-        }
-        text = this.getByKey("SelectedCourses");
-        if (StringUtils.isNoneBlank(text))
-        {
-            selectedCourses = JSONObject.parseArray(text, SelectedCourse.class);
-        }
-        text = this.getByKey("ApplyForDropCourses");
-        if (StringUtils.isNoneBlank(text))
-        {
-            applyForDropCourses = JSONObject.parseArray(text, ElecCourse.class);
-        }
-        text = this.getByKey("PlanCourses");
-        if (StringUtils.isNoneBlank(text))
-        {
-            planCourses = JSONObject.parseArray(text, ElecCourse.class);
-        }
+        this.roundId = roundId;
+        this.contextUtil = ElecContextUtil.create(roundId, studentId);
+        
+        studentInfo = contextUtil.getStudentInfo();
+        respose = this.contextUtil.getElecRespose();
+        completedCourses =
+            this.contextUtil.getSet("CompletedCourses", CompletedCourse.class);
+        selectedCourses =
+            this.contextUtil.getSet("SelectedCourses", SelectedCourse.class);
+        applyForDropCourses =
+            this.contextUtil.getSet("ApplyForDropCourses", ElecCourse.class);
+        planCourses = this.contextUtil.getSet("PlanCourses", ElecCourse.class);
+        publicCourses =
+            this.contextUtil.getSet("publicCourses", ElecCourse.class);
     }
     
     /**
      * 保存到redis中
      * 
      */
-    public void save()
+    public void saveToCache()
     {
-        save("stdInfo", this.studentInfo);
-        save("CompletedCourses", this.completedCourses);
-        save("SelectedCourses", this.selectedCourses);
-        save("ApplyForDropCourses", this.applyForDropCourses);
-        save("PlanCourses", this.planCourses);
+        this.contextUtil.save(StudentInfoCache.class.getSimpleName(),
+            this.studentInfo);
+        this.saveResponse();
+        this.contextUtil.save("CompletedCourses", this.completedCourses);
+        this.contextUtil.save("SelectedCourses", this.selectedCourses);
+        this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
+        this.contextUtil.save("PlanCourses", this.planCourses);
     }
     
-    private String getByKey(String key)
+    public void saveResponse()
     {
-        ValueOperations<String, String> opsForValue =
-            this.redisTemplate.opsForValue();
-        String value = opsForValue.get(Keys.STD + key + "-" + studentId);
-        return value;
+        this.respose.setStatus(null);
+        this.contextUtil.save(ElecRespose.class.getSimpleName(), this.respose);
     }
     
-    private void save(String key, Object value)
-    {
-        ValueOperations<String, String> opsForValue =
-            this.redisTemplate.opsForValue();
-        opsForValue.set(Keys.STD + key + "-" + studentId,
-            JSON.toJSONString(value));
-    }
-    
-    public String getStudentId() {
-        return this.studentId;
-    }
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
     }
     
-    public List<CompletedCourse> getCompletedCourses()
+    public Long getRoundId()
+    {
+        return roundId;
+    }
+    
+    public Set<CompletedCourse> getCompletedCourses()
     {
         return completedCourses;
     }
     
-    public List<SelectedCourse> getSelectedCourses()
+    public Set<SelectedCourse> getSelectedCourses()
     {
         return selectedCourses;
     }
     
-    public List<ElecCourse> getApplyForDropCourses()
+    public Set<ElecCourse> getApplyForDropCourses()
     {
         return applyForDropCourses;
     }
     
-    public List<ElecCourse> getPlanCourses()
+    public Set<ElecCourse> getPlanCourses()
     {
         return planCourses;
+    }
+    
+    public Set<ElecCourse> getPublicCourses()
+    {
+        return publicCourses;
     }
     
     public ElecRequest getRequest()

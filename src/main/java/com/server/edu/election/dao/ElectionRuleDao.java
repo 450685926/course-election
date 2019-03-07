@@ -12,7 +12,7 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface ElectionRuleDao extends Mapper<ElectionRule>
 {
-    List<ElectionRule> selectByRoundId(@Param("roundId") Long roundId);
+    List<ElectionRuleVo> selectByRoundId(@Param("roundId") Long roundId);
 
     List<ElectionRule> selectTplOfRule(Long tplId);
     

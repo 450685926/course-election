@@ -76,11 +76,18 @@
             #{id}
         </foreach>
     </delete>
-    <update id="approvalExemptionApply" parameterType="java.util.List">
-        update exemption_apply_manage_t set EXAMINE_RESULT_ =#{value,jdbcType=INTEGER} , SCORE_ =#{score,jdbcType=VARCHAR}
+    <update id="approvalExemptionApply" >
+        update exemption_apply_manage_t set EXAMINE_RESULT_ =#{status,jdbcType=INTEGER} , SCORE_ =#{score,jdbcType=VARCHAR}, AUDITOR_ =#{auditor,jdbcType=VARCHAR}
         where ID_ in
         <foreach collection="list" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
     </update>
+
+    <select id="applyRepeat" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId}
+    </select>
 </mapper>

@@ -2,7 +2,6 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
-import com.server.edu.election.entity.Student;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -12,10 +11,12 @@ import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.ElcCourseTake;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
-import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.SelectedCourseVo;
 import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
@@ -93,4 +94,13 @@ public interface ElcCourseTakeDao
 
     /**查找当前学期下的可选课学生*/
     Page<Student> findStudentList(ElcCourseTakeQuery condition);
+
+
+    /**从回收站回复到选课表*/
+
+    void addCourseTakeFromRecycle(List<RebuildCourseNoChargeList> list);
+    /**已选择课程信息*/
+    List<SelectedCourseVo> findSelectedCourses(List<Long> list);
+    
+    
 }
