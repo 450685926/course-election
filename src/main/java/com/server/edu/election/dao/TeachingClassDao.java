@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.vo.SelectedCourseVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -92,4 +93,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     List<ElecCourse> selectSuggestCourse(@Param("stu") StudentInfoCache stu);
+
+    /**通过teachingClassId查询时间*/
+    List<SelectedCourseVo> findTeachingClassIdTime(Long teachingClassId);
 }

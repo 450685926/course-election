@@ -1,11 +1,14 @@
 package com.server.edu.election.studentelec.rules.bk;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.context.TimeUnit;
+import com.server.edu.election.vo.SelectedCourseVo;
+import com.server.edu.util.CollectionUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.entity.ElcCourseTake;
@@ -25,163 +28,53 @@ public class TimeConflictCheckerRule extends AbstractRuleExceutor {
 
 	public static final Boolean CHECK_UN_CONFLICT = false;
 
+	@Autowired
+	private TeachingClassDao teachingClassDao;
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		// ElectionCourseContext electContext = (ElectionCourseContext) context;
-		// Lesson electLesson = electContext.getLesson();
-		//
-		// int unitCount = ((Integer)
-		// electContext.getState().getParams().get("MAX_TIME_CONFLICT_COUNT")).intValue();
-		// if(unitCount<0) unitCount = 0;
-		// boolean checkType = ((Boolean)
-		// electContext.getState().getParams().get("TIME_CONFLICT_CHECK_TYPE")).booleanValue();
-		// boolean isContinuous = ((Boolean)
-		// electContext.getState().getParams().get("TIME_CONFLICT_IS_CONTINUOUS")).booleanValue();
-		//
-		// Collection<Lesson> electedLessons = (Collection<Lesson>)
-		// electContext.getParams().get(Params.CONFLICT_COURSE_TAKES.toString());
-		// Collection<Lesson> electingLessons = (Collection<Lesson>)
-		// electContext.getParams().get(Params.CONFLICT_LESSONS.toString());
-		// List<Lesson> conflictCourseTake =
-		// getConflictLessons(electLesson,electedLessons,unitCount,checkType,isContinuous);
-		// List<Lesson> conflictLessons =
-		// getConflictLessons(electLesson,electingLessons,unitCount,checkType,isContinuous);
-		//
-		// if (!conflictLessons.isEmpty() || !conflictCourseTake.isEmpty()) {
-		// StringBuilder builder = new StringBuilder("与以下课程冲突 :");
-		// for (Lesson lesson : conflictLessons) {
-		// builder.append("<dd>").append(lesson.getCourse().getName()).append("[").append(lesson.getNo()).append("]").append("</dd>");
-		// }
-		// for (Lesson lesson : conflictCourseTake) {
-		// builder.append("<dd>").append(lesson.getCourse().getName()).append("[").append(lesson.getNo()).append("]").append("</dd>");
-		// }
-		// electContext.addMessage(new
-		// ElectMessage(builder.toString(),ElectRuleType.ELECTION,false,electContext.getLesson()));
-		// return false;
-		// }
-		return true;
-	}
+		Long teacherClassId = courseClass.getTeacherClassId();//通过teachingClassId查询时间
+		if(teacherClassId!=null){
+			List<SelectedCourseVo> teachingClassTime = teachingClassDao.findTeachingClassIdTime(teacherClassId);
+			if(CollectionUtil.isNotEmpty(teachingClassTime)){
+				List<TimeUnit> list=new ArrayList<>();
+				Map<Long, List<SelectedCourseVo>> collect = teachingClassTime.stream().collect(Collectors.groupingBy(SelectedCourseVo::getArrangeTimeId));
+				for (List<SelectedCourseVo> selectedCourseVos : collect.values()) {
+					TimeUnit timeUnit=new TimeUnit();
+					int dayOfWeek = selectedCourseVos.get(0).getDayOfWeek();
+					int timeStart = selectedCourseVos.get(0).getTimeStart();
+					int timeEnd = selectedCourseVos.get(0).getTimeEnd();
+					timeUnit.setDayOfWeek(dayOfWeek);
+					timeUnit.setTimeStart(timeStart);
+					timeUnit.setTimeEnd(timeEnd);
+					selectedCourseVos.forEach(temp->{
+						timeUnit.getWeeks().add(temp.getWeek());
+					});
+					list.add(timeUnit);
+				}
+				Set<SelectedCourse> selectedCourses = context.getSelectedCourses();//已经选择的课程，时间班级
+				if(CollectionUtil.isNotEmpty(selectedCourses)){
+					selectedCourses.forEach(temp ->{
+						List<TimeUnit> times = temp.getTimes();//比较是否冲突
+						times.forEach(timeUnit -> {
+							list.forEach(vo->{
+								if(timeUnit.getDayOfWeek()==vo.getDayOfWeek()&&){
 
-	public boolean isConflict(TeachingClass lesson, TeachingClass lesson2, int unitCount, boolean checkType,
-			boolean isContinuous) {
-		// if (null == lesson || null == lesson2 || lesson.equals(lesson2)) //||
-		// lesson.getCourse().getCode().equals(lesson2.getCourse().getCode()))
-		// return false;
-		// Set<CourseActivity> activities = lesson.getCourseSchedule().getActivities();
-		// Set<CourseActivity> activities2 =
-		// lesson2.getCourseSchedule().getActivities();
-		// if(activities.isEmpty() || activities2.isEmpty()){
-		// return false;
-		// }
-		// @SuppressWarnings("unused")
-		// int allUnitCount=0; //总节次
-		// int conflictCount = 0;//冲突节次
-		// int maxConflict=0;//最大连续冲突节次
-		// int maxUnConflict=0;//最大连续空闲节次
-		// for (CourseActivity courseActivity : activities) {
-		// CourseTime time = courseActivity.getTime();
-		// final int timeOneDayUnit= time.getEndUnit() - time.getStartUnit() + 1;
-		// int oneDayUnConfictCount = timeOneDayUnit;
-		// allUnitCount+=timeOneDayUnit;
-		//
-		// for (CourseActivity courseActivity2 : activities2) {
-		// CourseTime time2 = courseActivity2.getTime();
-		// //同周同一天有课程
-		// if ((time.getWeekStateNum() & time2.getWeekStateNum()) > 0 &&
-		// time.getWeekday().equals(time2.getWeekday())) {
-		// //节次有冲突
-		// if(time.getStartUnit() <= time2.getEndUnit() && time.getEndUnit() >=
-		// time2.getStartUnit()){
-		// oneDayUnConfictCount = 0;
-		// if(unitCount<2 && checkType){
-		// return true;//禁止任何冲突
-		// }else {
-		// //计算出冲突和空闲的节次数量
-		// int minStart = Math.min(time.getStartUnit(), time2.getStartUnit());
-		// int maxStart = Math.max(time.getStartUnit(), time2.getStartUnit());
-		// int minEnd = Math.min(time.getEndUnit(), time2.getEndUnit());
-		// int maxEnd = Math.max(time.getEndUnit(), time2.getEndUnit());
-		// int oneDayConflictCount = (minEnd - maxStart+1);
-		// conflictCount+=oneDayConflictCount;
-		// if(oneDayConflictCount>maxConflict) {
-		// maxConflict = oneDayConflictCount;
-		// }
-		// if(minStart==time.getStartUnit()){
-		// int leftOneDayUnConflictCount = (maxStart - minStart);
-		// if(!isContinuous || leftOneDayUnConflictCount>1){
-		// oneDayUnConfictCount += leftOneDayUnConflictCount;
-		// }
-		// }
-		// if(maxEnd==time.getEndUnit()){
-		// int rightOneDayUnConflictCount = (maxEnd - minEnd);
-		// if(!isContinuous || rightOneDayUnConflictCount>1){
-		// oneDayUnConfictCount += rightOneDayUnConflictCount;
-		// }
-		// }
-		// if(oneDayUnConfictCount>maxUnConflict) {
-		// maxUnConflict =oneDayUnConfictCount;
-		// }
-		// }
-		// }
-		// }
-		// }
-		// if(oneDayUnConfictCount>maxUnConflict) {
-		// maxUnConflict =oneDayUnConfictCount;
-		// }
-		// }
-		// //检查冲突
-		// if(checkType){
-		// //冲突节次如果大于等于指定数量则冲突
-		// if(conflictCount >=unitCount && conflictCount>0){
-		// return true;
-		// }
-		// }else {
-		// //空闲节次如果大于等于指定数量则不冲突
-		// if(maxUnConflict>=unitCount && maxUnConflict>0){
-		// return !(unitCount>0);
-		// }else{
-		// return true;
-		// }
-		// }
+								}
+							});
+						});
+					});
+				}else{
+					return true;
+				}
+			}else{//教学班按排没有上课时间
+				return false;
+			}
+		}
 		return false;
 	}
 
-	public List<TeachingClass> getConflictLessons(TeachingClass lesson, Collection<TeachingClass> lessons,
-			int conflictTimeCount, boolean checkType, boolean isContinuous) {
-		Set<TeachingClass> temp = new HashSet<>();
-		List<TeachingClass> result = new ArrayList<>();
-		if (null != lessons) {
-			for (TeachingClass lesson2 : lessons) {
-				if (temp.contains(lesson2)) {
-					continue;
-				}
-				if (isConflict(lesson, lesson2, conflictTimeCount, checkType, isContinuous)) {
-					result.add(lesson2);
-				}
-				temp.add(lesson2);
-			}
-		}
-		return result;
-	}
 
-	public List<TeachingClass> getConflictLessonsWithCourseTakes(TeachingClass lesson,
-			Collection<ElcCourseTake> courseTakes, int timeConflictCount, boolean checkType, boolean isContinuous) {
-		Set<TeachingClass> temp = new HashSet<>();
-		List<TeachingClass> result = new ArrayList<>();
-		if (null != courseTakes) {
-			for (ElcCourseTake courseTake : courseTakes) {
-				// Lesson lesson2 = courseTake.getLesson();
-				// if (temp.contains(lesson2)) {
-				// continue;
-				// }
-				// if (isConflict(lesson, lesson2,timeConflictCount,checkType,isContinuous)) {
-				// result.add(lesson2);
-				// }
-				// temp.add(lesson2);
-			}
-		}
-		return result;
-	}
 
 }

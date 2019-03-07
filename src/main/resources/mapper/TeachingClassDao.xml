@@ -101,5 +101,9 @@
 	GROUP BY cour.id_, cour.code_, open.COURSE_NAME_ 
   </select>
   
-
+    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.vo.SelectedCourseVo">
+        select ti.ID_ arrangeTimeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd,ro.WEEK_NUMBER_ week from teaching_class_arrange_time_t ti
+        join teaching_class_arrange_room_t ro on ti.ID_=ro.ARRANGE_TIME_ID_
+        where ti.TEACHING_CLASS_ID_=#{teachingClassId}
+    </select>
 </mapper>
