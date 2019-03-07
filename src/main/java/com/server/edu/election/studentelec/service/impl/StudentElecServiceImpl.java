@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.StudentDao;
@@ -31,6 +32,7 @@ import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.util.CollectionUtil;
 
 @Service
 public class StudentElecServiceImpl implements StudentElecService
@@ -51,7 +53,7 @@ public class StudentElecServiceImpl implements StudentElecService
     
     @Autowired
     private RoundDataProvider dataProvider;
-
+    
     @Autowired
     private StudentDao stuDao;
     
@@ -82,7 +84,8 @@ public class StudentElecServiceImpl implements StudentElecService
     @Override
     public RestResult<ElecRespose> elect(ElecRequest elecRequest)
     {
-        if (elecRequest.getElecTeachingClasses().size() == 0)
+        if (CollectionUtil.isEmpty(elecRequest.getElecTeachingClasses())
+            && CollectionUtil.isEmpty(elecRequest.getWithdrawTeachClasss()))
         {
             return RestResult.fail("你没选择任何课程");
         }
@@ -160,7 +163,8 @@ public class StudentElecServiceImpl implements StudentElecService
     
     @Transactional
     @Override
-    public void saveElc(ElecContext context, TeachingClassCache courseClass)
+    public void saveElc(ElecContext context, TeachingClassCache courseClass,
+        ElectRuleType type)
     {
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
@@ -170,40 +174,57 @@ public class StudentElecServiceImpl implements StudentElecService
         
         Long roundId = context.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
-        ElectionRuleVo rule =
-            dataProvider.getRule(roundId, "LimitCountCheckerRule");
-        Long TeachClassId = courseClass.getTeachClassId();
-        if (rule != null)
-        {
-            LOG.info("---- LimitCountCheckerRule ----");
-            // 增加选课人数
-            int count = classDao.increElcNumberAtomic(TeachClassId);
-            if (count == 0)
-            {
-                respose.getFailedReasons()
-                    .put(TeachClassId.toString(), "教学班人数已满");
-                return;
-            }
-        }
-        else
-        {
-            classDao.increElcNumber(TeachClassId);
-        }
+        Long teachClassId = courseClass.getTeachClassId();
         String TeachClassCode = courseClass.getTeachClassCode();
         String courseCode = courseClass.getCourseCode();
         String courseName = courseClass.getCourseName();
         
-        ElcCourseTake take = new ElcCourseTake();
-        take.setCalendarId(round.getCalendarId());
-        take.setChooseObj(request.getChooseObj());
-        take.setCourseCode(courseCode);
-        take.setCourseTakeType(CourseTakeType.NORMAL.type());
-        take.setCreatedAt(date);
-        take.setStudentId(studentId);
-        take.setTeachingClassId(TeachClassId);
-        take.setMode(round.getMode());
-        take.setTurn(round.getTurn());
-        courseTakeDao.insertSelective(take);
+        Integer logType = ElcLogVo.TYPE_1;
+        if (ElectRuleType.ELECTION.equals(type))
+        {
+            ElectionRuleVo rule =
+                dataProvider.getRule(roundId, "LimitCountCheckerRule");
+            if (rule != null)
+            {
+                LOG.info("---- LimitCountCheckerRule ----");
+                // 增加选课人数
+                int count = classDao.increElcNumberAtomic(teachClassId);
+                if (count == 0)
+                {
+                    respose.getFailedReasons()
+                        .put(teachClassId.toString(), "教学班人数已满");
+                    return;
+                }
+            }
+            else
+            {
+                classDao.increElcNumber(teachClassId);
+            }
+            
+            ElcCourseTake take = new ElcCourseTake();
+            take.setCalendarId(round.getCalendarId());
+            take.setChooseObj(request.getChooseObj());
+            take.setCourseCode(courseCode);
+            take.setCourseTakeType(CourseTakeType.NORMAL.type());
+            take.setCreatedAt(date);
+            take.setStudentId(studentId);
+            take.setTeachingClassId(teachClassId);
+            take.setMode(round.getMode());
+            take.setTurn(round.getTurn());
+            courseTakeDao.insertSelective(take);
+        }
+        else
+        {
+            logType = ElcLogVo.TYPE_2;
+            ElcCourseTake take = new ElcCourseTake();
+            take.setCalendarId(round.getCalendarId());
+            take.setCourseCode(courseCode);
+            take.setStudentId(studentId);
+            take.setTeachingClassId(teachClassId);
+            courseTakeDao.delete(take);
+            classDao.decrElcNumber(teachClassId);
+        }
+        
         // 添加选课日志
         ElcLog log = new ElcLog();
         log.setCalendarId(round.getCalendarId());
@@ -218,15 +239,16 @@ public class StudentElecServiceImpl implements StudentElecService
         log.setStudentId(studentId);
         log.setTeachingClassCode(TeachClassCode);
         log.setTurn(round.getTurn());
-        log.setType(ElcLogVo.TYPE_1);
+        log.setType(logType);
         this.elcLogDao.insertSelective(log);
     }
-
+    
     /**根据轮次查询学生信息*/
     @Override
-    public Student findStuRound(Long roundId, String studentId) {
-        Student stu= stuDao.findStuRound(roundId,studentId);
+    public Student findStuRound(Long roundId, String studentId)
+    {
+        Student stu = stuDao.findStuRound(roundId, studentId);
         return stu;
     }
-
+    
 }
