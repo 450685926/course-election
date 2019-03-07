@@ -17,7 +17,7 @@ public class SelectedCourse extends ElecCourse
     private boolean isRebuildElec;
     
     /** 上课时间 */
-    private List<TimeUnit> times;
+    private List<ClassTimeUnit> times;
     
     /** 教学班Id */
     private Long teachClassId;
@@ -52,12 +52,12 @@ public class SelectedCourse extends ElecCourse
         this.setNameEn(course.getNameEn());
     }
     
-    public List<TimeUnit> getTimes()
+    public List<ClassTimeUnit> getTimes()
     {
         return times;
     }
     
-    public void setTimes(List<TimeUnit> times)
+    public void setTimes(List<ClassTimeUnit> times)
     {
         this.times = times;
     }

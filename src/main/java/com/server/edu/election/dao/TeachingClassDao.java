@@ -9,6 +9,7 @@ import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.vo.TeachingClassVo;
 
@@ -92,4 +93,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     List<ElecCourse> selectSuggestCourse(@Param("stu") StudentInfoCache stu);
+    
+    /**获取上课时间*/
+    List<ClassTimeUnit> getClassTimes(List<Long> list);
 }
