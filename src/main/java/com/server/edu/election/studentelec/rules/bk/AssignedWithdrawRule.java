@@ -21,24 +21,37 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("AssignedWithdrawRule")
-public class AssignedWithdrawRule extends AbstractRuleExceutor {
-	@Override
-	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		// TODO Auto-generated method stub
-		Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-		if(courseClass.getTeacherClassId()!=null&&StringUtils.isNotBlank(courseClass.getCourseCode())&&CollectionUtil.isNotEmpty(selectedCourses)) {
-			List<SelectedCourse> list = selectedCourses.stream().filter(c->Constants.TOW==c.getChooseObj()).filter(c->courseClass.getCourseCode().equals(c.getCourseCode())).collect(Collectors.toList());
-			if(CollectionUtil.isEmpty(list)) {
-				return true;
-				
-			}else {
-				ElecRespose respose = context.getRespose();
-				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
-						I18nUtil.getMsg("ruleCheck.assignedWithdrawRule"));
-			}
-			
-		}
-		return false;
-	}
-
+public class AssignedWithdrawRule extends AbstractRuleExceutor
+{
+    @Override
+    public boolean checkRule(ElecContext context,
+        TeachingClassCache courseClass)
+    {
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        if (courseClass.getTeachClassId() != null
+            && StringUtils.isNotBlank(courseClass.getCourseCode())
+            && CollectionUtil.isNotEmpty(selectedCourses))
+        {
+            List<SelectedCourse> list = selectedCourses.stream()
+                .filter(c -> Constants.TOW == c.getChooseObj())
+                .filter(
+                    c -> courseClass.getCourseCode().equals(c.getCourseCode()))
+                .collect(Collectors.toList());
+            if (CollectionUtil.isEmpty(list))
+            {
+                return true;
+                
+            }
+            else
+            {
+                ElecRespose respose = context.getRespose();
+                respose.getFailedReasons()
+                    .put(courseClass.getTeachClassId().toString(),
+                        I18nUtil.getMsg("ruleCheck.assignedWithdrawRule"));
+            }
+            
+        }
+        return false;
+    }
+    
 }

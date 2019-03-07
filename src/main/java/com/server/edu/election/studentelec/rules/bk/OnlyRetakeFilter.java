@@ -23,12 +23,12 @@ public class OnlyRetakeFilter extends AbstractRuleExceutor {
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		if (courseClass.getTeacherClassId() != null) {
-			if (Constants.REBUILD_CALSS.equals(courseClass.getTeacherClassType())) {
+		if (courseClass.getTeachClassId() != null) {
+			if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType())) {
 				return true;
 			} else {
 				ElecRespose respose = context.getRespose();
-				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+				respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 						I18nUtil.getMsg("ruleCheck.onlyRetakeFilter"));
 			}
 		}

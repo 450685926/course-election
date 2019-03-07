@@ -39,7 +39,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractRuleExceutor {
 	 */
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		if (StringUtils.isNotBlank(courseClass.getCourseCode()) && courseClass.getTeacherClassId() != null) {
+		if (StringUtils.isNotBlank(courseClass.getCourseCode()) && courseClass.getTeachClassId() != null) {
 			Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 			if (CollectionUtil.isNotEmpty(selectedCourses)) {
 				List<SelectedCourse> list = selectedCourses.stream().filter(c -> c.isPublicElec())
@@ -58,7 +58,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractRuleExceutor {
 							return true;
 						} else {
 							ElecRespose respose = context.getRespose();
-							respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+							respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 									I18nUtil.getMsg("ruleCheck.xuanXiuMaxCountChecker"));
 						}
 					}

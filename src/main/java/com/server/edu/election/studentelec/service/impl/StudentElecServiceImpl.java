@@ -172,24 +172,24 @@ public class StudentElecServiceImpl implements StudentElecService
         ElectionRounds round = dataProvider.getRound(roundId);
         ElectionRuleVo rule =
             dataProvider.getRule(roundId, "LimitCountCheckerRule");
-        Long teacherClassId = courseClass.getTeacherClassId();
+        Long TeachClassId = courseClass.getTeachClassId();
         if (rule != null)
         {
             LOG.info("---- LimitCountCheckerRule ----");
             // 增加选课人数
-            int count = classDao.increElcNumberAtomic(teacherClassId);
+            int count = classDao.increElcNumberAtomic(TeachClassId);
             if (count == 0)
             {
                 respose.getFailedReasons()
-                    .put(teacherClassId.toString(), "教学班人数已满");
+                    .put(TeachClassId.toString(), "教学班人数已满");
                 return;
             }
         }
         else
         {
-            classDao.increElcNumber(teacherClassId);
+            classDao.increElcNumber(TeachClassId);
         }
-        String teacherClassCode = courseClass.getTeacherClassCode();
+        String TeachClassCode = courseClass.getTeachClassCode();
         String courseCode = courseClass.getCourseCode();
         String courseName = courseClass.getCourseName();
         
@@ -200,7 +200,7 @@ public class StudentElecServiceImpl implements StudentElecService
         take.setCourseTakeType(CourseTakeType.NORMAL.type());
         take.setCreatedAt(date);
         take.setStudentId(studentId);
-        take.setTeachingClassId(teacherClassId);
+        take.setTeachingClassId(TeachClassId);
         take.setMode(round.getMode());
         take.setTurn(round.getTurn());
         courseTakeDao.insertSelective(take);
@@ -216,7 +216,7 @@ public class StudentElecServiceImpl implements StudentElecService
             ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
                 : ElcLogVo.MODE_2);
         log.setStudentId(studentId);
-        log.setTeachingClassCode(teacherClassCode);
+        log.setTeachingClassCode(TeachClassCode);
         log.setTurn(round.getTurn());
         log.setType(ElcLogVo.TYPE_1);
         this.elcLogDao.insertSelective(log);

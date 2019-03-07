@@ -12,11 +12,11 @@ import com.server.edu.election.studentelec.context.ElecCourse;
  */
 public class TeachingClassCache extends ElecCourse
 {
-    private Long teacherClassId;
+    private Long teachClassId;
     
-    private String teacherClassCode;
+    private String teachClassCode;
     
-    private String teacherClassType;
+    private String teachClassType;
     
     /** 是否实践课*/
     private Boolean isPractice = false;
@@ -46,34 +46,34 @@ public class TeachingClassCache extends ElecCourse
         this.setNameEn(course.getNameEn());
     }
     
-    public Long getTeacherClassId()
+    public Long getTeachClassId()
     {
-        return teacherClassId;
+        return teachClassId;
     }
     
-    public void setTeacherClassId(Long teacherClassId)
+    public void setTeachClassId(Long teachClassId)
     {
-        this.teacherClassId = teacherClassId;
+        this.teachClassId = teachClassId;
     }
     
-    public String getTeacherClassCode()
+    public String getTeachClassCode()
     {
-        return teacherClassCode;
+        return teachClassCode;
     }
     
-    public void setTeacherClassCode(String teacherClassCode)
+    public void setTeachClassCode(String teachClassCode)
     {
-        this.teacherClassCode = teacherClassCode;
+        this.teachClassCode = teachClassCode;
     }
     
-    public String getTeacherClassType()
+    public String getTeachClassType()
     {
-        return teacherClassType;
+        return teachClassType;
     }
     
-    public void setTeacherClassType(String teacherClassType)
+    public void setTeachClassType(String teachClassType)
     {
-        this.teacherClassType = teacherClassType;
+        this.teachClassType = teachClassType;
     }
     
     public Boolean isPractice()
@@ -129,7 +129,7 @@ public class TeachingClassCache extends ElecCourse
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.teacherClassId, this.teacherClassCode);
+        return Objects.hash(this.teachClassId, this.teachClassCode);
     }
     
     @Override
@@ -143,8 +143,8 @@ public class TeachingClassCache extends ElecCourse
         if (obj instanceof TeachingClassCache)
         {
             TeachingClassCache o = (TeachingClassCache)obj;
-            return StringUtils.equals(this.teacherClassCode, o.teacherClassCode)
-                && Objects.equals(this.teacherClassId, o.teacherClassId);
+            return StringUtils.equals(this.teachClassCode, o.teachClassCode)
+                && Objects.equals(this.teachClassId, o.teachClassId);
         }
         return false;
     }

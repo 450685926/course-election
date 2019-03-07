@@ -32,7 +32,7 @@ public class LoserNotElcRule extends AbstractRuleExceutor {
 				return true;
 			}else{
 				ElecRespose respose = context.getRespose();
-				respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+				respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 						I18nUtil.getMsg("ruleCheck.isLoserStu"));
 			}
 		}

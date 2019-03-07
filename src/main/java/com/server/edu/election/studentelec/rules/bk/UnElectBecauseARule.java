@@ -31,7 +31,7 @@ public class UnElectBecauseARule extends AbstractRuleExceutor {
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-		if (CollectionUtil.isNotEmpty(completedCourses) && courseClass.getTeacherClassId() != null) {
+		if (CollectionUtil.isNotEmpty(completedCourses) && courseClass.getTeachClassId() != null) {
 			List<CompletedCourse> list = completedCourses.stream().filter(temp -> temp.isExcellent())
 					.collect(Collectors.toList());
 			if (CollectionUtil.isNotEmpty(list)) {
@@ -43,7 +43,7 @@ public class UnElectBecauseARule extends AbstractRuleExceutor {
 						return true;
 					} else {
 						ElecRespose respose = context.getRespose();
-						respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+						respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 								I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
 					}
 				}

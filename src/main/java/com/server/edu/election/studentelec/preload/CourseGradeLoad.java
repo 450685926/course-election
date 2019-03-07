@@ -68,14 +68,17 @@ public class CourseGradeLoad extends DataProLoad
                 studentInfo.getStudentId());
             throw new RuntimeException(msg);
         }
-        List<StudentScore> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentInfo.getStudentId());
-
+        List<StudentScore> stuScoreBest =
+            ScoreServiceInvoker.findStuScoreBest(studentInfo.getStudentId());
+        
         BeanUtils.copyProperties(stu, studentInfo);
-
+        
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        if(CollectionUtil.isNotEmpty(stuScoreBest)){
-
-            for (StudentScore studentScore : stuScoreBest) {
+        if (CollectionUtil.isNotEmpty(stuScoreBest))
+        {
+            
+            for (StudentScore studentScore : stuScoreBest)
+            {
                 CompletedCourse lesson = new CompletedCourse();
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
@@ -85,8 +88,7 @@ public class CourseGradeLoad extends DataProLoad
                 completedCourses.add(lesson);
             }
         }
-
-
+        
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         //得到校历id
@@ -108,15 +110,17 @@ public class CourseGradeLoad extends DataProLoad
             elcCourseTakeDao.selectByExample(example);
         if (CollectionUtil.isNotEmpty(elcCourseTake))
         {
-        	List<Long> elcCourseTakeIds = elcCourseTake.stream().map(temp->temp.getId()).collect(Collectors.toList());
-        	//按周数拆分的选课数据集合
+            List<Long> elcCourseTakeIds = elcCourseTake.stream()
+                .map(temp -> temp.getId())
+                .collect(Collectors.toList());
+            //按周数拆分的选课数据集合
             List<SelectedCourseVo> list =
                 elcCourseTakeDao.findSelectedCourses(elcCourseTakeIds);
             elcCourseTake.forEach(c -> {
                 SelectedCourse selectedCourse = new SelectedCourse();
                 //一个教学班的课程信息
                 List<SelectedCourseVo> voList = list.stream()
-                    .filter(temp -> temp.getTeachingclassId()
+                    .filter(temp -> temp.getTeachClassId()
                         .equals(c.getTeachingClassId()))
                     .collect(Collectors.toList());
                 //一个教学班的排课时间信息

@@ -34,32 +34,32 @@ public class SuggestCourseRule extends AbstractRuleExceutor {
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		Long teacherClassId = courseClass.getTeacherClassId();
+		Long TeachClassId = courseClass.getTeachClassId();
 		StudentInfoCache studentInfo = context.getStudentInfo();
 		String studentId = studentInfo.getStudentId();
 		Integer grade = studentInfo.getGrade();
 		String major = studentInfo.getMajor();
-		if (teacherClassId!=null){//查询建议学生
-			List<String> teachingStudent = classDao.selectSuggestStudent(teacherClassId);
+		if (TeachClassId!=null){//查询建议学生
+			List<String> teachingStudent = classDao.selectSuggestStudent(TeachClassId);
 			if(CollectionUtil.isNotEmpty(teachingStudent)){//有配课学生建议
 				if(teachingStudent.contains(studentId)){
 					return true;
 				}else{
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.suggestCourse"));
 					return false;
 				}
 
 			}
-			List<SuggestProfessionDto> professionDtos = classDao.selectSuggestProfession(teacherClassId);
+			List<SuggestProfessionDto> professionDtos = classDao.selectSuggestProfession(TeachClassId);
 			if(CollectionUtil.isNotEmpty(professionDtos)){
 				SuggestProfessionDto professionDto = professionDtos.stream().filter(profession -> (profession.getGrade().intValue() == grade.intValue() && major.equals(profession.getProfession()))).findAny().orElse(null);
 				if(professionDto!=null){
 					return true;
 				}else{
 					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons().put(courseClass.getTeacherClassId().toString(),
+					respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
 							I18nUtil.getMsg("ruleCheck.suggestCourse"));
 					return false;
 				}
