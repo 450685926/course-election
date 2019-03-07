@@ -87,7 +87,8 @@ public class StudentElecRushCourseServiceImpl
             LOG.info("---- exceutors:{} ----", exceutors.size());
             ElecRespose respose = context.getRespose();
             respose.getSuccessCourses().clear();
-            respose.getFailedReasons().clear();
+            Map<String, String> failedReasons = respose.getFailedReasons();
+            failedReasons.clear();
             
             List<TeachingClassCache> successList = new ArrayList<>();
             for (Long teachClassId : elecTeachingClasses)
@@ -105,9 +106,11 @@ public class StudentElecRushCourseServiceImpl
                     {
                         // 校验不通过时跳过后面的校验进行下一个
                         allSuccess = false;
-                        respose.getFailedReasons()
-                            .put(teachClassId.toString(),
-                                exceutor.getDescription());
+                        String key = teachClassId.toString();
+                        if (!failedReasons.containsKey(key))
+                        {
+                            failedReasons.put(key, exceutor.getDescription());
+                        }
                         break;
                     }
                 }

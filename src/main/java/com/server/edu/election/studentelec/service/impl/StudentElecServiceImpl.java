@@ -2,8 +2,6 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.Date;
 
-import com.server.edu.election.dao.*;
-import com.server.edu.election.entity.Student;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -178,7 +181,7 @@ public class StudentElecServiceImpl implements StudentElecService
             if (count == 0)
             {
                 respose.getFailedReasons()
-                    .put(teacherClassId.toString(), rule.getName());
+                    .put(teacherClassId.toString(), "教学班人数已满");
                 return;
             }
         }
