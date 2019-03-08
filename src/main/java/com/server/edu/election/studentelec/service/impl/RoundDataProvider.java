@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,11 +75,12 @@ public class RoundDataProvider
         Date now = new Date();
         Set<String> keys =
             redisTemplate.keys(String.format(Keys.ROUND_KEY, "*"));
+        Set<String> deleteKeys = new HashSet<>();
         for (ElectionRounds round : selectBeStart)
         {
             Long roundId = round.getId();
             String key = String.format(Keys.ROUND_KEY, roundId);
-            // 不存在的数据需要删除的Key
+            // 移除掉有效的key剩下的就是无效数据
             if (keys.contains(key))
             {
                 keys.remove(key);
@@ -89,8 +89,6 @@ public class RoundDataProvider
             Date endTime = round.getEndTime();
             long endMinutes = TimeUnit.MILLISECONDS
                 .toMinutes(endTime.getTime() - now.getTime()) + 3;
-            // 删除之前的数据
-            deleteCache(roundId);
             
             // 缓存轮次规则数据
             cacheRoundRule(ops, roundId, endMinutes);
@@ -107,53 +105,39 @@ public class RoundDataProvider
             Map<String, List<CourseOpenDto>> collect = lessons.stream()
                 .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
             Set<String> keySet = collect.keySet();
+            
+            Set<String> courseKeys = redisTemplate
+                .keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
+            Set<String> classKeys = redisTemplate
+                .keys(String.format(Keys.ROUND_CLASS, roundId, "*"));
             for (String courseCode : keySet)
             {
                 List<CourseOpenDto> teachClasss = collect.get(courseCode);
-                Set<Long> teachClassIds =
-                    cacheTeachClass(ops, endMinutes, roundId, teachClasss);
+                Set<Long> teachClassIds = cacheTeachClass(ops,
+                    endMinutes,
+                    roundId,
+                    teachClasss,
+                    classKeys);
                 
                 CourseOpenDto cour = teachClasss.get(0);
-                cacheCourse(ops, endMinutes, roundId, teachClassIds, cour);
+                cacheCourse(ops, endMinutes, roundId, teachClassIds, cour, courseKeys);
             }
+            
+            deleteKeys.addAll(courseKeys);
+            deleteKeys.addAll(classKeys);
         }
+        deleteKeys.addAll(keys);
         
-        if (CollectionUtil.isNotEmpty(keys))
+        if (CollectionUtil.isNotEmpty(deleteKeys))
         {
-            for (String key : keys)
-            {
-                String roundId =
-                    key.replace(String.format(Keys.ROUND_KEY, ""), "");
-                if (StringUtils.isNumeric(roundId))
-                {
-                    deleteCache(Long.valueOf(roundId));
-                }
-            }
+            redisTemplate.delete(deleteKeys);
         }
-    }
-    
-    private void deleteCache(Long roundId)
-    {
-        // 删除旧数据
-        redisTemplate.delete(String.format(Keys.ROUND_KEY, roundId));
-        
-        Set<String> keys1 =
-            redisTemplate.keys(String.format(Keys.ROUND_RULE, roundId, "*"));
-        redisTemplate.delete(keys1);
-        
-        keys1 =
-            redisTemplate.keys(String.format(Keys.ROUND_CLASS, roundId, "*"));
-        redisTemplate.delete(keys1);
-        
-        keys1 =
-            redisTemplate.keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
-        redisTemplate.delete(keys1);
     }
     
     /**缓存课程*/
     private void cacheCourse(ValueOperations<String, String> ops,
         long endMinutes, Long roundId, Set<Long> teachClassIds,
-        CourseOpenDto cour)
+        CourseOpenDto cour, Set<String> courseKeys)
     {
         CourseCache course = new CourseCache();
         course.setCourseCode(cour.getCourseCode());
@@ -164,6 +148,10 @@ public class RoundDataProvider
         
         String courseKey =
             String.format(Keys.ROUND_COURSE, roundId, cour.getCourseCode());
+        if (courseKeys.contains(courseKey))
+        {
+            courseKeys.remove(courseKey);
+        }
         String text = JSON.toJSONString(course);
         if (!redisTemplate.hasKey(courseKey))
         {
@@ -173,7 +161,8 @@ public class RoundDataProvider
     
     /**缓存教学班*/
     private Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
-        long endMinutes, Long roundId, List<CourseOpenDto> teachClasss)
+        long endMinutes, Long roundId, List<CourseOpenDto> teachClasss,
+        Set<String> classKeys)
     {
         Set<Long> teachClassIds = new HashSet<>();
         for (CourseOpenDto lesson : teachClasss)
@@ -191,6 +180,11 @@ public class RoundDataProvider
             String classText = JSON.toJSONString(courseClass);
             String classKey = String
                 .format(Keys.ROUND_CLASS, roundId, lesson.getTeachingClassId());
+            
+            if (classKeys.contains(classKey))
+            {
+                classKeys.remove(classKey);
+            }
             ops.set(classKey, classText, endMinutes, TimeUnit.MINUTES);
         }
         return teachClassIds;
