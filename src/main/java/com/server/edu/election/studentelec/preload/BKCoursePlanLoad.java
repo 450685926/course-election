@@ -3,6 +3,8 @@ package com.server.edu.election.studentelec.preload;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,8 @@ import tk.mybatis.mapper.entity.Example;
 @Component
 public class BKCoursePlanLoad extends DataProLoad
 {
+    Logger log = LoggerFactory.getLogger(getClass());
+    
     @Autowired
     private CourseDao courseDao;
     
@@ -41,6 +45,8 @@ public class BKCoursePlanLoad extends DataProLoad
         
         if (CollectionUtil.isNotEmpty(courseCodes))
         {
+            log.info("plan course size:{}", courseCodes.size());
+            
             Set<ElecCourse> planCourses = context.getPlanCourses();
             
             Example example = new Example(Course.class);
