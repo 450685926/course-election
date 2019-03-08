@@ -48,6 +48,10 @@ public class StudentInfoCache
     
     /** 是否结业生 */
     private boolean isGraduate;
+
+    /**专项计划*/
+    @Code2Text(transformer = "X_ZXJH")
+    private String spcialPlan;
     
     public String getStudentId()
     {
@@ -178,5 +182,12 @@ public class StudentInfoCache
     {
         this.isGraduate = isGraduate;
     }
-    
+
+    public String getSpcialPlan() {
+        return spcialPlan;
+    }
+
+    public void setSpcialPlan(String spcialPlan) {
+        this.spcialPlan = spcialPlan;
+    }
 }

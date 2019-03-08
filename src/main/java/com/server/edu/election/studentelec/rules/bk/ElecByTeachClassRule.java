@@ -1,11 +1,13 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,9 +70,6 @@ public class ElecByTeachClassRule extends AbstractRuleExceutor {
 	@Autowired
 	private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
 
-	@Autowired
-	private StudentDao studentDao;
-
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
@@ -103,8 +102,35 @@ public class ElecByTeachClassRule extends AbstractRuleExceutor {
 				String trainingLevel = restrictAttr.getTrainingLevel();//培养层次
 				String spcialPlan = restrictAttr.getSpcialPlan();//专项计划
 				String isDivsex = restrictAttr.getIsDivsex();//男女班.
-				Student student = studentDao.findStudentByCode(studentInfo.getStudentId());
-				
+				boolean flag=false;
+				if(isOverseas!=null){//
+					String s=studentInfo.isAboard()?"1":"0";
+					flag=isOverseas.equals(s);
+				}
+				if(trainingLevel!=null){
+					flag=trainingLevel.equals(studentInfo.getTrainingLevel());
+				}
+
+				if(spcialPlan!=null){
+					flag=spcialPlan.equals(studentInfo.getSpcialPlan());
+				}
+
+				if(isDivsex!=null&& "0".equals(isDivsex)){
+					flag=isDivsex.equals(String.valueOf(studentInfo.getSex()));
+				}
+
+				if(flag==true){
+					return flag;
+				}
+			}
+
+			if(CollectionUtil.isEmpty(stringList) && CollectionUtil.isEmpty(suggestProfessionDtos) && restrictAttr==null){
+				return true;
+			}else{
+				ElecRespose respose = context.getRespose();
+				respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+						I18nUtil.getMsg("ruleCheck.classLimit"));
+				return false;
 			}
 		}
 		return false;
