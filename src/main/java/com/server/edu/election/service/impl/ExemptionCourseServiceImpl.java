@@ -15,6 +15,7 @@ import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.vo.*;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
