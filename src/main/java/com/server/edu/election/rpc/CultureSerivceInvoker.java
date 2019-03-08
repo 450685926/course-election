@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,6 +211,17 @@ public class CultureSerivceInvoker
             .postForObject("/courses/findPracticalCourse",
                 null,
                 RestResult.class);
+        return list.getData();
+    }
+
+    /**查询培养计划课程学期实践课*/
+    public static List<PlanCourseTypeDto> findCourseType(String studentId)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<PlanCourseTypeDto>> list = ServicePathEnum.CULTURESERVICE
+                .getForObject("/studentCultureRel/findCourseType/{studentId}",
+                        RestResult.class,
+                        studentId);
         return list.getData();
     }
 }
