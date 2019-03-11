@@ -1,12 +1,15 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -57,25 +61,38 @@ public class SJTermCheckerRule extends AbstractRuleExceutor {
 			}
 			semester+=String.valueOf(i);
 		}
-		List<PlanCourseTypeDto> courseType = CultureSerivceInvoker.findCourseType(studentInfo.getStudentId());
-		if(CollectionUtil.isNotEmpty(courseType)){
-			List<PlanCourseTypeDto> collect = courseType.stream().filter(temp -> temp.getWeekType().intValue() == 1).collect(Collectors.toList());
+
+		boolean flag=false;
+		Set<ElecCourse> planCourses = context.getPlanCourses();//计划课程
+		if(CollectionUtil.isNotEmpty(planCourses)){//培養計劃
+			Set<ElecCourse> collect = planCourses.stream().filter(temp -> temp.getWeekType().intValue() == 1).collect(Collectors.toSet());
 			if(CollectionUtil.isNotEmpty(collect)){
-				for (PlanCourseTypeDto planCourseTypeDto : collect) {
-					String code = planCourseTypeDto.getCourseCode();
-					String semes = planCourseTypeDto.getSemester();
-					int i = semes.indexOf(semester);//是否有该学期
-					if(courseCode.equals(code)&& i>=0){
-						return true;
-					}
-				}
+				flag = isPracticalCourse(collect, semester, courseCode);
 			}
 		}
+		if(flag){
+			return flag;
+		}else{
+			ElecRespose respose = context.getRespose();
+			respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+					I18nUtil.getMsg("ruleCheck.practicalCourseLimit"));
+			return false;
+		}
 
-
-		return false;
 	}
 
 
+	private boolean isPracticalCourse(Set<ElecCourse> collect,String semester,String courseCode){
+		boolean flag=false;
+		for (ElecCourse planCourseTypeDto : collect) {
+			String code = planCourseTypeDto.getCourseCode();
+			String semes = planCourseTypeDto.getSemester();
+			int i = semes.indexOf(semester);//是否有该学期
+			if(courseCode.equals(code)&& i>=0){
+				flag= true;
+			}
+		}
+		return flag;
+	}
 
 }
