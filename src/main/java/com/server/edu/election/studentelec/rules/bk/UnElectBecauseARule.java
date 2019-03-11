@@ -21,36 +21,49 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("UnElectBecauseARule")
-public class UnElectBecauseARule extends AbstractRuleExceutor {
-	@Override
-	public int getOrder() {
-		return RulePriority.FIFTH.ordinal();
-	}
-
-	// @Override
-	@Override
-	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-		if (CollectionUtil.isNotEmpty(completedCourses) && courseClass.getTeachClassId() != null) {
-			List<CompletedCourse> list = completedCourses.stream().filter(temp -> temp.isExcellent()==true)
-					.collect(Collectors.toList());
-			if (CollectionUtil.isNotEmpty(list)) {
-				if (StringUtils.isNotBlank(courseClass.getCourseCode())) {
-					List<CompletedCourse> courses = list.stream()
-							.filter(c -> courseClass.getCourseCode().equals(c.getCourseCode()))
-							.collect(Collectors.toList());
-					if (CollectionUtil.isNotEmpty(courses)) {
-						return true;
-					} else {
-						ElecRespose respose = context.getRespose();
-						respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
-								I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
-					}
-				}
-
-			}
-		}
-		return false;
-	}
-
+public class UnElectBecauseARule extends AbstractRuleExceutor
+{
+    @Override
+    public int getOrder()
+    {
+        return RulePriority.FIFTH.ordinal();
+    }
+    
+    @Override
+    public boolean checkRule(ElecContext context,
+        TeachingClassCache courseClass)
+    {
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+        if (CollectionUtil.isNotEmpty(completedCourses)
+            && courseClass.getTeachClassId() != null)
+        {
+            List<CompletedCourse> list = completedCourses.stream()
+                .filter(temp -> temp.isExcellent() == true)
+                .collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(list))
+            {
+                if (StringUtils.isNotBlank(courseClass.getCourseCode()))
+                {
+                    List<CompletedCourse> courses = list.stream()
+                        .filter(c -> courseClass.getCourseCode()
+                            .equals(c.getCourseCode()))
+                        .collect(Collectors.toList());
+                    if (CollectionUtil.isNotEmpty(courses))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        ElecRespose respose = context.getRespose();
+                        respose.getFailedReasons()
+                            .put(courseClass.getTeachClassId().toString(),
+                                I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
+                    }
+                }
+                
+            }
+        }
+        return false;
+    }
+    
 }

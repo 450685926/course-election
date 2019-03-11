@@ -2,8 +2,8 @@ package com.server.edu.election.studentelec.rules.bk;
 
 import org.springframework.stereotype.Component;
 
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
@@ -13,22 +13,21 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
  * 如果在第二轮选课时，第一轮选上的某人退了A任务，那么学生就能选该任务了。
  */
 @Component("SecondRdCantElect1stRdFullRule")
-public class SecondRdCantElect1stRdFullRule extends AbstractRuleExceutor {
-	private static final String PARAM = "HIDE_WHEN_FIRST_ELECT_FULL";
-
-	public SecondRdCantElect1stRdFullRule() {
-		super();
-	}
-
-	@Override
-	public int getOrder() {
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
-	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-
-		return true;
-	}
-
+public class SecondRdCantElect1stRdFullRule extends AbstractRuleExceutor
+{
+    
+    @Override
+    public int getOrder()
+    {
+        return Integer.MAX_VALUE;
+    }
+    
+    @Override
+    public boolean checkRule(ElecContext context,
+        TeachingClassCache courseClass)
+    {
+        
+        return true;
+    }
+    
 }

@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -33,14 +33,13 @@ public class AssignedWithdrawRule extends AbstractRuleExceutor
             && CollectionUtil.isNotEmpty(selectedCourses))
         {
             List<SelectedCourse> list = selectedCourses.stream()
-                .filter(c -> Constants.TOW == c.getChooseObj())
+                .filter(c -> ChooseObj.STU.type() != c.getChooseObj())
                 .filter(
                     c -> courseClass.getCourseCode().equals(c.getCourseCode()))
                 .collect(Collectors.toList());
             if (CollectionUtil.isEmpty(list))
             {
                 return true;
-                
             }
             else
             {
