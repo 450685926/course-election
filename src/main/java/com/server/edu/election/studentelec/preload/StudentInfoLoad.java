@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.preload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcLoserDownStdsDao;
 import com.server.edu.election.dao.ElcNoGraduateStdsDao;
 import com.server.edu.election.dao.StudentDao;
@@ -35,7 +36,7 @@ public class StudentInfoLoad extends DataProLoad
     
     @Autowired
     private ElcNoGraduateStdsDao elcNoGraduateStdsDao;
-
+    
     @Autowired
     private ElcLoserDownStdsDao elcLoserDownStdsDao;
     
@@ -59,22 +60,18 @@ public class StudentInfoLoad extends DataProLoad
         //专项计划
         studentInfo.setSpcialPlan(stu.getSpcialPlan());
         // 是否留学生
-        studentInfo.setAboard("1".equals(stu.getIsOverseas()));
+        studentInfo.setAboard(Constants.IS_OVERSEAS.equals(stu.getIsOverseas()));
         //是否结业生
-        studentInfo.setGraduate(false);
-        ElcNoGraduateStds elcNoGraduateStds = elcNoGraduateStdsDao.findStudentByCode(studentInfo.getStudentId());
-        if(elcNoGraduateStds!=null) {
-        	studentInfo.setGraduate(true);
-        }
-        // 1. 查询学生是否为留降级学生
-        ElcLoserDownStds loserDownStds = elcLoserDownStdsDao.findLoserDownStds(context.getRoundId(), stu.getStudentCode());
-        if(loserDownStds==null){
-            studentInfo.setRepeater(false);
-        }else{
-            studentInfo.setRepeater(true);
-        }
-
-        // 3. 是否缴费//todo
+        ElcNoGraduateStds elcNoGraduateStds =
+            elcNoGraduateStdsDao.findStudentByCode(studentInfo.getStudentId());
+        studentInfo.setGraduate(elcNoGraduateStds == null ? false : true);
+        
+        // 否为留降级学生
+        ElcLoserDownStds loserDownStds = elcLoserDownStdsDao
+            .findLoserDownStds(context.getRoundId(), stu.getStudentCode());
+        studentInfo.setRepeater(loserDownStds == null ? false : true);
+        
+        // 3. TODO 是否缴费
         
     }
     

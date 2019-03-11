@@ -51,8 +51,7 @@ public class StudentElecRushCourseServiceImpl
     protected StudentElecRushCourseServiceImpl(
         ElecQueueService<ElecRequest> queueService)
     {
-        // 使用4个线程来处理选课申请
-        super(8, QueueGroups.STUDENT_ELEC, queueService);
+        super(QueueGroups.STUDENT_ELEC, queueService);
     }
     
     @Override
