@@ -39,8 +39,7 @@ public class StudentElecPreloadingServiceImpl
     public StudentElecPreloadingServiceImpl(
         ElecQueueService<ElecRequest> elecQueueService)
     {
-        // 使用4个线程来执行初始化数据操作
-        super(4, QueueGroups.STUDENT_LOADING, elecQueueService);
+        super(QueueGroups.STUDENT_LOADING, elecQueueService);
     }
     
     @Override
