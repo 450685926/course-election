@@ -14,8 +14,8 @@ import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionParameter;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
@@ -42,7 +42,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractRuleExceutor {
 		if (StringUtils.isNotBlank(courseClass.getCourseCode()) && courseClass.getTeachClassId() != null) {
 			Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 			if (CollectionUtil.isNotEmpty(selectedCourses)) {
-				List<SelectedCourse> list = selectedCourses.stream().filter(c -> c.isPublicElec())
+				List<SelectedCourse> list = selectedCourses.stream().filter(c -> c.isPublicElec()==true)
 						.collect(Collectors.toList());
 				int stsNum = list.size();
 				// 选课门数上限

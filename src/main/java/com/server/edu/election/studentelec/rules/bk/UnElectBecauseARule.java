@@ -8,9 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
@@ -32,7 +32,7 @@ public class UnElectBecauseARule extends AbstractRuleExceutor {
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
 		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
 		if (CollectionUtil.isNotEmpty(completedCourses) && courseClass.getTeachClassId() != null) {
-			List<CompletedCourse> list = completedCourses.stream().filter(temp -> temp.isExcellent())
+			List<CompletedCourse> list = completedCourses.stream().filter(temp -> temp.isExcellent()==true)
 					.collect(Collectors.toList());
 			if (CollectionUtil.isNotEmpty(list)) {
 				if (StringUtils.isNotBlank(courseClass.getCourseCode())) {
