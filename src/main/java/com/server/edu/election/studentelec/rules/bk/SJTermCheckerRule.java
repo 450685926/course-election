@@ -10,6 +10,7 @@ import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -63,9 +64,9 @@ public class SJTermCheckerRule extends AbstractRuleExceutor {
 		}
 
 		boolean flag=false;
-		Set<ElecCourse> planCourses = context.getPlanCourses();//计划课程
-		if(CollectionUtil.isNotEmpty(planCourses)){//培養計劃
-			Set<ElecCourse> collect = planCourses.stream().filter(temp -> temp.getWeekType().intValue() == 1).collect(Collectors.toSet());
+		Set<PlanCourse> planCourses = context.getPlanCourses();//计划课程
+		if(CollectionUtil.isNotEmpty(planCourses)){
+			Set<PlanCourse> collect = planCourses.stream().filter(temp -> temp.getWeekType().intValue() == 1).collect(Collectors.toSet());
 			if(CollectionUtil.isNotEmpty(collect)){
 				flag = isPracticalCourse(collect, semester, courseCode);
 			}
@@ -82,9 +83,9 @@ public class SJTermCheckerRule extends AbstractRuleExceutor {
 	}
 
 
-	private boolean isPracticalCourse(Set<ElecCourse> collect,String semester,String courseCode){
+	private boolean isPracticalCourse(Set<PlanCourse> collect,String semester,String courseCode){
 		boolean flag=false;
-		for (ElecCourse planCourseTypeDto : collect) {
+		for (PlanCourse planCourseTypeDto : collect) {
 			String code = planCourseTypeDto.getCourseCode();
 			String semes = planCourseTypeDto.getSemester();
 			int i = semes.indexOf(semester);//是否有该学期
