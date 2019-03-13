@@ -47,10 +47,10 @@ public class AssignedWithdrawRule extends AbstractRuleExceutor
                 respose.getFailedReasons()
                     .put(courseClass.getTeachClassId().toString(),
                         I18nUtil.getMsg("ruleCheck.assignedWithdrawRule"));
+                return false;
             }
-            
         }
-        return false;
+        return true;
     }
     
 }
