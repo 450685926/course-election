@@ -25,9 +25,12 @@ public class ElecContext
     
     /** 免修申请课程 */
     private Set<ElecCourse> applyForDropCourses;
-    
+
+    /**课程组学分限制*/
+    private Set<CourseGroup> courseGroups;
+
     /** 个人计划内课程 */
-    private Set<ElecCourse> planCourses;
+    private Set<PlanCourse> planCourses;
     
     /** 通识选修课程 */
     private Set<ElecCourse> publicCourses;
@@ -51,9 +54,11 @@ public class ElecContext
             this.contextUtil.getSet("SelectedCourses", SelectedCourse.class);
         applyForDropCourses =
             this.contextUtil.getSet("ApplyForDropCourses", ElecCourse.class);
-        planCourses = this.contextUtil.getSet("PlanCourses", ElecCourse.class);
+        planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
         publicCourses =
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
+        courseGroups =
+                this.contextUtil.getSet("courseGroups", CourseGroup.class);
     }
     
     /**
@@ -69,6 +74,7 @@ public class ElecContext
         this.contextUtil.save("SelectedCourses", this.selectedCourses);
         this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
         this.contextUtil.save("PlanCourses", this.planCourses);
+        this.contextUtil.save("CourseGroup", this.courseGroups);
     }
     
     public void saveResponse()
@@ -102,7 +108,7 @@ public class ElecContext
         return applyForDropCourses;
     }
     
-    public Set<ElecCourse> getPlanCourses()
+    public Set<PlanCourse> getPlanCourses()
     {
         return planCourses;
     }
@@ -131,5 +137,12 @@ public class ElecContext
     {
         this.respose = respose;
     }
-    
+
+    public Set<CourseGroup> getCourseGroups() {
+        return courseGroups;
+    }
+
+    public void setCourseGroups(Set<CourseGroup> courseGroups) {
+        this.courseGroups = courseGroups;
+    }
 }

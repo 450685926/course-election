@@ -3,6 +3,10 @@ package com.server.edu.election.studentelec.preload;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.common.dto.CultureRuleDto;
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.studentelec.context.PlanCourse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +44,7 @@ public class BKCoursePlanLoad extends DataProLoad
     public void load(ElecContext context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        List<String> courseCodes =
+        /*List<String> courseCodes =
             CultureSerivceInvoker.getCourseCodes(stu.getStudentId());
         
         if (CollectionUtil.isNotEmpty(courseCodes))
@@ -62,8 +66,50 @@ public class BKCoursePlanLoad extends DataProLoad
                 c.setNameEn(course.getNameEn());
                 planCourses.add(c);
             }
+        }*/
+
+        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(stu.getStudentId());
+        if(CollectionUtil.isNotEmpty(courseType)){
+            log.info("plan course size:{}", courseType.size());
+
+            Set<PlanCourse> planCourses = context.getPlanCourses();
+            Set<ElecCourse> publicCourses = context.getPublicCourses();
+            for (PlanCourseDto planCourse : courseType) {
+
+                List<PlanCourseTypeDto> list = planCourse.getList();
+                CultureRuleDto rule = planCourse.getRule();
+                Long label = planCourse.getLabel();
+                if(CollectionUtil.isNotEmpty(list)){
+                    for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
+                        PlanCourse pl=new PlanCourse();
+                        pl.setSemester(planCourseTypeDto.getSemester());
+                        pl.setWeekType(planCourseTypeDto.getWeekType());
+                        pl.setCourseCode(planCourseTypeDto.getCourseCode());
+                        pl.setCourseName(planCourseTypeDto.getName());
+                        pl.setNameEn(planCourseTypeDto.getNameEn());
+                        pl.setCredits(planCourseTypeDto.getCredits());
+                        pl.setLabel(label);
+                        if(rule!=null){
+                            if("1".equals(rule.getLabelType())){//通识选修课
+                                ElecCourse c = new ElecCourse();
+                                c.setCourseCode(planCourseTypeDto.getCourseCode());
+                                c.setCourseName(planCourseTypeDto.getName());
+                                c.setCredits(planCourseTypeDto.getCredits());
+                                c.setNameEn(planCourseTypeDto.getNameEn());
+                                publicCourses.add(c);
+                            }
+                            if("1".equals(rule.getLimitType())&&"2".equals(rule.getExpression())){//课程组学分限制
+                                Double minCredits = rule.getMinCredits();
+                                pl.setCredits(minCredits);
+                            }
+                        }
+                        planCourses.add(pl);
+                    }
+                }
+
+            }
         }
-        
     }
-    
+
+
 }

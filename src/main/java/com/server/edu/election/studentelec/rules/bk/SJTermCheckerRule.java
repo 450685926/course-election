@@ -1,10 +1,27 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.PlanCourse;
+import com.server.edu.util.CollectionUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 控制实践课学期
@@ -13,77 +30,70 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 @Component("SJTermCheckerRule")
 public class SJTermCheckerRule extends AbstractRuleExceutor {
 
+	@Autowired
+	private ElecRoundsDao roundsDao;
+
 	// protected PlanCreditLimitPrepare planCreditLimitPrepare;
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-		return true;
+		StudentInfoCache studentInfo = context.getStudentInfo();
+		String courseCode = courseClass.getCourseCode();
+		//得到校历id
+		ElectionRounds electionRounds =
+				roundsDao.selectByPrimaryKey(context.getRoundId());
+		if (electionRounds == null)
+		{
+			String msg = String.format("electionRounds not find roundId=%s",
+					context.getRoundId());
+			throw new RuntimeException(msg);
+		}
+		Long calendarId = electionRounds.getCalendarId();
+		Integer grade = studentInfo.getGrade();
+		SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+		//计算学期
+		Integer year = schoolCalendarVo.getYear();
+		Integer term = schoolCalendarVo.getTerm();
+		String semester="";
+		if(year!=null  && grade!=null && term!=null){
+			int i = (year - grade) * 2 + term;
+			if(i<1){
+				return false;
+			}
+			semester+=String.valueOf(i);
+		}
+
+		boolean flag=false;
+		Set<PlanCourse> planCourses = context.getPlanCourses();//计划课程
+		if(CollectionUtil.isNotEmpty(planCourses)){
+			Set<PlanCourse> collect = planCourses.stream().filter(temp -> temp.getWeekType().intValue() == 1).collect(Collectors.toSet());
+			if(CollectionUtil.isNotEmpty(collect)){
+				flag = isPracticalCourse(collect, semester, courseCode);
+			}
+		}
+		if(flag){
+			return flag;
+		}else{
+			ElecRespose respose = context.getRespose();
+			respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+					I18nUtil.getMsg("ruleCheck.practicalCourseLimit"));
+			return false;
+		}
+
 	}
 
-	public void prepare() {
-		// //if (context.isPreparedData(PreparedDataName.SJ_COURSE_PLAN)) return;
-		// ElectState state = context.getState();
-		//
-		// CoursePlan plan = context.getPlan();
-		// // 选课计划
-		// ElectCoursePlan electPlan = state.getCoursePlan();
-		// if (null == electPlan) {
-		// electPlan = new ElectCoursePlan();
-		// context.getState().setCoursePlan(electPlan);
-		// }
-		// // 根据培养计划设定courseIds(course.id->courseType.id的map)
-		// if (null != plan) {
-		// List<CourseGroup> groups = getTopCourseGroups(plan);
-		// for (CourseGroup group : groups) {
-		// addGroup(group, electPlan, null, state);
-		// }
-		// }
-		//
-		// //context.addPreparedDataName(PreparedDataName.SJ_COURSE_PLAN);
 
+	private boolean isPracticalCourse(Set<PlanCourse> collect,String semester,String courseCode){
+		boolean flag=false;
+		for (PlanCourse planCourseTypeDto : collect) {
+			String code = planCourseTypeDto.getCourseCode();
+			String semes = planCourseTypeDto.getSemester();
+			int i = semes.indexOf(semester);//是否有该学期
+			if(courseCode.equals(code)&& i>=0){
+				flag= true;
+			}
+		}
+		return flag;
 	}
-
-	// protected void addGroup(CourseGroup group, ElectCoursePlan electPlan,
-	// ElectCourseGroup parent,
-	// ElectState state) {
-	// OqlBuilder<Long> query =
-	// OqlBuilder.from(CourseGrade.class.getName(),"grade");
-	// query.select(" grade.course.id").where(" grade.std.id
-	// =:stdId",state.getStd().getId()).cacheable();
-	// List<Long> hasLearnedCourseIds = entityDao.search(query);
-	//
-	//
-	// TJElectCourseGroup electGroup = new
-	// TJElectCourseGroup(group.getCourseType());
-	// electGroup.setParent(parent);
-	// electPlan.addGroup(electGroup);
-	// for (CourseGroup childGroup : group.getChildren()) {
-	// addGroup(childGroup, electPlan, electGroup, state);
-	// }
-	// @SuppressWarnings("unchecked")
-	// Integer term = (Integer) state.getParams().get("CURRENT_TERM");
-	// for (PlanCourse planCourse : group.getPlanCourses()) {
-	//
-	// Long courseId = planCourse.getCourse().getId();
-	// electPlan.courseIds.put(courseId, group.getCourseType().getId());
-	// if (TermCalculator.lessThanTerm(planCourse.getTerms(), term)) {//TODO
-	// 获取页面参数来决定该判断是否执行
-	// electGroup.addPlanCourse(planCourse);
-	// }else if(hasLearnedCourseIds.contains(planCourse.getCourse().getId())){
-	// electGroup.addPlanCourse(planCourse);
-	// }
-	// }
-	// }
-
-	// protected final List<CourseGroup> getTopCourseGroups(CoursePlan plan) {
-	// if (plan.getGroups() == null) { return new ArrayList<CourseGroup>(); }
-	// List<CourseGroup> res = new ArrayList<CourseGroup>();
-	// for (CourseGroup group : plan.getGroups()) {
-	// if (group != null && group.getParent() == null) {
-	// res.add((CourseGroup) group);
-	// }
-	// }
-	// return res;
-	// }
 
 }

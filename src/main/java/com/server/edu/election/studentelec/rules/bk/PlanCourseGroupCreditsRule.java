@@ -1,10 +1,17 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.util.CollectionUtil;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+
+import java.util.List;
 
 /**
  * 培养计划课程组学分限制<br>
@@ -17,27 +24,23 @@ public class PlanCourseGroupCreditsRule extends AbstractRuleExceutor {
 
 	@Override
 	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
-//        ElectionCourseContext electContext = (ElectionCourseContext)context;
-		// Lesson lesson = electContext.getLesson();
-		// ElectState state = electContext.getState();
-		// boolean noRetake =
-		// Boolean.TRUE.equals(state.getParams().get(NoRetakeRule.PARAM));
-		// boolean unCheckCredits = Boolean.TRUE.equals(state.getParams().get(
-		// RetakeCheckByCoursePrepare.STATE_PARAM));
-		// // 不开放重修 或者 重修需要检查学分
-		// if (noRetake || !unCheckCredits) {
-		// if (electContext.getState().getCoursePlan().isOverMaxCredit(lesson)) {
-		// context.addMessage(new ElectMessage(lesson.getCourseType().getName() + "
-		// 学分已达上限",
-		// ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }
-		return true;
+		String courseCode = courseClass.getCourseCode();
+		StudentInfoCache studentInfo = context.getStudentInfo();
+		List<String> courseCodes =
+				CultureSerivceInvoker.getCourseCodes(studentInfo.getStudentId());
+		if(CollectionUtil.isNotEmpty(courseCodes)){
+			if(courseCodes.contains(courseCode)){
+				return true;
+			}
+
+			ElecRespose respose = context.getRespose();
+			respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+					I18nUtil.getMsg("ruleCheck.planCultureLimit"));
+			return false;
+		}
+		return false;
 	}
 
-	public void prepare() {
-		// planCreditLimitPrepare.run(context);
-	}
+
 
 }
