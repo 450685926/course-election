@@ -147,6 +147,7 @@
 	  JOIN election_rounds_cour_t co ON co.COURSE_CODE_ = op.COURSE_CODE_
 	  where
 		 co.ROUNDS_ID_ = #{roundId}
+		 and op.CALENDAR_ID_ = #{calendarId}
   </select>
   
 </mapper>

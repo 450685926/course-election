@@ -100,7 +100,7 @@ public class RoundDataProvider
             
             // 加载所有教学班与课程数据到缓存中
             List<CourseOpenDto> lessons =
-                roundCourseDao.selectTeachingClassByRoundId(roundId);
+                roundCourseDao.selectTeachingClassByRoundId(roundId, round.getCalendarId());
             
             Map<String, List<CourseOpenDto>> collect = lessons.stream()
                 .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
