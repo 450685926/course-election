@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,8 +100,8 @@ public class RoundDataProvider
                 TimeUnit.MINUTES);
             
             // 加载所有教学班与课程数据到缓存中
-            List<CourseOpenDto> lessons =
-                roundCourseDao.selectTeachingClassByRoundId(roundId, round.getCalendarId());
+            List<CourseOpenDto> lessons = roundCourseDao
+                .selectTeachingClassByRoundId(roundId, round.getCalendarId());
             
             Map<String, List<CourseOpenDto>> collect = lessons.stream()
                 .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
@@ -120,7 +121,12 @@ public class RoundDataProvider
                     classKeys);
                 
                 CourseOpenDto cour = teachClasss.get(0);
-                cacheCourse(ops, endMinutes, roundId, teachClassIds, cour, courseKeys);
+                cacheCourse(ops,
+                    endMinutes,
+                    roundId,
+                    teachClassIds,
+                    cour,
+                    courseKeys);
             }
             
             deleteKeys.addAll(courseKeys);
@@ -353,9 +359,12 @@ public class RoundDataProvider
             {
                 for (String json : list)
                 {
-                    TeachingClassCache lesson =
-                        JSON.parseObject(json, TeachingClassCache.class);
-                    lessons.add(lesson);
+                    if (StringUtils.isNotBlank(json))
+                    {
+                        TeachingClassCache lesson =
+                            JSON.parseObject(json, TeachingClassCache.class);
+                        lessons.add(lesson);
+                    }
                 }
             }
         }
