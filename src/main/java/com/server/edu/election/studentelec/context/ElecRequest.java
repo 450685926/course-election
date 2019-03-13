@@ -7,6 +7,7 @@ import javax.validation.groups.Default;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.server.edu.election.studentelec.dto.ElecTeachClassDto;
 import com.server.edu.election.validate.AgentElcGroup;
 
 /**
@@ -29,9 +30,10 @@ public class ElecRequest
     private String studentId;
     
     /** 选课集合 教学班ID*/
-    private List<Long> elecTeachingClasses;
+    private List<ElecTeachClassDto> elecClassList;
+    
     /**退课集合 教学班ID*/
-    private List<Long> withdrawTeachClasss;
+    private List<ElecTeachClassDto> withdrawClassList;
     
     private String createBy;
     
@@ -45,16 +47,6 @@ public class ElecRequest
     public void setStudentId(String studentId)
     {
         this.studentId = studentId;
-    }
-    
-    public List<Long> getElecTeachingClasses()
-    {
-        return elecTeachingClasses;
-    }
-    
-    public void setElecTeachingClasses(List<Long> elecTeachingClasses)
-    {
-        this.elecTeachingClasses = elecTeachingClasses;
     }
     
     public Long getRoundId()
@@ -76,32 +68,42 @@ public class ElecRequest
     {
         this.chooseObj = chooseObj;
     }
-
-    public List<Long> getWithdrawTeachClasss()
+    
+    public List<ElecTeachClassDto> getElecClassList()
     {
-        return withdrawTeachClasss;
+        return elecClassList;
     }
-
-    public void setWithdrawTeachClasss(List<Long> withdrawTeachClasss)
+    
+    public void setElecClassList(List<ElecTeachClassDto> elecClassList)
     {
-        this.withdrawTeachClasss = withdrawTeachClasss;
+        this.elecClassList = elecClassList;
     }
-
+    
+    public List<ElecTeachClassDto> getWithdrawClassList()
+    {
+        return withdrawClassList;
+    }
+    
+    public void setWithdrawClassList(List<ElecTeachClassDto> withdrawClassList)
+    {
+        this.withdrawClassList = withdrawClassList;
+    }
+    
     public String getCreateBy()
     {
         return createBy;
     }
-
+    
     public void setCreateBy(String createBy)
     {
         this.createBy = createBy;
     }
-
+    
     public String getRequestIp()
     {
         return requestIp;
     }
-
+    
     public void setRequestIp(String requestIp)
     {
         this.requestIp = requestIp;

@@ -19,6 +19,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.dto.ElecTeachClassDto;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.service.AbstractElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -98,32 +99,8 @@ public class StudentElecRushCourseServiceImpl
             respose.getSuccessCourses().clear();
             respose.getFailedReasons().clear();
             
-            // 选课
-            if (CollectionUtil.isNotEmpty(request.getElecTeachingClasses()))
-            {
-                Collections.sort(elecExceutors);
-                LOG.info("---- exceutors:{} ----", elecExceutors.size());
-                
-                List<TeachingClassCache> successList = doRuleCheck(context,
-                    elecExceutors,
-                    request.getElecTeachingClasses());
-                
-                // 对校验成功的课程进行入库保存
-                for (TeachingClassCache courseClass : successList)
-                {
-                    elecService
-                        .saveElc(context, courseClass, ElectRuleType.ELECTION);
-                    
-                    SelectedCourse course = new SelectedCourse(courseClass);
-                    //                course.setPublicElec();
-                    course.setTurn(round.getTurn());
-                    //                course.setTime(time);
-                    //                course.setWeeks(weeks);
-                    context.getSelectedCourses().add(course);
-                }
-            }
             // 退课
-            if (CollectionUtil.isNotEmpty(request.getWithdrawTeachClasss()))
+            if (CollectionUtil.isNotEmpty(request.getWithdrawClassList()))
             {
                 Collections.sort(widthdrawExceutors);
                 LOG.info("---- widthdrawExceutors:{} ----",
@@ -131,7 +108,7 @@ public class StudentElecRushCourseServiceImpl
                 
                 List<TeachingClassCache> withdrawList = doRuleCheck(context,
                     widthdrawExceutors,
-                    request.getWithdrawTeachClasss());
+                    request.getWithdrawClassList());
                 
                 // 对校验成功的课程进行入库保存
                 for (TeachingClassCache courseClass : withdrawList)
@@ -153,6 +130,31 @@ public class StudentElecRushCourseServiceImpl
                     }
                 }
             }
+            // 选课
+            if (CollectionUtil.isNotEmpty(request.getElecClassList()))
+            {
+                Collections.sort(elecExceutors);
+                LOG.info("---- exceutors:{} ----", elecExceutors.size());
+                
+                List<TeachingClassCache> successList = doRuleCheck(context,
+                    elecExceutors,
+                    request.getElecClassList());
+                
+                // 对校验成功的课程进行入库保存
+                for (TeachingClassCache courseClass : successList)
+                {
+                    elecService
+                        .saveElc(context, courseClass, ElectRuleType.ELECTION);
+                    
+                    SelectedCourse course = new SelectedCourse(courseClass);
+                    //                course.setPublicElec();
+                    course.setTurn(round.getTurn());
+                    //                course.setTime(time);
+                    //                course.setWeeks(weeks);
+                    context.getSelectedCourses().add(course);
+                }
+            }
+            
         }
         finally
         {
@@ -168,14 +170,16 @@ public class StudentElecRushCourseServiceImpl
     }
     
     private List<TeachingClassCache> doRuleCheck(ElecContext context,
-        List<AbstractRuleExceutor> exceutors, List<Long> teachClassIds)
+        List<AbstractRuleExceutor> exceutors,
+        List<ElecTeachClassDto> teachClassIds)
     {
         Long roundId = context.getRoundId();
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         List<TeachingClassCache> successList = new ArrayList<>();
-        for (Long teachClassId : teachClassIds)
+        for (ElecTeachClassDto data : teachClassIds)
         {
+            Long teachClassId = data.getTeachClassId();
             TeachingClassCache teachClass =
                 dataProvider.getTeachClass(roundId, teachClassId);
             if (teachClass == null)

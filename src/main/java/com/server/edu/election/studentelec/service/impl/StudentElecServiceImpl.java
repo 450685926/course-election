@@ -84,8 +84,8 @@ public class StudentElecServiceImpl implements StudentElecService
     @Override
     public RestResult<ElecRespose> elect(ElecRequest elecRequest)
     {
-        if (CollectionUtil.isEmpty(elecRequest.getElecTeachingClasses())
-            && CollectionUtil.isEmpty(elecRequest.getWithdrawTeachClasss()))
+        if (CollectionUtil.isEmpty(elecRequest.getElecClassList())
+            && CollectionUtil.isEmpty(elecRequest.getWithdrawClassList()))
         {
             return RestResult.fail("你没选择任何课程");
         }
