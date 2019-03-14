@@ -46,6 +46,7 @@ public class ExemptionCourseNotTake extends AbstractRuleExceutor
                 respose.getFailedReasons()
                     .put(courseClass.getCourseCodeAndClassCode(),
                         I18nUtil.getMsg("ruleCheck.exemptionCourseNotTake"));
+                return false;
             }
         }
         return true;
