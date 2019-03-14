@@ -21,75 +21,62 @@ import com.server.edu.util.CollectionUtil;
  * 那么学生看到的这些课的任务都是适合自己的（逻辑类似于根据教学班过滤任务）
  */
 @Component("SuggestCourseRule")
-public class SuggestCourseRule extends AbstractRuleExceutor
-{
+public class SuggestCourseRule extends AbstractRuleExceutor {
     @Override
-    public int getOrder()
-    {
+    public int getOrder() {
         return RulePriority.FOURTH.ordinal();
     }
-    
+
     @Autowired
     private TeachingClassDao classDao;
-    
+
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
+                             TeachingClassCache courseClass) {
         Long TeachClassId = courseClass.getTeachClassId();
         StudentInfoCache studentInfo = context.getStudentInfo();
         String studentId = studentInfo.getStudentId();
         Integer grade = studentInfo.getGrade();
         String major = studentInfo.getMajor();
-        if (TeachClassId != null)
-        {//查询建议学生
+        if (TeachClassId != null) {//查询建议学生
             List<String> teachingStudent =
-                classDao.selectSuggestStudent(TeachClassId);
-            if (CollectionUtil.isNotEmpty(teachingStudent))
-            {//有配课学生建议
-                if (teachingStudent.contains(studentId))
-                {
+                    classDao.selectSuggestStudent(TeachClassId);
+            if (CollectionUtil.isNotEmpty(teachingStudent)) {//有配课学生建议
+                if (teachingStudent.contains(studentId)) {
                     return true;
-                }
-                else
-                {
+                } else {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                        .put(courseClass.getTeachClassId().toString(),
-                            I18nUtil.getMsg("ruleCheck.suggestCourse"));
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                    I18nUtil.getMsg("ruleCheck.suggestCourse"));
                     return false;
                 }
-                
+
             }
             List<SuggestProfessionDto> professionDtos =
-                classDao.selectSuggestProfession(TeachClassId);
-            if (CollectionUtil.isNotEmpty(professionDtos))
-            {
+                    classDao.selectSuggestProfession(TeachClassId);
+            if (CollectionUtil.isNotEmpty(professionDtos)) {
                 SuggestProfessionDto professionDto = professionDtos.stream()
-                    .filter(profession -> (profession.getGrade()
-                        .intValue() == grade.intValue()
-                        && major.equals(profession.getProfession())))
-                    .findAny()
-                    .orElse(null);
-                if (professionDto != null)
-                {
+                        .filter(profession -> (profession.getGrade()
+                                .intValue() == grade.intValue()
+                                && major.equals(profession.getProfession())))
+                        .findAny()
+                        .orElse(null);
+                if (professionDto != null) {
                     return true;
-                }
-                else
-                {
+                } else {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                        .put(courseClass.getTeachClassId().toString(),
-                            I18nUtil.getMsg("ruleCheck.suggestCourse"));
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                    I18nUtil.getMsg("ruleCheck.suggestCourse"));
                     return false;
                 }
             }
-            
-            return true;
-            
+
+
         }
-        
-        return false;
+
+        return true;
     }
-    
+
 }

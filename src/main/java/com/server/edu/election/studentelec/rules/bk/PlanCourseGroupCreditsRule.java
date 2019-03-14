@@ -56,7 +56,7 @@ public class PlanCourseGroupCreditsRule extends AbstractRuleExceutor {
                 return true;
             } else {
                 ElecRespose respose = context.getRespose();
-                respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+                respose.getFailedReasons().put(courseClass.getCourseCodeAndClassCode(),
                         I18nUtil.getMsg("ruleCheck.planCultureLimit"));
                 return false;
             }
@@ -85,7 +85,7 @@ public class PlanCourseGroupCreditsRule extends AbstractRuleExceutor {
                             return true;
                         } else {
                             ElecRespose respose = context.getRespose();
-                            respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+                            respose.getFailedReasons().put(courseClass.getCourseCodeAndClassCode(),
                                     I18nUtil.getMsg("ruleCheck.planCultureLimit"));
                             return false;
                         }
@@ -95,7 +95,7 @@ public class PlanCourseGroupCreditsRule extends AbstractRuleExceutor {
                 }
             }
         }
-        return false;
+        return true;
     }
 
 

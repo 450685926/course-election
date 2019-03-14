@@ -27,14 +27,12 @@ public class StdPayCostCheckerRule extends AbstractRuleExceutor
             {
                 return true;
             }
-            else
-            {
-                ElecRespose respose = context.getRespose();
-                respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
-                        I18nUtil.getMsg("ruleCheck.stdPayCostChecker"));
-                return false;
-            }
+            ElecRespose respose = context.getRespose();
+            respose.getFailedReasons()
+                    .put(courseClass.getCourseCodeAndClassCode(),
+                            I18nUtil.getMsg("ruleCheck.stdPayCostChecker"));
+            return false;
+
         }
         return true;
     }

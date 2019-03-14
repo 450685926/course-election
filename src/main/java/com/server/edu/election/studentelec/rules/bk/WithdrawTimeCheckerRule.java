@@ -20,45 +20,37 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 只能退本轮选的课
- * 
  */
 @Component("WithdrawTimeCheckerRule")
-public class WithdrawTimeCheckerRule extends AbstractRuleExceutor
-{
+public class WithdrawTimeCheckerRule extends AbstractRuleExceutor {
     @Autowired
     private RoundDataProvider dataProvider;
-    
+
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
+                             TeachingClassCache courseClass) {
         Long roundId = context.getRoundId();
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         String courseCode = courseClass.getCourseCode();
         if (courseClass.getTeachClassId() != null
-            && CollectionUtil.isNotEmpty(selectedCourses)
-            && StringUtils.isNotBlank(courseCode))
-        {
+                && CollectionUtil.isNotEmpty(selectedCourses)
+                && StringUtils.isNotBlank(courseCode)) {
             ElectionRounds round = dataProvider.getRound(roundId);
             // 退课需要校验turn是否与本轮的turn一样
             List<SelectedCourse> list = selectedCourses.stream()
-                .filter(
-                    c -> courseCode.equals(c.getCourseCode())
-                        && round.getTurn().equals(c.getTurn()))
-                .collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(list))
-            {
-                return true;
-            }
-            else
-            {
+                    .filter(
+                            c -> courseCode.equals(c.getCourseCode())
+                                    && round.getTurn().equals(c.getTurn()))
+                    .collect(Collectors.toList());
+            if (CollectionUtil.isEmpty(list)) {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
-                        I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
+                        .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
+                return false;
             }
         }
-        return false;
+        return true;
     }
-    
+
 }

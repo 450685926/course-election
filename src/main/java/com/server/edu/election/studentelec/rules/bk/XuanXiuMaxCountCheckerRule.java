@@ -73,15 +73,16 @@ public class XuanXiuMaxCountCheckerRule extends AbstractRuleExceutor
                         {
                             ElecRespose respose = context.getRespose();
                             respose.getFailedReasons()
-                                .put(courseClass.getTeachClassId().toString(),
+                                .put(courseClass.getCourseCodeAndClassCode(),
                                     I18nUtil.getMsg(
                                         "ruleCheck.xuanXiuMaxCountChecker"));
+                            return false;
                         }
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
     
 }

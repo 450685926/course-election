@@ -75,7 +75,7 @@ public class SJTermCheckerRule extends AbstractRuleExceutor {
 			return flag;
 		}else{
 			ElecRespose respose = context.getRespose();
-			respose.getFailedReasons().put(courseClass.getTeachClassId().toString(),
+			respose.getFailedReasons().put(courseClass.getCourseCodeAndClassCode(),
 					I18nUtil.getMsg("ruleCheck.practicalCourseLimit"));
 			return false;
 		}

@@ -41,7 +41,7 @@ public class CampusRule extends AbstractRuleExceutor
             }
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                .put(courseClass.getTeachClassId().toString(),
+                .put(courseClass.getCourseCodeAndClassCode(),
                     I18nUtil.getMsg("ruleCheck.campus"));
             return false;
         }

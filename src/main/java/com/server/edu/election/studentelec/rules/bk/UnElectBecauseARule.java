@@ -50,16 +50,13 @@ public class UnElectBecauseARule extends AbstractRuleExceutor
                         .collect(Collectors.toList());
                     if (CollectionUtil.isNotEmpty(courses))
                     {
-                        return true;
-                    }
-                    else
-                    {
                         ElecRespose respose = context.getRespose();
                         respose.getFailedReasons()
-                            .put(courseClass.getTeachClassId().toString(),
-                                I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
+                                .put(courseClass.getCourseCodeAndClassCode(),
+                                        I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
                         return false;
                     }
+
                 }
                 
             }

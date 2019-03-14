@@ -125,7 +125,10 @@ public class TeachingClassCache extends ElecCourse
     {
         this.currentNumber = currentNumber;
     }
-    
+
+    public String getCourseCodeAndClassCode(){
+        return String.format("%s[%s]", this.getCourseCode(), this.getTeachClassCode());
+    }
     @Override
     public int hashCode()
     {
