@@ -17,6 +17,8 @@ public class ElecTeachClassDto
     /**课程代码*/
     private String courseCode;
     
+    private String teachClassCode;
+    
     /**课程分类*/
     private Long label;
     
@@ -38,6 +40,16 @@ public class ElecTeachClassDto
     public void setCourseCode(String courseCode)
     {
         this.courseCode = courseCode;
+    }
+    
+    public String getTeachClassCode()
+    {
+        return teachClassCode;
+    }
+    
+    public void setTeachClassCode(String teachClassCode)
+    {
+        this.teachClassCode = teachClassCode;
     }
     
     public Long getLabel()

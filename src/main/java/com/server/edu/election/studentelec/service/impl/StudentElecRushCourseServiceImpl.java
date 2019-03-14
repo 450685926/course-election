@@ -147,10 +147,8 @@ public class StudentElecRushCourseServiceImpl
                         .saveElc(context, courseClass, ElectRuleType.ELECTION);
                     
                     SelectedCourse course = new SelectedCourse(courseClass);
-                    //                course.setPublicElec();
+                    course.setTeachClassId(courseClass.getTeachClassId());
                     course.setTurn(round.getTurn());
-                    //                course.setTime(time);
-                    //                course.setWeeks(weeks);
                     context.getSelectedCourses().add(course);
                 }
             }
@@ -184,6 +182,9 @@ public class StudentElecRushCourseServiceImpl
                 dataProvider.getTeachClass(roundId, teachClassId);
             if (teachClass == null)
             {
+                failedReasons.put(String.format("%s[%s]",
+                    data.getCourseCode(),
+                    data.getTeachClassCode()), "教学班不存在无法选课");
                 continue;
             }
             boolean allSuccess = true;
@@ -193,7 +194,7 @@ public class StudentElecRushCourseServiceImpl
                 {
                     // 校验不通过时跳过后面的校验进行下一个
                     allSuccess = false;
-                    String key = teachClassId.toString();
+                    String key = teachClass.getCourseCodeAndClassCode();
                     if (!failedReasons.containsKey(key))
                     {
                         failedReasons.put(key, exceutor.getDescription());
