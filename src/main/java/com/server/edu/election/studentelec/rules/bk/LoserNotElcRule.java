@@ -13,36 +13,30 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
  * 预警学生不能选课
- * 
  */
 @Component("LoserNotElcRule")
-public class LoserNotElcRule extends AbstractRuleExceutor
-{
-    
+public class LoserNotElcRule extends AbstractRuleExceutor {
+
     @Autowired
     private StudentDao studentDao;
-    
+
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
-        if (context.getRoundId() != null)
-        {
-            String studentId = context.getStudentInfo().getStudentId();
-            Student stu =
+                             TeachingClassCache courseClass) {
+
+        String studentId = context.getStudentInfo().getStudentId();
+        Student stu =
                 studentDao.isLoserStu(context.getRoundId(), studentId);
-            if (stu == null)
-            {
-                return true;
-            }
-            else
-            {
-                ElecRespose respose = context.getRespose();
-                respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
-                        I18nUtil.getMsg("ruleCheck.isLoserStu"));
-            }
+        if (stu == null) {
+            return true;
         }
+
+        ElecRespose respose = context.getRespose();
+        respose.getFailedReasons()
+                .put(courseClass.getCourseCodeAndClassCode(),
+                        I18nUtil.getMsg("ruleCheck.isLoserStu"));
+
         return false;
+
     }
 }

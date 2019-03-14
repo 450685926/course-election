@@ -53,7 +53,7 @@ public class EnglishAbilityCheckerRule extends AbstractRuleExceutor {
 		// }
 		// }
 		// }
-		return false;
+		return true;
 
 		// ElectionCourseContext electContext = (ElectionCourseContext)context;
 		// Lesson lesson = electContext.getLesson();

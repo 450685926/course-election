@@ -13,46 +13,32 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
  * 重修违纪检查
- *
  */
 @Component("RetakeCheatedRule")
-public class RetakeCheatedRule extends AbstractRuleExceutor
-{
-    
+public class RetakeCheatedRule extends AbstractRuleExceutor {
+
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
+                             TeachingClassCache courseClass) {
         String courseCode = courseClass.getCourseCode();
         String studentId = context.getStudentInfo().getStudentId();
         if (StringUtils.isNotBlank(courseCode)
-            && StringUtils.isNotBlank(studentId))
-        {
+                && StringUtils.isNotBlank(studentId)) {
             StudentScore studentScore =
-                ScoreServiceInvoker.findViolationStu(studentId, courseCode);
-            if (studentScore != null)
-            {
-                if (studentScore.getTotalMarkScore() != null)
-                {
+                    ScoreServiceInvoker.findViolationStu(studentId, courseCode);
+            if (studentScore != null) {
+                if (studentScore.getTotalMarkScore() != null) {
                     return true;
                 }
-                else
-                {
-                    ElecRespose respose = context.getRespose();
-                    respose.getFailedReasons()
-                        .put(courseClass.getTeachClassId().toString(),
-                            I18nUtil.getMsg(studentScore.getRemark()));
-                }
-            }
-            else
-            {
+
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
-                        I18nUtil.getMsg("ruleCheck.scoreNotExist"));
+                        .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil.getMsg(studentScore.getRemark()));
+                return false;
             }
         }
-        return false;
+        return true;
     }
-    
+
 }

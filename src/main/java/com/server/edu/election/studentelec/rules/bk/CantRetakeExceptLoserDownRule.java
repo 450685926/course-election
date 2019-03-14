@@ -13,39 +13,32 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 
 /**
  * 不能重修，但是留降级学生除外
- *
  */
 @Component("CantRetakeExceptLoserDownRule")
-public class CantRetakeExceptLoserDownRule extends AbstractRuleExceutor
-{
+public class CantRetakeExceptLoserDownRule extends AbstractRuleExceutor {
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
+                             TeachingClassCache courseClass) {
         StudentInfoCache studentInfo = context.getStudentInfo();
-        if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
-        {
-            if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
-            {
-                if (Constants.REBUILD_CALSS
-                    .equals(courseClass.getTeachClassType()))
-                {
-                    if (studentInfo.isRepeater())
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        ElecRespose respose = context.getRespose();
-                        respose.getFailedReasons()
-                            .put(courseClass.getTeachClassId().toString(),
-                                I18nUtil.getMsg(
-                                    "ruleCheck.cantRetakeExceptLoserDown"));
-                    }
+
+        if (StringUtils.isNotBlank(courseClass.getTeachClassType())) {
+            if (Constants.REBUILD_CALSS
+                    .equals(courseClass.getTeachClassType())) {
+                if (studentInfo.isRepeater()) {
+                    return true;
                 }
+
+                ElecRespose respose = context.getRespose();
+                respose.getFailedReasons()
+                        .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil.getMsg(
+                                        "ruleCheck.cantRetakeExceptLoserDown"));
+                return false;
+
             }
         }
-        return false;
+
+        return true;
     }
-    
+
 }
