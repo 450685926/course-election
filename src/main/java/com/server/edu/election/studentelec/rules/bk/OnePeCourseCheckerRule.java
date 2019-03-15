@@ -15,14 +15,14 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
  * 只能选一门体育课的规则
  */
 @Component("OnePeCourseCheckerRule")
-public class OnePeCourseCheckerRule extends AbstractRuleExceutor {
+public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor {
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
 

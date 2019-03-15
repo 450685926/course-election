@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
  * 按教学班选课
  */
 @Component("ElecByTeachClassRule")
-public class ElecByTeachClassRule extends AbstractRuleExceutor {
+public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 
     // 是否按教学班选课
     private static final String IF_ELECT_BY_TEACHCLASS = "TEACHCLASS";

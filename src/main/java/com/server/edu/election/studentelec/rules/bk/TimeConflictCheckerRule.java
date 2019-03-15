@@ -13,14 +13,14 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
  * 时间冲突检查
  */
 @Component("TimeConflictCheckerRule")
-public class TimeConflictCheckerRule extends AbstractRuleExceutor
+public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
 {
     
     public static final Boolean CHECK_CONFLICT = true;

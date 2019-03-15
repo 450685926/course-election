@@ -31,4 +31,9 @@ public enum CourseTakeType
     {
         return this.type;
     }
+    
+    public boolean eq(int type)
+    {
+        return this.type == type;
+    }
 }

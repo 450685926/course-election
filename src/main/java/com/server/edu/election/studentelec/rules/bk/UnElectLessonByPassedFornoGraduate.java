@@ -9,7 +9,7 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * 结业生通过课程不能重修
  */
 @Component("UnElectLessonByPassedFornoGraduate")
-public class UnElectLessonByPassedFornoGraduate extends AbstractRuleExceutor {
+public class UnElectLessonByPassedFornoGraduate extends AbstractElecRuleExceutor {
     @Override
     public int getOrder() {
         return RulePriority.FIFTH.ordinal();

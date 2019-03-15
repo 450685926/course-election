@@ -12,7 +12,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.util.CollectionUtil;
 
@@ -21,7 +21,7 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("UnElectBecauseARule")
-public class UnElectBecauseARule extends AbstractRuleExceutor
+public class UnElectBecauseARule extends AbstractElecRuleExceutor
 {
     @Override
     public int getOrder()

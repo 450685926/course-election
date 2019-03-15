@@ -9,13 +9,13 @@ import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 重修违纪检查
  */
 @Component("RetakeCheatedRule")
-public class RetakeCheatedRule extends AbstractRuleExceutor {
+public class RetakeCheatedRule extends AbstractElecRuleExceutor {
 
     @Override
     public boolean checkRule(ElecContext context,

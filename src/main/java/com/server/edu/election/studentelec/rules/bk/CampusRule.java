@@ -8,7 +8,7 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
 /**
@@ -16,7 +16,7 @@ import com.server.edu.election.studentelec.rules.RulePriority;
  *
  */
 @Component("CampusRule")
-public class CampusRule extends AbstractRuleExceutor
+public class CampusRule extends AbstractElecRuleExceutor
 {
     @Override
     public int getOrder()
