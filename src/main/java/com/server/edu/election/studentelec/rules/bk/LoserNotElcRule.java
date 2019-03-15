@@ -9,13 +9,13 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 预警学生不能选课
  */
 @Component("LoserNotElcRule")
-public class LoserNotElcRule extends AbstractRuleExceutor {
+public class LoserNotElcRule extends AbstractElecRuleExceutor {
 
     @Autowired
     private StudentDao studentDao;

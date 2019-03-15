@@ -12,7 +12,7 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.util.CollectionUtil;
 
@@ -21,7 +21,7 @@ import com.server.edu.util.CollectionUtil;
  * 那么学生看到的这些课的任务都是适合自己的（逻辑类似于根据教学班过滤任务）
  */
 @Component("SuggestCourseRule")
-public class SuggestCourseRule extends AbstractRuleExceutor {
+public class SuggestCourseRule extends AbstractElecRuleExceutor {
     @Override
     public int getOrder() {
         return RulePriority.FOURTH.ordinal();

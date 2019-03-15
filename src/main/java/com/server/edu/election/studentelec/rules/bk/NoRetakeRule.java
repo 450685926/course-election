@@ -8,13 +8,13 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 限制不能选择重修课
  */
 @Component("NoRetakeRule")
-public class NoRetakeRule extends AbstractRuleExceutor {
+public class NoRetakeRule extends AbstractElecRuleExceutor {
     @Override
     public boolean checkRule(ElecContext context,
                              TeachingClassCache courseClass) {

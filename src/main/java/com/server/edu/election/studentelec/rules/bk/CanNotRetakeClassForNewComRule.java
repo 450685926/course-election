@@ -8,7 +8,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
 /**
@@ -16,7 +16,7 @@ import com.server.edu.election.studentelec.rules.RulePriority;
  *
  */
 @Component("CanNotRetakeClassForNewComRule")
-public class CanNotRetakeClassForNewComRule extends AbstractRuleExceutor
+public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
 {
     @Override
     public int getOrder()

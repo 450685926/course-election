@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 import java.util.List;
 import java.util.Set;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * 
  */
 @Component("SJTermCheckerRule")
-public class SJTermCheckerRule extends AbstractRuleExceutor {
+public class SJTermCheckerRule extends AbstractElecRuleExceutor {
 
 	@Autowired
 	private ElecRoundsDao roundsDao;

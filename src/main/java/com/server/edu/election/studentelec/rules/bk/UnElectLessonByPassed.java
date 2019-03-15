@@ -12,7 +12,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.util.CollectionUtil;
 
@@ -20,7 +20,7 @@ import com.server.edu.util.CollectionUtil;
  * 考试通过的课程不能选择
  */
 @Component("UnElectLessonByPassed")
-public class UnElectLessonByPassed extends AbstractRuleExceutor {
+public class UnElectLessonByPassed extends AbstractElecRuleExceutor {
     @Override
     public int getOrder() {
         return RulePriority.FIFTH.ordinal();

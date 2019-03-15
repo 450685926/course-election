@@ -6,13 +6,13 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 人数上限检查
  */
 @Component("LimitCountCheckerRule")
-public class LimitCountCheckerRule extends AbstractRuleExceutor {
+public class LimitCountCheckerRule extends AbstractElecRuleExceutor {
 
     public LimitCountCheckerRule() {
         super();

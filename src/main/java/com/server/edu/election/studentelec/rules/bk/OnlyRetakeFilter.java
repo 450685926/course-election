@@ -7,14 +7,14 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
 /**
  * 只允许选重修课
  */
 @Component("OnlyRetakeFilter")
-public class OnlyRetakeFilter extends AbstractRuleExceutor {
+public class OnlyRetakeFilter extends AbstractElecRuleExceutor {
     @Override
     public int getOrder() {
         return RulePriority.FIRST.ordinal();

@@ -24,9 +24,6 @@ public class TeachingClassCache extends ElecCourse
     /** 是否重修班*/
     private Boolean isRetraining = false;
     
-    /** 是否公选课*/
-    private Boolean isPublicElective = false;
-    
     /** 最大人数 */
     private Integer maxNumber;
     
@@ -94,16 +91,6 @@ public class TeachingClassCache extends ElecCourse
     public void setRetraining(Boolean retraining)
     {
         isRetraining = retraining;
-    }
-    
-    public Boolean isPublicElective()
-    {
-        return isPublicElective;
-    }
-    
-    public void setPublicElective(Boolean publicElective)
-    {
-        isPublicElective = publicElective;
     }
     
     public Integer getMaxNumber()
