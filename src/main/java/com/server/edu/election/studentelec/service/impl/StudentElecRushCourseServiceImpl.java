@@ -133,8 +133,7 @@ public class StudentElecRushCourseServiceImpl
         List<AbstractElecRuleExceutor> exceutors,
         List<ElecTeachClassDto> teachClassIds, ElectionRounds round)
     {
-        if (CollectionUtil.isEmpty(exceutors)
-            || CollectionUtil.isEmpty(teachClassIds))
+        if (CollectionUtil.isEmpty(teachClassIds))
         {
             return;
         }
@@ -197,8 +196,7 @@ public class StudentElecRushCourseServiceImpl
         List<AbstractWithdrwRuleExceutor> exceutors,
         List<ElecTeachClassDto> teachClassIds)
     {
-        if (CollectionUtil.isEmpty(exceutors)
-            || CollectionUtil.isEmpty(teachClassIds))
+        if (CollectionUtil.isEmpty(teachClassIds))
         {
             return;
         }
