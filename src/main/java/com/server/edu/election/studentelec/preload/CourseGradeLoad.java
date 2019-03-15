@@ -85,6 +85,7 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
+                lesson.setCalendarId(studentScore.getCalendarId());
                 completedCourses.add(lesson);
             }
         }
