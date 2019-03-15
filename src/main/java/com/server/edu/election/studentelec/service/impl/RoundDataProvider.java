@@ -185,7 +185,11 @@ public class RoundDataProvider
             courseClass.setNameEn(lesson.getCourseNameEn());
             courseClass.setTeachClassId(lesson.getTeachingClassId());
             courseClass.setTeachClassCode(lesson.getTeachingClassCode());
-            
+            courseClass.setCampus(lesson.getCampus());
+            courseClass.setTeachClassType(lesson.getTeachClassType());
+            courseClass.setMaxNumber(lesson.getMaxNumber());
+            courseClass.setCurrentNumber(lesson.getCurrentNumber());
+
             String classText = JSON.toJSONString(courseClass);
             String classKey = String
                 .format(Keys.ROUND_CLASS, roundId, lesson.getTeachingClassId());

@@ -30,7 +30,7 @@ public class LimitCountCheckerRule extends AbstractRuleExceutor {
         Integer maxNumber = courseClass.getMaxNumber();
         Integer currentNumber = courseClass.getCurrentNumber();
         if (maxNumber != null && currentNumber != null
-                && currentNumber < maxNumber) {
+                && currentNumber+1 <= maxNumber) {
             return true;
         }
             ElecRespose respose = context.getRespose();

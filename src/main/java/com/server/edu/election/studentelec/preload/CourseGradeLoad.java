@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.studentelec.context.*;
@@ -57,7 +58,7 @@ public class CourseGradeLoad extends DataProLoad
     public void load(ElecContext context)
     {
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
-        // 1. 查询学生课程成绩
+        // 1. 查询学生课程成绩(已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
         
         String studentId = studentInfo.getStudentId();
@@ -68,7 +69,7 @@ public class CourseGradeLoad extends DataProLoad
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
-        List<StudentScore> stuScoreBest =
+        List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
         
         BeanUtils.copyProperties(stu, studentInfo);
@@ -76,14 +77,14 @@ public class CourseGradeLoad extends DataProLoad
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
-            for (StudentScore studentScore : stuScoreBest)
+            for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
-                lesson.setExcellent(true);
+                lesson.setExcellent(studentScore.isBestScore());
                 completedCourses.add(lesson);
             }
         }
