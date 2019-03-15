@@ -115,6 +115,16 @@ public class StudentElecRushCourseServiceImpl
             // 选课
             doElec(context, elecExceutors, request.getElecClassList(), round);
         }
+        catch (Exception e)
+        {
+            LOG.error(e.getMessage(), e);
+            if (context != null)
+            {
+                context.getRespose()
+                    .getFailedReasons()
+                    .put("error", e.getMessage());
+            }
+        }
         finally
         {
             // 不管选课有没有成功，结束时表示可以进行下一个选课请求
@@ -174,7 +184,6 @@ public class StudentElecRushCourseServiceImpl
             }
             if (allSuccess)
             {
-                respose.getSuccessCourses().add(teachClassId);
                 successList.add(teachClass);
             }
         }
@@ -184,8 +193,11 @@ public class StudentElecRushCourseServiceImpl
         {
             elecService.saveElc(context, courseClass, ElectRuleType.ELECTION);
             
+            Long teachClassId = courseClass.getTeachClassId();
+            respose.getSuccessCourses().add(teachClassId);
+            
             SelectedCourse course = new SelectedCourse(courseClass);
-            course.setTeachClassId(courseClass.getTeachClassId());
+            course.setTeachClassId(teachClassId);
             course.setTurn(round.getTurn());
             context.getSelectedCourses().add(course);
         }
@@ -245,7 +257,6 @@ public class StudentElecRushCourseServiceImpl
             }
             if (allSuccess)
             {
-                respose.getSuccessCourses().add(teachClassId);
                 successList.add(teachClass);
             }
         }
@@ -253,18 +264,20 @@ public class StudentElecRushCourseServiceImpl
         // 对校验成功的课程进行入库保存
         for (TeachingClassCache courseClass : successList)
         {
+            Long teachClassId = courseClass.getTeachClassId();
             elecService.saveElc(context, courseClass, ElectRuleType.WITHDRAW);
             // 删除缓存中的数据
             Iterator<SelectedCourse> iterator = selectedCourses.iterator();
             while (iterator.hasNext())
             {
                 SelectedCourse c = iterator.next();
-                if (c.getTeachClassId().equals(courseClass.getTeachClassId()))
+                if (c.getTeachClassId().equals(teachClassId))
                 {
                     iterator.remove();
                     break;
                 }
             }
+            respose.getSuccessCourses().add(teachClassId);
         }
         
     }

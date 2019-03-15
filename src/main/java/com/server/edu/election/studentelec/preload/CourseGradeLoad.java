@@ -5,19 +5,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.StudentScoreVo;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.entity.ExemptionApplyManage;
-import com.server.edu.election.studentelec.context.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.server.edu.common.entity.StudentScore;
+import com.server.edu.common.vo.StudentScoreVo;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ExemptionApplyDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -143,6 +149,7 @@ public class CourseGradeLoad extends DataProLoad
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);
                 selectedCourse.setTeachClassId(c.getTeachingClassId());
+                selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
                 selectedCourse.setTimes(classTimeUnits);
                 selectedCourses.add(selectedCourse);
