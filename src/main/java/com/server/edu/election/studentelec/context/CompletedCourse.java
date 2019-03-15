@@ -20,7 +20,18 @@ public class CompletedCourse extends ElecCourse
     
     /** 是否为优级 */
     private boolean excellent;
-    
+
+    /**学期*/
+    private Long calendarId;
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
+
     public String getRank()
     {
         return rank;
