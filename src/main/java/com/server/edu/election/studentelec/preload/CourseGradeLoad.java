@@ -23,6 +23,7 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CollectionUtil;
@@ -56,7 +57,7 @@ public class CourseGradeLoad extends DataProLoad
     
     @Autowired
     private TeachingClassDao classDao;
-
+    
     @Autowired
     private ExemptionApplyDao applyDao;
     
@@ -98,17 +99,40 @@ public class CourseGradeLoad extends DataProLoad
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        ElecRequest request = context.getRequest();
         //得到校历id
         ElectionRounds electionRounds =
-            elecRoundsDao.selectByPrimaryKey(context.getRoundId());
+            elecRoundsDao.selectByPrimaryKey(request.getRoundId());
         if (electionRounds == null)
         {
             String msg = String.format("electionRounds not find roundId=%s",
-                context.getRoundId());
+                request.getRoundId());
             throw new RuntimeException(msg);
         }
         Long calendarId = electionRounds.getCalendarId();
         //选课集合
+        this.loadSelectedCourses(studentId, selectedCourses, calendarId);
+        
+        //3.学生免修课程
+        List<ElecCourse> applyRecord =
+            applyDao.findApplyRecord(calendarId, studentId);
+        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
+        applyForDropCourses.addAll(applyRecord);
+        
+        // 4. 非本学期的选课并且没有成功的
+    }
+
+    /**
+     * 加载本学期已选课课程数据
+     * 
+     * @param studentId
+     * @param selectedCourses
+     * @param calendarId
+     * @see [类、类#方法、类#成员]
+     */
+    public void loadSelectedCourses(String studentId,
+        Set<SelectedCourse> selectedCourses, Long calendarId)
+    {
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
         if (CollectionUtil.isNotEmpty(courseTakes))
@@ -156,14 +180,6 @@ public class CourseGradeLoad extends DataProLoad
                 
             }
         }
-
-        //3.学生免修课程
-        List<ElecCourse> applyRecord = applyDao.findApplyRecord(calendarId, studentId);
-        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
-        applyForDropCourses.addAll(applyRecord);
-
-
-        // 4. 非本学期的选课并且没有成功的
     }
     
 }

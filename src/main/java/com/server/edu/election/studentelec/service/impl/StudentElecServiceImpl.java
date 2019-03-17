@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
@@ -129,8 +130,11 @@ public class StudentElecServiceImpl implements StudentElecService
     @Override
     public ElecRespose getElectResult(Long roundId, String studentId)
     {
+        RoundDataProvider dataProvider =
+            SpringUtils.getBean(RoundDataProvider.class);
+        ElectionRounds round = dataProvider.getRound(roundId);
         ElecContextUtil contextUtil =
-            ElecContextUtil.create(roundId, studentId);
+            ElecContextUtil.create(studentId, round.getCalendarId());
         
         ElecRespose response = contextUtil.getElecRespose();
         ElecStatus status = ElecContextUtil.getElecStatus(roundId, studentId);
@@ -172,7 +176,7 @@ public class StudentElecServiceImpl implements StudentElecService
         Date date = new Date();
         String studentId = stu.getStudentId();
         
-        Long roundId = context.getRoundId();
+        Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
         Long teachClassId = courseClass.getTeachClassId();
         String TeachClassCode = courseClass.getTeachClassCode();

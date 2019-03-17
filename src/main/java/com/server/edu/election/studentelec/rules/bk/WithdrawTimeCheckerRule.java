@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
@@ -25,8 +26,9 @@ public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutor
         SelectedCourse courseClass)
     {
         SelectedCourse course = courseClass;
+        ElecRequest request = context.getRequest();
         
-        Long roundId = context.getRoundId();
+        Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
         // 退课需要校验turn是否与本轮的turn一样
         if (!round.getTurn().equals(course.getTurn()))

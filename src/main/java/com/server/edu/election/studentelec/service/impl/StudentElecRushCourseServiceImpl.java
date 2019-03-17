@@ -68,10 +68,9 @@ public class StudentElecRushCourseServiceImpl
         ElecContext context = null;
         try
         {
-            context = new ElecContext(studentId, roundId);
-            context.setRequest(request);
-            
             ElectionRounds round = dataProvider.getRound(roundId);
+            context = new ElecContext(studentId, round.getCalendarId(), request);
+            
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
             // 获取执行规则
@@ -152,7 +151,7 @@ public class StudentElecRushCourseServiceImpl
         
         List<TeachingClassCache> successList = new ArrayList<>();
         
-        Long roundId = context.getRoundId();
+        Long roundId = context.getRequest().getRoundId();
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         for (ElecTeachClassDto data : teachClassIds)

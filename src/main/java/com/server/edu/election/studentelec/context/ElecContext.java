@@ -11,8 +11,8 @@ import com.server.edu.election.studentelec.utils.ElecContextUtil;
  */
 public class ElecContext
 {
-    /**轮次*/
-    private Long roundId;
+    /**学期*/
+    private Long calendarId;
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
@@ -25,10 +25,10 @@ public class ElecContext
     
     /** 免修申请课程 */
     private Set<ElecCourse> applyForDropCourses;
-
+    
     /**课程组学分限制*/
     private Set<CourseGroup> courseGroups;
-
+    
     /** 个人计划内课程 */
     private Set<PlanCourse> planCourses;
     
@@ -41,10 +41,10 @@ public class ElecContext
     
     private ElecContextUtil contextUtil;
     
-    public ElecContext(String studentId, Long roundId)
+    public ElecContext(String studentId, Long calendarId)
     {
-        this.roundId = roundId;
-        this.contextUtil = ElecContextUtil.create(roundId, studentId);
+        this.calendarId = calendarId;
+        this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);
         
         studentInfo = contextUtil.getStudentInfo();
         respose = this.contextUtil.getElecRespose();
@@ -58,7 +58,14 @@ public class ElecContext
         publicCourses =
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
         courseGroups =
-                this.contextUtil.getSet("courseGroups", CourseGroup.class);
+            this.contextUtil.getSet("courseGroups", CourseGroup.class);
+    }
+    
+    public ElecContext(String studentId, Long calendarId,
+        ElecRequest elecRequest)
+    {
+        this(studentId, calendarId);
+        this.request = elecRequest;
     }
     
     /**
@@ -86,11 +93,6 @@ public class ElecContext
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
-    }
-    
-    public Long getRoundId()
-    {
-        return roundId;
     }
     
     public Set<CompletedCourse> getCompletedCourses()
@@ -137,12 +139,14 @@ public class ElecContext
     {
         this.respose = respose;
     }
-
-    public Set<CourseGroup> getCourseGroups() {
+    
+    public Set<CourseGroup> getCourseGroups()
+    {
         return courseGroups;
     }
-
-    public void setCourseGroups(Set<CourseGroup> courseGroups) {
+    
+    public void setCourseGroups(Set<CourseGroup> courseGroups)
+    {
         this.courseGroups = courseGroups;
     }
 }

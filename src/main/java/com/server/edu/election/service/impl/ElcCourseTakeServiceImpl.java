@@ -5,12 +5,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +27,10 @@ import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
+import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.session.util.SessionUtils;
@@ -49,6 +52,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private ElcLogDao elcLogDao;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -145,6 +151,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             log.setTurn(0);
             log.setType(ElcLogVo.TYPE_1);
             this.elcLogDao.insertSelective(log);
+            
+            applicationContext
+                .publishEvent(new ElectLoadEvent(calendarId, studentId));
         }
     }
     
@@ -192,6 +201,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
         
         List<ElcLog> logList = new ArrayList<>();
+        Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
         for (ElcCourseTake take : value)
         {
             Long calendarId = take.getCalendarId();
@@ -238,6 +248,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setTurn(0);
                 log.setType(ElcLogVo.TYPE_2);
                 logList.add(log);
+                withdrawMap.put(
+                    String
+                        .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),
+                    vo);
             }
             else
             {
@@ -250,9 +264,15 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (CollectionUtil.isNotEmpty(logList))
         {
             this.elcLogDao.insertList(logList);
+            for (Entry<String, ElcCourseTake> entry : withdrawMap.entrySet())
+            {
+                ElcCourseTake take = entry.getValue();
+                applicationContext.publishEvent(new ElectLoadEvent(
+                    take.getCalendarId(), take.getStudentId()));
+            }
         }
     }
-
+    
     /**
     *@Description: 查找加课学生
     *@Param:
@@ -261,10 +281,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     *@date: 2019/2/23 14:17
     */
     @Override
-    public PageResult<Student> findStudentList(PageCondition<ElcCourseTakeQuery> condition) {
+    public PageResult<Student> findStudentList(
+        PageCondition<ElcCourseTakeQuery> condition)
+    {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<Student> page=courseTakeDao.findStudentList(condition.getCondition());
+        Page<Student> page =
+            courseTakeDao.findStudentList(condition.getCondition());
         return new PageResult<>(page);
     }
-
+    
 }
