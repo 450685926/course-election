@@ -1,6 +1,9 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.StudentScore;
@@ -17,16 +20,19 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 @Component("RetakeCheatedRule")
 public class RetakeCheatedRule extends AbstractElecRuleExceutor {
 
+    @Autowired
+    private RoundDataProvider dataProvider;
+
     @Override
     public boolean checkRule(ElecContext context,
                              TeachingClassCache courseClass) {
         String courseCode = courseClass.getCourseCode();
         String studentId = context.getStudentInfo().getStudentId();
-        Long calendarId=null;
+        ElectionRounds round = dataProvider.getRound(context.getRequest().getRoundId());
         if (StringUtils.isNotBlank(courseCode)
                 && StringUtils.isNotBlank(studentId)) {
             StudentScore studentScore =
-                    ScoreServiceInvoker.findViolationStu(studentId, courseCode,calendarId);
+                    ScoreServiceInvoker.findViolationStu(studentId, courseCode,round.getCalendarId());
             if (studentScore != null) {
 
                 if(StringUtils.isBlank(studentScore.getTotalMarkScore())){

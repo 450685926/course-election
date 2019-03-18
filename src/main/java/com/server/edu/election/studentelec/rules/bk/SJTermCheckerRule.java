@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,9 +28,9 @@ import com.server.edu.util.CollectionUtil;
 @Component("SJTermCheckerRule")
 public class SJTermCheckerRule extends AbstractElecRuleExceutor
 {
-    
+
     @Autowired
-    private ElecRoundsDao roundsDao;
+    private RoundDataProvider dataProvider;
     
     // protected PlanCreditLimitPrepare planCreditLimitPrepare;
     
@@ -41,8 +42,8 @@ public class SJTermCheckerRule extends AbstractElecRuleExceutor
         String courseCode = courseClass.getCourseCode();
         ElecRequest request = context.getRequest();
         //得到校历id
-        ElectionRounds electionRounds =
-            roundsDao.selectByPrimaryKey(request.getRoundId());
+        ElectionRounds electionRounds = dataProvider.getRound(request.getRoundId());
+
         if (electionRounds == null)
         {
             String msg = String.format("electionRounds not find roundId=%s",
