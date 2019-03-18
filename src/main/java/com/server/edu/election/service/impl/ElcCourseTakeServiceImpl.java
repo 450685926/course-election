@@ -248,6 +248,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setTurn(0);
                 log.setType(ElcLogVo.TYPE_2);
                 logList.add(log);
+
+                vo.setCalendarId(calendarId);
+                vo.setStudentId(studentId);
                 withdrawMap.put(
                     String
                         .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),

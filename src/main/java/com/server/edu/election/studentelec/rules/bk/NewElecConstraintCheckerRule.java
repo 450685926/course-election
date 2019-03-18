@@ -32,7 +32,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
         TeachingClassCache courseClass)
     {
         
-        if ("1".equals(courseClass.getTeachClassType()))
+        if (CourseTakeType.RETAKE.equals(courseClass.getTeachClassType()))
         {//重修
             String number = constantsDao.findRebuildCourseNumber();
             if (StringUtils.isBlank(number))
