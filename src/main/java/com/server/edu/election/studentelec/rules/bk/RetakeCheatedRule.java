@@ -27,15 +27,15 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor {
             StudentScore studentScore =
                     ScoreServiceInvoker.findViolationStu(studentId, courseCode);
             if (studentScore != null) {
-                if (studentScore.getTotalMarkScore() != null) {
-                    return true;
-                }
 
-                ElecRespose respose = context.getRespose();
-                respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
-                                I18nUtil.getMsg(studentScore.getRemark()));
-                return false;
+                if(StringUtils.isBlank(studentScore.getTotalMarkScore())){
+
+                    ElecRespose respose = context.getRespose();
+                    respose.getFailedReasons()
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                    I18nUtil.getMsg(studentScore.getRemark()));
+                    return false;
+                }
             }
         }
         return true;
