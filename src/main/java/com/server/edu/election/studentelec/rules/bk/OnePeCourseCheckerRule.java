@@ -39,23 +39,24 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor {
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         if (courseClass.getTeachClassId() != null
                 && electionConstants != null) {
-            String courseCodes = electionConstants.getValue();
-            if (CollectionUtil.isNotEmpty(selectedCourses)) {
-                List<SelectedCourse> list = selectedCourses.stream()
-                        .filter(temp -> courseClass.getCourseCode()
-                                .equals(temp.getCourseCode()))
-                        .collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(list)) {
-                    if (!courseCodes.contains(courseClass.getCourseCode())) {
-                        return true;
-                    }
+            String courseCodes = electionConstants.getValue();//体育课程代码
 
-                    ElecRespose respose = context.getRespose();
-                    respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
-                                    I18nUtil.getMsg(
-                                            "ruleCheck.onePeCourseChecker"));
-                    return false;
+            if (!courseCodes.contains(courseClass.getCourseCode())) {
+                return true;
+            }
+
+
+            if (CollectionUtil.isNotEmpty(selectedCourses)) {
+
+                for (SelectedCourse selectedCours : selectedCourses) {
+                    if(courseCodes.contains(selectedCours.getCourseCode())){
+                        ElecRespose respose = context.getRespose();
+                        respose.getFailedReasons()
+                                .put(courseClass.getCourseCodeAndClassCode(),
+                                        I18nUtil.getMsg(
+                                                "ruleCheck.onePeCourseChecker"));
+                        return false;
+                    }
                 }
 
             }
