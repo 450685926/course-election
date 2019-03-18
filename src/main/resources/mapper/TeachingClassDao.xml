@@ -117,7 +117,9 @@
 			t3.TIME_START_ timeStart,
 			t3.TIME_END_ timeEnd,
 			t3.DAY_OF_WEEK_ dayOfWeek,
-			t4.WEEK_NUMBER_ weekNumber
+			t4.WEEK_NUMBER_ weekNumber,
+			t4.ROOM_ID_ roomId,
+			t4.TEACHER_CODE_ teacherCode 
 		FROM
 		teaching_class_t t2
 		JOIN teaching_class_arrange_time_t t3 ON t2.ID_ = t3.TEACHING_CLASS_ID_
