@@ -1,6 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
-public class ClassTimeUnit
+public class ClassTimes
 {
     private Long teachClassId;
     
@@ -12,12 +12,11 @@ public class ClassTimeUnit
     
     private int dayOfWeek;
     
-    private Integer weekNumber;
-    
     private String roomId;
     
     private String teacherCode;
     
+    private String value;
     
     
     public Long getTeachClassId()
@@ -70,15 +69,13 @@ public class ClassTimeUnit
         this.dayOfWeek = dayOfWeek;
     }
     
-    public Integer getWeekNumber()
-    {
-        return weekNumber;
-    }
-    
-    public void setWeekNumber(Integer weekNumber)
-    {
-        this.weekNumber = weekNumber;
-    }
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
 
 	public String getRoomId() {
 		return roomId;
@@ -95,6 +92,11 @@ public class ClassTimeUnit
 	public void setTeacherCode(String teacherCode) {
 		this.teacherCode = teacherCode;
 	}
+	
+	
+	
+	
+	
     
 	
     

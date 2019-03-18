@@ -1,14 +1,18 @@
 package com.server.edu.election.studentelec.preload;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.entity.TeacherInfo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
@@ -18,14 +22,17 @@ import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
+import com.server.edu.election.rpc.StudentServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.ClassTimes;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -153,22 +160,37 @@ public class CourseGradeLoad extends DataProLoad
                 //一个教学班的排课时间信息
                 List<ClassTimeUnit> classTimeUnits =
                     collect.get(c.getTeachingClassId());
-                
-                /*classTimeUnits.forEach(temp -> {
-                    List<Integer> weeks = voList.stream()
-                        .filter(vo -> temp.getArrangeTimeId()
-                            .equals(vo.getArrangeTimeId()))
-                        .map(vo -> vo.getWeekNumber())
-                        .collect(Collectors.toList());
-                    temp.setWeeks(weeks);
-                });*/
-                
+                Set<ClassTimes> set = new HashSet<>();
+                if(CollectionUtil.isEmpty(list)) {
+                    classTimeUnits.forEach(temp->{
+                    	ClassTimes classTimes = new ClassTimes();
+                    	BeanUtils.copyProperties(temp, classTimes);
+                    	set.add(classTimes);
+                    });
+                }
+                List<ClassTimes> classTimeList = new ArrayList<>();
+                for(ClassTimes classTimes:set) {
+                	List<Integer> weekNumbers = new ArrayList<>();
+                	if(StringUtils.isBlank(classTimes.getRoomId())) {
+                		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).filter(temp->temp.getRoomId().equals(classTimes.getRoomId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
+                	}else {
+                		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
+					}
+                	List<String> weekStr = CalUtil.getWeekNums((Integer[])weekNumbers.toArray());
+                    TeacherInfo teacherInfo= StudentServiceInvoker.findTeacherInfoBycode(classTimes.getTeacherCode());
+                    String teacherName = teacherInfo!=null?teacherInfo.getName():null;
+                    String value = teacherName+"("+classTimes.getTeacherCode()+")"+weekStr.toString();
+                    classTimes.setValue(value);
+                    classTimeList.add(classTimes);
+                }
+                selectedCourse.setClassTimes(classTimeList);
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(selectedCourse.getChooseObj());
                 selectedCourse.setCourseCode(c.getCourseCode());
                 selectedCourse.setCourseName(c.getCourseName());
                 selectedCourse.setCourseTakeType(c.getCourseTakeType());
                 selectedCourse.setCredits(c.getCredits());
+                
                 //selectedCourse.setNameEn(c.geten);
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);

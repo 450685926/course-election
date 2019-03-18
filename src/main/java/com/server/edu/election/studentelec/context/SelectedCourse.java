@@ -1,6 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
 import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
@@ -11,8 +14,17 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
  */
 public class SelectedCourse extends TeachingClassCache
 {
-    /** 上课时间 */
+    /**是否重修课*/
+    private boolean isRebuildElec;
+    
+    /** 上课时间按教学周拆分集合 */
     private List<ClassTimeUnit> times;
+    
+    /** 上课时间按节次拆分集合 */
+    private List<ClassTimes> classTimes;
+    
+    /** 教学班Id */
+    private Long teachClassId;
     
     /**
      * 选课对象(1学生，2教务员，3管理员)
@@ -101,4 +113,35 @@ public class SelectedCourse extends TeachingClassCache
         this.turn = turn;
     }
     
+    
+    public List<ClassTimes> getClassTimes() {
+		return classTimes;
+	}
+
+	public void setClassTimes(List<ClassTimes> classTimes) {
+		this.classTimes = classTimes;
+	}
+
+	@Override
+    public int hashCode()
+    {
+        return Objects.hash(this.teachClassId, this.getCourseCode());
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        
+        if (obj instanceof SelectedCourse)
+        {
+            SelectedCourse o = (SelectedCourse)obj;
+            return Objects.equals(this.teachClassId, o.teachClassId)
+                && StringUtils.equals(this.getCourseCode(), o.getCourseCode());
+        }
+        return false;
+    }
 }
