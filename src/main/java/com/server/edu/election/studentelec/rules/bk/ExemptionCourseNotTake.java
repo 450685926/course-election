@@ -12,7 +12,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -20,7 +20,7 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("ExemptionCourseNotTake")
-public class ExemptionCourseNotTake extends AbstractRuleExceutor
+public class ExemptionCourseNotTake extends AbstractElecRuleExceutor
 {
     @Override
     public boolean checkRule(ElecContext context,
@@ -44,11 +44,12 @@ public class ExemptionCourseNotTake extends AbstractRuleExceutor
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
+                    .put(courseClass.getCourseCodeAndClassCode(),
                         I18nUtil.getMsg("ruleCheck.exemptionCourseNotTake"));
+                return false;
             }
         }
-        return false;
+        return true;
     }
     
 }

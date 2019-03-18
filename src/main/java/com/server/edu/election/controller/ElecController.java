@@ -103,7 +103,13 @@ public class ElecController
         {
             return RestResult.fail("not a student");
         }
-        ElecContext c = new ElecContext(session.realUid(), roundId);
+        ElectionRounds round = dataProvider.getRound(roundId);
+        if (round == null)
+        {
+            return RestResult.error("轮次不存在");
+        }
+        ElecContext c =
+            new ElecContext(session.realUid(), round.getCalendarId());
         
         return RestResult.successData(c);
     }

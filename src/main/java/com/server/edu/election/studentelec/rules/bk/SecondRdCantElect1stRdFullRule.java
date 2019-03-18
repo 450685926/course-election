@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 第二轮选课时，不能选第一轮选课已经选满的课程<br>
@@ -13,7 +13,7 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
  * 如果在第二轮选课时，第一轮选上的某人退了A任务，那么学生就能选该任务了。
  */
 @Component("SecondRdCantElect1stRdFullRule")
-public class SecondRdCantElect1stRdFullRule extends AbstractRuleExceutor
+public class SecondRdCantElect1stRdFullRule extends AbstractElecRuleExceutor
 {
     
     @Override

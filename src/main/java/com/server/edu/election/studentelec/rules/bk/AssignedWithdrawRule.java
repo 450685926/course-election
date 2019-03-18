@@ -9,11 +9,10 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.ChooseObj;
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -21,11 +20,11 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("AssignedWithdrawRule")
-public class AssignedWithdrawRule extends AbstractRuleExceutor
+public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutor
 {
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
+        SelectedCourse courseClass)
     {
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         if (courseClass.getTeachClassId() != null
@@ -45,12 +44,12 @@ public class AssignedWithdrawRule extends AbstractRuleExceutor
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
+                    .put(courseClass.getCourseCodeAndClassCode(),
                         I18nUtil.getMsg("ruleCheck.assignedWithdrawRule"));
+                return false;
             }
-            
         }
-        return false;
+        return true;
     }
     
 }

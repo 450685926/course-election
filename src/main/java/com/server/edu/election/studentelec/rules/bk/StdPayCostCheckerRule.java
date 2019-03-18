@@ -7,13 +7,13 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 检查学生是否缴费，未缴费的不能进入选课
  */
 @Component("StdPayCostCheckerRule")
-public class StdPayCostCheckerRule extends AbstractRuleExceutor
+public class StdPayCostCheckerRule extends AbstractElecRuleExceutor
 {
     
     @Override
@@ -27,14 +27,12 @@ public class StdPayCostCheckerRule extends AbstractRuleExceutor
             {
                 return true;
             }
-            else
-            {
-                ElecRespose respose = context.getRespose();
-                respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
-                        I18nUtil.getMsg("ruleCheck.stdPayCostChecker"));
-                return false;
-            }
+            ElecRespose respose = context.getRespose();
+            respose.getFailedReasons()
+                    .put(courseClass.getCourseCodeAndClassCode(),
+                            I18nUtil.getMsg("ruleCheck.stdPayCostChecker"));
+            return false;
+
         }
         return true;
     }

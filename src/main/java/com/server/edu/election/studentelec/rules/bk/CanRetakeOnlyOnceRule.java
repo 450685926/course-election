@@ -13,7 +13,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -21,7 +21,7 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("CanRetakeOnlyOnceRule")
-public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor
+public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutor
 {
     
     @Override
@@ -29,9 +29,7 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor
         TeachingClassCache courseClass)
     {
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        Long id = courseClass.getTeachClassId();
-        if (id != null)
-        {
+
             if (courseClass.getTeachClassType() != null
                 && CollectionUtil.isNotEmpty(completedCourses))
             {
@@ -49,7 +47,7 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor
                         {
                             ElecRespose respose = context.getRespose();
                             respose.getFailedReasons()
-                                .put(courseClass.getTeachClassId().toString(),
+                                .put(courseClass.getCourseCodeAndClassCode(),
                                     I18nUtil
                                         .getMsg("ruleCheck.canRetakeOnlyOnce"));
                             return false;
@@ -57,7 +55,7 @@ public class CanRetakeOnlyOnceRule extends AbstractRuleExceutor
                     }
                 }
             }
-        }
+
         return true;
     }
     

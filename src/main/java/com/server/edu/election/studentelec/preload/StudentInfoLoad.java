@@ -12,6 +12,7 @@ import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecRequest;
 
 /**
  * 加载学生信息
@@ -60,15 +61,17 @@ public class StudentInfoLoad extends DataProLoad
         //专项计划
         studentInfo.setSpcialPlan(stu.getSpcialPlan());
         // 是否留学生
-        studentInfo.setAboard(Constants.IS_OVERSEAS.equals(stu.getIsOverseas()));
+        studentInfo
+            .setAboard(Constants.IS_OVERSEAS.equals(stu.getIsOverseas()));
         //是否结业生
         ElcNoGraduateStds elcNoGraduateStds =
             elcNoGraduateStdsDao.findStudentByCode(studentInfo.getStudentId());
         studentInfo.setGraduate(elcNoGraduateStds == null ? false : true);
         
         // 否为留降级学生
+        ElecRequest request = context.getRequest();
         ElcLoserDownStds loserDownStds = elcLoserDownStdsDao
-            .findLoserDownStds(context.getRoundId(), stu.getStudentCode());
+            .findLoserDownStds(request.getRoundId(), stu.getStudentCode());
         studentInfo.setRepeater(loserDownStds == null ? false : true);
         
         // 3. TODO 是否缴费

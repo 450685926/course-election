@@ -7,41 +7,34 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
 /**
  * 只允许选重修课
- * 
  */
 @Component("OnlyRetakeFilter")
-public class OnlyRetakeFilter extends AbstractRuleExceutor
-{
+public class OnlyRetakeFilter extends AbstractElecRuleExceutor {
     @Override
-    public int getOrder()
-    {
+    public int getOrder() {
         return RulePriority.FIRST.ordinal();
     }
-    
+
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
-        if (courseClass.getTeachClassId() != null)
-        {
-            if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType()))
-            {
-                return true;
-            }
-            else
-            {
-                ElecRespose respose = context.getRespose();
-                respose.getFailedReasons()
-                    .put(courseClass.getTeachClassId().toString(),
-                        I18nUtil.getMsg("ruleCheck.onlyRetakeFilter"));
-            }
+                             TeachingClassCache courseClass) {
+
+        if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType())) {
+            return true;
+        } else {
+            ElecRespose respose = context.getRespose();
+            respose.getFailedReasons()
+                    .put(courseClass.getCourseCodeAndClassCode(),
+                            I18nUtil.getMsg("ruleCheck.onlyRetakeFilter"));
+            return false;
         }
-        return false;
+
+
     }
-    
+
 }

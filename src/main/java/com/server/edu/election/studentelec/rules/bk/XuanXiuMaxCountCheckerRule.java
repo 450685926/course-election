@@ -18,7 +18,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -28,7 +28,7 @@ import tk.mybatis.mapper.entity.Example;
  *
  */
 @Component("XuanXiuMaxCountCheckerRule")
-public class XuanXiuMaxCountCheckerRule extends AbstractRuleExceutor
+public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutor
 {
     @Autowired
     private CourseDao courseDao;
@@ -73,15 +73,16 @@ public class XuanXiuMaxCountCheckerRule extends AbstractRuleExceutor
                         {
                             ElecRespose respose = context.getRespose();
                             respose.getFailedReasons()
-                                .put(courseClass.getTeachClassId().toString(),
+                                .put(courseClass.getCourseCodeAndClassCode(),
                                     I18nUtil.getMsg(
                                         "ruleCheck.xuanXiuMaxCountChecker"));
+                            return false;
                         }
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
     
 }

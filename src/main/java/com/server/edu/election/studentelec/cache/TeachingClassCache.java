@@ -24,9 +24,6 @@ public class TeachingClassCache extends ElecCourse
     /** 是否重修班*/
     private Boolean isRetraining = false;
     
-    /** 是否公选课*/
-    private Boolean isPublicElective = false;
-    
     /** 最大人数 */
     private Integer maxNumber;
     
@@ -96,16 +93,6 @@ public class TeachingClassCache extends ElecCourse
         isRetraining = retraining;
     }
     
-    public Boolean isPublicElective()
-    {
-        return isPublicElective;
-    }
-    
-    public void setPublicElective(Boolean publicElective)
-    {
-        isPublicElective = publicElective;
-    }
-    
     public Integer getMaxNumber()
     {
         return maxNumber;
@@ -125,7 +112,10 @@ public class TeachingClassCache extends ElecCourse
     {
         this.currentNumber = currentNumber;
     }
-    
+
+    public String getCourseCodeAndClassCode(){
+        return String.format("%s[%s]", this.getCourseCode(), this.getTeachClassCode());
+    }
     @Override
     public int hashCode()
     {

@@ -12,8 +12,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.server.edu.common.entity.StudentScore;
 import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
@@ -29,6 +29,7 @@ import com.server.edu.election.studentelec.context.ClassTimes;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
@@ -63,7 +64,7 @@ public class CourseGradeLoad extends DataProLoad
     
     @Autowired
     private TeachingClassDao classDao;
-
+    
     @Autowired
     private ExemptionApplyDao applyDao;
     
@@ -71,7 +72,7 @@ public class CourseGradeLoad extends DataProLoad
     public void load(ElecContext context)
     {
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
-        // 1. 查询学生课程成绩
+        // 1. 查询学生课程成绩(已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
         
         String studentId = studentInfo.getStudentId();
@@ -82,7 +83,7 @@ public class CourseGradeLoad extends DataProLoad
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
-        List<StudentScore> stuScoreBest =
+        List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
         
         BeanUtils.copyProperties(stu, studentInfo);
@@ -90,31 +91,55 @@ public class CourseGradeLoad extends DataProLoad
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
-            for (StudentScore studentScore : stuScoreBest)
+            for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
-                lesson.setExcellent(true);
+                lesson.setExcellent(studentScore.isBestScore());
+                lesson.setCalendarId(studentScore.getCalendarId());
                 completedCourses.add(lesson);
             }
         }
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        ElecRequest request = context.getRequest();
         //得到校历id
         ElectionRounds electionRounds =
-            elecRoundsDao.selectByPrimaryKey(context.getRoundId());
+            elecRoundsDao.selectByPrimaryKey(request.getRoundId());
         if (electionRounds == null)
         {
             String msg = String.format("electionRounds not find roundId=%s",
-                context.getRoundId());
+                request.getRoundId());
             throw new RuntimeException(msg);
         }
         Long calendarId = electionRounds.getCalendarId();
         //选课集合
+        this.loadSelectedCourses(studentId, selectedCourses, calendarId);
+        
+        //3.学生免修课程
+        List<ElecCourse> applyRecord =
+            applyDao.findApplyRecord(calendarId, studentId);
+        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
+        applyForDropCourses.addAll(applyRecord);
+        
+        // 4. 非本学期的选课并且没有成功的
+    }
+
+    /**
+     * 加载本学期已选课课程数据
+     * 
+     * @param studentId
+     * @param selectedCourses
+     * @param calendarId
+     * @see [类、类#方法、类#成员]
+     */
+    public void loadSelectedCourses(String studentId,
+        Set<SelectedCourse> selectedCourses, Long calendarId)
+    {
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
         if (CollectionUtil.isNotEmpty(courseTakes))
@@ -170,20 +195,13 @@ public class CourseGradeLoad extends DataProLoad
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);
                 selectedCourse.setTeachClassId(c.getTeachingClassId());
+                selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
                 selectedCourse.setTimes(classTimeUnits);
                 selectedCourses.add(selectedCourse);
                 
             }
         }
-
-        //3.学生免修课程
-        List<ElecCourse> applyRecord = applyDao.findApplyRecord(calendarId, studentId);
-        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
-        applyForDropCourses.addAll(applyRecord);
-
-
-        // 4. 非本学期的选课并且没有成功的
     }
     
 }

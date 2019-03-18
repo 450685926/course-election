@@ -13,14 +13,14 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
  * 时间冲突检查
  */
 @Component("TimeConflictCheckerRule")
-public class TimeConflictCheckerRule extends AbstractRuleExceutor
+public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
 {
     
     public static final Boolean CHECK_CONFLICT = true;
@@ -61,8 +61,7 @@ public class TimeConflictCheckerRule extends AbstractRuleExceutor
                                     ElecRespose respose = context.getRespose();
                                     respose.getFailedReasons()
                                         .put(
-                                            courseClass.getTeachClassId()
-                                                .toString(),
+                                            courseClass.getCourseCodeAndClassCode(),
                                             I18nUtil.getMsg(
                                                 "ruleCheck.timeConflict"));
                                     return false;
@@ -70,16 +69,12 @@ public class TimeConflictCheckerRule extends AbstractRuleExceutor
                             }
                         }
                     }
-                    return true;
-                    
+
                 }
-                else
-                {
-                    return true;
-                }
+
             }
         }
-        return false;
+        return true;
     }
     
 }

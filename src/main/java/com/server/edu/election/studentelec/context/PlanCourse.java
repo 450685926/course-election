@@ -1,9 +1,5 @@
 package com.server.edu.election.studentelec.context;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Objects;
-
 public class PlanCourse extends ElecCourse
 {
 

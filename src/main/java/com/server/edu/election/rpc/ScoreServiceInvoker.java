@@ -3,6 +3,7 @@ package com.server.edu.election.rpc;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.StudentScore;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.vo.StudentScoreVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +22,10 @@ public class ScoreServiceInvoker {
             LoggerFactory.getLogger(ScoreServiceInvoker.class);
 
 
-    public static List<StudentScore> findStuScoreBest(String studentCode)
+    public static List<StudentScoreVo> findStuScoreBest(String studentCode)
     {
         @SuppressWarnings("unchecked")
-        RestResult<List<StudentScore>> restResult =
+        RestResult<List<StudentScoreVo>> restResult =
                 ServicePathEnum.SCORESERVICE.getForObject(
                         "/studentScoreCount/findStudentScoreGood/?studentCode={studentCode}",
                         RestResult.class,

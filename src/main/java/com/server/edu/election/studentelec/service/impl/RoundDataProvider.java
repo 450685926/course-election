@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +91,10 @@ public class RoundDataProvider
             long endMinutes = TimeUnit.MILLISECONDS
                 .toMinutes(endTime.getTime() - now.getTime()) + 3;
             
+            Set<String> ruleKeys = redisTemplate
+                .keys(String.format(Keys.ROUND_RULE, roundId, "*"));
             // 缓存轮次规则数据
-            cacheRoundRule(ops, roundId, endMinutes);
+            cacheRoundRule(ops, roundId, endMinutes, ruleKeys);
             // 缓存轮次信息
             ops.set(key,
                 JSON.toJSONString(round),
@@ -99,8 +102,8 @@ public class RoundDataProvider
                 TimeUnit.MINUTES);
             
             // 加载所有教学班与课程数据到缓存中
-            List<CourseOpenDto> lessons =
-                roundCourseDao.selectTeachingClassByRoundId(roundId);
+            List<CourseOpenDto> lessons = roundCourseDao
+                .selectTeachingClassByRoundId(roundId, round.getCalendarId());
             
             Map<String, List<CourseOpenDto>> collect = lessons.stream()
                 .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
@@ -120,9 +123,15 @@ public class RoundDataProvider
                     classKeys);
                 
                 CourseOpenDto cour = teachClasss.get(0);
-                cacheCourse(ops, endMinutes, roundId, teachClassIds, cour, courseKeys);
+                cacheCourse(ops,
+                    endMinutes,
+                    roundId,
+                    teachClassIds,
+                    cour,
+                    courseKeys);
             }
             
+            deleteKeys.addAll(ruleKeys);
             deleteKeys.addAll(courseKeys);
             deleteKeys.addAll(classKeys);
         }
@@ -176,7 +185,11 @@ public class RoundDataProvider
             courseClass.setNameEn(lesson.getCourseNameEn());
             courseClass.setTeachClassId(lesson.getTeachingClassId());
             courseClass.setTeachClassCode(lesson.getTeachingClassCode());
-            
+            courseClass.setCampus(lesson.getCampus());
+            courseClass.setTeachClassType(lesson.getTeachClassType());
+            courseClass.setMaxNumber(lesson.getMaxNumber());
+            courseClass.setCurrentNumber(lesson.getCurrentNumber());
+
             String classText = JSON.toJSONString(courseClass);
             String classKey = String
                 .format(Keys.ROUND_CLASS, roundId, lesson.getTeachingClassId());
@@ -192,7 +205,7 @@ public class RoundDataProvider
     
     /**缓存轮次选课规则*/
     private void cacheRoundRule(ValueOperations<String, String> ops,
-        Long roundId, long timeout)
+        Long roundId, long timeout, Set<String> ruleKeys)
     {
         List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
         List<ElectionParameter> params = parameterDao.selectAll();
@@ -206,11 +219,13 @@ public class RoundDataProvider
                     rule.getList().add(param);
                 }
             }
-            ops.set(
-                String.format(Keys.ROUND_RULE, roundId, rule.getServiceName()),
-                JSON.toJSONString(rule),
-                timeout,
-                TimeUnit.MINUTES);
+            String key =
+                String.format(Keys.ROUND_RULE, roundId, rule.getServiceName());
+            if (ruleKeys.contains(key))
+            {
+                ruleKeys.remove(key);
+            }
+            ops.set(key, JSON.toJSONString(rule), timeout, TimeUnit.MINUTES);
         }
     }
     
@@ -353,9 +368,12 @@ public class RoundDataProvider
             {
                 for (String json : list)
                 {
-                    TeachingClassCache lesson =
-                        JSON.parseObject(json, TeachingClassCache.class);
-                    lessons.add(lesson);
+                    if (StringUtils.isNotBlank(json))
+                    {
+                        TeachingClassCache lesson =
+                            JSON.parseObject(json, TeachingClassCache.class);
+                        lessons.add(lesson);
+                    }
                 }
             }
         }
