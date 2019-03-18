@@ -149,7 +149,7 @@ public class StudentElecRushCourseServiceImpl
             return;
         }
         Collections.sort(exceutors);
-        LOG.info("---- exceutors:{} ----", teachClassIds.size());
+        LOG.info("---- exceutors :{} ----", exceutors.size());
         
         Long roundId = context.getRequest().getRoundId();
         ElecRespose respose = context.getRespose();
@@ -209,7 +209,7 @@ public class StudentElecRushCourseServiceImpl
         }
         
         Collections.sort(exceutors);
-        LOG.info("---- widthdrawExceutors:{} ----", exceutors.size());
+        LOG.info("---- widthdrawExceutors :{} ----", exceutors.size());
         
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
