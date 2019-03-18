@@ -36,6 +36,7 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor {
         ElectionRounds round = dataProvider.getRound(context.getRequest().getRoundId());
         Long calendarId = round.getCalendarId();//当前学期
 
+        LOG.info("---- 规则进来了 ----", calendarId);
         if (StringUtils.isNotBlank(courseCode)
                 && StringUtils.isNotBlank(studentId)) {
             StudentScore studentScore =
