@@ -97,7 +97,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
                 Set<SelectedCourse> selectedCourses =
                     context.getSelectedCourses();
                 Set<SelectedCourse> collect = selectedCourses.stream()
-                    .filter(selectedCourse -> CourseTakeType.RETAKE
+                    .filter(selectedCourse -> CourseTakeType.NORMAL
                         .eq(selectedCourse.getCourseTakeType()))
                     .collect(Collectors.toSet());
                 double size = collect.stream()
