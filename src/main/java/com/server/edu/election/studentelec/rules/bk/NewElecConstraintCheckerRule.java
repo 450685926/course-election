@@ -32,7 +32,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
         TeachingClassCache courseClass)
     {
         
-        if ("1".equals(courseClass.getTeachClassType()))
+        if (CourseTakeType.RETAKE.equals(courseClass.getTeachClassType()))
         {//重修
             String number = constantsDao.findRebuildCourseNumber();
             if (StringUtils.isBlank(number))
@@ -97,7 +97,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
                 Set<SelectedCourse> selectedCourses =
                     context.getSelectedCourses();
                 Set<SelectedCourse> collect = selectedCourses.stream()
-                    .filter(selectedCourse -> CourseTakeType.RETAKE
+                    .filter(selectedCourse -> CourseTakeType.NORMAL
                         .eq(selectedCourse.getCourseTakeType()))
                     .collect(Collectors.toSet());
                 double size = collect.stream()
