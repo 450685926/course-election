@@ -29,10 +29,12 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor {
         String courseCode = courseClass.getCourseCode();
         String studentId = context.getStudentInfo().getStudentId();
         ElectionRounds round = dataProvider.getRound(context.getRequest().getRoundId());
+        Long calendarId = round.getCalendarId();//当前学期
+
         if (StringUtils.isNotBlank(courseCode)
                 && StringUtils.isNotBlank(studentId)) {
             StudentScore studentScore =
-                    ScoreServiceInvoker.findViolationStu(studentId, courseCode,round.getCalendarId());
+                    ScoreServiceInvoker.findViolationStu(studentId, courseCode, calendarId);//上一学期todo
             if (studentScore != null) {
 
                 if(StringUtils.isBlank(studentScore.getTotalMarkScore())){
