@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.TeacherInfo;
 import com.server.edu.common.vo.StudentScoreVo;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
@@ -178,7 +179,8 @@ public class CourseGradeLoad extends DataProLoad
                 		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
 					}
 
-                	List<String> weekStr = CalUtil.getWeekNums((Integer[])weekNumbers.toArray());
+                	List<String> weekStr = CalUtil.getWeekNums(weekNumbers.toArray(new Integer[Constants.ZERO]));
+
                     TeacherInfo teacherInfo= StudentServiceInvoker.findTeacherInfoBycode(classTimes.getTeacherCode());
                     String teacherName = teacherInfo!=null?teacherInfo.getName():null;
                     String value = teacherName+"("+classTimes.getTeacherCode()+")"+weekStr.toString();
