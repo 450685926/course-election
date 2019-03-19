@@ -87,6 +87,7 @@ public class BKCoursePlanLoad extends DataProLoad
                         pl.setCourseCode(planCourseTypeDto.getCourseCode());
                         pl.setCourseName(planCourseTypeDto.getName());
                         pl.setNameEn(planCourseTypeDto.getNameEn());
+                        pl.setCredits(planCourseTypeDto.getCredits());
                         pl.setLabel(label);
                         planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
