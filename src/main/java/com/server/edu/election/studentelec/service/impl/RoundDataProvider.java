@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.constants.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,6 +190,7 @@ public class RoundDataProvider
             courseClass.setTeachClassType(lesson.getTeachClassType());
             courseClass.setMaxNumber(lesson.getMaxNumber());
             courseClass.setCurrentNumber(lesson.getCurrentNumber());
+            courseClass.setPublicElec(lesson.getIsElective()== Constants.ONE ? true:false);
 
             String classText = JSON.toJSONString(courseClass);
             String classKey = String

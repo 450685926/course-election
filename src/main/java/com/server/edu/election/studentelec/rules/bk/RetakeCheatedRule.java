@@ -23,8 +23,6 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 @Component("RetakeCheatedRule")
 public class RetakeCheatedRule extends AbstractElecRuleExceutor {
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(RetakeCheatedRule.class);
     @Autowired
     private RoundDataProvider dataProvider;
 
@@ -35,8 +33,6 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor {
         String studentId = context.getStudentInfo().getStudentId();
         ElectionRounds round = dataProvider.getRound(context.getRequest().getRoundId());
         Long calendarId = round.getCalendarId();//当前学期
-
-        LOG.info("---- 规则进来了 ----", calendarId);
         if (StringUtils.isNotBlank(courseCode)
                 && StringUtils.isNotBlank(studentId)) {
             StudentScore studentScore =
@@ -44,7 +40,6 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor {
             if (studentScore != null) {
 
                 if(StringUtils.isBlank(studentScore.getTotalMarkScore())){
-                    LOG.info("---- cheatRule ----", studentScore.getRemark());
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
                             .put(courseClass.getCourseCodeAndClassCode(),

@@ -25,64 +25,62 @@ import tk.mybatis.mapper.entity.Example;
 
 /**
  * 是选修课门数上限规则检查
- *
  */
 @Component("XuanXiuMaxCountCheckerRule")
-public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutor
-{
-    @Autowired
-    private CourseDao courseDao;
-    
+public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutor {
+
+
     @Autowired
     private ElectionParameterDao electionParameterDao;
-    
+
     /**
      * 执行选课操作时
      */
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
+                             TeachingClassCache courseClass) {
         if (StringUtils.isNotBlank(courseClass.getCourseCode())
-            && courseClass.getTeachClassId() != null)
-        {
+                && courseClass.getTeachClassId() != null) {
+            if (!courseClass.isPublicElec()) {//是否选修课
+                return true;
+            }
             Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-            if (CollectionUtil.isNotEmpty(selectedCourses))
-            {
+            if (CollectionUtil.isNotEmpty(selectedCourses)) {
                 List<SelectedCourse> list = selectedCourses.stream()
-                    .filter(c -> c.isPublicElec() == true)
-                    .collect(Collectors.toList());
+                        .filter(c -> c.isPublicElec() == true)
+                        .collect(Collectors.toList());
                 int stsNum = list.size();
                 // 选课门数上限
                 ElectionParameter electionParameter =
-                    electionParameterDao.selectByPrimaryKey(101L);
-                int max = Integer.parseInt(electionParameter.getValue());
-                Example example = new Example(Course.class);
-                Example.Criteria criteria = example.createCriteria();
-                criteria.andEqualTo("code", courseClass.getCourseCode());
-                Course course = courseDao.selectOneByExample(example);
-                if (course != null)
-                {
-                    if (Constants.ONE == course.getIsElective())
-                    {
-                        if (max > stsNum + Constants.ONE)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            ElecRespose respose = context.getRespose();
-                            respose.getFailedReasons()
-                                .put(courseClass.getCourseCodeAndClassCode(),
+                        electionParameterDao.selectByPrimaryKey(101L);
+
+                int max = 0;
+                try {
+                    max = Integer.parseInt(electionParameter.getValue());
+                } catch (NumberFormatException e) {
+                    ElecRespose respose = context.getRespose();
+                    e.printStackTrace();
+                    respose.getFailedReasons()
+                            .put(courseClass.getCourseCodeAndClassCode(),
                                     I18nUtil.getMsg(
-                                        "ruleCheck.xuanXiuMaxCountChecker"));
-                            return false;
-                        }
-                    }
+                                            "ruleCheck.psrseError"));
+                    return false;
                 }
+
+                if (max >= stsNum + Constants.ONE) {
+                    return true;
+                }
+                ElecRespose respose = context.getRespose();
+                respose.getFailedReasons()
+                        .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil.getMsg(
+                                        "ruleCheck.xuanXiuMaxCountChecker"));
+                return false;
+
+
             }
         }
         return true;
     }
-    
+
 }
