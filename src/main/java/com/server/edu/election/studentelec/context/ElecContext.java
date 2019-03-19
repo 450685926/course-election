@@ -81,7 +81,8 @@ public class ElecContext
         this.contextUtil.save("SelectedCourses", this.selectedCourses);
         this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
         this.contextUtil.save("PlanCourses", this.planCourses);
-        this.contextUtil.save("CourseGroup", this.courseGroups);
+        this.contextUtil.save("courseGroups", this.courseGroups);
+        this.contextUtil.save("publicCourses", this.publicCourses);
     }
     
     public void saveResponse()
