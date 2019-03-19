@@ -115,7 +115,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
                 flag = spcialPlan.equals(studentInfo.getSpcialPlan());
             }
 
-            if (isDivsex != null && "0".equals(isDivsex)) {
+            if (isDivsex != null && !"0".equals(isDivsex)) {
                 flag = isDivsex.equals(String.valueOf(studentInfo.getSex()));
             }
 
