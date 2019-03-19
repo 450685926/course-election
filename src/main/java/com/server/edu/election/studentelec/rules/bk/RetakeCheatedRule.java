@@ -1,6 +1,12 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+import com.server.edu.election.studentelec.service.impl.StudentElecRushCourseServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.StudentScore;
@@ -17,25 +23,34 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 @Component("RetakeCheatedRule")
 public class RetakeCheatedRule extends AbstractElecRuleExceutor {
 
+    private static final Logger LOG =
+            LoggerFactory.getLogger(RetakeCheatedRule.class);
+    @Autowired
+    private RoundDataProvider dataProvider;
+
     @Override
     public boolean checkRule(ElecContext context,
                              TeachingClassCache courseClass) {
         String courseCode = courseClass.getCourseCode();
         String studentId = context.getStudentInfo().getStudentId();
+        ElectionRounds round = dataProvider.getRound(context.getRequest().getRoundId());
+        Long calendarId = round.getCalendarId();//当前学期
+
+        LOG.info("---- 规则进来了 ----", calendarId);
         if (StringUtils.isNotBlank(courseCode)
                 && StringUtils.isNotBlank(studentId)) {
             StudentScore studentScore =
-                    ScoreServiceInvoker.findViolationStu(studentId, courseCode);
+                    ScoreServiceInvoker.findViolationStu(studentId, courseCode, calendarId);//上一学期todo
             if (studentScore != null) {
-                if (studentScore.getTotalMarkScore() != null) {
-                    return true;
-                }
 
-                ElecRespose respose = context.getRespose();
-                respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
-                                I18nUtil.getMsg(studentScore.getRemark()));
-                return false;
+                if(StringUtils.isBlank(studentScore.getTotalMarkScore())){
+                    LOG.info("---- cheatRule ----", studentScore.getRemark());
+                    ElecRespose respose = context.getRespose();
+                    respose.getFailedReasons()
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                    I18nUtil.getMsg(studentScore.getRemark()));
+                    return false;
+                }
             }
         }
         return true;

@@ -34,14 +34,14 @@ public class ScoreServiceInvoker {
         return restResult.getData();
     }
 
-    public static StudentScore findViolationStu(String studentCode,String courseCode)
+    public static StudentScore findViolationStu(String studentCode,String courseCode,Long calendarId)
     {
         @SuppressWarnings("unchecked")
         RestResult<StudentScore> restResult =
                 ServicePathEnum.SCORESERVICE.getForObject(
-                        "/studentScoreCount/findViolationStu/?studentCode={studentCode}&courseCode={courseCode}",
+                        "/studentScoreCount/findViolationStu/?studentCode={studentCode}&courseCode={courseCode}&calendarId={calendarId}",
                         RestResult.class,
-                        studentCode,courseCode);
+                        studentCode,courseCode,calendarId);
 
         return restResult.getData();
     }
