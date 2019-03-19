@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.constants.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
         TeachingClassCache courseClass)
     {
         
-        if (CourseTakeType.RETAKE.equals(courseClass.getTeachClassType()))
+        if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType()))
         {//重修
             String number = constantsDao.findRebuildCourseNumber();
             if (StringUtils.isBlank(number))
@@ -54,7 +55,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
                         .eq(selectedCourse.getCourseTakeType()))
                     .collect(Collectors.toSet());
                 int size = collect.size();//已选重修门数
-                if (size < totalNumber)
+                if (size +1 <=totalNumber)
                 {
                     return true;
                 }

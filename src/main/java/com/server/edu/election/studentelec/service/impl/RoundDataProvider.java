@@ -176,14 +176,14 @@ public class RoundDataProvider
         Set<Long> teachClassIds = new HashSet<>();
         for (CourseOpenDto lesson : teachClasss)
         {
-            teachClassIds.add(lesson.getTeachingClassId());
+            Long teachingClassId = lesson.getTeachingClassId();
             TeachingClassCache courseClass = new TeachingClassCache();
             
             courseClass.setCourseCode(lesson.getCourseCode());
             courseClass.setCourseName(lesson.getCourseName());
             courseClass.setCredits(lesson.getCredits());
             courseClass.setNameEn(lesson.getCourseNameEn());
-            courseClass.setTeachClassId(lesson.getTeachingClassId());
+            courseClass.setTeachClassId(teachingClassId);
             courseClass.setTeachClassCode(lesson.getTeachingClassCode());
             courseClass.setCampus(lesson.getCampus());
             courseClass.setTeachClassType(lesson.getTeachClassType());
@@ -192,12 +192,12 @@ public class RoundDataProvider
 
             String classText = JSON.toJSONString(courseClass);
             String classKey = String
-                .format(Keys.ROUND_CLASS, roundId, lesson.getTeachingClassId());
-            
+                .format(Keys.ROUND_CLASS, roundId, teachingClassId);
             if (classKeys.contains(classKey))
             {
                 classKeys.remove(classKey);
             }
+            teachClassIds.add(teachingClassId);
             ops.set(classKey, classText, endMinutes, TimeUnit.MINUTES);
         }
         return teachClassIds;
