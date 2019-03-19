@@ -27,7 +27,18 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     /**教学班编号*/
     private String teachingClassCode;
-    
+
+    /**是否为公共选修课(1:是，0：否)*/
+    private Integer isPublicCourse;
+
+    public Integer getIsPublicCourse() {
+        return isPublicCourse;
+    }
+
+    public void setIsPublicCourse(Integer isPublicCourse) {
+        this.isPublicCourse = isPublicCourse;
+    }
+
     public String getStudentName()
     {
         return studentName;

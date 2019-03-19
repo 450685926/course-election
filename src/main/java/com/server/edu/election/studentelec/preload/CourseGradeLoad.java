@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.constants.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,7 +178,9 @@ public class CourseGradeLoad extends DataProLoad
                 	}else {
                 		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
 					}
+
                 	List<String> weekStr = CalUtil.getWeekNums(weekNumbers.toArray(new Integer[Constants.ZERO]));
+
                     TeacherInfo teacherInfo= StudentServiceInvoker.findTeacherInfoBycode(classTimes.getTeacherCode());
                     String teacherName = teacherInfo!=null?teacherInfo.getName():null;
                     String value = teacherName+"("+classTimes.getTeacherCode()+")"+weekStr.toString();
@@ -195,6 +198,7 @@ public class CourseGradeLoad extends DataProLoad
                 //selectedCourse.setNameEn(c.geten);
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);
+                selectedCourse.setPublicElec(c.getIsPublicCourse()== Constants.ZERO ? false:true);
                 selectedCourse.setTeachClassId(c.getTeachingClassId());
                 selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
