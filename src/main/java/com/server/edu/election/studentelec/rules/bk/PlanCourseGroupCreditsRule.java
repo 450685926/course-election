@@ -34,6 +34,7 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutor
         String code = courseClass.getCourseCode();
         double credits = courseClass.getCredits();//当前学分
         double hasCredits = 0.0;
+        //培养计划通识Label 下课程有没有校验是否公选课
         Boolean publicElective = courseClass.isPublicElec();//是否通识选修课
         Set<CourseGroup> courseGroups = context.getCourseGroups();//获取课程组
         if (CollectionUtil.isEmpty(courseGroups))
