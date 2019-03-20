@@ -189,7 +189,7 @@ public class CourseGradeLoad extends DataProLoad
                 }
                 selectedCourse.setClassTimes(classTimeList);
                 selectedCourse.setCampus(c.getCampus());
-                selectedCourse.setChooseObj(selectedCourse.getChooseObj());
+                selectedCourse.setChooseObj(c.getChooseObj());
                 selectedCourse.setCourseCode(c.getCourseCode());
                 selectedCourse.setCourseName(c.getCourseName());
                 selectedCourse.setCourseTakeType(c.getCourseTakeType());
