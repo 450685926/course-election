@@ -173,7 +173,7 @@ public class CourseGradeLoad extends DataProLoad
                 List<ClassTimes> classTimeList = new ArrayList<>();
                 for(ClassTimes classTimes:set) {
                 	List<Integer> weekNumbers = new ArrayList<>();
-                	if(StringUtils.isBlank(classTimes.getRoomId())) {
+                	if(StringUtils.isNotBlank(classTimes.getRoomId())) {
                 		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).filter(temp->temp.getRoomId().equals(classTimes.getRoomId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
                 	}else {
                 		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
