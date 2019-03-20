@@ -191,7 +191,7 @@ public class StudentElecRushCourseServiceImpl
                 SelectedCourse course = new SelectedCourse(teachClass);
                 course.setTeachClassId(teachClassId);
                 course.setTurn(round.getTurn());
-                course.setCourseTakeType(Constants.ORDINARY_CALSS.equals(teachClass.getTeachClassType())? CourseTakeType.NORMAL.type():CourseTakeType.RETAKE.type());
+                course.setCourseTakeType(Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())? CourseTakeType.RETAKE.type():CourseTakeType.NORMAL.type());
                 context.getSelectedCourses().add(course);
             }
         }

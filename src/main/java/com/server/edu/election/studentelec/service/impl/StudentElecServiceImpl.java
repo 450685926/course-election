@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.Date;
 
+import com.server.edu.election.constants.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,7 +210,7 @@ public class StudentElecServiceImpl implements StudentElecService
             take.setCalendarId(round.getCalendarId());
             take.setChooseObj(request.getChooseObj());
             take.setCourseCode(courseCode);
-            take.setCourseTakeType(CourseTakeType.NORMAL.type());
+            take.setCourseTakeType(Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType())? CourseTakeType.RETAKE.type():CourseTakeType.NORMAL.type());
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
