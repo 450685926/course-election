@@ -1,6 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @description: 计划课程组
@@ -35,5 +38,28 @@ public class CourseGroup implements Serializable {
 
     public void setCrrdits(Double crrdits) {
         this.crrdits = crrdits;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.label);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+
+        if (obj instanceof CourseGroup)
+        {
+            CourseGroup o = (CourseGroup)obj;
+            return Objects.equals(this.label, o.label);
+
+        }
+        return false;
     }
 }

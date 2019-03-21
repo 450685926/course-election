@@ -97,11 +97,10 @@ public class BKCoursePlanLoad extends DataProLoad
                             c.setNameEn(planCourseTypeDto.getNameEn());
                             c.setCredits(planCourseTypeDto.getCredits());
                             publicCourses.add(c);
-                            log.info("tiongshi :{}", 3);
                         }
 
                     }
-                    log.info("plan course size:{}", courseType.size());
+
                 }
 
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
@@ -114,7 +113,7 @@ public class BKCoursePlanLoad extends DataProLoad
                         courseGroup.setLimitType("0");
                     }
                     courseGroups.add(courseGroup);
-                    log.info("tiongshi :{}", 2);
+
                 }
             }
         }
