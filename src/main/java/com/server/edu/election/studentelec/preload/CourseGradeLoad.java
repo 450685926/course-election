@@ -132,10 +132,7 @@ public class CourseGradeLoad extends DataProLoad
     
     static String groupByRoom(ClassTimeUnit time)
     {
-        return String.format("%s-%s-%s",
-            time.getWeekNumber(),
-            time.getRoomId(),
-            time.getTeacherCode());
+        return String.format("%s-%s", time.getRoomId(), time.getTeacherCode());
     }
     
     /**
@@ -192,7 +189,7 @@ public class CourseGradeLoad extends DataProLoad
                             continue;
                         }
                         
-                        // 按周数、教室、老师分组
+                        // 按教室、老师分组
                         Map<String, List<ClassTimeUnit>> collect3 =
                             times.stream()
                                 .collect(Collectors
@@ -225,7 +222,7 @@ public class CourseGradeLoad extends DataProLoad
                             sb.append(String.format("%s(%s)%s",
                                 teacherName,
                                 teacherCode,
-                                StringUtils.join(weekStr, "-"))).append(" ");
+                                StringUtils.join(weekStr, ","))).append(", ");
                         }
                         ClassTimeUnit time = times.get(0);
                         time.setValue(sb.toString());
@@ -249,7 +246,6 @@ public class CourseGradeLoad extends DataProLoad
                 selectedCourse.setTeachClassId(c.getTeachingClassId());
                 selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
-                selectedCourse.setTimes(classTimeUnits);
                 selectedCourses.add(selectedCourse);
                 
             }
