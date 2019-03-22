@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.constants.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionParameterDao;
@@ -30,6 +32,8 @@ import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.preload.CourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
@@ -59,6 +63,9 @@ public class RoundDataProvider
     
     @Autowired
     private ElecRoundCourseDao roundCourseDao;
+    
+    @Autowired
+    private CourseGradeLoad gradeLoad;
     
     public RoundDataProvider()
     {
@@ -175,6 +182,14 @@ public class RoundDataProvider
         Set<String> classKeys)
     {
         Set<Long> teachClassIds = new HashSet<>();
+        
+        List<Long> classIds = teachClasss.stream()
+            .map(temp -> temp.getTeachingClassId())
+            .collect(Collectors.toList());
+        //按周数拆分的选课数据集合
+        Map<Long, List<ClassTimeUnit>> collect = gradeLoad.groupByTime(classIds);
+        Map<String, TeacherInfo> teacherMap = new HashMap<>();
+        
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
@@ -192,6 +207,10 @@ public class RoundDataProvider
             courseClass.setCurrentNumber(lesson.getCurrentNumber());
             courseClass.setPublicElec(lesson.getIsElective()== Constants.ONE ? true:false);
 
+            List<ClassTimeUnit> times =
+                gradeLoad.concatTime(collect, teacherMap, courseClass);
+            courseClass.setTimes(times);
+            
             String classText = JSON.toJSONString(courseClass);
             String classKey = String
                 .format(Keys.ROUND_CLASS, roundId, teachingClassId);
@@ -199,9 +218,9 @@ public class RoundDataProvider
             {
                 classKeys.remove(classKey);
             }
-            teachClassIds.add(teachingClassId);
             ops.set(classKey, classText, endMinutes, TimeUnit.MINUTES);
         }
+        teachClassIds.addAll(classIds);
         return teachClassIds;
     }
     

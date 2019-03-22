@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,9 +13,6 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
  */
 public class SelectedCourse extends TeachingClassCache
 {
-    /** 上课时间按教学周拆分集合 */
-    private List<ClassTimeUnit> times;
-    
     /** 教学班Id */
     private Long teachClassId;
     
@@ -65,16 +61,6 @@ public class SelectedCourse extends TeachingClassCache
         this.setRetraining(course.isRetraining());
         this.setMaxNumber(course.getMaxNumber());
         this.setCurrentNumber(course.getCurrentNumber());
-    }
-    
-    public List<ClassTimeUnit> getTimes()
-    {
-        return times;
-    }
-    
-    public void setTimes(List<ClassTimeUnit> times)
-    {
-        this.times = times;
     }
     
     public Integer getChooseObj()

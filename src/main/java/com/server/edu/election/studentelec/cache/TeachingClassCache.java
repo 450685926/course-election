@@ -1,9 +1,11 @@
 package com.server.edu.election.studentelec.cache;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
 
 /**
@@ -29,6 +31,9 @@ public class TeachingClassCache extends ElecCourse
     
     /** 当前人数 */
     private Integer currentNumber;
+    
+    /** 上课时间按教学周拆分集合 */
+    private List<ClassTimeUnit> times;
     
     public TeachingClassCache()
     {
@@ -112,10 +117,23 @@ public class TeachingClassCache extends ElecCourse
     {
         this.currentNumber = currentNumber;
     }
-
-    public String getCourseCodeAndClassCode(){
-        return String.format("%s[%s]", this.getCourseCode(), this.getTeachClassCode());
+    
+    public List<ClassTimeUnit> getTimes()
+    {
+        return times;
     }
+    
+    public void setTimes(List<ClassTimeUnit> times)
+    {
+        this.times = times;
+    }
+    
+    public String getCourseCodeAndClassCode()
+    {
+        return String
+            .format("%s[%s]", this.getCourseCode(), this.getTeachClassCode());
+    }
+    
     @Override
     public int hashCode()
     {

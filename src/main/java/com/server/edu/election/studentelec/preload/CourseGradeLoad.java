@@ -26,6 +26,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.rpc.StudentServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -153,11 +154,7 @@ public class CourseGradeLoad extends DataProLoad
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
-            //按周数拆分的选课数据集合
-            List<ClassTimeUnit> list = classDao.getClassTimes(teachClassIds);
-            //一个教学班分组
-            Map<Long, List<ClassTimeUnit>> collect = list.stream()
-                .collect(Collectors.groupingBy(ClassTimeUnit::getTeachClassId));
+            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             
             //            Set<String> teacherCodeList = list.stream()
             //                .filter(time -> StringUtils.isNotBlank(time.getTeacherCode()))
@@ -168,9 +165,6 @@ public class CourseGradeLoad extends DataProLoad
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
-                
-                List<ClassTimeUnit> times = concatTime(collect, teacherMap, c);
-                selectedCourse.setTimes(times);
                 
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(c.getChooseObj());
@@ -187,10 +181,32 @@ public class CourseGradeLoad extends DataProLoad
                 selectedCourse.setTeachClassId(c.getTeachingClassId());
                 selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
+                
+                List<ClassTimeUnit> times =
+                    concatTime(collect, teacherMap, selectedCourse);
+                selectedCourse.setTimes(times);
+                
                 selectedCourses.add(selectedCourse);
                 
             }
         }
+    }
+    
+    /**
+     * 查询教学班排课时间，并按教学班分组
+     * 
+     * @param teachClassIds
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public Map<Long, List<ClassTimeUnit>> groupByTime(List<Long> teachClassIds)
+    {
+        //按周数拆分的选课数据集合
+        List<ClassTimeUnit> list = classDao.getClassTimes(teachClassIds);
+        //一个教学班分组
+        Map<Long, List<ClassTimeUnit>> collect = list.stream()
+            .collect(Collectors.groupingBy(ClassTimeUnit::getTeachClassId));
+        return collect;
     }
     
     /**
@@ -202,13 +218,12 @@ public class CourseGradeLoad extends DataProLoad
      * @return
      * @see [类、类#方法、类#成员]
      */
-    private List<ClassTimeUnit> concatTime(
+    public List<ClassTimeUnit> concatTime(
         Map<Long, List<ClassTimeUnit>> collect,
-        Map<String, TeacherInfo> teacherMap, ElcCourseTakeVo c)
+        Map<String, TeacherInfo> teacherMap, TeachingClassCache c)
     {
         //一个教学班的排课时间信息
-        List<ClassTimeUnit> classTimeUnits =
-            collect.get(c.getTeachingClassId());
+        List<ClassTimeUnit> classTimeUnits = collect.get(c.getTeachClassId());
         if (CollectionUtil.isNotEmpty(classTimeUnits))
         {
             List<ClassTimeUnit> classTimeList = new ArrayList<>();
