@@ -18,7 +18,7 @@ public class ClassTimeUnit
     
     private String teacherCode;
     
-    
+    private String value;
     
     public Long getTeachClassId()
     {
@@ -95,9 +95,15 @@ public class ClassTimeUnit
 	public void setTeacherCode(String teacherCode) {
 		this.teacherCode = teacherCode;
 	}
-    
-	
-    
-    
+
+    public String getValue()
+    {
+        return value;
+    }
+
+    public void setValue(String value)
+    {
+        this.value = value;
+    }
     
 }

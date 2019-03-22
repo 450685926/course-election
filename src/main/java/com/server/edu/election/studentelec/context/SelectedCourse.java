@@ -14,14 +14,8 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
  */
 public class SelectedCourse extends TeachingClassCache
 {
-    /**是否重修课*/
-    private boolean isRebuildElec;
-    
     /** 上课时间按教学周拆分集合 */
     private List<ClassTimeUnit> times;
-    
-    /** 上课时间按节次拆分集合 */
-    private List<ClassTimes> classTimes;
     
     /** 教学班Id */
     private Long teachClassId;
@@ -114,14 +108,6 @@ public class SelectedCourse extends TeachingClassCache
     }
     
     
-    public List<ClassTimes> getClassTimes() {
-		return classTimes;
-	}
-
-	public void setClassTimes(List<ClassTimes> classTimes) {
-		this.classTimes = classTimes;
-	}
-
 	@Override
     public int hashCode()
     {

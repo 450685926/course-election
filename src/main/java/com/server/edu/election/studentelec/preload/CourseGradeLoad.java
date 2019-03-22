@@ -1,13 +1,12 @@
 package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.constants.Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.rpc.StudentServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
-import com.server.edu.election.studentelec.context.ClassTimes;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -130,7 +128,7 @@ public class CourseGradeLoad extends DataProLoad
         
         // 4. 非本学期的选课并且没有成功的
     }
-
+    
     /**
      * 加载本学期已选课课程数据
      * 
@@ -155,6 +153,12 @@ public class CourseGradeLoad extends DataProLoad
             Map<Long, List<ClassTimeUnit>> collect = list.stream()
                 .collect(Collectors.groupingBy(ClassTimeUnit::getTeachClassId));
             
+//            Set<String> teacherCodeList = list.stream()
+//                .filter(time -> StringUtils.isNotBlank(time.getTeacherCode()))
+//                .map(ClassTimeUnit::getTeacherCode)
+//                .collect(Collectors.toSet());
+            
+            Map<String, TeacherInfo> teacherMap = new HashMap<>();
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
@@ -162,32 +166,63 @@ public class CourseGradeLoad extends DataProLoad
                 //一个教学班的排课时间信息
                 List<ClassTimeUnit> classTimeUnits =
                     collect.get(c.getTeachingClassId());
-                Set<ClassTimes> set = new HashSet<>();
-                if(CollectionUtil.isNotEmpty(list) && CollectionUtil.isNotEmpty(classTimeUnits)) {
-                    classTimeUnits.forEach(temp->{
-                    	ClassTimes classTimes = new ClassTimes();
-                    	BeanUtils.copyProperties(temp, classTimes);
-                    	set.add(classTimes);
-                    });
+                if (CollectionUtil.isNotEmpty(list)
+                    && CollectionUtil.isNotEmpty(classTimeUnits))
+                {
+                    List<ClassTimeUnit> classTimeList = new ArrayList<>();
+                    for (ClassTimeUnit time : classTimeUnits)
+                    {
+                        List<Integer> weekNumbers = new ArrayList<>();
+                        if (StringUtils.isNotBlank(time.getRoomId()))
+                        {
+                            weekNumbers = classTimeUnits.stream()
+                                .filter(temp -> temp.getArrangeTimeId()
+                                    .equals(time.getArrangeTimeId()))
+                                .filter(temp -> temp.getRoomId()
+                                    .equals(time.getRoomId()))
+                                .map(ClassTimeUnit::getWeekNumber)
+                                .sorted()
+                                .collect(Collectors.toList());
+                        }
+                        else
+                        {
+                            weekNumbers = classTimeUnits.stream()
+                                .filter(temp -> temp.getArrangeTimeId()
+                                    .equals(time.getArrangeTimeId()))
+                                .map(ClassTimeUnit::getWeekNumber)
+                                .sorted()
+                                .collect(Collectors.toList());
+                        }
+                        
+                        List<String> weekStr = CalUtil
+                            .getWeekNums(weekNumbers.toArray(new Integer[] {}));
+                        
+                        String teacherCode = time.getTeacherCode();
+                        TeacherInfo teacherInfo = null;
+                        if (teacherMap.containsKey(teacherCode))
+                        {
+                            teacherInfo = teacherMap.get(teacherCode);
+                        }
+                        else
+                        {
+                            teacherInfo = StudentServiceInvoker
+                                .findTeacherInfoBycode(teacherCode);
+                            teacherMap.put(teacherCode, teacherInfo);
+                        }
+                        String teacherName =
+                            teacherInfo != null ? teacherInfo.getName() : "";
+                        // 老师名称(老师编号)周次
+                        String value = String.format("%s(%s)%s",
+                            teacherName,
+                            teacherCode,
+                            StringUtils.join(weekStr, "-"));
+                        
+                        time.setValue(value);
+                        classTimeList.add(time);
+                    }
+                    selectedCourse.setTimes(classTimeList);
                 }
-                List<ClassTimes> classTimeList = new ArrayList<>();
-                for(ClassTimes classTimes:set) {
-                	List<Integer> weekNumbers = new ArrayList<>();
-                	if(StringUtils.isNotBlank(classTimes.getRoomId())) {
-                		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).filter(temp->temp.getRoomId().equals(classTimes.getRoomId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
-                	}else {
-                		weekNumbers= classTimeUnits.stream().filter(temp->temp.getArrangeTimeId().equals(classTimes.getArrangeTimeId())).map(ClassTimeUnit::getWeekNumber).sorted().collect(Collectors.toList());
-					}
-
-                	List<String> weekStr = CalUtil.getWeekNums(weekNumbers.toArray(new Integer[Constants.ZERO]));
-
-                    TeacherInfo teacherInfo= StudentServiceInvoker.findTeacherInfoBycode(classTimes.getTeacherCode());
-                    String teacherName = teacherInfo!=null?teacherInfo.getName():null;
-                    String value = teacherName+"("+classTimes.getTeacherCode()+")"+weekStr.toString();
-                    classTimes.setValue(value);
-                    classTimeList.add(classTimes);
-                }
-                selectedCourse.setClassTimes(classTimeList);
+                
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(c.getChooseObj());
                 selectedCourse.setCourseCode(c.getCourseCode());
@@ -198,7 +233,8 @@ public class CourseGradeLoad extends DataProLoad
                 //selectedCourse.setNameEn(c.geten);
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);
-                selectedCourse.setPublicElec(c.getIsPublicCourse()== Constants.ZERO ? false:true);
+                selectedCourse.setPublicElec(
+                    c.getIsPublicCourse() == Constants.ZERO ? false : true);
                 selectedCourse.setTeachClassId(c.getTeachingClassId());
                 selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
