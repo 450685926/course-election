@@ -17,7 +17,7 @@ public class ElecContext
     /** 个人信息 */
     private StudentInfoCache studentInfo;
     
-    /** 已完成课程 */
+    /** 已完成通過课程 */
     private Set<CompletedCourse> completedCourses;
     
     /** 本学期已选择课程 */
@@ -40,6 +40,10 @@ public class ElecContext
     private ElecRespose respose;
     
     private ElecContextUtil contextUtil;
+
+    /**未通過課程*/
+    private Set<CompletedCourse> failedCourse;
+
     
     public ElecContext(String studentId, Long calendarId)
     {
@@ -59,6 +63,7 @@ public class ElecContext
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
         courseGroups =
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
+            this.contextUtil.getSet("failedCourse", CompletedCourse.class);
     }
     
     public ElecContext(String studentId, Long calendarId,
@@ -83,6 +88,7 @@ public class ElecContext
         this.contextUtil.save("PlanCourses", this.planCourses);
         this.contextUtil.save("courseGroups", this.courseGroups);
         this.contextUtil.save("publicCourses", this.publicCourses);
+        this.contextUtil.save("failedCourse", this.failedCourse);
     }
     
     public void saveResponse()
@@ -149,5 +155,13 @@ public class ElecContext
     public void setCourseGroups(Set<CourseGroup> courseGroups)
     {
         this.courseGroups = courseGroups;
+    }
+
+    public Set<CompletedCourse> getFailedCourse() {
+        return failedCourse;
+    }
+
+    public void setFailedCourse(Set<CompletedCourse> failedCourse) {
+        this.failedCourse = failedCourse;
     }
 }

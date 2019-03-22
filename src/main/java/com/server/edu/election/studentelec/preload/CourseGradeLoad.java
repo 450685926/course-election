@@ -91,6 +91,7 @@ public class CourseGradeLoad extends DataProLoad
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -102,7 +103,12 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
                 lesson.setCalendarId(studentScore.getCalendarId());
-                completedCourses.add(lesson);
+                if(studentScore.getIsPass()!=null&&studentScore.getIsPass().intValue()==Constants.ONE){//已經完成課程
+                    completedCourses.add(lesson);
+                }else{
+                    failedCourse.add(lesson);
+                }
+
             }
         }
         
