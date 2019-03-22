@@ -192,16 +192,22 @@ public class CourseGradeLoad extends DataProLoad
                             continue;
                         }
                         
-                        ClassTimeUnit time = times.get(0);
                         // 按周数、教室、老师分组
                         Map<String, List<ClassTimeUnit>> collect3 =
                             times.stream()
                                 .collect(Collectors
                                     .groupingBy(CourseGradeLoad::groupByRoom));
                         StringBuilder sb = new StringBuilder();
-                        for (List<ClassTimeUnit> lis : collect3.values())
+                        for (Entry<String, List<ClassTimeUnit>> entry1 : collect3
+                            .entrySet())
                         {
-                            List<Integer> weekNumbers = lis.stream()
+                            List<ClassTimeUnit> rooms = entry1.getValue();
+                            if (CollectionUtil.isEmpty(rooms))
+                            {
+                                continue;
+                            }
+                            ClassTimeUnit room = rooms.get(0);
+                            List<Integer> weekNumbers = rooms.stream()
                                 .map(ClassTimeUnit::getWeekNumber)
                                 .sorted()
                                 .collect(Collectors.toList());
@@ -209,7 +215,7 @@ public class CourseGradeLoad extends DataProLoad
                             List<String> weekStr = CalUtil.getWeekNums(
                                 weekNumbers.toArray(new Integer[] {}));
                             
-                            String teacherCode = time.getTeacherCode();
+                            String teacherCode = room.getTeacherCode();
                             TeacherInfo teacherInfo =
                                 getTeacherInfo(teacherMap, teacherCode);
                             String teacherName =
@@ -221,7 +227,7 @@ public class CourseGradeLoad extends DataProLoad
                                 teacherCode,
                                 StringUtils.join(weekStr, "-"))).append(" ");
                         }
-                        
+                        ClassTimeUnit time = times.get(0);
                         time.setValue(sb.toString());
                         classTimeList.add(time);
                     }
