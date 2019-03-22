@@ -195,6 +195,9 @@ public class CourseGradeLoad extends DataProLoad
                                 .collect(Collectors
                                     .groupingBy(CourseGradeLoad::groupByRoom));
                         StringBuilder sb = new StringBuilder();
+                        sb.append(String.format("%s(%s) ",
+                            c.getCourseName(),
+                            c.getCourseCode()));
                         for (Entry<String, List<ClassTimeUnit>> entry1 : collect3
                             .entrySet())
                         {
@@ -218,11 +221,15 @@ public class CourseGradeLoad extends DataProLoad
                             String teacherName =
                                 teacherInfo != null ? teacherInfo.getName()
                                     : "";
+                            if (sb.length() > 0)
+                            {
+                                sb.append(",");
+                            }
                             // 老师名称(老师编号)周次
                             sb.append(String.format("%s(%s)%s",
                                 teacherName,
                                 teacherCode,
-                                StringUtils.join(weekStr, ","))).append(", ");
+                                StringUtils.join(weekStr, ",")));
                         }
                         ClassTimeUnit time = times.get(0);
                         time.setValue(sb.toString());
