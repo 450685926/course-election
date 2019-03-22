@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -11,42 +13,40 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * 新选课程不出现重修班
- *
  */
 @Component("CanNotRetakeClassForNewComRule")
-public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
-{
+public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor {
     @Override
-    public int getOrder()
-    {
+    public int getOrder() {
         return RulePriority.FOURTH.ordinal();
     }
-    
+
     @Override
     public boolean checkRule(ElecContext context,
-        TeachingClassCache courseClass)
-    {
-        Long id = courseClass.getTeachClassId();
-        if (id != null)
-        {
-            if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
-            {
-                if (Constants.REBUILD_CALSS
-                    .equals(courseClass.getTeachClassType()))
-                {
-                    ElecRespose respose = context.getRespose();
-                    respose.getFailedReasons()
+                             TeachingClassCache courseClass) {
+
+        Set<CompletedCourse> set = new HashSet<>();
+        set.addAll(context.getFailedCourse());
+        set.addAll(context.getCompletedCourses());
+        if(CollectionUtil.isNotEmpty(set)){
+            Set<CompletedCourse> collect = set.stream().filter(vo -> vo.getCourseCode().equals(courseClass.getCourseCode())).collect(Collectors.toSet());
+            if(CollectionUtil.isNotEmpty(collect)){
+                ElecRespose respose = context.getRespose();
+                respose.getFailedReasons()
                         .put(courseClass.getCourseCodeAndClassCode(),
-                            I18nUtil.getMsg(
-                                "ruleCheck.canNotRetakeClassForNewCom"));
-                    return false;
-                }
+                                I18nUtil.getMsg(
+                                        "ruleCheck.canNotRetakeClassForNewCom"));
+                return false;
             }
         }
-        
+
         return true;
     }
-    
+
 }
