@@ -2,7 +2,6 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.Date;
 
-import com.server.edu.election.constants.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.ChooseObj;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
@@ -27,6 +27,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -168,7 +169,7 @@ public class StudentElecServiceImpl implements StudentElecService
     
     @Transactional
     @Override
-    public void saveElc(ElecContext context, TeachingClassCache courseClass,
+    public void saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
     {
         StudentInfoCache stu = context.getStudentInfo();
@@ -179,12 +180,18 @@ public class StudentElecServiceImpl implements StudentElecService
         
         Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
-        Long teachClassId = courseClass.getTeachClassId();
-        String TeachClassCode = courseClass.getTeachClassCode();
-        String courseCode = courseClass.getCourseCode();
-        String courseName = courseClass.getCourseName();
+        Long teachClassId = teachClass.getTeachClassId();
+        String TeachClassCode = teachClass.getTeachClassCode();
+        String courseCode = teachClass.getCourseCode();
+        String courseName = teachClass.getCourseName();
         
         Integer logType = ElcLogVo.TYPE_1;
+        
+        Integer courseTakeType =
+            Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())
+                ? CourseTakeType.RETAKE.type()
+                : CourseTakeType.NORMAL.type();
+        
         if (ElectRuleType.ELECTION.equals(type))
         {
             ElectionRuleVo rule =
@@ -210,7 +217,7 @@ public class StudentElecServiceImpl implements StudentElecService
             take.setCalendarId(round.getCalendarId());
             take.setChooseObj(request.getChooseObj());
             take.setCourseCode(courseCode);
-            take.setCourseTakeType(Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType())? CourseTakeType.RETAKE.type():CourseTakeType.NORMAL.type());
+            take.setCourseTakeType(courseTakeType);
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
@@ -246,6 +253,19 @@ public class StudentElecServiceImpl implements StudentElecService
         log.setTurn(round.getTurn());
         log.setType(logType);
         this.elcLogDao.insertSelective(log);
+        
+        if (ElectRuleType.ELECTION.equals(type))
+        {
+            respose.getSuccessCourses().add(teachClassId);
+            
+            SelectedCourse course = new SelectedCourse(teachClass);
+            course.setTeachClassId(teachClassId);
+            course.setTurn(round.getTurn());
+            course.setCourseTakeType(courseTakeType);
+            context.getSelectedCourses().add(course);
+            // 更新缓存中的数据
+            dataProvider.incrementElecNumber(teachClassId);
+        }
     }
     
     /**根据轮次查询学生信息*/

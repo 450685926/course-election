@@ -53,6 +53,9 @@ public class RoundDataProvider
     private RedisTemplate<String, String> redisTemplate;
     
     @Autowired
+    private RedisTemplate<String, Integer> elecNumRedis;
+    
+    @Autowired
     private ElecRoundsDao roundsDao;
     
     @Autowired
@@ -178,7 +181,7 @@ public class RoundDataProvider
     
     /**缓存教学班*/
     private Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
-        long endMinutes, Long roundId, List<CourseOpenDto> teachClasss,
+        long timeout, Long roundId, List<CourseOpenDto> teachClasss,
         Set<String> classKeys)
     {
         Set<Long> teachClassIds = new HashSet<>();
@@ -187,7 +190,8 @@ public class RoundDataProvider
             .map(temp -> temp.getTeachingClassId())
             .collect(Collectors.toList());
         //按周数拆分的选课数据集合
-        Map<Long, List<ClassTimeUnit>> collect = gradeLoad.groupByTime(classIds);
+        Map<Long, List<ClassTimeUnit>> collect =
+            gradeLoad.groupByTime(classIds);
         Map<String, TeacherInfo> teacherMap = new HashMap<>();
         
         for (CourseOpenDto lesson : teachClasss)
@@ -205,23 +209,40 @@ public class RoundDataProvider
             courseClass.setTeachClassType(lesson.getTeachClassType());
             courseClass.setMaxNumber(lesson.getMaxNumber());
             courseClass.setCurrentNumber(lesson.getCurrentNumber());
-            courseClass.setPublicElec(lesson.getIsElective()== Constants.ONE ? true:false);
-
+            courseClass.setPublicElec(
+                lesson.getIsElective() == Constants.ONE ? true : false);
+            
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, teacherMap, courseClass);
             courseClass.setTimes(times);
             
             String classText = JSON.toJSONString(courseClass);
-            String classKey = String
-                .format(Keys.ROUND_CLASS, roundId, teachingClassId);
+            String classKey =
+                String.format(Keys.ROUND_CLASS, roundId, teachingClassId);
             if (classKeys.contains(classKey))
             {
                 classKeys.remove(classKey);
             }
-            ops.set(classKey, classText, endMinutes, TimeUnit.MINUTES);
+            setElecNumberToRedis(timeout,
+                teachingClassId,
+                courseClass.getCurrentNumber());
+            // 保存教学班信息
+            ops.set(classKey, classText, timeout, TimeUnit.MINUTES);
         }
         teachClassIds.addAll(classIds);
         return teachClassIds;
+    }
+    
+    private void setElecNumberToRedis(long timeout, Long teachingClassId,
+        Integer currentNumber)
+    {
+        // 保存教学班已选课人数
+        currentNumber = currentNumber == null ? 0 : currentNumber;
+        elecNumRedis.opsForValue()
+            .set(String.format(Keys.ROUND_CLASS_NUM, teachingClassId),
+                currentNumber,
+                timeout,
+                TimeUnit.MINUTES);
     }
     
     /**缓存轮次选课规则*/
@@ -449,4 +470,31 @@ public class RoundDataProvider
         return lessons;
     }
     
+    /**
+     * 获取教学班选课人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public Integer getElecNumber(Long teachClassId)
+    {
+        Integer num = this.elecNumRedis.opsForValue()
+            .get(String.format(Keys.ROUND_CLASS_NUM, teachClassId));
+        return num;
+    }
+    
+    /**
+     * 增加教学班人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int incrementElecNumber(Long teachClassId)
+    {
+        return this.elecNumRedis.opsForValue()
+            .increment(String.format(Keys.ROUND_CLASS_NUM, teachClassId), 1)
+            .intValue();
+    }
 }

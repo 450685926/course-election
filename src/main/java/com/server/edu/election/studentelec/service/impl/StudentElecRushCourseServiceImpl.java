@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.server.edu.election.constants.Constants;
-import com.server.edu.election.constants.CourseTakeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,14 +183,6 @@ public class StudentElecRushCourseServiceImpl
             if (allSuccess)
             {
                 elecService.saveElc(context, teachClass, ElectRuleType.ELECTION);
-
-                respose.getSuccessCourses().add(teachClassId);
-
-                SelectedCourse course = new SelectedCourse(teachClass);
-                course.setTeachClassId(teachClassId);
-                course.setTurn(round.getTurn());
-                course.setCourseTakeType(Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())? CourseTakeType.RETAKE.type():CourseTakeType.NORMAL.type());
-                context.getSelectedCourses().add(course);
             }
         }
 
