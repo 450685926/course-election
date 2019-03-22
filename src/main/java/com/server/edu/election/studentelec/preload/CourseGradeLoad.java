@@ -169,74 +169,8 @@ public class CourseGradeLoad extends DataProLoad
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
                 
-                //一个教学班的排课时间信息
-                List<ClassTimeUnit> classTimeUnits =
-                    collect.get(c.getTeachingClassId());
-                if (CollectionUtil.isNotEmpty(classTimeUnits))
-                {
-                    List<ClassTimeUnit> classTimeList = new ArrayList<>();
-                    // 按上课节次分组取每个节次下对应的教室与老师
-                    Map<Long, List<ClassTimeUnit>> collect2 =
-                        classTimeUnits.stream()
-                            .collect(Collectors
-                                .groupingBy(ClassTimeUnit::getArrangeTimeId));
-                    for (Entry<Long, List<ClassTimeUnit>> entry : collect2
-                        .entrySet())
-                    {
-                        List<ClassTimeUnit> times = entry.getValue();
-                        if (CollectionUtil.isEmpty(times))
-                        {
-                            continue;
-                        }
-                        
-                        // 按教室、老师分组
-                        Map<String, List<ClassTimeUnit>> collect3 =
-                            times.stream()
-                                .collect(Collectors
-                                    .groupingBy(CourseGradeLoad::groupByRoom));
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(String.format("%s(%s) ",
-                            c.getCourseName(),
-                            c.getCourseCode()));
-                        for (Entry<String, List<ClassTimeUnit>> entry1 : collect3
-                            .entrySet())
-                        {
-                            List<ClassTimeUnit> rooms = entry1.getValue();
-                            if (CollectionUtil.isEmpty(rooms))
-                            {
-                                continue;
-                            }
-                            ClassTimeUnit room = rooms.get(0);
-                            List<Integer> weekNumbers = rooms.stream()
-                                .map(ClassTimeUnit::getWeekNumber)
-                                .sorted()
-                                .collect(Collectors.toList());
-                            
-                            List<String> weekStr = CalUtil.getWeekNums(
-                                weekNumbers.toArray(new Integer[] {}));
-                            
-                            String teacherCode = room.getTeacherCode();
-                            TeacherInfo teacherInfo =
-                                getTeacherInfo(teacherMap, teacherCode);
-                            String teacherName =
-                                teacherInfo != null ? teacherInfo.getName()
-                                    : "";
-                            if (sb.length() > 0)
-                            {
-                                sb.append(",");
-                            }
-                            // 老师名称(老师编号)周次
-                            sb.append(String.format("%s(%s)%s",
-                                teacherName,
-                                teacherCode,
-                                StringUtils.join(weekStr, ",")));
-                        }
-                        ClassTimeUnit time = times.get(0);
-                        time.setValue(sb.toString());
-                        classTimeList.add(time);
-                    }
-                    selectedCourse.setTimes(classTimeList);
-                }
+                List<ClassTimeUnit> times = concatTime(collect, teacherMap, c);
+                selectedCourse.setTimes(times);
                 
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(c.getChooseObj());
@@ -257,6 +191,88 @@ public class CourseGradeLoad extends DataProLoad
                 
             }
         }
+    }
+    
+    /**
+     * 拼接上课时间
+     * 
+     * @param collect
+     * @param teacherMap
+     * @param c
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    private List<ClassTimeUnit> concatTime(
+        Map<Long, List<ClassTimeUnit>> collect,
+        Map<String, TeacherInfo> teacherMap, ElcCourseTakeVo c)
+    {
+        //一个教学班的排课时间信息
+        List<ClassTimeUnit> classTimeUnits =
+            collect.get(c.getTeachingClassId());
+        if (CollectionUtil.isNotEmpty(classTimeUnits))
+        {
+            List<ClassTimeUnit> classTimeList = new ArrayList<>();
+            // 按上课节次分组取每个节次下对应的教室与老师
+            Map<Long, List<ClassTimeUnit>> collect2 = classTimeUnits.stream()
+                .collect(
+                    Collectors.groupingBy(ClassTimeUnit::getArrangeTimeId));
+            for (Entry<Long, List<ClassTimeUnit>> entry : collect2.entrySet())
+            {
+                List<ClassTimeUnit> times = entry.getValue();
+                if (CollectionUtil.isEmpty(times))
+                {
+                    continue;
+                }
+                
+                // 按教室、老师分组
+                Map<String, List<ClassTimeUnit>> collect3 = times.stream()
+                    .collect(
+                        Collectors.groupingBy(CourseGradeLoad::groupByRoom));
+                StringBuilder sb = new StringBuilder();
+                sb.append(String
+                    .format("%s(%s) ", c.getCourseName(), c.getCourseCode()));
+                int step = 0;
+                for (Entry<String, List<ClassTimeUnit>> entry1 : collect3
+                    .entrySet())
+                {
+                    List<ClassTimeUnit> rooms = entry1.getValue();
+                    if (CollectionUtil.isEmpty(rooms))
+                    {
+                        continue;
+                    }
+                    ClassTimeUnit room = rooms.get(0);
+                    List<Integer> weekNumbers = rooms.stream()
+                        .map(ClassTimeUnit::getWeekNumber)
+                        .sorted()
+                        .collect(Collectors.toList());
+                    
+                    List<String> weekStr = CalUtil
+                        .getWeekNums(weekNumbers.toArray(new Integer[] {}));
+                    
+                    String teacherCode = room.getTeacherCode();
+                    TeacherInfo teacherInfo =
+                        getTeacherInfo(teacherMap, teacherCode);
+                    String teacherName =
+                        teacherInfo != null ? teacherInfo.getName() : "";
+                    if (step > 0)
+                    {
+                        sb.append(",");
+                    }
+                    // 老师名称(老师编号)周次
+                    sb.append(String.format("%s(%s)%s",
+                        teacherName,
+                        teacherCode,
+                        StringUtils.join(weekStr, ",")));
+                    step++;
+                }
+                ClassTimeUnit time = times.get(0);
+                time.setValue(sb.toString());
+                classTimeList.add(time);
+            }
+            return classTimeList;
+        }
+        
+        return null;
     }
     
     private TeacherInfo getTeacherInfo(Map<String, TeacherInfo> teacherMap,
