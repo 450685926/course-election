@@ -163,7 +163,7 @@ public class CourseGradeLoad extends DataProLoad
                 List<ClassTimeUnit> classTimeUnits =
                     collect.get(c.getTeachingClassId());
                 Set<ClassTimes> set = new HashSet<>();
-                if(CollectionUtil.isNotEmpty(list)) {
+                if(CollectionUtil.isNotEmpty(list) && CollectionUtil.isNotEmpty(classTimeUnits)) {
                     classTimeUnits.forEach(temp->{
                     	ClassTimes classTimes = new ClassTimes();
                     	BeanUtils.copyProperties(temp, classTimes);
