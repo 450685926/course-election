@@ -13,6 +13,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.query.ElcLogQuery;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
@@ -29,7 +30,7 @@ public class ElcLogServiceImpl implements ElcLogService
     private ElcCourseTakeDao courseTakeDao;
     
     @Override
-    public PageResult<ElcLogVo> listPage(PageCondition<ElcLog> page)
+    public PageResult<ElcLogVo> listPage(PageCondition<ElcLogQuery> page)
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         
