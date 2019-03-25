@@ -3,6 +3,7 @@ package com.server.edu.election.dao;
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.entity.ExemptionApplyManage;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
 import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
@@ -25,4 +26,7 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
     ExemptionApplyManage applyRepeat(@Param("calendarId") Long calendarId,
                                        @Param("studentCode")String studentCode,
                                        @Param("courseCode")String courseCode);
+
+    List<ElecCourse> findApplyRecord(@Param("calendarId") Long calendarId,
+                                     @Param("studentCode")String studentCode);
 }

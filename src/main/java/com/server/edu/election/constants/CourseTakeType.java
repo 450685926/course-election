@@ -17,9 +17,9 @@ public enum CourseTakeType
     RETAKE(2),
     /**免修不免考*/
     MXBMK(3),
-    /**免修*/
-    MIAN_XIU(4);
-    
+    /**免修*/    MIAN_XIU(4);
+
+
     private int type;
     
     CourseTakeType(int type)
@@ -30,5 +30,10 @@ public enum CourseTakeType
     public int type()
     {
         return this.type;
+    }
+    
+    public boolean eq(int type)
+    {
+        return this.type == type;
     }
 }

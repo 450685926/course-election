@@ -12,9 +12,7 @@ public enum ElectRuleType
     /**退课*/
     WITHDRAW,
     /**登录*/
-    GENERAL,
-    /** 换课，换同课程ID的其他任务 */
-    EXCHANGE;
+    GENERAL;
     
     public String getCnName()
     {
@@ -27,7 +25,6 @@ public enum ElectRuleType
         result.put(ELECTION.toString(), "选课");
         result.put(WITHDRAW.toString(), "退课");
         result.put(GENERAL.toString(), "登录");
-        result.put(EXCHANGE.toString(), "换课");
         return result;
     }
     

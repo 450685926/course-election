@@ -11,13 +11,13 @@ import com.server.edu.election.studentelec.utils.ElecContextUtil;
  */
 public class ElecContext
 {
-    /**轮次*/
-    private Long roundId;
+    /**学期*/
+    private Long calendarId;
     
     /** 个人信息 */
     private StudentInfoCache studentInfo;
     
-    /** 已完成课程 */
+    /** 已完成通過课程 */
     private Set<CompletedCourse> completedCourses;
     
     /** 本学期已选择课程 */
@@ -26,8 +26,11 @@ public class ElecContext
     /** 免修申请课程 */
     private Set<ElecCourse> applyForDropCourses;
     
+    /**课程组学分限制*/
+    private Set<CourseGroup> courseGroups;
+    
     /** 个人计划内课程 */
-    private Set<ElecCourse> planCourses;
+    private Set<PlanCourse> planCourses;
     
     /** 通识选修课程 */
     private Set<ElecCourse> publicCourses;
@@ -37,11 +40,15 @@ public class ElecContext
     private ElecRespose respose;
     
     private ElecContextUtil contextUtil;
+
+    /**未通過課程*/
+    private Set<CompletedCourse> failedCourse;
+
     
-    public ElecContext(String studentId, Long roundId)
+    public ElecContext(String studentId, Long calendarId)
     {
-        this.roundId = roundId;
-        this.contextUtil = ElecContextUtil.create(roundId, studentId);
+        this.calendarId = calendarId;
+        this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);
         
         studentInfo = contextUtil.getStudentInfo();
         respose = this.contextUtil.getElecRespose();
@@ -51,9 +58,19 @@ public class ElecContext
             this.contextUtil.getSet("SelectedCourses", SelectedCourse.class);
         applyForDropCourses =
             this.contextUtil.getSet("ApplyForDropCourses", ElecCourse.class);
-        planCourses = this.contextUtil.getSet("PlanCourses", ElecCourse.class);
+        planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
         publicCourses =
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
+        courseGroups =
+            this.contextUtil.getSet("courseGroups", CourseGroup.class);
+            this.contextUtil.getSet("failedCourse", CompletedCourse.class);
+    }
+    
+    public ElecContext(String studentId, Long calendarId,
+        ElecRequest elecRequest)
+    {
+        this(studentId, calendarId);
+        this.request = elecRequest;
     }
     
     /**
@@ -69,6 +86,9 @@ public class ElecContext
         this.contextUtil.save("SelectedCourses", this.selectedCourses);
         this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
         this.contextUtil.save("PlanCourses", this.planCourses);
+        this.contextUtil.save("courseGroups", this.courseGroups);
+        this.contextUtil.save("publicCourses", this.publicCourses);
+        this.contextUtil.save("failedCourse", this.failedCourse);
     }
     
     public void saveResponse()
@@ -80,11 +100,6 @@ public class ElecContext
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
-    }
-    
-    public Long getRoundId()
-    {
-        return roundId;
     }
     
     public Set<CompletedCourse> getCompletedCourses()
@@ -102,7 +117,7 @@ public class ElecContext
         return applyForDropCourses;
     }
     
-    public Set<ElecCourse> getPlanCourses()
+    public Set<PlanCourse> getPlanCourses()
     {
         return planCourses;
     }
@@ -132,4 +147,21 @@ public class ElecContext
         this.respose = respose;
     }
     
+    public Set<CourseGroup> getCourseGroups()
+    {
+        return courseGroups;
+    }
+    
+    public void setCourseGroups(Set<CourseGroup> courseGroups)
+    {
+        this.courseGroups = courseGroups;
+    }
+
+    public Set<CompletedCourse> getFailedCourse() {
+        return failedCourse;
+    }
+
+    public void setFailedCourse(Set<CompletedCourse> failedCourse) {
+        this.failedCourse = failedCourse;
+    }
 }

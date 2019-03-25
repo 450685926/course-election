@@ -102,4 +102,33 @@
   </select>
   
 
+    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+        select ti.ID_ arrangeTimeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber
+        from teaching_class_t t2
+        join teaching_class_arrange_time_t ti on t2.ID_ = ti.TEACHING_CLASS_ID_
+        join teaching_class_arrange_room_t ro on ti.ID_=ro.ARRANGE_TIME_ID_
+        where t2.ID_=#{teachingClassId}
+    </select>
+
+  <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+		 SELECT
+			t2.ID_ teachClassId,
+			t3.ID_ arrangeTimeId,
+			t3.TIME_START_ timeStart,
+			t3.TIME_END_ timeEnd,
+			t3.DAY_OF_WEEK_ dayOfWeek,
+			t4.WEEK_NUMBER_ weekNumber,
+			t4.ROOM_ID_ roomId,
+			t4.TEACHER_CODE_ teacherCode 
+		FROM
+		teaching_class_t t2
+		JOIN teaching_class_arrange_time_t t3 ON t2.ID_ = t3.TEACHING_CLASS_ID_
+		JOIN teaching_class_arrange_room_t t4 ON t4.ARRANGE_TIME_ID_ = t3.ID_
+		WHERE
+		t2.ID_ in
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+         </foreach>
+   </select>
+
 </mapper>

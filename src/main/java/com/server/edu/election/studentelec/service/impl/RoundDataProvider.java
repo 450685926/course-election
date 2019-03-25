@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionParameterDao;
@@ -29,6 +32,8 @@ import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.preload.CourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
@@ -48,6 +53,9 @@ public class RoundDataProvider
     private RedisTemplate<String, String> redisTemplate;
     
     @Autowired
+    private RedisTemplate<String, Integer> elecNumRedis;
+    
+    @Autowired
     private ElecRoundsDao roundsDao;
     
     @Autowired
@@ -58,6 +66,9 @@ public class RoundDataProvider
     
     @Autowired
     private ElecRoundCourseDao roundCourseDao;
+    
+    @Autowired
+    private CourseGradeLoad gradeLoad;
     
     public RoundDataProvider()
     {
@@ -76,11 +87,12 @@ public class RoundDataProvider
         Date now = new Date();
         Set<String> keys =
             redisTemplate.keys(String.format(Keys.ROUND_KEY, "*"));
+        Set<String> deleteKeys = new HashSet<>();
         for (ElectionRounds round : selectBeStart)
         {
             Long roundId = round.getId();
             String key = String.format(Keys.ROUND_KEY, roundId);
-            // 不存在的数据需要删除的Key
+            // 移除掉有效的key剩下的就是无效数据
             if (keys.contains(key))
             {
                 keys.remove(key);
@@ -89,11 +101,11 @@ public class RoundDataProvider
             Date endTime = round.getEndTime();
             long endMinutes = TimeUnit.MILLISECONDS
                 .toMinutes(endTime.getTime() - now.getTime()) + 3;
-            // 删除之前的数据
-            deleteCache(roundId);
             
+            Set<String> ruleKeys = redisTemplate
+                .keys(String.format(Keys.ROUND_RULE, roundId, "*"));
             // 缓存轮次规则数据
-            cacheRoundRule(ops, roundId, endMinutes);
+            cacheRoundRule(ops, roundId, endMinutes, ruleKeys);
             // 缓存轮次信息
             ops.set(key,
                 JSON.toJSONString(round),
@@ -101,59 +113,51 @@ public class RoundDataProvider
                 TimeUnit.MINUTES);
             
             // 加载所有教学班与课程数据到缓存中
-            List<CourseOpenDto> lessons =
-                roundCourseDao.selectTeachingClassByRoundId(roundId);
+            List<CourseOpenDto> lessons = roundCourseDao
+                .selectTeachingClassByRoundId(roundId, round.getCalendarId());
             
             Map<String, List<CourseOpenDto>> collect = lessons.stream()
                 .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
             Set<String> keySet = collect.keySet();
+            
+            Set<String> courseKeys = redisTemplate
+                .keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
+            Set<String> classKeys = redisTemplate
+                .keys(String.format(Keys.ROUND_CLASS, roundId, "*"));
             for (String courseCode : keySet)
             {
                 List<CourseOpenDto> teachClasss = collect.get(courseCode);
-                Set<Long> teachClassIds =
-                    cacheTeachClass(ops, endMinutes, roundId, teachClasss);
+                Set<Long> teachClassIds = cacheTeachClass(ops,
+                    endMinutes,
+                    roundId,
+                    teachClasss,
+                    classKeys);
                 
                 CourseOpenDto cour = teachClasss.get(0);
-                cacheCourse(ops, endMinutes, roundId, teachClassIds, cour);
+                cacheCourse(ops,
+                    endMinutes,
+                    roundId,
+                    teachClassIds,
+                    cour,
+                    courseKeys);
             }
+            
+            deleteKeys.addAll(ruleKeys);
+            deleteKeys.addAll(courseKeys);
+            deleteKeys.addAll(classKeys);
         }
+        deleteKeys.addAll(keys);
         
-        if (CollectionUtil.isNotEmpty(keys))
+        if (CollectionUtil.isNotEmpty(deleteKeys))
         {
-            for (String key : keys)
-            {
-                String roundId =
-                    key.replace(String.format(Keys.ROUND_KEY, ""), "");
-                if (StringUtils.isNumeric(roundId))
-                {
-                    deleteCache(Long.valueOf(roundId));
-                }
-            }
+            redisTemplate.delete(deleteKeys);
         }
-    }
-    
-    private void deleteCache(Long roundId)
-    {
-        // 删除旧数据
-        redisTemplate.delete(String.format(Keys.ROUND_KEY, roundId));
-        
-        Set<String> keys1 =
-            redisTemplate.keys(String.format(Keys.ROUND_RULE, roundId, "*"));
-        redisTemplate.delete(keys1);
-        
-        keys1 =
-            redisTemplate.keys(String.format(Keys.ROUND_CLASS, roundId, "*"));
-        redisTemplate.delete(keys1);
-        
-        keys1 =
-            redisTemplate.keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
-        redisTemplate.delete(keys1);
     }
     
     /**缓存课程*/
     private void cacheCourse(ValueOperations<String, String> ops,
         long endMinutes, Long roundId, Set<Long> teachClassIds,
-        CourseOpenDto cour)
+        CourseOpenDto cour, Set<String> courseKeys)
     {
         CourseCache course = new CourseCache();
         course.setCourseCode(cour.getCourseCode());
@@ -164,6 +168,10 @@ public class RoundDataProvider
         
         String courseKey =
             String.format(Keys.ROUND_COURSE, roundId, cour.getCourseCode());
+        if (courseKeys.contains(courseKey))
+        {
+            courseKeys.remove(courseKey);
+        }
         String text = JSON.toJSONString(course);
         if (!redisTemplate.hasKey(courseKey))
         {
@@ -173,32 +181,73 @@ public class RoundDataProvider
     
     /**缓存教学班*/
     private Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
-        long endMinutes, Long roundId, List<CourseOpenDto> teachClasss)
+        long timeout, Long roundId, List<CourseOpenDto> teachClasss,
+        Set<String> classKeys)
     {
         Set<Long> teachClassIds = new HashSet<>();
+        
+        List<Long> classIds = teachClasss.stream()
+            .map(temp -> temp.getTeachingClassId())
+            .collect(Collectors.toList());
+        //按周数拆分的选课数据集合
+        Map<Long, List<ClassTimeUnit>> collect =
+            gradeLoad.groupByTime(classIds);
+        Map<String, TeacherInfo> teacherMap = new HashMap<>();
+        
         for (CourseOpenDto lesson : teachClasss)
         {
-            teachClassIds.add(lesson.getTeachingClassId());
+            Long teachingClassId = lesson.getTeachingClassId();
             TeachingClassCache courseClass = new TeachingClassCache();
             
             courseClass.setCourseCode(lesson.getCourseCode());
             courseClass.setCourseName(lesson.getCourseName());
             courseClass.setCredits(lesson.getCredits());
             courseClass.setNameEn(lesson.getCourseNameEn());
-            courseClass.setTeacherClassId(lesson.getTeachingClassId());
-            courseClass.setTeacherClassCode(lesson.getTeachingClassCode());
+            courseClass.setTeachClassId(teachingClassId);
+            courseClass.setTeachClassCode(lesson.getTeachingClassCode());
+            courseClass.setCampus(lesson.getCampus());
+            courseClass.setTeachClassType(lesson.getTeachClassType());
+            courseClass.setMaxNumber(lesson.getMaxNumber());
+            courseClass.setCurrentNumber(lesson.getCurrentNumber());
+            courseClass.setPublicElec(
+                lesson.getIsElective() == Constants.ONE ? true : false);
+            
+            List<ClassTimeUnit> times =
+                gradeLoad.concatTime(collect, teacherMap, courseClass);
+            courseClass.setTimes(times);
             
             String classText = JSON.toJSONString(courseClass);
-            String classKey = String
-                .format(Keys.ROUND_CLASS, roundId, lesson.getTeachingClassId());
-            ops.set(classKey, classText, endMinutes, TimeUnit.MINUTES);
+            String classKey =
+                String.format(Keys.ROUND_CLASS, roundId, teachingClassId);
+            if (classKeys.contains(classKey))
+            {
+                classKeys.remove(classKey);
+            }
+            setElecNumberToRedis(timeout,
+                teachingClassId,
+                courseClass.getCurrentNumber());
+            // 保存教学班信息
+            ops.set(classKey, classText, timeout, TimeUnit.MINUTES);
         }
+        teachClassIds.addAll(classIds);
         return teachClassIds;
+    }
+    
+    private void setElecNumberToRedis(long timeout, Long teachingClassId,
+        Integer currentNumber)
+    {
+        // 保存教学班已选课人数
+        currentNumber = currentNumber == null ? 0 : currentNumber;
+        elecNumRedis.opsForValue()
+            .set(String.format(Keys.ROUND_CLASS_NUM, teachingClassId),
+                currentNumber,
+                timeout,
+                TimeUnit.MINUTES);
     }
     
     /**缓存轮次选课规则*/
     private void cacheRoundRule(ValueOperations<String, String> ops,
-        Long roundId, long timeout)
+        Long roundId, long timeout, Set<String> ruleKeys)
     {
         List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
         List<ElectionParameter> params = parameterDao.selectAll();
@@ -212,11 +261,13 @@ public class RoundDataProvider
                     rule.getList().add(param);
                 }
             }
-            ops.set(
-                String.format(Keys.ROUND_RULE, roundId, rule.getServiceName()),
-                JSON.toJSONString(rule),
-                timeout,
-                TimeUnit.MINUTES);
+            String key =
+                String.format(Keys.ROUND_RULE, roundId, rule.getServiceName());
+            if (ruleKeys.contains(key))
+            {
+                ruleKeys.remove(key);
+            }
+            ops.set(key, JSON.toJSONString(rule), timeout, TimeUnit.MINUTES);
         }
     }
     
@@ -359,9 +410,12 @@ public class RoundDataProvider
             {
                 for (String json : list)
                 {
-                    TeachingClassCache lesson =
-                        JSON.parseObject(json, TeachingClassCache.class);
-                    lessons.add(lesson);
+                    if (StringUtils.isNotBlank(json))
+                    {
+                        TeachingClassCache lesson =
+                            JSON.parseObject(json, TeachingClassCache.class);
+                        lessons.add(lesson);
+                    }
                 }
             }
         }
@@ -416,4 +470,31 @@ public class RoundDataProvider
         return lessons;
     }
     
+    /**
+     * 获取教学班选课人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public Integer getElecNumber(Long teachClassId)
+    {
+        Integer num = this.elecNumRedis.opsForValue()
+            .get(String.format(Keys.ROUND_CLASS_NUM, teachClassId));
+        return num;
+    }
+    
+    /**
+     * 增加教学班人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int incrementElecNumber(Long teachClassId)
+    {
+        return this.elecNumRedis.opsForValue()
+            .increment(String.format(Keys.ROUND_CLASS_NUM, teachClassId), 1)
+            .intValue();
+    }
 }

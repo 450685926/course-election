@@ -5,6 +5,7 @@ import java.util.List;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.query.ElcLogQuery;
 import com.server.edu.election.vo.ElcLogVo;
 
 public interface ElcLogService
@@ -16,7 +17,7 @@ public interface ElcLogService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    PageResult<ElcLogVo> listPage(PageCondition<ElcLog> page);
+    PageResult<ElcLogVo> listPage(PageCondition<ElcLogQuery> page);
     
     void addCourseLog(ElcLog log);
     

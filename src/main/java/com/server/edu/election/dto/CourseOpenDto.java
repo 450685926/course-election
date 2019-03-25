@@ -10,6 +10,46 @@ public class CourseOpenDto extends CourseOpen
     
     private String teachingClassCode;
 
+    private String campus;
+
+    private String teachClassType;
+
+    private Integer maxNumber;
+
+    private Integer currentNumber;
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    public String getTeachClassType() {
+        return teachClassType;
+    }
+
+    public void setTeachClassType(String teachClassType) {
+        this.teachClassType = teachClassType;
+    }
+
+    public Integer getMaxNumber() {
+        return maxNumber;
+    }
+
+    public void setMaxNumber(Integer maxNumber) {
+        this.maxNumber = maxNumber;
+    }
+
+    public Integer getCurrentNumber() {
+        return currentNumber;
+    }
+
+    public void setCurrentNumber(Integer currentNumber) {
+        this.currentNumber = currentNumber;
+    }
+
     public Long getRoundId()
     {
         return roundId;

@@ -13,10 +13,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String studentName;
     
     private String courseName;
-
-
-
-
+    
     /**学分*/
     private Double credits;
     
@@ -27,9 +24,21 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /**专业*/
     @Code2Text(DictTypeEnum.G_ZY)
     private String profession;
+    
     /**教学班编号*/
     private String teachingClassCode;
-    
+
+    /**是否为公共选修课(1:是，0：否)*/
+    private Integer isPublicCourse;
+
+    public Integer getIsPublicCourse() {
+        return isPublicCourse;
+    }
+
+    public void setIsPublicCourse(Integer isPublicCourse) {
+        this.isPublicCourse = isPublicCourse;
+    }
+
     public String getStudentName()
     {
         return studentName;
@@ -79,17 +88,15 @@ public class ElcCourseTakeVo extends ElcCourseTake
     {
         this.profession = profession;
     }
-
+    
     public String getTeachingClassCode()
     {
         return teachingClassCode;
     }
-
+    
     public void setTeachingClassCode(String teachingClassCode)
     {
         this.teachingClassCode = teachingClassCode;
     }
-
-
-
+    
 }

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.preload.DataProLoad;
@@ -36,11 +37,13 @@ public class StudentElecPreloadingServiceImpl
     @Autowired
     private ApplicationContext applicationContext;
     
+    @Autowired
+    private RoundDataProvider dataProvider;
+    
     public StudentElecPreloadingServiceImpl(
         ElecQueueService<ElecRequest> elecQueueService)
     {
-        // 使用4个线程来执行初始化数据操作
-        super(4, QueueGroups.STUDENT_LOADING, elecQueueService);
+        super(QueueGroups.STUDENT_LOADING, elecQueueService);
     }
     
     @Override
@@ -50,10 +53,13 @@ public class StudentElecPreloadingServiceImpl
         String studentId = preloadRequest.getStudentId();
         try
         {
+            ElectionRounds round = dataProvider.getRound(roundId);
             if (ElecContextUtil.tryLock(roundId, studentId))
             {
                 ElecContext context =
-                    new ElecContext(studentId, roundId.longValue());
+                    new ElecContext(studentId, round.getCalendarId());
+                context.setRequest(preloadRequest);
+                
                 try
                 {
                     Map<String, DataProLoad> beansOfType =
@@ -85,7 +91,9 @@ public class StudentElecPreloadingServiceImpl
                 }
                 catch (Exception e)
                 {
-                    context.getRespose().getFailedReasons().put("loadFail", e.getMessage());
+                    context.getRespose()
+                        .getFailedReasons()
+                        .put("loadFail", e.getMessage());
                     context.saveResponse();
                     
                     LOG.error(e.getMessage(), e);

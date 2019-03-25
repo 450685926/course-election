@@ -1,26 +1,20 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 
 /**
  * 已选择课程
  */
-public class SelectedCourse extends ElecCourse
+public class SelectedCourse extends TeachingClassCache
 {
-    /**是否重修课*/
-    private boolean isRebuildElec;
-    
-    /** 上课时间 */
-    private List<TimeUnit> times;
-    
     /** 教学班Id */
-    private Long teachingclassId;
+    private Long teachClassId;
     
     /**
      * 选课对象(1学生，2教务员，3管理员)
@@ -52,14 +46,22 @@ public class SelectedCourse extends ElecCourse
         this.setNameEn(course.getNameEn());
     }
     
-    public List<TimeUnit> getTimes()
+    public SelectedCourse(TeachingClassCache course)
     {
-        return times;
-    }
-    
-    public void setTimes(List<TimeUnit> times)
-    {
-        this.times = times;
+        this.setCampus(course.getCampus());
+        this.setCourseCode(course.getCourseCode());
+        this.setCourseName(course.getCourseName());
+        this.setCredits(course.getCredits());
+        this.setNameEn(course.getNameEn());
+        this.setPublicElec(course.isPublicElec());
+        this.setTeachClassId(course.getTeachClassId());
+        this.setTeachClassCode(course.getTeachClassCode());
+        this.setTeachClassType(course.getTeachClassType());
+        this.setPractice(course.isPractice());
+        this.setRetraining(course.isRetraining());
+        this.setMaxNumber(course.getMaxNumber());
+        this.setCurrentNumber(course.getCurrentNumber());
+        this.setTimes(course.getTimes());
     }
     
     public Integer getChooseObj()
@@ -70,26 +72,6 @@ public class SelectedCourse extends ElecCourse
     public void setChooseObj(Integer chooseObj)
     {
         this.chooseObj = chooseObj;
-    }
-    
-    public Long getTeachingclassId()
-    {
-        return teachingclassId;
-    }
-    
-    public void setTeachingclassId(Long teachingclassId)
-    {
-        this.teachingclassId = teachingclassId;
-    }
-    
-    public boolean isRebuildElec()
-    {
-        return isRebuildElec;
-    }
-    
-    public void setRebuildElec(boolean rebuildElec)
-    {
-        isRebuildElec = rebuildElec;
     }
     
     public Integer getCourseTakeType()
@@ -112,10 +94,11 @@ public class SelectedCourse extends ElecCourse
         this.turn = turn;
     }
     
-    @Override
+    
+	@Override
     public int hashCode()
     {
-        return Objects.hash(this.teachingclassId, this.getCourseCode());
+        return Objects.hash(this.teachClassId, this.getCourseCode());
     }
     
     @Override
@@ -129,10 +112,9 @@ public class SelectedCourse extends ElecCourse
         if (obj instanceof SelectedCourse)
         {
             SelectedCourse o = (SelectedCourse)obj;
-            return Objects.equals(this.teachingclassId, o.teachingclassId)
+            return Objects.equals(this.teachClassId, o.teachClassId)
                 && StringUtils.equals(this.getCourseCode(), o.getCourseCode());
         }
         return false;
     }
-    
 }
