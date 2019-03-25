@@ -116,12 +116,14 @@ public class ElecContextUtil
     
     public void save(String type, Object value)
     {
-        ValueOperations<String, String> opsForValue =
-            getRedisTemplate().opsForValue();
-        opsForValue.set(Keys.STD + type + "-" + calendarId + "-" + studentId,
-            JSON.toJSONString(value),
-            5,
-            TimeUnit.DAYS);
+        if(null != value) {
+        	ValueOperations<String, String> opsForValue =
+        			getRedisTemplate().opsForValue();
+        	opsForValue.set(Keys.STD + type + "-" + calendarId + "-" + studentId,
+        			JSON.toJSONString(value),
+        			5,
+        			TimeUnit.DAYS);
+        }
     }
     
     /**
