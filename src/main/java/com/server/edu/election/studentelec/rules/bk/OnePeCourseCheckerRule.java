@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.Set;
 
+import com.server.edu.election.dao.ElcPeFreeStdsDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,9 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
 {
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
+
+    @Autowired
+    private ElcPeFreeStdsDao elcPeFreeStdsDao;
     
     /**
      * 执行选课操作时
@@ -43,7 +47,12 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
             {
                 return true;
             }
-            
+
+            int i = elcPeFreeStdsDao.findStudentByStuId(context.getStudentInfo().getStudentId());
+            if(i!=0){//在体育课不限选名单中
+                return true;
+            }
+
             if (CollectionUtil.isNotEmpty(selectedCourses))
             {
                 for (SelectedCourse selectedCours : selectedCourses)

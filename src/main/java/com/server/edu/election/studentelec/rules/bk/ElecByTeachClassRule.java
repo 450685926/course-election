@@ -36,7 +36,11 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor
     
     @Autowired
     private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
-    
+
+    private static final  String IS_OVERSEAS_ ="1";
+    private static final  String IS_NOT_OVERSEAS_ ="0";
+    private static final  String NOT_DISTINGYISH_SEX ="0";
+
     @Override
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
@@ -84,7 +88,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor
             boolean flag = false;
             if (isOverseas != null)
             {//
-                String s = studentInfo.isAboard() ? "1" : "0";
+                String s = studentInfo.isAboard() ? IS_OVERSEAS_ : IS_NOT_OVERSEAS_;
                 flag = isOverseas.equals(s);
             }
             if (trainingLevel != null)
@@ -97,7 +101,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor
                 flag = spcialPlan.equals(studentInfo.getSpcialPlan());
             }
             
-            if (isDivsex != null && !"0".equals(isDivsex))
+            if (isDivsex != null && !NOT_DISTINGYISH_SEX.equals(isDivsex))
             {
                 flag = isDivsex.equals(String.valueOf(studentInfo.getSex()));
             }

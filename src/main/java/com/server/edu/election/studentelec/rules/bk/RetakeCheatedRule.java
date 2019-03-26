@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,9 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 重修违纪检查
@@ -36,18 +41,22 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor
         if (StringUtils.isNotBlank(courseCode)
             && StringUtils.isNotBlank(studentId))
         {
-            StudentScore studentScore = ScoreServiceInvoker
-                .findViolationStu(studentId, courseCode, calendarId);//上一学期todo
-            if (studentScore != null)
-            {
-                
-                if (StringUtils.isBlank(studentScore.getTotalMarkScore()))
-                {
-                    ElecRespose respose = context.getRespose();
-                    respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
-                            I18nUtil.getMsg(studentScore.getRemark()));
-                    return false;
+           /* StudentScore studentScore = ScoreServiceInvoker
+                .findViolationStu(studentId, courseCode, calendarId);*///需要上一学期calendarId todo
+            Set<CompletedCourse> failedCourse = context.getFailedCourse();//未通过课程
+            if(CollectionUtil.isNotEmpty(failedCourse)){
+                Set<CompletedCourse> collect = failedCourse.stream().filter(vo -> vo.getCalendarId().longValue() == calendarId.longValue() && vo.getCourseCode().equals(courseCode)).collect(Collectors.toSet());
+                if(CollectionUtil.isNotEmpty(collect)){
+                    for (CompletedCourse completedCourse : collect) {
+                        if (completedCourse.isCheat())//作弊
+                        {
+                            ElecRespose respose = context.getRespose();
+                            respose.getFailedReasons()
+                                    .put(courseClass.getCourseCodeAndClassCode(),
+                                            I18nUtil.getMsg("ruleCheck.noRetake"));
+                            return false;
+                        }
+                    }
                 }
             }
         }
