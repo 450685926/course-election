@@ -14,27 +14,31 @@ import com.server.edu.election.studentelec.rules.RulePriority;
  * 只允许选重修课
  */
 @Component("OnlyRetakeFilter")
-public class OnlyRetakeFilter extends AbstractElecRuleExceutor {
+public class OnlyRetakeFilter extends AbstractElecRuleExceutor
+{
     @Override
-    public int getOrder() {
+    public int getOrder()
+    {
         return RulePriority.FIRST.ordinal();
     }
-
+    
     @Override
     public boolean checkRule(ElecContext context,
-                             TeachingClassCache courseClass) {
-
-        if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType())) {
+        TeachingClassCache courseClass)
+    {
+        if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType()))
+        {
             return true;
-        } else {
+        }
+        else
+        {
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                    .put(courseClass.getCourseCodeAndClassCode(),
-                            I18nUtil.getMsg("ruleCheck.onlyRetakeFilter"));
+                .put(courseClass.getCourseCodeAndClassCode(),
+                    I18nUtil.getMsg("ruleCheck.onlyRetakeFilter"));
             return false;
         }
-
-
+        
     }
-
+    
 }

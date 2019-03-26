@@ -3,13 +3,11 @@ package com.server.edu.election.studentelec.rules.bk;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -19,6 +17,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -28,11 +27,9 @@ import com.server.edu.util.CollectionUtil;
 @Component("SJTermCheckerRule")
 public class SJTermCheckerRule extends AbstractElecRuleExceutor
 {
-
+    
     @Autowired
     private RoundDataProvider dataProvider;
-    
-    // protected PlanCreditLimitPrepare planCreditLimitPrepare;
     
     @Override
     public boolean checkRule(ElecContext context,
@@ -42,8 +39,9 @@ public class SJTermCheckerRule extends AbstractElecRuleExceutor
         String courseCode = courseClass.getCourseCode();
         ElecRequest request = context.getRequest();
         //得到校历id
-        ElectionRounds electionRounds = dataProvider.getRound(request.getRoundId());
-
+        ElectionRounds electionRounds =
+            dataProvider.getRound(request.getRoundId());
+        
         if (electionRounds == null)
         {
             String msg = String.format("electionRounds not find roundId=%s",

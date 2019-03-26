@@ -24,9 +24,6 @@ import com.server.edu.util.CollectionUtil;
 @Component("PlanCourseGroupCreditsRule")
 public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutor
 {
-    
-    // protected PlanCreditLimitPrepare planCreditLimitPrepare;
-    
     @Override
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)

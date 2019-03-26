@@ -18,7 +18,6 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 @Component("LoserNotElcRule")
 public class LoserNotElcRule extends AbstractElecRuleExceutor
 {
-    
     @Autowired
     private StudentDao studentDao;
     
@@ -26,7 +25,6 @@ public class LoserNotElcRule extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        
         String studentId = context.getStudentInfo().getStudentId();
         ElecRequest request = context.getRequest();
         Student stu = studentDao.isLoserStu(request.getRoundId(), studentId);

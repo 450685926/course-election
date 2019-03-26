@@ -15,30 +15,32 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
  * 不能重修，但是留降级学生除外
  */
 @Component("CantRetakeExceptLoserDownRule")
-public class CantRetakeExceptLoserDownRule extends AbstractElecRuleExceutor {
+public class CantRetakeExceptLoserDownRule extends AbstractElecRuleExceutor
+{
     @Override
     public boolean checkRule(ElecContext context,
-                             TeachingClassCache courseClass) {
+        TeachingClassCache courseClass)
+    {
         StudentInfoCache studentInfo = context.getStudentInfo();
-
-        if (StringUtils.isNotBlank(courseClass.getTeachClassType())) {
-            if (Constants.REBUILD_CALSS
-                    .equals(courseClass.getTeachClassType())) {
-                if (studentInfo.isRepeater()) {
+        
+        if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
+        {
+            if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType()))
+            {
+                if (studentInfo.isRepeater())
+                {
                     return true;
                 }
-
+                
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
-                                I18nUtil.getMsg(
-                                        "ruleCheck.cantRetakeExceptLoserDown"));
+                    .put(courseClass.getCourseCodeAndClassCode(),
+                        I18nUtil.getMsg("ruleCheck.cantRetakeExceptLoserDown"));
                 return false;
-
             }
         }
-
+        
         return true;
     }
-
+    
 }
