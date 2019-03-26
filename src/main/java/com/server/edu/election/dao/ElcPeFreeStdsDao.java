@@ -12,4 +12,9 @@ public interface ElcPeFreeStdsDao extends Mapper<ElcPeFreeStds> {
 	List<ElcPeFreeStdsVo> selectElcPeFreeStds(ElcPeFreeStdsDto dto);
 	int batchInsert(List<String> list);
 	List<ElcPeFreeStdsVo> selectElcStudents(ElcPeFreeStdsDto dto);
+
+	/**学生是否在不限选名单中
+	 */
+	int findStudentByStuId(String studentId);
+
 }

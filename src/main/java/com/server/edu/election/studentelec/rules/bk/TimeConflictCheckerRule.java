@@ -37,8 +37,9 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
         Long teachClassId = courseClass.getTeachClassId();//通过teachingClassId查询时间
         if (teachClassId != null)
         {
-            List<ClassTimeUnit> teachingClassTime =
-                teachingClassDao.findTeachingClassIdTime(teachClassId);
+            /*List<ClassTimeUnit> teachingClassTime =
+                teachingClassDao.findTeachingClassIdTime(teachClassId);*/
+            List<ClassTimeUnit> teachingClassTime = courseClass.getTimes();
             if (CollectionUtil.isNotEmpty(teachingClassTime))
             {
                 Set<SelectedCourse> selectedCourses =
