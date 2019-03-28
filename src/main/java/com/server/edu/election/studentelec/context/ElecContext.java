@@ -35,15 +35,14 @@ public class ElecContext
     /** 通识选修课程 */
     private Set<ElecCourse> publicCourses;
     
+    /**未通過課程*/
+    private Set<CompletedCourse> failedCourse;
+    
     private ElecRequest request;
     
     private ElecRespose respose;
     
     private ElecContextUtil contextUtil;
-
-    /**未通過課程*/
-    private Set<CompletedCourse> failedCourse;
-
     
     public ElecContext(String studentId, Long calendarId)
     {
@@ -63,6 +62,7 @@ public class ElecContext
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
         courseGroups =
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
+        failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
     }
     
@@ -97,6 +97,23 @@ public class ElecContext
         this.contextUtil.save(ElecRespose.class.getSimpleName(), this.respose);
     }
     
+    /**
+     * 清空CompletedCourses,SelectedCourses,ApplyForDropCourses,PlanCourses,courseGroups,publicCourses,failedCourse
+     * 
+     */
+    public void clear()
+    {
+        this.getCompletedCourses().clear();
+        this.getSelectedCourses().clear();
+        this.getApplyForDropCourses().clear();
+        this.getPlanCourses().clear();
+        this.getCourseGroups().clear();
+        this.getPublicCourses().clear();
+        this.getFailedCourse().clear();
+        this.getRespose().getFailedReasons().clear();
+        this.getRespose().getSuccessCourses().clear();
+    }
+    
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
@@ -127,6 +144,16 @@ public class ElecContext
         return publicCourses;
     }
     
+    public Set<CourseGroup> getCourseGroups()
+    {
+        return courseGroups;
+    }
+    
+    public Set<CompletedCourse> getFailedCourse()
+    {
+        return failedCourse;
+    }
+    
     public ElecRequest getRequest()
     {
         return request;
@@ -147,21 +174,4 @@ public class ElecContext
         this.respose = respose;
     }
     
-    public Set<CourseGroup> getCourseGroups()
-    {
-        return courseGroups;
-    }
-    
-    public void setCourseGroups(Set<CourseGroup> courseGroups)
-    {
-        this.courseGroups = courseGroups;
-    }
-
-    public Set<CompletedCourse> getFailedCourse() {
-        return failedCourse;
-    }
-
-    public void setFailedCourse(Set<CompletedCourse> failedCourse) {
-        this.failedCourse = failedCourse;
-    }
 }

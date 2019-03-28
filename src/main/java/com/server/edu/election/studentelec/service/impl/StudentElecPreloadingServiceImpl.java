@@ -70,12 +70,7 @@ public class StudentElecPreloadingServiceImpl
                     //排序
                     Collections.sort(values);
                     
-                    context.getApplyForDropCourses().clear();
-                    context.getCompletedCourses().clear();
-                    context.getPlanCourses().clear();
-                    context.getSelectedCourses().clear();
-                    context.getRespose().getFailedReasons().clear();
-                    context.getRespose().getSuccessCourses().clear();
+                    context.clear();
                     for (DataProLoad load : values)
                     {
                         load.load(context);
