@@ -81,77 +81,97 @@ public class RoundDataProvider
          * roundId -> lessonId -> json
          */
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        /** 一小时后即将开始的选课参数 */
-        List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
         
-        Date now = new Date();
-        Set<String> keys =
-            redisTemplate.keys(String.format(Keys.ROUND_KEY, "*"));
-        Set<String> deleteKeys = new HashSet<>();
-        for (ElectionRounds round : selectBeStart)
+        String dataLoadKey =
+            String.format(Keys.STD_STATUS_LOCK, "dataLoad", "");
+        Boolean setIfAbsent = ops.setIfAbsent(dataLoadKey,
+            String.valueOf(System.currentTimeMillis()));
+        if (!Boolean.TRUE.equals(setIfAbsent))
         {
-            Long roundId = round.getId();
-            String key = String.format(Keys.ROUND_KEY, roundId);
-            // 移除掉有效的key剩下的就是无效数据
-            if (keys.contains(key))
+            return;
+        }
+        
+        try
+        {
+            /** 一小时后即将开始的选课参数 */
+            List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
+            
+            Date now = new Date();
+            Set<String> keys =
+                redisTemplate.keys(String.format(Keys.ROUND_KEY, "*"));
+            Set<String> deleteKeys = new HashSet<>();
+            for (ElectionRounds round : selectBeStart)
             {
-                keys.remove(key);
-            }
-            
-            Date endTime = round.getEndTime();
-            long endMinutes = TimeUnit.MILLISECONDS
-                .toMinutes(endTime.getTime() - now.getTime()) + 3;
-            
-            Set<String> ruleKeys = redisTemplate
-                .keys(String.format(Keys.ROUND_RULE, roundId, "*"));
-            // 缓存轮次规则数据
-            cacheRoundRule(ops, roundId, endMinutes, ruleKeys);
-            // 缓存轮次信息
-            ops.set(key,
-                JSON.toJSONString(round),
-                endMinutes,
-                TimeUnit.MINUTES);
-            
-            // 加载所有教学班与课程数据到缓存中
-            List<CourseOpenDto> lessons = roundCourseDao
-                .selectTeachingClassByRoundId(roundId, round.getCalendarId());
-            
-            Map<String, List<CourseOpenDto>> collect = lessons.stream()
-                .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
-            Set<String> keySet = collect.keySet();
-            
-            Set<String> courseKeys = redisTemplate
-                .keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
-            Set<String> classKeys = redisTemplate
-                .keys(String.format(Keys.ROUND_CLASS, roundId, "*"));
-            for (String courseCode : keySet)
-            {
-                List<CourseOpenDto> teachClasss = collect.get(courseCode);
-                Set<Long> teachClassIds = cacheTeachClass(ops,
-                    endMinutes,
-                    roundId,
-                    teachClasss,
-                    classKeys);
+                Long roundId = round.getId();
+                String key = String.format(Keys.ROUND_KEY, roundId);
+                // 移除掉有效的key剩下的就是无效数据
+                if (keys.contains(key))
+                {
+                    keys.remove(key);
+                }
                 
-                CourseOpenDto cour = teachClasss.get(0);
-                cacheCourse(ops,
+                Date endTime = round.getEndTime();
+                long endMinutes = TimeUnit.MILLISECONDS
+                    .toMinutes(endTime.getTime() - now.getTime()) + 3;
+                
+                Set<String> ruleKeys = redisTemplate
+                    .keys(String.format(Keys.ROUND_RULE, roundId, "*"));
+                // 缓存轮次规则数据
+                cacheRoundRule(ops, roundId, endMinutes, ruleKeys);
+                // 缓存轮次信息
+                ops.set(key,
+                    JSON.toJSONString(round),
                     endMinutes,
-                    roundId,
-                    teachClassIds,
-                    cour,
-                    courseKeys);
+                    TimeUnit.MINUTES);
+                
+                // 加载所有教学班与课程数据到缓存中
+                List<CourseOpenDto> lessons =
+                    roundCourseDao.selectTeachingClassByRoundId(roundId,
+                        round.getCalendarId());
+                
+                Map<String, List<CourseOpenDto>> collect = lessons.stream()
+                    .collect(
+                        Collectors.groupingBy(CourseOpenDto::getCourseCode));
+                Set<String> keySet = collect.keySet();
+                
+                Set<String> courseKeys = redisTemplate
+                    .keys(String.format(Keys.ROUND_COURSE, roundId, "*"));
+                Set<String> classKeys = redisTemplate
+                    .keys(String.format(Keys.ROUND_CLASS, roundId, "*"));
+                for (String courseCode : keySet)
+                {
+                    List<CourseOpenDto> teachClasss = collect.get(courseCode);
+                    Set<Long> teachClassIds = cacheTeachClass(ops,
+                        endMinutes,
+                        roundId,
+                        teachClasss,
+                        classKeys);
+                    
+                    CourseOpenDto cour = teachClasss.get(0);
+                    cacheCourse(ops,
+                        endMinutes,
+                        roundId,
+                        teachClassIds,
+                        cour,
+                        courseKeys);
+                }
+                
+                deleteKeys.addAll(ruleKeys);
+                deleteKeys.addAll(courseKeys);
+                deleteKeys.addAll(classKeys);
             }
+            deleteKeys.addAll(keys);
             
-            deleteKeys.addAll(ruleKeys);
-            deleteKeys.addAll(courseKeys);
-            deleteKeys.addAll(classKeys);
+            if (CollectionUtil.isNotEmpty(deleteKeys))
+            {
+                redisTemplate.delete(deleteKeys);
+            }
         }
-        deleteKeys.addAll(keys);
-        
-        if (CollectionUtil.isNotEmpty(deleteKeys))
+        finally
         {
-            redisTemplate.delete(deleteKeys);
+            redisTemplate.delete(dataLoadKey);
         }
+        
     }
     
     /**缓存课程*/
