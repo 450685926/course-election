@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.server.edu.dictionary.utils.SpringUtils;
@@ -23,14 +24,23 @@ public class ServiceApplication
 {
     @Bean
     public FreeMarkerConfigurer freemarkerConfig()
-            throws Exception
+        throws Exception
     {
         FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
         configurer.setTemplateLoaderPath("classpath:templates");
         configurer.setDefaultEncoding(StandardCharsets.UTF_8.name());
         return configurer;
     }
-
+    
+    @Bean
+    public ThreadPoolTaskExecutor threadPoolTaskExecutor()
+    {
+        ThreadPoolTaskExecutor threadPoolTaskExecutor =
+            new ThreadPoolTaskExecutor();
+        threadPoolTaskExecutor.setMaxPoolSize(200);
+        return threadPoolTaskExecutor;
+    }
+    
     public static void main(String[] args)
     {
         SpringApplication.run(ServiceApplication.class, args);
