@@ -102,7 +102,7 @@ public class ElecAgentController
         ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
         if (round == null)
         {
-            return RestResult.error("轮次不存在");
+            return RestResult.error("elec.roundNotExistTip");
         }
         ElecContext c = new ElecContext(studentId, round.getCalendarId());
         

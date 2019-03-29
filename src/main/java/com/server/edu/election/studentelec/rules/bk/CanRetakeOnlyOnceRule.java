@@ -29,33 +29,32 @@ public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutor
         TeachingClassCache courseClass)
     {
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-
-            if (courseClass.getTeachClassType() != null
-                && CollectionUtil.isNotEmpty(completedCourses))
+        
+        if (courseClass.getTeachClassType() != null
+            && CollectionUtil.isNotEmpty(completedCourses))
+        {
+            if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
             {
-                if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
+                List<CompletedCourse> list = completedCourses.stream()
+                    .filter(c -> courseClass.getCourseCode()
+                        .equals(c.getCourseCode()))
+                    .collect(Collectors.toList());
+                
+                if (CollectionUtil.isNotEmpty(list))
                 {
-                    List<CompletedCourse> list = completedCourses.stream()
-                        .filter(c -> courseClass.getCourseCode()
-                            .equals(c.getCourseCode()))
-                        .collect(Collectors.toList());
-                    
-                    if (list.size() > Constants.ONE)
+                    if (Constants.REBUILD_CALSS
+                        .equals(courseClass.getTeachClassType()))
                     {
-                        if (Constants.REBUILD_CALSS
-                            .equals(courseClass.getTeachClassType()))
-                        {
-                            ElecRespose respose = context.getRespose();
-                            respose.getFailedReasons()
-                                .put(courseClass.getCourseCodeAndClassCode(),
-                                    I18nUtil
-                                        .getMsg("ruleCheck.canRetakeOnlyOnce"));
-                            return false;
-                        }
+                        ElecRespose respose = context.getRespose();
+                        respose.getFailedReasons()
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
+                        return false;
                     }
                 }
             }
-
+        }
+        
         return true;
     }
     

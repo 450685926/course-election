@@ -74,7 +74,7 @@ public class CourseGradeLoad extends DataProLoad
     public void load(ElecContext context)
     {
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
-        // 1. 查询学生课程成绩(已完成)
+        // 1. 查询学生课程成绩(包括已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
         
         String studentId = studentInfo.getStudentId();
@@ -91,7 +91,7 @@ public class CourseGradeLoad extends DataProLoad
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        Set<CompletedCourse> failedCourse = context.getFailedCourse();
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -103,9 +103,11 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
                 lesson.setCalendarId(studentScore.getCalendarId());
+                lesson.setCheat(StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 if(studentScore.getIsPass()!=null&&studentScore.getIsPass().intValue()==Constants.ONE){//已經完成課程
                     completedCourses.add(lesson);
                 }else{
+
                     failedCourse.add(lesson);
                 }
 

@@ -88,7 +88,7 @@ public class ElecController
         
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
         return elecService.loading(roundId, session.realUid());
     }
@@ -102,12 +102,12 @@ public class ElecController
         
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
         ElectionRounds round = dataProvider.getRound(roundId);
         if (round == null)
         {
-            return RestResult.error("轮次不存在");
+            return RestResult.error("elec.roundNotExistTip");
         }
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
@@ -146,7 +146,7 @@ public class ElecController
         Session session = SessionUtils.getCurrentSession();
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
         elecRequest.setChooseObj(ChooseObj.STU.type());
         elecRequest.setStudentId(session.realUid());
@@ -167,7 +167,7 @@ public class ElecController
         Session session = SessionUtils.getCurrentSession();
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
         ElecRespose response =
             elecService.getElectResult(roundId, session.realUid());

@@ -118,5 +118,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
         and t1.IS_OVERSEAS_ = #{isOverseas}
       </if>      
-  </select>  
+  </select>
+
+    <select id="findStudentByStuId" resultType="int">
+        select count(*) from elc_pe_free_stds_t where STUDENT_ID_ = #{studentId}
+    </select>
 </mapper>

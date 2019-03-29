@@ -37,8 +37,9 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
         Long teachClassId = courseClass.getTeachClassId();//通过teachingClassId查询时间
         if (teachClassId != null)
         {
-            List<ClassTimeUnit> teachingClassTime =
-                teachingClassDao.findTeachingClassIdTime(teachClassId);
+            /*List<ClassTimeUnit> teachingClassTime =
+                teachingClassDao.findTeachingClassIdTime(teachClassId);*/
+            List<ClassTimeUnit> teachingClassTime = courseClass.getTimes();
             if (CollectionUtil.isNotEmpty(teachingClassTime))
             {
                 Set<SelectedCourse> selectedCourses =
@@ -61,7 +62,8 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
                                     ElecRespose respose = context.getRespose();
                                     respose.getFailedReasons()
                                         .put(
-                                            courseClass.getCourseCodeAndClassCode(),
+                                            courseClass
+                                                .getCourseCodeAndClassCode(),
                                             I18nUtil.getMsg(
                                                 "ruleCheck.timeConflict"));
                                     return false;
@@ -69,9 +71,9 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
                             }
                         }
                     }
-
+                    
                 }
-
+                
             }
         }
         return true;

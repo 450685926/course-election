@@ -1,15 +1,15 @@
 package com.server.edu.election.studentelec.rules.bk;
 
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 
 /**
  * 第二轮选课时，不能选第一轮选课已经选满的课程<br>
@@ -22,7 +22,7 @@ public class SecondRdCantElect1stRdFullRule extends AbstractElecRuleExceutor
 {
     @Autowired
     private RoundDataProvider dataProvider;
-
+    
     @Override
     public int getOrder()
     {
@@ -33,26 +33,30 @@ public class SecondRdCantElect1stRdFullRule extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        ElectionRounds round = dataProvider.getRound(context.getRequest().getRoundId());
-
+        ElectionRounds round =
+            dataProvider.getRound(context.getRequest().getRoundId());
+        
         if (round == null)
         {
             String msg = String.format("electionRounds not find roundId=%s",
-                    context.getRequest().getRoundId());
+                context.getRequest().getRoundId());
             throw new RuntimeException(msg);
         }
-        if(round.getTurn().intValue()==2){//第二轮
+        if (round.getTurn().intValue() == 2)
+        {//第二轮
             Integer maxNumber = courseClass.getMaxNumber();
             Integer currentNumber = courseClass.getCurrentNumber();
-            if(maxNumber!=null&&currentNumber!=null&&currentNumber+1>maxNumber){
+            if (maxNumber != null && currentNumber != null
+                && currentNumber + 1 > maxNumber)
+            {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
-                                I18nUtil.getMsg("ruleCheck.classNumberLimit"));
+                    .put(courseClass.getCourseCodeAndClassCode(),
+                        I18nUtil.getMsg("ruleCheck.classNumberLimit"));
                 return false;
             }
         }
-
+        
         return true;
     }
     

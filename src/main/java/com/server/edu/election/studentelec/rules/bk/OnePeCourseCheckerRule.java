@@ -1,10 +1,8 @@
 package com.server.edu.election.studentelec.rules.bk;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
+import com.server.edu.election.dao.ElcPeFreeStdsDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,48 +20,57 @@ import com.server.edu.util.CollectionUtil;
  * 只能选一门体育课的规则
  */
 @Component("OnePeCourseCheckerRule")
-public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor {
+public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
+{
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
 
+    @Autowired
+    private ElcPeFreeStdsDao elcPeFreeStdsDao;
+    
     /**
      * 执行选课操作时
      */
     @Override
     public boolean checkRule(ElecContext context,
-                             TeachingClassCache courseClass) {
-
+        TeachingClassCache courseClass)
+    {
         // 体育课程代码
         ElectionConstants electionConstants =
-                electionConstantsDao.selectByPrimaryKey(2L);
+            electionConstantsDao.selectByPrimaryKey(2L);
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        if (courseClass.getTeachClassId() != null
-                && electionConstants != null) {
+        if (courseClass.getTeachClassId() != null && electionConstants != null)
+        {
             String courseCodes = electionConstants.getValue();//体育课程代码
-
-            if (!courseCodes.contains(courseClass.getCourseCode())) {
+            
+            if (!courseCodes.contains(courseClass.getCourseCode()))
+            {
                 return true;
             }
 
+            int i = elcPeFreeStdsDao.findStudentByStuId(context.getStudentInfo().getStudentId());
+            if(i!=0){//在体育课不限选名单中
+                return true;
+            }
 
-            if (CollectionUtil.isNotEmpty(selectedCourses)) {
-
-                for (SelectedCourse selectedCours : selectedCourses) {
-                    if(courseCodes.contains(selectedCours.getCourseCode())){
+            if (CollectionUtil.isNotEmpty(selectedCourses))
+            {
+                for (SelectedCourse selectedCours : selectedCourses)
+                {
+                    if (courseCodes.contains(selectedCours.getCourseCode()))
+                    {
                         ElecRespose respose = context.getRespose();
                         respose.getFailedReasons()
-                                .put(courseClass.getCourseCodeAndClassCode(),
-                                        I18nUtil.getMsg(
-                                                "ruleCheck.onePeCourseChecker"));
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil
+                                    .getMsg("ruleCheck.onePeCourseChecker"));
                         return false;
                     }
                 }
-
             }
-
         }
-
+        
         return true;
     }
-
+    
 }

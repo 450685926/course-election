@@ -14,24 +14,27 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
  * 限制不能选择重修课
  */
 @Component("NoRetakeRule")
-public class NoRetakeRule extends AbstractElecRuleExceutor {
+public class NoRetakeRule extends AbstractElecRuleExceutor
+{
     @Override
     public boolean checkRule(ElecContext context,
-                             TeachingClassCache courseClass) {
-
-        if (StringUtils.isNotBlank(courseClass.getTeachClassType())) {
+        TeachingClassCache courseClass)
+    {
+        if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
+        {
             if (Constants.ORDINARY_CALSS
-                    .equals(courseClass.getTeachClassType())) {
+                .equals(courseClass.getTeachClassType()))
+            {
                 return true;
             }
-
+            
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                    .put(courseClass.getCourseCodeAndClassCode(),
-                            I18nUtil.getMsg("ruleCheck.noRetake"));
+                .put(courseClass.getCourseCodeAndClassCode(),
+                    I18nUtil.getMsg("ruleCheck.noRetake"));
             return false;
         }
         return true;
     }
-
+    
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.ChooseObj;
@@ -204,7 +205,8 @@ public class StudentElecServiceImpl implements StudentElecService
                 if (count == 0)
                 {
                     respose.getFailedReasons()
-                        .put(teachClassId.toString(), "教学班人数已满");
+                        .put(teachClassId.toString(),
+                            I18nUtil.getMsg("ruleCheck.limitCount"));
                     return;
                 }
             }
