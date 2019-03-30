@@ -161,6 +161,7 @@ public class RoundDataProvider
                 deleteKeys.addAll(ruleKeys);
                 deleteKeys.addAll(courseKeys);
                 deleteKeys.addAll(classKeys);
+                deleteKeys.addAll(stuKeys);
             }
             deleteKeys.addAll(keys);
             
@@ -541,10 +542,8 @@ public class RoundDataProvider
             {
                 roundStuKeys.remove(roundStuKey);
             }
-            if (!redisTemplate.hasKey(roundStuKey))
-            {
-                ops.set(roundStuKey, stuId, endMinutes, TimeUnit.MINUTES);
-            }
+
+            ops.set(roundStuKey, stuId, endMinutes, TimeUnit.MINUTES);
         }
 
     }
