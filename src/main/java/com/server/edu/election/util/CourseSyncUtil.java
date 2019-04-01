@@ -1,5 +1,6 @@
 package com.server.edu.election.util;
 
+
 import com.server.edu.dmskafka.dataSync.data.CourseSync;
 import com.server.edu.election.entity.Course;
 

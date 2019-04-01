@@ -122,4 +122,7 @@
 		</where>
 	</select>
 
+	<select id="findStuByRoundId" resultType="java.lang.String">
+		select DISTINCT STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ =#{roundId}
+	</select>
 </mapper>

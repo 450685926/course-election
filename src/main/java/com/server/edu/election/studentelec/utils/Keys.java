@@ -25,5 +25,8 @@ public class Keys
     
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
     public static final String STD_STATUS = "elec-stdstatus-%s-%s";
+
+    /**轮次学生 elec-round-%s-student-%s*/
+    public static final String ROUND_STUDENT = "elec-round-%s-student-%s";
     
 }
