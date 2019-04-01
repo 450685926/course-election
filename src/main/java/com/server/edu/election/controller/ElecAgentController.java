@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
 
@@ -62,6 +63,7 @@ public class ElecAgentController
         {
             if (StringUtils.equals(round.getProjectId(), projectId)
                 && StringUtils.equals(electionObj, round.getElectionObj())
+                && Objects.equals(mode, round.getMode())
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime()))
             {
