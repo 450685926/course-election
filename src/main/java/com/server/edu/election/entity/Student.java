@@ -11,469 +11,496 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 
 @CodeI18n
 @Table(name = "student_t")
-public class Student implements Serializable {
-
+public class Student implements Serializable
+{
+    
     /**
      * 学号
      */
     @Id
     @Column(name = "STUDENT_CODE_")
     private String studentCode;
-
+    
     /**
      * 姓名
      */
     @Column(name = "NAME_")
     private String name;
-
+    
     /**
      * 性别(根据数据字典统一使用)
      */
     @Code2Text(transformer = "G_XBIE")
     @Column(name = "SEX_")
     private Integer sex;
-
+    
     /**
      * 学习形式(全日制,非全日制,其他)
      */
     @Code2Text(transformer = "X_XXXS")
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
-
+    
     /**
      * 是否留学生 0：否  1：是
      */
     @Column(name = "IS_OVERSEAS_")
     private String isOverseas;
-
+    
     /**
      * 培养层次(专科   本科   硕士   博士    其他    预科)
      */
     @Code2Text(transformer = "X_PYCC")
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
-
+    
     /**
      * 学院
      */
-    @Code2Text(transformer="X_YX")
+    @Code2Text(transformer = "X_YX")
     @Column(name = "FACULTY_")
     private String faculty;
-
+    
     /**
      * 专业
      */
-    @Code2Text(transformer="G_ZY")
+    @Code2Text(transformer = "G_ZY")
     @Column(name = "PROFESSION_")
     private String profession;
-
+    
     /**
      * 年级
      */
     @Column(name = "GRADE_")
     private Integer grade;
-
+    
     /**
      * 专项计划
      */
     @Code2Text(transformer = "X_ZXJH")
     @Column(name = "SPCIAL_PLAN_")
     private String spcialPlan;
-
+    
     /**
      * 学籍状态
      */
     @Code2Text(transformer = "G_XJZT")
     @Column(name = "REGISTRATION_STATUS_")
     private String registrationStatus;
-
+    
     /**
      * 入学季节
      */
     @Code2Text(transformer = "X_RXJJ")
     @Column(name = "ENROL_SEASON_")
     private String enrolSeason;
-
+    
     /**
      * 校区
      */
     @Code2Text(transformer = "X_XQ")
     @Column(name = "CAMPUS_")
     private String campus;
-
+    
     /**
      * 培养类别
      */
     @Column(name = "TRAINING_CATEGORY_")
     private String trainingCategory;
-
+    
     /**
      * 学位类别
      */
     @Code2Text(transformer = "X_XWLX")
     @Column(name = "DEGREE_CATEGORY_")
     private String degreeCategory;
-
+    
     /**
      * 研究方向
      */
     @Column(name = "RESEARCH_DIRECTION_")
     private String researchDirection;
-
+    
     /**
      * 学生类别
      */
     @Column(name = "STUDENT_CATEGORY_")
     private String studentCategory;
-
+    
+    /**
+     * 管理部门id（字典取值）
+     */
+    @Column(name = "MANAGER_DEPT_ID_")
+    private String managerDeptId;
+    
     private static final long serialVersionUID = 1L;
-
+    
     /**
      * 获取学生代码
      *
      * @return STUDENT_CODE_ - 学生代码
      */
-
-    public String getStudentCode() {
+    
+    public String getStudentCode()
+    {
         return studentCode;
     }
-
-
+    
     /**
      * 设置学生代码
      *
      * @param studentCode 学生代码
      */
-
-    public void setStudentCode(String studentCode) {
+    
+    public void setStudentCode(String studentCode)
+    {
         this.studentCode = studentCode == null ? null : studentCode.trim();
     }
-
-
+    
     /**
      * 获取姓名
      *
      * @return NAME_ - 姓名
      */
-
-    public String getName() {
+    
+    public String getName()
+    {
         return name;
     }
-
+    
     /**
      * 设置姓名
      *
      * @param name 姓名
      */
-
-    public void setName(String name) {
+    
+    public void setName(String name)
+    {
         this.name = name == null ? null : name.trim();
     }
-
-
+    
     /**
      * 获取性别(根据数据字典统一使用)
      *
      * @return SEX_ - 性别(根据数据字典统一使用)
      */
-
-    public Integer getSex() {
+    
+    public Integer getSex()
+    {
         return sex;
     }
-
-
+    
     /**
      * 设置性别(根据数据字典统一使用)
      *
      * @param sex 性别(根据数据字典统一使用)
      */
-
-    public void setSex(Integer sex) {
+    
+    public void setSex(Integer sex)
+    {
         this.sex = sex;
     }
-
-
+    
     /**
      * 获取学习形式(全日制,非全日制,其他)
      *
      * @return FORM_LEARNING_ - 学习形式(全日制,非全日制,其他)
      */
-
-    public String getFormLearning() {
+    
+    public String getFormLearning()
+    {
         return formLearning;
     }
-
-
+    
     /**
      * 设置学习形式(全日制,非全日制,其他)
      *
      * @param formLearning 学习形式(全日制,非全日制,其他)
      */
-
-    public void setFormLearning(String formLearning) {
+    
+    public void setFormLearning(String formLearning)
+    {
         this.formLearning = formLearning == null ? null : formLearning.trim();
     }
-
-
+    
     /**
      * 获取是否留学生 0：否  1：是
      *
      * @return IS_OVERSEAS_ - 是否留学生 0：否  1：是
      */
-
-    public String getIsOverseas() {
+    
+    public String getIsOverseas()
+    {
         return isOverseas;
     }
-
-
+    
     /**
      * 设置是否留学生 0：否  1：是
      *
      * @param isOverseas 是否留学生 0：否  1：是
      */
-
-    public void setIsOverseas(String isOverseas) {
+    
+    public void setIsOverseas(String isOverseas)
+    {
         this.isOverseas = isOverseas == null ? null : isOverseas.trim();
     }
-
+    
     /**
      * 获取培养层次(专科   本科   硕士   博士    其他    预科)
      *
      * @return TRAINING_LEVEL_ - 培养层次(专科   本科   硕士   博士    其他    预科)
      */
-
-    public String getTrainingLevel() {
+    
+    public String getTrainingLevel()
+    {
         return trainingLevel;
     }
-
-
+    
     /**
      * 设置培养层次(专科   本科   硕士   博士    其他    预科)
      *
      * @param trainingLevel 培养层次(专科   本科   硕士   博士    其他    预科)
      */
-
-    public void setTrainingLevel(String trainingLevel) {
-        this.trainingLevel = trainingLevel == null ? null : trainingLevel.trim();
+    
+    public void setTrainingLevel(String trainingLevel)
+    {
+        this.trainingLevel =
+            trainingLevel == null ? null : trainingLevel.trim();
     }
-
+    
     /**
      * 获取学院
      *
      * @return FACULTY_ - 学院
      */
-
-    public String getFaculty() {
+    
+    public String getFaculty()
+    {
         return faculty;
     }
-
-
+    
     /**
      * 设置学院
      *
      * @param faculty 学院
      */
-
-    public void setFaculty(String faculty) {
+    
+    public void setFaculty(String faculty)
+    {
         this.faculty = faculty == null ? null : faculty.trim();
     }
-
-
+    
     /**
      * 获取专业
      *
      * @return PROFESSION_ - 专业
      */
-
-    public String getProfession() {
+    
+    public String getProfession()
+    {
         return profession;
     }
-
-
+    
     /**
      * 设置专业
      *
      * @param profession 专业
      */
-
-    public void setProfession(String profession) {
+    
+    public void setProfession(String profession)
+    {
         this.profession = profession == null ? null : profession.trim();
     }
-
-
+    
     /**
      * 获取年级
      *
      * @return GRADE_ - 年级
      */
-
-    public Integer getGrade() {
+    
+    public Integer getGrade()
+    {
         return grade;
     }
-
-
+    
     /**
      * 设置年级
      *
      * @param grade 年级
      */
-
-    public void setGrade(Integer grade) {
+    
+    public void setGrade(Integer grade)
+    {
         this.grade = grade;
     }
-
-
+    
     /**
      * 获取专项计划
      *
      * @return SPCIAL_PLAN_ - 专项计划
      */
-
-    public String getSpcialPlan() {
+    
+    public String getSpcialPlan()
+    {
         return spcialPlan;
     }
-
-
+    
     /**
      * 设置专项计划
      *
      * @param spcialPlan 专项计划
      */
-
-    public void setSpcialPlan(String spcialPlan) {
+    
+    public void setSpcialPlan(String spcialPlan)
+    {
         this.spcialPlan = spcialPlan == null ? null : spcialPlan.trim();
     }
-
-
+    
     /**
      * 获取学籍状态
      *
      * @return REGISTRATION_STATUS_ - 学籍状态
      */
-
-    public String getRegistrationStatus() {
+    
+    public String getRegistrationStatus()
+    {
         return registrationStatus;
     }
-
-
+    
     /**
      * 设置学籍状态
      *
      * @param registrationStatus 学籍状态
      */
-
-    public void setRegistrationStatus(String registrationStatus) {
-        this.registrationStatus = registrationStatus == null ? null : registrationStatus.trim();
+    
+    public void setRegistrationStatus(String registrationStatus)
+    {
+        this.registrationStatus =
+            registrationStatus == null ? null : registrationStatus.trim();
     }
-
-
+    
     /**
      * 获取入学季节
      *
      * @return ENROL_SEASON_ - 入学季节
      */
-
-    public String getEnrolSeason() {
+    
+    public String getEnrolSeason()
+    {
         return enrolSeason;
     }
-
-
+    
     /**
      * 设置入学季节
      *
      * @param enrolSeason 入学季节
      */
-
-    public void setEnrolSeason(String enrolSeason) {
+    
+    public void setEnrolSeason(String enrolSeason)
+    {
         this.enrolSeason = enrolSeason == null ? null : enrolSeason.trim();
     }
-
-
+    
     /**
      * 获取校区
      *
      * @return CAMPUS_ - 校区
      */
-
-    public String getCampus() {
+    
+    public String getCampus()
+    {
         return campus;
     }
-
-
+    
     /**
      * 设置校区
      *
      * @param campus 校区
      */
-
-    public void setCampus(String campus) {
+    
+    public void setCampus(String campus)
+    {
         this.campus = campus == null ? null : campus.trim();
     }
-
-
+    
     /**
      * 获取培养类别
      *
      * @return TRAINING_CATEGORY_ - 培养类别
      */
-
-    public String getTrainingCategory() {
+    
+    public String getTrainingCategory()
+    {
         return trainingCategory;
     }
-
-
+    
     /**
      * 设置培养类别
      *
      * @param trainingCategory 培养类别
      */
-
-    public void setTrainingCategory(String trainingCategory) {
-        this.trainingCategory = trainingCategory == null ? null : trainingCategory.trim();
+    
+    public void setTrainingCategory(String trainingCategory)
+    {
+        this.trainingCategory =
+            trainingCategory == null ? null : trainingCategory.trim();
     }
-
-
+    
     /**
      * 获取学位类别
      *
      * @return DEGREE_CATEGORY_ - 学位类别
      */
-
-    public String getDegreeCategory() {
+    
+    public String getDegreeCategory()
+    {
         return degreeCategory;
     }
-
-
-
-
-
+    
     /**
      * 设置学位类别
      *
      * @param degreeCategory 学位类别
      */
-    public void setDegreeCategory(String degreeCategory) {
-        this.degreeCategory = degreeCategory == null ? null : degreeCategory.trim();
+    public void setDegreeCategory(String degreeCategory)
+    {
+        this.degreeCategory =
+            degreeCategory == null ? null : degreeCategory.trim();
     }
-
-    public String getResearchDirection() {
+    
+    public String getResearchDirection()
+    {
         return researchDirection;
     }
-
-    public void setResearchDirection(String researchDirection) {
+    
+    public void setResearchDirection(String researchDirection)
+    {
         this.researchDirection = researchDirection;
     }
-
-    public String getStudentCategory() {
+    
+    public String getStudentCategory()
+    {
         return studentCategory;
     }
-
-    public void setStudentCategory(String studentCategory) {
+    
+    public void setStudentCategory(String studentCategory)
+    {
         this.studentCategory = studentCategory;
     }
-
+    
+    public String getManagerDeptId()
+    {
+        return managerDeptId;
+    }
+    
+    public void setManagerDeptId(String managerDeptId)
+    {
+        this.managerDeptId = managerDeptId;
+    }
+    
     @Override
-    public String toString() {
+    public String toString()
+    {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
         sb.append(" [");
@@ -498,4 +525,3 @@ public class Student implements Serializable {
         return sb.toString();
     }
 }
-
