@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElecRoundsDao;
@@ -74,7 +75,7 @@ public class ElecRoundServiceImpl implements ElecRoundService
         int count = roundsDao.selectCountByExample(example);
         if (count > 0)
         {
-            throw new ParameterValidateException("当前学期轮次重复");
+            throw new ParameterValidateException(I18nUtil.getMsg("elec.round.exist"));
         }
         Date date = new Date();
         dto.setCreatedAt(date);
@@ -99,11 +100,12 @@ public class ElecRoundServiceImpl implements ElecRoundService
             .andEqualTo("calendarId", dto.getCalendarId())
             .andEqualTo("turn", dto.getTurn())
             .andEqualTo("mode", dto.getMode())
+            .andEqualTo("electionObj", dto.getElectionObj())
             .andNotEqualTo("id", dto.getId());
         int count = roundsDao.selectCountByExample(example);
         if (count > 0)
         {
-            throw new ParameterValidateException("当前学期轮次重复");
+            throw new ParameterValidateException(I18nUtil.getMsg("elec.round.exist"));
         }
         Date date = new Date();
         dto.setUpdatedAt(date);
