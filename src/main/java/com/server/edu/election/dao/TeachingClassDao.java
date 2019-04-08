@@ -101,5 +101,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     
     /**获取上课时间*/
     List<ClassTimeUnit> getClassTimes(List<Long> list);
+    
+    List<TeachingClassVo>  findTeachingClass(ElcResultQuery condition);
 
 }

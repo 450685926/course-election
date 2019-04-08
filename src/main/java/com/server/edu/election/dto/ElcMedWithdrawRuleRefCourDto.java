@@ -37,6 +37,8 @@ public class ElcMedWithdrawRuleRefCourDto extends ElcMedWithdrawRuleRefCour {
     @NotEmpty
     private List<Long> teachingClassIds;
     
+    private Integer projectId;
+    
     
 
 	public List<Long> getTeachingClassIds() {
@@ -94,6 +96,16 @@ public class ElcMedWithdrawRuleRefCourDto extends ElcMedWithdrawRuleRefCour {
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
 	}
+
+	public Integer getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
+	
+	
     
     
 

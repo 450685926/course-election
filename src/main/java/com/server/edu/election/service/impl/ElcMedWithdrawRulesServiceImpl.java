@@ -30,6 +30,9 @@ public class ElcMedWithdrawRulesServiceImpl implements ElcMedWithdrawRulesServic
 		Example example = new Example(ElcMedWithdrawRules.class);
 		example.setOrderByClause("CREATED_AT_ DESC");
 		Example.Criteria criteria = example.createCriteria();
+		if(condition.getCondition().getProjectId()!=null) {
+			criteria.andEqualTo("projectId",condition.getCondition().getProjectId());
+		}
 		if(condition.getCondition().getCalendarId()!=null) {
 			criteria.andEqualTo("calendarId",condition.getCondition().getCalendarId());
 		}
@@ -48,6 +51,8 @@ public class ElcMedWithdrawRulesServiceImpl implements ElcMedWithdrawRulesServic
 		}
 		Example example = new Example(ElcMedWithdrawRules.class);
 		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("projectId",elcMedWithdrawRules.getProjectId());
+		criteria.andEqualTo("calendarId",elcMedWithdrawRules.getCalendarId());
 		criteria.andEqualTo("name",elcMedWithdrawRules.getName());
 		List<ElcMedWithdrawRules> list = elcMedWithdrawRulesDao.selectByExample(example);
 		if(CollectionUtil.isNotEmpty(list)) {

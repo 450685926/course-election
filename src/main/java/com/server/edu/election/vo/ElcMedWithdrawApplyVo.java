@@ -59,6 +59,19 @@ public class ElcMedWithdrawApplyVo extends ElcMedWithdrawApply {
     
     private String approvalName;
     
+    /**
+     * 退课申请失败原因
+     */
+    private String content;
+    /**
+     * 学时
+     */
+    private Double period;
+    /**
+     * 学分
+     */
+    private Double credits; 
+    
     
 
     
@@ -157,4 +170,32 @@ public class ElcMedWithdrawApplyVo extends ElcMedWithdrawApply {
 	public void setCampus(String campus) {
 		this.campus = campus;
 	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Double getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Double period) {
+		this.period = period;
+	}
+
+	public Double getCredits() {
+		return credits;
+	}
+
+	public void setCredits(Double credits) {
+		this.credits = credits;
+	}
+	
+	
+	
+	
 }

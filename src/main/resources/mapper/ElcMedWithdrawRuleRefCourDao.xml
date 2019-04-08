@@ -26,10 +26,11 @@
 		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_ID_ = t2.ID_
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON t3.COURSE_OPEN_ID_ = t4.ID_
+		INNER JOIN elc_med_withdraw_rules_t t5 ON t5.ID_ = t1.MED_WITHDRAW_RULE_ID_
 		<where>
 	      1=1
-	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-	        and t4.CALENDAR_ID_= #{calendarId}
+	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+	        and t5.PROJECT_ID= #{projectId}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(medWithdrawRuleId)">
 	        and t1.MED_WITHDRAW_RULE_ID_= #{medWithdrawRuleId}
@@ -72,7 +73,12 @@
 						SELECT
 							TEACHING_CLASS_ID_
 						FROM
-							elc_med_withdraw_rule_ref_cour_t
+							elc_med_withdraw_rule_ref_cour_t c
+						INNER JOIN  elc_med_withdraw_rules_t r ON c.MED_WITHDRAW_RULE_ID_ = r.ID_
+						WHERE 1=1 
+							  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+	                           and r.PROJECT_ID = #{projectId}
+	                          </if>
 					)
 				AND t1.DEPLOY_FLAG_ = 1
 			) t2
