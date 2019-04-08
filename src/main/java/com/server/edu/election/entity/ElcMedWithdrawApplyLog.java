@@ -63,6 +63,12 @@ public class ElcMedWithdrawApplyLog implements Serializable {
     private String targetObjName;
 
     /**
+     * 退课申请失败原因
+     */
+    @Column(name = "CONTENT_")
+    private String content;
+
+    /**
      * 创建时间
      */
     @Column(name = "CREATED_AT_")
@@ -233,6 +239,24 @@ public class ElcMedWithdrawApplyLog implements Serializable {
     }
 
     /**
+     * 获取退课申请失败原因
+     *
+     * @return CONTENT_ - 退课申请失败原因
+     */
+    public String getContent() {
+        return content;
+    }
+
+    /**
+     * 设置退课申请失败原因
+     *
+     * @param content 退课申请失败原因
+     */
+    public void setContent(String content) {
+        this.content = content == null ? null : content.trim();
+    }
+
+    /**
      * 获取创建时间
      *
      * @return CREATED_AT_ - 创建时间
@@ -265,6 +289,7 @@ public class ElcMedWithdrawApplyLog implements Serializable {
         sb.append(", oprationType=").append(oprationType);
         sb.append(", targetObjCode=").append(targetObjCode);
         sb.append(", targetObjName=").append(targetObjName);
+        sb.append(", content=").append(content);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

@@ -17,6 +17,9 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /**学分*/
     private Double credits;
     
+    /**学时*/
+    private Double period;
+    
     /**校区*/
     @Code2Text(transformer = "X_XQ")
     private String campus;
@@ -98,5 +101,15 @@ public class ElcCourseTakeVo extends ElcCourseTake
     {
         this.teachingClassCode = teachingClassCode;
     }
+
+	public Double getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Double period) {
+		this.period = period;
+	}
+    
+    
     
 }

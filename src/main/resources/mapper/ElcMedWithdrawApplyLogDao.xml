@@ -14,27 +14,7 @@
     <result column="OPRATION_TYPE" jdbcType="VARCHAR" property="oprationType" />
     <result column="TARGET_OBJ_CODE" jdbcType="VARCHAR" property="targetObjCode" />
     <result column="TARGET_OBJ_NAME" jdbcType="VARCHAR" property="targetObjName" />
+    <result column="CONTENT_" jdbcType="VARCHAR" property="content" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
-  <insert id="batchInsert" parameterType="java.util.List">
-    insert into elc_med_withdraw_apply_log_t(
-    STUDENT_ID_,TEACHING_CLASS_ID_,OPRATION_OBJ_CODE,OPRATION_OBJ_NAME,
-    OPRATION_CLIENT_IP,OPRATION_TYPE,TARGET_OBJ_CODE,TARGET_OBJ_NAME,CREATED_AT_
-    )
-    values
-    <foreach item="item" collection="list" index="index"
-             separator=",">
-      (
-      #{item.studentId,jdbcType=BIGINT},
-      #{item.teachingClassId,jdbcType=BIGINT},
-      #{item.oprationObjCode,jdbcType=VARCHAR},
-      #{item.oprationObjName,jdbcType=VARCHAR},
-      #{item.oprationClientIp,jdbcType=VARCHAR},
-      #{item.oprationType,jdbcType=VARCHAR},
-      #{item.targetObjCode,jdbcType=VARCHAR},
-      #{item.targetObjName,jdbcType=VARCHAR},
-      #{item.createdAt,jdbcType=TIMESTAMP}
-      )
-    </foreach>
-  </insert>
 </mapper>
