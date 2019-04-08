@@ -100,7 +100,7 @@
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId}
 	  	and t1.IS_OPEN_ = 1
-		and (t4.PRE_ARRANGE_FLAG_ = 1 or t4.MAN_ARRANGE_FLAG_ in (1,2))
+		and t4.DEPLOY_FLAG_ =1
 	  	and t1.COURSE_CODE_ NOT IN (
 	  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
 	  	)
