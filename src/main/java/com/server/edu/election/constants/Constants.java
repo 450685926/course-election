@@ -16,5 +16,7 @@ public interface Constants
 	 public static final String STU = "STU";
 	 public static final String DEPART_ADMIN = "DEPART_ADMIN";
 	 public static final String MANAGER_ADMIN = "MANAGER_ADMIN";
+	 public static final int PRACTICE_COURSE_ = 2;
+	 public static final int IS_OPEN = 1;
     
 }

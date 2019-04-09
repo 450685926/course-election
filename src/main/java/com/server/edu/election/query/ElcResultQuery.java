@@ -1,5 +1,7 @@
 package com.server.edu.election.query;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 public class ElcResultQuery
@@ -26,6 +28,16 @@ public class ElcResultQuery
      * 教学班编号
      */
     private String teachingClassCode;
+    
+    /**
+     * 教学班id
+     */
+    private Long teachingClassId;
+    
+    /**
+     * 教学班ids
+     */
+    private List<Long> teachingClassIds;
     
     /**
      * 是否排课
@@ -91,5 +103,26 @@ public class ElcResultQuery
     {
         this.manArrangeFlag = manArrangeFlag;
     }
+
+	public Long getTeachingClassId() {
+		return teachingClassId;
+	}
+
+	public void setTeachingClassId(Long teachingClassId) {
+		this.teachingClassId = teachingClassId;
+	}
+
+	public List<Long> getTeachingClassIds() {
+		return teachingClassIds;
+	}
+
+	public void setTeachingClassIds(List<Long> teachingClassIds) {
+		this.teachingClassIds = teachingClassIds;
+	}
+	
+	
+
+    
+    
     
 }

@@ -17,6 +17,9 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /**学分*/
     private Double credits;
     
+    /**学时*/
+    private Double period;
+    
     /**校区*/
     @Code2Text(transformer = "X_XQ")
     private String campus;
@@ -27,6 +30,8 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     /**教学班编号*/
     private String teachingClassCode;
+    /**教学班名称*/
+    private String teachingClassName;
 
     /**是否为公共选修课(1:是，0：否)*/
     private Integer isPublicCourse;
@@ -98,5 +103,25 @@ public class ElcCourseTakeVo extends ElcCourseTake
     {
         this.teachingClassCode = teachingClassCode;
     }
+
+	public Double getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Double period) {
+		this.period = period;
+	}
+
+	public String getTeachingClassName() {
+		return teachingClassName;
+	}
+
+	public void setTeachingClassName(String teachingClassName) {
+		this.teachingClassName = teachingClassName;
+	}
+	
+	
+    
+    
     
 }

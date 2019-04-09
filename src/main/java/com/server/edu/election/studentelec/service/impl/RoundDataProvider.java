@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dao.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +24,6 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.server.edu.common.entity.TeacherInfo;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElecRoundCourseDao;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.ElectionParameterDao;
-import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
@@ -69,6 +66,9 @@ public class RoundDataProvider
     
     @Autowired
     private CourseGradeLoad gradeLoad;
+
+    @Autowired
+    private ElecRoundStuDao roundStuDao;
     
     public RoundDataProvider()
     {
@@ -116,6 +116,7 @@ public class RoundDataProvider
                 
                 Set<String> ruleKeys = redisTemplate
                     .keys(String.format(Keys.ROUND_RULE, roundId, "*"));
+                Set<String> stuKeys = redisTemplate.keys(String.format(Keys.ROUND_STUDENT, roundId, "*"));
                 // 缓存轮次规则数据
                 cacheRoundRule(ops, roundId, endMinutes, ruleKeys);
                 // 缓存轮次信息
@@ -123,7 +124,8 @@ public class RoundDataProvider
                     JSON.toJSONString(round),
                     endMinutes,
                     TimeUnit.MINUTES);
-                
+                //缓存轮次学生
+                cacheRoundStu(ops, roundId, endMinutes, stuKeys);
                 // 加载所有教学班与课程数据到缓存中
                 List<CourseOpenDto> lessons =
                     roundCourseDao.selectTeachingClassByRoundId(roundId,
@@ -516,5 +518,34 @@ public class RoundDataProvider
         return this.elecNumRedis.opsForValue()
             .increment(String.format(Keys.ROUND_CLASS_NUM, teachClassId), 1)
             .intValue();
+    }
+
+
+    /**
+     *
+     *换存轮次学生信息
+     *
+     *@param RoundId 轮次ID
+     *
+     */
+
+    /**缓存轮次学生*/
+    private void cacheRoundStu(ValueOperations<String, String> ops,
+                                Long roundId, long endMinutes, Set<String> roundStuKeys){
+        List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
+        for (String stuId : stuIds) {
+
+            String roundStuKey =
+                    String.format(Keys.ROUND_STUDENT, roundId, stuId);
+            if (roundStuKeys.contains(roundStuKey))
+            {
+                roundStuKeys.remove(roundStuKey);
+            }
+            if (!redisTemplate.hasKey(roundStuKey))
+            {
+                ops.set(roundStuKey, stuId, endMinutes, TimeUnit.MINUTES);
+            }
+        }
+
     }
 }

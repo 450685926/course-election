@@ -68,6 +68,42 @@
 	      </if> 	       	      	       
 	  </where>		   		
   </select>
+  <select id="selectApplyLogs" parameterType="com.server.edu.election.dto.ElcMedWithdrawApplyDto" resultType="com.server.edu.election.vo.ElcMedWithdrawApplyVo">
+	   SELECT
+		t1.ID_ id,
+		t1.STUDENT_ID_ studentId,
+		t1.WITHDRAW_FLAG_ withdrawFlag,
+		t2.CONTENT_ content,
+		t3.ID_ teachingClassId,
+		t3.CODE_ CODE,
+		t3.NAME_ NAME,
+		t3.CAMPUS_ campus,
+		t3.PERIOD_ period,
+		t5.COURSE_CODE_ courseCode,
+		t5.COURSE_NAME_ courseName,
+		t5.COURSE_NAME_EN_ courseNameEn,
+		t5.TRAINING_LEVEL_ trainingLevel,
+		t5.NATURE_ nature,
+		t5.FACULTY_ faculty,
+		t5.CREDITS_ credits
+	FROM
+		elc_med_withdraw_apply_t t1
+	INNER JOIN elc_med_withdraw_apply_log_t t2 ON (
+		t1.STUDENT_ID_ = t2.STUDENT_ID_
+		AND t1.TEACHING_CLASS_ID_ = t2.TEACHING_CLASS_ID_
+	)
+	INNER JOIN teaching_class_t t3 ON t3.ID_ = t1.TEACHING_CLASS_ID_
+	INNER JOIN teaching_task_t t4 ON t3.TASK_ID_ = t4.ID_
+	INNER JOIN course_open_t t5 ON t5.ID_ = t4.COURSE_OPEN_ID_
+	<where>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+	         and t1.STUDENT_ID_ = #{studentId}
+	      </if>
+	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+	        and t5.CALENDAR_ID_= #{calendarId}
+	      </if>
+	</where>
+  </select>
   
   <update id="batchUpdate" parameterType="java.util.List">
      <foreach item="item" collection="list" index="index"
