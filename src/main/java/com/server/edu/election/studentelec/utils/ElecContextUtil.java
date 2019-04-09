@@ -41,15 +41,15 @@ public class ElecContextUtil
     {
     }
     
-    private Long roundId;
+    private Long calendarId;
     
     private String studentId;
     
-    public static ElecContextUtil create(Long roundId, String studentId)
+    public static ElecContextUtil create(String studentId, Long calendarId)
     {
         ElecContextUtil u = new ElecContextUtil();
-        u.roundId = roundId;
         u.studentId = studentId;
+        u.calendarId = calendarId;
         return u;
     }
     
@@ -109,19 +109,21 @@ public class ElecContextUtil
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String value =
-            opsForValue.get(Keys.STD + type + "-" + roundId + "-" + studentId);
+        String value = opsForValue
+            .get(Keys.STD + type + "-" + calendarId + "-" + studentId);
         return value;
     }
     
     public void save(String type, Object value)
     {
-        ValueOperations<String, String> opsForValue =
-            getRedisTemplate().opsForValue();
-        opsForValue.set(Keys.STD + type + "-" + roundId + "-" + studentId,
-            JSON.toJSONString(value),
-            5,
-            TimeUnit.DAYS);
+        if(null != value) {
+        	ValueOperations<String, String> opsForValue =
+        			getRedisTemplate().opsForValue();
+        	opsForValue.set(Keys.STD + type + "-" + calendarId + "-" + studentId,
+        			JSON.toJSONString(value),
+        			5,
+        			TimeUnit.DAYS);
+        }
     }
     
     /**

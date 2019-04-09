@@ -32,6 +32,7 @@ import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -87,7 +88,7 @@ public class ElecController
         
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
         return elecService.loading(roundId, session.realUid());
     }
@@ -101,9 +102,15 @@ public class ElecController
         
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
-        ElecContext c = new ElecContext(session.realUid(), roundId);
+        ElectionRounds round = dataProvider.getRound(roundId);
+        if (round == null)
+        {
+            return RestResult.error("elec.roundNotExistTip");
+        }
+        ElecContext c =
+            new ElecContext(session.realUid(), round.getCalendarId());
         
         return RestResult.successData(c);
     }
@@ -116,6 +123,14 @@ public class ElecController
     {
         List<TeachingClassCache> teachClasss =
             dataProvider.getTeachClasss(roundId, courseCode);
+        if(CollectionUtil.isNotEmpty(teachClasss)) {
+            for (TeachingClassCache teachClass : teachClasss)
+            {
+                Long teachClassId = teachClass.getTeachClassId();
+                Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+                teachClass.setCurrentNumber(elecNumber);
+            }
+        }
         
         return RestResult.successData(teachClasss);
     }
@@ -131,7 +146,7 @@ public class ElecController
         Session session = SessionUtils.getCurrentSession();
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
         elecRequest.setChooseObj(ChooseObj.STU.type());
         elecRequest.setStudentId(session.realUid());
@@ -152,7 +167,7 @@ public class ElecController
         Session session = SessionUtils.getCurrentSession();
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
-            return RestResult.fail("not a student");
+            return RestResult.fail("elec.mustBeStu");
         }
         ElecRespose response =
             elecService.getElectResult(roundId, session.realUid());

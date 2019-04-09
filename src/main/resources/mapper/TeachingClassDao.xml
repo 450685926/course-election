@@ -35,7 +35,6 @@
   	<result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   </resultMap>
-
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
 	teaching_class_t t1 
@@ -43,6 +42,42 @@
 	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+        and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
+        and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+        and t3.COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+        and t3.COURSE_NAME_ = #{courseName,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+        and t2.CAMPUS_ = #{campus,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+  
+    <select id="findTeachingClass" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
+    select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
+	teaching_class_t t1 
+	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
+    <where>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+        t3.CALENDAR_ID_ = #{calendarId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassId)">
+        and t1.ID_ = #{teachingClassId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassIds)">
+        and t1.ID_ in 
+         <foreach collection="teachingClassIds" open="(" separator="," close=")" item="id">
+            #{id}
+         </foreach>
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
@@ -101,5 +136,34 @@
 	GROUP BY cour.id_, cour.code_, open.COURSE_NAME_ 
   </select>
   
+
+    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+        select ti.ID_ arrangeTimeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber
+        from teaching_class_t t2
+        join teaching_class_arrange_time_t ti on t2.ID_ = ti.TEACHING_CLASS_ID_
+        join teaching_class_arrange_room_t ro on ti.ID_=ro.ARRANGE_TIME_ID_
+        where t2.ID_=#{teachingClassId}
+    </select>
+
+  <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+		 SELECT
+			t2.ID_ teachClassId,
+			t3.ID_ arrangeTimeId,
+			t3.TIME_START_ timeStart,
+			t3.TIME_END_ timeEnd,
+			t3.DAY_OF_WEEK_ dayOfWeek,
+			t4.WEEK_NUMBER_ weekNumber,
+			t4.ROOM_ID_ roomId,
+			t4.TEACHER_CODE_ teacherCode 
+		FROM
+		teaching_class_t t2
+		JOIN teaching_class_arrange_time_t t3 ON t2.ID_ = t3.TEACHING_CLASS_ID_
+		JOIN teaching_class_arrange_room_t t4 ON t4.ARRANGE_TIME_ID_ = t3.ID_
+		WHERE
+		t2.ID_ in
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+         </foreach>
+   </select>
 
 </mapper>

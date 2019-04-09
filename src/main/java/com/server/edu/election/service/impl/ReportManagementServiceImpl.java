@@ -219,51 +219,54 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             for (List<ClassTeacherDto> teacherDtoList : listMap.values()) {
                 Map<Long, List<ClassTeacherDto>> roomList = teacherDtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
                 for (List<ClassTeacherDto> teacherDtos : roomList.values()) {
-                    Map<String, List<ClassTeacherDto>> byRoomList = teacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getRoomID));
-                    for (List<ClassTeacherDto> dtos : byRoomList.values()) {
-                        ClassTeacherDto timetab=new ClassTeacherDto();
-                        ClassTeacherDto classTeacherDto = dtos.get(0);
-                        String teacherCode = classTeacherDto.getTeacherCode();
-                        Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                        String week = findWeek(dayOfWeek);
-                        Integer timeStart = classTeacherDto.getTimeStart();
-                        Integer timeEnd = classTeacherDto.getTimeEnd();
-                        String roomID = classTeacherDto.getRoomID();
-                        List<Integer> integerList = dtos.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
-                        //Integer weekNumber1 = dtos.stream().max(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
-                        //Integer weekNumber2 = dtos.stream().min(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
-                        Integer maxWeek = Collections.max(integerList);
-                        Integer minWeek = Collections.min(integerList);
-                        String strWeek="[";
-                        String strTime=timeStart+"-"+timeEnd;
-                        int size = dtos.size();//判断是否连续
-                        if(minWeek+size-1==maxWeek){//连续拼接周次
-                            strWeek+=minWeek+"-"+maxWeek+"]";
-                        }else{
-                            for(int i=0;i<dtos.size();i++){
-                                Integer weekNumber = dtos.get(i).getWeekNumber();
-                                if(i!=dtos.size()-1){
-                                    strWeek+=weekNumber+",";
-                                }else{
-                                    strWeek+=weekNumber+"]";
+                    Map<Integer, List<ClassTeacherDto>> collect = teacherDtos.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeStart));
+                    for (List<ClassTeacherDto> dtoList : collect.values()) {
+                        Map<String, List<ClassTeacherDto>> byRoomList = dtoList.stream().collect(Collectors.groupingBy(ClassTeacherDto::getRoomID));
+                        for (List<ClassTeacherDto> dtos : byRoomList.values()) {
+                            ClassTeacherDto timetab=new ClassTeacherDto();
+                            ClassTeacherDto classTeacherDto = dtos.get(0);
+                            String teacherCode = classTeacherDto.getTeacherCode();
+                            Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                            String week = findWeek(dayOfWeek);
+                            Integer timeStart = classTeacherDto.getTimeStart();
+                            Integer timeEnd = classTeacherDto.getTimeEnd();
+                            String roomID = classTeacherDto.getRoomID();
+                            List<Integer> integerList = dtos.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                            //Integer weekNumber1 = dtos.stream().max(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                            //Integer weekNumber2 = dtos.stream().min(Comparator.comparingInt(ClassTeacherDto::getWeekNumber)).get().getWeekNumber();
+                            Integer maxWeek = Collections.max(integerList);
+                            Integer minWeek = Collections.min(integerList);
+                            String strWeek="[";
+                            String strTime=timeStart+"-"+timeEnd;
+                            int size = dtos.size();//判断是否连续
+                            if(minWeek+size-1==maxWeek){//连续拼接周次
+                                strWeek+=minWeek+"-"+maxWeek+"]";
+                            }else{
+                                for(int i=0;i<dtos.size();i++){
+                                    Integer weekNumber = dtos.get(i).getWeekNumber();
+                                    if(i!=dtos.size()-1){
+                                        strWeek+=weekNumber+",";
+                                    }else{
+                                        strWeek+=weekNumber+"]";
+                                    }
                                 }
                             }
+                            String time=week+" "+strTime+" "+strWeek;
+                            String name = courseTakeDao.findClassTeacherByTeacherCode(teacherCode);
+                            timetab.setTime(time);
+                            timetab.setWeekNumberStr(strWeek);
+                            timetab.setDayOfWeek(dayOfWeek);
+                            timetab.setTimeStart(timeStart);
+                            timetab.setTimeEnd(timeEnd);
+                            timetab.setRoom(roomID);
+                            timetab.setTeacherCode(teacherCode);
+                            timetab.setTeacherName(name);
+                            timetab.setRemark(classTeacherDto.getRemark());
+                            timetab.setTeachingLanguage(classTeacherDto.getTeachingLanguage());
+                            timetab.setClassCode(classTeacherDto.getClassCode());
+                            timetab.setTeachingClassId(classTeacherDto.getTeachingClassId());
+                            list.add(timetab);
                         }
-                        String time=week+" "+strTime+" "+strWeek;
-                        String name = courseTakeDao.findClassTeacherByTeacherCode(teacherCode);
-                        timetab.setTime(time);
-                        timetab.setWeekNumberStr(strWeek);
-                        timetab.setDayOfWeek(dayOfWeek);
-                        timetab.setTimeStart(timeStart);
-                        timetab.setTimeEnd(timeEnd);
-                        timetab.setRoom(roomID);
-                        timetab.setTeacherCode(teacherCode);
-                        timetab.setTeacherName(name);
-                        timetab.setRemark(classTeacherDto.getRemark());
-                        timetab.setTeachingLanguage(classTeacherDto.getTeachingLanguage());
-                        timetab.setClassCode(classTeacherDto.getClassCode());
-                        timetab.setTeachingClassId(classTeacherDto.getTeachingClassId());
-                        list.add(timetab);
                     }
                 }
             }

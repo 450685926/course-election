@@ -1,11 +1,9 @@
 package com.server.edu.election.dao;
 
-import java.util.List;
-
 import com.server.edu.election.entity.ElcMedWithdrawApplyLog;
 
 import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.common.MySqlMapper;
 
-public interface ElcMedWithdrawApplyLogDao extends Mapper<ElcMedWithdrawApplyLog> {
-	int batchInsert(List<ElcMedWithdrawApplyLog> list);
+public interface ElcMedWithdrawApplyLogDao extends Mapper<ElcMedWithdrawApplyLog>, MySqlMapper<ElcMedWithdrawApplyLog> {
 }

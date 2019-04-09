@@ -19,7 +19,8 @@ public class ElecCourse
     
     /** 是否公选课 */
     private boolean publicElec;
-    
+
+
     public String getCourseCode()
     {
         return courseCode;

@@ -26,6 +26,10 @@
   <resultMap type="com.server.edu.election.dto.CourseOpenDto" id="CourseOpenDtoMap" extends="BaseResultMap">
   	<result column="teachingClassId" jdbcType="BIGINT" property="teachingClassId" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
+  	<result column="campus" jdbcType="VARCHAR" property="campus" />
+  	<result column="teachClassType" jdbcType="VARCHAR" property="teachClassType" />
+  	<result column="maxNumber" jdbcType="INTEGER" property="maxNumber" />
+  	<result column="currentNumber" jdbcType="INTEGER" property="currentNumber" />
   </resultMap>
   
   <select id="listPage" resultMap="CourseOpenDtoMap">
@@ -96,6 +100,7 @@
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId}
 	  	and t1.IS_OPEN_ = 1
+		and t4.DEPLOY_FLAG_ =1
 	  	and t1.COURSE_CODE_ NOT IN (
 	  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
 	  	)
@@ -140,13 +145,14 @@
   </delete>
   
   <select id="selectTeachingClassByRoundId" resultMap="CourseOpenDtoMap">
-  	  select op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode 
+  	  select op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON cl.TASK_ID_=ta.ID_
 	  JOIN election_rounds_cour_t co ON co.COURSE_CODE_ = op.COURSE_CODE_
 	  where
 		 co.ROUNDS_ID_ = #{roundId}
+		 and op.CALENDAR_ID_ = #{calendarId}
   </select>
   
 </mapper>

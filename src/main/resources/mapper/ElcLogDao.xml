@@ -38,6 +38,12 @@
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
 	  	and t1.STUDENT_ID_ = #{query.studentId}
 	  	</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentIds)">
+		and t1.STUDENT_ID_ IN 
+		  	<foreach item="id" collection="query.studentIds"  index="index" open="(" separator="," close=")">  
+		       #{id}  
+		    </foreach>
+	  	</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.type)">
 	  	and t1.TYPE_ = #{query.type}
 	  	</if>

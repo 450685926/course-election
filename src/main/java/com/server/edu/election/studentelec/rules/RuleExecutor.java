@@ -13,7 +13,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public interface RuleExecutor
+public interface RuleExecutor<T extends TeachingClassCache>
 {
     void setType(ElectRuleType type);
     
@@ -27,5 +27,5 @@ public interface RuleExecutor
      * @param courseClass 教学班
      * @return true通过，false不通过
      */
-    boolean checkRule(ElecContext context, TeachingClassCache courseClass);
+    boolean checkRule(ElecContext context, T courseClass);
 }
