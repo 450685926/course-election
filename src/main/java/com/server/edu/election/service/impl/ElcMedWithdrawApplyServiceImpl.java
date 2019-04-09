@@ -221,7 +221,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			if(elcMedWithdrawRules.getPracticeCourse()) {
 				Example rounds = new Example(ElectionRounds.class); 
 				Example.Criteria roundsCriteria = rounds.createCriteria();
-				roundsCriteria.andEqualTo("managerDeptId",projectId.toString());
+				roundsCriteria.andEqualTo("projectId",projectId.toString());
 				roundsCriteria.andEqualTo("calendarId",elcCourseTake.getCalendarId());
 				roundsCriteria.andEqualTo("mode", Constants.PRACTICE_COURSE_);
 				roundsCriteria.andEqualTo("openFlag", Constants.IS_OPEN);
