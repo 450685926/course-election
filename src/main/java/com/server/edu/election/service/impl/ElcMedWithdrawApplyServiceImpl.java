@@ -156,7 +156,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 		}
 		//获取期中退课规则
 		Example elcExample = new Example(ElcMedWithdrawRules.class);
-		Example.Criteria elcCriteria = example.createCriteria();
+		Example.Criteria elcCriteria = elcExample.createCriteria();
 		elcCriteria.andEqualTo("projectId",projectId);
 		elcCriteria.andEqualTo("calendarId",elcCourseTake.getCalendarId());
 		ElcMedWithdrawRules elcMedWithdrawRules = elcMedWithdrawRulesDao.selectOneByExample(elcExample);
