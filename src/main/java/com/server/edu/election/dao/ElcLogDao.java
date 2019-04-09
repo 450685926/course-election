@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.query.ElcLogQuery;
 import com.server.edu.election.vo.ElcLogVo;
 
 import tk.mybatis.mapper.common.Mapper;
@@ -15,7 +16,7 @@ import tk.mybatis.mapper.common.MySqlMapper;
  */
 public interface ElcLogDao extends Mapper<ElcLog>, MySqlMapper<ElcLog>
 {
-    Page<ElcLogVo> listPage(@Param("query") ElcLog elcLog);
+    Page<ElcLogVo> listPage(@Param("query") ElcLogQuery elcLog);
     
     /**查询选退课日志*/
     Page<ElcLogVo> findCourseLog(ElcLogVo logVo);

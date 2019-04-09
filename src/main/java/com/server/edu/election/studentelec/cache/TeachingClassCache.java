@@ -1,9 +1,11 @@
 package com.server.edu.election.studentelec.cache;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
 
 /**
@@ -12,11 +14,11 @@ import com.server.edu.election.studentelec.context.ElecCourse;
  */
 public class TeachingClassCache extends ElecCourse
 {
-    private Long teacherClassId;
+    private Long teachClassId;
     
-    private String teacherClassCode;
+    private String teachClassCode;
     
-    private String teacherClassType;
+    private String teachClassType;
     
     /** 是否实践课*/
     private Boolean isPractice = false;
@@ -24,14 +26,14 @@ public class TeachingClassCache extends ElecCourse
     /** 是否重修班*/
     private Boolean isRetraining = false;
     
-    /** 是否公选课*/
-    private Boolean isPublicElective = false;
-    
     /** 最大人数 */
     private Integer maxNumber;
     
     /** 当前人数 */
     private Integer currentNumber;
+    
+    /** 上课时间按教学周拆分集合 */
+    private List<ClassTimeUnit> times;
     
     public TeachingClassCache()
     {
@@ -46,34 +48,34 @@ public class TeachingClassCache extends ElecCourse
         this.setNameEn(course.getNameEn());
     }
     
-    public Long getTeacherClassId()
+    public Long getTeachClassId()
     {
-        return teacherClassId;
+        return teachClassId;
     }
     
-    public void setTeacherClassId(Long teacherClassId)
+    public void setTeachClassId(Long teachClassId)
     {
-        this.teacherClassId = teacherClassId;
+        this.teachClassId = teachClassId;
     }
     
-    public String getTeacherClassCode()
+    public String getTeachClassCode()
     {
-        return teacherClassCode;
+        return teachClassCode;
     }
     
-    public void setTeacherClassCode(String teacherClassCode)
+    public void setTeachClassCode(String teachClassCode)
     {
-        this.teacherClassCode = teacherClassCode;
+        this.teachClassCode = teachClassCode;
     }
     
-    public String getTeacherClassType()
+    public String getTeachClassType()
     {
-        return teacherClassType;
+        return teachClassType;
     }
     
-    public void setTeacherClassType(String teacherClassType)
+    public void setTeachClassType(String teachClassType)
     {
-        this.teacherClassType = teacherClassType;
+        this.teachClassType = teachClassType;
     }
     
     public Boolean isPractice()
@@ -96,16 +98,6 @@ public class TeachingClassCache extends ElecCourse
         isRetraining = retraining;
     }
     
-    public Boolean isPublicElective()
-    {
-        return isPublicElective;
-    }
-    
-    public void setPublicElective(Boolean publicElective)
-    {
-        isPublicElective = publicElective;
-    }
-    
     public Integer getMaxNumber()
     {
         return maxNumber;
@@ -126,10 +118,26 @@ public class TeachingClassCache extends ElecCourse
         this.currentNumber = currentNumber;
     }
     
+    public List<ClassTimeUnit> getTimes()
+    {
+        return times;
+    }
+    
+    public void setTimes(List<ClassTimeUnit> times)
+    {
+        this.times = times;
+    }
+    
+    public String getCourseCodeAndClassCode()
+    {
+        return String
+            .format("%s[%s]", this.getCourseCode(), this.getTeachClassCode());
+    }
+    
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.teacherClassId, this.teacherClassCode);
+        return Objects.hash(this.teachClassId, this.teachClassCode);
     }
     
     @Override
@@ -143,8 +151,8 @@ public class TeachingClassCache extends ElecCourse
         if (obj instanceof TeachingClassCache)
         {
             TeachingClassCache o = (TeachingClassCache)obj;
-            return StringUtils.equals(this.teacherClassCode, o.teacherClassCode)
-                && Objects.equals(this.teacherClassId, o.teacherClassId);
+            return StringUtils.equals(this.teachClassCode, o.teachClassCode)
+                && Objects.equals(this.teachClassId, o.teachClassId);
         }
         return false;
     }

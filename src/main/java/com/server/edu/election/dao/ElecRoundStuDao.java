@@ -101,4 +101,7 @@ public interface ElecRoundStuDao
      */
     List<String> notExistStudent(@Param("stu") ElecRoundStuQuery stu);
 
+    /**获取当前轮次的所有学生*/
+    List<String> findStuByRoundId(Long roundId);
+
 }

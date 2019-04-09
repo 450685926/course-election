@@ -90,4 +90,13 @@
         from exemption_apply_manage_t
         where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId}
     </select>
+
+    <select id="findApplyRecord" resultType="com.server.edu.election.studentelec.context.ElecCourse">
+        select
+        co.CODE_ courseCode,co.NAME_ courseName,co.CREDITS_ credits,co.NAME_EN_ nameEn,st.CAMPUS_ campus,co.IS_ELECTIVE_ publicElec
+        from exemption_apply_manage_t ap
+        join course_t co on co.CODE_ =ap.COURSE_CODE_
+        join student_t st on st.STUDENT_CODE_ =ap.STUDENT_CODE_
+        WHERE ap.STUDENT_CODE_=#{studentCode} and ap.CALENDAR_ID_ =#{calendarId} and ap.EXAMINE_RESULT_ !=2
+    </select>
 </mapper>

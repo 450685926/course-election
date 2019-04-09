@@ -16,7 +16,6 @@ import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.SelectedCourseVo;
 import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
@@ -86,21 +85,21 @@ public interface ElcCourseTakeDao
     
     /**查询某一学期所有教学班*/
     List<ClassTeacherDto> findAllTeachingClassId(Long calendarId);
-
-
+    
     /**通过学生删除课程*/
-
+    
     void deleteStudentById(List<String> list);
-
+    
     /**查找当前学期下的可选课学生*/
     Page<Student> findStudentList(ElcCourseTakeQuery condition);
-
-
-    /**从回收站回复到选课表*/
-
-    void addCourseTakeFromRecycle(List<RebuildCourseNoChargeList> list);
-    /**已选择课程信息*/
-    List<SelectedCourseVo> findSelectedCourses(List<Long> list);
     
+    /**从回收站回复到选课表*/
+    
+    void addCourseTakeFromRecycle(List<RebuildCourseNoChargeList> list);
+    
+    /**已选择课程信息*/
+    List<ElcCourseTakeVo> findSelectedCourses(
+        @Param("studentId") String studentId,
+        @Param("calendarId") Long calendarId);
     
 }
