@@ -384,7 +384,6 @@
             )
         </foreach>
     </insert>
-    
     <select id="findSelectedCourses" resultMap="VoResultMap">
       select
 	      t1.*,
@@ -395,6 +394,36 @@
 	      from elc_course_takes_t t1
           join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	      /*join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_*/
+	      join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+      <where>
+  	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+  	 	and t1.STUDENT_ID_ = #{studentId}
+  	 </where>
+    </select>
+    
+     <select id="findUnApplyCourses" resultMap="VoResultMap">
+      select
+	      t1.*,
+	      op.COURSE_NAME_ as courseName, op.CREDITS_,t4.PERIOD_,
+	      t4.CODE_ as teachingClassCode,
+	      t4.NAME_ as teachingClassName,
+          op.IS_ELECTIVE_ as isPublicCourse
+	      from (
+				SELECT
+					*
+				FROM
+					elc_course_takes_t
+				WHERE
+					TEACHING_CLASS_ID_ NOT IN (
+						SELECT
+							TEACHING_CLASS_ID_
+						FROM
+							elc_med_withdraw_apply_t
+						WHERE
+							STUDENT_ID_ = #{studentId}
+					)
+		  ) t1
+          join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
 	      join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
   	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
