@@ -83,7 +83,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 		int userType = session.realType();
 		if(UserTypeEnum.STUDENT.is(userType)) {
 			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-			elcCourseTakes = elcCourseTakeDao.findSelectedCourses(uid,dto.getCalendarId());
+			elcCourseTakes = elcCourseTakeDao.findUnApplyCourses(uid,dto.getCalendarId());
 		}
 		PageInfo<ElcCourseTakeVo> pageInfo =new PageInfo<>(elcCourseTakes);
 		return pageInfo;
@@ -91,8 +91,16 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 	
 	@Override
 	public PageInfo<ElcMedWithdrawApplyVo> applyLogs(PageCondition<ElcMedWithdrawApplyDto> condition){
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		List<ElcMedWithdrawApplyVo> list = elcMedWithdrawApplyDao.selectApplyLogs(condition.getCondition());
+		List<ElcMedWithdrawApplyVo> list = new ArrayList<>();
+		ElcMedWithdrawApplyDto dto = condition.getCondition();
+		Session session = SessionUtils.getCurrentSession();
+		String uid = session.realUid();
+		int userType = session.realType();
+		if(UserTypeEnum.STUDENT.is(userType)) {
+			dto.setStudentId(uid);
+			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+			list = elcMedWithdrawApplyDao.selectApplyLogs(condition.getCondition());
+		}
 		PageInfo<ElcMedWithdrawApplyVo> pageInfo =new PageInfo<>(list);
 		return pageInfo;
 	}
@@ -156,7 +164,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 		}
 		//获取期中退课规则
 		Example elcExample = new Example(ElcMedWithdrawRules.class);
-		Example.Criteria elcCriteria = example.createCriteria();
+		Example.Criteria elcCriteria = elcExample.createCriteria();
 		elcCriteria.andEqualTo("projectId",projectId);
 		elcCriteria.andEqualTo("calendarId",elcCourseTake.getCalendarId());
 		ElcMedWithdrawRules elcMedWithdrawRules = elcMedWithdrawRulesDao.selectOneByExample(elcExample);
@@ -221,7 +229,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			if(elcMedWithdrawRules.getPracticeCourse()) {
 				Example rounds = new Example(ElectionRounds.class); 
 				Example.Criteria roundsCriteria = rounds.createCriteria();
-				roundsCriteria.andEqualTo("managerDeptId",projectId.toString());
+				roundsCriteria.andEqualTo("projectId",projectId.toString());
 				roundsCriteria.andEqualTo("calendarId",elcCourseTake.getCalendarId());
 				roundsCriteria.andEqualTo("mode", Constants.PRACTICE_COURSE_);
 				roundsCriteria.andEqualTo("openFlag", Constants.IS_OPEN);
