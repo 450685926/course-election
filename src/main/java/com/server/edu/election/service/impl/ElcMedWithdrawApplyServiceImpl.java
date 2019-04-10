@@ -340,6 +340,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			elcLog.setCourseCode(teachingClassVo.getCourseCode());
 			elcLog.setCourseCode(teachingClassVo.getCourseName());
 			elcLog.setTeachingClassCode(teachingClassVo.getCode());
+			elcLog.setType(Constants.THREE);
 			//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
 			String ip = ContextUtils.getInvocationContext().getContext("IP");
 			log.setOprationClientIp(ip);
