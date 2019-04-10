@@ -1,14 +1,13 @@
 package com.server.edu.election.service.impl;
 
 import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.servicecomb.swagger.invocation.context.ContextUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,7 @@ import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcMedWithdrawApplyDto;
 import com.server.edu.election.dto.ElcMedWithdrawRuleRefCourDto;
+import com.server.edu.election.entity.ApprovalInfo;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElcMedWithdrawApply;
@@ -142,14 +142,8 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 		log.setStudentId(elcCourseTake.getStudentId());
 		log.setTeachingClassId(elcCourseTake.getTeachingClassId());
 		//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
-		try {
-			InetAddress address = InetAddress.getLocalHost();
-			String hostAddress = address.getHostAddress();
-			log.setOprationClientIp(hostAddress);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String ip = ContextUtils.getInvocationContext().getContext("IP");
+		log.setOprationClientIp(ip);
 		String userId =SessionUtils.getCurrentSession().realUid();
 		String userName = SessionUtils.getCurrentSession().realName();
 		log.setOprationObjCode(userId);
@@ -305,12 +299,12 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 	
 	@Override
 	@Transactional
-	public String approval(List<Long> ids,Integer projectId) {
+	public String approval(ApprovalInfo approvalInfo) {
 		String msg = "";
 		List<ElcMedWithdrawApplyLog> logs =new ArrayList<>();
 		Example example = new Example(ElcMedWithdrawApply.class);
 		Example.Criteria criteria = example.createCriteria();
-		criteria.andIn("id", ids);
+		criteria.andIn("id", approvalInfo.getIds());
 		List<ElcMedWithdrawApply> list = elcMedWithdrawApplyDao.selectByExample(example);
 		if(CollectionUtil.isEmpty(list)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.applyDataError"));
@@ -347,15 +341,8 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			elcLog.setCourseCode(teachingClassVo.getCourseName());
 			elcLog.setTeachingClassCode(teachingClassVo.getCode());
 			//获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
-			try {
-				InetAddress address = InetAddress.getLocalHost();
-				String hostAddress = address.getHostAddress();
-				elcLog.setCreateIp(hostAddress);
-				log.setOprationClientIp(hostAddress);
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String ip = ContextUtils.getInvocationContext().getContext("IP");
+			log.setOprationClientIp(ip);
 			String userId =SessionUtils.getCurrentSession().realUid();
 			String userName = SessionUtils.getCurrentSession().realName();
 			elcLog.setCreateBy(userId);
@@ -367,7 +354,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			log.setTargetObjName(userName);
 			log.setOprationType(Constants.EN_AUDIT);
 			log.setCreatedAt(new Date());
-			int checkResult=medWithdrawCheck(projectId,elcCourseTake,log,type);
+			int checkResult=medWithdrawCheck(approvalInfo.getProjectId(),elcCourseTake,log,type);
 			if(Constants.ONE==checkResult) {
 				takeIds.add(elcCourseTake.getId());
 				logs.add(log);
