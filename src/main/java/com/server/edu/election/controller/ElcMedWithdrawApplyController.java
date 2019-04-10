@@ -115,12 +115,12 @@ public class ElcMedWithdrawApplyController {
      */
     @ApiOperation(value = "期中退课审批")
     @PostMapping("/approval")
-    public RestResult<Integer> approval(
-    		@RequestBody @NotEmpty List<Long> ids)
+    public RestResult<String> approval(
+    		@RequestParam("ids") @NotEmpty List<Long> ids,@RequestParam("projectId") @NotNull Integer projectId)
         throws Exception
     {
         LOG.info("approval.start");
-        int result =elcMedWithdrawApplyService.approval(ids);
+        String result =elcMedWithdrawApplyService.approval(ids,projectId);
         return RestResult.successData(result);
     }
 	

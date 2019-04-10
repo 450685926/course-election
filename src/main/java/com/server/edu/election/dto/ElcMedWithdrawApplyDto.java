@@ -41,6 +41,7 @@ public class ElcMedWithdrawApplyDto extends ElcMedWithdrawApply {
     @NotEmpty
     private List<Long> teachingClassIds;
     
+    private String keyWord;
     
 
 	public String getCourseCode() {
@@ -115,4 +116,14 @@ public class ElcMedWithdrawApplyDto extends ElcMedWithdrawApply {
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
 	}
+
+	public String getKeyWord() {
+		return keyWord;
+	}
+
+	public void setKeyWord(String keyWord) {
+		this.keyWord = keyWord;
+	}
+	
+	
 }
