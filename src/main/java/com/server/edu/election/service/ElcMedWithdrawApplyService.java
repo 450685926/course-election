@@ -12,6 +12,6 @@ public interface ElcMedWithdrawApplyService {
 	PageInfo<ElcMedWithdrawApplyVo> applyLogs(PageCondition<ElcMedWithdrawApplyDto> condition);
 	PageInfo<ElcMedWithdrawApplyVo> list(PageCondition<ElcMedWithdrawApplyDto> condition);
 	int apply(Long id,Integer projectId);
-	int approval(List<Long> ids);
+	String approval(List<Long> ids,Integer projectId);
 
 }

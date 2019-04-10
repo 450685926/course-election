@@ -18,5 +18,9 @@ public interface Constants
 	 public static final String MANAGER_ADMIN = "MANAGER_ADMIN";
 	 public static final int PRACTICE_COURSE_ = 2;
 	 public static final int IS_OPEN = 1;
+	 /**申请*/
+	 public static final int APPIY = 1;
+	 /**审批*/
+	 public static final int APPROVAL = 2;
     
 }
