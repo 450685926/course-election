@@ -113,7 +113,15 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 	@Override
 	public PageInfo<ElcMedWithdrawApplyVo> list(PageCondition<ElcMedWithdrawApplyDto> condition){
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+		ElcMedWithdrawApplyDto dto = condition.getCondition();
+		//审核通过的
+		dto.setType(Constants.ONE);
 		List<ElcMedWithdrawApplyVo> list = elcMedWithdrawApplyDao.selectMedApplyList(condition.getCondition());
+		if(CollectionUtil.isEmpty(list)) {
+			//未审核的
+			dto.setType(Constants.ZERO);
+			list = elcMedWithdrawApplyDao.selectMedApplyList(condition.getCondition());
+		}
 		PageInfo<ElcMedWithdrawApplyVo> pageInfo =new PageInfo<>(list);
 		return pageInfo;
 	}
