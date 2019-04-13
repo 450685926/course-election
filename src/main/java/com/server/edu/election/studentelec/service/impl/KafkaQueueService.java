@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
-import com.server.edu.dmskafka.clients.DmsKafkaClients;
+import com.server.edu.dmskafka.clients.KafkaClients;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.service.ElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -65,7 +65,14 @@ public class KafkaQueueService implements ElecQueueService<ElecRequest>
         {
             Properties properties = new Properties();
             properties.setProperty("topic", groupMap.get(group));
-            queue = DmsKafkaClients.createProducer(properties);
+            try
+            {
+                queue = KafkaClients.createProducer(properties);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
             groupQueueMap.putIfAbsent(group, queue);
         }
         return queue;
@@ -78,7 +85,7 @@ public class KafkaQueueService implements ElecQueueService<ElecRequest>
         properties.setProperty("topic", groupMap.get(group));
         try
         {
-            DmsKafkaClients.consumeMsg(cons -> {
+            KafkaClients.consumeMsg(cons -> {
                 comsumerThreadPool.execute(() -> {
                     comsumer.consume(JSON.parseObject(cons.value(), ElecRequest.class));
                 });
