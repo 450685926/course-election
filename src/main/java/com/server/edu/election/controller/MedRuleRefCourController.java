@@ -92,7 +92,7 @@ public class MedRuleRefCourController {
      */
     @ApiOperation(value = "全量添加退课白名单")
     @PostMapping("/removeAll")
-    public RestResult<Integer> removeAll(@RequestBody @Valid ElcMedWithdrawRuleRefCourDto dto)
+    public RestResult<Integer> removeAll(@RequestBody ElcMedWithdrawRuleRefCourDto dto)
         throws Exception
     {
         LOG.info("removeAll.start");
