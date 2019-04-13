@@ -83,6 +83,40 @@ public class MedRuleRefCourController {
         return RestResult.successData(result);
     }
     
+    /**
+     * 批量移除退课白名单
+     * 
+     * @param 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "全量添加退课白名单")
+    @PostMapping("/removeAll")
+    public RestResult<Integer> removeAll(@RequestBody @Valid ElcMedWithdrawRuleRefCourDto dto)
+        throws Exception
+    {
+        LOG.info("removeAll.start");
+        int result =medRuleRefCourService.removeAll(dto);
+        return RestResult.successData(result);
+    }
+    
+    /**
+     * 移除退课白名单
+     * 
+     * @param 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "移除退课白名单")
+    @PostMapping("/remove")
+    public RestResult<Integer> remove(@RequestBody @Valid ElcMedWithdrawRuleRefCourDto dto)
+        throws Exception
+    {
+        LOG.info("remove.start");
+        int result =medRuleRefCourService.remove(dto);
+        return RestResult.successData(result);
+    }
+    
     
     
 
