@@ -43,7 +43,13 @@
 		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_ID_ = t2.ID_
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON t4.ID_ = t3.COURSE_OPEN_ID_
-		LEFT JOIN elc_med_withdraw_apply_log_t t5 ON t5.TEACHING_CLASS_ID_ = t1.TEACHING_CLASS_ID_
+		LEFT JOIN elc_med_withdraw_apply_log_t t5 ON 
+		<if test="type!=null and type==0">
+	        (t5.TEACHING_CLASS_ID_ = t1.TEACHING_CLASS_ID_ and t5.OPRATION_OBJ_CODE=t1.STUDENT_ID_)
+	      </if>
+	     <if test="type!=null and type==1">
+	        (t5.TEACHING_CLASS_ID_ = t1.TEACHING_CLASS_ID_ and t5.OPRATION_OBJ_CODE!=t1.STUDENT_ID_)
+	      </if>
 		INNER JOIN student_t t6  ON t1.STUDENT_ID_ = t6.STUDENT_CODE_
 	 <where>
 	      1=1
