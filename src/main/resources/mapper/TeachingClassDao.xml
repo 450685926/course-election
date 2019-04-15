@@ -35,7 +35,6 @@
   	<result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   </resultMap>
-
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
 	teaching_class_t t1 
@@ -43,6 +42,42 @@
 	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+        and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
+        and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+        and t3.COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+        and t3.COURSE_NAME_ = #{courseName,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+        and t2.CAMPUS_ = #{campus,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+  
+    <select id="findTeachingClass" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
+    select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
+	teaching_class_t t1 
+	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
+    <where>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+        t3.CALENDAR_ID_ = #{calendarId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassId)">
+        and t1.ID_ = #{teachingClassId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassIds)">
+        and t1.ID_ in 
+         <foreach collection="teachingClassIds" open="(" separator="," close=")" item="id">
+            #{id}
+         </foreach>
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>

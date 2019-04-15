@@ -264,6 +264,7 @@ public class StudentElecServiceImpl implements StudentElecService
             course.setTeachClassId(teachClassId);
             course.setTurn(round.getTurn());
             course.setCourseTakeType(courseTakeType);
+            course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
             // 更新缓存中的数据
             dataProvider.incrementElecNumber(teachClassId);
