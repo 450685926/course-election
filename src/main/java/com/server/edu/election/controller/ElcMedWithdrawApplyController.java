@@ -1,11 +1,9 @@
 package com.server.edu.election.controller;
 
-import java.util.List;
-
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,7 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElcMedWithdrawApplyDto;
+import com.server.edu.election.entity.ApprovalInfo;
 import com.server.edu.election.service.ElcMedWithdrawApplyService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcMedWithdrawApplyVo;
@@ -116,11 +115,11 @@ public class ElcMedWithdrawApplyController {
     @ApiOperation(value = "期中退课审批")
     @PostMapping("/approval")
     public RestResult<String> approval(
-    		@RequestParam("ids") @NotEmpty List<Long> ids,@RequestParam("projectId") @NotNull Integer projectId)
+    		@RequestBody @Valid ApprovalInfo approvalInfo)
         throws Exception
     {
         LOG.info("approval.start");
-        String result =elcMedWithdrawApplyService.approval(ids,projectId);
+        String result =elcMedWithdrawApplyService.approval(approvalInfo);
         return RestResult.successData(result);
     }
 	
