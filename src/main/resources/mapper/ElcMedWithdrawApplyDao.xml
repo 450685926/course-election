@@ -36,13 +36,21 @@
 			t4.NATURE_ nature,
 			t4.FACULTY_ faculty,
 			t5.OPRATION_OBJ_CODE,
-			t5.OPRATION_OBJ_NAME
+			t5.OPRATION_OBJ_NAME,
+			t6.NAME_  studentName
 		FROM
 			elc_med_withdraw_apply_t t1
 		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_ID_ = t2.ID_
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON t4.ID_ = t3.COURSE_OPEN_ID_
-		LEFT JOIN elc_med_withdraw_apply_log_t t5 ON t5.TEACHING_CLASS_ID_ = t1.TEACHING_CLASS_ID_
+		LEFT JOIN elc_med_withdraw_apply_log_t t5 ON 
+		<if test="type!=null and type==0">
+	        (t5.TEACHING_CLASS_ID_ = t1.TEACHING_CLASS_ID_ and t5.OPRATION_OBJ_CODE=t1.STUDENT_ID_)
+	      </if>
+	     <if test="type!=null and type==1">
+	        (t5.TEACHING_CLASS_ID_ = t1.TEACHING_CLASS_ID_ and t5.OPRATION_OBJ_CODE!=t1.STUDENT_ID_)
+	      </if>
+		INNER JOIN student_t t6  ON t1.STUDENT_ID_ = t6.STUDENT_CODE_
 	 <where>
 	      1=1
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
@@ -58,13 +66,16 @@
 	        and t4.NATURE_= #{nature}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-	        and t4.COURSE_CODE_ like concat('%',#{courseCode},'%')
+	        and t4.COURSE_CODE_ like concat(#{courseCode},'%')
+	      </if>
+	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+	        and (t4.COURSE_CODE_ like concat(#{keyWord},'%') or t2.CODE_ like concat(#{keyWord},'%'))
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(withdrawFlag)">
 	        and t1.WITHDRAW_FLAG_ = #{withdrawFlag}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-	        and t1.STUDENT_ID_ like concat('%',#{studentId},'%')
+	        and t1.STUDENT_ID_ like concat(#{studentId},'%')
 	      </if> 	       	      	       
 	  </where>		   		
   </select>

@@ -9,4 +9,6 @@ public interface MedRuleRefCourService {
 	PageInfo<ElcMedWithdrawRuleRefCourVo> list(PageCondition<ElcMedWithdrawRuleRefCourDto> condition);
 	int add(ElcMedWithdrawRuleRefCourDto elcMedWithdrawRuleRefCourDto);
 	int addAll(ElcMedWithdrawRuleRefCourDto dto);
+	int removeAll(ElcMedWithdrawRuleRefCourDto dto);
+	int remove(ElcMedWithdrawRuleRefCourDto dto);
 }

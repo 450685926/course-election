@@ -70,11 +70,18 @@ public class ElcMedWithdrawApplyVo extends ElcMedWithdrawApply {
     /**
      * 学分
      */
-    private Double credits; 
+    private Double credits;
     
+    private String studentName;
     
+	public String getStudentName() {
+		return studentName;
+	}
 
-    
+	public void setStudentName(String studentName) {
+		this.studentName = studentName;
+	}
+
 	public String getApprovalCode() {
 		return approvalCode;
 	}
