@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.swagger.invocation.context.ContextUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +106,11 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			dto.setStudentId(uid);
 			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 			list = elcMedWithdrawApplyDao.selectApplyLogs(condition.getCondition());
+			for(ElcMedWithdrawApplyVo vo:list) {
+				if(StringUtils.isBlank(vo.getContent())) {
+					vo.setWithdrawFlag(false);
+				}
+			}
 		}
 		PageInfo<ElcMedWithdrawApplyVo> pageInfo =new PageInfo<>(list);
 		return pageInfo;
