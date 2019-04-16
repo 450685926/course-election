@@ -407,7 +407,7 @@
 	      op.COURSE_NAME_ as courseName, op.CREDITS_,t4.PERIOD_,
 	      t4.CODE_ as teachingClassCode,
 	      t4.NAME_ as teachingClassName,
-	      t4.CAMPUS_ campus,
+	      t4.CAMPUS_ as campus,
           op.IS_ELECTIVE_ as isPublicCourse
 	      from (
 				SELECT
