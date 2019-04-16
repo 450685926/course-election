@@ -107,7 +107,7 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 			list = elcMedWithdrawApplyDao.selectApplyLogs(condition.getCondition());
 			for(ElcMedWithdrawApplyVo vo:list) {
-				if(StringUtils.isBlank(vo.getContent())) {
+				if(StringUtils.isNoneBlank(vo.getContent())||vo.getStudentId().equals(vo.getOprationObjCode())) {
 					vo.setWithdrawFlag(false);
 				}
 			}
