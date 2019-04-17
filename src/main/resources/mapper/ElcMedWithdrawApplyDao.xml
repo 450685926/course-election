@@ -85,6 +85,8 @@
 		t1.STUDENT_ID_ studentId,
 		t1.WITHDRAW_FLAG_ withdrawFlag,
 		t2.CONTENT_ content,
+		t2.OPRATION_OBJ_CODE oprationObjCode,
+		t2.OPRATION_OBJ_NAME oprationObjName,  
 		t3.ID_ teachingClassId,
 		t3.CODE_ CODE,
 		t3.NAME_ NAME,
