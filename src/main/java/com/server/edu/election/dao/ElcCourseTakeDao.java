@@ -102,4 +102,9 @@ public interface ElcCourseTakeDao
         @Param("studentId") String studentId,
         @Param("calendarId") Long calendarId);
     
+    /**未申请期中退课课程信息*/
+    List<ElcCourseTakeVo> findUnApplyCourses(
+        @Param("studentId") String studentId,
+        @Param("calendarId") Long calendarId);
+    
 }

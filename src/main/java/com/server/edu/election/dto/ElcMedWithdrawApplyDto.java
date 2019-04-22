@@ -41,7 +41,18 @@ public class ElcMedWithdrawApplyDto extends ElcMedWithdrawApply {
     @NotEmpty
     private List<Long> teachingClassIds;
     
+    private String keyWord;
     
+    private int type;
+    
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
 
 	public String getCourseCode() {
 		return courseCode;
@@ -115,4 +126,14 @@ public class ElcMedWithdrawApplyDto extends ElcMedWithdrawApply {
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
 	}
+
+	public String getKeyWord() {
+		return keyWord;
+	}
+
+	public void setKeyWord(String keyWord) {
+		this.keyWord = keyWord;
+	}
+	
+	
 }
