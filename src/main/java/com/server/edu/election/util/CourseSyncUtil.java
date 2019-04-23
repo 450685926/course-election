@@ -15,6 +15,7 @@ public class CourseSyncUtil
         s.setEnabled(c.getEnabled());
         s.setName(c.getName());
         s.setNameEn(c.getNameEn());
+        s.setWeeks(c.getWeeks());
         s.setWeekHour(c.getWeekHour());
         s.setPeriod(c.getPeriod());
         s.setCrossTerm(c.getCrossTerm());
@@ -25,7 +26,11 @@ public class CourseSyncUtil
         s.setCollege(c.getCollege());
         s.setNature(c.getNature());
         s.setLabel(c.getLabel());
+        s.setTeachingLanguage(c.getTeachingLanguage());
+        s.setScoreType(c.getScoreType());
         s.setAssessmentMode(c.getAssessmentMode());
+        s.setHeadTeacher(c.getHeadTeacher());
+        s.setTeachers(c.getTeachers());
         s.setManagerDeptId(c.getManagerDeptId());
         s.setStatus(c.getStatus());
         s.setRemark(c.getRemark());
