@@ -5,7 +5,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -37,15 +36,11 @@ public class StaringListener
     @Autowired
     private ThreadPoolTaskExecutor taskExecutor;
     
-    @Autowired
-    private Environment environment;
-    
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event)
     {
         taskExecutor.execute(() -> {
-            String groupId = environment.getProperty("kafkaDataSyncGroupId");
-            SyncReceiver.receive(groupId, cons -> {
+            SyncReceiver.receive(cons -> {
                 SyncType find = SyncType.find(cons.key());
                 if (SyncType.COURSE == find)
                 {

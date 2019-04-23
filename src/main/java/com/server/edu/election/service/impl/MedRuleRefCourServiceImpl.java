@@ -2,10 +2,12 @@ package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -19,6 +21,8 @@ import com.server.edu.election.service.MedRuleRefCourService;
 import com.server.edu.election.vo.ElcMedWithdrawRuleRefCourVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 @Service
 public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 	@Autowired
@@ -41,6 +45,7 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 	}
 	
 	@Override
+	@Transactional
 	public int add(ElcMedWithdrawRuleRefCourDto elcMedWithdrawRuleRefCourDto) {
 		List<Long> list = elcMedWithdrawRuleRefCourDto.getTeachingClassIds();
 		List<ElcMedWithdrawRuleRefCour> refList = new ArrayList<>();
@@ -59,6 +64,7 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 	}
 	
 	@Override
+	@Transactional
 	public int addAll(ElcMedWithdrawRuleRefCourDto dto) {
 		int result = Constants.ZERO;
 		List<ElcMedWithdrawRuleRefCourVo> list= elcMedWithdrawRuleRefCourDao.selectUnMedRuleRefCours(dto);
@@ -78,5 +84,43 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 		}
 		return result;
 		
+	}
+	
+	@Override
+	@Transactional
+	public int removeAll(ElcMedWithdrawRuleRefCourDto dto) {
+		int result = Constants.ZERO;
+		List<ElcMedWithdrawRuleRefCourVo> list =elcMedWithdrawRuleRefCourDao.selectMedRuleRefCours(dto);
+		if(CollectionUtil.isEmpty(list)) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		List<Long> teachingClassIds = list.stream().map(ElcMedWithdrawRuleRefCourVo::getTeachingClassId).collect(Collectors.toList());
+		Example example = new Example(ElcMedWithdrawRuleRefCour.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andIn("teachingClassId", teachingClassIds);
+		result = elcMedWithdrawRuleRefCourDao.deleteByExample(example);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcMedWithdraw.ruleRefCour")));
+		}
+		return result;
+	}
+	
+	@Override
+	@Transactional
+	public int remove(ElcMedWithdrawRuleRefCourDto dto) {
+	    List<Long> teachingClassIds = dto.getTeachingClassIds();
+		int result = Constants.ZERO;
+		Example example = new Example(ElcMedWithdrawRuleRefCour.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andIn("teachingClassId", teachingClassIds);
+		List<ElcMedWithdrawRuleRefCour> list  =elcMedWithdrawRuleRefCourDao.selectByExample(example);
+		if(CollectionUtil.isEmpty(list)) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		result = elcMedWithdrawRuleRefCourDao.deleteByExample(example);
+		if(result<=Constants.ZERO) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("elcMedWithdraw.ruleRefCour")));
+		}
+		return result;
 	}
 }

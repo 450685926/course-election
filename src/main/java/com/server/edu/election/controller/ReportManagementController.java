@@ -1,18 +1,9 @@
 package com.server.edu.election.controller;
 
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.service.ElcLogService;
-import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
-import io.swagger.annotations.*;
+import java.io.File;
+import java.net.URLDecoder;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
@@ -23,11 +14,34 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.File;
-import java.net.URLDecoder;
-import java.util.List;
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.entity.ElcNoSelectReason;
+import com.server.edu.election.service.ElcLogService;
+import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
+import com.server.edu.election.vo.StudentVo;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * @description: 报表管理

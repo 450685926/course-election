@@ -70,11 +70,46 @@ public class ElcMedWithdrawApplyVo extends ElcMedWithdrawApply {
     /**
      * 学分
      */
-    private Double credits; 
+    private Double credits;
     
+    private String studentName;
     
+    /**
+     * 操作对象工号
+     */
+    private String oprationObjCode;
 
+    /**
+     * 操作对象姓名
+     */
+    private String oprationObjName;
     
+    
+    
+	public String getOprationObjCode() {
+		return oprationObjCode;
+	}
+
+	public void setOprationObjCode(String oprationObjCode) {
+		this.oprationObjCode = oprationObjCode;
+	}
+
+	public String getOprationObjName() {
+		return oprationObjName;
+	}
+
+	public void setOprationObjName(String oprationObjName) {
+		this.oprationObjName = oprationObjName;
+	}
+
+	public String getStudentName() {
+		return studentName;
+	}
+
+	public void setStudentName(String studentName) {
+		this.studentName = studentName;
+	}
+
 	public String getApprovalCode() {
 		return approvalCode;
 	}
