@@ -9,7 +9,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table(name = "courses_t")
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+@CodeI18n
+@Table(name = "course_t")
 public class Course implements Serializable
 {
     /**
@@ -83,6 +86,7 @@ public class Course implements Serializable
     /**
      * 培养层次
      */
+    @Code2Text(transformer = "X_PYCC")
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
     
@@ -101,6 +105,7 @@ public class Course implements Serializable
     /**
      * 所属学院
      */
+    @Code2Text(transformer="X_YX")
     @Column(name = "COLLEGE_")
     private String college;
     
