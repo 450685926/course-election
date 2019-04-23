@@ -1,6 +1,7 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -15,8 +16,8 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 public class Course implements Serializable
 {
     /**
-    * 主键
-    */
+     * 主键
+     */
     @Id
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +52,12 @@ public class Course implements Serializable
      */
     @Column(name = "NAME_EN_")
     private String nameEn;
+    
+    /**
+     * 周数
+     */
+    @Column(name = "WEEKS_")
+    private Integer weeks;
     
     /**
      * 周课时
@@ -115,10 +122,34 @@ public class Course implements Serializable
     private String label;
     
     /**
+     * 授课语言
+     */
+    @Column(name = "TEACHING_LANGUAGE_")
+    private String teachingLanguage;
+    
+    /**
+     * 成绩记录方式（从字典取值 X_CJJL）
+     */
+    @Column(name = "SCORE_TYPE_")
+    private String scoreType;
+    
+    /**
      * 考核方式（从字典取值 X_KSLX）
      */
     @Column(name = "ASSESSMENT_MODE_")
     private String assessmentMode;
+    
+    /**
+     * 课程负责人
+     */
+    @Column(name = "HEAD_TEACHER_")
+    private String headTeacher;
+    
+    /**
+     * 其他讲课人
+     */
+    @Column(name = "TEACHERS_")
+    private String teachers;
     
     /**
      * 管理部门id（字典取值）
@@ -131,6 +162,12 @@ public class Course implements Serializable
      */
     @Column(name = "STATUS_")
     private Integer status;
+    
+    /**
+     * 更新时间
+     */
+    @Column(name = "UPDATE_TIME_")
+    private Date updateTime;
     
     /**
      * 备注
@@ -264,6 +301,26 @@ public class Course implements Serializable
     public void setNameEn(String nameEn)
     {
         this.nameEn = nameEn == null ? null : nameEn.trim();
+    }
+    
+    /**
+     * 获取周数
+     *
+     * @return WEEKS_ - 周数
+     */
+    public Integer getWeeks()
+    {
+        return weeks;
+    }
+    
+    /**
+     * 设置周数
+     *
+     * @param weeks 周数
+     */
+    public void setWeeks(Integer weeks)
+    {
+        this.weeks = weeks;
     }
     
     /**
@@ -468,6 +525,47 @@ public class Course implements Serializable
     }
     
     /**
+     * 获取授课语言
+     *
+     * @return TEACHING_LANGUAGE_ - 授课语言
+     */
+    public String getTeachingLanguage()
+    {
+        return teachingLanguage;
+    }
+    
+    /**
+     * 设置授课语言
+     *
+     * @param teachingLanguage 授课语言
+     */
+    public void setTeachingLanguage(String teachingLanguage)
+    {
+        this.teachingLanguage =
+            teachingLanguage == null ? null : teachingLanguage.trim();
+    }
+    
+    /**
+     * 获取成绩记录方式（从字典取值 X_CJJL）
+     *
+     * @return SCORE_TYPE_ - 成绩记录方式（从字典取值 X_CJJL）
+     */
+    public String getScoreType()
+    {
+        return scoreType;
+    }
+    
+    /**
+     * 设置成绩记录方式（从字典取值 X_CJJL）
+     *
+     * @param scoreType 成绩记录方式（从字典取值 X_CJJL）
+     */
+    public void setScoreType(String scoreType)
+    {
+        this.scoreType = scoreType == null ? null : scoreType.trim();
+    }
+    
+    /**
      * 获取考核方式（从字典取值 X_KSLX）
      *
      * @return ASSESSMENT_MODE_ - 考核方式（从字典取值 X_KSLX）
@@ -486,6 +584,46 @@ public class Course implements Serializable
     {
         this.assessmentMode =
             assessmentMode == null ? null : assessmentMode.trim();
+    }
+    
+    /**
+     * 获取课程负责人
+     *
+     * @return HEAD_TEACHER_ - 课程负责人
+     */
+    public String getHeadTeacher()
+    {
+        return headTeacher;
+    }
+    
+    /**
+     * 设置课程负责人
+     *
+     * @param headTeacher 课程负责人
+     */
+    public void setHeadTeacher(String headTeacher)
+    {
+        this.headTeacher = headTeacher == null ? null : headTeacher.trim();
+    }
+    
+    /**
+     * 获取其他讲课人
+     *
+     * @return TEACHERS_ - 其他讲课人
+     */
+    public String getTeachers()
+    {
+        return teachers;
+    }
+    
+    /**
+     * 设置其他讲课人
+     *
+     * @param teachers 其他讲课人
+     */
+    public void setTeachers(String teachers)
+    {
+        this.teachers = teachers == null ? null : teachers.trim();
     }
     
     /**
@@ -527,6 +665,26 @@ public class Course implements Serializable
     public void setStatus(Integer status)
     {
         this.status = status;
+    }
+    
+    /**
+     * 获取更新时间
+     *
+     * @return UPDATE_TIME_ - 更新时间
+     */
+    public Date getUpdateTime()
+    {
+        return updateTime;
+    }
+    
+    /**
+     * 设置更新时间
+     *
+     * @param updateTime 更新时间
+     */
+    public void setUpdateTime(Date updateTime)
+    {
+        this.updateTime = updateTime;
     }
     
     /**
@@ -582,6 +740,7 @@ public class Course implements Serializable
         sb.append(", enabled=").append(enabled);
         sb.append(", name=").append(name);
         sb.append(", nameEn=").append(nameEn);
+        sb.append(", weeks=").append(weeks);
         sb.append(", weekHour=").append(weekHour);
         sb.append(", period=").append(period);
         sb.append(", crossTerm=").append(crossTerm);
@@ -592,9 +751,14 @@ public class Course implements Serializable
         sb.append(", college=").append(college);
         sb.append(", nature=").append(nature);
         sb.append(", label=").append(label);
+        sb.append(", teachingLanguage=").append(teachingLanguage);
+        sb.append(", scoreType=").append(scoreType);
         sb.append(", assessmentMode=").append(assessmentMode);
+        sb.append(", headTeacher=").append(headTeacher);
+        sb.append(", teachers=").append(teachers);
         sb.append(", managerDeptId=").append(managerDeptId);
         sb.append(", status=").append(status);
+        sb.append(", updateTime=").append(updateTime);
         sb.append(", remark=").append(remark);
         sb.append(", teachMode=").append(teachMode);
         sb.append(", serialVersionUID=").append(serialVersionUID);
