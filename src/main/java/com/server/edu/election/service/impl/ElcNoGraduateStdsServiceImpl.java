@@ -1,27 +1,25 @@
 package com.server.edu.election.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoGraduateStdsDao;
-import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.GraduateExcelDto;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcNoGraduateStdsService;
 import com.server.edu.election.vo.ElcNoGraduateStdsVo;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
-
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @description: 留学生
@@ -39,13 +37,6 @@ public class ElcNoGraduateStdsServiceImpl implements ElcNoGraduateStdsService {
     @Autowired
     private StudentDao studentDao;
 
-    @Autowired
-    private ElecRoundStuDao roundStuDao;
-
-    @Autowired
-    private ElcCourseTakeDao takeDao;
-
-    
     /**
     *@Description: 查询留学生结业名单
     *@Param:
