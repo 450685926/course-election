@@ -1,5 +1,6 @@
 package com.server.edu.election.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,11 +58,14 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		if(CollectionUtil.isEmpty(courses)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
-		Example example = new Example(ElectionApplyCourses.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("calendarId", dto.getCalendarId());
-		criteria.andIn("courseCode",dto.getCourses());
-		int result = electionApplyCoursesDao.deleteByExample(example);
+		List<ElectionApplyCourses> list = new ArrayList<>();
+		for(String course:dto.getCourses()) {
+			ElectionApplyCourses electionApplyCourses = new ElectionApplyCourses();
+			electionApplyCourses.setCourseCode(course);
+			electionApplyCourses.setCalendarId(dto.getCalendarId());
+			list.add(electionApplyCourses);
+		}
+		int result = electionApplyCoursesDao.insertList(list);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionApply.electionApplyCourses")));
 		}

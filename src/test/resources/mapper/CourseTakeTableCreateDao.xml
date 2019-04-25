@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.CourseTakeTableCreateDao">
+
+    <update id="createTableIfNotExists">
+        CREATE TABLE `elc_course_takes_t` (
+		  `ID_` bigint(20) NOT NULL COMMENT '主键（自增）',
+		  `STUDENT_ID_` varchar(20) NOT NULL COMMENT '学号',
+		  `CALENDAR_ID_` bigint(20) NOT NULL COMMENT '校历ID（学年学期）',
+		  `COURSE_CODE_` varchar(32) NOT NULL COMMENT '课程代码',
+		  `TEACHING_CLASS_ID_` bigint(20) NOT NULL COMMENT '教学班ID',
+		  `COURSE_TAKE_TYPE_` int(3) NOT NULL COMMENT '修读类别(1正常修读,2重修,3免修不免考,4免修)',
+		  `MODE_` int(1) DEFAULT NULL COMMENT '模式',
+		  `TURN_` int(5) NOT NULL COMMENT '第几轮',
+		  `CHOOSE_OBJ_` int(1) NOT NULL COMMENT '选课对象(1学生，2教务员，3管理员)',
+		  `PAID_` int(1) NOT NULL DEFAULT '0' COMMENT '重修费是否支付(0否，1是)',
+		  `BILL_ID_` bigint(20) NOT NULL DEFAULT '0' COMMENT '账单ID',
+		  `CREATED_AT_` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+		  PRIMARY KEY (`ID_`),
+		  UNIQUE KEY `uk_stuid_cale_course_class_` (`STUDENT_ID_`,`CALENDAR_ID_`,`COURSE_CODE_`,`TEACHING_CLASS_ID_`,`COURSE_TAKE_TYPE_`) USING BTREE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='学生已选课程表';
+    </update>
+    
+    <update id="truncateTable">
+        TRUNCATE TABLE elc_course_takes_t;
+    </update>
+    
+    <update id="dropTable">
+        DROP TABLE IF EXISTS elc_course_takes_t;
+    </update>
+    
+</mapper>
