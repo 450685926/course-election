@@ -18,9 +18,11 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
@@ -36,6 +38,8 @@ import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 查询学生有成绩的课程
@@ -69,6 +73,9 @@ public class CourseGradeLoad extends DataProLoad
     
     @Autowired
     private ExemptionApplyDao applyDao;
+    
+    @Autowired
+    private ElectionApplyCoursesDao electionApplyCoursesDao;
     
     @Override
     public void load(ElecContext context)
@@ -170,17 +177,27 @@ public class CourseGradeLoad extends DataProLoad
             //                .collect(Collectors.toSet());
             
             Map<String, TeacherInfo> teacherMap = new HashMap<>();
+            Example example = new Example(ElectionApplyCourses.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("studentId", studentId);
+            criteria.andEqualTo("calendarId", calendarId);
+            List<ElectionApplyCourses> list = electionApplyCoursesDao.selectByExample(example);
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
-                
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(c.getChooseObj());
                 selectedCourse.setCourseCode(c.getCourseCode());
                 selectedCourse.setCourseName(c.getCourseName());
                 selectedCourse.setCourseTakeType(c.getCourseTakeType());
                 selectedCourse.setCredits(c.getCredits());
-                
+        		selectedCourse.setIsApply(Constants.ZERO);
+                if(CollectionUtil.isNotEmpty(list)) {
+                	List<ElectionApplyCourses> applyList = list.stream().filter(a->a.getCourseCode().equals(c.getCourseCode())).collect(Collectors.toList());
+                	if(CollectionUtil.isNotEmpty(applyList)) {
+                		selectedCourse.setIsApply(Constants.ONE);
+                	}
+                }
                 //selectedCourse.setNameEn(c.geten);
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);

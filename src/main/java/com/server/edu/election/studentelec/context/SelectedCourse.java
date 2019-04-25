@@ -32,7 +32,18 @@ public class SelectedCourse extends TeachingClassCache
      */
     private Integer turn;
     
-    public SelectedCourse()
+    private Integer isApply;
+    
+    
+    public Integer getIsApply() {
+		return isApply;
+	}
+
+	public void setIsApply(Integer isApply) {
+		this.isApply = isApply;
+	}
+
+	public SelectedCourse()
     {
         
     }
