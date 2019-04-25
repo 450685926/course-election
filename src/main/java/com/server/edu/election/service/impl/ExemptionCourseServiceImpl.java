@@ -17,6 +17,7 @@ import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.vo.*;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -83,6 +84,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     */
     @Override
     public PageResult<ExemptionCourseVo> findExemptionCourse(PageCondition<ExemptionCourseVo> condition) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String dptId = currentSession.getCurrentManageDptId();
+        condition.getCondition().setManagerDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(condition.getCondition());
         if(exemptionCourse!=null){

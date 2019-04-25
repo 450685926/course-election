@@ -38,6 +38,18 @@ public class ExemptionCourseVo extends ExemptionCourse {
     @Code2Text(transformer="X_YX")
     private String faculty;
 
+    /**
+     * 部门ID
+     * */
+    private String managerDeptId;
+
+    public String getManagerDeptId() {
+        return managerDeptId;
+    }
+
+    public void setManagerDeptId(String managerDeptId) {
+        this.managerDeptId = managerDeptId;
+    }
 
     public String getCalendarName() {
         return calendarName;
