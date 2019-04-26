@@ -405,7 +405,7 @@ public class RoundDataProvider
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public boolean contains(Long roundId, String studentId)
+    public boolean containsStu(Long roundId, String studentId)
     {
         String roundStuKey =
             String.format(Keys.ROUND_STUDENT, roundId, studentId);
