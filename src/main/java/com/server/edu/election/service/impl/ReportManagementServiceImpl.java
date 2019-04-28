@@ -529,36 +529,36 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition) {
-        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<RollBookList> rollBookList = courseTakeDao.findAllTeachingClass(condition.getCondition());
-        if(rollBookList!=null){
-            List<RollBookList> result = rollBookList.getResult();
-            if(CollectionUtil.isNotEmpty(result)){
-                List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
-                Map<Long, List<RollBookList>> map=new HashMap<>();
-                //批量查询教师名字
-                List<RollBookList> teahers=courseTakeDao.findTeacherName(list);
-                if(CollectionUtil.isNotEmpty(teahers)){
-                    map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
-                }
-                if(map.size()!=0){
-                    for (RollBookList bookList : result) {
-                        List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
-                        if(CollectionUtil.isNotEmpty(rollBookLists)){
-                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
-                            String teacherName = String.join(",", collect);
-                            bookList.setTeacherName(teacherName);
-                        }
 
+            PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+            Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
+            if (rollBookList != null) {
+                List<RollBookList> result = rollBookList.getResult();
+                if (CollectionUtil.isNotEmpty(result)) {
+                    List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
+                    Map<Long, List<RollBookList>> map = new HashMap<>();
+                    //批量查询教师名字
+                    List<RollBookList> teahers = courseTakeDao.findTeacherName(list);
+                    if (CollectionUtil.isNotEmpty(teahers)) {
+                        map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
                     }
+                    if (map.size() != 0) {
+                        for (RollBookList bookList : result) {
+                            List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
+                            if (CollectionUtil.isNotEmpty(rollBookLists)) {
+                                Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
+                                String teacherName = String.join(",", collect);
+                                bookList.setTeacherName(teacherName);
+                            }
+
+                        }
+                    }
+
                 }
 
             }
+            return new PageResult<>(rollBookList);
 
-        }
-        //教师维度
-
-        return new PageResult<>(rollBookList);
     }
 
     private GeneralExcelDesigner getDesignTwo() {

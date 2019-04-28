@@ -108,4 +108,6 @@ public interface ElcCourseTakeDao
 
 
     List<RollBookList> findTeacherName(List<Long> list);
+
+    Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
 }
