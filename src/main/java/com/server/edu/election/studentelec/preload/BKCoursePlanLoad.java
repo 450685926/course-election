@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.CourseCalendarNameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,8 @@ public class BKCoursePlanLoad extends DataProLoad
                         pl.setCourseName(planCourseTypeDto.getName());
                         pl.setNameEn(planCourseTypeDto.getNameEn());
                         pl.setCredits(planCourseTypeDto.getCredits());
+                        String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
+                        pl.setCalendarName(calendarName);
                         pl.setLabel(label);
                         planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
@@ -117,6 +120,8 @@ public class BKCoursePlanLoad extends DataProLoad
                             c.setCourseName(planCourseTypeDto.getName());
                             c.setNameEn(planCourseTypeDto.getNameEn());
                             c.setCredits(planCourseTypeDto.getCredits());
+                            String calendar = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
+                            c.setCalendarName(calendar);
                             publicCourses.add(c);
                         }
 
