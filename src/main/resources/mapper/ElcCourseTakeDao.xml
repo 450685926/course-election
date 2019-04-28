@@ -445,21 +445,21 @@
                 and t3.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-                and t3.CODE_ =#{courseCode,jdbcType=VARCHAR}
+                and t3.CODE_  like concat('%',#{courseCode,jdbcType=VARCHAR},'%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-                and t3.NAME_ =#{courseName,jdbcType=VARCHAR}
+                and t3.NAME_ like concat ('%',#{courseName,jdbcType=VARCHAR},'%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabel)">
                 and t3.LABEL_ =#{courseLabel,jdbcType=VARCHAR}
             </if>
         </where>
-        GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_;
+        GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_
 
     </select>
 
     <select id="findTeacherName" resultType="com.server.edu.election.vo.RollBookList" parameterType="java.util.List">
-        select TEACHING_CLASS_ID_,TEACHER_NAME_ from teaching_class_teacher_t
+        select TEACHING_CLASS_ID_ teachingClassId,TEACHER_NAME_ teacherName from teaching_class_teacher_t
         <where>
             TEACHING_CLASS_ID_ in
             <foreach collection="list" open="(" separator="," close=")" item="id">

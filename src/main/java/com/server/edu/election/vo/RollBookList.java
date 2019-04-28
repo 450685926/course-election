@@ -16,6 +16,7 @@ public class RollBookList implements Serializable {
     private Long calendarId;
     private Long teachingClassId;
     private String classCode;
+    private String className;
     private String courseCode;
     private String courseName;
     private String courseLabel;
@@ -43,6 +44,14 @@ public class RollBookList implements Serializable {
     @Code2Text(transformer="X_YX")
     private String faculty;
     private String teacherName;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
     public Long getId() {
         return id;
