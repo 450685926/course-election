@@ -23,30 +23,21 @@ public class CourseCalendarNameUtil {
             int num=(i-1)/2;
             int geadrStart=grade+num;
             if(i%2==0){
-                //String calendarName=geadrStart+"-"+(geadrStart+1)+"学年第"+2+"学期";
                 String calendarName = I18nUtil.getMsg("election.calendarName",
-                        geadrStart,
-                        geadrStart + 1,
+                        geadrStart+"",
+                        geadrStart + 1+"",
                         2);
                 list.add(calendarName);
             }else{
-                //String calendarName=geadrStart+"-"+(geadrStart+1)+"学年第"+1+"学期";
                 String calendarName = I18nUtil.getMsg("election.calendarName",
-                        geadrStart,
-                        geadrStart + 1,
+                        geadrStart+"",
+                        geadrStart + 1+"",
                         1);
                 list.add(calendarName);
             }
         }
         String s = String.join(",",list);
         return s;
-    }
-
-    public static void main(String[] args) {
-        String s="1,2,3,4,5";
-        int grade=2018;
-        String calendarName = getCalendarName(grade, s);
-        System.out.println(calendarName);
     }
 
 }
