@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface ReportManagementService {
     /**点名册*/
-    PageResult<RollBookList> findRollBookList(PageCondition<ReportManagementCondition> condition);
+    PageResult<RollBookList> findRollBookList2(PageCondition<ReportManagementCondition> condition);
 
     /**预览点名册 */
     PreviewRollBookList findPreviewRollBookList(RollBookList bookList);
@@ -57,4 +57,6 @@ public interface ReportManagementService {
 
     /**导出点名册*/
     String exportRollBookList(ReportManagementCondition condition) throws Exception;
+
+    PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 }

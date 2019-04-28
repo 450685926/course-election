@@ -15,10 +15,10 @@ public class RollBookList implements Serializable {
     private Long id;
     private Long calendarId;
     private Long teachingClassId;
-    private String calssCode;
+    private String classCode;
     private String courseCode;
     private String courseName;
-    private String label;
+    private String courseLabel;
     private Integer selectCourseNumber;
     private Integer numberLimit;
     private String calendarName;
@@ -68,12 +68,12 @@ public class RollBookList implements Serializable {
         this.calendarId = calendarId;
     }
 
-    public String getCalssCode() {
-        return calssCode;
+    public String getClassCode() {
+        return classCode;
     }
 
-    public void setCalssCode(String calssCode) {
-        this.calssCode = calssCode;
+    public void setClassCode(String classCode) {
+        this.classCode = classCode;
     }
 
     public String getCourseCode() {
@@ -92,12 +92,12 @@ public class RollBookList implements Serializable {
         this.courseName = courseName;
     }
 
-    public String getLabel() {
-        return label;
+    public String getCourseLabel() {
+        return courseLabel;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setCourseLabel(String courseLabel) {
+        this.courseLabel = courseLabel;
     }
 
     public Integer getSelectCourseNumber() {

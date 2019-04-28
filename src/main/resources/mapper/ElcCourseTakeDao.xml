@@ -199,8 +199,8 @@
         /*LEFT JOIN (select COURSE_ID_,COUNT(ID_) NUMBER_ from elc_course_takes_t GROUP BY COURSE_ID_) ss on ss.COURSE_ID_=el.COURSE_ID_*/
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-                and el.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
-            </if>
+            and el.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+        </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and co.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
             </if>
@@ -431,5 +431,40 @@
   	 	and t1.STUDENT_ID_ = #{studentId}
   	 </where>
     </select>
-    
+
+    <select id="findAllTeachingClass" parameterType="com.server.edu.election.dto.RollBookConditionDto" resultType="com.server.edu.election.vo.RollBookList">
+        SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,t3.LABEL_ courseLabel,t3.COLLEGE_ faculty
+        from elc_course_takes_t t1
+        join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
+        join course_t t3 on t1.COURSE_CODE_=t3.CODE_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and t3.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+                and t3.CODE_ =#{courseCode,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+                and t3.NAME_ =#{courseName,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabel)">
+                and t3.LABEL_ =#{courseLabel,jdbcType=VARCHAR}
+            </if>
+        </where>
+        GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_;
+
+    </select>
+
+    <select id="findTeacherName" resultType="com.server.edu.election.vo.RollBookList" parameterType="java.util.List">
+        select TEACHING_CLASS_ID_,TEACHER_NAME_ from teaching_class_teacher_t
+        <where>
+            TEACHING_CLASS_ID_ in
+            <foreach collection="list" open="(" separator="," close=")" item="id">
+                #{id}
+            </foreach>
+        </where>
+    </select>
 </mapper>
