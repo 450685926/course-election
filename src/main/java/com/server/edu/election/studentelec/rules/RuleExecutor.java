@@ -15,10 +15,34 @@ import com.server.edu.election.studentelec.context.ElecContext;
  */
 public interface RuleExecutor<T extends TeachingClassCache>
 {
+    /**
+     * 获取ProjectID
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public String getProjectId();
+    
+    /**
+     * 设置规则类型
+     * 
+     * @param type
+     * @see [类、类#方法、类#成员]
+     */
     void setType(ElectRuleType type);
-    
+    /**
+     * 规则类型
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
     ElectRuleType getType();
-    
+    /**
+     * 获取规则序号
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
     int getOrder();
     
     /**

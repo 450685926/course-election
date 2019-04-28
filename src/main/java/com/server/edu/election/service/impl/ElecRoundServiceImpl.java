@@ -17,6 +17,7 @@ import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.ElecRoundService;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
 
@@ -39,6 +40,9 @@ public class ElecRoundServiceImpl implements ElecRoundService
     
     @Autowired
     private ElecRoundStuDao elecRoundStuDao;
+    
+    @Autowired
+    private RoundDataProvider dataProvider;
     
     @Override
     public PageResult<ElectionRounds> listPage(
@@ -89,6 +93,8 @@ public class ElecRoundServiceImpl implements ElecRoundService
                 roundsDao.saveRoundRefRule(dto.getId(), ruleId);
             }
         }
+        
+        dataProvider.updateRoundCache(dto.getId());
     }
     
     @Transactional
@@ -119,6 +125,8 @@ public class ElecRoundServiceImpl implements ElecRoundService
                 roundsDao.saveRoundRefRule(dto.getId(), ruleId);
             }
         }
+        
+        dataProvider.updateRoundCache(dto.getId());
     }
     
     @Transactional
@@ -130,6 +138,8 @@ public class ElecRoundServiceImpl implements ElecRoundService
             roundsDao.deleteByPrimaryKey(id);//删除轮次
             roundsDao.deleteAllRefRule(id);//删除关联规则
             elecRoundStuDao.deleteByRoundId(id);//删除可选课名单
+            
+            dataProvider.updateRoundCache(id);
         }
     }
     
