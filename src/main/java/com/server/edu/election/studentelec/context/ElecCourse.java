@@ -21,6 +21,17 @@ public class ElecCourse
     private boolean publicElec;
 
 
+    /**学期周学时对应学期*/
+    private String calendarName;
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
+
     public String getCourseCode()
     {
         return courseCode;
