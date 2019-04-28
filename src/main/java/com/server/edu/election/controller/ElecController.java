@@ -3,7 +3,6 @@ package com.server.edu.election.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -22,9 +21,7 @@ import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElectionRoundsStuDao;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.ElectionRoundsStu;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -40,7 +37,6 @@ import com.server.edu.util.CollectionUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
-import tk.mybatis.mapper.entity.Example;
 
 @SwaggerDefinition(info = @Info(title = "学生选课", version = ""))
 @RestSchema(schemaId = "ElecController")
@@ -53,9 +49,6 @@ public class ElecController
     @Autowired
     private RoundDataProvider dataProvider;
     
-    @Autowired
-    private ElectionRoundsStuDao electionRoundsStuDao;
-     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
     public RestResult<List<ElectionRoundsVo>> getRounds(
@@ -64,30 +57,19 @@ public class ElecController
         Session session = SessionUtils.getCurrentSession();
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
-        List<Long> ids = allRound.stream().map(ElectionRounds::getId).collect(Collectors.toList());
-        Example example = new Example(ElectionRoundsStu.class);
-        Example.Criteria criteria = example.createCriteria();
-        criteria.andIn("roundsId", ids);
-        List<ElectionRoundsStu> roundstus = electionRoundsStuDao.selectByExample(example);
-        List<Long> list = new ArrayList<>();
-        if(CollectionUtil.isNotEmpty(roundstus)) {
-        	List<ElectionRoundsStu> stus = roundstus.stream().filter(c->c.getStudentId().equals(session.realUid())).collect(Collectors.toList());
-        	if(CollectionUtil.isNotEmpty(stus)) {
-        		list = stus.stream().map(ElectionRoundsStu::getRoundsId).collect(Collectors.toList());
-        	}
-        }
         Date date = new Date();
+        String studentId = session.realUid();
         for (ElectionRounds round : allRound)
         {
+            Long roundId = round.getId();
             if (StringUtils.equals(round.getProjectId(), projectId)
                 && StringUtils.equals(Constants.STU, round.getElectionObj())
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime())
-                && list.contains(round.getId()))
+                && dataProvider.containsStu(roundId, studentId))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
-                List<ElectionRuleVo> rules =
-                    dataProvider.getRules(round.getId());
+                List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
                 vo.setRuleVos(rules);
                 data.add(vo);
             }
@@ -144,7 +126,8 @@ public class ElecController
     {
         List<TeachingClassCache> teachClasss =
             dataProvider.getTeachClasss(roundId, courseCode);
-        if(CollectionUtil.isNotEmpty(teachClasss)) {
+        if (CollectionUtil.isNotEmpty(teachClasss))
+        {
             for (TeachingClassCache teachClass : teachClasss)
             {
                 Long teachClassId = teachClass.getTeachClassId();
