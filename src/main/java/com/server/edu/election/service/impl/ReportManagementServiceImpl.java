@@ -561,6 +561,28 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     }
 
+    /**
+     *@Description: 预览点名册
+     *@Param:
+     *@return:
+     *@Author: bear
+     *@date: 2019/4/28 16:26
+     */
+    @Override
+    public PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId) {
+        PreViewRollDto pre=new PreViewRollDto();
+        List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
+        pre.setList(student);
+        pre.setSize(student.size());
+        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        pre.setCalendarName(schoolCalendarVo.getFullName());
+        //封装教学班信息拆解
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
+
+        return pre;
+
+    }
+
     private GeneralExcelDesigner getDesignTwo() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
