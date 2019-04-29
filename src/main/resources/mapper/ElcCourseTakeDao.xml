@@ -98,8 +98,8 @@
   <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
     SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,
       co.LABEL_ label,el.PAID_ paid,te.WEEK_HOUR_ weekHour,el.COURSE_TAKE_TYPE_ courseTakeType,el.MODE_ mode,el.TURN_ turn,el.CHOOSE_OBJ_ chooseObj
-    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
-    LEFT JOIN course_t co on el.COURSE_CODE_=co.CODE_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
+    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el  JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+     JOIN course_t co on el.COURSE_CODE_=co.CODE_ JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
