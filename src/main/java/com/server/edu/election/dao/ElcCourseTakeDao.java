@@ -2,14 +2,10 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.dto.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.RebuildCoursePaymentCondition;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -106,5 +102,12 @@ public interface ElcCourseTakeDao
     List<ElcCourseTakeVo> findUnApplyCourses(
         @Param("studentId") String studentId,
         @Param("calendarId") Long calendarId);
-    
+
+
+    Page<RollBookList> findAllTeachingClass(RollBookConditionDto condition);
+
+
+    List<RollBookList> findTeacherName(List<Long> list);
+
+    Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
 }

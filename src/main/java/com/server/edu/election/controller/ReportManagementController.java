@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
+import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
@@ -24,11 +25,6 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.StudentSelectCourseList;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
@@ -105,8 +101,18 @@ public class ReportManagementController {
     }
 
     @ApiOperation(value = "查询点名册")
+    @PostMapping("/findRollBookList2")
+    public RestResult<PageResult<RollBookList>> findRollBookList2(@RequestBody PageCondition<ReportManagementCondition> condition){
+        PageResult<RollBookList> bookList = managementService.findRollBookList2(condition);
+        return RestResult.successData(bookList);
+    }
+
+    @ApiOperation(value = "查询点名册")
     @PostMapping("/findRollBookList")
-    public RestResult<PageResult<RollBookList>> findRollBookList(@RequestBody PageCondition<ReportManagementCondition> condition){
+    public RestResult<PageResult<RollBookList>> findRollBookList(@RequestBody PageCondition<RollBookConditionDto> condition){
+        if(condition.getCondition().getCalendarId()==null){
+            return RestResult.fail("common.parameterError");
+        }
         PageResult<RollBookList> bookList = managementService.findRollBookList(condition);
         return RestResult.successData(bookList);
     }
@@ -115,7 +121,7 @@ public class ReportManagementController {
     @ApiOperation(value = "预览点名册")
     @PostMapping("/previewRollBookList")
     public RestResult<PreviewRollBookList> findPreviewRollBookList(@RequestBody RollBookList bookList){
-        if(bookList.getCalssCode()==null||bookList.getTeachingClassId()==null){
+        if(bookList.getClassCode()==null||bookList.getTeachingClassId()==null){
             return RestResult.fail("common.parameterError");
         }
         PreviewRollBookList previewRollBookList = managementService.findPreviewRollBookList(bookList);

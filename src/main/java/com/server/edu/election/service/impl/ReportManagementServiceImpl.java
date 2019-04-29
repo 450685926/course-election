@@ -55,6 +55,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Autowired
     private ElcNoSelectReasonDao reasonDao;
 
+
     @Autowired
     private DictionaryService dictionaryService;
 
@@ -68,7 +69,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/14 15:52
     */
     @Override
-    public PageResult<RollBookList> findRollBookList(PageCondition<ReportManagementCondition> condition) {
+    public PageResult<RollBookList> findRollBookList2(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         Page<RollBookList> rollBookList = courseTakeDao.findRollBookList(condition.getCondition());
         if(rollBookList!=null){
@@ -99,7 +100,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(bookList.getTeachingClassId());
         previewRollBookList.setList(student);//上课冲突待做todo
         previewRollBookList.setTeacherName(bookList.getTeacherName());
-        previewRollBookList.setClassCode(bookList.getCalssCode());
+        previewRollBookList.setClassCode(bookList.getClassCode());
         previewRollBookList.setCourseName(bookList.getCourseName());
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(bookList.getCalendarId());
         previewRollBookList.setCalendarName(schoolCalendarVo.getFullName());
@@ -484,7 +485,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         pageCondition.setCondition(condition);
         pageCondition.setPageSize_(Constants.ZERO);
         pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<RollBookList> rollBookList = findRollBookList(pageCondition);
+        PageResult<RollBookList> rollBookList = findRollBookList2(pageCondition);
         if(rollBookList!=null){
             List<RollBookList> list = rollBookList.getList();
             List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
@@ -500,7 +501,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
                     }
                 }
-                bookList.setClassCodeAndcourseName(bookList.getCourseName()+bookList.getCalssCode());
+                bookList.setClassCodeAndcourseName(bookList.getCourseName()+bookList.getClassCode());
             }
             if (list == null) {
                 list = new ArrayList<>();
@@ -517,6 +518,47 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
         }
         return "";
+    }
+
+    /**
+    *@Description: 查询点名册
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/4/28 16:26
+    */
+    @Override
+    public PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition) {
+
+            PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+            Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
+            if (rollBookList != null) {
+                List<RollBookList> result = rollBookList.getResult();
+                if (CollectionUtil.isNotEmpty(result)) {
+                    List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
+                    Map<Long, List<RollBookList>> map = new HashMap<>();
+                    //批量查询教师名字
+                    List<RollBookList> teahers = courseTakeDao.findTeacherName(list);
+                    if (CollectionUtil.isNotEmpty(teahers)) {
+                        map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
+                    }
+                    if (map.size() != 0) {
+                        for (RollBookList bookList : result) {
+                            List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
+                            if (CollectionUtil.isNotEmpty(rollBookLists)) {
+                                Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
+                                String teacherName = String.join(",", collect);
+                                bookList.setTeacherName(teacherName);
+                            }
+
+                        }
+                    }
+
+                }
+
+            }
+            return new PageResult<>(rollBookList);
+
     }
 
     private GeneralExcelDesigner getDesignTwo() {
