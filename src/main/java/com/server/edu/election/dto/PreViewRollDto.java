@@ -21,7 +21,7 @@ public class PreViewRollDto implements Serializable{
 
     private Integer rowNumber;
 
-    private List<String> stringlist;
+    private List<TimeTableMessage> stringlist;
 
     private String calendarName;
 
@@ -65,11 +65,11 @@ public class PreViewRollDto implements Serializable{
         this.rowNumber = rowNumber;
     }
 
-    public List<String> getStringlist() {
+    public List<TimeTableMessage> getStringlist() {
         return stringlist;
     }
 
-    public void setStringlist(List<String> stringlist) {
+    public void setStringlist(List<TimeTableMessage> stringlist) {
         this.stringlist = stringlist;
     }
 }
