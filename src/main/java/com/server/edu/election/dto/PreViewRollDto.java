@@ -11,7 +11,7 @@ import java.util.List;
  * @create: 2019-04-29 10:32
  */
 public class PreViewRollDto implements Serializable{
-    private List<StudentVo> list;
+    private List<StudentVo> studentsList;
     /**
      * 班级人数
      * */
@@ -21,7 +21,7 @@ public class PreViewRollDto implements Serializable{
 
     private Integer rowNumber;
 
-    private List<TimeTableMessage> stringlist;
+    private List<TimeTableMessage> timeTabelList;
 
     private String calendarName;
 
@@ -31,14 +31,6 @@ public class PreViewRollDto implements Serializable{
 
     public void setCalendarName(String calendarName) {
         this.calendarName = calendarName;
-    }
-
-    public List<StudentVo> getList() {
-        return list;
-    }
-
-    public void setList(List<StudentVo> list) {
-        this.list = list;
     }
 
     public Integer getSize() {
@@ -65,11 +57,19 @@ public class PreViewRollDto implements Serializable{
         this.rowNumber = rowNumber;
     }
 
-    public List<TimeTableMessage> getStringlist() {
-        return stringlist;
+    public List<StudentVo> getStudentsList() {
+        return studentsList;
     }
 
-    public void setStringlist(List<TimeTableMessage> stringlist) {
-        this.stringlist = stringlist;
+    public void setStudentsList(List<StudentVo> studentsList) {
+        this.studentsList = studentsList;
+    }
+
+    public List<TimeTableMessage> getTimeTabelList() {
+        return timeTabelList;
+    }
+
+    public void setTimeTabelList(List<TimeTableMessage> timeTabelList) {
+        this.timeTabelList = timeTabelList;
     }
 }

@@ -574,7 +574,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId) {
         PreViewRollDto pre=new PreViewRollDto();
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
-        pre.setList(student);
+        pre.setStudentsList(student);
         pre.setSize(student.size());
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
         pre.setCalendarName(schoolCalendarVo.getFullName());
@@ -597,9 +597,21 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         int size = collect.size();
         pre.setLineNumber(size);
         pre.setRowNumber(max);
-        pre.setStringlist(list);
+        pre.setTimeTabelList(list);
         return pre;
 
+    }
+
+    /**
+    *@Description: 查询学生个人课表
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/4/30 11:58
+    */
+    @Override
+    public StudnetTimeTable findStudentTimetab(Long calendarId, String studentCode) {
+        return null;
     }
 
 
@@ -649,6 +661,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 time.setWeekstr(weekstr);
                 time.setTimeAndRoom(timeStr);
                 time.setTimeTab(roomStr);
+                time.setClassCode(classTeacherDto.getClassCode());
+                time.setCourseCode(classTeacherDto.getCourseCode());
+                time.setCourseName(classTeacherDto.getCourseName());
+                time.setClassName(classTeacherDto.getClassName());
+                time.setTeachingClassId(classTeacherDto.getTeachingClassId());
                 list.add(time);
             }
         }

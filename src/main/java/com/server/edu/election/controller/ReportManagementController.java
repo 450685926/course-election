@@ -5,6 +5,8 @@ import java.net.URLDecoder;
 import java.util.List;
 
 import com.server.edu.election.dto.*;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
@@ -143,12 +145,31 @@ public class ReportManagementController {
     //导出待做
 
     @ApiOperation(value = "查询学生个人课表")
-    @GetMapping("/findSchoolTimetab")
-    public RestResult<StudentSchoolTimetabVo> findSchoolTimetab(@RequestParam Long calendarId,@RequestParam String studentCode){
+    @GetMapping("/findSchoolTimetab2")
+    public RestResult<StudentSchoolTimetabVo> findSchoolTimetab2(@RequestParam Long calendarId,@RequestParam String studentCode){
         if(calendarId==null||studentCode==null){
             return RestResult.fail("common.parameterError");
         }
         StudentSchoolTimetabVo schoolTimetab = managementService.findSchoolTimetab(calendarId, studentCode);
+        return RestResult.successData(schoolTimetab);
+    }
+
+    @ApiOperation(value = "查询学生个人课表")
+    @GetMapping("/findStudentTimetab")
+    public RestResult<StudnetTimeTable> findStudentTimetab(@RequestParam Long calendarId,@RequestParam String studentCode){
+        if(calendarId==null){
+            return RestResult.fail("common.parameterError");
+        }
+        if(StringUtils.isBlank(studentCode)){//是否学生登陆
+            Session currentSession = SessionUtils.getCurrentSession();
+            String code = currentSession.realUid();
+            int type = currentSession.realType();
+            if(type==2){//当前用户是学生
+                studentCode=code;
+            }
+        }
+
+        StudnetTimeTable schoolTimetab = managementService.findStudentTimetab(calendarId, studentCode);
         return RestResult.successData(schoolTimetab);
     }
 
