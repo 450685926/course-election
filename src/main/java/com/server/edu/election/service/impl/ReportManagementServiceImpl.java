@@ -574,7 +574,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId) {
         PreViewRollDto pre=new PreViewRollDto();
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
-        pre.setList(student);
+        pre.setStudentsList(student);
         pre.setSize(student.size());
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
         pre.setCalendarName(schoolCalendarVo.getFullName());
@@ -597,9 +597,54 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         int size = collect.size();
         pre.setLineNumber(size);
         pre.setRowNumber(max);
-        pre.setStringlist(list);
+        pre.setTimeTabelList(list);
         return pre;
 
+    }
+
+    /**
+    *@Description: 查询学生个人课表
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/4/30 11:58
+    */
+    @Override
+    public List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode) {
+        List<StudnetTimeTable> studentTable = courseTakeDao.findStudentTable(calendarId, studentCode);//查询所有教学班
+        if(CollectionUtil.isNotEmpty(studentTable)){
+            for (StudnetTimeTable studnetTimeTable : studentTable) {
+                Long teachingClassId = studnetTimeTable.getTeachingClassId();
+                List<TimeTableMessage> tableMessages = getTimeById(teachingClassId);
+                studnetTimeTable.setTimeTableList(tableMessages);
+                if(CollectionUtil.isNotEmpty(tableMessages)){
+                    Set<String> teacher=new HashSet<>();
+                    Set<String> timeTabel=new HashSet<>();
+                    Set<String> room=new HashSet<>();
+                    for (TimeTableMessage tableMessage : tableMessages) {
+                        String teacherName = tableMessage.getTeacherName();
+                        String timeTab = tableMessage.getTimeTab();
+                        String roomId = tableMessage.getRoomId();
+                        if(StringUtils.isNotEmpty(teacherName)){
+                            teacher.add(teacherName);
+                        }
+                        if(StringUtils.isNotEmpty(timeTab)){
+                            timeTabel.add(timeTab);
+                        }
+                        if(StringUtils.isNotEmpty(roomId)){
+                            room.add(roomId);
+                        }
+                    }
+                    String teacherName = String.join(",", teacher);
+                    String classTime = String.join(",", timeTabel);
+                    String classRoom = String.join(",", room);
+                    studnetTimeTable.setTeacherName(teacherName);
+                    studnetTimeTable.setClassTime(classTime);
+                    studnetTimeTable.setClassRoom(classRoom);
+                }
+            }
+        }
+        return studentTable;
     }
 
 
@@ -649,6 +694,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 time.setWeekstr(weekstr);
                 time.setTimeAndRoom(timeStr);
                 time.setTimeTab(roomStr);
+                time.setClassCode(classTeacherDto.getClassCode());
+                time.setCourseCode(classTeacherDto.getCourseCode());
+                time.setCourseName(classTeacherDto.getCourseName());
+                time.setClassName(classTeacherDto.getClassName());
+                time.setTeachingClassId(classTeacherDto.getTeachingClassId());
                 list.add(time);
             }
         }

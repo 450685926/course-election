@@ -1,5 +1,9 @@
 package com.server.edu.election.dto;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
+
 import java.io.Serializable;
 
 /**
@@ -7,10 +11,12 @@ import java.io.Serializable;
  * @author: bear
  * @create: 2019-04-29 17:51
  */
+@CodeI18n
 public class TimeTableMessage implements Serializable {
     private Integer dayOfWeek;
     private Integer timeStart;
     private Integer timeEnd;
+    @Code2Text(translator = ClassRoomTranslator.class)
     private String roomId;
     private String teacherCode;
     private String weekNum;//周次
@@ -18,6 +24,50 @@ public class TimeTableMessage implements Serializable {
     private String teacherName;//
     private String timeAndRoom;//时间地点
     private String timeTab;//时间
+    private String className;//教学班名称
+    private String classCode;//教学班序号
+    private String courseName;//课程名称
+    private String courseCode;//课程代码
+    private Long teachingClassId;//教学班Id
+    public Long getTeachingClassId() {
+        return teachingClassId;
+    }
+
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getClassCode() {
+        return classCode;
+    }
+
+    public void setClassCode(String classCode) {
+        this.classCode = classCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
 
     public String getTimeTab() {
         return timeTab;

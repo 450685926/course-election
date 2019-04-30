@@ -235,6 +235,11 @@
 
     <select id="findClassTimeAndRoom" resultType="com.server.edu.election.dto.ClassTeacherDto">
         SELECT
+        te.ID_ teachingClassId,
+        te.CODE_ classCode,
+        te.NAME_ className,
+        co.COURSE_CODE_ courseCode,
+        co.COURSE_NAME_ courseName,
         ro.ARRANGE_TIME_ID_ timeId,
         ti.DAY_OF_WEEK_ dayOfWeek,
         ti.TIME_START_ timeStart,
@@ -243,10 +248,13 @@
         ro.TEACHER_CODE_ teacherCode,
         GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumberStr
         FROM
-        teaching_class_arrange_time_t ti
+        teaching_class_t te
+        join teaching_task_t ta on te.TASK_ID_=ta.ID_
+        left join course_open_t co on ta.COURSE_OPEN_ID_=co.ID_
+        join teaching_class_arrange_time_t ti on te.ID_=ti.TEACHING_CLASS_ID_
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        ti.TEACHING_CLASS_ID_ = #{id,jdbcType=BIGINT}
+        te.ID_ = #{id,jdbcType=BIGINT}
         GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_;
     </select>
 
@@ -506,5 +514,15 @@
         </if>
         </where>
         GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_
+    </select>
+
+    <select id="findStudentTable" resultType="com.server.edu.election.dto.StudnetTimeTable">
+        SELECT te.CODE_ classCode ,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
+        te.CAMPUS_ campus,te.REMARK_ remark,te.NAME_ className
+        FROM `elc_course_takes_t` el
+        LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
+        LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
+        LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
+        where el.STUDENT_ID_=#{studentId,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
     </select>
 </mapper>

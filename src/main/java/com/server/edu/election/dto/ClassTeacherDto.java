@@ -27,6 +27,16 @@ public class ClassTeacherDto {
     private String remark;
     private Integer selectCourseNumber;
 
+    private String className;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
     public String getCourseCode() {
         return courseCode;
     }

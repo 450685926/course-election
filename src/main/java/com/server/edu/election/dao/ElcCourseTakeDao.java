@@ -104,10 +104,15 @@ public interface ElcCourseTakeDao
         @Param("calendarId") Long calendarId);
 
 
+
     Page<RollBookList> findAllTeachingClass(RollBookConditionDto condition);
 
 
     List<RollBookList> findTeacherName(List<Long> list);
 
+    /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
+
+    /**查询学生课表*/
+    List<StudnetTimeTable> findStudentTable(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 }
