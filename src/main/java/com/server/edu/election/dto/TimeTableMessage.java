@@ -1,5 +1,9 @@
 package com.server.edu.election.dto;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
+
 import java.io.Serializable;
 
 /**
@@ -7,10 +11,12 @@ import java.io.Serializable;
  * @author: bear
  * @create: 2019-04-29 17:51
  */
+@CodeI18n
 public class TimeTableMessage implements Serializable {
     private Integer dayOfWeek;
     private Integer timeStart;
     private Integer timeEnd;
+    @Code2Text(translator = ClassRoomTranslator.class)
     private String roomId;
     private String teacherCode;
     private String weekNum;//周次
@@ -23,7 +29,6 @@ public class TimeTableMessage implements Serializable {
     private String courseName;//课程名称
     private String courseCode;//课程代码
     private Long teachingClassId;//教学班Id
-
     public Long getTeachingClassId() {
         return teachingClassId;
     }

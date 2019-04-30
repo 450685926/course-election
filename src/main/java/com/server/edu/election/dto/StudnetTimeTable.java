@@ -1,5 +1,10 @@
 package com.server.edu.election.dto;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.Code2Text.DataType;
+import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -8,19 +13,22 @@ import java.util.List;
  * @author: bear
  * @create: 2019-04-30 11:40
  */
+@CodeI18n
 public class StudnetTimeTable implements Serializable{
     private Long teachingClassId;
     private Long classCode;
     private String className;
+    @Code2Text(transformer = "X_XQ")
     private String campus;
     private String courseCode;
     private String courseName;
-    private String isRebulidCourse;
+    private String courseType;
     private String assessmentMode;
     private String isExemptionCourse;
     private Double credits;
     private String teacherName;
     private String classTime;
+    @Code2Text(translator = ClassRoomTranslator.class, dataType = DataType.SPLIT)
     private String classRoom;
     private String remark;
     private List<TimeTableMessage> timeTableList;
@@ -73,12 +81,12 @@ public class StudnetTimeTable implements Serializable{
         this.courseName = courseName;
     }
 
-    public String getIsRebulidCourse() {
-        return isRebulidCourse;
+    public String getCourseType() {
+        return courseType;
     }
 
-    public void setIsRebulidCourse(String isRebulidCourse) {
-        this.isRebulidCourse = isRebulidCourse;
+    public void setCourseType(String courseType) {
+        this.courseType = courseType;
     }
 
     public String getAssessmentMode() {

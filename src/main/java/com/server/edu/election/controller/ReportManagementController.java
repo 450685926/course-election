@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -156,7 +157,7 @@ public class ReportManagementController {
 
     @ApiOperation(value = "查询学生个人课表")
     @GetMapping("/findStudentTimetab")
-    public RestResult<StudnetTimeTable> findStudentTimetab(@RequestParam Long calendarId,@RequestParam String studentCode){
+    public RestResult<List<StudnetTimeTable>> findStudentTimetab(@RequestParam("calendarId") Long calendarId,@RequestParam(value="studentCode",required = false) String studentCode){
         if(calendarId==null){
             return RestResult.fail("common.parameterError");
         }
@@ -169,7 +170,7 @@ public class ReportManagementController {
             }
         }
 
-        StudnetTimeTable schoolTimetab = managementService.findStudentTimetab(calendarId, studentCode);
+        List<StudnetTimeTable> schoolTimetab = managementService.findStudentTimetab(calendarId, studentCode);
         return RestResult.successData(schoolTimetab);
     }
 

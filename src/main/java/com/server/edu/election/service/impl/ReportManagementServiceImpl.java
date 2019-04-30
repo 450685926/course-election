@@ -604,14 +604,47 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 查询学生个人课表
-    *@Param: 
+    *@Param:
     *@return: 
     *@Author: bear
     *@date: 2019/4/30 11:58
     */
     @Override
-    public StudnetTimeTable findStudentTimetab(Long calendarId, String studentCode) {
-        return null;
+    public List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode) {
+        List<StudnetTimeTable> studentTable = courseTakeDao.findStudentTable(calendarId, studentCode);//查询所有教学班
+        if(CollectionUtil.isNotEmpty(studentTable)){
+            for (StudnetTimeTable studnetTimeTable : studentTable) {
+                Long teachingClassId = studnetTimeTable.getTeachingClassId();
+                List<TimeTableMessage> tableMessages = getTimeById(teachingClassId);
+                studnetTimeTable.setTimeTableList(tableMessages);
+                if(CollectionUtil.isNotEmpty(tableMessages)){
+                    Set<String> teacher=new HashSet<>();
+                    Set<String> timeTabel=new HashSet<>();
+                    Set<String> room=new HashSet<>();
+                    for (TimeTableMessage tableMessage : tableMessages) {
+                        String teacherName = tableMessage.getTeacherName();
+                        String timeTab = tableMessage.getTimeTab();
+                        String roomId = tableMessage.getRoomId();
+                        if(StringUtils.isNotEmpty(teacherName)){
+                            teacher.add(teacherName);
+                        }
+                        if(StringUtils.isNotEmpty(timeTab)){
+                            timeTabel.add(timeTab);
+                        }
+                        if(StringUtils.isNotEmpty(roomId)){
+                            room.add(roomId);
+                        }
+                    }
+                    String teacherName = String.join(",", teacher);
+                    String classTime = String.join(",", timeTabel);
+                    String classRoom = String.join(",", room);
+                    studnetTimeTable.setTeacherName(teacherName);
+                    studnetTimeTable.setClassTime(classTime);
+                    studnetTimeTable.setClassRoom(classRoom);
+                }
+            }
+        }
+        return studentTable;
     }
 
 

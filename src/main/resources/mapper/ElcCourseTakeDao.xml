@@ -515,4 +515,14 @@
         </where>
         GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_
     </select>
+
+    <select id="findStudentTable" resultType="com.server.edu.election.dto.StudnetTimeTable">
+        SELECT te.CODE_ classCode ,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
+        te.CAMPUS_ campus,te.REMARK_ remark,te.NAME_ className
+        FROM `elc_course_takes_t` el
+        LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
+        LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
+        LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
+        where el.STUDENT_ID_=#{studentId,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
+    </select>
 </mapper>
