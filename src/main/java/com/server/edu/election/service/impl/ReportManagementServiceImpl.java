@@ -654,6 +654,29 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return studentTable;
     }
 
+    /**
+    *@Description: 查询所有教师课表
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/4/30 17:39
+    */
+    @Override
+    public PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition) {
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findAllTeacherTimeTable(condition.getCondition());
+        if(teacherTimeTable!=null){
+            List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
+            if(CollectionUtil.isNotEmpty(result)){
+                SchoolCalendarVo schoolCalendar= BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+                for (ClassCodeToTeacher toTeacher : result) {
+                    toTeacher.setCalendarName(schoolCalendar.getFullName());
+                }
+            }
+        }
+        return new PageResult<>(teacherTimeTable);
+    }
+
 
     private List<TimeTableMessage>  getTimeById(List<Long> teachingClassId){
         List<TimeTableMessage> list=new ArrayList<>();

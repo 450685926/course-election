@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -198,6 +197,13 @@ public class ReportManagementController {
     @PostMapping("/findAllClassTeacher")
     public RestResult<PageResult<ClassCodeToTeacher>> findAllClassTeacher(@RequestBody PageCondition<ClassCodeToTeacher> condition){
         PageResult<ClassCodeToTeacher> allClassTeacher = managementService.findAllClassTeacher(condition);
+        return RestResult.successData(allClassTeacher);
+    }
+
+    @ApiOperation(value = "查询所有教师课表")
+    @PostMapping("/findAllTeacherTimeTable")
+    public RestResult<PageResult<ClassCodeToTeacher>> findAllTeacherTimeTable(@RequestBody PageCondition<ClassCodeToTeacher> condition){
+        PageResult<ClassCodeToTeacher> allClassTeacher = managementService.findAllTeacherTimeTable(condition);
         return RestResult.successData(allClassTeacher);
     }
 

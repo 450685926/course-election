@@ -63,4 +63,6 @@ public interface ReportManagementService {
     PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
 
     List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode);
+
+    PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
 }

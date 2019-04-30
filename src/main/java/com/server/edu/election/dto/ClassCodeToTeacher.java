@@ -25,15 +25,15 @@ public class ClassCodeToTeacher implements Serializable {
     @Code2Text(transformer = "G_XBIE")
     private Integer sex;
     private String nature;
-    private Long teachingClassCode;
+    private Long teachingClassId;
     private String condition;//查询条件
 
-    public Long getTeachingClassCode() {
-        return teachingClassCode;
+    public Long getTeachingClassId() {
+        return teachingClassId;
     }
 
-    public void setTeachingClassCode(Long teachingClassCode) {
-        this.teachingClassCode = teachingClassCode;
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
     }
 
     public String getNature() {

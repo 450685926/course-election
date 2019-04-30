@@ -329,7 +329,7 @@
     </select>
 
     <select id="findAllClassTeacher" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
-        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassCode,cl.CODE_ classCode,co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.COLLEGE_ faculty,tch.TEACHER_CODE_ teacherCode,tch.TEACHER_NAME_ teacherName,tch.SEX_ sex FROM `elc_course_takes_t` el
+        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ classCode,co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.COLLEGE_ faculty,tch.TEACHER_CODE_ teacherCode,tch.TEACHER_NAME_ teacherName,tch.SEX_ sex FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on el.TEACHING_CLASS_ID_=cl.ID_
         LEFT JOIN (select ti.TEACHING_CLASS_ID_,ro.TEACHER_CODE_ ,ch.TEACHER_NAME_,ch.SEX_ from teaching_class_arrange_time_t ti
@@ -351,7 +351,7 @@
                 and (tch.TEACHER_CODE_ like concat('%',#{condition},'%') or tch.TEACHER_NAME_ like concat('%',#{condition},'%') )
             </if>
         </where>
-        GROUP BY el.CALENDAR_ID_,el.TEACHING_CLASS_ID_,tch.TEACHER_CODE_;
+        GROUP BY el.CALENDAR_ID_,el.TEACHING_CLASS_ID_,tch.TEACHER_CODE_
     </select>
 
     <select id="findAllTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -527,5 +527,9 @@
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
         LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
         where el.STUDENT_ID_=#{studentId,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
+    </select>
+    
+    <select id="findAllTeacherTimeTable" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
+
     </select>
 </mapper>

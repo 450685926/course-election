@@ -115,4 +115,6 @@ public interface ElcCourseTakeDao
 
     /**查询学生课表*/
     List<StudnetTimeTable> findStudentTable(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
+
+    Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 }
