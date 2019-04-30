@@ -579,7 +579,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
         pre.setCalendarName(schoolCalendarVo.getFullName());
         //封装教学班信息拆解
-        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
+        List<Long> ids=new ArrayList<>();
+        ids.add(teachingClassId);
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(ids);
         Set<String> set=new HashSet<>();
         List<Integer> number=new ArrayList<>();
         if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
@@ -591,7 +593,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         for (String s : set) {
             number.add(Integer.valueOf(s));
         }
-        List<TimeTableMessage> list = getTimeById(teachingClassId);
+        List<TimeTableMessage> list = getTimeById(ids);
         int max=Collections.max(number);
         Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
         int size = collect.size();
@@ -613,34 +615,39 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode) {
         List<StudnetTimeTable> studentTable = courseTakeDao.findStudentTable(calendarId, studentCode);//查询所有教学班
         if(CollectionUtil.isNotEmpty(studentTable)){
+            List<Long> ids = studentTable.stream().map(StudnetTimeTable::getTeachingClassId).collect(Collectors.toList());
             for (StudnetTimeTable studnetTimeTable : studentTable) {
-                Long teachingClassId = studnetTimeTable.getTeachingClassId();
-                List<TimeTableMessage> tableMessages = getTimeById(teachingClassId);
-                studnetTimeTable.setTimeTableList(tableMessages);
+                List<TimeTableMessage> tableMessages = getTimeById(ids);
                 if(CollectionUtil.isNotEmpty(tableMessages)){
-                    Set<String> teacher=new HashSet<>();
-                    Set<String> timeTabel=new HashSet<>();
-                    Set<String> room=new HashSet<>();
-                    for (TimeTableMessage tableMessage : tableMessages) {
-                        String teacherName = tableMessage.getTeacherName();
-                        String timeTab = tableMessage.getTimeTab();
-                        String roomId = tableMessage.getRoomId();
-                        if(StringUtils.isNotEmpty(teacherName)){
-                            teacher.add(teacherName);
+                    Map<Long, List<TimeTableMessage>> map = tableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+                    List<TimeTableMessage> timeTableMessages = map.get(studnetTimeTable.getTeachingClassId());
+                    studnetTimeTable.setTimeTableList(timeTableMessages);
+                    if(CollectionUtil.isNotEmpty(timeTableMessages)){
+                        Set<String> teacher=new HashSet<>();
+                        Set<String> timeTabel=new HashSet<>();
+                        Set<String> room=new HashSet<>();
+                        for (TimeTableMessage tableMessage : timeTableMessages) {
+                            String teacherName = tableMessage.getTeacherName();
+                            String timeTab = tableMessage.getTimeTab();
+                            String roomId = tableMessage.getRoomId();
+                            List<String> list = Arrays.asList(teacherName.split(","));
+                            if(CollectionUtil.isNotEmpty(list)){
+                                teacher.addAll(list);
+                            }
+                            if(StringUtils.isNotEmpty(timeTab)){
+                                timeTabel.add(timeTab);
+                            }
+                            if(StringUtils.isNotEmpty(roomId)){
+                                room.add(roomId);
+                            }
                         }
-                        if(StringUtils.isNotEmpty(timeTab)){
-                            timeTabel.add(timeTab);
-                        }
-                        if(StringUtils.isNotEmpty(roomId)){
-                            room.add(roomId);
-                        }
+                        String teacherName = String.join(",", teacher);
+                        String classTime = String.join(",", timeTabel);
+                        String classRoom = String.join(",", room);
+                        studnetTimeTable.setTeacherName(teacherName);
+                        studnetTimeTable.setClassTime(classTime);
+                        studnetTimeTable.setClassRoom(classRoom);
                     }
-                    String teacherName = String.join(",", teacher);
-                    String classTime = String.join(",", timeTabel);
-                    String classRoom = String.join(",", room);
-                    studnetTimeTable.setTeacherName(teacherName);
-                    studnetTimeTable.setClassTime(classTime);
-                    studnetTimeTable.setClassRoom(classRoom);
                 }
             }
         }
@@ -648,7 +655,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
 
-    private List<TimeTableMessage>  getTimeById(Long teachingClassId){
+    private List<TimeTableMessage>  getTimeById(List<Long> teachingClassId){
         List<TimeTableMessage> list=new ArrayList<>();
         List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
         if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
@@ -830,7 +837,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
    private String findClassroomAndTime(Long id){
        //查询教学班信息TeachingClassId查询
        StringBuilder str=new StringBuilder();
-       List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(id);
+       List<Long> ids=new ArrayList<>();
+       ids.add(id);
+       List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(ids);
        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
            Map<Long, List<ClassTeacherDto>> collect = classTimeAndRoom.stream().collect(Collectors.groupingBy(ClassTeacherDto::getTimeId));
            if(collect.size()!=0){

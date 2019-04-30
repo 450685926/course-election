@@ -254,7 +254,10 @@
         join teaching_class_arrange_time_t ti on te.ID_=ti.TEACHING_CLASS_ID_
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        te.ID_ = #{id,jdbcType=BIGINT}
+        te.ID_ in 
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
         GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_;
     </select>
 

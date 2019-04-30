@@ -60,7 +60,7 @@ public interface ElcCourseTakeDao
     
     /** 查询教学班时间地点*/
     
-    List<ClassTeacherDto> findClassTimeAndRoom(Long id);
+    List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
     
     /**查询学生课表*/
     List<StudentSchoolTimetab> findSchoolTimetab(
