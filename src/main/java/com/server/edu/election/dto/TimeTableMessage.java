@@ -16,7 +16,16 @@ public class TimeTableMessage implements Serializable {
     private String weekNum;//周次
     private String weekstr;//星期
     private String teacherName;//
-    private String timeAndRoom;
+    private String timeAndRoom;//时间地点
+    private String timeTab;//时间
+
+    public String getTimeTab() {
+        return timeTab;
+    }
+
+    public void setTimeTab(String timeTab) {
+        this.timeTab = timeTab;
+    }
 
     public Integer getDayOfWeek() {
         return dayOfWeek;

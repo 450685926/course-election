@@ -573,7 +573,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Override
     public PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId) {
         PreViewRollDto pre=new PreViewRollDto();
-        List<TimeTableMessage> list=new ArrayList<>();
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
         pre.setList(student);
         pre.setSize(student.size());
@@ -586,14 +585,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
             for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
                 List<String> num = Arrays.asList(classTeacherDto.getWeekNumberStr().split(","));
-                set.addAll(num);
-                TimeTableMessage timeByOthers = getTimeByOthers(classTeacherDto);
-                list.add(timeByOthers);
+                set.addAll(num);//获取最大周数
             }
         }
         for (String s : set) {
             number.add(Integer.valueOf(s));
         }
+        List<TimeTableMessage> list = getTimeById(teachingClassId);
         int max=Collections.max(number);
         Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
         int size = collect.size();
@@ -605,47 +603,56 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
 
-    private TimeTableMessage getTimeByOthers(ClassTeacherDto classTeacherDto){
-        TimeTableMessage time=new TimeTableMessage();
-        Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-        Integer timeStart = classTeacherDto.getTimeStart();
-        Integer timeEnd = classTeacherDto.getTimeEnd();
-        String roomID = classTeacherDto.getRoomID();
-        String teacherCode = classTeacherDto.getTeacherCode();
-        String weekNumber = classTeacherDto.getWeekNumberStr();
-        String[] str = weekNumber.split(",");
-        Integer[] num=new Integer[str.length];
-        for (int i = 0; i < str.length; i++) {
-            num[i]=Integer.valueOf(str[i]);
-        }
-        List<String> weekNums = CalUtil.getWeekNums(num);
-        String weekNumStr = weekNums.toString();//周次
-        String weekstr = findWeek(dayOfWeek);//星期
-        StringBuilder sb = new StringBuilder();//教师
-        String[] strings = teacherCode.split(",");
-        String teacherName="";
-        for (String string : strings) {
-            String name = courseTakeDao.findClassTeacherByTeacherCode(string);
-            if(StringUtils.isNotBlank(name)){
-                sb.append(name).append(",");
-            }
+    private List<TimeTableMessage>  getTimeById(Long teachingClassId){
+        List<TimeTableMessage> list=new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                TimeTableMessage time=new TimeTableMessage();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String teacherCode = classTeacherDto.getTeacherCode();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                String[] str = weekNumber.split(",");
+                Integer[] num=new Integer[str.length];
+                for (int i = 0; i < str.length; i++) {
+                    num[i]=Integer.valueOf(str[i]);
+                }
+                List<String> weekNums = CalUtil.getWeekNums(num);
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = findWeek(dayOfWeek);//星期
+                StringBuilder sb = new StringBuilder();//教师
+                String[] strings = teacherCode.split(",");
+                String teacherName="";
+                for (String string : strings) {
+                    String name = courseTakeDao.findClassTeacherByTeacherCode(string);
+                    if(StringUtils.isNotBlank(name)){
+                        sb.append(name).append(",");
+                    }
 
+                }
+                if (sb.length() > 0)
+                {
+                    teacherName = sb.substring(0, sb.length() - 1);
+                }
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
+                String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
+                time.setDayOfWeek(dayOfWeek);
+                time.setTimeStart(timeStart);
+                time.setTimeEnd(timeEnd);
+                time.setRoomId(roomID);
+                time.setTeacherCode(teacherCode);
+                time.setTeacherName(teacherName);
+                time.setWeekNum(weekNumStr);
+                time.setWeekstr(weekstr);
+                time.setTimeAndRoom(timeStr);
+                time.setTimeTab(roomStr);
+                list.add(time);
+            }
         }
-        if (sb.length() > 0)
-        {
-            teacherName = sb.substring(0, sb.length() - 1);
-        }
-        String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
-        time.setDayOfWeek(dayOfWeek);
-        time.setTimeStart(timeStart);
-        time.setTimeEnd(timeEnd);
-        time.setRoomId(roomID);
-        time.setTeacherCode(teacherCode);
-        time.setTeacherName(teacherName);
-        time.setWeekNum(weekNumStr);
-        time.setWeekstr(weekstr);
-        time.setTimeAndRoom(timeStr);
-        return time;
+        return list;
     }
 
     private GeneralExcelDesigner getDesignTwo() {
