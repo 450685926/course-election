@@ -119,14 +119,26 @@ public class ReportManagementController {
 
 
     @ApiOperation(value = "预览点名册")
-    @PostMapping("/previewRollBookList")
-    public RestResult<PreviewRollBookList> findPreviewRollBookList(@RequestBody RollBookList bookList){
+    @PostMapping("/previewRollBookList2")
+    public RestResult<PreviewRollBookList> findPreviewRollBookList2(@RequestBody RollBookList bookList){
         if(bookList.getClassCode()==null||bookList.getTeachingClassId()==null){
             return RestResult.fail("common.parameterError");
         }
         PreviewRollBookList previewRollBookList = managementService.findPreviewRollBookList(bookList);
         return RestResult.successData(previewRollBookList);
     }
+
+
+    @ApiOperation(value = "预览点名册")
+    @GetMapping("/previewRollBookList")
+    public RestResult<PreViewRollDto> findPreviewRollBookList(@RequestParam Long teachingClassId,@RequestParam Long calendarId){
+        if(teachingClassId==null){
+            return RestResult.fail("common.parameterError");
+        }
+        PreViewRollDto previewRollBookList = managementService.findPreviewRollBookListById(teachingClassId,calendarId);
+        return RestResult.successData(previewRollBookList);
+    }
+
 
     //导出待做
 

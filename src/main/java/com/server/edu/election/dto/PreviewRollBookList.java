@@ -19,7 +19,6 @@ public class PreviewRollBookList implements Serializable {
     private String room;
     private String calendarName;
 
-
     public List<StudentVo> getList() {
         return list;
     }

@@ -18,6 +18,13 @@
         <include refid="Base_Column_List"></include>
         from rebuild_course_charge_t
         <where>
+            TRAINING_LEVEL_ in
+            <choose>
+                <when test="manageDeptId == 1">
+                    (1,2,5)
+                </when>
+                <otherwise>(4,6)</otherwise>
+            </choose>
             <if test="trainingLevel !=null and trainingLevel !='' ">
                 and TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
             </if>

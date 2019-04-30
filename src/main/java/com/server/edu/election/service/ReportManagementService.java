@@ -59,4 +59,6 @@ public interface ReportManagementService {
     String exportRollBookList(ReportManagementCondition condition) throws Exception;
 
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
+
+    PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
 }

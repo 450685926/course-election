@@ -98,8 +98,8 @@
   <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
     SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_ code,co.NAME_ codeName,co.NATURE_ nature,co.CREDITS_ credits,
       co.LABEL_ label,el.PAID_ paid,te.WEEK_HOUR_ weekHour,el.COURSE_TAKE_TYPE_ courseTakeType,el.MODE_ mode,el.TURN_ turn,el.CHOOSE_OBJ_ chooseObj
-    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
-    LEFT JOIN course_t co on el.COURSE_CODE_=co.CODE_ LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
+    ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_ teachingClassCode FROM `elc_course_takes_t` el  JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+     JOIN course_t co on el.COURSE_CODE_=co.CODE_ JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
@@ -234,9 +234,20 @@
     </select>
 
     <select id="findClassTimeAndRoom" resultType="com.server.edu.election.dto.ClassTeacherDto">
-        select ti.ID_ timeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd, ro.WEEK_NUMBER_ weekNumber,ro.ROOM_ID_ roomID from teaching_class_arrange_time_t  ti LEFT JOIN
-        teaching_class_arrange_room_t ro on ti.ID_=ro.ARRANGE_TIME_ID_
-        WHERE TEACHING_CLASS_ID_ =#{id,jdbcType=BIGINT}
+        SELECT
+        ro.ARRANGE_TIME_ID_ timeId,
+        ti.DAY_OF_WEEK_ dayOfWeek,
+        ti.TIME_START_ timeStart,
+        ti.TIME_END_ timeEnd,
+        ro.ROOM_ID_ roomID,
+        ro.TEACHER_CODE_ teacherCode,
+        GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumberStr
+        FROM
+        teaching_class_arrange_time_t ti
+        JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
+        WHERE
+        ti.TEACHING_CLASS_ID_ = #{id,jdbcType=BIGINT}
+        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_;
     </select>
 
     <select id="findSchoolTimetab" resultType="com.server.edu.election.dto.StudentSchoolTimetab">
