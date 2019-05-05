@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +45,9 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		Example example = new Example(Course.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("status", Constants.THREE);
-		criteria.andLike("code", course.getCode());
+		if(StringUtils.isNotBlank(course.getCode())) {
+			criteria.andLike("code", course.getCode());
+		}
 		List<Course> list = courseDao.selectByExample(example);
 		PageInfo<Course> pageInfo = new PageInfo<>(list);
 		return pageInfo;
