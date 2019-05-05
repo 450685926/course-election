@@ -8,6 +8,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
@@ -33,6 +34,8 @@ import org.springframework.stereotype.Service;
 import java.io.FileOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.server.edu.election.rpc.CultureSerivceInvoker.getCourseLabelNameById;
 
 /**
  * @description: 报表管理实现类
@@ -313,6 +316,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return new PageResult<>(allClassTeacher);
     }
 
+
+
     /**
     *@Description: 查询教师课表
     *@Param:
@@ -321,7 +326,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/18 10:56
     */
     @Override
-    public StudentSchoolTimetabVo findTeacherTimetable(Long calendarId, String teacherCode) {
+    public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode) {
         //查询所有教学班
         StudentSchoolTimetabVo vo=new StudentSchoolTimetabVo();
         List<ClassTeacherDto> list=new ArrayList<>();
@@ -705,8 +710,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 Integer timeEnd = timeTableMessage.getTimeEnd();
                 String weekNum = timeTableMessage.getWeekNum();
                 String roomId = timeTableMessage.getRoomId();
-                Classroom room = (Classroom) redisTemplate.boundHashOps("classRoomListKey").get(roomId);
-                String name = room.getName();
+                String name="";
+                if(StringUtils.isNotBlank(roomId)){
+                     name = ClassroomCacheUtil.getRoomName(roomId);
+                }
                 String campus = timeTableMessage.getCampus();
                 String value=teacherName+" "+courseName+" ("+weekNum+", "+name+")";
                 timeTable.setDayOfWeek(dayOfWeek);
@@ -718,6 +725,56 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
         }
         return list;
+    }
+
+    /**
+    *@Description: 查询教师课表
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/5 14:13
+    */
+    @Override
+    public List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode) {
+        List<TeacherTimeTable > classTimeAndRoom=courseTakeDao.findTeacherTimetable(calendarId,teacherCode);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            List<Long> ids = classTimeAndRoom.stream().map(TeacherTimeTable::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> tableMessages = getTimeById(ids);
+            Map<Long, List<TimeTableMessage>> listMap=new HashMap<>();
+            if(CollectionUtil.isNotEmpty(tableMessages)){
+                List<TimeTableMessage> timeTableMessages = tableMessages.stream().filter(vo -> Arrays.asList(vo.getTeacherCode().split(",")).contains(teacherCode)).collect(Collectors.toList());
+                if(CollectionUtil.isNotEmpty(timeTableMessages)){
+                    listMap = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+                }
+            }
+            for (TeacherTimeTable teacherTimeTable : classTimeAndRoom) {
+                List<TimeTableMessage> timeTableMessages = listMap.get(teacherTimeTable.getTeachingClassId());
+                String labelName = getCourseLabelNameById(teacherTimeTable.getCourseLabel());
+                teacherTimeTable.setCourseLabelName(labelName);
+                teacherTimeTable.setTimeTableList(timeTableMessages);
+                if(CollectionUtil.isNotEmpty(timeTableMessages)){
+                    Set<String> timeTabel=new HashSet<>();
+                    Set<String> room=new HashSet<>();
+                    for (TimeTableMessage tableMessage : timeTableMessages) {
+                            String timeTab = tableMessage.getTimeTab();
+                            String roomId = tableMessage.getRoomId();
+                            if(StringUtils.isNotEmpty(timeTab)){
+                                timeTabel.add(timeTab);
+                            }
+                            if(StringUtils.isNotEmpty(roomId)){
+                                room.add(roomId);
+                            }
+                    }
+                    String classTime = String.join(",", timeTabel);
+                    String classRoom = String.join(",", room);
+                    teacherTimeTable.setClassTime(classTime);
+                    teacherTimeTable.setClassRoom(classRoom);
+                }
+
+            }
+
+        }
+        return classTimeAndRoom;
     }
 
 
