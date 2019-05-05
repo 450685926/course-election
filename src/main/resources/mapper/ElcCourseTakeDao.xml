@@ -438,7 +438,9 @@
 				FROM
 					elc_course_takes_t
 				WHERE
-					TEACHING_CLASS_ID_ NOT IN (
+				CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+  	 	        and STUDENT_ID_ = #{studentId}
+				and	TEACHING_CLASS_ID_ NOT IN (
 						SELECT
 							TEACHING_CLASS_ID_
 						FROM

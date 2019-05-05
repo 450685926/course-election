@@ -40,9 +40,11 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	@Override
 	public PageInfo<Course> courseList(PageCondition<Course> condition){
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+		Course course = condition.getCondition();
 		Example example = new Example(Course.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("status", Constants.THREE);
+		criteria.andLike("code", course.getCode());
 		List<Course> list = courseDao.selectByExample(example);
 		PageInfo<Course> pageInfo = new PageInfo<>(list);
 		return pageInfo;
