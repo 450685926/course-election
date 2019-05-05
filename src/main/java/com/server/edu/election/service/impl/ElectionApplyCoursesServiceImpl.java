@@ -46,7 +46,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("status", Constants.THREE);
 		if(StringUtils.isNotBlank(course.getCode())) {
-			criteria.andLike("code", course.getCode());
+			criteria.andLike("code", course.getCode()+'%');
 		}
 		List<Course> list = courseDao.selectByExample(example);
 		PageInfo<Course> pageInfo = new PageInfo<>(list);
