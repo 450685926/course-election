@@ -2,6 +2,7 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
 
 import java.io.Serializable;
 import java.util.List;
@@ -24,6 +25,7 @@ public class TeacherTimeTable implements Serializable {
     @Code2Text(transformer = "X_SKYY")
     private String teachingLanguage;
     private String classTime;
+    @Code2Text(translator = ClassRoomTranslator.class, dataType = Code2Text.DataType.SPLIT)
     private String classRoom;
     private String remark;
     private Integer elcNumber;
