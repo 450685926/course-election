@@ -556,7 +556,7 @@
             and t4.NATURE_ =#{nature,jdbcType=VARCHAR}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
-            and (t2.teacherCode like concat('%',#{condition,jdbcType=VARCHAR},'%') or  t2.TEACHER_NAME_ like concat('%',#{condition,jdbcType=VARCHAR},'%'))
+            and (t2.TEACHER_CODE_ like concat('%',#{condition,jdbcType=VARCHAR},'%') or  t2.TEACHER_NAME_ like concat('%',#{condition,jdbcType=VARCHAR},'%'))
         </if>
     </where>
     </select>
