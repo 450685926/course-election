@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.util.List;
 
 import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.*;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
@@ -30,10 +31,6 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -171,6 +168,25 @@ public class ReportManagementController {
 
         List<StudnetTimeTable> schoolTimetab = managementService.findStudentTimetab(calendarId, studentCode);
         return RestResult.successData(schoolTimetab);
+    }
+
+    @ApiOperation(value = "查询学生个人课表")//别的服务调用
+    @GetMapping("/getStudentTimetab")
+    public RestResult<List<TimeTable>> getStudentTimetab(@RequestParam("calendarId") Long calendarId){
+        if(calendarId==null){
+            return RestResult.fail("common.parameterError");
+        }
+        String studentCode="";
+        Session currentSession = SessionUtils.getCurrentSession();
+        String code = currentSession.realUid();
+        int type = currentSession.realType();
+        if(type==2){//当前用户是学生
+            studentCode=code;
+        }else{//不是学生
+            return RestResult.fail("elec.mustBeStu");
+        }
+       List<TimeTable> list = managementService.getStudentTimetab(calendarId,studentCode);
+        return RestResult.successData(list);
     }
 
 

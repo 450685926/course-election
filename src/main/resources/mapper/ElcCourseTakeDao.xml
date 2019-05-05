@@ -238,6 +238,7 @@
         te.ID_ teachingClassId,
         te.CODE_ classCode,
         te.NAME_ className,
+        te.CAMPUS_ campus,
         co.COURSE_CODE_ courseCode,
         co.COURSE_NAME_ courseName,
         ro.ARRANGE_TIME_ID_ timeId,

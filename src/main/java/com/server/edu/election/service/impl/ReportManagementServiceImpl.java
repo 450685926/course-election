@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
@@ -26,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -56,6 +58,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private ElcNoSelectReasonDao reasonDao;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
 
     @Autowired
@@ -677,6 +682,44 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return new PageResult<>(teacherTimeTable);
     }
 
+    /**
+    *@Description: 学生课表其他服务调用
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/5 9:34
+    */
+    @Override
+    public List<TimeTable> getStudentTimetab(Long calendarId, String studentCode) {
+        List<StudnetTimeTable> studentTable = courseTakeDao.findStudentTable(calendarId, studentCode);//查询所有教学班
+        List<TimeTable> list =new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(studentTable)){
+            List<Long> ids = studentTable.stream().map(StudnetTimeTable::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> timeById = getTimeById(ids);
+            for (TimeTableMessage timeTableMessage : timeById) {
+                TimeTable timeTable=new TimeTable();
+                String teacherName = timeTableMessage.getTeacherName();
+                String courseName = timeTableMessage.getCourseName();
+                Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                Integer timeStart = timeTableMessage.getTimeStart();
+                Integer timeEnd = timeTableMessage.getTimeEnd();
+                String weekNum = timeTableMessage.getWeekNum();
+                String roomId = timeTableMessage.getRoomId();
+                Classroom room = (Classroom) redisTemplate.boundHashOps("classRoomListKey").get(roomId);
+                String name = room.getName();
+                String campus = timeTableMessage.getCampus();
+                String value=teacherName+" "+courseName+" ("+weekNum+", "+name+")";
+                timeTable.setDayOfWeek(dayOfWeek);
+                timeTable.setTimeStart(timeStart);
+                timeTable.setTimeEnd(timeEnd);
+                timeTable.setCampus(campus);
+                timeTable.setValue(value);
+                list.add(timeTable);
+            }
+        }
+        return list;
+    }
+
 
     private List<TimeTableMessage>  getTimeById(List<Long> teachingClassId){
         List<TimeTableMessage> list=new ArrayList<>();
@@ -688,6 +731,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 Integer timeStart = classTeacherDto.getTimeStart();
                 Integer timeEnd = classTeacherDto.getTimeEnd();
                 String roomID = classTeacherDto.getRoomID();
+                String campus = classTeacherDto.getCampus();
                 String teacherCode = classTeacherDto.getTeacherCode();
                 String weekNumber = classTeacherDto.getWeekNumberStr();
                 String[] str = weekNumber.split(",");
@@ -724,6 +768,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 time.setWeekstr(weekstr);
                 time.setTimeAndRoom(timeStr);
                 time.setTimeTab(roomStr);
+                time.setCampus(campus);
                 time.setClassCode(classTeacherDto.getClassCode());
                 time.setCourseCode(classTeacherDto.getCourseCode());
                 time.setCourseName(classTeacherDto.getCourseName());

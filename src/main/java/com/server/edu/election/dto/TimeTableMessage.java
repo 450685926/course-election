@@ -29,6 +29,17 @@ public class TimeTableMessage implements Serializable {
     private String courseName;//课程名称
     private String courseCode;//课程代码
     private Long teachingClassId;//教学班Id
+    @Code2Text(transformer = "X_XQ")
+    private String campus;
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
     public Long getTeachingClassId() {
         return teachingClassId;
     }
