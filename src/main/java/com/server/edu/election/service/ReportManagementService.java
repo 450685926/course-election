@@ -66,4 +66,6 @@ public interface ReportManagementService {
     List<TimeTable> getStudentTimetab(Long calendarId, String studentCode);
 
     List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
+
+    List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode);
 }

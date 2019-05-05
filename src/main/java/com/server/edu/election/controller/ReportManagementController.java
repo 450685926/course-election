@@ -245,6 +245,25 @@ public class ReportManagementController {
         return RestResult.successData(teacherTimetable);
     }
 
+    @ApiOperation(value = "查询老师课表")//别的服务调用
+    @GetMapping("/getTeacherTimetable")
+    public RestResult<List<TimeTable>> getTeacherTimetable(@RequestParam Long calendarId){
+        if(calendarId==null){
+            return RestResult.fail("common.parameterError");
+        }
+        String teacherCode="";
+        Session currentSession = SessionUtils.getCurrentSession();
+        String code = currentSession.realUid();
+        int type = currentSession.realType();
+        if(type==1){//当前用户是教师
+            teacherCode=code;
+        }else{//不是教师
+            return RestResult.fail("elec.mustBeTeacher");
+        }
+        List<TimeTable> teacherTimetable = managementService.getTeacherTimetable(calendarId, teacherCode);
+        return RestResult.successData(teacherTimetable);
+    }
+
     @ApiOperation(value = "查询选退课日志")
     @PostMapping("/findCourseLog")
     public RestResult<PageResult<ElcLogVo>> findCourseLog(@RequestBody PageCondition<ElcLogVo> condition){
