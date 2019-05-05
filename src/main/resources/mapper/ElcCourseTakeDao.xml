@@ -531,6 +531,31 @@
     </select>
     
     <select id="findAllTeacherTimeTable" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
-
+          SELECT
+	t1.CALENDAR_ID_ calendarId,
+	t2.TEACHER_CODE_ teacherCode,
+	t2.TEACHER_NAME_ teacherName,
+	t3.CODE_ classCode,
+	t1.COURSE_CODE_ courseCode,
+	t4.NAME_ courseName,
+	t4.COLLEGE_ faculty,
+	t2.SEX_ sex,
+	t1.TEACHING_CLASS_ID_ teachingClassId
+    FROM
+    (select TEACHING_CLASS_ID_,COURSE_CODE_,CALENDAR_ID_ from `elc_course_takes_t`  where CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} GROUP BY TEACHING_CLASS_ID_) t1
+    JOIN teaching_class_teacher_t t2 ON t1.TEACHING_CLASS_ID_ = t2.TEACHING_CLASS_ID_
+    JOIN teaching_class_t t3 ON t1.TEACHING_CLASS_ID_ = t3.ID_
+    JOIN course_t t4 ON t4.CODE_ = t1.COURSE_CODE_
+    <where>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+            and t4.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+            and t4.NATURE_ =#{nature,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
+            and (t2.teacherCode like concat('%',#{condition,jdbcType=VARCHAR},'%') or  t2.TEACHER_NAME_ like concat('%',#{condition,jdbcType=VARCHAR},'%'))
+        </if>
+    </where>
     </select>
 </mapper>

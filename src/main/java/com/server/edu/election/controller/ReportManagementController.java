@@ -198,7 +198,7 @@ public class ReportManagementController {
     }
 
 
-    @ApiOperation(value = "查询学生课表对应老师时间地点")
+    @ApiOperation(value = "查询学生课表对应老师时间地点")//不用
     @GetMapping("/findStudentAndTeacherTime")
     public RestResult<List<ClassTeacherDto>> findStudentAndTeacherTime(@RequestParam Long teachingClassId){
         if(teachingClassId==null){
