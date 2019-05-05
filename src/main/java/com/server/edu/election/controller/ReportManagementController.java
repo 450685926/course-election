@@ -170,7 +170,7 @@ public class ReportManagementController {
         return RestResult.successData(schoolTimetab);
     }
 
-    @ApiOperation(value = "查询学生个人课表")//别的服务调用
+    @ApiOperation(value = "查询学生个人课表")//学生登陆使用
     @GetMapping("/getStudentTimetab")
     public RestResult<List<TimeTable>> getStudentTimetab(@RequestParam("calendarId") Long calendarId){
         if(calendarId==null){
@@ -245,7 +245,7 @@ public class ReportManagementController {
         return RestResult.successData(teacherTimetable);
     }
 
-    @ApiOperation(value = "查询老师课表")//别的服务调用
+    @ApiOperation(value = "查询老师课表")//教师登陆使用
     @GetMapping("/getTeacherTimetable")
     public RestResult<List<TimeTable>> getTeacherTimetable(@RequestParam Long calendarId){
         if(calendarId==null){
