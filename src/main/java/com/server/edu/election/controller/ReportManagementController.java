@@ -226,12 +226,22 @@ public class ReportManagementController {
     //学生课表调用预览点名册
 
     @ApiOperation(value = "查询老师课表")
-    @GetMapping("/findTeacherTimetable")
-    public RestResult<StudentSchoolTimetabVo> findTeacherTimetable(@RequestParam Long calendarId,@RequestParam String teacherCode){
+    @GetMapping("/findTeacherTimetable2")
+    public RestResult<StudentSchoolTimetabVo> findTeacherTimetable2(@RequestParam Long calendarId,@RequestParam String teacherCode){
         if(calendarId==null|| StringUtils.isBlank(teacherCode)){
             return RestResult.fail("common.parameterError");
         }
-        StudentSchoolTimetabVo teacherTimetable = managementService.findTeacherTimetable(calendarId, teacherCode);
+        StudentSchoolTimetabVo teacherTimetable = managementService.findTeacherTimetable2(calendarId, teacherCode);
+        return RestResult.successData(teacherTimetable);
+    }
+
+    @ApiOperation(value = "查询老师课表")
+    @GetMapping("/findTeacherTimetable")
+    public RestResult<List<TeacherTimeTable>> findTeacherTimetable(@RequestParam Long calendarId,@RequestParam String teacherCode){
+        if(calendarId==null|| StringUtils.isBlank(teacherCode)){
+            return RestResult.fail("common.parameterError");
+        }
+        List<TeacherTimeTable> teacherTimetable = managementService.findTeacherTimetable(calendarId, teacherCode);
         return RestResult.successData(teacherTimetable);
     }
 

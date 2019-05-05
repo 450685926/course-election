@@ -28,7 +28,7 @@ public interface ReportManagementService {
     PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition);
 
     /**查询教师课表*/
-    StudentSchoolTimetabVo findTeacherTimetable(Long calendarId,String teacherCode);
+    StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId,String teacherCode);
 
     /**
      * 查询选课日志
@@ -64,4 +64,6 @@ public interface ReportManagementService {
     PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
 
     List<TimeTable> getStudentTimetab(Long calendarId, String studentCode);
+
+    List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
 }
