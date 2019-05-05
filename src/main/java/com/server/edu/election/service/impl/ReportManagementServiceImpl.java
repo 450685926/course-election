@@ -777,6 +777,53 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return classTimeAndRoom;
     }
 
+    /**
+    *@Description: 登陆获取教师课表
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/5/5 16:33
+    */
+    @Override
+    public List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode) {
+        List<TimeTable> list=new ArrayList<>();
+        List<TeacherTimeTable > classTimeAndRoom=courseTakeDao.findTeacherTimetable(calendarId,teacherCode);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            List<Long> ids = classTimeAndRoom.stream().map(TeacherTimeTable::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> tableMessages = getTimeById(ids);
+            List<TimeTableMessage> teacherList=new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(tableMessages)){
+                teacherList = tableMessages.stream().filter(vo -> Arrays.asList(vo.getTeacherCode().split(",")).contains(teacherCode)).collect(Collectors.toList());
+            }
+            if(CollectionUtil.isNotEmpty(teacherList)){
+                for (TimeTableMessage timeTableMessage : teacherList) {
+                    TimeTable timeTable=new TimeTable();
+                    String classCode = timeTableMessage.getClassCode();
+                    String courseName = timeTableMessage.getCourseName();
+                    Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                    Integer timeStart = timeTableMessage.getTimeStart();
+                    Integer timeEnd = timeTableMessage.getTimeEnd();
+                    String weekNum = timeTableMessage.getWeekNum();
+                    String roomId = timeTableMessage.getRoomId();
+                    String name="";
+                    if(StringUtils.isNotBlank(roomId)){
+                        name = ClassroomCacheUtil.getRoomName(roomId);
+                    }
+                    String campus = timeTableMessage.getCampus();
+                    String value=classCode+" "+courseName+" ("+weekNum+", "+name+")";
+                    timeTable.setDayOfWeek(dayOfWeek);
+                    timeTable.setTimeStart(timeStart);
+                    timeTable.setTimeEnd(timeEnd);
+                    timeTable.setCampus(campus);
+                    timeTable.setValue(value);
+                    list.add(timeTable);
+                }
+            }
+
+        }
+        return null;
+    }
+
 
     private List<TimeTableMessage>  getTimeById(List<Long> teachingClassId){
         List<TimeTableMessage> list=new ArrayList<>();

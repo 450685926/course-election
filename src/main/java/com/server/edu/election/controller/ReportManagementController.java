@@ -170,7 +170,7 @@ public class ReportManagementController {
         return RestResult.successData(schoolTimetab);
     }
 
-    @ApiOperation(value = "查询学生个人课表")//别的服务调用
+    @ApiOperation(value = "查询学生个人课表")//学生登陆使用
     @GetMapping("/getStudentTimetab")
     public RestResult<List<TimeTable>> getStudentTimetab(@RequestParam("calendarId") Long calendarId){
         if(calendarId==null){
@@ -242,6 +242,25 @@ public class ReportManagementController {
             return RestResult.fail("common.parameterError");
         }
         List<TeacherTimeTable> teacherTimetable = managementService.findTeacherTimetable(calendarId, teacherCode);
+        return RestResult.successData(teacherTimetable);
+    }
+
+    @ApiOperation(value = "查询老师课表")//教师登陆使用
+    @GetMapping("/getTeacherTimetable")
+    public RestResult<List<TimeTable>> getTeacherTimetable(@RequestParam Long calendarId){
+        if(calendarId==null){
+            return RestResult.fail("common.parameterError");
+        }
+        String teacherCode="";
+        Session currentSession = SessionUtils.getCurrentSession();
+        String code = currentSession.realUid();
+        int type = currentSession.realType();
+        if(type==1){//当前用户是教师
+            teacherCode=code;
+        }else{//不是教师
+            return RestResult.fail("elec.mustBeTeacher");
+        }
+        List<TimeTable> teacherTimetable = managementService.getTeacherTimetable(calendarId, teacherCode);
         return RestResult.successData(teacherTimetable);
     }
 
