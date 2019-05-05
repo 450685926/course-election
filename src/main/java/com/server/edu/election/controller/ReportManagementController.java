@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.util.List;
 
 import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.*;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,10 +31,6 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -174,6 +170,25 @@ public class ReportManagementController {
         return RestResult.successData(schoolTimetab);
     }
 
+    @ApiOperation(value = "查询学生个人课表")//别的服务调用
+    @GetMapping("/getStudentTimetab")
+    public RestResult<List<TimeTable>> getStudentTimetab(@RequestParam("calendarId") Long calendarId){
+        if(calendarId==null){
+            return RestResult.fail("common.parameterError");
+        }
+        String studentCode="";
+        Session currentSession = SessionUtils.getCurrentSession();
+        String code = currentSession.realUid();
+        int type = currentSession.realType();
+        if(type==2){//当前用户是学生
+            studentCode=code;
+        }else{//不是学生
+            return RestResult.fail("elec.mustBeStu");
+        }
+       List<TimeTable> list = managementService.getStudentTimetab(calendarId,studentCode);
+        return RestResult.successData(list);
+    }
+
 
     @ApiOperation(value = "查询所有学生课表")
     @PostMapping("/findAllSchoolTimetab")
@@ -183,7 +198,7 @@ public class ReportManagementController {
     }
 
 
-    @ApiOperation(value = "查询学生课表对应老师时间地点")
+    @ApiOperation(value = "查询学生课表对应老师时间地点")//不用
     @GetMapping("/findStudentAndTeacherTime")
     public RestResult<List<ClassTeacherDto>> findStudentAndTeacherTime(@RequestParam Long teachingClassId){
         if(teachingClassId==null){
@@ -198,6 +213,13 @@ public class ReportManagementController {
     @PostMapping("/findAllClassTeacher")
     public RestResult<PageResult<ClassCodeToTeacher>> findAllClassTeacher(@RequestBody PageCondition<ClassCodeToTeacher> condition){
         PageResult<ClassCodeToTeacher> allClassTeacher = managementService.findAllClassTeacher(condition);
+        return RestResult.successData(allClassTeacher);
+    }
+
+    @ApiOperation(value = "查询所有教师课表")
+    @PostMapping("/findAllTeacherTimeTable")
+    public RestResult<PageResult<ClassCodeToTeacher>> findAllTeacherTimeTable(@RequestBody PageCondition<ClassCodeToTeacher> condition){
+        PageResult<ClassCodeToTeacher> allClassTeacher = managementService.findAllTeacherTimeTable(condition);
         return RestResult.successData(allClassTeacher);
     }
 

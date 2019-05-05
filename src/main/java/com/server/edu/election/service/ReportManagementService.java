@@ -4,10 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.*;
 
 import java.util.List;
 
@@ -63,4 +60,8 @@ public interface ReportManagementService {
     PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
 
     List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode);
+
+    PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
+
+    List<TimeTable> getStudentTimetab(Long calendarId, String studentCode);
 }
