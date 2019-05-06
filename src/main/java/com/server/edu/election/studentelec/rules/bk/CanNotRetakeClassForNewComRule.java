@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.constants.Constants;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -17,6 +18,10 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 新选课程不出现重修班
+ * 课程是新选 教学班不能是重修班
+ * CanNotRetakeClassForNewComFilter
+ *
+ * !elected&&lesson.getTags().size()>0
  */
 @Component("CanNotRetakeClassForNewComRule")
 public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
@@ -36,11 +41,10 @@ public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
         set.addAll(context.getCompletedCourses());
         if (CollectionUtil.isNotEmpty(set))
         {
-            Set<CompletedCourse> collect = set.stream()
+            long count = set.stream()
                 .filter(vo -> vo.getCourseCode()
-                    .equals(courseClass.getCourseCode()))
-                .collect(Collectors.toSet());
-            if (CollectionUtil.isNotEmpty(collect))
+                    .equals(courseClass.getCourseCode())).count();
+            if (count == 0 && courseClass.getTeachClassType().equals(Constants.REBUILD_CALSS))
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()

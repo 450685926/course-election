@@ -821,7 +821,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
 
         }
-        return null;
+        return list;
     }
 
 

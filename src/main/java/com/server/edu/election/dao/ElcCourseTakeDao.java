@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseLimitDto;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.dto.RollBookConditionDto;
@@ -130,4 +131,6 @@ public interface ElcCourseTakeDao
     
     List<ElecCourse> selectApplyCourses(@Param("studentId") String studentId,
             @Param("calendarId") Long calendarId,@Param("apply") Integer apply);
+
+    List<ElcCourseLimitDto> findSexNumber(Long teachClassId);
 }

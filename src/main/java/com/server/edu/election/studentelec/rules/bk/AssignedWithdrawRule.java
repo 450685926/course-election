@@ -16,8 +16,8 @@ import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
- * 不能退教务员选的课
- * 
+ * 不能退教务员选的课，只要不是自选的都不能退课
+ * AssignedWithdrawPrepare
  */
 @Component("AssignedWithdrawRule")
 public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutor

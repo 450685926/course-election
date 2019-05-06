@@ -574,7 +574,7 @@
             and t4.NATURE_ =#{nature,jdbcType=VARCHAR}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
-            and (t2.teacherCode like concat('%',#{condition,jdbcType=VARCHAR},'%') or  t2.TEACHER_NAME_ like concat('%',#{condition,jdbcType=VARCHAR},'%'))
+            and (t2.TEACHER_CODE_ like concat('%',#{condition,jdbcType=VARCHAR},'%') or  t2.TEACHER_NAME_ like concat('%',#{condition,jdbcType=VARCHAR},'%'))
         </if>
     </where>
     </select>
@@ -597,5 +597,12 @@
     JOIN teaching_class_t t3 ON t1.TEACHING_CLASS_ID_ = t3.ID_
     JOIN course_t t4 ON t4.CODE_ = t1.COURSE_CODE_
     where t2.TEACHER_CODE_=#{teacherCode}
+    </select>
+    
+    <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
+        select t2.SEX_ sex,COUNT(t2.SEX_) number from elc_course_takes_t t1
+        LEFT JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
+        where t1.TEACHING_CLASS_ID_=#{teachClassId}
+        GROUP BY t2.SEX_
     </select>
 </mapper>
