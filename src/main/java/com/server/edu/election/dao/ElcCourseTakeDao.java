@@ -119,4 +119,6 @@ public interface ElcCourseTakeDao
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
+
+    List<ElcCourseLimitDto> findSexNumber(Long teachClassId);
 }
