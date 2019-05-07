@@ -8,22 +8,22 @@ import java.io.Serializable;
  * @create: 2019-05-06 14:57
  */
 public class ElcCourseLimitDto implements Serializable{
-    private Integer sex;
-    private Integer number;
+    private Integer maleNum;
+    private Integer feMaleNum;
 
-    public Integer getSex() {
-        return sex;
+    public Integer getMaleNum() {
+        return maleNum;
     }
 
-    public void setSex(Integer sex) {
-        this.sex = sex;
+    public void setMaleNum(Integer maleNum) {
+        this.maleNum = maleNum;
     }
 
-    public Integer getNumber() {
-        return number;
+    public Integer getFeMaleNum() {
+        return feMaleNum;
     }
 
-    public void setNumber(Integer number) {
-        this.number = number;
+    public void setFeMaleNum(Integer feMaleNum) {
+        this.feMaleNum = feMaleNum;
     }
 }
