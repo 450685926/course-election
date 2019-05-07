@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -97,7 +98,6 @@ public class ElecContext
         this.contextUtil.save("courseGroups", this.courseGroups);
         this.contextUtil.save("publicCourses", this.publicCourses);
         this.contextUtil.save("failedCourse", this.failedCourse);
-        this.contextUtil.save("applyCourse", this.applyCourse);
         this.contextUtil.save("elecApplyCourses", this.elecApplyCourses);
     }
     
@@ -187,12 +187,11 @@ public class ElecContext
     }
 
 	public Set<String> getApplyCourse() {
-		return applyCourse;
+		
+		Set<String> courses = new HashSet<>(this.contextUtil.getApplyCourse(calendarId));
+		return courses;
 	}
 
-	public void setApplyCourse(Set<String> applyCourse) {
-		this.applyCourse = applyCourse;
-	}
 
 	public Set<ElecCourse> getElecApplyCourses() {
 		return elecApplyCourses;
