@@ -9,6 +9,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -221,5 +225,13 @@ public class RoundDataCacheUtil
             ops.set(roundStuKey, stuId, timeout, TimeUnit.MINUTES);
         }
         
+    }
+
+    public void cachePreSemester(ValueOperations<String, String> ops, ElectionRounds round, long timeout){
+        Long calendarId = round.getCalendarId();//当前学期
+        SchoolCalendarVo preSemester = BaseresServiceInvoker.getPreSemester(calendarId);
+        Long id = preSemester.getId();
+        String roundPreSemester =String.format(Keys.ROUND_PRESEMESTER, round.getId());
+        ops.set(roundPreSemester, Long.toString(id),timeout, TimeUnit.MINUTES);
     }
 }
