@@ -188,8 +188,10 @@ public class ElecContext
 
 	public Set<String> getApplyCourse() {
 		
-		Set<String> courses = new HashSet<>(this.contextUtil.getApplyCourse(calendarId));
-		return courses;
+		if(applyCourse == null) {
+			applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
+		}
+		return applyCourse;
 	}
 
 
