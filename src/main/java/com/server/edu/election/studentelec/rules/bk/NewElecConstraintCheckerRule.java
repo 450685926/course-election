@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.election.studentelec.rules.RetakeCourse;
 import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +38,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        Set<CompletedCourse> failedCourse = context.getFailedCourse();
-        List<CompletedCourse> list =new ArrayList<>();
-        list.addAll(completedCourses);
-        list.addAll(failedCourse);
-        long count=0L;
-        if(CollectionUtil.isNotEmpty(list)){
-             count = list.stream().filter(vo -> vo.getCourseCode().equals(courseClass.getCourseCode())).count();
-        }
+        long count = RetakeCourse.isRetakeCourse(context, courseClass.getCourseCode());
         if (count>0)
         {//重修
             String number = constantsDao.findRebuildCourseNumber();

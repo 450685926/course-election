@@ -1,5 +1,8 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.election.studentelec.rules.RetakeCourse;
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -10,8 +13,13 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * 限制不能选择重修课
+ * ElectableLessonNoRetakeFilter
  */
 @Component("NoRetakeRule")
 public class NoRetakeRule extends AbstractElecRuleExceutor
@@ -20,14 +28,9 @@ public class NoRetakeRule extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
+        long count = RetakeCourse.isRetakeCourse(context, courseClass.getCourseCode());
+        if (count>0)//重修
         {
-            if (Constants.ORDINARY_CALSS
-                .equals(courseClass.getTeachClassType()))
-            {
-                return true;
-            }
-            
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
                 .put(courseClass.getCourseCodeAndClassCode(),
