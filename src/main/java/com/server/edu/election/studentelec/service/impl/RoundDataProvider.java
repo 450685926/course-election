@@ -167,6 +167,8 @@ public class RoundDataProvider
         Set<String> stuKeys =
             redisTemplate.keys(String.format(Keys.ROUND_STUDENT, roundId, "*"));
         dataUtil.cacheRoundStu(ops, roundId, endMinutes, stuKeys);
+        //缓存轮次的上一学期
+        dataUtil.cachePreSemester(ops, round, endMinutes);
         
         // 加载所有教学班与课程数据到缓存中
         List<CourseOpenDto> lessons = roundCourseDao

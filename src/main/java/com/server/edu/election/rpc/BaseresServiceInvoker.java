@@ -124,4 +124,9 @@ public class BaseresServiceInvoker
     }
 
 
+    public static SchoolCalendarVo getPreSemester(Long calendarId){
+        RestResult<SchoolCalendarVo> preSchoolCalendar= ServicePathEnum.BASESERVICE.getForObject("/schoolCalendar/lastTermCalendar?calendarId={calendarId}", RestResult.class, calendarId);
+        return preSchoolCalendar.getData();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.election.studentelec.rules.RetakeCourse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -33,13 +34,9 @@ public class CantRetakeExceptLoserDownRule extends AbstractElecRuleExceutor
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
         boolean repeater = studentInfo.isRepeater();//是否留降级
-        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        Set<CompletedCourse> failedCourse = context.getFailedCourse();
-        List<CompletedCourse> hisCourse=new ArrayList<>();
-        hisCourse.addAll(completedCourses);
-        hisCourse.addAll(failedCourse);
+        long count = RetakeCourse.isRetakeCourse(context, courseClass.getCourseCode());
         //历史课程中要包含替代的课程 todo
-        boolean isReTakeCourse =hisCourse.contains(courseClass.getCourseCode());
+        boolean isReTakeCourse =count>0?true:false;
          boolean flag= repeater || !isReTakeCourse;
         if(!flag){
             ElecRespose respose = context.getRespose();
