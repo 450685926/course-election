@@ -1,8 +1,12 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +24,7 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 /**
  * 选课限制检查器<br>
  * 限制学生的新选学分上限和重修门数上限
+ * NewElectionConstraintChecker
  */
 @Component("NewElecConstraintCheckerRule")
 public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
@@ -32,7 +37,16 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        if (Constants.REBUILD_CALSS.equals(courseClass.getTeachClassType()))
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();
+        List<CompletedCourse> list =new ArrayList<>();
+        list.addAll(completedCourses);
+        list.addAll(failedCourse);
+        long count=0L;
+        if(CollectionUtil.isNotEmpty(list)){
+             count = list.stream().filter(vo -> vo.getCourseCode().equals(courseClass.getCourseCode())).count();
+        }
+        if (count>0)
         {//重修
             String number = constantsDao.findRebuildCourseNumber();
             if (StringUtils.isBlank(number))
