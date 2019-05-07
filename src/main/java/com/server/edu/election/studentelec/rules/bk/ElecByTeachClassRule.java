@@ -103,15 +103,17 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
             }
 
             if (isDivsex != null) {
-                List<ElcCourseLimitDto> number = takeDao.findSexNumber(teachClassId);
+                ElcCourseLimitDto sexNumber = takeDao.findSexNumber(teachClassId);
                 String sex = String.valueOf(studentInfo.getSex());//当前学生性别
                 int currentNum = 0;
-                if (CollectionUtil.isEmpty(number)) {//当前还没有选课人数
+                if (sexNumber==null) {//当前还没有选课人数
                     currentNum = 0;
                 } else {
-                    List<ElcCourseLimitDto> collect = number.stream().filter(vo -> vo.getSex().equals(sex)).collect(Collectors.toList());
-                    if (CollectionUtil.isNotEmpty(collect)) {
-                        currentNum = collect.get(0).getNumber();//当前性别人数
+                    if(sex.equals(MALE)&&sexNumber.getMaleNum()!=null){
+                        currentNum=sexNumber.getMaleNum();
+                    }
+                    if(sex.equals(FEMALE)&&sexNumber.getFeMaleNum()!=null){
+                        currentNum=sexNumber.getFeMaleNum();
                     }
                 }
 
