@@ -11,6 +11,7 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 检查学生是否缴费，未缴费的不能进入选课
+ * StdPayCostChecker
  */
 @Component("StdPayCostCheckerRule")
 public class StdPayCostCheckerRule extends AbstractElecRuleExceutor
