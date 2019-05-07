@@ -215,7 +215,7 @@
 		</repository>
 
 		<repository>
-			<id>isoftstone</id>
+			<id>isoftstone1</id>
 			<url>http://119.3.36.56:8081/repository/maven-public/</url>
 			<releases>
 				<enabled>true</enabled>
@@ -233,7 +233,7 @@
 		</pluginRepository>
 
 		<pluginRepository>
-			<id>isoftstone</id>
+			<id>isoftstone1</id>
 			<url>http://119.3.36.56:8081/repository/maven-public/</url>
 			<releases>
 				<enabled>true</enabled>
