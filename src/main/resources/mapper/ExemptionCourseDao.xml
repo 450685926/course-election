@@ -16,6 +16,9 @@
         from exemption_course_t co
         left join course_t ct on co.COURSE_CODE_=ct.CODE_
         <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(managerDeptId)">
+                and ct.MANAGER_DEPT_ID_ = #{managerDeptId,jdbcType=VARCHAR}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and co.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>

@@ -2,13 +2,22 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 @Table(name = "election_applys_t")
 public class ElectionApply implements Serializable {
     /**
      * 主键（自增）
      */
+	@NotNull
     @Id
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,6 +56,7 @@ public class ElectionApply implements Serializable {
     /**
      * 备注
      */
+    @NotBlank
     @Column(name = "REMARK_")
     private String remark;
 

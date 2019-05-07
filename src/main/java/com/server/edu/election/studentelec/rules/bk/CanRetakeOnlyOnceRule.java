@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +18,9 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.util.CollectionUtil;
 
 /**
- * 通过课程只能重修一次
- * 
+ * 通过课程 只能重修一次
+ * 课程通过一次 只能重修一次
+ * CanRetakeOnlyOnceChecker
  */
 @Component("CanRetakeOnlyOnceRule")
 public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutor
@@ -29,33 +31,32 @@ public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutor
         TeachingClassCache courseClass)
     {
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        
-        if (courseClass.getTeachClassType() != null
-            && CollectionUtil.isNotEmpty(completedCourses))
-        {
-            if (StringUtils.isNotBlank(courseClass.getTeachClassType()))
-            {
-                List<CompletedCourse> list = completedCourses.stream()
-                    .filter(c -> courseClass.getCourseCode()
-                        .equals(c.getCourseCode()))
-                    .collect(Collectors.toList());
-                
-                if (CollectionUtil.isNotEmpty(list))
-                {
-                    if (Constants.REBUILD_CALSS
-                        .equals(courseClass.getTeachClassType()))
-                    {
-                        ElecRespose respose = context.getRespose();
-                        respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
-                                I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
-                        return false;
-                    }
-                }
-            }
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();
+        long successCount=0L;
+        long failCount=0L;
+        if(CollectionUtil.isNotEmpty(completedCourses)){
+             successCount = completedCourses.stream().filter(c -> courseClass.getCourseCode()
+                    .equals(c.getCourseCode())).count();
         }
-        
-        return true;
+
+        if(CollectionUtil.isEmpty(failedCourse)){
+            failCount = completedCourses.stream().filter(c -> courseClass.getCourseCode()
+                    .equals(c.getCourseCode())).count();
+        }
+
+        if(successCount==1 && failCount==0){
+            return true;
+        }
+        if(successCount<1){
+            return true;
+        }
+
+            ElecRespose respose = context.getRespose();
+            respose.getFailedReasons()
+                    .put(courseClass.getCourseCodeAndClassCode(),
+                            I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
+            return false;
+
     }
     
 }

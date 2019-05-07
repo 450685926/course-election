@@ -35,8 +35,30 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
     /**是否为公共选修课(1:是，0：否)*/
     private Integer isPublicCourse;
+    /**选课申请ID*/
+    private Long electionApplyId;
+    /**选课申请状态*/    
+    private Integer apply;
+    
+    
 
-    public Integer getIsPublicCourse() {
+    public Integer getApply() {
+		return apply;
+	}
+
+	public void setApply(Integer apply) {
+		this.apply = apply;
+	}
+
+	public Long getElectionApplyId() {
+		return electionApplyId;
+	}
+
+	public void setElectionApplyId(Long electionApplyId) {
+		this.electionApplyId = electionApplyId;
+	}
+
+	public Integer getIsPublicCourse() {
         return isPublicCourse;
     }
 
