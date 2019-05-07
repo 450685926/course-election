@@ -10,6 +10,7 @@
   </resultMap>
   <select id="selectElcAffinityCourses" parameterType="com.server.edu.election.dto.ElcAffinityCoursesDto" resultType="com.server.edu.election.vo.ElcAffinityCoursesVo">
 		   SELECT
+		    DISTINCT
 			t2.COURSE_CODE_ courseCode,
 			t2.COURSE_NAME_ courseName,
 			t2.COURSE_NAME_EN_ courseNameEn,

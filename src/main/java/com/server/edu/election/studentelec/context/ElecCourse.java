@@ -23,6 +23,29 @@ public class ElecCourse
 
     /**学期周学时对应学期*/
     private String calendarName;
+    
+    /**选课申请ID*/
+    private Long electionApplyId;
+    /**选课申请状态*/    
+    private Integer apply;
+    
+    
+    
+    public Long getElectionApplyId() {
+		return electionApplyId;
+	}
+
+	public void setElectionApplyId(Long electionApplyId) {
+		this.electionApplyId = electionApplyId;
+	}
+
+	public Integer getApply() {
+		return apply;
+	}
+
+	public void setApply(Integer apply) {
+		this.apply = apply;
+	}
 
     public String getCalendarName() {
         return calendarName;

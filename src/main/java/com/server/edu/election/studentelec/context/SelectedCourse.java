@@ -34,8 +34,8 @@ public class SelectedCourse extends TeachingClassCache
     
     private Integer isApply;
     
-    
-    public Integer getIsApply() {
+
+	public Integer getIsApply() {
 		return isApply;
 	}
 

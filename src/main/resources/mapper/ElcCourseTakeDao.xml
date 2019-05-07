@@ -28,7 +28,8 @@
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
   	<result column="teachingClassName" jdbcType="VARCHAR" property="teachingClassName" />
   	<result column="isPublicCourse" jdbcType="INTEGER" property="isPublicCourse" />
-
+  	<result column="electionApplyId" jdbcType="BIGINT" property="electionApplyId" />
+  	<result column="APPLY_" jdbcType="INTEGER" property="APPLY_" />
   </resultMap>
   
   <select id="listPage" resultMap="VoResultMap">
@@ -421,6 +422,23 @@
       <where>
   	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   	 	and t1.STUDENT_ID_ = #{studentId}
+  	 </where>
+    </select>
+    
+     <select id="selectApplyCourses" resultType="com.server.edu.election.studentelec.context.ElecCourse">
+		SELECT
+			t1.ID_ electionApplyId,
+			t1.APPLY_ apply,
+			t2.CODE_ courseCode,
+			t2.NAME_ courseName,
+			t2.CREDITS_ credits
+		FROM
+			election_applys_t t1
+		INNER JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
+      <where>
+  	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+  	 	and t1.STUDENT_ID_ = #{studentId}
+  	 	and t1.APPLY_ =#{apply}
   	 </where>
     </select>
     

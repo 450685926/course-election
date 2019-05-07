@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -96,6 +97,7 @@ public class CourseGradeLoad extends DataProLoad
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
+        Set<ElecCourse> elecApplyCourses = context.getElecApplyCourses();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -133,7 +135,8 @@ public class CourseGradeLoad extends DataProLoad
         Long calendarId = electionRounds.getCalendarId();
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
-        
+        List<ElecCourse> electionApplies = elcCourseTakeDao.selectApplyCourses(studentId,calendarId,Constants.ZERO);
+        elecApplyCourses = new HashSet<>(electionApplies);
         //3.学生免修课程
         List<ElecCourse> applyRecord =
             applyDao.findApplyRecord(calendarId, studentId);
@@ -176,6 +179,7 @@ public class CourseGradeLoad extends DataProLoad
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
+                selectedCourse.setApply(c.getApply());
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(c.getChooseObj());
                 selectedCourse.setCourseCode(c.getCourseCode());

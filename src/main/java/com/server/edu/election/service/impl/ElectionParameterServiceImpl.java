@@ -15,7 +15,19 @@ public class ElectionParameterServiceImpl implements ElectionParameterService {
 
 	@Autowired
 	private ElectionParameterDao electionParameterDao;
+	@Override
 	public int updateParameter(ElectionParameter electionParameter) {
+		ElectionParameter parameter = electionParameterDao.selectByPrimaryKey(electionParameter.getId());
+		if(parameter==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		if(parameter.getValue().equals("true")||parameter.getValue().equals("false")) {
+			if(electionParameter.getStatus().equals(1)) {
+				electionParameter.setValue("true");
+			}else if (electionParameter.getStatus().equals(0)) {
+				electionParameter.setValue("false");
+			}
+		}
 		int result = electionParameterDao.updateByPrimaryKeySelective(electionParameter);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.parameter")));
