@@ -12,6 +12,7 @@ import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 
 /**
  * 人数上限检查
+ * LimitCountChecker
  */
 @Component("LimitCountCheckerRule")
 public class LimitCountCheckerRule extends AbstractElecRuleExceutor

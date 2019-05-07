@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import com.server.edu.election.dao.ElcPeFreeStdsDao;
@@ -18,6 +20,7 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 只能选一门体育课的规则
+ * OnePeCourseChecker
  */
 @Component("OnePeCourseCheckerRule")
 public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
@@ -41,9 +44,12 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         if (courseClass.getTeachClassId() != null && electionConstants != null)
         {
-            String courseCodes = electionConstants.getValue();//体育课程代码
-            
-            if (!courseCodes.contains(courseClass.getCourseCode()))
+            String[] courseCodes = electionConstants.getValue().split(",");//体育课程代码
+            List<String> list = Arrays.asList(courseCodes);
+            if(CollectionUtil.isEmpty(list)){//没有体育课
+                return true;
+            }
+            if (!list.contains(courseClass.getCourseCode()))//不是体育课
             {
                 return true;
             }
@@ -57,7 +63,7 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
             {
                 for (SelectedCourse selectedCours : selectedCourses)
                 {
-                    if (courseCodes.contains(selectedCours.getCourseCode()))
+                    if (list.contains(selectedCours.getCourseCode()))
                     {
                         ElecRespose respose = context.getRespose();
                         respose.getFailedReasons()
