@@ -28,6 +28,8 @@ public class Keys
 
     /**轮次学生 elec-round-%s-student-%s*/
     public static final String ROUND_STUDENT = "elec-round-%s-student-%s";
+    /**选课申请管理课程 elec-calendarId-%s-applyCourse-%s*/
+    public static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
 
     /**轮次上一学期 elec-round-%s-preSemester-*/
     public static final String ROUND_PRESEMESTER="elec-round-%s-preSemester";
