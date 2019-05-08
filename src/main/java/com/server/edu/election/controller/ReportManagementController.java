@@ -8,8 +8,11 @@ import com.server.edu.election.dto.*;
 import com.server.edu.election.vo.*;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +21,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
@@ -273,7 +272,7 @@ public class ReportManagementController {
 
 
     @ApiOperation(value = "导出未选课学生名单")
-    @PostMapping("/exportStudentNoCourseList")
+    @PostMapping("/exportStudentNoCourseList2")
     public RestResult<String> exportStudentNoCourseList (
             @RequestBody ReportManagementCondition condition)
             throws Exception
@@ -297,9 +296,9 @@ public class ReportManagementController {
 
 
     @ApiOperation(value = "导出excel下载文件")
-    @GetMapping("/download")
+    @GetMapping("/download2")
     @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
-    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName) throws Exception
+    public ResponseEntity<Resource> download2(@RequestParam("fileName") String fileName) throws Exception
     {
         LOG.info("export.start");
         fileName = new String(fileName.getBytes(), "ISO8859-1");
@@ -310,4 +309,37 @@ public class ReportManagementController {
                         "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
                 .body(resource);
     }
+
+
+
+    @ApiOperation(value = "导出分页查询非公选课")
+    @PostMapping("/export")
+    public RestResult<ExcelResult> export(@RequestBody ReportManagementCondition condition)
+            throws Exception {
+        LOG.info("export.start");
+        ExcelResult result = managementService.export(condition);
+        return RestResult.successData(result);
+    }
+
+    /**
+     * @Description: 根据key循环去redis取数据
+     */
+    @GetMapping("result/{key}")
+    public RestResult<?> getResultByKey(@PathVariable("key") @NotBlank String key) {
+        ExcelResult excelResult = ExportExcelUtils.getResultByKey(key);
+        return RestResult.successData(excelResult);
+    }
+
+
+
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("path") String path)
+            throws Exception {
+        Resource resource = new FileSystemResource(path);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/file-xls").header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=result.xls").body(resource);
+    }
+
+
 }

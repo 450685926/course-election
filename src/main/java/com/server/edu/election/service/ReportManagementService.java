@@ -5,6 +5,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.vo.*;
+import com.server.edu.util.excel.export.ExcelResult;
 
 import java.util.List;
 
@@ -68,4 +69,6 @@ public interface ReportManagementService {
     List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
 
     List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode);
+
+    ExcelResult export(ReportManagementCondition condition);
 }

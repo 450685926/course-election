@@ -24,6 +24,9 @@ import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -824,6 +827,46 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return list;
     }
 
+    @Override
+    public ExcelResult export(ReportManagementCondition condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("eleCourseList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<StudentSelectCourseList> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+                    list.addAll(electCourseList.getList());
+
+                    result.setTotal((int)electCourseList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (electCourseList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesign();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
 
     private List<TimeTableMessage>  getTimeById(List<Long> teachingClassId){
         List<TimeTableMessage> list=new ArrayList<>();
@@ -933,8 +976,15 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 (value, rawData, cell) -> {
                     return dictionaryService.query("G_XJZT", value, SessionUtils.getLang());
                 });
-
-
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCode");
+        design.addCell(I18nUtil.getMsg("rollBookManage.eleStatus"), "classCode").setValueHandler((value, rawData, cell) -> {
+            return StringUtils.isBlank(value) ? "未选课" : "选课";
+        });
+        design.addCell(I18nUtil.getMsg("rollBookManage.reBuildStatus"), "isRebuildCourse").setValueHandler((value, rawData, cell) -> {
+            return "2".equals(value) ? "是" : "否";
+        });
         return design;
     }
 
