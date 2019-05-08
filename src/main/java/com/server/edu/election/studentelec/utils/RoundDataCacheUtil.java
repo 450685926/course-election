@@ -75,8 +75,7 @@ public class RoundDataCacheUtil
                     rule.getList().add(param);
                 }
             }
-            String key =
-                String.format(Keys.ROUND_RULE, roundId, rule.getServiceName());
+            String key = Keys.getRoundRuleKey(roundId, rule.getServiceName());
             if (ruleKeys.contains(key))
             {
                 ruleKeys.remove(key);
@@ -93,14 +92,14 @@ public class RoundDataCacheUtil
      * 
      * @param ops
      * @param timeout 缓存过期时间分钟
-     * @param roundId 轮次ID
+     * @param calendarId 学期ID
      * @param teachClasss 教学班
      * @param classKeys redis已经存在的教学班KEY
      * @return
      * @see [类、类#方法、类#成员]
      */
     public Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
-        long timeout, Long roundId, List<CourseOpenDto> teachClasss,
+        long timeout, Long calendarId, List<CourseOpenDto> teachClasss,
         Set<String> classKeys)
     {
         Set<Long> teachClassIds = new HashSet<>();
@@ -136,8 +135,7 @@ public class RoundDataCacheUtil
             courseClass.setTimes(times);
             
             String classText = JSON.toJSONString(courseClass);
-            String classKey =
-                String.format(Keys.ROUND_CLASS, roundId, teachingClassId);
+            String classKey = Keys.getClassKey(calendarId, teachingClassId);
             if (classKeys.contains(classKey))
             {
                 classKeys.remove(classKey);
@@ -173,7 +171,7 @@ public class RoundDataCacheUtil
         course.setTeachClassIds(teachClassIds);
         
         String courseKey =
-            String.format(Keys.ROUND_COURSE, roundId, cour.getCourseCode());
+            Keys.getRoundCourseKey(roundId, cour.getCourseCode());
         if (courseKeys.contains(courseKey))
         {
             courseKeys.remove(courseKey);
@@ -188,7 +186,7 @@ public class RoundDataCacheUtil
         // 保存教学班已选课人数
         currentNumber = currentNumber == null ? 0 : currentNumber;
         elecNumRedis.opsForValue()
-            .set(String.format(Keys.ROUND_CLASS_NUM, teachingClassId),
+            .set(Keys.getClassElecNumberKey(teachingClassId),
                 currentNumber,
                 timeout,
                 TimeUnit.MINUTES);
@@ -211,8 +209,7 @@ public class RoundDataCacheUtil
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
         for (String stuId : stuIds)
         {
-            String roundStuKey =
-                String.format(Keys.ROUND_STUDENT, roundId, stuId);
+            String roundStuKey = Keys.getRoundStuKey(roundId, stuId);
             if (roundStuKeys.contains(roundStuKey))
             {
                 roundStuKeys.remove(roundStuKey);
