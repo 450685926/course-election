@@ -149,14 +149,13 @@ public class StudentElecRushCourseServiceImpl
         Collections.sort(exceutors);
         LOG.info("---- exceutors :{} ----", exceutors.size());
         
-        Long roundId = context.getRequest().getRoundId();
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
             TeachingClassCache teachClass =
-                dataProvider.getTeachClass(roundId, teachClassId);
+                dataProvider.getTeachClass(round.getCalendarId(), teachClassId);
             if (teachClass == null)
             {
                 failedReasons.put(String.format("%s[%s]",
