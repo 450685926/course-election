@@ -942,19 +942,21 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/5/8 16:14
     */
     @Override
-    public String exportPreRollBookList(Long teachingClassId, Long calendarId) throws Exception{
-        PreViewRollDto preViewRollDto = findPreviewRollBookListById(teachingClassId, calendarId);
+    public String exportPreRollBookList(ExportPreCondition condition) throws Exception{
+        PreViewRollDto preViewRollDto = findPreviewRollBookListById(condition.getTeachingClassId(), condition.getCalendarId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
-        String calendarName ="同济大学"+ preViewRollDto.getCalendarName()+"学生点名册";
+        String calendarName ="同济大学"+ condition.getCalendarName()+"学生点名册";
         Integer lineNumber = preViewRollDto.getLineNumber();
         Integer rowNumber = preViewRollDto.getRowNumber();
-        Integer size = preViewRollDto.getSize();
         FileUtil.mkdirs(cacheDirectory);
         String fileName = "preRollBookList-" + System.currentTimeMillis() + ".xls";
         String path = cacheDirectory + fileName;
         Map<String, Object> map = new HashMap<>();
         map.put("list", studentsList);
         map.put("calendar",calendarName);
+        map.put("lineNumber",lineNumber);
+        map.put("rowNumber",rowNumber);
+        map.put("item",condition);
         Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("preRollBookList.ftl");
         // 将模板和数据模型合并生成文件
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));

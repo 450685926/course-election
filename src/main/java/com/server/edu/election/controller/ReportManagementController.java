@@ -351,13 +351,13 @@ public class ReportManagementController {
     }
 
     @ApiOperation(value = "导出预览点名册")
-    @GetMapping("/exportPreRollBookList")
+    @PostMapping("/exportPreRollBookList")
     public RestResult<String> exportPreRollBookList(
-            @RequestParam Long teachingClassId,@RequestParam Long calendarId)
+            @RequestBody ExportPreCondition condition)
             throws Exception
     {
         LOG.info("exportPreRollBookList.start");
-        String fileName = managementService.exportPreRollBookList(teachingClassId,calendarId);
+        String fileName = managementService.exportPreRollBookList(condition);
         return RestResult.successData(fileName);
     }
 
