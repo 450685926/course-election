@@ -28,14 +28,19 @@ import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,12 +74,15 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
+
 
     @Autowired
     private DictionaryService dictionaryService;
 
-    @Value("${cache.directory}")
-    private String cacheDirectory;
+    @Autowired
+    private FreeMarkerConfigurer freeMarkerConfigurer;
     /**
     *@Description: 查询点名册
     *@Param:
@@ -832,6 +840,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return list;
     }
 
+    /**
+    *@Description: 导出选课名单
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/8 16:13
+    */
     @Override
     public ExcelResult export(ReportManagementCondition condition) {
         ExcelResult excelResult = ExportExcelUtils.submitTask("eleCourseList", new ExcelExecuter() {
@@ -872,6 +887,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return excelResult;
     }
 
+    /**
+    *@Description: 导出所有教师课表
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/8 16:13
+    */
     @Override
     public ExcelResult exportTeacher(ClassCodeToTeacher condition) {
         ExcelResult excelResult = ExportExcelUtils.submitTask("allTeacherList", new ExcelExecuter() {
@@ -910,6 +932,37 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
         });
         return excelResult;
+    }
+
+    /**
+    *@Description: 导出预览点名册
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/8 16:14
+    */
+    @Override
+    public String exportPreRollBookList(Long teachingClassId, Long calendarId) throws Exception{
+        PreViewRollDto preViewRollDto = findPreviewRollBookListById(teachingClassId, calendarId);
+        List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+        String calendarName ="同济大学"+ preViewRollDto.getCalendarName()+"学生点名册";
+        Integer lineNumber = preViewRollDto.getLineNumber();
+        Integer rowNumber = preViewRollDto.getRowNumber();
+        Integer size = preViewRollDto.getSize();
+        FileUtil.mkdirs(cacheDirectory);
+        String fileName = "preRollBookList-" + System.currentTimeMillis() + ".xls";
+        String path = cacheDirectory + fileName;
+        Map<String, Object> map = new HashMap<>();
+        map.put("list", studentsList);
+        map.put("calendar",calendarName);
+        Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("preRollBookList.ftl");
+        // 将模板和数据模型合并生成文件
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+        tpl.process(map, out);
+        // 关闭流
+        out.flush();
+        out.close();
+        return fileName;
     }
 
 

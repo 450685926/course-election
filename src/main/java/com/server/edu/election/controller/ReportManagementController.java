@@ -350,5 +350,16 @@ public class ReportManagementController {
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/file-xls").header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=result.xls").body(resource);
     }
 
+    @ApiOperation(value = "导出预览点名册")
+    @GetMapping("/exportPreRollBookList")
+    public RestResult<String> exportPreRollBookList(
+            @RequestParam Long teachingClassId,@RequestParam Long calendarId)
+            throws Exception
+    {
+        LOG.info("exportPreRollBookList.start");
+        String fileName = managementService.exportPreRollBookList(teachingClassId,calendarId);
+        return RestResult.successData(fileName);
+    }
+
 
 }

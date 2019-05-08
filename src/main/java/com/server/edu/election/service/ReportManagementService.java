@@ -73,4 +73,7 @@ public interface ReportManagementService {
     ExcelResult export(ReportManagementCondition condition);
 
     ExcelResult exportTeacher(ClassCodeToTeacher condition);
+
+    String exportPreRollBookList(Long teachingClassId, Long calendarId) throws Exception;
+
 }
