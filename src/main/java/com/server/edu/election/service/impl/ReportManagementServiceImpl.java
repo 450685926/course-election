@@ -867,6 +867,46 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return excelResult;
     }
 
+    @Override
+    public ExcelResult exportTeacher(ClassCodeToTeacher condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("allTeacherList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<ClassCodeToTeacher> pageCondition = new PageCondition<ClassCodeToTeacher>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<ClassCodeToTeacher> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<ClassCodeToTeacher> allTeacherTimeTable = findAllTeacherTimeTable(pageCondition);
+                    list.addAll(allTeacherTimeTable.getList());
+
+                    result.setTotal((int)allTeacherTimeTable.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (allTeacherTimeTable.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesignTeacher();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
 
     private List<TimeTableMessage>  getTimeById(List<Long> teachingClassId){
         List<TimeTableMessage> list=new ArrayList<>();
@@ -985,6 +1025,27 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         design.addCell(I18nUtil.getMsg("rollBookManage.reBuildStatus"), "isRebuildCourse").setValueHandler((value, rawData, cell) -> {
             return "2".equals(value) ? "是" : "否";
         });
+        return design;
+    }
+
+    private GeneralExcelDesigner getDesignTeacher() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teacherCode"), "teacherCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "teacherName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("rebuildCourse.sex"), "sex").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_XBIE", value, SessionUtils.getLang());
+                });
         return design;
     }
 

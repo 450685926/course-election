@@ -312,12 +312,21 @@ public class ReportManagementController {
 
 
 
-    @ApiOperation(value = "导出分页查询非公选课")
+    @ApiOperation(value = "导出未选课学生名单")
     @PostMapping("/export")
     public RestResult<ExcelResult> export(@RequestBody ReportManagementCondition condition)
             throws Exception {
         LOG.info("export.start");
         ExcelResult result = managementService.export(condition);
+        return RestResult.successData(result);
+    }
+
+    @ApiOperation(value = "导出所有教师课表")
+    @PostMapping("/exportTeacher")
+    public RestResult<ExcelResult> exportTeacher(@RequestBody ClassCodeToTeacher condition)
+            throws Exception {
+        LOG.info("export.start");
+        ExcelResult result = managementService.exportTeacher(condition);
         return RestResult.successData(result);
     }
 

@@ -71,4 +71,6 @@ public interface ReportManagementService {
     List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode);
 
     ExcelResult export(ReportManagementCondition condition);
+
+    ExcelResult exportTeacher(ClassCodeToTeacher condition);
 }
