@@ -21,6 +21,7 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 是选修课门数上限规则检查
+ * XuanXiuMaxCountChecker
  */
 @Component("XuanXiuMaxCountCheckerRule")
 public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutor

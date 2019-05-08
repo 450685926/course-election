@@ -52,7 +52,7 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor
                             ElecRespose respose = context.getRespose();
                             respose.getFailedReasons()
                                     .put(courseClass.getCourseCodeAndClassCode(),
-                                            I18nUtil.getMsg("ruleCheck.noRetake"));
+                                            I18nUtil.getMsg("ruleCheck.noCheat"));
                             return false;
                         }
                     }
