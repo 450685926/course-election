@@ -15,6 +15,7 @@ import com.server.edu.election.dto.*;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.vo.*;
 import com.server.edu.session.util.SessionUtils;
@@ -597,19 +598,23 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(ids);
         Set<String> set=new HashSet<>();
         List<Integer> number=new ArrayList<>();
+        int max=0;
+        int size=0;
         if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
             for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
                 List<String> num = Arrays.asList(classTeacherDto.getWeekNumberStr().split(","));
                 set.addAll(num);//获取最大周数
             }
-        }
-        for (String s : set) {
-            number.add(Integer.valueOf(s));
+            for (String s : set) {
+                number.add(Integer.valueOf(s));
+            }
+            max=Collections.max(number);
         }
         List<TimeTableMessage> list = getTimeById(ids);
-        int max=Collections.max(number);
-        Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
-        int size = collect.size();
+        if(CollectionUtil.isNotEmpty(list)){
+            Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
+            size = collect.size();
+        }
         pre.setLineNumber(size);
         pre.setRowNumber(max);
         pre.setTimeTabelList(list);
@@ -752,7 +757,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
             for (TeacherTimeTable teacherTimeTable : classTimeAndRoom) {
                 List<TimeTableMessage> timeTableMessages = listMap.get(teacherTimeTable.getTeachingClassId());
-                String labelName = getCourseLabelNameById(teacherTimeTable.getCourseLabel());
+                String labelName = CultureSerivceInvoker.getCourseLabelNameById(teacherTimeTable.getCourseLabel());
                 teacherTimeTable.setCourseLabelName(labelName);
                 teacherTimeTable.setTimeTableList(timeTableMessages);
                 if(CollectionUtil.isNotEmpty(timeTableMessages)){
