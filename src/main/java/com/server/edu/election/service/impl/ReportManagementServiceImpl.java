@@ -964,7 +964,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         // 关闭流
         out.flush();
         out.close();
-        return fileName;
+        return path;
     }
 
 
