@@ -213,6 +213,7 @@ public class ElecContextUtil
         }
     }
     
+    
     /**
      * 给status 加锁，并返回key用于解锁
      * @return true 成功 false 失败
@@ -240,4 +241,44 @@ public class ElecContextUtil
             getRedisTemplate().delete(redisKey);
         }
     }
+    /**
+     * 设置选课申请管理课程
+     */
+    public static void setApplyCourse(Long calendarId,Set<String> courses) {
+        ValueOperations<String, String> opsForValue =
+                getRedisTemplate().opsForValue();
+    	 String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
+         String value = opsForValue
+                 .get(redisKey);
+         if(CollectionUtil.isNotEmpty(courses)) {
+             if(StringUtils.isNotBlank(value)) {
+            	 List<String> result =  JSON.parseArray(value, String.class);
+            	 for(String course:courses) {
+            		 if(!value.contains(course)) {
+            			 result.add(course);
+            		 }else {
+            			 result.remove(course);
+            		 }
+            	 }
+             }
+             opsForValue.set(redisKey, JSON.toJSONString(courses));
+         }
+    }
+    
+    /**
+     * 获取选课申请管理课程
+     */
+    public static List<String> getApplyCourse(Long calendarId) {
+        ValueOperations<String, String> opsForValue =
+                getRedisTemplate().opsForValue();
+    	 String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
+         String value = opsForValue
+                 .get(redisKey);
+         if (StringUtils.isEmpty(value))
+         {
+             return new ArrayList<>();
+         }
+         return JSON.parseArray(value, String.class);
+    }
+    
 }

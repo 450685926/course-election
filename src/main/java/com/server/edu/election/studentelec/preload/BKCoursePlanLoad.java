@@ -1,11 +1,8 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.server.edu.election.util.CourseCalendarNameUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
-import com.server.edu.election.dto.ElectionApplyCoursesDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -25,7 +21,7 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
-import com.server.edu.election.vo.ElectionApplyCoursesVo;
+import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -79,13 +75,13 @@ public class BKCoursePlanLoad extends DataProLoad
         ElecRequest request = context.getRequest();
         Long roundId = request.getRoundId();
         ElectionRounds electionRounds = roundDataProvider.getRound(roundId);
-        ElectionApplyCoursesDto dto = new ElectionApplyCoursesDto();
-        dto.setCalendarId(electionRounds.getCalendarId());
-        List<ElectionApplyCoursesVo> applyCourses = electionApplyCoursesDao.selectApplyCourse(dto);
-        List<String> courses = new ArrayList<>();
-        if(CollectionUtil.isNotEmpty(applyCourses)) {
-        	courses = applyCourses.stream().map(ElectionApplyCoursesVo::getCode).collect(Collectors.toList());
-        }
+//        ElectionApplyCoursesDto dto = new ElectionApplyCoursesDto();
+//        dto.setCalendarId(electionRounds.getCalendarId());
+//        List<ElectionApplyCoursesVo> applyCourses = electionApplyCoursesDao.selectApplyCourse(dto);
+//        List<String> courses = new ArrayList<>();
+//        if(CollectionUtil.isNotEmpty(applyCourses)) {
+//        	courses = applyCourses.stream().map(ElectionApplyCoursesVo::getCode).collect(Collectors.toList());
+//        }
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(stu.getStudentId());
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
@@ -93,10 +89,10 @@ public class BKCoursePlanLoad extends DataProLoad
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
             Set<ElecCourse> publicCourses = context.getPublicCourses();//通识选修课
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
-            Set<String> applyCourse = context.getApplyCourse();//选课申请课程
-            for(String course:courses) {
-            	applyCourse.add(course);
-            }
+//            Set<String> applyCourse = context.getApplyCourse();//选课申请课程
+//            for(String course:courses) {
+//            	applyCourse.add(course);
+//            }
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();

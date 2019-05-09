@@ -18,6 +18,7 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 考试通过的课程不能选择
+ * UnElectLessonByPassed
  */
 @Component("UnElectLessonByPassed")
 public class UnElectLessonByPassed extends AbstractElecRuleExceutor
@@ -39,6 +40,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutor
         {
             if (StringUtils.isNotBlank(courseClass.getCourseCode()))
             {
+                //还要判断是否优替代的通过课程todo
                 List<CompletedCourse> list = completedCourses.stream()
                     .filter(temp -> courseClass.getCourseCode()
                         .equals(temp.getCourseCode()))

@@ -148,11 +148,12 @@
   	  select op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
-	  JOIN teaching_class_t cl ON cl.TASK_ID_=ta.ID_
+	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and c1.DEPLOY_FLAG_ = 1)
 	  JOIN election_rounds_cour_t co ON co.COURSE_CODE_ = op.COURSE_CODE_
 	  where
 		 co.ROUNDS_ID_ = #{roundId}
 		 and op.CALENDAR_ID_ = #{calendarId}
+		 order by cl.CODE_
   </select>
   
 </mapper>

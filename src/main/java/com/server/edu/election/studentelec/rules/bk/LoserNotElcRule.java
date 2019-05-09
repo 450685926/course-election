@@ -14,6 +14,7 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
  * 预警学生不能选课
+ * LoserGoodbyeRule
  */
 @Component("LoserNotElcRule")
 public class LoserNotElcRule extends AbstractElecRuleExceutor

@@ -35,9 +35,10 @@
   <select id="listPage" resultMap="VoResultMap">
   	select
       t1.*,
-      t2.NAME_, t2.CAMPUS_, t2.PROFESSION_,
+      t2.NAME_,t2.PROFESSION_,
       t3.NAME_ as courseName, t3.CREDITS_,
-      t4.CODE_ as teachingClassCode
+      t4.CODE_ as teachingClassCode,
+      t4.CAMPUS_
       from elc_course_takes_t t1
       left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
       left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
@@ -260,7 +261,7 @@
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_;
+        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
     </select>
 
     <select id="findSchoolTimetab" resultType="com.server.edu.election.dto.StudentSchoolTimetab">
@@ -372,12 +373,27 @@
     </delete>
 
     <select id="findStudentList" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultType="com.server.edu.election.entity.Student">
-        select st.STUDENT_CODE_ studentCode, st.NAME_ name,st.TRAINING_LEVEL_ trainingLevel, st.FACULTY_ faculty, st.PROFESSION_ profession from student_t st
-        <where>
-            STUDENT_CODE_ in
-            (select DISTINCT STUDENT_ID_ from election_rounds_stu_t
-            WHERE ROUNDS_ID_ in (SELECT ID_ FROM `election_rounds_t`
-            where CALENDAR_ID_=#{calendarId} and MODE_=#{mode}))
+			SELECT
+				st.STUDENT_CODE_ studentCode,
+				st.NAME_ NAME,
+				st.TRAINING_LEVEL_ trainingLevel,
+				st.FACULTY_ faculty,
+				st.PROFESSION_ profession
+			FROM
+				student_t st
+			JOIN election_rounds_stu_t t2 ON (
+				st.STUDENT_CODE_ = t2.STUDENT_ID_
+				AND t2.ROUNDS_ID_ IN (
+					SELECT
+						ID_
+					FROM
+						`election_rounds_t`
+					WHERE
+						ALENDAR_ID_=#{calendarId}
+					AND MODE_=#{mode}
+				)
+			)
+			<where>
               <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuName)">
                   and (st.STUDENT_CODE_ like concat ('%',#{stuName},'%') or st.NAME_ like concat ('%',#{stuName},'%'))
               </if>
@@ -600,9 +616,9 @@
     </select>
     
     <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
-        select t2.SEX_ sex,COUNT(t2.SEX_) number from elc_course_takes_t t1
-        LEFT JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
-        where t1.TEACHING_CLASS_ID_=#{teachClassId}
-        GROUP BY t2.SEX_
+        select sum((case t2.SEX_ when 1 then 1 end)) maleNum,
+        sum((case t2.SEX_ when 2 then 1 end)) feMaleNum from elc_course_takes_t t1
+         JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
+        where t1.TEACHING_CLASS_ID_=#{teachClassId};
     </select>
 </mapper>
