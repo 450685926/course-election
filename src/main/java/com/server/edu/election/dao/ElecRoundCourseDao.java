@@ -47,7 +47,7 @@ public interface ElecRoundCourseDao
      * @see [类、类#方法、类#成员]
      */
     Page<CourseOpenDto> listTeachingClassPage(
-        @Param("query") ElecRoundCourseQuery query);
+         ElecRoundCourseQuery query);
     
     /**
      * 查询已经添加过的课程
