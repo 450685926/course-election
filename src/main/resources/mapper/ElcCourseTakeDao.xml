@@ -261,7 +261,7 @@
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
-        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_;
+        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
     </select>
 
     <select id="findSchoolTimetab" resultType="com.server.edu.election.dto.StudentSchoolTimetab">
@@ -616,9 +616,9 @@
     </select>
     
     <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
-        select t2.SEX_ sex,COUNT(t2.SEX_) number from elc_course_takes_t t1
-        LEFT JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
-        where t1.TEACHING_CLASS_ID_=#{teachClassId}
-        GROUP BY t2.SEX_
+        select sum((case t2.SEX_ when 1 then 1 end)) maleNum,
+        sum((case t2.SEX_ when 2 then 1 end)) feMaleNum from elc_course_takes_t t1
+         JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
+        where t1.TEACHING_CLASS_ID_=#{teachClassId};
     </select>
 </mapper>

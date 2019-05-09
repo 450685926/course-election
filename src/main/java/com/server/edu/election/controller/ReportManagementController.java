@@ -4,12 +4,9 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
-import com.server.edu.election.dto.*;
-import com.server.edu.election.vo.*;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +16,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,9 +26,28 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
+import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.TimeTable;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -170,21 +187,14 @@ public class ReportManagementController {
         return RestResult.successData(schoolTimetab);
     }
 
-    @ApiOperation(value = "查询学生个人课表")//学生登陆使用
+    @ApiOperation(value = "查询当前登录学生个人课表")
     @GetMapping("/getStudentTimetab")
     public RestResult<List<TimeTable>> getStudentTimetab(@RequestParam("calendarId") Long calendarId){
         if(calendarId==null){
             return RestResult.fail("common.parameterError");
         }
-        String studentCode="";
         Session currentSession = SessionUtils.getCurrentSession();
-        String code = currentSession.realUid();
-        int type = currentSession.realType();
-        if(type==2){//当前用户是学生
-            studentCode=code;
-        }else{//不是学生
-            return RestResult.fail("elec.mustBeStu");
-        }
+        String studentCode = currentSession.realUid();
        List<TimeTable> list = managementService.getStudentTimetab(calendarId,studentCode);
         return RestResult.successData(list);
     }
@@ -245,21 +255,14 @@ public class ReportManagementController {
         return RestResult.successData(teacherTimetable);
     }
 
-    @ApiOperation(value = "查询老师课表")//教师登陆使用
+    @ApiOperation(value = "查询当前登录用户的老师课表")
     @GetMapping("/getTeacherTimetable")
     public RestResult<List<TimeTable>> getTeacherTimetable(@RequestParam Long calendarId){
         if(calendarId==null){
             return RestResult.fail("common.parameterError");
         }
-        String teacherCode="";
         Session currentSession = SessionUtils.getCurrentSession();
-        String code = currentSession.realUid();
-        int type = currentSession.realType();
-        if(type==1){//当前用户是教师
-            teacherCode=code;
-        }else{//不是教师
-            return RestResult.fail("elec.mustBeTeacher");
-        }
+        String teacherCode = currentSession.realUid();
         List<TimeTable> teacherTimetable = managementService.getTeacherTimetable(calendarId, teacherCode);
         return RestResult.successData(teacherTimetable);
     }
@@ -273,7 +276,7 @@ public class ReportManagementController {
 
 
     @ApiOperation(value = "导出未选课学生名单")
-    @PostMapping("/exportStudentNoCourseList")
+    @PostMapping("/exportStudentNoCourseList2")
     public RestResult<String> exportStudentNoCourseList (
             @RequestBody ReportManagementCondition condition)
             throws Exception
@@ -297,9 +300,9 @@ public class ReportManagementController {
 
 
     @ApiOperation(value = "导出excel下载文件")
-    @GetMapping("/download")
+    @GetMapping("/download2")
     @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
-    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName) throws Exception
+    public ResponseEntity<Resource> download2(@RequestParam("fileName") String fileName) throws Exception
     {
         LOG.info("export.start");
         fileName = new String(fileName.getBytes(), "ISO8859-1");
@@ -310,4 +313,57 @@ public class ReportManagementController {
                         "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
                 .body(resource);
     }
+
+
+
+    @ApiOperation(value = "导出未选课学生名单")
+    @PostMapping("/export")
+    public RestResult<ExcelResult> export(@RequestBody ReportManagementCondition condition)
+            throws Exception {
+        LOG.info("export.start");
+        ExcelResult result = managementService.export(condition);
+        return RestResult.successData(result);
+    }
+
+    @ApiOperation(value = "导出所有教师课表")
+    @PostMapping("/exportTeacher")
+    public RestResult<ExcelResult> exportTeacher(@RequestBody ClassCodeToTeacher condition)
+            throws Exception {
+        LOG.info("export.start");
+        ExcelResult result = managementService.exportTeacher(condition);
+        return RestResult.successData(result);
+    }
+
+    /**
+     * @Description: 根据key循环去redis取数据
+     */
+    @GetMapping("result/{key}")
+    public RestResult<?> getResultByKey(@PathVariable("key") @NotBlank String key) {
+        ExcelResult excelResult = ExportExcelUtils.getResultByKey(key);
+        return RestResult.successData(excelResult);
+    }
+
+
+
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("path") String path)
+            throws Exception {
+        Resource resource = new FileSystemResource(path);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/file-xls").header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=result.xls").body(resource);
+    }
+
+    @ApiOperation(value = "导出预览点名册")
+    @PostMapping("/exportPreRollBookList")
+    public RestResult<String> exportPreRollBookList(
+            @RequestBody ExportPreCondition condition)
+            throws Exception
+    {
+        LOG.info("exportPreRollBookList.start");
+        String fileName = managementService.exportPreRollBookList(condition);
+        return RestResult.successData(fileName);
+    }
+
+
 }

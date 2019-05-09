@@ -19,6 +19,7 @@ import com.server.edu.util.CollectionUtil;
 /**
  * 如果有课程开启了“建议课表”选课，并且该选课批次也开启了“建议课表”选课。<br>
  * 那么学生看到的这些课的任务都是适合自己的（逻辑类似于根据教学班过滤任务）
+ * SuggestCourseFilter
  */
 @Component("SuggestCourseRule")
 public class SuggestCourseRule extends AbstractElecRuleExceutor {

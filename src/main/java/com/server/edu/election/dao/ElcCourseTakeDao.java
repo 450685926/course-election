@@ -132,5 +132,5 @@ public interface ElcCourseTakeDao
     List<ElecCourse> selectApplyCourses(@Param("studentId") String studentId,
             @Param("calendarId") Long calendarId,@Param("apply") Integer apply);
 
-    List<ElcCourseLimitDto> findSexNumber(Long teachClassId);
+    ElcCourseLimitDto findSexNumber(Long teachClassId);
 }

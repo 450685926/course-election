@@ -18,7 +18,7 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 得优课程不能重修
- * 
+ * UnElectLessonBecauseA
  */
 @Component("UnElectBecauseARule")
 public class UnElectBecauseARule extends AbstractElecRuleExceutor
@@ -42,23 +42,16 @@ public class UnElectBecauseARule extends AbstractElecRuleExceutor
                 .collect(Collectors.toList());
             if (CollectionUtil.isNotEmpty(list))
             {
-                if (StringUtils.isNotBlank(courseClass.getCourseCode()))
+                //还要判断是否有替代得优的课程todo
+                long count = list.stream().filter(c -> courseClass.getCourseCode().equals(c.getCourseCode())).count();
+                if (count>0)
                 {
-                    List<CompletedCourse> courses = list.stream()
-                        .filter(c -> courseClass.getCourseCode()
-                            .equals(c.getCourseCode()))
-                        .collect(Collectors.toList());
-                    if (CollectionUtil.isNotEmpty(courses))
-                    {
-                        ElecRespose respose = context.getRespose();
-                        respose.getFailedReasons()
-                                .put(courseClass.getCourseCodeAndClassCode(),
-                                        I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
-                        return false;
-                    }
-
+                    ElecRespose respose = context.getRespose();
+                    respose.getFailedReasons()
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                    I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
+                    return false;
                 }
-                
             }
         }
         return true;

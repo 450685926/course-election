@@ -22,7 +22,7 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 控制实践课学期,当前学期所选教学班，必须匹配当前学生在这个学期是否有实践课
- * 
+ * SJTermChecker
  */
 @Component("SJTermCheckerRule")
 public class SJTermCheckerRule extends AbstractElecRuleExceutor
