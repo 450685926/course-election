@@ -143,8 +143,6 @@ public class RoundDataProvider
             redisTemplate.delete(key);
             key = Keys.getRoundConditionOne(roundId);
             redisTemplate.delete(key);
-            key = Keys.getRoundConditionOne(roundId);
-            redisTemplate.delete(key);
         }
     }
     
