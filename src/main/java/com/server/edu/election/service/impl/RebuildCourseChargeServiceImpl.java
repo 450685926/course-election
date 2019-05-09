@@ -238,6 +238,17 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
+        if(courseNoChargeList!=null){
+            List<RebuildCourseNoChargeList> list = courseNoChargeList.getResult();
+            SchoolCalendarVo schoolCalendarById = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+            for (RebuildCourseNoChargeList rebuildList : list) {
+                String courseArr="";
+                courseArr=rebuildList.getStartWeek()+"-"+rebuildList.getEndWeek()+"周"+rebuildList.getPeriod()+"课时";
+                rebuildList.setCalendarName(schoolCalendarById.getFullName());
+                rebuildList.setCourseArr(courseArr);
+            }
+
+        }
         return new PageResult<>(courseNoChargeList);
     }
 
