@@ -146,6 +146,9 @@ public class RebuildCourseController {
     @ApiOperation(value = "查询未缴费的课程名单")
     @PostMapping("/findCourseNoChargeList")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+        if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
         PageResult<RebuildCourseNoChargeList> noChargeType = service.findCourseNoChargeList(condition);
         return RestResult.successData(noChargeType);
     }
