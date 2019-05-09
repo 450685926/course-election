@@ -66,7 +66,8 @@ public class ElecController
                 && StringUtils.equals(Constants.STU, round.getElectionObj())
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime())
-                && dataProvider.containsStu(roundId, studentId))
+                && dataProvider.containsStu(roundId, studentId)
+                && dataProvider.containsStuCondition(roundId, studentId))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules = dataProvider.getRules(roundId);

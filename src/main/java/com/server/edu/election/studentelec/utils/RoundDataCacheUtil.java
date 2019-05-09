@@ -9,10 +9,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,13 +16,19 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElectionParameterDao;
+import com.server.edu.election.dao.ElectionRoundsConditionDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElectionParameter;
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ElectionRoundsCondition;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -54,6 +56,9 @@ public class RoundDataCacheUtil
     
     @Autowired
     private ElectionParameterDao parameterDao;
+    
+    @Autowired
+    private ElectionRoundsConditionDao electionRoundsConditionDao;
     
     /**
      * 缓存轮次选课规则
@@ -223,6 +228,24 @@ public class RoundDataCacheUtil
         }
         
     }
+    
+	/**
+	     *  缓存轮次条件
+	* @param ops
+	* @param roundId
+	* @param timeout缓存的保持时间分钟
+	* @param roundConKeys redis已存在的Key
+	* 
+	* */
+	public void cacheRoundCondition(ValueOperations<String, String> ops, Long roundId,
+	   long timeout,Set<String> roundConKeys)
+	{
+	   String roundConKey = Keys.getRoundConditionOne(roundId);
+	   if(!roundConKey.contains(roundConKey)) {
+		   ElectionRoundsCondition electionRoundsCondition = electionRoundsConditionDao.selectByPrimaryKey(roundId);
+		   ops.set(roundConKey, JSONArray.toJSONString(electionRoundsCondition), timeout, TimeUnit.MINUTES);
+	   }
+	}
 
     public void cachePreSemester(ValueOperations<String, String> ops, ElectionRounds round, long timeout){
         Long calendarId = round.getCalendarId();//当前学期
