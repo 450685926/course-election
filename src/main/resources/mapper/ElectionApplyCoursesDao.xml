@@ -50,6 +50,12 @@
 		   <if test="weekNum !=null and weekNum !=0">
 		        and t2.PERIOD_/t2.WEEK_HOUR_ = #{weekNum}
 		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courses)">
+		        and t2.CODE_ in 
+	                <foreach collection="courses" open="(" separator="," close=")" item="code">
+			            #{code}
+			        </foreach>
+		    </if>
 		</where>
   </select>
 </mapper>

@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,9 +41,13 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	@Override
 	public PageInfo<Course> courseList(PageCondition<Course> condition){
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+		Course course = condition.getCondition();
 		Example example = new Example(Course.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("status", Constants.THREE);
+		if(StringUtils.isNotBlank(course.getCode())) {
+			criteria.andLike("code", course.getCode()+'%');
+		}
 		List<Course> list = courseDao.selectByExample(example);
 		PageInfo<Course> pageInfo = new PageInfo<>(list);
 		return pageInfo;

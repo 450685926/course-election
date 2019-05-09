@@ -4,7 +4,11 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
+import com.server.edu.election.constants.Constants;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +56,15 @@ public class RebuildCourseController {
     @ApiOperation(value = "查询重修收费信息")
     @PostMapping("/findCourseCharge")
     public RestResult<PageResult<RebuildCourseCharge>> findCourseCharge(@RequestBody PageCondition<RebuildCourseCharge> condition) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String dptId = currentSession.getCurrentManageDptId();
+        if(StringUtils.isBlank(dptId)){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.projIdNotExtist"));
+        }
+        if(Constants.PROJ_LINE_GRADUATE.equals(dptId)){
+            return null;
+        }
+        condition.getCondition().setManageDeptId(dptId);
         PageResult<RebuildCourseCharge> exemptionCourse = service.findCourseCharge(condition);
         return RestResult.successData(exemptionCourse);
     }
@@ -69,6 +82,11 @@ public class RebuildCourseController {
     @ApiOperation(value = "编辑重修收费信息")
     @PostMapping("/editCourseCharge")
     public RestResult<String> editCourseCharge(@RequestBody RebuildCourseCharge courseCharge) {
+        if(StringUtils.isBlank(courseCharge.getFormLearning())
+                ||StringUtils.isBlank(courseCharge.getTrainingLevel())
+                ||courseCharge.getIsCharge()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError "));
+        }
         String s = service.editCourseCharge(courseCharge);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
@@ -78,6 +96,11 @@ public class RebuildCourseController {
     @ApiOperation(value = "新增重修收费信息")
     @PostMapping("/addCourseCharge")
     public RestResult<String> addCourseCharge(@RequestBody RebuildCourseCharge courseCharge) {
+        if(StringUtils.isBlank(courseCharge.getFormLearning())
+                ||StringUtils.isBlank(courseCharge.getTrainingLevel())
+                ||courseCharge.getIsCharge()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError "));
+        }
         String s = service.addCourseCharge(courseCharge);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }

@@ -16,10 +16,11 @@
   <resultMap id="VoBaseResultMap" type="com.server.edu.election.vo.ElectionRuleVo" extends="BaseResultMap"></resultMap>
   
   <select id="selectByRoundId" resultMap="VoBaseResultMap">
-  	select * from election_rule_t 
+  	select rule.* from election_rule_t rule
+  	JOIN election_rounds_ref_rule_t ref ON ref.RULE_ID_ = rule.ID_
   	where 
-  	  id_ in(select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId})
-  	  and status_ = 1
+  	  ref.ROUNDS_ID_ = #{roundId}
+  	  AND rule.status_ = 1
   </select>
   
   <select id="selectTplOfRule" parameterType="java.lang.Long" resultMap="BaseResultMap">

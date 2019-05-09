@@ -38,6 +38,12 @@ public class ElecContext
     /**未通過課程*/
     private Set<CompletedCourse> failedCourse;
     
+    /**申请课程*/
+    private Set<String> applyCourse;
+    
+    /**选课申请课程*/
+    private Set<ElecCourse> elecApplyCourses;
+    
     private ElecRequest request;
     
     private ElecRespose respose;
@@ -64,6 +70,8 @@ public class ElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
+        applyCourse = this.contextUtil.getSet("applyCourse", String.class);
+        elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElecCourse.class);
     }
     
     public ElecContext(String studentId, Long calendarId,
@@ -89,6 +97,8 @@ public class ElecContext
         this.contextUtil.save("courseGroups", this.courseGroups);
         this.contextUtil.save("publicCourses", this.publicCourses);
         this.contextUtil.save("failedCourse", this.failedCourse);
+        this.contextUtil.save("applyCourse", this.applyCourse);
+        this.contextUtil.save("elecApplyCourses", this.elecApplyCourses);
     }
     
     public void saveResponse()
@@ -112,6 +122,8 @@ public class ElecContext
         this.getFailedCourse().clear();
         this.getRespose().getFailedReasons().clear();
         this.getRespose().getSuccessCourses().clear();
+        this.getApplyCourse().clear();
+        this.getElecApplyCourses().clear();
     }
     
     public StudentInfoCache getStudentInfo()
@@ -173,5 +185,25 @@ public class ElecContext
     {
         this.respose = respose;
     }
+
+	public Set<String> getApplyCourse() {
+		return applyCourse;
+	}
+
+	public void setApplyCourse(Set<String> applyCourse) {
+		this.applyCourse = applyCourse;
+	}
+
+	public Set<ElecCourse> getElecApplyCourses() {
+		return elecApplyCourses;
+	}
+
+	public void setElecApplyCourses(Set<ElecCourse> elecApplyCourses) {
+		this.elecApplyCourses = elecApplyCourses;
+	}
+	
+	
+    
+    
     
 }

@@ -14,6 +14,16 @@ public class RebuildCourseCharge implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String manageDeptId;
+
+    public String getManageDeptId() {
+        return manageDeptId;
+    }
+
+    public void setManageDeptId(String manageDeptId) {
+        this.manageDeptId = manageDeptId;
+    }
+
     /**
      * 培养层次 X_PYCC
      */

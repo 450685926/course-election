@@ -12,7 +12,6 @@ public class PlanCourse extends ElecCourse
     /**学期周学时*/
     private String semester;
 
-
     public Integer getWeekType() {
         return weekType;
     }

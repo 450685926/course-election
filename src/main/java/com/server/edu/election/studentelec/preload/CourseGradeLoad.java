@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +19,7 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
@@ -70,6 +72,9 @@ public class CourseGradeLoad extends DataProLoad
     @Autowired
     private ExemptionApplyDao applyDao;
     
+    @Autowired
+    private ElectionApplyCoursesDao electionApplyCoursesDao;
+    
     @Override
     public void load(ElecContext context)
     {
@@ -92,6 +97,7 @@ public class CourseGradeLoad extends DataProLoad
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
+        Set<ElecCourse> elecApplyCourses = context.getElecApplyCourses();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -129,13 +135,13 @@ public class CourseGradeLoad extends DataProLoad
         Long calendarId = electionRounds.getCalendarId();
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
-        
+        List<ElecCourse> electionApplies = elcCourseTakeDao.selectApplyCourses(studentId,calendarId,Constants.ZERO);
+        elecApplyCourses = new HashSet<>(electionApplies);
         //3.学生免修课程
         List<ElecCourse> applyRecord =
             applyDao.findApplyRecord(calendarId, studentId);
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
-        
         // 4. 非本学期的选课并且没有成功的
     }
     
@@ -173,14 +179,13 @@ public class CourseGradeLoad extends DataProLoad
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
-                
+                selectedCourse.setApply(c.getApply());
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(c.getChooseObj());
                 selectedCourse.setCourseCode(c.getCourseCode());
                 selectedCourse.setCourseName(c.getCourseName());
                 selectedCourse.setCourseTakeType(c.getCourseTakeType());
                 selectedCourse.setCredits(c.getCredits());
-                
                 //selectedCourse.setNameEn(c.geten);
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);

@@ -54,19 +54,22 @@ public class ElecController
     public RestResult<List<ElectionRoundsVo>> getRounds(
         @RequestParam("projectId") @NotBlank String projectId)
     {
+        Session session = SessionUtils.getCurrentSession();
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
         Date date = new Date();
+        String studentId = session.realUid();
         for (ElectionRounds round : allRound)
         {
+            Long roundId = round.getId();
             if (StringUtils.equals(round.getProjectId(), projectId)
                 && StringUtils.equals(Constants.STU, round.getElectionObj())
                 && date.after(round.getBeginTime())
-                && date.before(round.getEndTime()))
+                && date.before(round.getEndTime())
+                && dataProvider.containsStu(roundId, studentId))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
-                List<ElectionRuleVo> rules =
-                    dataProvider.getRules(round.getId());
+                List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
                 vo.setRuleVos(rules);
                 data.add(vo);
             }
@@ -123,7 +126,8 @@ public class ElecController
     {
         List<TeachingClassCache> teachClasss =
             dataProvider.getTeachClasss(roundId, courseCode);
-        if(CollectionUtil.isNotEmpty(teachClasss)) {
+        if (CollectionUtil.isNotEmpty(teachClasss))
+        {
             for (TeachingClassCache teachClass : teachClasss)
             {
                 Long teachClassId = teachClass.getTeachClassId();

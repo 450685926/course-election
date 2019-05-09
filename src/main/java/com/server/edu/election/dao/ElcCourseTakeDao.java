@@ -7,12 +7,17 @@ import org.apache.ibatis.annotations.Param;
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseLimitDto;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
 import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RollBookList;
@@ -64,7 +69,7 @@ public interface ElcCourseTakeDao
     
     /** 查询教学班时间地点*/
     
-    List<ClassTeacherDto> findClassTimeAndRoom(Long id);
+    List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
     
     /**查询学生课表*/
     List<StudentSchoolTimetab> findSchoolTimetab(
@@ -106,5 +111,26 @@ public interface ElcCourseTakeDao
     List<ElcCourseTakeVo> findUnApplyCourses(
         @Param("studentId") String studentId,
         @Param("calendarId") Long calendarId);
+
+
+
+    Page<RollBookList> findAllTeachingClass(RollBookConditionDto condition);
+
+
+    List<RollBookList> findTeacherName(List<Long> list);
+
+    /**点名册*/
+    Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
+
+    /**查询学生课表*/
+    List<StudnetTimeTable> findStudentTable(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
+
+    Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
+
+    List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
     
+    List<ElecCourse> selectApplyCourses(@Param("studentId") String studentId,
+            @Param("calendarId") Long calendarId,@Param("apply") Integer apply);
+
+    List<ElcCourseLimitDto> findSexNumber(Long teachClassId);
 }

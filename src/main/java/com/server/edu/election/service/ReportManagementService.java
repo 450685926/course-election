@@ -4,16 +4,13 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.*;
 
 import java.util.List;
 
 public interface ReportManagementService {
     /**点名册*/
-    PageResult<RollBookList> findRollBookList(PageCondition<ReportManagementCondition> condition);
+    PageResult<RollBookList> findRollBookList2(PageCondition<ReportManagementCondition> condition);
 
     /**预览点名册 */
     PreviewRollBookList findPreviewRollBookList(RollBookList bookList);
@@ -31,7 +28,7 @@ public interface ReportManagementService {
     PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition);
 
     /**查询教师课表*/
-    StudentSchoolTimetabVo findTeacherTimetable(Long calendarId,String teacherCode);
+    StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId,String teacherCode);
 
     /**
      * 查询选课日志
@@ -57,4 +54,18 @@ public interface ReportManagementService {
 
     /**导出点名册*/
     String exportRollBookList(ReportManagementCondition condition) throws Exception;
+
+    PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
+
+    PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
+
+    List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode);
+
+    PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
+
+    List<TimeTable> getStudentTimetab(Long calendarId, String studentCode);
+
+    List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
+
+    List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode);
 }

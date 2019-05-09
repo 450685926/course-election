@@ -23,5 +23,9 @@ public interface Constants
 	 public static final int APPIY = 1;
 	 /**审批*/
 	 public static final int APPROVAL = 2;
-    
+	 /**部门Id 1 本科 2 普通研究生 3 在职研究生*/
+	 public static final String PROJ_UNGRADUATE="1";
+	 public static final String PROJ_GRADUATE="2";
+	 public static final String PROJ_LINE_GRADUATE="4";
+
 }
