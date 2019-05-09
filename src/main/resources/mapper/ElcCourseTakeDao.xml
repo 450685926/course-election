@@ -397,11 +397,11 @@
               <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuName)">
                   and (st.STUDENT_CODE_ like concat ('%',#{stuName},'%') or st.NAME_ like concat ('%',#{stuName},'%'))
               </if>
-                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuFaculty)">
-                    and st.FACULTY_ =#{stuFaculty}
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                    and st.FACULTY_ =#{faculty}
                 </if>
-                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuProfession)">
-                    and st.PROFESSION_ =#{stuProfession}
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                    and st.PROFESSION_ =#{profession}
                 </if>
         </where>
     </select>
