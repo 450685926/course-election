@@ -14,9 +14,9 @@ public class ElcCourseTakeQuery
     /**学生姓名*/
     private String stuName;
     /**学生学院*/
-    private String stuFaculty;
+    private String faculty;
     /**学生专业*/
-    private String stuProfession;
+    private String profession;
     /**
      * 课程编号
      */
@@ -85,25 +85,6 @@ public class ElcCourseTakeQuery
         this.stuName = stuName;
     }
 
-    public String getStuFaculty()
-    {
-        return stuFaculty;
-    }
-
-    public void setStuFaculty(String stuFaculty)
-    {
-        this.stuFaculty = stuFaculty;
-    }
-
-    public String getStuProfession()
-    {
-        return stuProfession;
-    }
-
-    public void setStuProfession(String stuProfession)
-    {
-        this.stuProfession = stuProfession;
-    }
 
     public String getCourseCode()
     {
@@ -124,5 +105,23 @@ public class ElcCourseTakeQuery
     {
         this.teachingClassCode = teachingClassCode;
     }
+
+	public String getFaculty() {
+		return faculty;
+	}
+
+	public void setFaculty(String faculty) {
+		this.faculty = faculty;
+	}
+
+	public String getProfession() {
+		return profession;
+	}
+
+	public void setProfession(String profession) {
+		this.profession = profession;
+	}
+    
+    
     
 }

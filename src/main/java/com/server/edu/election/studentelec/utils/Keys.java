@@ -40,10 +40,25 @@ public class Keys
     /**轮次上一学期 elec-round-%s-preSemester-*/
     public static final String ROUND_PRESEMESTER="elec-round-%s-preSemester";
     
+    /**轮次条件 elec-round-%s-condition-*/
+    public static final String ROUND_CONDITION="elec-round-%s-condition";
+    
     /**轮次的redis pattern elec-rounData-* */
     public static String getRoundKeyPattern()
     {
         return String.format(Keys.ROUND_KEY, "*");
+    }
+    
+    /**轮次条件redis round-condition* */
+    public static String getRoundCondition()
+    {
+        return String.format(Keys.ROUND_CONDITION, "*");
+    }
+    
+    /**轮次条件k round-condition* */
+    public static String getRoundConditionOne(Long roundId)
+    {
+        return String.format(Keys.ROUND_CONDITION, roundId);
     }
     
     /**轮次的redis key*/
