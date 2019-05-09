@@ -243,7 +243,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             SchoolCalendarVo schoolCalendarById = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
             for (RebuildCourseNoChargeList rebuildList : list) {
                 String courseArr="";
-                courseArr=rebuildList.getStartWeek()+"-"+rebuildList.getEndWeek()+"周"+rebuildList.getPeriod()+"课时";
+                DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
+                String format = decimalFormat.format(rebuildList.getPeriod());
+                courseArr=rebuildList.getStartWeek()+"-"+rebuildList.getEndWeek()+"周"+format+"课时";
                 rebuildList.setCalendarName(schoolCalendarById.getFullName());
                 rebuildList.setCourseArr(courseArr);
             }
