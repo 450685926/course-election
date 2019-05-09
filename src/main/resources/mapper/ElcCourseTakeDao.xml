@@ -107,10 +107,10 @@
       JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
     <where>
         <choose>
-            <when test="mode == 1">
+            <when test=" mode == 1 ">
                 st.STUDENT_CODE_ not in (select STUDENT_ID_ from elc_no_graduate_stds_t)
             </when>
-            <when test="mode == 3">
+            <when test=" mode == 3 ">
                 st.STUDENT_CODE_ in  (select STUDENT_ID_ from elc_no_graduate_stds_t t1 join student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_ where t2.IS_OVERSEAS_ =0 )
             </when>
             <otherwise>
