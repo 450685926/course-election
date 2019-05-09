@@ -9,10 +9,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,13 +16,19 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElectionParameterDao;
+import com.server.edu.election.dao.ElectionRoundsConditionDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElectionParameter;
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ElectionRoundsCondition;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -55,6 +57,9 @@ public class RoundDataCacheUtil
     @Autowired
     private ElectionParameterDao parameterDao;
     
+    @Autowired
+    private ElectionRoundsConditionDao electionRoundsConditionDao;
+    
     /**
      * 缓存轮次选课规则
      * 
@@ -79,8 +84,7 @@ public class RoundDataCacheUtil
                     rule.getList().add(param);
                 }
             }
-            String key =
-                String.format(Keys.ROUND_RULE, roundId, rule.getServiceName());
+            String key = Keys.getRoundRuleKey(roundId, rule.getServiceName());
             if (ruleKeys.contains(key))
             {
                 ruleKeys.remove(key);
@@ -97,14 +101,14 @@ public class RoundDataCacheUtil
      * 
      * @param ops
      * @param timeout 缓存过期时间分钟
-     * @param roundId 轮次ID
+     * @param calendarId 学期ID
      * @param teachClasss 教学班
      * @param classKeys redis已经存在的教学班KEY
      * @return
      * @see [类、类#方法、类#成员]
      */
     public Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
-        long timeout, Long roundId, List<CourseOpenDto> teachClasss,
+        long timeout, Long calendarId, List<CourseOpenDto> teachClasss,
         Set<String> classKeys)
     {
         Set<Long> teachClassIds = new HashSet<>();
@@ -140,8 +144,7 @@ public class RoundDataCacheUtil
             courseClass.setTimes(times);
             
             String classText = JSON.toJSONString(courseClass);
-            String classKey =
-                String.format(Keys.ROUND_CLASS, roundId, teachingClassId);
+            String classKey = Keys.getClassKey(calendarId, teachingClassId);
             if (classKeys.contains(classKey))
             {
                 classKeys.remove(classKey);
@@ -177,7 +180,7 @@ public class RoundDataCacheUtil
         course.setTeachClassIds(teachClassIds);
         
         String courseKey =
-            String.format(Keys.ROUND_COURSE, roundId, cour.getCourseCode());
+            Keys.getRoundCourseKey(roundId, cour.getCourseCode());
         if (courseKeys.contains(courseKey))
         {
             courseKeys.remove(courseKey);
@@ -192,7 +195,7 @@ public class RoundDataCacheUtil
         // 保存教学班已选课人数
         currentNumber = currentNumber == null ? 0 : currentNumber;
         elecNumRedis.opsForValue()
-            .set(String.format(Keys.ROUND_CLASS_NUM, teachingClassId),
+            .set(Keys.getClassElecNumberKey(teachingClassId),
                 currentNumber,
                 timeout,
                 TimeUnit.MINUTES);
@@ -215,8 +218,7 @@ public class RoundDataCacheUtil
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
         for (String stuId : stuIds)
         {
-            String roundStuKey =
-                String.format(Keys.ROUND_STUDENT, roundId, stuId);
+            String roundStuKey = Keys.getRoundStuKey(roundId, stuId);
             if (roundStuKeys.contains(roundStuKey))
             {
                 roundStuKeys.remove(roundStuKey);
@@ -226,6 +228,24 @@ public class RoundDataCacheUtil
         }
         
     }
+    
+	/**
+	     *  缓存轮次条件
+	* @param ops
+	* @param roundId
+	* @param timeout缓存的保持时间分钟
+	* @param roundConKeys redis已存在的Key
+	* 
+	* */
+	public void cacheRoundCondition(ValueOperations<String, String> ops, Long roundId,
+	   long timeout,Set<String> roundConKeys)
+	{
+	   String roundConKey = Keys.getRoundConditionOne(roundId);
+	   if(!roundConKey.contains(roundConKey)) {
+		   ElectionRoundsCondition electionRoundsCondition = electionRoundsConditionDao.selectByPrimaryKey(roundId);
+		   ops.set(roundConKey, JSONArray.toJSONString(electionRoundsCondition), timeout, TimeUnit.MINUTES);
+	   }
+	}
 
     public void cachePreSemester(ValueOperations<String, String> ops, ElectionRounds round, long timeout){
         Long calendarId = round.getCalendarId();//当前学期

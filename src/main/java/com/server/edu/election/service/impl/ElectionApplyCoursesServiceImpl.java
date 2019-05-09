@@ -1,7 +1,9 @@
 package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import com.server.edu.election.dto.ElectionApplyCoursesDto;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.service.ElectionApplyCoursesService;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElectionApplyCoursesVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -64,13 +67,17 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		List<ElectionApplyCourses> list = new ArrayList<>();
+		Set<String> applyCourses = new HashSet<>();
 		for(String course:dto.getCourses()) {
 			ElectionApplyCourses electionApplyCourses = new ElectionApplyCourses();
 			electionApplyCourses.setCourseCode(course);
 			electionApplyCourses.setCalendarId(dto.getCalendarId());
 			list.add(electionApplyCourses);
+			applyCourses.add(course);
 		}
 		int result = electionApplyCoursesDao.insertList(list);
+		//存入redis
+		ElecContextUtil.setApplyCourse(dto.getCalendarId(), applyCourses);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionApply.electionApplyCourses")));
 		}
@@ -86,6 +93,13 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		if(CollectionUtil.isEmpty(list)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
+		Long calendarId= list.get(0).getCalendarId();
+		Set<String> applyCourses = new HashSet<>();
+		for(ElectionApplyCourses electionApplyCourses:list) {
+			applyCourses.add(electionApplyCourses.getCourseCode());
+		}
+		//存入redis
+		ElecContextUtil.setApplyCourse(calendarId, applyCourses);
 		int result = electionApplyCoursesDao.deleteByExample(example);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("electionApply.electionApplyCourses")));

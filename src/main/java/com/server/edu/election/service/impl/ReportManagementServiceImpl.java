@@ -15,6 +15,7 @@ import com.server.edu.election.dto.*;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.vo.*;
 import com.server.edu.session.util.SessionUtils;
@@ -24,14 +25,22 @@ import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
+import freemarker.template.Template;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,12 +74,15 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
+
 
     @Autowired
     private DictionaryService dictionaryService;
 
-    @Value("${cache.directory}")
-    private String cacheDirectory;
+    @Autowired
+    private FreeMarkerConfigurer freeMarkerConfigurer;
     /**
     *@Description: 查询点名册
     *@Param:
@@ -594,19 +606,23 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(ids);
         Set<String> set=new HashSet<>();
         List<Integer> number=new ArrayList<>();
+        int max=0;
+        int size=0;
         if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
             for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
                 List<String> num = Arrays.asList(classTeacherDto.getWeekNumberStr().split(","));
                 set.addAll(num);//获取最大周数
             }
-        }
-        for (String s : set) {
-            number.add(Integer.valueOf(s));
+            for (String s : set) {
+                number.add(Integer.valueOf(s));
+            }
+            max=Collections.max(number);
         }
         List<TimeTableMessage> list = getTimeById(ids);
-        int max=Collections.max(number);
-        Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
-        int size = collect.size();
+        if(CollectionUtil.isNotEmpty(list)){
+            Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
+            size = collect.size();
+        }
         pre.setLineNumber(size);
         pre.setRowNumber(max);
         pre.setTimeTabelList(list);
@@ -749,7 +765,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
             for (TeacherTimeTable teacherTimeTable : classTimeAndRoom) {
                 List<TimeTableMessage> timeTableMessages = listMap.get(teacherTimeTable.getTeachingClassId());
-                String labelName = getCourseLabelNameById(teacherTimeTable.getCourseLabel());
+                String labelName = CultureSerivceInvoker.getCourseLabelNameById(teacherTimeTable.getCourseLabel());
                 teacherTimeTable.setCourseLabelName(labelName);
                 teacherTimeTable.setTimeTableList(timeTableMessages);
                 if(CollectionUtil.isNotEmpty(timeTableMessages)){
@@ -822,6 +838,133 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
         }
         return list;
+    }
+
+    /**
+    *@Description: 导出选课名单
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/8 16:13
+    */
+    @Override
+    public ExcelResult export(ReportManagementCondition condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("eleCourseList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<StudentSelectCourseList> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+                    list.addAll(electCourseList.getList());
+
+                    result.setTotal((int)electCourseList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (electCourseList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesign();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    /**
+    *@Description: 导出所有教师课表
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/8 16:13
+    */
+    @Override
+    public ExcelResult exportTeacher(ClassCodeToTeacher condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("allTeacherList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<ClassCodeToTeacher> pageCondition = new PageCondition<ClassCodeToTeacher>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<ClassCodeToTeacher> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<ClassCodeToTeacher> allTeacherTimeTable = findAllTeacherTimeTable(pageCondition);
+                    list.addAll(allTeacherTimeTable.getList());
+
+                    result.setTotal((int)allTeacherTimeTable.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (allTeacherTimeTable.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesignTeacher();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    /**
+    *@Description: 导出预览点名册
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/8 16:14
+    */
+    @Override
+    public String exportPreRollBookList(ExportPreCondition condition) throws Exception{
+        PreViewRollDto preViewRollDto = findPreviewRollBookListById(condition.getTeachingClassId(), condition.getCalendarId());
+        List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+        String calendarName ="同济大学"+ condition.getCalendarName()+"学生点名册";
+        Integer lineNumber = preViewRollDto.getLineNumber();
+        Integer rowNumber = preViewRollDto.getRowNumber();
+        FileUtil.mkdirs(cacheDirectory);
+        String fileName = "preRollBookList-" + System.currentTimeMillis() + ".xls";
+        String path = cacheDirectory + fileName;
+        Map<String, Object> map = new HashMap<>();
+        map.put("list", studentsList);
+        map.put("calendar",calendarName);
+        map.put("lineNumber",lineNumber);
+        map.put("rowNumber",rowNumber);
+        map.put("item",condition);
+        Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("preRollBookList.ftl");
+        // 将模板和数据模型合并生成文件
+        Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+        tpl.process(map, out);
+        // 关闭流
+        out.flush();
+        out.close();
+        return path;
     }
 
 
@@ -933,8 +1076,36 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 (value, rawData, cell) -> {
                     return dictionaryService.query("G_XJZT", value, SessionUtils.getLang());
                 });
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCode");
+        design.addCell(I18nUtil.getMsg("rollBookManage.eleStatus"), "classCode").setValueHandler((value, rawData, cell) -> {
+            return StringUtils.isBlank(value) ? "未选课" : "选课";
+        });
+        design.addCell(I18nUtil.getMsg("rollBookManage.reBuildStatus"), "isRebuildCourse").setValueHandler((value, rawData, cell) -> {
+            return "2".equals(value) ? "是" : "否";
+        });
+        return design;
+    }
 
+    private GeneralExcelDesigner getDesignTeacher() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teacherCode"), "teacherCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "teacherName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
 
+        design.addCell(I18nUtil.getMsg("rebuildCourse.sex"), "sex").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_XBIE", value, SessionUtils.getLang());
+                });
         return design;
     }
 
