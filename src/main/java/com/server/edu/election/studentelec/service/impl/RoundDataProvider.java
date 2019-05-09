@@ -26,8 +26,11 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ElectionRoundsCondition;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.utils.Keys;
@@ -60,6 +63,9 @@ public class RoundDataProvider
     
     @Autowired
     private RoundDataCacheUtil dataUtil;
+    
+    @Autowired
+    private StudentDao studentDao;
     
     public RoundDataProvider()
     {
@@ -123,7 +129,8 @@ public class RoundDataProvider
         if (round != null
             && Objects.equals(Constants.IS_OPEN, round.getOpenFlag())
             && now.after(round.getBeginTime())
-            && now.before(round.getEndTime()))
+            && now.before(round.getEndTime())
+            )
         {
             Set<String> deleteKeys = cacheData(round, now, keys);
             if (CollectionUtil.isNotEmpty(deleteKeys))
@@ -134,6 +141,8 @@ public class RoundDataProvider
         else
         {
             String key = String.format(Keys.ROUND_KEY, roundId);
+            redisTemplate.delete(key);
+            key = Keys.getRoundConditionOne(roundId);
             redisTemplate.delete(key);
         }
     }
@@ -171,7 +180,10 @@ public class RoundDataProvider
         // 加载所有教学班与课程数据到缓存中
         List<CourseOpenDto> lessons = roundCourseDao
             .selectTeachingClassByRoundId(roundId, round.getCalendarId());
-        
+        //缓存轮次条件
+        Set<String> conKeys =
+            redisTemplate.keys(Keys.getRoundCondition());
+        dataUtil.cacheRoundCondition(ops,roundId, endMinutes,conKeys);
         Map<String, List<CourseOpenDto>> collect = lessons.stream()
             .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
         Set<String> keySet = collect.keySet();
@@ -201,7 +213,7 @@ public class RoundDataProvider
         deleteKeys.addAll(courseKeys);
         deleteKeys.addAll(classKeys);
         deleteKeys.addAll(stuKeys);
-        
+        deleteKeys.addAll(conKeys);
         return deleteKeys;
     }
     
@@ -240,6 +252,47 @@ public class RoundDataProvider
         String string = ops.get(redisKey);
         
         ElectionRounds round = JSON.parseObject(string, ElectionRounds.class);
+        return round;
+    }
+    
+    /**
+     * 获取所有将要开始的轮次的条件
+     * 
+     * @return
+     */
+    public List<ElectionRoundsCondition> getAllRoundCondition()
+    {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        Set<String> keys = redisTemplate.keys(Keys.getRoundCondition());
+        
+        List<String> ks = new ArrayList<>(keys);
+        Collections.sort(ks);
+        
+        List<String> texts = ops.multiGet(ks);
+        
+        List<ElectionRoundsCondition> list = new ArrayList<>();
+        for (String str : texts)
+        {
+        	ElectionRoundsCondition round = JSON.parseObject(str, ElectionRoundsCondition.class);
+            list.add(round);
+        }
+        
+        return list;
+    }
+    
+    /**
+     * 获取轮次的条件
+     * 
+     * @param roundId
+     * @return
+     */
+    public ElectionRoundsCondition getRoundCondition(Long roundId)
+    {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        String redisKey = Keys.getRoundConditionOne(roundId);
+        String value = ops.get(redisKey);
+        
+        ElectionRoundsCondition round = JSON.parseObject(value, ElectionRoundsCondition.class);
         return round;
     }
     
@@ -449,6 +502,30 @@ public class RoundDataProvider
             String.format(Keys.ROUND_STUDENT, roundId, studentId);
         String stuId = redisTemplate.opsForValue().get(roundStuKey);
         return StringUtils.isNotBlank(stuId);
+    }
+    
+    /**
+     * 判断学生的校区、学院、年级、专业、培养层次是否匹配轮次条件
+     * 
+     * @param roundId
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsStuCondition(Long roundId, String studentId)
+    {
+    	Student student = studentDao.selectByPrimaryKey(studentId);
+        ElectionRoundsCondition roundsCondition=getRoundCondition(roundId);
+        if(roundsCondition!=null) {
+        	if(roundsCondition.getCampus().contains(student.getCampus())
+        			&&roundsCondition.getFacultys().contains(student.getFaculty())
+        			&&roundsCondition.getGrades().contains(student.getGrade().toString())
+        			&&roundsCondition.getMajors().contains(student.getProfession())
+        			&&roundsCondition.getTrainingLevels().contains(student.getTrainingLevel())) {
+        		return true;
+        	}
+        }
+        return false;
     }
     
 }
