@@ -389,7 +389,7 @@
 					FROM
 						`election_rounds_t`
 					WHERE
-						ALENDAR_ID_=#{calendarId}
+						CALENDAR_ID_=#{calendarId}
 					AND MODE_=#{mode}
 				)
 			)
