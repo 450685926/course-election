@@ -54,11 +54,11 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
   	 and t2.NAME_ = #{query.stuName}
   	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuFaculty)">
-  	 and t2.FACULTY_ = #{query.stuFaculty}
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+  	 and t2.FACULTY_ = #{query.faculty}
   	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuProfession)">
-  	 and t2.PROFESSION_ = #{query.stuProfession}
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
+  	 and t2.PROFESSION_ = #{query.profession}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
   	 and t3.CODE_ = #{query.courseCode}
