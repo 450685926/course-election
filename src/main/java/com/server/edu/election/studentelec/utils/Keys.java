@@ -9,39 +9,39 @@ public class Keys
     /**学生缓存KEY*/
     public static final String STD = "elec-std-";
     
-    /**轮次-课程 elec-round-roundid-course-courseCode */
-    public static final String ROUND_COURSE = "elec-round-%s-course-%s";
+    /**轮次-课程 elec-roundCourse-[roundid]_[courseCode] */
+    public static final String ROUND_COURSE = "elec-roundCourse-%s_%s";
     
-    /**学期-教学班 elec-calendar-[calendarId]-class-[classid]*/
-    public static final String CALENDAR_CLASS = "elec-class-%s";
+    /**学期-教学班 elec-calendarClass-[calendarId]_[classid]*/
+    public static final String CALENDAR_CLASS = "elec-calendarClass-%s_%s";
     
-    /** 教学班选课人数elec-round-class-num-%s */
-    public static final String ROUND_CLASS_NUM = "elec-class-num-%s";
+    /** 教学班选课人数elec-classNum-[count] */
+    public static final String ROUND_CLASS_NUM = "elec-classNum-%s";
     
-    /** 轮次信息 elec-rounData-%s */
+    /** 轮次信息 elec-rounData-[roundId] */
     public static final String ROUND_KEY = "elec-rounData-%s";
     
-    /** 轮次的规则信息 elec-round-%s-rule-%s */
-    public static final String ROUND_RULE = "elec-round-%s-rule-%s";
+    /** 轮次的规则信息 elec-roundRule-[rountid]_[ruleid] */
+    public static final String ROUND_RULE = "elec-roundRule-%s_%s";
     
     /** 学生状态锁  format参数 roundid studentid*/
-    public static final String STD_STATUS_LOCK = "elec-stdlock-%s-%s";
+    public static final String STD_STATUS_LOCK = "elec-stdlock-%s_%s";
     
     public static final String STD_STATUS_LOCK_PATTERN = "elec-stdlock-*";
     
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
-    public static final String STD_STATUS = "elec-stdstatus-%s-%s";
+    public static final String STD_STATUS = "elec-stdstatus-%s_%s";
     
-    /**轮次学生 elec-round-%s-student-%s*/
-    public static final String ROUND_STUDENT = "elec-round-%s-student-%s";
+    /**轮次学生 elec-roundStudent-%s_%s */
+    public static final String ROUND_STUDENT = "elec-roundStudent-%s_%s";
     /**选课申请管理课程 elec-calendarId-%s-applyCourse-%s*/
     public static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
 
-    /**轮次上一学期 elec-round-%s-preSemester-*/
-    public static final String ROUND_PRESEMESTER="elec-round-%s-preSemester";
+    /**轮次上一学期 elec-roundPreSemester-%s */
+    public static final String ROUND_PRESEMESTER="elec-roundPreSemester-%s";
     
-    /**轮次条件 elec-round-%s-condition-*/
-    public static final String ROUND_CONDITION="elec-round-%s-condition";
+    /**轮次条件 elec-roundCondition-[roundid] */
+    public static final String ROUND_CONDITION="elec-roundCondition-%s";
     
     /**轮次的redis pattern elec-rounData-* */
     public static String getRoundKeyPattern()
