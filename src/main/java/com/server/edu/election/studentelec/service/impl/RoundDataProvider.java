@@ -193,16 +193,13 @@ public class RoundDataProvider
         
         Set<String> courseKeys =
             redisTemplate.keys(Keys.getRoundCoursePattern(roundId));
-        Set<String> classKeys =
-            redisTemplate.keys(Keys.getClassKeyPattern(calendarId));
         for (String courseCode : keySet)
         {
             List<CourseOpenDto> teachClasss = collect.get(courseCode);
             Set<Long> teachClassIds = dataUtil.cacheTeachClass(ops,
                 endMinutes,
                 calendarId,
-                teachClasss,
-                classKeys);
+                teachClasss);
             
             CourseOpenDto cour = teachClasss.get(0);
             dataUtil.cacheCourse(ops,
@@ -213,8 +210,6 @@ public class RoundDataProvider
                 courseKeys);
         }
         deleteKeys.addAll(ruleKeys);
-        deleteKeys.addAll(courseKeys);
-        deleteKeys.addAll(classKeys);
         deleteKeys.addAll(stuKeys);
         deleteKeys.addAll(conKeys);
         return deleteKeys;

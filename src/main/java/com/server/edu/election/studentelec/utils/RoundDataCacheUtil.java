@@ -108,8 +108,7 @@ public class RoundDataCacheUtil
      * @see [类、类#方法、类#成员]
      */
     public Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
-        long timeout, Long calendarId, List<CourseOpenDto> teachClasss,
-        Set<String> classKeys)
+        long timeout, Long calendarId, List<CourseOpenDto> teachClasss)
     {
         Set<Long> teachClassIds = new HashSet<>();
         
@@ -145,10 +144,6 @@ public class RoundDataCacheUtil
             
             String classText = JSON.toJSONString(courseClass);
             String classKey = Keys.getClassKey(calendarId, teachingClassId);
-            if (classKeys.contains(classKey))
-            {
-                classKeys.remove(classKey);
-            }
             setElecNumberToRedis(timeout,
                 teachingClassId,
                 courseClass.getCurrentNumber());
