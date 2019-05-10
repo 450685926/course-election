@@ -4,7 +4,9 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import io.swagger.annotations.*;
@@ -144,6 +146,9 @@ public class RebuildCourseController {
     @ApiOperation(value = "查询未缴费的课程名单")
     @PostMapping("/findCourseNoChargeList")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+        if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
         PageResult<RebuildCourseNoChargeList> noChargeType = service.findCourseNoChargeList(condition);
         return RestResult.successData(noChargeType);
     }

@@ -2,18 +2,10 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.dto.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElcCourseLimitDto;
-import com.server.edu.election.dto.RebuildCoursePaymentCondition;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -133,4 +125,7 @@ public interface ElcCourseTakeDao
             @Param("calendarId") Long calendarId,@Param("apply") Integer apply);
 
     ElcCourseLimitDto findSexNumber(Long teachClassId);
+
+    /**预警学生选课*/
+    List<LoserStuElcCourse> findStudentElcCourse(@Param("calendarId")Long calendarId, @Param("studentId") String studentId);
 }

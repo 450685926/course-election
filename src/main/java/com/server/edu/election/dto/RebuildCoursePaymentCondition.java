@@ -21,6 +21,15 @@ public class RebuildCoursePaymentCondition {
     private Long courseId;
     private String code;
     private String name;
+    private Integer mode;
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
 
     public String getStudentCode() {
         return studentCode;
