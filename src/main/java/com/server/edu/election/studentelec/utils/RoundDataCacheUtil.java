@@ -20,14 +20,14 @@ import com.alibaba.fastjson.JSONArray;
 import com.server.edu.common.entity.TeacherInfo;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElectionParameterDao;
-import com.server.edu.election.dao.ElectionRoundsConditionDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.ElectionRoundsCondition;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -58,7 +58,7 @@ public class RoundDataCacheUtil
     private ElectionParameterDao parameterDao;
     
     @Autowired
-    private ElectionRoundsConditionDao electionRoundsConditionDao;
+    private ElcRoundConditionDao elcRoundConditionDao;
     
     /**
      * 缓存轮次选课规则
@@ -242,8 +242,8 @@ public class RoundDataCacheUtil
 	{
 	   String roundConKey = Keys.getRoundConditionOne(roundId);
 	   if(!roundConKey.contains(roundConKey)) {
-		   ElectionRoundsCondition electionRoundsCondition = electionRoundsConditionDao.selectByPrimaryKey(roundId);
-		   ops.set(roundConKey, JSONArray.toJSONString(electionRoundsCondition), timeout, TimeUnit.MINUTES);
+		   ElcRoundCondition elcRoundCondition = elcRoundConditionDao.selectByPrimaryKey(roundId);
+		   ops.set(roundConKey, JSONArray.toJSONString(elcRoundCondition), timeout, TimeUnit.MINUTES);
 	   }
 	}
 

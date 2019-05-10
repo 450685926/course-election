@@ -28,8 +28,8 @@ import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.ElectionRoundsCondition;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -266,7 +266,7 @@ public class RoundDataProvider
      * 
      * @return
      */
-    public List<ElectionRoundsCondition> getAllRoundCondition()
+    public List<ElcRoundCondition> getAllRoundCondition()
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         Set<String> keys = redisTemplate.keys(Keys.getRoundCondition());
@@ -276,10 +276,10 @@ public class RoundDataProvider
         
         List<String> texts = ops.multiGet(ks);
         
-        List<ElectionRoundsCondition> list = new ArrayList<>();
+        List<ElcRoundCondition> list = new ArrayList<>();
         for (String str : texts)
         {
-        	ElectionRoundsCondition round = JSON.parseObject(str, ElectionRoundsCondition.class);
+        	ElcRoundCondition round = JSON.parseObject(str, ElcRoundCondition.class);
             list.add(round);
         }
         
@@ -292,13 +292,13 @@ public class RoundDataProvider
      * @param roundId
      * @return
      */
-    public ElectionRoundsCondition getRoundCondition(Long roundId)
+    public ElcRoundCondition getRoundCondition(Long roundId)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         String redisKey = Keys.getRoundConditionOne(roundId);
         String value = ops.get(redisKey);
         
-        ElectionRoundsCondition round = JSON.parseObject(value, ElectionRoundsCondition.class);
+        ElcRoundCondition round = JSON.parseObject(value, ElcRoundCondition.class);
         return round;
     }
     
@@ -490,7 +490,7 @@ public class RoundDataProvider
     public boolean containsStuCondition(Long roundId, String studentId)
     {
     	Student student = studentDao.selectByPrimaryKey(studentId);
-        ElectionRoundsCondition roundsCondition=getRoundCondition(roundId);
+    	ElcRoundCondition roundsCondition=getRoundCondition(roundId);
         if(roundsCondition!=null) {
         	if(roundsCondition.getCampus().contains(student.getCampus())
         			&&roundsCondition.getFacultys().contains(student.getFaculty())
