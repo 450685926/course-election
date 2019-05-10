@@ -8,7 +8,9 @@ import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLoserStdsDao;
 import com.server.edu.election.dto.LoserStuElcCourse;
+import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcLoserStdsService;
 import com.server.edu.election.vo.ElcLoserStdsVo;
 import com.server.edu.util.CollectionUtil;
@@ -17,6 +19,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +36,9 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
 
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private ElcCourseTakeService courseTakeService;
 
     @Override
     public PageResult<ElcLoserStdsVo> findElcLoserStds(PageCondition<ElcLoserStdsVo> condition) {
@@ -76,5 +82,27 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
     public List<LoserStuElcCourse> findStudentElcCourse(Long calendarId, String studentId) {
         List<LoserStuElcCourse> list =courseTakeDao.findStudentElcCourse(calendarId,studentId);
         return list;
+    }
+
+    /**
+    *@Description: 退课
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/10 15:20
+    */
+    @Override
+    public void withdrawCourse(List<LoserStuElcCourse> list) {
+        //进入预警选课回收站
+        //调用退课服务
+        List<ElcCourseTake> takes=new ArrayList<>();
+        for (LoserStuElcCourse loserStuElcCourse : list) {
+            ElcCourseTake take=new ElcCourseTake();
+            take.setStudentId(loserStuElcCourse.getStudentId());
+            take.setCalendarId(loserStuElcCourse.getCalendarId());
+            take.setTeachingClassId(loserStuElcCourse.getTeachingClassId());
+            takes.add(take);
+        }
+        courseTakeService.withdraw(takes);
     }
 }

@@ -646,7 +646,12 @@
             t3.CREDITS_ credits,
             t4.ID_ teachingClassId,
             t4.CODE_ classCode,
-            t1.COURSE_TAKE_TYPE_ courseTakeType
+            t1.COURSE_TAKE_TYPE_ courseTakeType,
+            t1.CHOOSE_OBJ_ chooseObj,
+            t1.ID_ id,
+            t1.MODE_ mode,
+            t1.TURN_ turn,
+            t1.CALENDAR_ID_ calendarId
         FROM
             elc_course_takes_t t1
         JOIN student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_

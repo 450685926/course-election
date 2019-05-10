@@ -17,4 +17,7 @@ public interface ElcLoserStdsService {
 
     /**预警学生已经选课*/
     List<LoserStuElcCourse> findStudentElcCourse(Long calendarId, String studentId);
+
+    /**预警学生退课*/
+    void withdrawCourse(List<LoserStuElcCourse> ids);
 }

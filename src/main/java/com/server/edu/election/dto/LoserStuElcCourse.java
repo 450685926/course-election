@@ -1,5 +1,9 @@
 package com.server.edu.election.dto;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+
+
 import java.io.Serializable;
 
 /**
@@ -8,6 +12,8 @@ import java.io.Serializable;
  * @create: 2019-05-10 11:28
  */
 public class LoserStuElcCourse implements Serializable {
+    private Long id;
+    private Long calendarId;
     private String studentId;
     private String studentName;
     private String studentCategory;
@@ -16,8 +22,52 @@ public class LoserStuElcCourse implements Serializable {
     private String courseName;
     private Long courseLabel;
     private Double credits;
+    @Code2Text(DictTypeEnum.X_XDLX)
     private Integer courseTakeType;
     private Long teachingClassId;
+    private Integer chooseObj;
+    private Integer mode;
+    private Integer turn;
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getChooseObj() {
+        return chooseObj;
+    }
+
+    public void setChooseObj(Integer chooseObj) {
+        this.chooseObj = chooseObj;
+    }
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
+    public Integer getTurn() {
+        return turn;
+    }
+
+    public void setTurn(Integer turn) {
+        this.turn = turn;
+    }
 
     public String getStudentId() {
         return studentId;

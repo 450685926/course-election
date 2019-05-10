@@ -64,6 +64,15 @@ public class ElcLoserStdsController {
     }
 
 
+    @ApiOperation(value = "预警学生退课")
+    @PostMapping("/withdrawCourse")
+    public RestResult<?> withdrawCourse(@RequestBody List<LoserStuElcCourse> ids){
+        if(CollectionUtil.isEmpty(ids)){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        elcLoserStdsService.withdrawCourse(ids);
+        return RestResult.success();
+    }
 
 
 }
