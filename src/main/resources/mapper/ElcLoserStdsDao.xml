@@ -45,6 +45,12 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(researchDirection)">
         and t2.RESEARCH_DIRECTION_ =#{researchDirection}
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(idslist)">
+        and t1.ID_ in  
+        <foreach collection="idslist" open="(" separator="," close=")" item="id">
+          #{id}
+        </foreach>
+      </if>
     </where>
   </select>
 
