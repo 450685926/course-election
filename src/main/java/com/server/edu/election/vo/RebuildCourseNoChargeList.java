@@ -1,5 +1,9 @@
 package com.server.edu.election.vo;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
 import java.io.Serializable;
 
 /**
@@ -7,7 +11,7 @@ import java.io.Serializable;
  * @author: bear
  * @create: 2019-02-13 15:06
  */
-
+@CodeI18n
 public class RebuildCourseNoChargeList implements Serializable{
     private Long id;
     private Long calendarId;
@@ -29,6 +33,7 @@ public class RebuildCourseNoChargeList implements Serializable{
     private String teachingClassCode;
     private String courseArr;//课程按排
     private String calendarName;
+    @Code2Text(DictTypeEnum.X_XDLX)
     private Integer courseTakeType;
     private Integer mode;
     private Integer turn;
