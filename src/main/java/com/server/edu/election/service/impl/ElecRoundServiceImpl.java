@@ -136,7 +136,7 @@ public class ElecRoundServiceImpl implements ElecRoundService
         if (null != roundCondition)
         {
             Example example1 = new Example(ElcRoundCondition.class);
-            example.createCriteria().andEqualTo("id", dto.getId());
+            example1.createCriteria().andEqualTo("roundId", dto.getId());
             int count1 = roundConditionDao.selectCountByExample(example1);
             roundCondition.setRoundId(dto.getId());
             if (count1 == 0)
