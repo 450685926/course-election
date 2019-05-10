@@ -8,11 +8,14 @@ import com.server.edu.election.dto.LoserStuElcCourse;
 import com.server.edu.election.service.ElcLoserStdsService;
 import com.server.edu.election.vo.ElcLoserStdsVo;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.export.ExcelResult;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +33,9 @@ public class ElcLoserStdsController {
 
     @Autowired
     private ElcLoserStdsService elcLoserStdsService;
+
+    private static Logger LOG =
+            LoggerFactory.getLogger(ElcLoserStdsController.class);
 
     @ApiOperation(value = "查询预警学生名单")
     @PostMapping("/findElcLoserStds")
@@ -75,4 +81,12 @@ public class ElcLoserStdsController {
     }
 
 
+    @ApiOperation(value = "导出预警学生名单")
+    @PostMapping("/exportLoserStu")
+    public RestResult<ExcelResult> export(@RequestBody ElcLoserStdsVo condition)
+            throws Exception {
+        LOG.info("export.start");
+        ExcelResult result = elcLoserStdsService.exportLoserStu(condition);
+        return RestResult.successData(result);
+    }
 }

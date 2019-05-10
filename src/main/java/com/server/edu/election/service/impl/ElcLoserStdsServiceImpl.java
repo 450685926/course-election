@@ -3,8 +3,10 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLoserStdsDao;
 import com.server.edu.election.dto.LoserStuElcCourse;
@@ -13,8 +15,15 @@ import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcLoserStdsService;
 import com.server.edu.election.vo.ElcLoserStdsVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +48,13 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
 
     @Autowired
     private ElcCourseTakeService courseTakeService;
+
+    @Value("${task.cache.directory}")
+    private String cacheDirectory;
+
+
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @Override
     public PageResult<ElcLoserStdsVo> findElcLoserStds(PageCondition<ElcLoserStdsVo> condition) {
@@ -104,5 +120,79 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
             takes.add(take);
         }
         courseTakeService.withdraw(takes);
+    }
+
+    /**
+    *@Description: 导出
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/10 17:30
+    */
+    @Override
+    public ExcelResult exportLoserStu(ElcLoserStdsVo condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("elcLoserStds", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<ElcLoserStdsVo> pageCondition = new PageCondition<ElcLoserStdsVo>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<ElcLoserStdsVo> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<ElcLoserStdsVo> electCourseList = findElcLoserStds(pageCondition);
+                    list.addAll(electCourseList.getList());
+
+                    result.setTotal((int)electCourseList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (electCourseList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesign();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    private GeneralExcelDesigner getDesign() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentId");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_PYCC", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.studentCategory"), "studentCategory");
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("rollBookManage.direction"), "researchDirection");
+        design.addCell(I18nUtil.getMsg("rollBookManage.unpassedCredits"), "unpassedCredits");
+
+        return design;
     }
 }
