@@ -19,31 +19,31 @@
      join student_t t2 on t2.STUDENT_CODE_=t1.STUDENT_ID_
     <where>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-          t1.CALENDAR_ID_ =#{calendarId}
+          and t1.CALENDAR_ID_ =#{calendarId}
         </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-        t2.STUDENT_CODE_ like concat ('%',#{studentId},'%')
+        and t2.STUDENT_CODE_ like concat ('%',#{studentId},'%')
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
-        t2.NAME_ like concat ('%',#{studentName},'%')
+       and  t2.NAME_ like concat ('%',#{studentName},'%')
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
-        t2.GRADE_ =#{grade}
+        and t2.GRADE_ =#{grade}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
-        t2.TRAINING_LEVEL_ =#{trainingLevel}
+        and t2.TRAINING_LEVEL_ =#{trainingLevel}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
-        t2.STUDENT_CATEGORY_ =#{studentCategory}
+        and t2.STUDENT_CATEGORY_ =#{studentCategory}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-        t2.FACULTY_ =#{faculty}
+        and t2.FACULTY_ =#{faculty}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
-        t2.PROFESSION_ =#{profession}
+        and t2.PROFESSION_ =#{profession}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(researchDirection)">
-        t2.RESEARCH_DIRECTION_ =#{researchDirection}
+        and t2.RESEARCH_DIRECTION_ =#{researchDirection}
       </if>
     </where>
   </select>
