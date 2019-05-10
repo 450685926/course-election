@@ -635,4 +635,26 @@
          JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
         where t1.TEACHING_CLASS_ID_=#{teachClassId};
     </select>
+
+    <select id="findStudentElcCourse" resultType="com.server.edu.election.dto.LoserStuElcCourse">
+        SELECT
+            t2.STUDENT_CODE_ studentId,
+            t2.NAME_ studentName,
+            t2.STUDENT_CATEGORY_ studentCategory,
+            t3.CODE_ courseCode,
+            t3.NAME_ courseName,
+            t3.CREDITS_ credits,
+            t4.ID_ teachingClassId,
+            t4.CODE_ classCode,
+            t1.COURSE_TAKE_TYPE_ courseTakeType
+        FROM
+            elc_course_takes_t t1
+        JOIN student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_
+        JOIN course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+        JOIN teaching_class_t t4 ON t1.TEACHING_CLASS_ID_ = t4.ID_
+        WHERE
+            t1.STUDENT_ID_ = #{studentId}
+        AND t1.CALENDAR_ID_ = #{calendarId}
+
+    </select>
 </mapper>

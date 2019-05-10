@@ -4,16 +4,19 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.LoserStuElcCourse;
 import com.server.edu.election.service.ElcLoserStdsService;
 import com.server.edu.election.vo.ElcLoserStdsVo;
+import com.server.edu.util.CollectionUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
+import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @description: 预警学生
@@ -37,5 +40,30 @@ public class ElcLoserStdsController {
         PageResult<ElcLoserStdsVo> elcLoserStds = elcLoserStdsService.findElcLoserStds(condition);
         return RestResult.successData(elcLoserStds);
     }
+
+    @ApiOperation(value = "学生选课结果")
+    @GetMapping("/findStudentElcCourse")
+    public RestResult<List<LoserStuElcCourse>> findStudentElcCourse(@RequestParam Long calendarId, String studentId){
+        if(calendarId==null || StringUtils.isBlank(studentId)){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+
+        List<LoserStuElcCourse> list=elcLoserStdsService.findStudentElcCourse(calendarId,studentId);
+        return RestResult.successData(list);
+    }
+
+    @ApiOperation(value = "移除预警学生")
+    @GetMapping("/deleteLoserStudent")
+    public RestResult<String> deleteLoserStudent(@RequestBody List<Long> ids){
+        if(CollectionUtil.isEmpty(ids)){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+
+        String s=elcLoserStdsService.deleteLoserStudent(ids);
+        return RestResult.success(I18nUtil.getMsg(s));
+    }
+
+
+
 
 }

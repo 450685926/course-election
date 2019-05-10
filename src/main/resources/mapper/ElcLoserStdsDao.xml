@@ -12,7 +12,7 @@
   </resultMap>
   
   <select id="findElcLoserStds" parameterType="com.server.edu.election.vo.ElcLoserStdsVo" resultType="com.server.edu.election.vo.ElcLoserStdsVo">
-    select t1.CALENDAR_ID_ calendarId,t1.STUDENT_ID_ studentId,t1.UNPASSED_CREDITS_ unpassedCredits,
+    select t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.STUDENT_ID_ studentId,t1.UNPASSED_CREDITS_ unpassedCredits,
     t2.NAME_ studentName,t2.GRADE_ grade,t2.TRAINING_LEVEL_ trainingLevel,t2.STUDENT_CATEGORY_ studentCategory,
     t2.FACULTY_ faculty,t2.PROFESSION_ profession,t2.RESEARCH_DIRECTION_ researchDirection
     from elc_loser_stds_t t1
@@ -47,4 +47,11 @@
       </if>
     </where>
   </select>
+
+  <delete id="deleteByIds" parameterType="java.util.List">
+    delete from elc_loser_stds_t where ID_ IN
+    <foreach collection="list" open="(" separator="," close=")" item="id">
+      #{id}
+    </foreach>
+  </delete>
 </mapper>
