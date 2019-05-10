@@ -5,6 +5,7 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcLoserStds;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @description:
@@ -25,6 +26,15 @@ public class ElcLoserStdsVo extends ElcLoserStds {
     @Code2Text(transformer = "G_ZY")
     private String profession;
     private String researchDirection;
+    private List<Long> idslist;
+
+    public List<Long> getIdslist() {
+        return idslist;
+    }
+
+    public void setIdslist(List<Long> idslist) {
+        this.idslist = idslist;
+    }
 
     public String getCalendarName() {
         return calendarName;
