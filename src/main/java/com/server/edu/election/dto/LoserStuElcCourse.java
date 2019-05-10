@@ -2,6 +2,7 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * @author: bear
  * @create: 2019-05-10 11:28
  */
+@CodeI18n
 public class LoserStuElcCourse implements Serializable {
     private Long id;
     private Long calendarId;

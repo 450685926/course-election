@@ -93,7 +93,7 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
     */
     @Override
     public void withdrawCourse(List<LoserStuElcCourse> list) {
-        //进入预警选课回收站
+        //进入预警选课回收站todo
         //调用退课服务
         List<ElcCourseTake> takes=new ArrayList<>();
         for (LoserStuElcCourse loserStuElcCourse : list) {
