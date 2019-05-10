@@ -31,7 +31,6 @@ import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.RoundDataCacheUtil;
@@ -201,12 +200,11 @@ public class RoundDataProvider
                 calendarId,
                 teachClasss);
             
-            CourseOpenDto cour = teachClasss.get(0);
             dataUtil.cacheCourse(ops,
                 endMinutes,
                 roundId,
+                courseCode,
                 teachClassIds,
-                cour,
                 courseKeys);
         }
         deleteKeys.addAll(ruleKeys);
@@ -343,23 +341,6 @@ public class RoundDataProvider
     }
     
     /**
-     * 获取课程信息
-     * 
-     * @param roundId 轮次
-     * @param courseCode 课程代码
-     * @return
-     */
-    public CourseCache getCourse(Long roundId, String courseCode)
-    {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        String courseKey = Keys.getRoundCourseKey(roundId, courseCode);
-        String string = ops.get(courseKey);
-        
-        CourseCache lesson = JSON.parseObject(string, CourseCache.class);
-        return lesson;
-    }
-    
-    /**
      * 
      * 通过轮次与课程代码获取教学班信息
      * @param roundId
@@ -370,12 +351,17 @@ public class RoundDataProvider
         String courseCode)
     {
         List<TeachingClassCache> lessons = new ArrayList<>();
-        CourseCache course = this.getCourse(roundId, courseCode);
-        if (course == null)
+        String roundCourseKey = Keys.getRoundCourseKey(roundId, courseCode);
+        
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        
+        String text = ops.get(roundCourseKey);
+        if (StringUtils.isEmpty(text))
         {
             return lessons;
         }
-        Set<Long> teachClassIds = course.getTeachClassIds();
+        
+        List<Long> teachClassIds = JSON.parseArray(text, Long.class);
         if (CollectionUtil.isEmpty(teachClassIds))
         {
             return lessons;
@@ -392,8 +378,6 @@ public class RoundDataProvider
         
         if (CollectionUtil.isNotEmpty(keys))
         {
-            ValueOperations<String, String> ops = redisTemplate.opsForValue();
-            
             Collections.sort(keys);
             
             List<String> list = ops.multiGet(keys);

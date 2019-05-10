@@ -29,7 +29,6 @@ import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.preload.CourseGradeLoad;
@@ -155,32 +154,25 @@ public class RoundDataCacheUtil
     }
     
     /**
-     * 缓存课程数据
+     * 缓存课程与教学班的关系
      * @param ops
      * @param timeout缓存结束时间分钟
      * @param roundId 轮次ID
+     * @param courseCode课程代码
      * @param teachClassIds课程对应的教学班ID
-     * @param cour课程
      * @param courseKeys已存在于redis的key
      */
     public void cacheCourse(ValueOperations<String, String> ops, long timeout,
-        Long roundId, Set<Long> teachClassIds, CourseOpenDto cour,
+        Long roundId, String courseCode, Set<Long> teachClassIds,
         Set<String> courseKeys)
     {
-        CourseCache course = new CourseCache();
-        course.setCourseCode(cour.getCourseCode());
-        course.setCourseName(cour.getCourseName());
-        course.setCredits(cour.getCredits());
-        course.setNameEn(cour.getCourseNameEn());
-        course.setTeachClassIds(teachClassIds);
-        
         String courseKey =
-            Keys.getRoundCourseKey(roundId, cour.getCourseCode());
+            Keys.getRoundCourseKey(roundId, courseCode);
         if (courseKeys.contains(courseKey))
         {
             courseKeys.remove(courseKey);
         }
-        String text = JSON.toJSONString(course);
+        String text = JSON.toJSONString(teachClassIds);
         ops.set(courseKey, text, timeout, TimeUnit.MINUTES);
     }
     
