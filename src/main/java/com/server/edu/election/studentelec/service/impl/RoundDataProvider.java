@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,16 +27,20 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.RoundDataCacheUtil;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 提供roundId 到 教学任务json的提供者<br>
@@ -65,6 +70,9 @@ public class RoundDataProvider
     
     @Autowired
     private StudentDao studentDao;
+    
+    @Autowired 
+    private ElectionRuleDao electionRuleDao;
     
     public RoundDataProvider()
     {
@@ -169,9 +177,9 @@ public class RoundDataProvider
         // 缓存轮次信息
         ops.set(key, JSON.toJSONString(round), endMinutes, TimeUnit.MINUTES);
         // 缓存轮次规则数据
-        Set<String> ruleKeys =
-            redisTemplate.keys(Keys.getRoundRuleKeyPattern(roundId));
-        dataUtil.cacheRoundRule(ops, roundId, endMinutes, ruleKeys);
+//        Set<String> ruleKeys =
+//            redisTemplate.keys(Keys.getRoundRuleKeyPattern(roundId));
+        dataUtil.cacheRoundRule(ops, roundId, endMinutes);
         //缓存轮次学生
         Set<String> stuKeys =
             redisTemplate.keys(Keys.getRoundStuPattern(roundId));
@@ -207,7 +215,6 @@ public class RoundDataProvider
                 teachClassIds,
                 courseKeys);
         }
-        deleteKeys.addAll(ruleKeys);
         deleteKeys.addAll(stuKeys);
         deleteKeys.addAll(conKeys);
         return deleteKeys;
@@ -305,20 +312,28 @@ public class RoundDataProvider
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         
-        Set<String> keys =
-            redisTemplate.keys(Keys.getRoundRuleKeyPattern(roundId));
-        
-        List<String> list = ops.multiGet(keys);
-        
+//        Set<String> keys =
+//            redisTemplate.keys(Keys.getRoundRuleKeyPattern(roundId));
+        String key  = Keys.getRoundRuleServiceKey(roundId);
+        List<String> list = JSON.parseArray(ops.get(key), String.class);
         List<ElectionRuleVo> lessons = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(list))
         {
-            for (String json : list)
-            {
-                ElectionRuleVo lesson =
-                    JSON.parseObject(json, ElectionRuleVo.class);
-                lessons.add(lesson);
-            }
+//            for (String json : list)
+//            {
+//                ElectionRuleVo lesson =
+//                    JSON.parseObject(json, ElectionRuleVo.class);
+//                lessons.add(lesson);
+//            }
+        	Example example = new Example(ElectionRule.class);
+        	Example.Criteria criteria = example.createCriteria();
+        	criteria.andIn("serviceName", list);
+        	List<ElectionRule> rules =electionRuleDao.selectByExample(example);
+        	for(ElectionRule electionRule:rules) {
+        		ElectionRuleVo vo = new ElectionRuleVo();
+        		BeanUtils.copyProperties(electionRule, vo);
+        		lessons.add(vo);
+        	}
         }
         return lessons;
     }

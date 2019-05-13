@@ -24,6 +24,9 @@ public class Keys
     /** 轮次的规则信息 elec-roundRule-[rountid]_[ruleid] */
     public static final String ROUND_RULE = "elec-roundRule-%s_%s";
     
+    /** 轮次的规则信息 elec-roundRuleServiceName-[rountid] */
+    public static final String ROUND_RULE_SERVICE_NAME = "elec-roundRuleServiceName-%s";
+    
     /** 学生状态锁  format参数 roundid studentid*/
     public static final String STD_STATUS_LOCK = "elec-stdlock-%s_%s";
     
@@ -42,6 +45,9 @@ public class Keys
     
     /**轮次条件 elec-roundCondition-[roundid] */
     public static final String ROUND_CONDITION="elec-roundCondition-%s";
+    
+    /**伦次缓存KEY[serviceName]*/
+    public static final String RULE = "elec-rule-s%";
     
     /**轮次的redis pattern elec-rounData-* */
     public static String getRoundKeyPattern()
@@ -77,6 +83,18 @@ public class Keys
     public static String getRoundRuleKey(Long roundId, String serviceName)
     {
         return String.format(Keys.ROUND_RULE, roundId, serviceName);
+    }
+    
+//    /**轮次规则Key pattern*/
+//    public static String getRoundRuleServiceKeyPattern(Long roundId)
+//    {
+//        return String.format(Keys.ROUND_RULE_SERVICE_NAME, roundId, "*");
+//    }
+    
+    /**轮次规则Key*/
+    public static String getRoundRuleServiceKey(Long roundId)
+    {
+        return String.format(Keys.ROUND_RULE_SERVICE_NAME, roundId);
     }
     
     /**轮次学生Key pattern*/
@@ -119,5 +137,17 @@ public class Keys
     public static String getClassElecNumberKey(Long teachClassId)
     {
         return String.format(Keys.ROUND_CLASS_NUM, teachClassId);
+    }
+    
+    /**轮次规则Key pattern*/
+    public static String getRuleKeyPattern()
+    {
+        return String.format(Keys.RULE, "*");
+    }
+    
+    /**轮次规则Key*/
+    public static String getRuleKey(String serviceName)
+    {
+        return String.format(Keys.RULE,serviceName);
     }
 }

@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -202,20 +203,24 @@ public class StudentElecServiceImpl implements StudentElecService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
-            ElectionRuleVo rule =
-                dataProvider.getRule(roundId, "LimitCountCheckerRule");
-            if (rule != null)
+        	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+//            ElectionRuleVo rule =
+//                dataProvider.getRule(roundId, "LimitCountCheckerRule");
+            if (CollectionUtil.isNotEmpty(rules))
             {
-                LOG.info("---- LimitCountCheckerRule ----");
-                // 增加选课人数
-                int count = classDao.increElcNumberAtomic(teachClassId);
-                if (count == 0)
-                {
-                    respose.getFailedReasons()
-                        .put(teachClassId.toString(),
-                            I18nUtil.getMsg("ruleCheck.limitCount"));
-                    return;
-                }
+            	ElectionRuleVo rule = rules.stream().filter(c->"LimitCountCheckerRule".equals(c.getServiceName())).findFirst().orElse(new ElectionRuleVo());
+            	if(rule!=null) {
+                    LOG.info("---- LimitCountCheckerRule ----");
+                    // 增加选课人数
+                    int count = classDao.increElcNumberAtomic(teachClassId);
+                    if (count == 0)
+                    {
+                        respose.getFailedReasons()
+                            .put(teachClassId.toString(),
+                                I18nUtil.getMsg("ruleCheck.limitCount"));
+                        return;
+                    }
+            	}
             }
             else
             {

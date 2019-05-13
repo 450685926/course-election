@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +25,6 @@ import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElcRoundCondition;
-import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -69,27 +67,30 @@ public class RoundDataCacheUtil
      * @see [类、类#方法、类#成员]
      */
     public void cacheRoundRule(ValueOperations<String, String> ops,
-        Long roundId, long timeout, Set<String> ruleKeys)
+        Long roundId, long timeout)
     {
         List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
-        List<ElectionParameter> params = parameterDao.selectAll();
-        for (ElectionRuleVo rule : rules)
-        {
-            rule.setList(new ArrayList<>());
-            for (ElectionParameter param : params)
-            {
-                if (param.getRuleId().equals(rule.getId()))
-                {
-                    rule.getList().add(param);
-                }
-            }
-            String key = Keys.getRoundRuleKey(roundId, rule.getServiceName());
-            if (ruleKeys.contains(key))
-            {
-                ruleKeys.remove(key);
-            }
-            ops.set(key, JSON.toJSONString(rule), timeout, TimeUnit.MINUTES);
-        }
+        List<String> serviceNames = rules.stream().map(ElectionRuleVo::getServiceName).collect(Collectors.toList());
+//        List<ElectionParameter> params = parameterDao.selectAll();
+//        for (ElectionRuleVo rule : rules)
+//        {
+//            rule.setList(new ArrayList<>());
+//            for (ElectionParameter param : params)
+//            {
+//                if (param.getRuleId().equals(rule.getId()))
+//                {
+//                    rule.getList().add(param);
+//                }
+//            }
+//            String key = Keys.getRoundRuleKey(roundId, rule.getServiceName());
+//            if (ruleKeys.contains(key))
+//            {
+//                ruleKeys.remove(key);
+//            }
+//            ops.set(key, JSON.toJSONString(rule), timeout, TimeUnit.MINUTES);
+//        }
+        String key = Keys.getRoundRuleServiceKey(roundId);
+        ops.set(key, JSON.toJSONString(serviceNames), timeout, TimeUnit.MINUTES);
     }
     
     @Autowired
