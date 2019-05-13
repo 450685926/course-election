@@ -278,6 +278,20 @@ public class RoundDataProvider
     }
     
     /**
+     * 轮次是否包含指定规则
+     * 
+     * @param roundId
+     * @param serviceName
+     * @param redisTemplate
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsRule(Long roundId, String serviceName)
+    {
+        return this.dataUtil.containsRule(roundId, serviceName, redisTemplate);
+    }
+    
+    /**
      * 
      * 通过轮次与课程代码获取教学班信息
      * @param roundId
