@@ -361,4 +361,26 @@ public class RoundDataCacheUtil
         }
         return rules;
     }
+    
+    /**
+     * 轮次是否包含指定规则
+     * 
+     * @param roundId
+     * @param serviceName
+     * @param redisTemplate
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsRule(Long roundId, String serviceName,
+        RedisTemplate<String, String> redisTemplate)
+    {
+        ValueOperations<String, String> opsForValue =
+            redisTemplate.opsForValue();
+        
+        String key = Keys.getRoundRuleKey(roundId);
+        List<String> list = JSON.parseArray(opsForValue.get(key), String.class);
+        
+        return CollectionUtil.isNotEmpty(list) && list.contains(serviceName);
+    }
+    
 }
