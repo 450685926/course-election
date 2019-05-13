@@ -1,7 +1,9 @@
 package com.server.edu.election.rpc;
 
+import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.StudentScore;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.StudentScoreVo;
 import org.slf4j.Logger;
@@ -46,5 +48,25 @@ public class ScoreServiceInvoker {
         return restResult.getData();
     }
 
+    public static PageResult<StudentScore> findUnPassStuScore(PageCondition<String> condition)
+    {
+        @SuppressWarnings("unchecked")
+        PageResult<StudentScore> restResult =
+                ServicePathEnum.SCORESERVICE.postForObject(
+                        "/studentScoreCount/findUnPassStuScore",
+                        condition, PageResult.class);
 
+        return restResult;
+    }
+
+    public static RestResult<List<StudentScore>> findPassStuScore(List<StudentScore> unPassList)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<StudentScore>> restResult =
+                ServicePathEnum.SCORESERVICE.postForObject(
+                        "/studentScoreCount/findPassStuScore",
+                        unPassList, RestResult.class);
+
+        return restResult;
+    }
 }

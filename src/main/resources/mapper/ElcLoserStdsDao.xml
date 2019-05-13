@@ -60,4 +60,16 @@
       #{id}
     </foreach>
   </delete>
+
+  <delete id="deleteByCalendarId">
+    delete from elc_loser_stds_t where CALENDAR_ID_=#{calendarId}
+  </delete>
+  
+  <insert id="insertLoserStu" parameterType="java.util.List">
+    insert into elc_loser_stds_t (CALENDAR_ID_,STUDENT_ID_,UNPASSED_CREDITS_)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.calendarId},#{item.studentId},#{item.unpassedCredits})
+    </foreach>
+  </insert>
 </mapper>

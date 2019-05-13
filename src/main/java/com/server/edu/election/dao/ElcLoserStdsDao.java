@@ -14,4 +14,8 @@ public interface ElcLoserStdsDao extends Mapper<ElcLoserStds> {
     Page<ElcLoserStdsVo> findElcLoserStds(ElcLoserStdsVo condition);
 
     void deleteByIds(List<Long> list);
+
+    void deleteByCalendarId(Long calendarId);
+
+    void insertLoserStu(List<ElcLoserStds> list);
 }

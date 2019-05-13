@@ -7,7 +7,10 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.LoserStuElcCourse;
 import com.server.edu.election.service.ElcLoserStdsService;
 import com.server.edu.election.vo.ElcLoserStdsVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -88,5 +91,25 @@ public class ElcLoserStdsController {
         LOG.info("export.start");
         ExcelResult result = elcLoserStdsService.exportLoserStu(condition);
         return RestResult.successData(result);
+    }
+
+
+    @ApiOperation(value = "刷新预警学生名单")
+    @GetMapping("/reLoadLoserStu")
+    public RestResult<AsyncResult> reLoadLoserStu(@RequestParam Long calendarId) {
+        if(calendarId==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        AsyncResult resul= elcLoserStdsService
+                .reLoadLoserStu(calendarId,dptId);
+        return RestResult.successData(resul);
+    }
+
+    @ApiOperation(value = "查询刷新进度")
+    @GetMapping("/findReloadStatus")
+    public RestResult<AsyncResult> findReloadStatus(@RequestParam String key){
+        AsyncResult asyncResult = AsyncProcessUtil.getResult(key);
+        return RestResult.successData(asyncResult);
     }
 }
