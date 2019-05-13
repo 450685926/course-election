@@ -112,7 +112,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 				RestResult.fail(I18nUtil.getMsg("electionRuleDto.statusNull"));
 			}
 		}
-		cacheUtil.setRule(redisTemplate);
+		cacheUtil.cacheAllRule(redisTemplate);
 		return RestResult.success();
 	}
 	
@@ -135,7 +135,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		}
 		List<ElectionParameter> list = electionRuleDto.getList();
 		result = electionParameterDao.batchUpdateStatus(list);
-		cacheUtil.setRule(redisTemplate);
+		cacheUtil.cacheAllRule(redisTemplate);
 		return RestResult.success();
 	}
     
@@ -172,7 +172,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.rule")));
 		}
-		cacheUtil.setRule(redisTemplate);
+		cacheUtil.cacheAllRule(redisTemplate);
 		return result;
     }
     
