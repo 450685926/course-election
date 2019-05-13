@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -127,8 +128,7 @@ public class RoundDataProvider
         if (round != null
             && Objects.equals(Constants.IS_OPEN, round.getOpenFlag())
             && now.after(round.getBeginTime())
-            && now.before(round.getEndTime())
-            )
+            && now.before(round.getEndTime()))
         {
             Set<String> deleteKeys = cacheData(round, now, keys);
             if (CollectionUtil.isNotEmpty(deleteKeys))
@@ -173,9 +173,7 @@ public class RoundDataProvider
             redisTemplate.keys(Keys.getRoundRuleKeyPattern(roundId));
         dataUtil.cacheRoundRule(ops, roundId, endMinutes, ruleKeys);
         //缓存轮次学生
-        Set<String> stuKeys =
-            redisTemplate.keys(Keys.getRoundStuPattern(roundId));
-        dataUtil.cacheRoundStu(ops, roundId, endMinutes, stuKeys);
+        dataUtil.cacheRoundStu(redisTemplate, roundId, endMinutes);
         //缓存轮次的上一学期
         dataUtil.cachePreSemester(ops, round, endMinutes);
         
@@ -183,9 +181,8 @@ public class RoundDataProvider
         List<CourseOpenDto> lessons =
             roundCourseDao.selectTeachingClassByRoundId(roundId, calendarId);
         //缓存轮次条件
-        Set<String> conKeys =
-            redisTemplate.keys(Keys.getRoundCondition());
-        dataUtil.cacheRoundCondition(ops,roundId, endMinutes,conKeys);
+        Set<String> conKeys = redisTemplate.keys(Keys.getRoundCondition());
+        dataUtil.cacheRoundCondition(ops, roundId, endMinutes, conKeys);
         Map<String, List<CourseOpenDto>> collect = lessons.stream()
             .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
         Set<String> keySet = collect.keySet();
@@ -195,10 +192,8 @@ public class RoundDataProvider
         for (String courseCode : keySet)
         {
             List<CourseOpenDto> teachClasss = collect.get(courseCode);
-            Set<Long> teachClassIds = dataUtil.cacheTeachClass(ops,
-                endMinutes,
-                calendarId,
-                teachClasss);
+            Set<Long> teachClassIds = dataUtil
+                .cacheTeachClass(ops, endMinutes, calendarId, teachClasss);
             
             dataUtil.cacheCourse(ops,
                 endMinutes,
@@ -208,7 +203,6 @@ public class RoundDataProvider
                 courseKeys);
         }
         deleteKeys.addAll(ruleKeys);
-        deleteKeys.addAll(stuKeys);
         deleteKeys.addAll(conKeys);
         return deleteKeys;
     }
@@ -272,7 +266,8 @@ public class RoundDataProvider
         List<ElcRoundCondition> list = new ArrayList<>();
         for (String str : texts)
         {
-        	ElcRoundCondition round = JSON.parseObject(str, ElcRoundCondition.class);
+            ElcRoundCondition round =
+                JSON.parseObject(str, ElcRoundCondition.class);
             list.add(round);
         }
         
@@ -291,7 +286,8 @@ public class RoundDataProvider
         String redisKey = Keys.getRoundConditionOne(roundId);
         String value = ops.get(redisKey);
         
-        ElcRoundCondition round = JSON.parseObject(value, ElcRoundCondition.class);
+        ElcRoundCondition round =
+            JSON.parseObject(value, ElcRoundCondition.class);
         return round;
     }
     
@@ -453,9 +449,7 @@ public class RoundDataProvider
      */
     public boolean containsStu(Long roundId, String studentId)
     {
-        String roundStuKey = Keys.getRoundStuKey(roundId, studentId);
-        String stuId = redisTemplate.opsForValue().get(roundStuKey);
-        return StringUtils.isNotBlank(stuId);
+        return this.dataUtil.containsStu(redisTemplate, roundId, studentId);
     }
     
     /**
@@ -468,16 +462,43 @@ public class RoundDataProvider
      */
     public boolean containsStuCondition(Long roundId, String studentId)
     {
-    	Student student = studentDao.selectByPrimaryKey(studentId);
-    	ElcRoundCondition roundsCondition=getRoundCondition(roundId);
-        if(roundsCondition!=null) {
-        	if(roundsCondition.getCampus().contains(student.getCampus())
-        			&&roundsCondition.getFacultys().contains(student.getFaculty())
-        			&&roundsCondition.getGrades().contains(student.getGrade().toString())
-        			&&roundsCondition.getMajors().contains(student.getProfession())
-        			&&roundsCondition.getTrainingLevels().contains(student.getTrainingLevel())) {
-        		return true;
-        	}
+        if (null == roundId || StringUtils.isBlank(studentId))
+        {
+            return false;
+        }
+        Student student = null;
+        
+        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
+        String key = "elecStudentTempRedisKey";
+        String text = ops.get(key, studentId);
+        if (StringUtils.isBlank(text))
+        {
+            student = studentDao.selectByPrimaryKey(studentId);
+            if (null == student)
+            {
+                return false;
+            }
+            ops.put(key, studentId, JSON.toJSONString(student));
+            redisTemplate.expire(key, 1, TimeUnit.HOURS);
+        }
+        else
+        {
+            student = JSON.parseObject(text, Student.class);
+        }
+        
+        ElcRoundCondition roundsCondition = getRoundCondition(roundId);
+        if (roundsCondition != null)
+        {
+            if (roundsCondition.getCampus().contains(student.getCampus())
+                && roundsCondition.getFacultys().contains(student.getFaculty())
+                && roundsCondition.getGrades()
+                    .contains(student.getGrade().toString())
+                && roundsCondition.getMajors().contains(student.getProfession())
+                && roundsCondition.getTrainingLevels()
+                    .contains(student.getTrainingLevel()))
+            {
+                return true;
+            }
         }
         return false;
     }
