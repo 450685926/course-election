@@ -20,7 +20,6 @@ import com.alibaba.fastjson.JSON;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.DateUtil;
 
@@ -270,37 +269,6 @@ public class ElecContextUtil
      * 获取选课申请管理课程
      */
     public static List<String> getApplyCourse(Long calendarId) {
-        ValueOperations<String, String> opsForValue =
-                getRedisTemplate().opsForValue();
-    	 String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
-         String value = opsForValue
-                 .get(redisKey);
-         if (StringUtils.isEmpty(value))
-         {
-             return new ArrayList<>();
-         }
-         return JSON.parseArray(value, String.class);
-    }
-    
-    /**
-     * 设置选课申请管理课程
-     */
-    public static void setRule(String serviceName) {
-        ValueOperations<String, String> opsForValue =
-                getRedisTemplate().opsForValue();
-    	 String redisKey = Keys.getRuleKey(serviceName);
-         String value = opsForValue
-                 .get(redisKey);
-         if(StringUtils.isNotBlank(value)) {
-        	 List<ElectionRuleVo> result =  JSON.parseArray(value, ElectionRuleVo.class);
-        	 opsForValue.set(redisKey, JSON.toJSONString(courses));
-         }
-    }
-    
-    /**
-     * 获取选课申请管理课程
-     */
-    public static List<String> getRule(Long calendarId) {
         ValueOperations<String, String> opsForValue =
                 getRedisTemplate().opsForValue();
     	 String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
