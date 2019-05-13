@@ -9,8 +9,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.preload.CourseGradeLoad;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.util.CollectionUtil;
 
 /**
  * 轮次数据缓存类
@@ -166,8 +169,7 @@ public class RoundDataCacheUtil
         Long roundId, String courseCode, Set<Long> teachClassIds,
         Set<String> courseKeys)
     {
-        String courseKey =
-            Keys.getRoundCourseKey(roundId, courseCode);
+        String courseKey = Keys.getRoundCourseKey(roundId, courseCode);
         if (courseKeys.contains(courseKey))
         {
             courseKeys.remove(courseKey);
@@ -199,46 +201,69 @@ public class RoundDataCacheUtil
      * @param roundStuKeys redis已存在的Key
      * 
      * */
-    public void cacheRoundStu(ValueOperations<String, String> ops, Long roundId,
-        long timeout, Set<String> roundStuKeys)
+    public void cacheRoundStu(RedisTemplate<String, String> redisTemplate,
+        Long roundId, long timeout)
     {
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
-        for (String stuId : stuIds)
-        {
-            String roundStuKey = Keys.getRoundStuKey(roundId, stuId);
-            if (roundStuKeys.contains(roundStuKey))
-            {
-                roundStuKeys.remove(roundStuKey);
-            }
-            
-            ops.set(roundStuKey, stuId, timeout, TimeUnit.MINUTES);
-        }
         
+        String key = Keys.getRoundStuKey(roundId);
+        redisTemplate.delete(key);
+        
+        HashOperations<String, Object, Object> ops = redisTemplate.opsForHash();
+        if (CollectionUtil.isNotEmpty(stuIds))
+        {
+            Map<String, String> collect = stuIds.stream()
+                .collect(Collectors.toMap(String::toString, String::toString));
+            
+            ops.putAll(key, collect);
+            redisTemplate.expire(key, timeout, TimeUnit.MINUTES);
+        }
     }
     
-	/**
-	     *  缓存轮次条件
-	* @param ops
-	* @param roundId
-	* @param timeout缓存的保持时间分钟
-	* @param roundConKeys redis已存在的Key
-	* 
-	* */
-	public void cacheRoundCondition(ValueOperations<String, String> ops, Long roundId,
-	   long timeout,Set<String> roundConKeys)
-	{
-	   String roundConKey = Keys.getRoundConditionOne(roundId);
-	   if(!roundConKey.contains(roundConKey)) {
-		   ElcRoundCondition elcRoundCondition = elcRoundConditionDao.selectByPrimaryKey(roundId);
-		   ops.set(roundConKey, JSONArray.toJSONString(elcRoundCondition), timeout, TimeUnit.MINUTES);
-	   }
-	}
-
-    public void cachePreSemester(ValueOperations<String, String> ops, ElectionRounds round, long timeout){
+    public boolean containsStu(RedisTemplate<String, String> redisTemplate,
+        Long roundId, String studentId)
+    {
+        if (roundId == null || StringUtils.isBlank(studentId))
+        {
+            return false;
+        }
+        String roundStuKey = Keys.getRoundStuKey(roundId);
+        HashOperations<String, Object, Object> ops = redisTemplate.opsForHash();
+        return ops.hasKey(roundStuKey, studentId);
+    }
+    
+    /**
+         *  缓存轮次条件
+    * @param ops
+    * @param roundId
+    * @param timeout缓存的保持时间分钟
+    * @param roundConKeys redis已存在的Key
+    * 
+    * */
+    public void cacheRoundCondition(ValueOperations<String, String> ops,
+        Long roundId, long timeout, Set<String> roundConKeys)
+    {
+        String roundConKey = Keys.getRoundConditionOne(roundId);
+        if (!roundConKey.contains(roundConKey))
+        {
+            ElcRoundCondition elcRoundCondition =
+                elcRoundConditionDao.selectByPrimaryKey(roundId);
+            ops.set(roundConKey,
+                JSONArray.toJSONString(elcRoundCondition),
+                timeout,
+                TimeUnit.MINUTES);
+        }
+    }
+    
+    public void cachePreSemester(ValueOperations<String, String> ops,
+        ElectionRounds round, long timeout)
+    {
         Long calendarId = round.getCalendarId();//当前学期
-        SchoolCalendarVo preSemester = BaseresServiceInvoker.getPreSemester(calendarId);
+        SchoolCalendarVo preSemester =
+            BaseresServiceInvoker.getPreSemester(calendarId);
         Long id = preSemester.getId();
-        String roundPreSemester =String.format(Keys.ROUND_PRESEMESTER, round.getId());
-        ops.set(roundPreSemester, Long.toString(id),timeout, TimeUnit.MINUTES);
+        String roundPreSemester =
+            String.format(Keys.ROUND_PRESEMESTER, round.getId());
+        ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
     }
 }

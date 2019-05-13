@@ -32,8 +32,8 @@ public class Keys
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
     public static final String STD_STATUS = "elec-stdstatus-%s_%s";
     
-    /**轮次学生 elec-roundStudent-%s_%s */
-    public static final String ROUND_STUDENT = "elec-roundStudent-%s_%s";
+    /**轮次学生 elec-roundStudent-%s */
+    public static final String ROUND_STUDENT = "elec-roundStudent-%s";
     /**选课申请管理课程 elec-calendarId-%s-applyCourse-%s*/
     public static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
 
@@ -79,16 +79,10 @@ public class Keys
         return String.format(Keys.ROUND_RULE, roundId, serviceName);
     }
     
-    /**轮次学生Key pattern*/
-    public static String getRoundStuPattern(Long roundId)
-    {
-        return String.format(Keys.ROUND_STUDENT, roundId, "*");
-    }
-    
     /**轮次学生Key*/
-    public static String getRoundStuKey(Long roundId, String studentId)
+    public static String getRoundStuKey(Long roundId)
     {
-        return String.format(Keys.ROUND_STUDENT, roundId, studentId);
+        return String.format(Keys.ROUND_STUDENT, roundId);
     }
     
     /**轮次课程key pattern*/
