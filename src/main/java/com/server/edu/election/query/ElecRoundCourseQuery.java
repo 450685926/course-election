@@ -29,7 +29,8 @@ public class ElecRoundCourseQuery
     
     /**课程性质*/
     private String nature;
-
+    
+    private String keyword;
 
     public Integer getMode() {
         return mode;
@@ -107,6 +108,16 @@ public class ElecRoundCourseQuery
     public void setNature(String nature)
     {
         this.nature = nature;
+    }
+
+    public String getKeyword()
+    {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword)
+    {
+        this.keyword = keyword;
     }
     
 }

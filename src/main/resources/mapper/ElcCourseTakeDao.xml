@@ -66,9 +66,12 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
   	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
-            and t1.MODE_ = #{query.mode}
-        </if>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
+     and t1.MODE_ = #{query.mode}
+     </if>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+	 AND (t1.STUDENT_ID_ like CONCAT(#{query.keyword}, '%') OR t2.NAME_ like CONCAT(#{query.keyword}, '%'))
+	 </if>
   	</where>
   </select>
   
