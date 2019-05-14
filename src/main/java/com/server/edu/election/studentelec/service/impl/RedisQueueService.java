@@ -3,25 +3,33 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.support.collections.DefaultRedisList;
+import org.springframework.data.redis.support.collections.RedisList;
+import org.springframework.stereotype.Service;
 
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.service.ElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 
 /**
- * 用 LinkedBlockingQueue 做消息队列
+ * 用 Redis 做消息队列
  */
-//@Service("linkedBlockingQueue")
-//@Primary
-public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
+@Service("redisQueue")
+@Primary
+public class RedisQueueService implements ElecQueueService<ElecRequest>
 {
     protected Logger LOG = LoggerFactory.getLogger(getClass());
     
-    private final ConcurrentHashMap<String, LinkedBlockingQueue<ElecRequest>> groupQueueMap =
+    @Autowired
+    private RedisTemplate<String, ElecRequest> redisTemplate;
+    
+    private final ConcurrentHashMap<String, RedisList<ElecRequest>> groupQueueMap =
         new ConcurrentHashMap<>();
     
     /** 消费执行线程*/
@@ -31,16 +39,16 @@ public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
     @Override
     public boolean add(String group, ElecRequest data)
     {
-        LinkedBlockingQueue<ElecRequest> queue = getQueue(group);
+        RedisList<ElecRequest> queue = getQueue(group);
         return queue.add(data);
     }
     
-    private LinkedBlockingQueue<ElecRequest> getQueue(String group)
+    private RedisList<ElecRequest> getQueue(String group)
     {
-        LinkedBlockingQueue<ElecRequest> queue;
+        RedisList<ElecRequest> queue;
         if ((queue = groupQueueMap.get(group)) == null)
         {
-            queue = new LinkedBlockingQueue<>();
+            queue = new DefaultRedisList<>(group, redisTemplate);
             groupQueueMap.putIfAbsent(group, queue);
         }
         return queue;
@@ -52,7 +60,7 @@ public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
     {
         try
         {
-            LinkedBlockingQueue<ElecRequest> queue = getQueue(group);
+            RedisList<ElecRequest> queue = getQueue(group);
             ElecRequest take = queue.take();
             if (null != take)
             {
@@ -60,7 +68,6 @@ public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
                     comsumer.consume(take);
                 });
             }
-            
         }
         catch (InterruptedException e)
         {
