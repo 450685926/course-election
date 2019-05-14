@@ -63,6 +63,13 @@ public class RoundDataCacheUtil
     @Autowired
     private ElcRoundConditionDao elcRoundConditionDao;
     
+    public void cacheRound(ValueOperations<String, String> ops,
+        ElectionRounds round, long timeout)
+    {
+        String key = Keys.getRoundKey(round.getId());
+        ops.set(key, JSON.toJSONString(round));
+    }
+    
     /**
      * 缓存轮次选课规则
      * 
@@ -304,13 +311,10 @@ public class RoundDataCacheUtil
         String roundConKey = Keys.getRoundConditionOne(roundId);
         ElcRoundCondition elcRoundCondition =
             elcRoundConditionDao.selectByPrimaryKey(roundId);
-        if (null != elcRoundCondition)
-        {
-            ops.set(roundConKey,
-                JSONArray.toJSONString(elcRoundCondition),
-                timeout,
-                TimeUnit.MINUTES);
-        }
+        ops.set(roundConKey,
+            JSONArray.toJSONString(elcRoundCondition),
+            timeout,
+            TimeUnit.MINUTES);
     }
     
     /**
