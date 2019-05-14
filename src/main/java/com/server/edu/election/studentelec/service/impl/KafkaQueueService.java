@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -36,7 +38,8 @@ public class KafkaQueueService implements ElecQueueService<ElecRequest>
     
     /** 消费执行线程*/
     private final ExecutorService comsumerThreadPool =
-        Executors.newFixedThreadPool(8);
+        new ThreadPoolExecutor(10, 100, 0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
     
     public KafkaQueueService()
     {
@@ -79,7 +82,8 @@ public class KafkaQueueService implements ElecQueueService<ElecRequest>
     }
     
     @Override
-    public void consume(String group, ElecQueueComsumerService<ElecRequest> comsumer)
+    public void consume(String group,
+        ElecQueueComsumerService<ElecRequest> comsumer)
     {
         Properties properties = new Properties();
         properties.setProperty("topic", groupMap.get(group));
@@ -87,7 +91,8 @@ public class KafkaQueueService implements ElecQueueService<ElecRequest>
         {
             KafkaClients.consumeMsg(cons -> {
                 comsumerThreadPool.execute(() -> {
-                    comsumer.consume(JSON.parseObject(cons.value(), ElecRequest.class));
+                    comsumer.consume(
+                        JSON.parseObject(cons.value(), ElecRequest.class));
                 });
             }, properties);
         }
