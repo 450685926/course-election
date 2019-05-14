@@ -37,6 +37,8 @@ public class ElcCourseTakeQuery
      * */
     private Integer mode;
 
+    private String keyword;
+    
     public Integer getMode() {
         return mode;
     }
@@ -121,6 +123,16 @@ public class ElcCourseTakeQuery
 	public void setProfession(String profession) {
 		this.profession = profession;
 	}
+
+    public String getKeyword()
+    {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword)
+    {
+        this.keyword = keyword;
+    }
     
     
     
