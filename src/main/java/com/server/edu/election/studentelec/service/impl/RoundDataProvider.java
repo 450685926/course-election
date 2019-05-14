@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -179,18 +180,21 @@ public class RoundDataProvider
             .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
         Set<String> keySet = collect.keySet();
         
+        Map<String, Set<Long>> courseClassMap = new HashMap<>();
         for (String courseCode : keySet)
         {
             List<CourseOpenDto> teachClasss = collect.get(courseCode);
+            // 缓存教学班
             Set<Long> teachClassIds =
                 dataUtil.cacheTeachClass(ops, endMinutes, teachClasss);
             
-            dataUtil.cacheCourse(ops,
-                endMinutes,
-                roundId,
-                courseCode,
-                teachClassIds);
+            courseClassMap.put(courseCode, teachClassIds);
         }
+        
+        // 缓存课程
+        dataUtil
+            .cacheCourse(redisTemplate, endMinutes, roundId, courseClassMap);
+        
     }
     
     /**
