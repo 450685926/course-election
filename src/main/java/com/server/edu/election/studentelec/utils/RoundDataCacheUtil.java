@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcRoundConditionDao;
@@ -74,17 +75,23 @@ public class RoundDataCacheUtil
         Long roundId, long timeout)
     {
         List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
+        List<String> serviceNames = null;
+        String key = Keys.getRoundRuleKey(roundId);
         if (null != rules)
         {
-            List<String> serviceNames = rules.stream()
+            serviceNames = rules.stream()
                 .map(ElectionRuleVo::getServiceName)
                 .collect(Collectors.toList());
-            String key = Keys.getRoundRuleKey(roundId);
-            ops.set(key,
-                JSON.toJSONString(serviceNames),
-                timeout,
-                TimeUnit.MINUTES);
         }
+        else
+        {
+            serviceNames = new ArrayList<>();
+            
+        }
+        ops.set(key,
+            JSON.toJSONString(serviceNames),
+            timeout,
+            TimeUnit.MINUTES);
     }
     
     @Autowired
@@ -111,7 +118,7 @@ public class RoundDataCacheUtil
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
-        Map<String, TeacherInfo> teacherMap = new HashMap<>();
+        Map<String, Teacher> teacherMap = new HashMap<>();
         
         for (CourseOpenDto lesson : teachClasss)
         {
@@ -149,18 +156,36 @@ public class RoundDataCacheUtil
     
     /**
      * 缓存课程与教学班的关系
-     * @param ops
-     * @param timeout缓存结束时间分钟
+     * @param redisTemplate
+     * @param timeout 缓存结束时间分钟
      * @param roundId 轮次ID
-     * @param courseCode课程代码
-     * @param teachClassIds课程对应的教学班ID
+     * @param courseClassMap 课程代码-课程对应的教学班ID
      */
-    public void cacheCourse(ValueOperations<String, String> ops, long timeout,
-        Long roundId, String courseCode, Set<Long> teachClassIds)
+    public void cacheCourse(RedisTemplate<String, String> redisTemplate,
+        long timeout, Long roundId, Map<String, Set<Long>> courseClassMap)
     {
-        String courseKey = Keys.getRoundCourseKey(roundId, courseCode);
-        String text = JSON.toJSONString(teachClassIds);
-        ops.set(courseKey, text, timeout, TimeUnit.MINUTES);
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        Set<String> existCourseCodes =
+            redisTemplate.keys(Keys.getRoundCoursePattern(roundId));
+        
+        for (Entry<String, Set<Long>> entry : courseClassMap.entrySet())
+        {
+            String courseCode = entry.getKey();
+            Set<Long> teachClassIds = entry.getValue();
+            
+            String courseKey = Keys.getRoundCourseKey(roundId, courseCode);
+            String text = JSON.toJSONString(teachClassIds);
+            ops.set(courseKey, text, timeout, TimeUnit.MINUTES);
+            
+            // 移除存在的
+            existCourseCodes.remove(courseCode);
+        }
+        
+        if (null != existCourseCodes && !existCourseCodes.isEmpty())
+        {
+            // 删除掉没有关联的课程
+            redisTemplate.delete(existCourseCodes);
+        }
     }
     
     /**
@@ -216,16 +241,31 @@ public class RoundDataCacheUtil
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
         
         String key = Keys.getRoundStuKey(roundId);
-        redisTemplate.delete(key);
         
-        HashOperations<String, Object, Object> ops = redisTemplate.opsForHash();
+        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
         if (CollectionUtil.isNotEmpty(stuIds))
         {
             Map<String, String> collect = stuIds.stream()
                 .collect(Collectors.toMap(String::toString, String::toString));
+            Set<String> allFields = ops.keys(key);
+            if (null != allFields)
+            {
+                List<String> invalidStuIds = allFields.stream()
+                    .filter(stdId -> !stuIds.contains(stdId))
+                    .collect(Collectors.toList());
+                // 删除已经去掉的缓存
+                if (CollectionUtil.isNotEmpty(invalidStuIds))
+                {
+                    ops.delete(key, invalidStuIds.toArray());
+                }
+            }
             
             ops.putAll(key, collect);
             redisTemplate.expire(key, timeout, TimeUnit.MINUTES);
+        }
+        else
+        {
+            redisTemplate.delete(key);
         }
     }
     
@@ -300,8 +340,6 @@ public class RoundDataCacheUtil
     {
         HashOperations<String, Object, Object> ops = redisTemplate.opsForHash();
         String key = Keys.getRuleKey();
-        // 删除旧的
-        redisTemplate.delete(key);
         
         List<ElectionRuleVo> selectAll = ruleDao.listAll();
         List<ElectionParameter> parameters = parameterDao.selectAll();
