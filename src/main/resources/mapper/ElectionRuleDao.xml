@@ -41,6 +41,10 @@
   	select * from election_rule_t where MANAGER_DEPT_ID_ = #{projectId}
   </select>
   
+  <select id="listAll" resultMap="VoBaseResultMap">
+  	select * from election_rule_t
+  </select>
+  
   <update id="batchUpdate" parameterType="com.server.edu.election.dto.ElectionRuleDto">
     update election_rule_t set STATUS_ =#{status} where ID_ in
     <foreach item="id" collection="ruleIds"  index="index" open="(" separator="," close=")">  

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -19,6 +20,7 @@ import com.server.edu.election.dto.ElectionRuleDto;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRule;
 import com.server.edu.election.service.ElectionRuleService;
+import com.server.edu.election.studentelec.utils.RoundDataCacheUtil;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -33,6 +35,10 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 	private ElectionRuleDao electionRuleDao;
 	@Autowired
 	private ElectionParameterDao electionParameterDao;
+	@Autowired
+	private RoundDataCacheUtil cacheUtil;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 	@Override
 	public List<ElectionRule> list(ElectionRuleDto electionRuleDto){
 		Example example = new Example(ElectionRule.class);
@@ -106,6 +112,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 				RestResult.fail(I18nUtil.getMsg("electionRuleDto.statusNull"));
 			}
 		}
+		cacheUtil.cacheAllRule(redisTemplate);
 		return RestResult.success();
 	}
 	
@@ -128,6 +135,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		}
 		List<ElectionParameter> list = electionRuleDto.getList();
 		result = electionParameterDao.batchUpdateStatus(list);
+		cacheUtil.cacheAllRule(redisTemplate);
 		return RestResult.success();
 	}
     
@@ -164,6 +172,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("electionRuleDto.rule")));
 		}
+		cacheUtil.cacheAllRule(redisTemplate);
 		return result;
     }
     

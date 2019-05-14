@@ -5,35 +5,38 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElectionParameterDao;
-import com.server.edu.election.dao.ElectionRoundsConditionDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.ElectionRoundsCondition;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.studentelec.cache.CourseCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.preload.CourseGradeLoad;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.util.CollectionUtil;
 
 /**
  * 轮次数据缓存类
@@ -58,7 +61,7 @@ public class RoundDataCacheUtil
     private ElectionParameterDao parameterDao;
     
     @Autowired
-    private ElectionRoundsConditionDao electionRoundsConditionDao;
+    private ElcRoundConditionDao elcRoundConditionDao;
     
     /**
      * 缓存轮次选课规则
@@ -66,31 +69,29 @@ public class RoundDataCacheUtil
      * @param ops
      * @param roundId 轮次ID
      * @param timeout 缓存失效时间分钟
-     * @param ruleKeys 已存在的选课规则
      * @see [类、类#方法、类#成员]
      */
     public void cacheRoundRule(ValueOperations<String, String> ops,
-        Long roundId, long timeout, Set<String> ruleKeys)
+        Long roundId, long timeout)
     {
         List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
-        List<ElectionParameter> params = parameterDao.selectAll();
-        for (ElectionRuleVo rule : rules)
+        List<String> serviceNames = null;
+        String key = Keys.getRoundRuleKey(roundId);
+        if (null != rules)
         {
-            rule.setList(new ArrayList<>());
-            for (ElectionParameter param : params)
-            {
-                if (param.getRuleId().equals(rule.getId()))
-                {
-                    rule.getList().add(param);
-                }
-            }
-            String key = Keys.getRoundRuleKey(roundId, rule.getServiceName());
-            if (ruleKeys.contains(key))
-            {
-                ruleKeys.remove(key);
-            }
-            ops.set(key, JSON.toJSONString(rule), timeout, TimeUnit.MINUTES);
+            serviceNames = rules.stream()
+                .map(ElectionRuleVo::getServiceName)
+                .collect(Collectors.toList());
         }
+        else
+        {
+            serviceNames = new ArrayList<>();
+            
+        }
+        ops.set(key,
+            JSON.toJSONString(serviceNames),
+            timeout,
+            TimeUnit.MINUTES);
     }
     
     @Autowired
@@ -101,15 +102,13 @@ public class RoundDataCacheUtil
      * 
      * @param ops
      * @param timeout 缓存过期时间分钟
-     * @param calendarId 学期ID
      * @param teachClasss 教学班
      * @param classKeys redis已经存在的教学班KEY
      * @return
      * @see [类、类#方法、类#成员]
      */
     public Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
-        long timeout, Long calendarId, List<CourseOpenDto> teachClasss,
-        Set<String> classKeys)
+        long timeout, List<CourseOpenDto> teachClasss)
     {
         Set<Long> teachClassIds = new HashSet<>();
         
@@ -119,7 +118,7 @@ public class RoundDataCacheUtil
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
-        Map<String, TeacherInfo> teacherMap = new HashMap<>();
+        Map<String, Teacher> teacherMap = new HashMap<>();
         
         for (CourseOpenDto lesson : teachClasss)
         {
@@ -144,11 +143,7 @@ public class RoundDataCacheUtil
             courseClass.setTimes(times);
             
             String classText = JSON.toJSONString(courseClass);
-            String classKey = Keys.getClassKey(calendarId, teachingClassId);
-            if (classKeys.contains(classKey))
-            {
-                classKeys.remove(classKey);
-            }
+            String classKey = Keys.getClassKey(teachingClassId);
             setElecNumberToRedis(timeout,
                 teachingClassId,
                 courseClass.getCurrentNumber());
@@ -160,33 +155,61 @@ public class RoundDataCacheUtil
     }
     
     /**
-     * 缓存课程数据
-     * @param ops
-     * @param timeout缓存结束时间分钟
+     * 缓存课程与教学班的关系
+     * @param redisTemplate
+     * @param timeout 缓存结束时间分钟
      * @param roundId 轮次ID
-     * @param teachClassIds课程对应的教学班ID
-     * @param cour课程
-     * @param courseKeys已存在于redis的key
+     * @param courseClassMap 课程代码-课程对应的教学班ID
      */
-    public void cacheCourse(ValueOperations<String, String> ops, long timeout,
-        Long roundId, Set<Long> teachClassIds, CourseOpenDto cour,
-        Set<String> courseKeys)
+    public void cacheCourse(RedisTemplate<String, String> redisTemplate,
+        long timeout, Long roundId, Map<String, Set<Long>> courseClassMap)
     {
-        CourseCache course = new CourseCache();
-        course.setCourseCode(cour.getCourseCode());
-        course.setCourseName(cour.getCourseName());
-        course.setCredits(cour.getCredits());
-        course.setNameEn(cour.getCourseNameEn());
-        course.setTeachClassIds(teachClassIds);
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        Set<String> existCourseCodes =
+            redisTemplate.keys(Keys.getRoundCoursePattern(roundId));
         
-        String courseKey =
-            Keys.getRoundCourseKey(roundId, cour.getCourseCode());
-        if (courseKeys.contains(courseKey))
+        for (Entry<String, Set<Long>> entry : courseClassMap.entrySet())
         {
-            courseKeys.remove(courseKey);
+            String courseCode = entry.getKey();
+            Set<Long> teachClassIds = entry.getValue();
+            
+            String courseKey = Keys.getRoundCourseKey(roundId, courseCode);
+            String text = JSON.toJSONString(teachClassIds);
+            ops.set(courseKey, text, timeout, TimeUnit.MINUTES);
+            
+            // 移除存在的
+            existCourseCodes.remove(courseCode);
         }
-        String text = JSON.toJSONString(course);
-        ops.set(courseKey, text, timeout, TimeUnit.MINUTES);
+        
+        if (null != existCourseCodes && !existCourseCodes.isEmpty())
+        {
+            // 删除掉没有关联的课程
+            redisTemplate.delete(existCourseCodes);
+        }
+    }
+    
+    /**
+     * 得到轮次课程所对应的教学班ID
+     * 
+     * @param roundId
+     * @param courseCode
+     * @param ops
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public List<Long> getTeachClassIds(Long roundId, String courseCode,
+        ValueOperations<String, String> ops)
+    {
+        String roundCourseKey = Keys.getRoundCourseKey(roundId, courseCode);
+        
+        String text = ops.get(roundCourseKey);
+        List<Long> teachClassIds = null;
+        if (StringUtils.isEmpty(text))
+        {
+            return teachClassIds;
+        }
+        teachClassIds = JSON.parseArray(text, Long.class);
+        return teachClassIds;
     }
     
     private void setElecNumberToRedis(long timeout, Long teachingClassId,
@@ -212,46 +235,190 @@ public class RoundDataCacheUtil
      * @param roundStuKeys redis已存在的Key
      * 
      * */
-    public void cacheRoundStu(ValueOperations<String, String> ops, Long roundId,
-        long timeout, Set<String> roundStuKeys)
+    public void cacheRoundStu(RedisTemplate<String, String> redisTemplate,
+        Long roundId, long timeout)
     {
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
-        for (String stuId : stuIds)
+        
+        String key = Keys.getRoundStuKey(roundId);
+        
+        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
+        if (CollectionUtil.isNotEmpty(stuIds))
         {
-            String roundStuKey = Keys.getRoundStuKey(roundId, stuId);
-            if (roundStuKeys.contains(roundStuKey))
+            Map<String, String> collect = stuIds.stream()
+                .collect(Collectors.toMap(String::toString, String::toString));
+            Set<String> allFields = ops.keys(key);
+            if (null != allFields)
             {
-                roundStuKeys.remove(roundStuKey);
+                List<String> invalidStuIds = allFields.stream()
+                    .filter(stdId -> !stuIds.contains(stdId))
+                    .collect(Collectors.toList());
+                // 删除已经去掉的缓存
+                if (CollectionUtil.isNotEmpty(invalidStuIds))
+                {
+                    ops.delete(key, invalidStuIds.toArray());
+                }
             }
             
-            ops.set(roundStuKey, stuId, timeout, TimeUnit.MINUTES);
+            ops.putAll(key, collect);
+            redisTemplate.expire(key, timeout, TimeUnit.MINUTES);
         }
-        
+        else
+        {
+            redisTemplate.delete(key);
+        }
     }
     
-	/**
-	     *  缓存轮次条件
-	* @param ops
-	* @param roundId
-	* @param timeout缓存的保持时间分钟
-	* @param roundConKeys redis已存在的Key
-	* 
-	* */
-	public void cacheRoundCondition(ValueOperations<String, String> ops, Long roundId,
-	   long timeout,Set<String> roundConKeys)
-	{
-	   String roundConKey = Keys.getRoundConditionOne(roundId);
-	   if(!roundConKey.contains(roundConKey)) {
-		   ElectionRoundsCondition electionRoundsCondition = electionRoundsConditionDao.selectByPrimaryKey(roundId);
-		   ops.set(roundConKey, JSONArray.toJSONString(electionRoundsCondition), timeout, TimeUnit.MINUTES);
-	   }
-	}
-
-    public void cachePreSemester(ValueOperations<String, String> ops, ElectionRounds round, long timeout){
-        Long calendarId = round.getCalendarId();//当前学期
-        SchoolCalendarVo preSemester = BaseresServiceInvoker.getPreSemester(calendarId);
-        Long id = preSemester.getId();
-        String roundPreSemester =String.format(Keys.ROUND_PRESEMESTER, round.getId());
-        ops.set(roundPreSemester, Long.toString(id),timeout, TimeUnit.MINUTES);
+    /**
+     *  轮次是否包含学生
+     * 
+     * @param redisTemplate
+     * @param roundId
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsStu(RedisTemplate<String, String> redisTemplate,
+        Long roundId, String studentId)
+    {
+        if (roundId == null || StringUtils.isBlank(studentId))
+        {
+            return false;
+        }
+        String roundStuKey = Keys.getRoundStuKey(roundId);
+        HashOperations<String, Object, Object> ops = redisTemplate.opsForHash();
+        return ops.hasKey(roundStuKey, studentId);
     }
+    
+    /**
+         *  缓存轮次条件
+    * @param ops
+    * @param roundId
+    * @param timeout缓存的保持时间分钟
+    * @param roundConKeys redis已存在的Key
+    * 
+    * */
+    public void cacheRoundCondition(ValueOperations<String, String> ops,
+        Long roundId, long timeout)
+    {
+        String roundConKey = Keys.getRoundConditionOne(roundId);
+        ElcRoundCondition elcRoundCondition =
+            elcRoundConditionDao.selectByPrimaryKey(roundId);
+        if (null != elcRoundCondition)
+        {
+            ops.set(roundConKey,
+                JSONArray.toJSONString(elcRoundCondition),
+                timeout,
+                TimeUnit.MINUTES);
+        }
+    }
+    
+    /**
+     * 缓存上一学期
+     * 
+     * @param ops
+     * @param round 轮次
+     * @param timeout
+     * @see [类、类#方法、类#成员]
+     */
+    public void cachePreSemester(ValueOperations<String, String> ops,
+        ElectionRounds round, long timeout)
+    {
+        Long calendarId = round.getCalendarId();//当前学期
+        SchoolCalendarVo preSemester =
+            BaseresServiceInvoker.getPreSemester(calendarId);
+        Long id = preSemester.getId();
+        String roundPreSemester =
+            String.format(Keys.ROUND_PRESEMESTER, round.getId());
+        ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
+    }
+    
+    /**
+     * 设置选课規則，把所有规则都放到缓存中本科生26个，研究生七八个
+     */
+    public void cacheAllRule(RedisTemplate<String, String> redisTemplate)
+    {
+        HashOperations<String, Object, Object> ops = redisTemplate.opsForHash();
+        String key = Keys.getRuleKey();
+        
+        List<ElectionRuleVo> selectAll = ruleDao.listAll();
+        List<ElectionParameter> parameters = parameterDao.selectAll();
+        for (ElectionRuleVo vo : selectAll)
+        {
+            List<ElectionParameter> list = parameters.stream()
+                .filter(c -> vo.getId().equals(c.getRuleId()))
+                .collect(Collectors.toList());
+            vo.setList(list);
+            ops.put(key, vo.getServiceName(), JSON.toJSONString(vo));
+        }
+    }
+    
+    /**
+     * 获取选课规则
+     * 
+     * @param roundId 轮次
+     * @param serviceName 服务名
+     * @return
+     */
+    public ElectionRuleVo getRule(String serviceName,
+        RedisTemplate<String, String> redisTemplate)
+    {
+        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
+        
+        String text = ops.get(Keys.getRuleKey(), serviceName);
+        
+        ElectionRuleVo vo = JSON.parseObject(text, ElectionRuleVo.class);
+        return vo;
+    }
+    
+    /**
+     * 获取选择规则列表
+     * 
+     * @param roundId 轮次
+     * @return
+     */
+    public List<ElectionRuleVo> getRules(Long roundId,
+        RedisTemplate<String, String> redisTemplate)
+    {
+        ValueOperations<String, String> opsForValue =
+            redisTemplate.opsForValue();
+        
+        String key = Keys.getRoundRuleKey(roundId);
+        List<String> list = JSON.parseArray(opsForValue.get(key), String.class);
+        
+        List<ElectionRuleVo> rules = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(list))
+        {
+            HashOperations<String, String, String> ops =
+                redisTemplate.opsForHash();
+            List<String> multiGet = ops.multiGet(Keys.getRuleKey(), list);
+            for (String text : multiGet)
+            {
+                rules.add(JSON.parseObject(text, ElectionRuleVo.class));
+            }
+        }
+        return rules;
+    }
+    
+    /**
+     * 轮次是否包含指定规则
+     * 
+     * @param roundId
+     * @param serviceName
+     * @param redisTemplate
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsRule(Long roundId, String serviceName,
+        RedisTemplate<String, String> redisTemplate)
+    {
+        ValueOperations<String, String> opsForValue =
+            redisTemplate.opsForValue();
+        
+        String key = Keys.getRoundRuleKey(roundId);
+        List<String> list = JSON.parseArray(opsForValue.get(key), String.class);
+        
+        return CollectionUtil.isNotEmpty(list) && list.contains(serviceName);
+    }
+    
 }

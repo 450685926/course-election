@@ -25,6 +25,8 @@ public interface ElectionRuleDao extends Mapper<ElectionRule>
      */
     List<ElectionRuleVo> listAllByProjectId(@Param("projectId") String projectId);
     
+    List<ElectionRuleVo> listAll();
+    
     int batchUpdate(ElectionRuleDto electionRuleDto);
     
 }

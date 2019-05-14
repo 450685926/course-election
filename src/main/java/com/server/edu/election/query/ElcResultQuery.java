@@ -44,7 +44,24 @@ public class ElcResultQuery
      */
     private Integer manArrangeFlag;
     
-    public Long getCalendarId()
+    /**
+     * 学分
+     */
+    private Double credits;
+    
+    private String label;
+    
+    
+    
+    public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Long getCalendarId()
     {
         return calendarId;
     }

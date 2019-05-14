@@ -33,13 +33,13 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.rules.bk.LimitCountCheckerRule;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 
 @Service
@@ -67,7 +67,7 @@ public class StudentElecServiceImpl implements StudentElecService
     
     @Autowired
     private ElectionApplyDao electionApplyDao;
-     
+    
     @Override
     public RestResult<ElecRespose> loading(Long roundId, String studentId)
     {
@@ -202,9 +202,8 @@ public class StudentElecServiceImpl implements StudentElecService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
-            ElectionRuleVo rule =
-                dataProvider.getRule(roundId, "LimitCountCheckerRule");
-            if (rule != null)
+            if (dataProvider.containsRule(roundId,
+                LimitCountCheckerRule.class.getSimpleName()))
             {
                 LOG.info("---- LimitCountCheckerRule ----");
                 // 增加选课人数
@@ -274,17 +273,21 @@ public class StudentElecServiceImpl implements StudentElecService
             context.getSelectedCourses().add(course);
             //更新数据库,缓存中选课申请数据
             Set<ElecCourse> elecApplyCourses = context.getElecApplyCourses();
-            if(CollectionUtil.isNotEmpty(elecApplyCourses)) {
-                ElecCourse elecCourse=elecApplyCourses.stream()
-                		.filter(c->courseCode.equals(c.getCourseCode()))
-                		.findFirst().orElse(null);
-                if(elecCourse!=null) {
-                	elecCourse.setApply(Constants.ONE);
-                	Long electionApplyId = elecCourse.getElectionApplyId();
-                	ElectionApply electionApply = new ElectionApply();
-                	electionApply.setId(electionApplyId);
-                	electionApply.setApply(Constants.ONE);
-                	this.electionApplyDao.updateByPrimaryKeySelective(electionApply);
+            if (CollectionUtil.isNotEmpty(elecApplyCourses))
+            {
+                ElecCourse elecCourse = elecApplyCourses.stream()
+                    .filter(c -> courseCode.equals(c.getCourseCode()))
+                    .findFirst()
+                    .orElse(null);
+                if (elecCourse != null)
+                {
+                    elecCourse.setApply(Constants.ONE);
+                    Long electionApplyId = elecCourse.getElectionApplyId();
+                    ElectionApply electionApply = new ElectionApply();
+                    electionApply.setId(electionApplyId);
+                    electionApply.setApply(Constants.ONE);
+                    this.electionApplyDao
+                        .updateByPrimaryKeySelective(electionApply);
                 }
             }
             // 更新缓存中的数据
