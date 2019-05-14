@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,25 +90,30 @@ public class RoundDataProvider
         
         try
         {
+            // 缓存轮次信息
+            dataUtil.cacheAllRule(redisTemplate);
+            
             /** 一小时后即将开始的选课参数 */
             List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
             
-            Date now = new Date();
             Set<String> keys = redisTemplate.keys(Keys.getRoundKeyPattern());
-            Set<String> deleteKeys = new HashSet<>();
+            
+            Date now = new Date();
             for (ElectionRounds round : selectBeStart)
             {
-                this.cacheData(round, now, keys);
+                String roundKey = Keys.getRoundKey(round.getId());
+                if (keys.contains(roundKey))
+                {
+                    keys.remove(roundKey);
+                }
+                this.cacheData(round, now);
             }
-            deleteKeys.addAll(keys);
             
-            if (CollectionUtil.isNotEmpty(deleteKeys))
+            if (CollectionUtil.isNotEmpty(keys))
             {
-                redisTemplate.delete(deleteKeys);
+                redisTemplate.delete(keys);
             }
             
-            // 缓存轮次信息
-            dataUtil.cacheAllRule(redisTemplate);
         }
         finally
         {
@@ -127,50 +131,41 @@ public class RoundDataProvider
     {
         Assert.notNull(roundId, "roundId can not be null");
         Date now = new Date();
-        Set<String> keys = new HashSet<>();
         ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
         if (round != null
             && Objects.equals(Constants.IS_OPEN, round.getOpenFlag())
             && now.after(round.getBeginTime())
             && now.before(round.getEndTime()))
         {
-            this.cacheData(round, now, keys);
+            this.cacheData(round, now);
         }
         else
         {
             String key = Keys.getRoundKey(roundId);
             redisTemplate.delete(key);
-            key = Keys.getRoundConditionOne(roundId);
-            redisTemplate.delete(key);
         }
     }
     
-    private void cacheData(ElectionRounds round, Date now, Set<String> keys)
+    private void cacheData(ElectionRounds round, Date now)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
         Long roundId = round.getId();
         Long calendarId = round.getCalendarId();
         
-        String key = Keys.getRoundKey(roundId);
-        // 移除掉有效的key剩下的就是无效数据
-        if (keys.contains(key))
-        {
-            keys.remove(key);
-        }
-        
         Date endTime = round.getEndTime();
-        long endMinutes =
+        long timeout =
             TimeUnit.MILLISECONDS.toMinutes(endTime.getTime() - now.getTime())
                 + 3;
-        
+        // 缓存轮次数据
+        dataUtil.cacheRound(ops, round, timeout);
         // 缓存轮次规则数据
-        dataUtil.cacheRoundRule(ops, roundId, endMinutes);
+        dataUtil.cacheRoundRule(ops, roundId, timeout);
         //缓存轮次条件
-        dataUtil.cacheRoundCondition(ops, roundId, endMinutes);
+        dataUtil.cacheRoundCondition(ops, roundId, timeout);
         //缓存轮次学生
-        dataUtil.cacheRoundStu(redisTemplate, roundId, endMinutes);
+        dataUtil.cacheRoundStu(redisTemplate, roundId, timeout);
         //缓存轮次的上一学期
-        dataUtil.cachePreSemester(ops, round, endMinutes);
+        dataUtil.cachePreSemester(ops, round, timeout);
         
         // 加载所有教学班与课程数据到缓存中
         List<CourseOpenDto> lessons =
@@ -186,14 +181,13 @@ public class RoundDataProvider
             List<CourseOpenDto> teachClasss = collect.get(courseCode);
             // 缓存教学班
             Set<Long> teachClassIds =
-                dataUtil.cacheTeachClass(ops, endMinutes, teachClasss);
+                dataUtil.cacheTeachClass(ops, timeout, teachClasss);
             
             courseClassMap.put(courseCode, teachClassIds);
         }
         
         // 缓存课程
-        dataUtil
-            .cacheCourse(redisTemplate, endMinutes, roundId, courseClassMap);
+        dataUtil.cacheCourse(redisTemplate, timeout, roundId, courseClassMap);
         
     }
     
