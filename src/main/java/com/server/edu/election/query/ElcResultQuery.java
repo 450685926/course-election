@@ -53,6 +53,8 @@ public class ElcResultQuery
     
     private String label;
     
+    private String keyword;
+    
     public Long getCalendarId()
     {
         return calendarId;
@@ -152,4 +154,15 @@ public class ElcResultQuery
     {
         this.label = label;
     }
+    
+    public String getKeyword()
+    {
+        return keyword;
+    }
+    
+    public void setKeyword(String keyword)
+    {
+        this.keyword = keyword;
+    }
+    
 }
