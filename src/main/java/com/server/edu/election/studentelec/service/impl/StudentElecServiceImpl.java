@@ -143,6 +143,10 @@ public class StudentElecServiceImpl implements StudentElecService
         RoundDataProvider dataProvider =
             SpringUtils.getBean(RoundDataProvider.class);
         ElectionRounds round = dataProvider.getRound(roundId);
+        if (round == null)
+        {
+            return new ElecRespose();
+        }
         ElecContextUtil contextUtil =
             ElecContextUtil.create(studentId, round.getCalendarId());
         

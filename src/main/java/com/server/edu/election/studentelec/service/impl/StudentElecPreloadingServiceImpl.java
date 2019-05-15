@@ -56,12 +56,12 @@ public class StudentElecPreloadingServiceImpl
             ElectionRounds round = dataProvider.getRound(roundId);
             if (ElecContextUtil.tryLock(roundId, studentId))
             {
-                ElecContext context =
-                    new ElecContext(studentId, round.getCalendarId());
-                context.setRequest(preloadRequest);
-                
+                ElecContext context = null;
                 try
                 {
+                    context = new ElecContext(studentId, round.getCalendarId());
+                    context.setRequest(preloadRequest);
+                    
                     Map<String, DataProLoad> beansOfType =
                         applicationContext.getBeansOfType(DataProLoad.class);
                     
@@ -86,10 +86,13 @@ public class StudentElecPreloadingServiceImpl
                 }
                 catch (Exception e)
                 {
-                    context.getRespose()
-                        .getFailedReasons()
-                        .put("loadFail", e.getMessage());
-                    context.saveResponse();
+                    if (null != context)
+                    {
+                        context.getRespose()
+                            .getFailedReasons()
+                            .put("loadFail", e.getMessage());
+                        context.saveResponse();
+                    }
                     
                     LOG.error(e.getMessage(), e);
                     ElecContextUtil

@@ -10,6 +10,8 @@ public class ElecRoundStuQuery extends Student4Elc
     private Long roundId;
     @NotNull
     private Integer mode;
+    
+    private String keyword;
 
     public Integer getMode() {
         return mode;
@@ -27,6 +29,16 @@ public class ElecRoundStuQuery extends Student4Elc
     public void setRoundId(Long roundId)
     {
         this.roundId = roundId;
+    }
+
+    public String getKeyword()
+    {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword)
+    {
+        this.keyword = keyword;
     }
     
 }
