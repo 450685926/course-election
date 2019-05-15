@@ -282,10 +282,11 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
                         unPass.addAll(unPassCollect.get(s));
                     }
                 }
+                return unPass;
             }
 
         }
-        return unPass;
+        return unPassList;
     }
 
     static String groupByKey(StudentScore sc){

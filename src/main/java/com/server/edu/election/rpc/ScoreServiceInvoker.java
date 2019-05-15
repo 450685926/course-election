@@ -51,12 +51,12 @@ public class ScoreServiceInvoker {
     public static PageResult<StudentScore> findUnPassStuScore(PageCondition<String> condition)
     {
         @SuppressWarnings("unchecked")
-        PageResult<StudentScore> restResult =
+        RestResult<PageResult<StudentScore>> restResult =
                 ServicePathEnum.SCORESERVICE.postForObject(
                         "/studentScoreCount/findUnPassStuScore",
-                        condition, PageResult.class);
+                        condition, RestResult.class);
 
-        return restResult;
+        return restResult.getData();
     }
 
     public static RestResult<List<StudentScore>> findPassStuScore(List<StudentScore> unPassList)
