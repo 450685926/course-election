@@ -12,6 +12,8 @@ public class ElcResultQuery
     @NotNull
     private Long calendarId;
     
+    private String projectId;
+    
     private String campus;
     
     /**
@@ -51,17 +53,7 @@ public class ElcResultQuery
     
     private String label;
     
-    
-    
-    public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
-	public Long getCalendarId()
+    public Long getCalendarId()
     {
         return calendarId;
     }
@@ -69,6 +61,16 @@ public class ElcResultQuery
     public void setCalendarId(Long calendarId)
     {
         this.calendarId = calendarId;
+    }
+    
+    public String getProjectId()
+    {
+        return projectId;
+    }
+    
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
     }
     
     public String getCampus()
@@ -120,26 +122,34 @@ public class ElcResultQuery
     {
         this.manArrangeFlag = manArrangeFlag;
     }
-
-	public Long getTeachingClassId() {
-		return teachingClassId;
-	}
-
-	public void setTeachingClassId(Long teachingClassId) {
-		this.teachingClassId = teachingClassId;
-	}
-
-	public List<Long> getTeachingClassIds() {
-		return teachingClassIds;
-	}
-
-	public void setTeachingClassIds(List<Long> teachingClassIds) {
-		this.teachingClassIds = teachingClassIds;
-	}
-	
-	
-
     
+    public Long getTeachingClassId()
+    {
+        return teachingClassId;
+    }
     
+    public void setTeachingClassId(Long teachingClassId)
+    {
+        this.teachingClassId = teachingClassId;
+    }
     
+    public List<Long> getTeachingClassIds()
+    {
+        return teachingClassIds;
+    }
+    
+    public void setTeachingClassIds(List<Long> teachingClassIds)
+    {
+        this.teachingClassIds = teachingClassIds;
+    }
+    
+    public String getLabel()
+    {
+        return label;
+    }
+    
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
 }
