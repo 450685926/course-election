@@ -68,8 +68,58 @@ public class ElcResultQuery
     
     private String teacherCode;
     
+    private Integer actualAndUpper;
     
-    public String getTeacherCode() {
+    private Integer minActualNumber;
+    
+    private Integer maxActualNumber;
+    
+    private Integer minUpperNumber;
+    
+    private Integer maxUpperNumber;
+    
+    
+    public Integer getActualAndUpper() {
+		return actualAndUpper;
+	}
+
+	public void setActualAndUpper(Integer actualAndUpper) {
+		this.actualAndUpper = actualAndUpper;
+	}
+
+	public Integer getMinActualNumber() {
+		return minActualNumber;
+	}
+
+	public void setMinActualNumber(Integer minActualNumber) {
+		this.minActualNumber = minActualNumber;
+	}
+
+	public Integer getMaxActualNumber() {
+		return maxActualNumber;
+	}
+
+	public void setMaxActualNumber(Integer maxActualNumber) {
+		this.maxActualNumber = maxActualNumber;
+	}
+
+	public Integer getMinUpperNumber() {
+		return minUpperNumber;
+	}
+
+	public void setMinUpperNumber(Integer minUpperNumber) {
+		this.minUpperNumber = minUpperNumber;
+	}
+
+	public Integer getMaxUpperNumber() {
+		return maxUpperNumber;
+	}
+
+	public void setMaxUpperNumber(Integer maxUpperNumber) {
+		this.maxUpperNumber = maxUpperNumber;
+	}
+
+	public String getTeacherCode() {
 		return teacherCode;
 	}
 
