@@ -57,6 +57,12 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
         and t2.CAMPUS_ = #{campus,jdbcType=VARCHAR}
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+        and t3.PROJ_ID_ = #{projectId,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+  		and (t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  		</if>
     </where>
   </select>
   

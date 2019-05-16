@@ -2,8 +2,9 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,8 @@ public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
     
     /** 消费执行线程*/
     private final ExecutorService comsumerThreadPool =
-        Executors.newFixedThreadPool(100);
+        new ThreadPoolExecutor(10, 100, 0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
     
     @Override
     public boolean add(String group, ElecRequest data)
