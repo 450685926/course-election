@@ -16,6 +16,7 @@ import com.server.edu.election.dao.ElcAffinityCoursesDao;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.ElcAffinityCoursesDto;
+import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ElcAffinityCourses;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
@@ -114,7 +115,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public PageInfo<Student> studentList(PageCondition<Student> condition)
+    public PageInfo<Student> studentList(PageCondition<StudentDto> condition)
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         List<Student> list =
@@ -124,7 +125,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public PageInfo<Student> getStudents(PageCondition<Student> condition)
+    public PageInfo<Student> getStudents(PageCondition<StudentDto> condition)
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         List<Student> list =
@@ -158,7 +159,8 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     @Override
     public int batchAddStudent(String courseCode)
     {
-        Student student = new Student();
+        StudentDto student = new StudentDto();
+        student.setCourseCode(courseCode);
         List<Student> list = studentDao.selectUnElcStudents(student);
         List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
         list.forEach(temp -> {
