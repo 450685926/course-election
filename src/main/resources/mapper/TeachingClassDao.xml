@@ -74,22 +74,22 @@
         and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-        and t3.COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR}
+        and t3.COURSE_CODE_ = #{courseCode}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-        and t3.COURSE_NAME_ = #{courseName,jdbcType=VARCHAR}
+        and t3.COURSE_NAME_ = #{courseName}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus,jdbcType=VARCHAR}
+        and t2.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
-        and t3.PROJ_ID_ = #{projectId,jdbcType=VARCHAR}
+        and t3.PROJ_ID_ = #{projectId}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-        and t3.FACULTY_ = #{faculty,jdbcType=VARCHAR}
+        and t3.FACULTY_ = #{faculty}
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(credits)">
-        and t3.CREDITS_ = #{credits,jdbcType=VARCHAR}
+      <if test="credits!=null and credits!=0">
+        and t3.CREDITS_ = #{credits}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
