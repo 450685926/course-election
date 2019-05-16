@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,18 +16,21 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
@@ -34,6 +38,8 @@ import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class ElcResultServiceImpl implements ElcResultService
@@ -61,13 +67,40 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private ElcCourseTakeService courseTakeService;
     
+    @Autowired
+    private TeachingClassTeacherDao teacherDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<TeachingClassVo> listPage = classDao.listPage(page.getCondition());
-        
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+        	List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+    	    // 查找任课教师信息
+            Example teacherExample = new Example(TeachingClassTeacher.class);
+            teacherExample.createCriteria().andIn("teachingClassId", classIds).
+                    andEqualTo("type",Constants.TEACHER_DEFAULT);
+            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
+            for(TeachingClassVo vo: list) {
+            	if(CollectionUtil.isEmpty(teacherList)) {
+                	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
+                	StringBuilder stringBuilder = new StringBuilder();
+                	if(CollectionUtil.isEmpty(teachers)) {
+                		for(TeachingClassTeacher teacher:teachers) {
+                			stringBuilder.append(teacher.getTeacherName());
+                			stringBuilder.append("(");
+                			stringBuilder.append(teacher.getTeacherCode());
+                			stringBuilder.append(")");
+                			stringBuilder.append(",");
+                		}
+                		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+                	}
+            	}
+            }
+        }
         return new PageResult<>(listPage);
     }
     
