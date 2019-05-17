@@ -762,6 +762,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 tt.setCourseCode(tm.getCourseCode());
                 tt.setCourseName(tm.getCourseName());
                 tt.setTeacherName(tm.getTeacherName());
+                tt.setRoomName(name);
                 list.add(tt);
             }
         }
@@ -854,6 +855,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         tt.setCourseCode(tm.getCourseCode());
                         tt.setCourseName(tm.getCourseName());
                         tt.setTeacherName(tm.getTeacherName());
+                        tt.setRoomName(name);
                         list.add(tt);
                     }
                 }

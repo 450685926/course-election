@@ -18,6 +18,7 @@ public class TimeTable{
     private String courseCode;
     private String courseName;
     private String teacherName;
+    private String roomName;
     
     @Code2Text(transformer = "X_XQ")
     private String campus;
@@ -90,6 +91,16 @@ public class TimeTable{
     public void setTeacherName(String teacherName)
     {
         this.teacherName = teacherName;
+    }
+
+    public String getRoomName()
+    {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName)
+    {
+        this.roomName = roomName;
     }
     
 }
