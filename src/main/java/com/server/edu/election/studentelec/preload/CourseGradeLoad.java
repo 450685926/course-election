@@ -24,8 +24,10 @@ import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -38,6 +40,8 @@ import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 查询学生有成绩的课程
@@ -74,6 +78,9 @@ public class CourseGradeLoad extends DataProLoad
     
     @Autowired
     private ElectionApplyCoursesDao electionApplyCoursesDao;
+    
+    @Autowired
+    private TeachingClassTeacherDao teacherDao;
     
     @Override
     public void load(ElecContext context)
@@ -174,6 +181,10 @@ public class CourseGradeLoad extends DataProLoad
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
+            Example teacherExample = new Example(TeachingClassTeacher.class);
+            teacherExample.createCriteria().andIn("teachingClassId", teachClassIds).
+                    andEqualTo("type",Constants.TEACHER_DEFAULT);
+            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             
             //            Set<String> teacherCodeList = list.stream()
@@ -201,6 +212,20 @@ public class CourseGradeLoad extends DataProLoad
                 selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
                 
+                if(CollectionUtil.isNotEmpty(teacherList)) {
+                	 List<TeachingClassTeacher> teachers = teacherList.stream().filter(a->c.getTeachingClassId().equals(a.getTeachingClassId())).collect(Collectors.toList());
+                	 if(CollectionUtil.isNotEmpty(teachers)) {
+                 		StringBuilder stringBuilder = new StringBuilder();
+                		for(TeachingClassTeacher teacher:teachers) {
+                			stringBuilder.append(teacher.getTeacherName());
+                			stringBuilder.append("(");
+                			stringBuilder.append(teacher.getTeacherCode());
+                			stringBuilder.append(")");
+                			stringBuilder.append(",");
+                		}
+                		selectedCourse.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+                	 }
+                }
                 List<ClassTimeUnit> times =
                     concatTime(collect, teacherMap, selectedCourse);
                 selectedCourse.setTimes(times);
