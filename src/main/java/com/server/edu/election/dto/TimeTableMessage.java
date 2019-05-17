@@ -1,10 +1,10 @@
 package com.server.edu.election.dto;
 
+import java.util.List;
+
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.dictionary.translator.ClassRoomTranslator;
-
-import java.io.Serializable;
 
 /**
  * @description: 时间表
@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @create: 2019-04-29 17:51
  */
 @CodeI18n
-public class TimeTableMessage implements Serializable {
+public class TimeTableMessage {
     private Integer dayOfWeek;
     private Integer timeStart;
     private Integer timeEnd;
@@ -31,6 +31,8 @@ public class TimeTableMessage implements Serializable {
     private Long teachingClassId;//教学班Id
     @Code2Text(transformer = "X_XQ")
     private String campus;
+    // 所有的周 1,2,3,5,6,7
+    private List<Integer> weeks;
 
     public String getCampus() {
         return campus;
@@ -158,5 +160,15 @@ public class TimeTableMessage implements Serializable {
 
     public void setTimeAndRoom(String timeAndRoom) {
         this.timeAndRoom = timeAndRoom;
+    }
+
+    public List<Integer> getWeeks()
+    {
+        return weeks;
+    }
+
+    public void setWeeks(List<Integer> weeks)
+    {
+        this.weeks = weeks;
     }
 }
