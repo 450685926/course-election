@@ -3,25 +3,32 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.StudentScore;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLoserStdsDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dto.LoserStuElcCourse;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcLoserStds;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcLoserStdsService;
 import com.server.edu.election.vo.ElcLoserStdsVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -30,6 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 /**
  * @description: 预警学生
@@ -45,6 +55,9 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
 
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private ElectionConstantsDao constantsDao;
 
     @Autowired
     private ElcCourseTakeService courseTakeService;
@@ -167,6 +180,129 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
             }
         });
         return excelResult;
+    }
+
+    /**
+    *@Description: 刷新预警名单
+    *@Param: 
+    *@return:
+    *@Author: bear
+    *@date: 2019/5/13 9:53
+    */
+    @Override
+    public AsyncResult reLoadLoserStu(Long calendarId,String deptId) {
+        AsyncResult resul= AsyncProcessUtil.submitTask("reloadLoserStu",new AsyncExecuter() {
+            @Override
+            public void execute() {
+                queryReloadLoserStu(calendarId,deptId,this);
+            }
+        });
+        return resul;
+    }
+
+    @Override
+    @Transactional
+    public void queryReloadLoserStu(Long calendarId,String deptId,AsyncExecuter resul) {
+        AsyncResult result = resul.getResult();
+        //首先删除当前学期的所有预警学生
+        List<Long> stds=stdsDao.findDeleStu(calendarId,deptId);
+        if(CollectionUtil.isNotEmpty(stds)){
+            stdsDao.deleteByIds(stds);
+        }
+        //预警学生不及格学分上限
+        String maxFailCredits = constantsDao.findMaxFailCredits();
+        double maxCredits = Double.parseDouble(maxFailCredits);
+        //查询所有不及格学生成绩
+        PageCondition<String> condition=new PageCondition<>();
+        condition.setCondition(deptId);
+        condition.setPageNum_(1);
+        condition.setPageSize_(5000);
+        PageResult<StudentScore> scores = ScoreServiceInvoker.findUnPassStuScore(condition);
+        List<StudentScore> unPassScoresList=new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(scores.getList())){
+            long total_ = scores.getTotal_();
+            long pageTotal = total_ % 5000 == 0 ? total_ / 5000 : total_ /5000 + 1;
+            List<StudentScore> scoreList = scores.getList();
+            unPassScoresList.addAll(scoreList);
+            int pageNum=2;
+            result.setTotal((int)pageTotal+1);
+            result.setDoneCount(1);
+            while(pageNum<=pageTotal){
+                condition.setCondition(deptId);
+                condition.setPageNum_(pageNum);
+                condition.setPageSize_(5000);
+                PageResult<StudentScore> unPassStu = ScoreServiceInvoker.findUnPassStuScore(condition);
+                unPassScoresList.addAll(unPassStu.getList());
+                result.setDoneCount(pageNum);
+                resul.updateResult(result);
+                pageNum++;
+            }
+        }
+        //不及格学生中还要去除部分学生中该不及格课程中有替代课程，且替代课程及格todo
+
+        List<StudentScore> unPassScore = findUnPassScore(unPassScoresList);
+        //计算学生不及格的总学分
+        List<ElcLoserStds> loserStu=new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(unPassScore)){
+            Map<String, List<StudentScore>> map = unPassScore.stream().collect(Collectors.groupingBy(StudentScore::getStudentId));
+            for (String s : map.keySet()) {
+                double unpassCredits=0L;
+                List<StudentScore> scoreList = map.get(s);
+                unpassCredits = scoreList.stream().filter(vo -> vo.getCredit() != null).mapToDouble(StudentScore::getCredit).sum();
+                if(unpassCredits>=maxCredits){//预警学生
+                    ElcLoserStds stu=new ElcLoserStds();
+                    stu.setStudentId(s);
+                    stu.setCalendarId(calendarId);
+                    stu.setUnpassedCredits(unpassCredits);
+                    loserStu.add(stu);
+                }
+            }
+        }
+
+
+        if(CollectionUtil.isNotEmpty(loserStu)){
+            stdsDao.insertLoserStu(loserStu);
+            result.setDoneCount(result.getTotal());
+        }
+        result.setDoneCount(1);
+        result.setTotal(1);
+
+    }
+
+    public List<StudentScore> findUnPassScore(List<StudentScore> list){
+        //不及格中过滤掉已经补考及格的课程
+        List<StudentScore> unPassList=new ArrayList<>();//去除重复不及格的课程成绩
+        List<StudentScore> unPass=new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(list)){
+            Map<String, List<StudentScore>> collect = list.stream().collect(Collectors.groupingBy(ElcLoserStdsServiceImpl::groupByKey));
+            // stuId_courseCode
+            for (String s : collect.keySet()) {
+                StudentScore studentScore = collect.get(s).get(0);//不及格课程
+                unPassList.add(studentScore);
+            }
+        }
+
+        if(CollectionUtil.isNotEmpty(unPassList)){
+            Map<String, List<StudentScore>> unPassCollect = unPassList.stream().collect(Collectors.groupingBy(ElcLoserStdsServiceImpl::groupByKey));
+            //查询不及格中是否补考及格的成绩
+            RestResult<List<StudentScore>> passStuScore = ScoreServiceInvoker.findPassStuScore(unPassList);
+            List<StudentScore> passList = passStuScore.getData();
+            if(CollectionUtil.isNotEmpty(passList)){
+                Map<String, List<StudentScore>> collect = passList.stream().collect(Collectors.groupingBy(ElcLoserStdsServiceImpl::groupByKey));
+                for (String s : unPassCollect.keySet()) {
+                    if(!collect.keySet().contains(s)){
+                        unPass.addAll(unPassCollect.get(s));
+                    }
+                }
+                return unPass;
+            }
+
+        }
+        return unPassList;
+    }
+
+    static String groupByKey(StudentScore sc){
+        return sc.getStudentId()+"_"+sc.getCourseCode();
     }
 
     private GeneralExcelDesigner getDesign() {
