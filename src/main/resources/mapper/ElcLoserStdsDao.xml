@@ -27,6 +27,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
        and  t2.NAME_ like concat ('%',#{studentName},'%')
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+        and t2.MANAGER_DEPT_ID_ =#{deptId}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
         and t2.GRADE_ =#{grade}
       </if>

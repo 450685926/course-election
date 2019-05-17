@@ -46,8 +46,15 @@ public class ElcLoserStdsController {
         if(condition.getCondition().getCalendarId()==null){
             return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
         }
-        PageResult<ElcLoserStdsVo> elcLoserStds = elcLoserStdsService.findElcLoserStds(condition);
-        return RestResult.successData(elcLoserStds);
+        try {
+            String currentManageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            condition.getCondition().setDeptId(currentManageDptId);
+            PageResult<ElcLoserStdsVo> elcLoserStds = elcLoserStdsService.findElcLoserStds(condition);
+            return RestResult.successData(elcLoserStds);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RestResult.fail("department.fail");
+        }
     }
 
     @ApiOperation(value = "学生选课结果")
@@ -65,7 +72,7 @@ public class ElcLoserStdsController {
     @GetMapping("/deleteLoserStudent")
     public RestResult<String> deleteLoserStudent(@RequestBody List<Long> ids){
         if(CollectionUtil.isEmpty(ids)){
-            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError",""));
         }
 
         String s=elcLoserStdsService.deleteLoserStudent(ids);
@@ -88,9 +95,16 @@ public class ElcLoserStdsController {
     @PostMapping("/exportLoserStu")
     public RestResult<ExcelResult> export(@RequestBody ElcLoserStdsVo condition)
             throws Exception {
-        LOG.info("export.start");
-        ExcelResult result = elcLoserStdsService.exportLoserStu(condition);
-        return RestResult.successData(result);
+        LOG.info("exportLoserStu.start");
+        try {
+            String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            condition.setDeptId(dptId);
+            ExcelResult result = elcLoserStdsService.exportLoserStu(condition);
+            return RestResult.successData(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RestResult.fail("department.fail");
+        }
     }
 
 
@@ -100,10 +114,15 @@ public class ElcLoserStdsController {
         if(calendarId==null){
             return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
         }
-        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        AsyncResult resul= elcLoserStdsService
-                .reLoadLoserStu(calendarId,dptId);
-        return RestResult.successData(resul);
+        try {
+            String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            AsyncResult resul= elcLoserStdsService
+                    .reLoadLoserStu(calendarId,dptId);
+            return RestResult.successData(resul);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RestResult.fail("department.fail");
+        }
     }
 
     @ApiOperation(value = "查询刷新进度")
