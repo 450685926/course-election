@@ -35,7 +35,28 @@ public class TeachingClassCache extends ElecCourse
     /** 上课时间按教学周拆分集合 */
     private List<ClassTimeUnit> times;
     
-    public TeachingClassCache()
+    private String teacherCode;
+    
+    private String teacherName;
+    
+    
+    public String getTeacherCode() {
+		return teacherCode;
+	}
+
+	public void setTeacherCode(String teacherCode) {
+		this.teacherCode = teacherCode;
+	}
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
+
+	public TeachingClassCache()
     {
     }
     

@@ -39,10 +39,30 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private Long electionApplyId;
     /**选课申请状态*/    
     private Integer apply;
+    /**任课教师*/  
+    private String teachingCode;
+    
+    private String teachingName;
     
     
+    
+    public String getTeachingCode() {
+		return teachingCode;
+	}
 
-    public Integer getApply() {
+	public void setTeachingCode(String teachingCode) {
+		this.teachingCode = teachingCode;
+	}
+
+	public String getTeachingName() {
+		return teachingName;
+	}
+
+	public void setTeachingName(String teachingName) {
+		this.teachingName = teachingName;
+	}
+
+	public Integer getApply() {
 		return apply;
 	}
 
