@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+
 public class ElcResultQuery
 {
     /**
@@ -11,6 +14,8 @@ public class ElcResultQuery
      */
     @NotNull
     private Long calendarId;
+    
+    private String projectId;
     
     private String campus;
     
@@ -51,14 +56,83 @@ public class ElcResultQuery
     
     private String label;
     
+    private String keyword;
+    
+    private String faculty;
+    
+    /**
+     * 课程类别ID
+     */
+    @Code2Text(DictTypeEnum.X_KCFL)
+    private Long courseLabelId;
+    
+    private String teacherCode;
+    
+    private Integer actualAndUpper;
+    
+    private Integer minActualNumber;
+    
+    private Integer maxActualNumber;
+    
+    private Integer minUpperNumber;
+    
+    private Integer maxUpperNumber;
     
     
-    public String getLabel() {
-		return label;
+    public Integer getActualAndUpper() {
+		return actualAndUpper;
 	}
 
-	public void setLabel(String label) {
-		this.label = label;
+	public void setActualAndUpper(Integer actualAndUpper) {
+		this.actualAndUpper = actualAndUpper;
+	}
+
+	public Integer getMinActualNumber() {
+		return minActualNumber;
+	}
+
+	public void setMinActualNumber(Integer minActualNumber) {
+		this.minActualNumber = minActualNumber;
+	}
+
+	public Integer getMaxActualNumber() {
+		return maxActualNumber;
+	}
+
+	public void setMaxActualNumber(Integer maxActualNumber) {
+		this.maxActualNumber = maxActualNumber;
+	}
+
+	public Integer getMinUpperNumber() {
+		return minUpperNumber;
+	}
+
+	public void setMinUpperNumber(Integer minUpperNumber) {
+		this.minUpperNumber = minUpperNumber;
+	}
+
+	public Integer getMaxUpperNumber() {
+		return maxUpperNumber;
+	}
+
+	public void setMaxUpperNumber(Integer maxUpperNumber) {
+		this.maxUpperNumber = maxUpperNumber;
+	}
+
+	public String getTeacherCode() {
+		return teacherCode;
+	}
+
+	public void setTeacherCode(String teacherCode) {
+		this.teacherCode = teacherCode;
+	}
+
+	public Long getCourseLabelId() {
+		return courseLabelId;
+	}
+
+	public void setCourseLabelId(Long courseLabelId) {
+		this.courseLabelId = courseLabelId;
 	}
 
 	public Long getCalendarId()
@@ -69,6 +143,16 @@ public class ElcResultQuery
     public void setCalendarId(Long calendarId)
     {
         this.calendarId = calendarId;
+    }
+    
+    public String getProjectId()
+    {
+        return projectId;
+    }
+    
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
     }
     
     public String getCampus()
@@ -120,25 +204,63 @@ public class ElcResultQuery
     {
         this.manArrangeFlag = manArrangeFlag;
     }
+    
+    public Long getTeachingClassId()
+    {
+        return teachingClassId;
+    }
+    
+    public void setTeachingClassId(Long teachingClassId)
+    {
+        this.teachingClassId = teachingClassId;
+    }
+    
+    public List<Long> getTeachingClassIds()
+    {
+        return teachingClassIds;
+    }
+    
+    public void setTeachingClassIds(List<Long> teachingClassIds)
+    {
+        this.teachingClassIds = teachingClassIds;
+    }
+    
+    public String getLabel()
+    {
+        return label;
+    }
+    
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
+    
+    public String getKeyword()
+    {
+        return keyword;
+    }
+    
+    public void setKeyword(String keyword)
+    {
+        this.keyword = keyword;
+    }
 
-	public Long getTeachingClassId() {
-		return teachingClassId;
+	public Double getCredits() {
+		return credits;
 	}
 
-	public void setTeachingClassId(Long teachingClassId) {
-		this.teachingClassId = teachingClassId;
+	public void setCredits(Double credits) {
+		this.credits = credits;
 	}
 
-	public List<Long> getTeachingClassIds() {
-		return teachingClassIds;
+	public String getFaculty() {
+		return faculty;
 	}
 
-	public void setTeachingClassIds(List<Long> teachingClassIds) {
-		this.teachingClassIds = teachingClassIds;
+	public void setFaculty(String faculty) {
+		this.faculty = faculty;
 	}
 	
-	
-
     
     
     

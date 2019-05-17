@@ -19,6 +19,7 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElcAffinityCoursesDto;
+import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcAffinityCoursesService;
@@ -122,7 +123,7 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "优先学生列表")
     @PostMapping("/studentList")
     public RestResult<PageInfo<Student>> studentList(
-        @RequestBody PageCondition<Student> condition)
+        @RequestBody PageCondition<StudentDto> condition)
         throws Exception
     {
         LOG.info("courseList.start");
@@ -141,7 +142,7 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "学生列表")
     @PostMapping("/getStudents")
     public RestResult<PageInfo<Student>> getStudents(
-        @RequestBody PageCondition<Student> condition)
+        @RequestBody PageCondition<StudentDto> condition)
         throws Exception
     {
         LOG.info("getStudents.start");

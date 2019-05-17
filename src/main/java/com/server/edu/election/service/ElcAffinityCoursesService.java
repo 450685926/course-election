@@ -5,6 +5,7 @@ import java.util.List;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.election.dto.ElcAffinityCoursesDto;
+import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
@@ -20,9 +21,9 @@ public interface ElcAffinityCoursesService
     
     int addCourse(List<String> ids);
     
-    PageInfo<Student> studentList(PageCondition<Student> condition);
+    PageInfo<Student> studentList(PageCondition<StudentDto> condition);
     
-    PageInfo<Student> getStudents(PageCondition<Student> condition);
+    PageInfo<Student> getStudents(PageCondition<StudentDto> condition);
     
     int addStudent(ElcAffinityCoursesVo elcAffinityCoursesVo);
     
