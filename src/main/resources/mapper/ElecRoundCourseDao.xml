@@ -147,8 +147,9 @@
     delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId}
   </delete>
   
-  <select id="selectTeachingClassByRoundId" resultMap="CourseOpenDtoMap">
-  	  select op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber
+  <select id="selectCorseRefTeachClassByRoundId" resultMap="CourseOpenDtoMap">
+  	  select 
+  	  	op.COURSE_CODE_, cl.ID_ AS teachingClassId
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ = 1)
@@ -156,6 +157,18 @@
 	  where
 		 co.ROUNDS_ID_ = #{roundId}
 		 and op.CALENDAR_ID_ = #{calendarId}
+		 order by cl.CODE_
+  </select>
+  
+  <select id="selectTeachingClassByCalendarId" resultMap="CourseOpenDtoMap">
+  	  select 
+  	  	op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,
+  	  	cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber
+  	  from course_open_t op
+	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
+	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ = 1)
+	  where
+		 op.CALENDAR_ID_ = #{calendarId}
 		 order by cl.CODE_
   </select>
   

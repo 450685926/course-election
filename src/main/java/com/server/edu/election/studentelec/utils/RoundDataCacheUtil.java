@@ -2,7 +2,6 @@ package com.server.edu.election.studentelec.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -114,11 +113,9 @@ public class RoundDataCacheUtil
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public Set<Long> cacheTeachClass(ValueOperations<String, String> ops,
+    public void cacheTeachClass(ValueOperations<String, String> ops,
         long timeout, List<CourseOpenDto> teachClasss)
     {
-        Set<Long> teachClassIds = new HashSet<>();
-        
         List<Long> classIds = teachClasss.stream()
             .map(temp -> temp.getTeachingClassId())
             .collect(Collectors.toList());
@@ -157,8 +154,6 @@ public class RoundDataCacheUtil
             // 保存教学班信息
             ops.set(classKey, classText, timeout, TimeUnit.MINUTES);
         }
-        teachClassIds.addAll(classIds);
-        return teachClassIds;
     }
     
     /**
