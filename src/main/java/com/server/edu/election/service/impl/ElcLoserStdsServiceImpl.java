@@ -194,7 +194,7 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
         AsyncResult resul= AsyncProcessUtil.submitTask("reloadLoserStu",new AsyncExecuter() {
             @Override
             public void execute() {
-                queryReloadLoserStu(calendarId,deptId);
+                queryReloadLoserStu(calendarId,deptId,this);
             }
         });
         return resul;
@@ -202,7 +202,8 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
 
     @Override
     @Transactional
-    public void queryReloadLoserStu(Long calendarId,String deptId) {
+    public void queryReloadLoserStu(Long calendarId,String deptId,AsyncExecuter resul) {
+        AsyncResult result = resul.getResult();
         //首先删除当前学期的所有预警学生
         stdsDao.deleteByCalendarId(calendarId);
         //预警学生不及格学分上限
@@ -221,12 +222,16 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
             List<StudentScore> scoreList = scores.getList();
             unPassScoresList.addAll(scoreList);
             int pageNum=2;
+            result.setTotal((int)pageTotal+1);
+            result.setDoneCount(1);
             while(pageNum<=pageTotal){
                 condition.setCondition(deptId);
                 condition.setPageNum_(pageNum);
                 condition.setPageSize_(5000);
                 PageResult<StudentScore> unPassStu = ScoreServiceInvoker.findUnPassStuScore(condition);
                 unPassScoresList.addAll(unPassStu.getList());
+                result.setDoneCount(pageNum);
+                resul.updateResult(result);
                 pageNum++;
             }
         }
@@ -251,9 +256,13 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
             }
         }
 
+
         if(CollectionUtil.isNotEmpty(loserStu)){
             stdsDao.insertLoserStu(loserStu);
+            result.setDoneCount(result.getTotal());
         }
+        result.setDoneCount(1);
+        result.setTotal(1);
 
     }
 
