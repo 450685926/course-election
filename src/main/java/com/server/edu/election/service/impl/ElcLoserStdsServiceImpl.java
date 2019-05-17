@@ -206,7 +206,9 @@ public class ElcLoserStdsServiceImpl implements ElcLoserStdsService {
         AsyncResult result = resul.getResult();
         //首先删除当前学期的所有预警学生
         List<Long> stds=stdsDao.findDeleStu(calendarId,deptId);
-        stdsDao.deleteByIds(stds);
+        if(CollectionUtil.isNotEmpty(stds)){
+            stdsDao.deleteByIds(stds);
+        }
         //预警学生不及格学分上限
         String maxFailCredits = constantsDao.findMaxFailCredits();
         double maxCredits = Double.parseDouble(maxFailCredits);
