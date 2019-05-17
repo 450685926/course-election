@@ -90,7 +90,7 @@ public class RoundDataProvider
         
         try
         {
-            // 缓存轮次信息
+            // 缓存所有选课规则
             dataUtil.cacheAllRule(redisTemplate);
             
             /** 一小时后即将开始的选课参数 */
@@ -115,7 +115,7 @@ public class RoundDataProvider
             {
                 redisTemplate.delete(keys);
             }
-            // 缓存教学班
+            // 缓存所有教学班
             for (Long calendarId : calendarIds)
             {
                 List<CourseOpenDto> lessons =
