@@ -1,13 +1,26 @@
 package com.server.edu.election.service;
 
+import java.util.List;
+
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dto.*;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.vo.*;
+import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
+import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.TimeTable;
 import com.server.edu.util.excel.export.ExcelResult;
-
-import java.util.List;
 
 public interface ReportManagementService {
     /**点名册*/
@@ -64,11 +77,11 @@ public interface ReportManagementService {
 
     PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
 
-    List<TimeTable> getStudentTimetab(Long calendarId, String studentCode);
+    List<TimeTable> getStudentTimetab(Long calendarId, String studentCode, Integer week);
 
     List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
 
-    List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode);
+    List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode, Integer week);
 
     ExcelResult export(ReportManagementCondition condition);
 
