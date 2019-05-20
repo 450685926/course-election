@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -99,6 +99,7 @@ public class RoundDataProvider
             Set<String> keys = redisTemplate.keys(Keys.getRoundKeyPattern());
             
             Date now = new Date();
+            Set<Long> calendarIds = new HashSet<>();
             for (ElectionRounds round : selectBeStart)
             {
                 String roundKey = Keys.getRoundKey(round.getId());
@@ -106,12 +107,20 @@ public class RoundDataProvider
                 {
                     keys.remove(roundKey);
                 }
+                calendarIds.add(round.getCalendarId());
                 this.cacheData(round, now);
             }
             
             if (CollectionUtil.isNotEmpty(keys))
             {
                 redisTemplate.delete(keys);
+            }
+            // 缓存教学班
+            for (Long calendarId : calendarIds)
+            {
+                List<CourseOpenDto> lessons =
+                    roundCourseDao.selectTeachingClassByCalendarId(calendarId);
+                dataUtil.cacheTeachClass(ops, 100, lessons);
             }
             
         }
@@ -168,24 +177,25 @@ public class RoundDataProvider
         dataUtil.cachePreSemester(ops, round, timeout);
         
         // 加载所有教学班与课程数据到缓存中
-        List<CourseOpenDto> lessons =
-            roundCourseDao.selectTeachingClassByRoundId(roundId, calendarId);
-        
-        Map<String, List<CourseOpenDto>> collect = lessons.stream()
-            .collect(Collectors.groupingBy(CourseOpenDto::getCourseCode));
-        Set<String> keySet = collect.keySet();
+        List<CourseOpenDto> lessons = roundCourseDao
+            .selectCorseRefTeachClassByRoundId(roundId, calendarId);
         
         Map<String, Set<Long>> courseClassMap = new HashMap<>();
-        for (String courseCode : keySet)
+        for (CourseOpenDto teachClasss : lessons)
         {
-            List<CourseOpenDto> teachClasss = collect.get(courseCode);
-            // 缓存教学班
-            Set<Long> teachClassIds =
-                dataUtil.cacheTeachClass(ops, timeout, teachClasss);
-            
-            courseClassMap.put(courseCode, teachClassIds);
+            String courseCode = teachClasss.getCourseCode();
+            Long teachingClassId = teachClasss.getTeachingClassId();
+            if (courseClassMap.containsKey(courseCode))
+            {
+                courseClassMap.get(courseCode).add(teachingClassId);
+            }
+            else
+            {
+                Set<Long> ids = new HashSet<>();
+                ids.add(teachingClassId);
+                courseClassMap.put(courseCode, ids);
+            }
         }
-        
         // 缓存课程
         dataUtil.cacheCourse(redisTemplate, timeout, roundId, courseClassMap);
         

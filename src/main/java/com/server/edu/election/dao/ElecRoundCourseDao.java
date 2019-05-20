@@ -46,8 +46,7 @@ public interface ElecRoundCourseDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    Page<CourseOpenDto> listTeachingClassPage(
-         ElecRoundCourseQuery query);
+    Page<CourseOpenDto> listTeachingClassPage(ElecRoundCourseQuery query);
     
     /**
      * 查询已经添加过的课程
@@ -94,6 +93,15 @@ public interface ElecRoundCourseDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    List<CourseOpenDto> selectTeachingClassByRoundId(
+    List<CourseOpenDto> selectCorseRefTeachClassByRoundId(
         @Param("roundId") Long roundId, @Param("calendarId") Long calendarId);
+    /**
+     * 查询学期的所有教学班
+     * 
+     * @param calendarId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<CourseOpenDto> selectTeachingClassByCalendarId(
+        @Param("calendarId") Long calendarId);
 }
