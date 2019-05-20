@@ -464,21 +464,30 @@ public class RoundDataProvider
             student = JSON.parseObject(text, Student.class);
         }
         
-        ElcRoundCondition roundsCondition = getRoundCondition(roundId);
-        if (roundsCondition != null)
+        ElcRoundCondition con = getRoundCondition(roundId);
+        if (con != null)
         {
-            if (roundsCondition.getCampus().contains(student.getCampus())
-                && roundsCondition.getFacultys().contains(student.getFaculty())
-                && roundsCondition.getGrades()
-                    .contains(student.getGrade().toString())
-                && roundsCondition.getMajors().contains(student.getProfession())
-                && roundsCondition.getTrainingLevels()
-                    .contains(student.getTrainingLevel()))
+            if (contains(con.getCampus(), student.getCampus())
+                && contains(con.getFacultys(), student.getFaculty())
+                && contains(con.getGrades(), student.getGrade().toString())
+                && contains(con.getMajors(), student.getProfession())
+                && contains(con.getTrainingLevels(),
+                    student.getTrainingLevel()))
             {
                 return true;
             }
+            return false;
         }
-        return false;
+        return true;
+    }
+    
+    boolean contains(String source, String taget)
+    {
+        if (StringUtils.isBlank(source))
+        {
+            return true;
+        }
+        return source.contains(taget);
     }
     
 }
