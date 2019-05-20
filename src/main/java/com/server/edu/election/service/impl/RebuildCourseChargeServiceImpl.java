@@ -317,6 +317,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     */
     @Override
     public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCoursePaymentCondition> condition) {
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> recycleCourse = courseChargeDao.findRecycleCourse(condition.getCondition());
         return new PageResult<>(recycleCourse);
@@ -496,7 +498,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
         design.addCell(I18nUtil.getMsg("rebuildCourse.courseArr"), "courseArr");
         design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "strPaid").setValueHandler((value, rawData, cell) -> {
+        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "paid").setValueHandler((value, rawData, cell) -> {
             return "0".equals(value)?"未缴费":"已缴费";
         });
         return design;
