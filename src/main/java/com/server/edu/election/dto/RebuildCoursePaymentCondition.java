@@ -22,6 +22,15 @@ public class RebuildCoursePaymentCondition {
     private String code;
     private String name;
     private Integer mode;
+    private String deptId;
+
+    public String getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(String deptId) {
+        this.deptId = deptId;
+    }
 
     public Integer getMode() {
         return mode;
