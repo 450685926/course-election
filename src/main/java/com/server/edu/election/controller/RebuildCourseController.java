@@ -247,8 +247,12 @@ public class RebuildCourseController {
     /**
      * @Description: 下载
      */
+    @ApiOperation(value = "导出excel下载文件")
     @GetMapping("/download")
-    public ResponseEntity<Resource> download(@RequestParam("path") String path) {
-        return  ExportExcelUtils.export(path);
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("path") String path)
+            throws Exception {
+        Resource resource = new FileSystemResource(path);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/file-xls").header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=result.xls").body(resource);
     }
 }
