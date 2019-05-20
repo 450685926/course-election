@@ -65,7 +65,7 @@
 
     <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT re.ID_ id,re.CALENDAR_ID_ calendarId,te.CODE_ teachingClassCode,re.STUDENT_CODE_ studentCode,re.TEACHING_CLASS_ID_ teachingClassId,re.COURSE_TAKE_TYPE_ courseTakeType,re.TURN_ turn,re.MODE_ mode,re.CHOOSE_OBJ_ chooseObj,re.PAID_ paid
-        ,st.NAME_ studentName,co.ID_ courseId,re.COURSE_CODE_ code,co.NAME_ codeName,te.COURSE_LABEL_ID_ label,co.CREDITS_ credits
+        ,st.NAME_ studentName,re.COURSE_CODE_ code,co.NAME_ codeName,te.COURSE_LABEL_ID_ label,co.CREDITS_ credits
         FROM rebuild_course_recycle_t re
         LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_

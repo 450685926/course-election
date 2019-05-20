@@ -28,7 +28,6 @@ public class RebuildCourseNoChargeList implements Serializable{
     private Integer startWeek;
     private String label;
     private Double period;
-    private Long courseId;//课程序号
     private Long teachingClassId;
     private String teachingClassCode;
     private String courseArr;//课程按排
@@ -109,14 +108,6 @@ public class RebuildCourseNoChargeList implements Serializable{
 
     public void setCalendarId(Long calendarId) {
         this.calendarId = calendarId;
-    }
-
-    public Long getCourseId() {
-        return courseId;
-    }
-
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
     }
 
     public Long getTeachingClassId() {
