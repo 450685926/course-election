@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -38,7 +38,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
 	@Autowired
 	private RoundDataCacheUtil cacheUtil;
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private StringRedisTemplate redisTemplate;
 	@Override
 	public List<ElectionRule> list(ElectionRuleDto electionRuleDto){
 		Example example = new Example(ElectionRule.class);
