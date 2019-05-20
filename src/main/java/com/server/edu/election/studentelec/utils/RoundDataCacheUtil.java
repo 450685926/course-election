@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
@@ -55,9 +56,6 @@ import tk.mybatis.mapper.entity.Example;
 public class RoundDataCacheUtil
 {
     @Autowired
-    private RedisTemplate<String, Integer> elecNumRedis;
-    
-    @Autowired
     private ElectionRuleDao ruleDao;
     
     @Autowired
@@ -66,14 +64,56 @@ public class RoundDataCacheUtil
     @Autowired
     private ElcRoundConditionDao elcRoundConditionDao;
     
-    @Autowired
-    private TeachingClassTeacherDao  teacherDao;
-    
-    public void cacheRound(ValueOperations<String, String> ops,
-        ElectionRounds round, long timeout)
+    @SuppressWarnings({"unchecked"})
+    static <T> RedisTemplate<String, T> redisTemplate(Class<T> clazz)
     {
-        String key = Keys.getRoundKey(round.getId());
-        ops.set(key, JSON.toJSONString(round));
+        RedisTemplate<String, T> redisTemplate =
+            SpringUtils.getBean("redisTemplate", RedisTemplate.class);
+        return redisTemplate;
+    }
+    
+    public static HashOperations<String, String, ElectionRounds> opsRound()
+    {
+        RedisTemplate<String, ElectionRounds> redisTemplate =
+            redisTemplate(ElectionRounds.class);
+        HashOperations<String, String, ElectionRounds> hash =
+            redisTemplate.opsForHash();
+        return hash;
+    }
+    
+    public static HashOperations<String, String, TeachingClassCache> opsTeachClass()
+    {
+        RedisTemplate<String, TeachingClassCache> redisTemplate =
+            redisTemplate(TeachingClassCache.class);
+        HashOperations<String, String, TeachingClassCache> ops =
+            redisTemplate.opsForHash();
+        return ops;
+    }
+    
+    public static HashOperations<String, String, Integer> opsClassNum()
+    {
+        @SuppressWarnings("unchecked")
+        RedisTemplate<String, Integer> redisTemplate =
+            SpringUtils.getBean("redisTemplate", RedisTemplate.class);
+        
+        HashOperations<String, String, Integer> ops =
+            redisTemplate.opsForHash();
+        return ops;
+    }
+    
+    @Autowired
+    private TeachingClassTeacherDao teacherDao;
+    
+    public void cacheRound(ElectionRounds round, long timeout)
+    {
+        HashOperations<String, String, ElectionRounds> hash = opsRound();
+        
+        String key = Keys.getRoundKey();
+        hash.put(key, round.getId().toString(), round);
+        
+        RedisTemplate<String, ElectionRounds> tpl =
+            redisTemplate(ElectionRounds.class);
+        tpl.expire(key, 1, TimeUnit.DAYS);
     }
     
     /**
@@ -113,15 +153,14 @@ public class RoundDataCacheUtil
     /**
      * 缓存教学班
      * 
-     * @param ops
+     * @param template
      * @param timeout 缓存过期时间分钟
      * @param teachClasss 教学班
      * @param classKeys redis已经存在的教学班KEY
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public void cacheTeachClass(ValueOperations<String, String> ops,
-        long timeout, List<CourseOpenDto> teachClasss)
+    public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss)
     {
         List<Long> classIds = teachClasss.stream()
             .map(temp -> temp.getTeachingClassId())
@@ -130,10 +169,17 @@ public class RoundDataCacheUtil
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
         Map<String, Teacher> teacherMap = new HashMap<>();
+        
+        Map<String, TeachingClassCache> map = new HashMap<>();
+        Map<String, Integer> numMap = new HashMap<>();
+        
         Example teacherExample = new Example(TeachingClassTeacher.class);
-        teacherExample.createCriteria().andIn("teachingClassId", classIds).
-                andEqualTo("type",Constants.TEACHER_DEFAULT);
-        List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
+        teacherExample.createCriteria()
+            .andIn("teachingClassId", classIds)
+            .andEqualTo("type", Constants.TEACHER_DEFAULT);
+        List<TeachingClassTeacher> teacherList =
+            teacherDao.selectByExample(teacherExample);
+        
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
@@ -154,28 +200,47 @@ public class RoundDataCacheUtil
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, teacherMap, courseClass);
             courseClass.setTimes(times);
-            if(CollectionUtil.isNotEmpty(teacherList)) {
-            	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).collect(Collectors.toList());
-            	if(CollectionUtil.isNotEmpty(teachers)) {
-            		StringBuilder stringBuilder = new StringBuilder();
-            		for(TeachingClassTeacher teacher:teachers) {
-            			stringBuilder.append(teacher.getTeacherName());
-            			stringBuilder.append("(");
-            			stringBuilder.append(teacher.getTeacherCode());
-            			stringBuilder.append(")");
-            			stringBuilder.append(",");
-            		}
-            		courseClass.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
-            	}
+            
+            if (CollectionUtil.isNotEmpty(teacherList))
+            {
+                List<TeachingClassTeacher> teachers = teacherList.stream()
+                    .filter(c -> teachingClassId.equals(c.getTeachingClassId()))
+                    .collect(Collectors.toList());
+                if (CollectionUtil.isNotEmpty(teachers))
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (TeachingClassTeacher teacher : teachers)
+                    {
+                        stringBuilder.append(teacher.getTeacherName());
+                        stringBuilder.append("(");
+                        stringBuilder.append(teacher.getTeacherCode());
+                        stringBuilder.append(")");
+                        stringBuilder.append(",");
+                    }
+                    courseClass.setTeacherName(
+                        stringBuilder.deleteCharAt(stringBuilder.length() - 1)
+                            .toString());
+                }
             }
-            String classText = JSON.toJSONString(courseClass);
-            String classKey = Keys.getClassKey(teachingClassId);
-            setElecNumberToRedis(timeout,
-                teachingClassId,
+            numMap.put(teachingClassId.toString(),
                 courseClass.getCurrentNumber());
-            // 保存教学班信息
-            ops.set(classKey, classText, timeout, TimeUnit.MINUTES);
+            map.put(teachingClassId.toString(), courseClass);
         }
+        // 缓存选课人数
+        HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+        opsClassNum.putAll(Keys.getClassElecNumberKey(), numMap);
+        
+        RedisTemplate<String, Object> template = redisTemplate(Object.class);
+        template
+            .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);
+        
+        // 缓存教学班信息
+        String key = Keys.getClassKey();
+        HashOperations<String, String, TeachingClassCache> ops =
+            opsTeachClass();
+        ops.putAll(key, map);
+        template.expire(key, timeout, TimeUnit.MINUTES);
+        
     }
     
     /**
@@ -189,7 +254,7 @@ public class RoundDataCacheUtil
         long timeout, Long roundId, Map<String, Set<Long>> courseClassMap)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        Set<String> existCourseCodes =
+        Set<String> existKeys =
             redisTemplate.keys(Keys.getRoundCoursePattern(roundId));
         
         for (Entry<String, Set<Long>> entry : courseClassMap.entrySet())
@@ -202,13 +267,13 @@ public class RoundDataCacheUtil
             ops.set(courseKey, text, timeout, TimeUnit.MINUTES);
             
             // 移除存在的
-            existCourseCodes.remove(courseCode);
+            existKeys.remove(courseKey);
         }
         
-        if (null != existCourseCodes && !existCourseCodes.isEmpty())
+        if (null != existKeys && !existKeys.isEmpty())
         {
             // 删除掉没有关联的课程
-            redisTemplate.delete(existCourseCodes);
+            redisTemplate.delete(existKeys);
         }
     }
     
@@ -234,18 +299,6 @@ public class RoundDataCacheUtil
         }
         teachClassIds = JSON.parseArray(text, Long.class);
         return teachClassIds;
-    }
-    
-    private void setElecNumberToRedis(long timeout, Long teachingClassId,
-        Integer currentNumber)
-    {
-        // 保存教学班已选课人数
-        currentNumber = currentNumber == null ? 0 : currentNumber;
-        elecNumRedis.opsForValue()
-            .set(Keys.getClassElecNumberKey(teachingClassId),
-                currentNumber,
-                timeout,
-                TimeUnit.MINUTES);
     }
     
     @Autowired
