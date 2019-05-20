@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
@@ -68,7 +70,7 @@ public class RoundDataCacheUtil
     static <T> RedisTemplate<String, T> redisTemplate(Class<T> clazz)
     {
         RedisTemplate<String, T> redisTemplate =
-            SpringUtils.getBean("redisTemplate", RedisTemplate.class);
+            SpringUtils.getBean("redisTemplate2", RedisTemplate.class);
         return redisTemplate;
     }
     
@@ -92,9 +94,8 @@ public class RoundDataCacheUtil
     
     public static HashOperations<String, String, Integer> opsClassNum()
     {
-        @SuppressWarnings("unchecked")
         RedisTemplate<String, Integer> redisTemplate =
-            SpringUtils.getBean("redisTemplate", RedisTemplate.class);
+            redisTemplate(Integer.class);
         
         HashOperations<String, String, Integer> ops =
             redisTemplate.opsForHash();
@@ -250,30 +251,31 @@ public class RoundDataCacheUtil
      * @param roundId 轮次ID
      * @param courseClassMap 课程代码-课程对应的教学班ID
      */
-    public void cacheCourse(RedisTemplate<String, String> redisTemplate,
-        long timeout, Long roundId, Map<String, Set<Long>> courseClassMap)
+    public void cacheCourse(long timeout, Long roundId,
+        Map<String, Set<Long>> courseClassMap)
     {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        Set<String> existKeys =
-            redisTemplate.keys(Keys.getRoundCoursePattern(roundId));
+        RedisTemplate<String, String> redisTemplate =
+            redisTemplate(String.class);
+        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
+        String key = Keys.getRoundCourseKey(roundId);
+        
+        Set<String> existKeys = ops.keys(key);
         
         for (Entry<String, Set<Long>> entry : courseClassMap.entrySet())
         {
             String courseCode = entry.getKey();
             Set<Long> teachClassIds = entry.getValue();
             
-            String courseKey = Keys.getRoundCourseKey(roundId, courseCode);
-            String text = JSON.toJSONString(teachClassIds);
-            ops.set(courseKey, text, timeout, TimeUnit.MINUTES);
+            ops.put(key, courseCode, JSON.toJSONString(teachClassIds));
             
             // 移除存在的
-            existKeys.remove(courseKey);
+            existKeys.remove(courseCode);
         }
         
         if (null != existKeys && !existKeys.isEmpty())
         {
             // 删除掉没有关联的课程
-            redisTemplate.delete(existKeys);
+            ops.delete(key, existKeys.toArray());
         }
     }
     
@@ -286,18 +288,24 @@ public class RoundDataCacheUtil
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public List<Long> getTeachClassIds(Long roundId, String courseCode,
-        ValueOperations<String, String> ops)
+    public List<Long> getTeachClassIds(Long roundId, String courseCode)
     {
-        String roundCourseKey = Keys.getRoundCourseKey(roundId, courseCode);
+        RedisTemplate<String, String> redisTemplate =
+            redisTemplate(String.class);
+        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
         
-        String text = ops.get(roundCourseKey);
+        String key = Keys.getRoundCourseKey(roundId);
+        
+        String text = ops.get(key, courseCode);
         List<Long> teachClassIds = null;
         if (StringUtils.isEmpty(text))
         {
             return teachClassIds;
         }
         teachClassIds = JSON.parseArray(text, Long.class);
+        
+        Collections.sort(teachClassIds);
+        
         return teachClassIds;
     }
     
@@ -312,8 +320,8 @@ public class RoundDataCacheUtil
      * @param roundStuKeys redis已存在的Key
      * 
      * */
-    public void cacheRoundStu(RedisTemplate<String, String> redisTemplate,
-        Long roundId, long timeout)
+    public void cacheRoundStu(StringRedisTemplate redisTemplate, Long roundId,
+        long timeout)
     {
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
         
@@ -402,15 +410,14 @@ public class RoundDataCacheUtil
         SchoolCalendarVo preSemester =
             BaseresServiceInvoker.getPreSemester(calendarId);
         Long id = preSemester.getId();
-        String roundPreSemester =
-            String.format(Keys.ROUND_PRESEMESTER, round.getId());
+        String roundPreSemester = Keys.getRoundPresemesterKey(round.getId());
         ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
     }
     
     /**
      * 设置选课規則，把所有规则都放到缓存中本科生26个，研究生七八个
      */
-    public void cacheAllRule(RedisTemplate<String, String> redisTemplate)
+    public void cacheAllRule(StringRedisTemplate redisTemplate)
     {
         HashOperations<String, Object, Object> ops = redisTemplate.opsForHash();
         String key = Keys.getRuleKey();
@@ -435,7 +442,7 @@ public class RoundDataCacheUtil
      * @return
      */
     public ElectionRuleVo getRule(String serviceName,
-        RedisTemplate<String, String> redisTemplate)
+        StringRedisTemplate redisTemplate)
     {
         HashOperations<String, String, String> ops = redisTemplate.opsForHash();
         
@@ -452,7 +459,7 @@ public class RoundDataCacheUtil
      * @return
      */
     public List<ElectionRuleVo> getRules(Long roundId,
-        RedisTemplate<String, String> redisTemplate)
+        StringRedisTemplate redisTemplate)
     {
         ValueOperations<String, String> opsForValue =
             redisTemplate.opsForValue();
@@ -484,7 +491,7 @@ public class RoundDataCacheUtil
      * @see [类、类#方法、类#成员]
      */
     public boolean containsRule(Long roundId, String serviceName,
-        RedisTemplate<String, String> redisTemplate)
+        StringRedisTemplate redisTemplate)
     {
         ValueOperations<String, String> opsForValue =
             redisTemplate.opsForValue();

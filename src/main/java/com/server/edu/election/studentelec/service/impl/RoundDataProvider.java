@@ -214,7 +214,7 @@ public class RoundDataProvider
             }
         }
         // 缓存课程
-        dataUtil.cacheCourse(strTemplate, timeout, roundId, courseClassMap);
+        dataUtil.cacheCourse(timeout, roundId, courseClassMap);
         
     }
     
@@ -318,10 +318,8 @@ public class RoundDataProvider
     {
         List<TeachingClassCache> lessons = new ArrayList<>();
         
-        ValueOperations<String, String> ops = strTemplate.opsForValue();
-        
         List<Long> teachClassIds =
-            this.dataUtil.getTeachClassIds(roundId, courseCode, ops);
+            this.dataUtil.getTeachClassIds(roundId, courseCode);
         if (CollectionUtil.isEmpty(teachClassIds))
         {
             return lessons;
@@ -360,9 +358,8 @@ public class RoundDataProvider
             return null;
         }
         
-        ValueOperations<String, String> ops = strTemplate.opsForValue();
         List<Long> teachClassIds =
-            this.dataUtil.getTeachClassIds(roundId, courseCode, ops);
+            this.dataUtil.getTeachClassIds(roundId, courseCode);
         
         if (CollectionUtil.isEmpty(teachClassIds)
             || !teachClassIds.contains(teachClassId))

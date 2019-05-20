@@ -1,21 +1,22 @@
 package com.server.edu.election.studentelec.rules.bk;
 
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.rules.RetakeCourse;
-import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.util.CollectionUtil;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.rules.RetakeCourse;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
-
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.server.edu.election.studentelec.utils.Keys;
+import com.server.edu.util.CollectionUtil;
 
 /**
  * 重修违纪检查
@@ -40,7 +41,7 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutor
         if(count>0) {//重修
             String studentId = context.getStudentInfo().getStudentId();
             Long roundId = context.getRequest().getRoundId();
-            String roundPreSemester =String.format(Keys.ROUND_PRESEMESTER, roundId);
+            String roundPreSemester = Keys.getRoundPresemesterKey(roundId);
             String id= (String) redisTemplate.opsForValue().get(roundPreSemester);//上一学期
             Set<CompletedCourse> failedCourse = context.getFailedCourse();//未通过课程
             if (CollectionUtil.isNotEmpty(failedCourse)) {
