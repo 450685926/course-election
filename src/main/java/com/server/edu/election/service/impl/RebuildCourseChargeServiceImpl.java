@@ -7,12 +7,17 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.RebuildCourseChargeDao;
-import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
+import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
+import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.RebuildCourseCharge;
+import com.server.edu.election.service.ElcCourseTakeService;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -25,6 +30,9 @@ import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,10 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -57,6 +62,15 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private TeachingClassDao classDao;
+
+    @Autowired
+    private ElcCourseTakeService courseTakeService;
+
+    @Autowired
+    private ElcLogDao elcLogDao;
 
     @Autowired
     private DictionaryService dictionaryService;
@@ -236,6 +250,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     */
     @Override
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition) {
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
         if(courseNoChargeList!=null){
@@ -283,6 +299,15 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             return "common.parameterError";
         }
         //调用退课接口todo
+        List<ElcCourseTake> takes=new ArrayList<>();
+        for (RebuildCourseNoChargeList courseNoChargeList : list) {
+            ElcCourseTake take=new ElcCourseTake();
+            take.setStudentId(courseNoChargeList.getStudentCode());
+            take.setCalendarId(courseNoChargeList.getCalendarId());
+            take.setTeachingClassId(courseNoChargeList.getTeachingClassId());
+            takes.add(take);
+        }
+        courseTakeService.withdraw(takes);
         /**增加到回收站*/
         courseChargeDao.addCourseStudentToRecycle(list);
         return "common.deleteSuccess";
@@ -298,6 +323,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     */
     @Override
     public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCoursePaymentCondition> condition) {
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> recycleCourse = courseChargeDao.findRecycleCourse(condition.getCondition());
         return new PageResult<>(recycleCourse);
@@ -315,11 +342,58 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         if(CollectionUtil.isEmpty(list)){
             return "common.parameterError";
         }
-        //添加到选课表
-        courseTakeDao.addCourseTakeFromRecycle(list);
+        for (RebuildCourseNoChargeList noChargeList : list) {
+            recoverClass(noChargeList);
+        }
         /**从回收站删除*/
         courseChargeDao.recoveryDataFromRecycleCourse(list);
         return "common.deleteSuccess";
+    }
+
+    private void recoverClass(RebuildCourseNoChargeList noChargeList){
+        String studentCode = noChargeList.getStudentCode();
+        String courseCode = noChargeList.getCode();
+        Long calendarId = noChargeList.getCalendarId();
+        Integer chooseObj = noChargeList.getChooseObj();
+        Integer courseTakeType = noChargeList.getCourseTakeType();
+        Long teachingClassId = noChargeList.getTeachingClassId();
+        String teachingClassCode = noChargeList.getTeachingClassCode();
+        Integer mode = noChargeList.getMode();
+        Integer turn = noChargeList.getTurn();
+        String courseName = noChargeList.getCodeName();
+        ElcCourseTake record = new ElcCourseTake();
+        record.setStudentId(studentCode);
+        record.setCourseCode(courseCode);
+        int selectCount = courseTakeDao.selectCount(record);
+        if(selectCount == 0){
+            ElcCourseTake take = new ElcCourseTake();
+            take.setCalendarId(calendarId);
+            take.setChooseObj(chooseObj);
+            take.setCourseCode(courseCode);
+            take.setCourseTakeType(courseTakeType);
+            take.setCreatedAt(new Date());
+            take.setStudentId(studentCode);
+            take.setTeachingClassId(teachingClassId);
+            take.setMode(mode);
+            take.setTurn(turn);
+            courseTakeDao.insertSelective(take);
+            //增加选课人数
+            classDao.increElcNumber(teachingClassId);
+            ElcLog log = new ElcLog();
+            log.setCalendarId(calendarId);
+            log.setCourseCode(courseCode);
+            log.setCourseName(courseName);
+            Session currentSession = SessionUtils.getCurrentSession();
+            log.setCreateBy(currentSession.getUid());
+            log.setCreatedAt(new Date());
+            log.setCreateIp(currentSession.getIp());
+            log.setMode(chooseObj !=1 ? ElcLogVo.MODE_2:ElcLogVo.MODE_1);
+            log.setStudentId(studentCode);
+            log.setTeachingClassCode(teachingClassCode);
+            log.setTurn(turn);
+            log.setType(ElcLogVo.TYPE_1);
+            elcLogDao.insertSelective(log);
+        }
     }
 
    /**
@@ -365,6 +439,51 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             return fileName;
         }
         return "";
+    }
+
+    /**
+    *@Description: 导出重修缴费名单
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/20 9:48
+    */
+    @Override
+    public ExcelResult export(RebuildCoursePaymentCondition condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildNoCharge", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RebuildCoursePaymentCondition> pageCondition=new PageCondition<>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                List<RebuildCourseNoChargeList> list=new ArrayList<>();
+                while (true){
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<RebuildCourseNoChargeList> courseNoChargeList = findCourseNoChargeList(pageCondition);
+                    list.addAll(courseNoChargeList.getList());
+                    result.setTotal((int)courseNoChargeList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (courseNoChargeList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesign();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
     }
 
     /**
@@ -432,7 +551,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
         design.addCell(I18nUtil.getMsg("rebuildCourse.courseArr"), "courseArr");
         design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "strPaid");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "paid").setValueHandler((value, rawData, cell) -> {
+            return "0".equals(value)?"未缴费":"已缴费";
+        });
         return design;
     }
 

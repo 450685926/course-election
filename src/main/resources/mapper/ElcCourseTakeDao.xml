@@ -109,7 +109,7 @@
     JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
     JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
-        <choose>
+        <!--<choose>
             <when test=" mode == 1 ">
                 st.STUDENT_CODE_ not in (select STUDENT_ID_ from elc_no_graduate_stds_t)
             </when>
@@ -119,12 +119,15 @@
             <otherwise>
                 st.STUDENT_CODE_ in  (select STUDENT_ID_ from elc_no_graduate_stds_t t1 join student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_ where t2.IS_OVERSEAS_ =1)
             </otherwise>
-        </choose>
+        </choose>-->
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
       </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
             and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+            and el.MODE_ = #{mode,jdbcType=INTEGER}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
             and st.STUDENT_CODE_ like CONCAT('%', #{studentCode,jdbcType=VARCHAR}, '%')
@@ -134,6 +137,9 @@
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
             and st.NAME_ like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+            and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
             and st.GRADE_ =#{grade,jdbcType=INTEGER}

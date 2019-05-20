@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+
 public class ElcResultQuery
 {
     /**
@@ -55,7 +58,84 @@ public class ElcResultQuery
     
     private String keyword;
     
-    public Long getCalendarId()
+    private String faculty;
+    
+    /**
+     * 课程类别ID
+     */
+    @Code2Text(DictTypeEnum.X_KCFL)
+    private Long courseLabelId;
+    
+    private String teacherCode;
+    
+    private Integer actualAndUpper;
+    
+    private Integer minActualNumber;
+    
+    private Integer maxActualNumber;
+    
+    private Integer minUpperNumber;
+    
+    private Integer maxUpperNumber;
+    
+    
+    public Integer getActualAndUpper() {
+		return actualAndUpper;
+	}
+
+	public void setActualAndUpper(Integer actualAndUpper) {
+		this.actualAndUpper = actualAndUpper;
+	}
+
+	public Integer getMinActualNumber() {
+		return minActualNumber;
+	}
+
+	public void setMinActualNumber(Integer minActualNumber) {
+		this.minActualNumber = minActualNumber;
+	}
+
+	public Integer getMaxActualNumber() {
+		return maxActualNumber;
+	}
+
+	public void setMaxActualNumber(Integer maxActualNumber) {
+		this.maxActualNumber = maxActualNumber;
+	}
+
+	public Integer getMinUpperNumber() {
+		return minUpperNumber;
+	}
+
+	public void setMinUpperNumber(Integer minUpperNumber) {
+		this.minUpperNumber = minUpperNumber;
+	}
+
+	public Integer getMaxUpperNumber() {
+		return maxUpperNumber;
+	}
+
+	public void setMaxUpperNumber(Integer maxUpperNumber) {
+		this.maxUpperNumber = maxUpperNumber;
+	}
+
+	public String getTeacherCode() {
+		return teacherCode;
+	}
+
+	public void setTeacherCode(String teacherCode) {
+		this.teacherCode = teacherCode;
+	}
+
+	public Long getCourseLabelId() {
+		return courseLabelId;
+	}
+
+	public void setCourseLabelId(Long courseLabelId) {
+		this.courseLabelId = courseLabelId;
+	}
+
+	public Long getCalendarId()
     {
         return calendarId;
     }
@@ -164,5 +244,24 @@ public class ElcResultQuery
     {
         this.keyword = keyword;
     }
+
+	public Double getCredits() {
+		return credits;
+	}
+
+	public void setCredits(Double credits) {
+		this.credits = credits;
+	}
+
+	public String getFaculty() {
+		return faculty;
+	}
+
+	public void setFaculty(String faculty) {
+		this.faculty = faculty;
+	}
+	
+    
+    
     
 }

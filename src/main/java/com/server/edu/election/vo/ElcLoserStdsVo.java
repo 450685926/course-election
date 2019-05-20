@@ -27,6 +27,15 @@ public class ElcLoserStdsVo extends ElcLoserStds {
     private String profession;
     private String researchDirection;
     private List<Long> idslist;
+    private String deptId;
+
+    public String getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(String deptId) {
+        this.deptId = deptId;
+    }
 
     public List<Long> getIdslist() {
         return idslist;

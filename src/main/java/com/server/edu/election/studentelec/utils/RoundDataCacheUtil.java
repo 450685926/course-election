@@ -27,16 +27,20 @@ import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.dao.ElectionRuleDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.preload.CourseGradeLoad;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 轮次数据缓存类
@@ -96,6 +100,9 @@ public class RoundDataCacheUtil
             redisTemplate.opsForHash();
         return ops;
     }
+    
+    @Autowired
+    private TeachingClassTeacherDao teacherDao;
     
     public void cacheRound(ElectionRounds round, long timeout)
     {
@@ -165,6 +172,14 @@ public class RoundDataCacheUtil
         
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
+        
+        Example teacherExample = new Example(TeachingClassTeacher.class);
+        teacherExample.createCriteria()
+            .andIn("teachingClassId", classIds)
+            .andEqualTo("type", Constants.TEACHER_DEFAULT);
+        List<TeachingClassTeacher> teacherList =
+            teacherDao.selectByExample(teacherExample);
+        
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
@@ -182,14 +197,33 @@ public class RoundDataCacheUtil
             courseClass.setCurrentNumber(lesson.getCurrentNumber());
             courseClass.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
-            
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, teacherMap, courseClass);
             courseClass.setTimes(times);
             
+            if (CollectionUtil.isNotEmpty(teacherList))
+            {
+                List<TeachingClassTeacher> teachers = teacherList.stream()
+                    .filter(c -> teachingClassId.equals(c.getTeachingClassId()))
+                    .collect(Collectors.toList());
+                if (CollectionUtil.isNotEmpty(teachers))
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (TeachingClassTeacher teacher : teachers)
+                    {
+                        stringBuilder.append(teacher.getTeacherName());
+                        stringBuilder.append("(");
+                        stringBuilder.append(teacher.getTeacherCode());
+                        stringBuilder.append(")");
+                        stringBuilder.append(",");
+                    }
+                    courseClass.setTeacherName(
+                        stringBuilder.deleteCharAt(stringBuilder.length() - 1)
+                            .toString());
+                }
+            }
             numMap.put(teachingClassId.toString(),
                 courseClass.getCurrentNumber());
-            
             map.put(teachingClassId.toString(), courseClass);
         }
         // 缓存选课人数
