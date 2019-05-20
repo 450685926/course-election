@@ -191,7 +191,7 @@ public class RoundDataProvider
         //缓存轮次学生
         dataUtil.cacheRoundStu(strTemplate, roundId, timeout);
         //缓存轮次的上一学期
-        //dataUtil.cachePreSemester(ops, round, timeout);
+        dataUtil.cachePreSemester(ops, round, timeout);
         
         // 加载所有教学班与课程数据到缓存中
         List<CourseOpenDto> lessons = roundCourseDao
