@@ -112,8 +112,8 @@ public class RoundDataCacheUtil
         String key = Keys.getRoundKey();
         hash.put(key, round.getId().toString(), round);
         
-        RedisTemplate<String, ElectionRounds> tpl =
-            redisTemplate(ElectionRounds.class);
+        StringRedisTemplate tpl =
+            SpringUtils.getBean(StringRedisTemplate.class);
         tpl.expire(key, 1, TimeUnit.DAYS);
     }
     
@@ -231,7 +231,8 @@ public class RoundDataCacheUtil
         HashOperations<String, String, Integer> opsClassNum = opsClassNum();
         opsClassNum.putAll(Keys.getClassElecNumberKey(), numMap);
         
-        RedisTemplate<String, Object> template = redisTemplate(Object.class);
+        StringRedisTemplate template =
+            SpringUtils.getBean(StringRedisTemplate.class);
         template
             .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);
         
@@ -254,8 +255,8 @@ public class RoundDataCacheUtil
     public void cacheCourse(long timeout, Long roundId,
         Map<String, Set<Long>> courseClassMap)
     {
-        RedisTemplate<String, String> redisTemplate =
-            redisTemplate(String.class);
+        StringRedisTemplate redisTemplate =
+            SpringUtils.getBean(StringRedisTemplate.class);
         HashOperations<String, String, String> ops = redisTemplate.opsForHash();
         String key = Keys.getRoundCourseKey(roundId);
         
@@ -290,8 +291,8 @@ public class RoundDataCacheUtil
      */
     public List<Long> getTeachClassIds(Long roundId, String courseCode)
     {
-        RedisTemplate<String, String> redisTemplate =
-            redisTemplate(String.class);
+        StringRedisTemplate redisTemplate =
+            SpringUtils.getBean(StringRedisTemplate.class);
         HashOperations<String, String, String> ops = redisTemplate.opsForHash();
         
         String key = Keys.getRoundCourseKey(roundId);
