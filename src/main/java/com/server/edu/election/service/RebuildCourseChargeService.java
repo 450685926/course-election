@@ -7,6 +7,7 @@ import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.util.excel.export.ExcelResult;
 
 import java.util.List;
 
@@ -46,5 +47,8 @@ public interface RebuildCourseChargeService {
 
     /**导出课程汇总名单*/
     String exportStudentNoChargeCourse(RebuildCoursePaymentCondition condition) throws Exception;
+
+    /**导出未缴费重修名单*/
+    ExcelResult export(RebuildCoursePaymentCondition condition);
 }
 

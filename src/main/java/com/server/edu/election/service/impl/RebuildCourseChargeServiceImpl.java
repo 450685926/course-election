@@ -12,7 +12,9 @@ import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.RebuildCourseChargeDao;
 import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
+import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.RebuildCourseCharge;
+import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -25,6 +27,9 @@ import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,6 +62,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private ElcCourseTakeService courseTakeService;
 
     @Autowired
     private DictionaryService dictionaryService;
@@ -236,6 +244,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     */
     @Override
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition) {
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
         if(courseNoChargeList!=null){
@@ -283,6 +293,15 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             return "common.parameterError";
         }
         //调用退课接口todo
+        List<ElcCourseTake> takes=new ArrayList<>();
+        for (RebuildCourseNoChargeList courseNoChargeList : list) {
+            ElcCourseTake take=new ElcCourseTake();
+            take.setStudentId(courseNoChargeList.getStudentCode());
+            take.setCalendarId(courseNoChargeList.getCalendarId());
+            take.setTeachingClassId(courseNoChargeList.getTeachingClassId());
+            takes.add(take);
+        }
+        courseTakeService.withdraw(takes);
         /**增加到回收站*/
         courseChargeDao.addCourseStudentToRecycle(list);
         return "common.deleteSuccess";
@@ -368,6 +387,51 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     }
 
     /**
+    *@Description: 导出重修缴费名单
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/20 9:48
+    */
+    @Override
+    public ExcelResult export(RebuildCoursePaymentCondition condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildNoCharge", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RebuildCoursePaymentCondition> pageCondition=new PageCondition<>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                List<RebuildCourseNoChargeList> list=new ArrayList<>();
+                while (true){
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<RebuildCourseNoChargeList> courseNoChargeList = findCourseNoChargeList(pageCondition);
+                    list.addAll(courseNoChargeList.getList());
+                    result.setTotal((int)courseNoChargeList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (courseNoChargeList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesign();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    /**
     *@Description: 导出未缴费课程名单
     *@Param:
     *@return:
@@ -432,7 +496,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
         design.addCell(I18nUtil.getMsg("rebuildCourse.courseArr"), "courseArr");
         design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "strPaid");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "strPaid").setValueHandler((value, rawData, cell) -> {
+            return "0".equals(value)?"未缴费":"已缴费";
+        });
         return design;
     }
 

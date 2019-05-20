@@ -135,6 +135,9 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
             and st.NAME_ like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
         </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+            and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
             and st.GRADE_ =#{grade,jdbcType=INTEGER}
         </if>
