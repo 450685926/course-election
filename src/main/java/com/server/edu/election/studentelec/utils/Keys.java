@@ -10,19 +10,19 @@ public class Keys
     public static final String STD = "elec-std-";
     
     /**轮次-课程 elec-roundCourse-[roundid]_[courseCode] */
-    public static final String ROUND_COURSE = "elec-roundCourse-%s_%s";
+    private static final String ROUND_COURSE = "elec-roundCourse-%s_%s";
     
-    /**学期-教学班 elec-teachClass-[classid]*/
-    public static final String CALENDAR_CLASS = "elec-teachClass-%s";
+    /**学期-教学班 elec-teachClass*/
+    private static final String CALENDAR_CLASS = "elec-teachClass";
     
-    /** 教学班选课人数elec-classNum-[count] */
-    public static final String ROUND_CLASS_NUM = "elec-classNum-%s";
+    /** 教学班选课人数elec-classNum */
+    private static final String ROUND_CLASS_NUM = "elec-classNum";
     
-    /** 轮次信息 elec-rounData-[roundId] */
-    public static final String ROUND_KEY = "elec-rounData-%s";
+    /** 轮次信息 elec-rounData */
+    private static final String ROUND_KEY = "elec-roundData";
     
     /** 轮次的规则信息 elec-roundRule-[rountid] */
-    public static final String ROUND_RULE = "elec-roundRule-%s";
+    private static final String ROUND_RULE = "elec-roundRule-%s";
     
     /** 学生状态锁  format参数 roundid studentid*/
     public static final String STD_STATUS_LOCK = "elec-stdlock-%s_%s";
@@ -33,7 +33,7 @@ public class Keys
     public static final String STD_STATUS = "elec-stdstatus-%s_%s";
     
     /**轮次学生 elec-roundStudent-%s */
-    public static final String ROUND_STUDENT = "elec-roundStudent-%s";
+    private static final String ROUND_STUDENT = "elec-roundStudent-%s";
     
     /**选课申请管理课程 elec-calendarId-%s-applyCourse*/
     public static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
@@ -42,21 +42,15 @@ public class Keys
     public static final String ROUND_PRESEMESTER = "elec-roundPreSemester-%s";
     
     /**轮次条件 elec-roundCondition-[roundid] */
-    public static final String ROUND_CONDITION = "elec-roundCondition-%s";
+    private static final String ROUND_CONDITION = "elec-roundCondition-%s";
     
     /**轮次缓存KEY*/
-    public static final String RULES = "elec-rules";
-    
-    /**轮次的redis pattern elec-rounData-* */
-    public static String getRoundKeyPattern()
-    {
-        return String.format(Keys.ROUND_KEY, "*");
-    }
+    private static final String RULES = "elec-rules";
     
     /**轮次的redis key*/
-    public static String getRoundKey(Long roundId)
+    public static String getRoundKey()
     {
-        return String.format(Keys.ROUND_KEY, roundId);
+        return String.format(Keys.ROUND_KEY);
     }
     
     /**轮次条件k round-condition* */
@@ -90,15 +84,15 @@ public class Keys
     }
     
     /**教学班key*/
-    public static String getClassKey(Long teachClassId)
+    public static String getClassKey()
     {
-        return String.format(Keys.CALENDAR_CLASS, teachClassId);
+        return String.format(Keys.CALENDAR_CLASS);
     }
     
     /**教学班选课人数Key*/
-    public static String getClassElecNumberKey(Long teachClassId)
+    public static String getClassElecNumberKey()
     {
-        return String.format(Keys.ROUND_CLASS_NUM, teachClassId);
+        return String.format(Keys.ROUND_CLASS_NUM);
     }
     
     /**轮次规则Key*/
