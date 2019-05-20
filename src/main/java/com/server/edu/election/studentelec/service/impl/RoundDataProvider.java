@@ -191,7 +191,7 @@ public class RoundDataProvider
         //缓存轮次学生
         dataUtil.cacheRoundStu(strTemplate, roundId, timeout);
         //缓存轮次的上一学期
-        //dataUtil.cachePreSemester(ops, round, timeout);
+        dataUtil.cachePreSemester(ops, round, timeout);
         
         // 加载所有教学班与课程数据到缓存中
         List<CourseOpenDto> lessons = roundCourseDao
@@ -214,7 +214,7 @@ public class RoundDataProvider
             }
         }
         // 缓存课程
-        dataUtil.cacheCourse(strTemplate, timeout, roundId, courseClassMap);
+        dataUtil.cacheCourse(timeout, roundId, courseClassMap);
         
     }
     
@@ -318,10 +318,8 @@ public class RoundDataProvider
     {
         List<TeachingClassCache> lessons = new ArrayList<>();
         
-        ValueOperations<String, String> ops = strTemplate.opsForValue();
-        
         List<Long> teachClassIds =
-            this.dataUtil.getTeachClassIds(roundId, courseCode, ops);
+            this.dataUtil.getTeachClassIds(roundId, courseCode);
         if (CollectionUtil.isEmpty(teachClassIds))
         {
             return lessons;
@@ -360,9 +358,8 @@ public class RoundDataProvider
             return null;
         }
         
-        ValueOperations<String, String> ops = strTemplate.opsForValue();
         List<Long> teachClassIds =
-            this.dataUtil.getTeachClassIds(roundId, courseCode, ops);
+            this.dataUtil.getTeachClassIds(roundId, courseCode);
         
         if (CollectionUtil.isEmpty(teachClassIds)
             || !teachClassIds.contains(teachClassId))
@@ -464,21 +461,30 @@ public class RoundDataProvider
             student = JSON.parseObject(text, Student.class);
         }
         
-        ElcRoundCondition roundsCondition = getRoundCondition(roundId);
-        if (roundsCondition != null)
+        ElcRoundCondition con = getRoundCondition(roundId);
+        if (con != null)
         {
-            if (roundsCondition.getCampus().contains(student.getCampus())
-                && roundsCondition.getFacultys().contains(student.getFaculty())
-                && roundsCondition.getGrades()
-                    .contains(student.getGrade().toString())
-                && roundsCondition.getMajors().contains(student.getProfession())
-                && roundsCondition.getTrainingLevels()
-                    .contains(student.getTrainingLevel()))
+            if (contains(con.getCampus(), student.getCampus())
+                && contains(con.getFacultys(), student.getFaculty())
+                && contains(con.getGrades(), student.getGrade().toString())
+                && contains(con.getMajors(), student.getProfession())
+                && contains(con.getTrainingLevels(),
+                    student.getTrainingLevel()))
             {
                 return true;
             }
+            return false;
         }
-        return false;
+        return true;
+    }
+    
+    boolean contains(String source, String taget)
+    {
+        if (StringUtils.isBlank(source))
+        {
+            return true;
+        }
+        return source.contains(taget);
     }
     
 }
