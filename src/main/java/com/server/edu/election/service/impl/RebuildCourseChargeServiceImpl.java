@@ -294,6 +294,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/2/14 10:56
     */
     @Override
+    @Transactional
     public String moveToRecycle(List<RebuildCourseNoChargeList> list) {
         if(CollectionUtil.isEmpty(list)){
             return "common.parameterError";
@@ -338,6 +339,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/2/14 14:03
     */
     @Override
+    @Transactional
     public String moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list) {
         if(CollectionUtil.isEmpty(list)){
             return "common.parameterError";
@@ -350,6 +352,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         return "common.deleteSuccess";
     }
 
+    @Transactional
     private void recoverClass(RebuildCourseNoChargeList noChargeList){
         String studentCode = noChargeList.getStudentCode();
         String courseCode = noChargeList.getCode();
