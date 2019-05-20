@@ -246,7 +246,7 @@ public class ElecContextUtil
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
+        String redisKey = Keys.getApplyCourseKey(calendarId);
         String value = opsForValue.get(redisKey);
         if (CollectionUtil.isNotEmpty(courses))
         {
@@ -276,7 +276,7 @@ public class ElecContextUtil
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
+        String redisKey = Keys.getApplyCourseKey(calendarId);;
         String value = opsForValue.get(redisKey);
         if (StringUtils.isEmpty(value))
         {
