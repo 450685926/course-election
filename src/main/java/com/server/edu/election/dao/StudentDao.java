@@ -2,16 +2,18 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
+import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.Student;
 
-import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 
 public interface StudentDao extends Mapper<Student> {
     //通过学号获取学生信息
     Student findStudentByCode(String studentCode);
-    List<Student> selectElcStudents(Student student);
-    List<Student> selectUnElcStudents(Student student);
+    List<Student> selectElcStudents(StudentDto student);
+    List<Student> selectUnElcStudents(StudentDto student);
     List<Student> selectElcInvincibleStds(Student student);
     List<Student> selectUnElcInvincibleStds(Student student);
 

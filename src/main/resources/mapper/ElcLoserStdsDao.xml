@@ -27,6 +27,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
        and  t2.NAME_ like concat ('%',#{studentName},'%')
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+        and t2.MANAGER_DEPT_ID_ =#{deptId}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
         and t2.GRADE_ =#{grade}
       </if>
@@ -60,4 +63,18 @@
       #{id}
     </foreach>
   </delete>
+
+  <insert id="insertLoserStu" parameterType="java.util.List">
+    insert into elc_loser_stds_t (CALENDAR_ID_,STUDENT_ID_,UNPASSED_CREDITS_)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.calendarId},#{item.studentId},#{item.unpassedCredits})
+    </foreach>
+  </insert>
+
+  <select id="findDeleStu" resultType="java.lang.Long">
+      select ID_ from elc_loser_stds_t t1
+       join student_t t2 on t2.STUDENT_CODE_=t1.STUDENT_ID_
+       where t1.CALENDAR_ID_=#{calendarId} and t2.MANAGER_DEPT_ID_=#{deptId}
+  </select>
 </mapper>

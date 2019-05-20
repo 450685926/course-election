@@ -27,5 +27,7 @@ public interface Constants
 	 public static final String PROJ_UNGRADUATE="1";
 	 public static final String PROJ_GRADUATE="2";
 	 public static final String PROJ_LINE_GRADUATE="4";
+	 
+	 public static final int TEACHER_DEFAULT=0;
 
 }

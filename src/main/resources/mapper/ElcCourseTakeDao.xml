@@ -109,7 +109,7 @@
     JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
     JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
-        <choose>
+        <!--<choose>
             <when test=" mode == 1 ">
                 st.STUDENT_CODE_ not in (select STUDENT_ID_ from elc_no_graduate_stds_t)
             </when>
@@ -119,12 +119,15 @@
             <otherwise>
                 st.STUDENT_CODE_ in  (select STUDENT_ID_ from elc_no_graduate_stds_t t1 join student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_ where t2.IS_OVERSEAS_ =1)
             </otherwise>
-        </choose>
+        </choose>-->
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2 and el.PAID_=0
       </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
             and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+            and el.MODE_ = #{mode,jdbcType=INTEGER}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
             and st.STUDENT_CODE_ like CONCAT('%', #{studentCode,jdbcType=VARCHAR}, '%')
@@ -134,6 +137,9 @@
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
             and st.NAME_ like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+            and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
             and st.GRADE_ =#{grade,jdbcType=INTEGER}
@@ -574,9 +580,12 @@
     </select>
 
     <select id="findStudentTable" resultType="com.server.edu.election.dto.StudnetTimeTable">
-        SELECT te.CODE_ classCode ,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
-        te.CAMPUS_ campus,te.REMARK_ remark,te.NAME_ className
-        FROM `elc_course_takes_t` el
+        SELECT 
+	       te.CODE_ classCode ,co.CODE_ courseCode,co.NAME_ courseName,
+	       el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,
+	       co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
+	       te.CAMPUS_ campus,te.REMARK_ remark,te.NAME_ className
+        FROM elc_course_takes_t el
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
         LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
@@ -625,7 +634,7 @@
 	t3.ELC_NUMBER_ elcNumber,
 	t1.TEACHING_CLASS_ID_ teachingClassId
     FROM
-    (select TEACHING_CLASS_ID_,COURSE_CODE_ from `elc_course_takes_t`  where CALENDAR_ID_=#{calendarId} GROUP BY TEACHING_CLASS_ID_) t1
+    (select TEACHING_CLASS_ID_,COURSE_CODE_ from elc_course_takes_t  where CALENDAR_ID_=#{calendarId} GROUP BY TEACHING_CLASS_ID_) t1
     JOIN teaching_class_teacher_t t2 ON t1.TEACHING_CLASS_ID_ = t2.TEACHING_CLASS_ID_
     JOIN teaching_class_t t3 ON t1.TEACHING_CLASS_ID_ = t3.ID_
     JOIN course_t t4 ON t4.CODE_ = t1.COURSE_CODE_

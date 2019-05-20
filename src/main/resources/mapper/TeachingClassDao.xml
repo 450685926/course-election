@@ -40,28 +40,62 @@
 	teaching_class_t t1 
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
 	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
+	left join teaching_class_teacher_t t4 on (t4.TYPE_=0 and t4.TEACHING_CLASS_ID_ =t1.ID_)
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
+        and t1.COURSE_LABEL_ID_ = #{courseLabelId}
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==1">
+        and t1.ELC_NUMBER_ &gt; t1.NUMBER_
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==2">
+        and t1.ELC_NUMBER_ &lt; t1.NUMBER_
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==3">
+        and t1.ELC_NUMBER_ = t1.NUMBER_
+      </if>
+      <if test="minUpperNumber != null and minUpperNumber !=0">
+        and t1.NUMBER_ &gt; #{minUpperNumber}
+      </if>
+      <if test="maxUpperNumber != null and maxUpperNumber !=0">
+        and t1.NUMBER_ &lt; #{maxUpperNumber}
+      </if>
+       <if test="minActualNumber != null and minActualNumber !=0">
+        and t1.ELC_NUMBER_ &gt; #{minActualNumber}
+      </if>
+      <if test="maxActualNumber != null and maxActualNumber !=0">
+        and t1.ELC_NUMBER_ &lt; #{maxActualNumber}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
         and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-        and t3.COURSE_CODE_ = #{courseCode,jdbcType=VARCHAR}
+        and t3.COURSE_CODE_ = #{courseCode}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-        and t3.COURSE_NAME_ = #{courseName,jdbcType=VARCHAR}
+        and t3.COURSE_NAME_ = #{courseName}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus,jdbcType=VARCHAR}
+        and t2.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
-        and t3.PROJ_ID_ = #{projectId,jdbcType=VARCHAR}
+        and t3.PROJ_ID_ = #{projectId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+        and t3.FACULTY_ = #{faculty}
+      </if>
+      <if test="credits!=null and credits!=0">
+        and t3.CREDITS_ = #{credits}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-  		and (t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  		</if>
+  	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+  	      and t4.TEACHER_CODE_ = #{teacherCode}
   		</if>
     </where>
   </select>
