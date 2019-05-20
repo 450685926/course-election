@@ -7,14 +7,17 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.RebuildCourseChargeDao;
-import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
+import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.service.ElcCourseTakeService;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -39,10 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -64,7 +64,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     private ElcCourseTakeDao courseTakeDao;
 
     @Autowired
+    private TeachingClassDao classDao;
+
+    @Autowired
     private ElcCourseTakeService courseTakeService;
+
+    @Autowired
+    private ElcLogDao elcLogDao;
 
     @Autowired
     private DictionaryService dictionaryService;
@@ -336,11 +342,58 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         if(CollectionUtil.isEmpty(list)){
             return "common.parameterError";
         }
-        //添加到选课表
-        courseTakeDao.addCourseTakeFromRecycle(list);
+        for (RebuildCourseNoChargeList noChargeList : list) {
+            recoverClass(noChargeList);
+        }
         /**从回收站删除*/
         courseChargeDao.recoveryDataFromRecycleCourse(list);
         return "common.deleteSuccess";
+    }
+
+    private void recoverClass(RebuildCourseNoChargeList noChargeList){
+        String studentCode = noChargeList.getStudentCode();
+        String courseCode = noChargeList.getCode();
+        Long calendarId = noChargeList.getCalendarId();
+        Integer chooseObj = noChargeList.getChooseObj();
+        Integer courseTakeType = noChargeList.getCourseTakeType();
+        Long teachingClassId = noChargeList.getTeachingClassId();
+        String teachingClassCode = noChargeList.getTeachingClassCode();
+        Integer mode = noChargeList.getMode();
+        Integer turn = noChargeList.getTurn();
+        String courseName = noChargeList.getCodeName();
+        ElcCourseTake record = new ElcCourseTake();
+        record.setStudentId(studentCode);
+        record.setCourseCode(courseCode);
+        int selectCount = courseTakeDao.selectCount(record);
+        if(selectCount == 0){
+            ElcCourseTake take = new ElcCourseTake();
+            take.setCalendarId(calendarId);
+            take.setChooseObj(chooseObj);
+            take.setCourseCode(courseCode);
+            take.setCourseTakeType(courseTakeType);
+            take.setCreatedAt(new Date());
+            take.setStudentId(studentCode);
+            take.setTeachingClassId(teachingClassId);
+            take.setMode(mode);
+            take.setTurn(turn);
+            courseTakeDao.insertSelective(take);
+            //增加选课人数
+            classDao.increElcNumber(teachingClassId);
+            ElcLog log = new ElcLog();
+            log.setCalendarId(calendarId);
+            log.setCourseCode(courseCode);
+            log.setCourseName(courseName);
+            Session currentSession = SessionUtils.getCurrentSession();
+            log.setCreateBy(currentSession.getUid());
+            log.setCreatedAt(new Date());
+            log.setCreateIp(currentSession.getIp());
+            log.setMode(chooseObj !=1 ? ElcLogVo.MODE_2:ElcLogVo.MODE_1);
+            log.setStudentId(studentCode);
+            log.setTeachingClassCode(teachingClassCode);
+            log.setTurn(turn);
+            log.setType(ElcLogVo.TYPE_1);
+            elcLogDao.insertSelective(log);
+        }
     }
 
    /**
