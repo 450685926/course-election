@@ -17,8 +17,8 @@ public class Keys
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
     public static final String STD_STATUS = "elec-stdstatus-%s_%s";
     
-    /**轮次-课程 elec-roundCourse-[roundid] */
-    private static final String ROUND_COURSE = "elec-roundCourse1-%s";
+    /** 轮次信息 elec-rounData */
+    private static final String ROUND_KEY = "elec-roundData1";
     
     /**学期-教学班 elec-teachClass*/
     private static final String CALENDAR_CLASS = "elec-teachClass1";
@@ -26,14 +26,14 @@ public class Keys
     /** 教学班选课人数elec-classNum */
     private static final String ROUND_CLASS_NUM = "elec-classNum1";
     
-    /** 轮次信息 elec-rounData */
-    private static final String ROUND_KEY = "elec-roundData1";
+    /**轮次-课程 elec-roundCourse-[roundid] */
+    private static final String ROUND_COURSE = "elec-roundCourse-%s";
     
     /** 轮次的规则信息 elec-roundRule-[rountid] */
     private static final String ROUND_RULE = "elec-roundRule-%s";
     
     /**轮次学生 elec-roundStudent-%s */
-    private static final String ROUND_STUDENT = "elec-roundStudent1-%s";
+    private static final String ROUND_STUDENT = "elec-roundStudent-%s";
     
     /**选课申请管理课程 elec-calendarId-%s-applyCourse*/
     private static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
