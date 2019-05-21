@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.service.cache;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
- * 缓存所有规则，规则是公共的
- * 
+ * 1.缓存所有规则，规则是公共的
+ * 2.缓存轮次所对应的规则
  * 
  * @author  OuYangGuoDong
  * @version  [版本号, 2019年5月21日]
@@ -57,6 +58,37 @@ public class RuleCacheService extends AbstractCacheService
             vo.setList(list);
             ops.put(key, vo.getServiceName(), JSON.toJSONString(vo));
         }
+    }
+    
+    /**
+     * 缓存轮次选课规则
+     * 
+     * @param ops
+     * @param roundId 轮次ID
+     * @param timeout 缓存失效时间分钟
+     * @see [类、类#方法、类#成员]
+     */
+    public void cacheRoundRule(Long roundId, long timeout)
+    {
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
+        List<String> serviceNames = null;
+        String key = Keys.getRoundRuleKey(roundId);
+        if (null != rules)
+        {
+            serviceNames = rules.stream()
+                .map(ElectionRuleVo::getServiceName)
+                .collect(Collectors.toList());
+        }
+        else
+        {
+            serviceNames = new ArrayList<>();
+            
+        }
+        ops.set(key,
+            JSON.toJSONString(serviceNames),
+            timeout,
+            TimeUnit.MINUTES);
     }
     
     /**

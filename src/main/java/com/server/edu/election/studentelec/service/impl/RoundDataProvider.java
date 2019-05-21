@@ -154,7 +154,7 @@ public class RoundDataProvider
         // 缓存轮次数据
         roundCacheService.cacheRound(round, timeout);
         // 缓存轮次规则数据
-        roundCacheService.cacheRoundRule(roundId, timeout);
+        ruleCacheService.cacheRoundRule(roundId, timeout);
         //缓存轮次条件
         roundCacheService.cacheRoundCondition(roundId, timeout);
         //缓存轮次学生
