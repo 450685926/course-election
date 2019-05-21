@@ -171,6 +171,9 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
             and co.NAME_ like CONCAT('%', #{name,jdbcType=VARCHAR}, '%')
         </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+            and (st.STUDENT_CODE_ like CONCAT('%', #{keyword}, '%') or st.NAME_ like CONCAT('%', #{keyword}, '%'))
+        </if>
     </where>
   </select>
 
