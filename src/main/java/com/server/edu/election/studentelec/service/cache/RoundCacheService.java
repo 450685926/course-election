@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.service.cache;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,14 +23,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
-import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -46,9 +43,6 @@ import com.server.edu.util.CollectionUtil;
 @Service
 public class RoundCacheService extends AbstractCacheService
 {
-    @Autowired
-    private ElectionRuleDao ruleDao;
-    
     @Autowired
     private ElcRoundConditionDao elcRoundConditionDao;
     
@@ -133,37 +127,6 @@ public class RoundCacheService extends AbstractCacheService
         HashOperations<String, String, ElectionRounds> hash = opsRound();
         ElectionRounds round = hash.get(Keys.getRoundKey(), roundId.toString());
         return round;
-    }
-    
-    /**
-     * 缓存轮次选课规则
-     * 
-     * @param ops
-     * @param roundId 轮次ID
-     * @param timeout 缓存失效时间分钟
-     * @see [类、类#方法、类#成员]
-     */
-    public void cacheRoundRule(Long roundId, long timeout)
-    {
-        ValueOperations<String, String> ops = strTemplate.opsForValue();
-        List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
-        List<String> serviceNames = null;
-        String key = Keys.getRoundRuleKey(roundId);
-        if (null != rules)
-        {
-            serviceNames = rules.stream()
-                .map(ElectionRuleVo::getServiceName)
-                .collect(Collectors.toList());
-        }
-        else
-        {
-            serviceNames = new ArrayList<>();
-            
-        }
-        ops.set(key,
-            JSON.toJSONString(serviceNames),
-            timeout,
-            TimeUnit.MINUTES);
     }
     
     /**
@@ -356,8 +319,7 @@ public class RoundCacheService extends AbstractCacheService
     * @param roundStuKeys redis已存在的Key
     * 
     * */
-    public void cacheRoundStu(Long roundId,
-        long timeout)
+    public void cacheRoundStu(Long roundId, long timeout)
     {
         List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
         
