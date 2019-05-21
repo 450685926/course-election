@@ -3,8 +3,10 @@ package com.server.edu.election.studentelec.service.cache;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -20,18 +22,15 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.entity.Teacher;
+import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
-import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.CourseOpenDto;
-import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.preload.CourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.util.CollectionUtil;
-
-import tk.mybatis.mapper.entity.Example;
 
 /**
  * 缓存教学班，教学班是公共的
@@ -46,9 +45,6 @@ import tk.mybatis.mapper.entity.Example;
 public class TeachClassCacheService extends AbstractCacheService
 {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
-    @Autowired
-    private TeachingClassTeacherDao teacherDao;
     
     @Autowired
     private ElecRoundCourseDao roundCourseDao;
@@ -97,6 +93,10 @@ public class TeachClassCacheService extends AbstractCacheService
         }
     }
     
+    static String[] split(String str) {
+    return	str.split(",");
+    }
+    
     /**
      * 缓存教学班
      * 
@@ -123,14 +123,6 @@ public class TeachClassCacheService extends AbstractCacheService
         
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
-        
-        Example teacherExample = new Example(TeachingClassTeacher.class);
-        teacherExample.createCriteria()
-            .andIn("teachingClassId", classIds)
-            .andEqualTo("type", Constants.TEACHER_DEFAULT);
-        List<TeachingClassTeacher> teacherList =
-            teacherDao.selectByExample(teacherExample);
-        
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
@@ -151,28 +143,30 @@ public class TeachClassCacheService extends AbstractCacheService
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, teacherMap, courseClass);
             courseClass.setTimes(times);
-            
-            if (CollectionUtil.isNotEmpty(teacherList))
-            {
-                List<TeachingClassTeacher> teachers = teacherList.stream()
-                    .filter(c -> teachingClassId.equals(c.getTeachingClassId()))
-                    .collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(teachers))
-                {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (TeachingClassTeacher teacher : teachers)
-                    {
-                        stringBuilder.append(teacher.getTeacherName());
+            if (CollectionUtil.isNotEmpty(times)) {
+				List<String[]> teacherSet =
+						times.stream().
+						map(ClassTimeUnit::getTeacherCode).map(TeachClassCacheService::split).collect(Collectors.toList());
+				if(CollectionUtil.isNotEmpty(teacherSet)) {
+					Set<String> tSet = new HashSet<>();
+					for (String[] tt : teacherSet) {
+						for (String tCode : tt) {
+							tSet.add(tCode);
+						}
+					}
+					StringBuilder stringBuilder = new StringBuilder();
+					for(String t :tSet) {
+                        stringBuilder.append(TeacherCacheUtil.getName(t));
                         stringBuilder.append("(");
-                        stringBuilder.append(teacher.getTeacherCode());
+                        stringBuilder.append(t);
                         stringBuilder.append(")");
                         stringBuilder.append(",");
-                    }
+					}
                     courseClass.setTeacherName(
-                        stringBuilder.deleteCharAt(stringBuilder.length() - 1)
-                            .toString());
-                }
-            }
+                            stringBuilder.deleteCharAt(stringBuilder.length() - 1)
+                                .toString());
+				}
+			}
             numMap.put(teachingClassId.toString(),
                 courseClass.getCurrentNumber());
             map.put(teachingClassId.toString(), courseClass);
