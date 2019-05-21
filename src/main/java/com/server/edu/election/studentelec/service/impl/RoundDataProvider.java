@@ -1,40 +1,33 @@
 package com.server.edu.election.studentelec.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSON;
 import com.server.edu.common.validator.Assert;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.Student;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.service.cache.RoundCacheService;
+import com.server.edu.election.studentelec.service.cache.RuleCacheService;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.election.studentelec.utils.RoundDataCacheUtil;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -50,22 +43,19 @@ public class RoundDataProvider
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
-    
-    @Autowired
-    private RedisTemplate<String, Integer> elecNumRedis;
-    
-    @Autowired
     private ElecRoundsDao roundsDao;
     
     @Autowired
-    private ElecRoundCourseDao roundCourseDao;
+    private RoundCacheService roundCacheService;
     
     @Autowired
-    private RoundDataCacheUtil dataUtil;
+    private RuleCacheService ruleCacheService;
     
     @Autowired
-    private StudentDao studentDao;
+    private TeachClassCacheService classCacheService;
+    
+    @Autowired
+    private StringRedisTemplate strTemplate;
     
     public RoundDataProvider()
     {
@@ -77,7 +67,7 @@ public class RoundDataProvider
         /*
          * roundId -> lessonId -> json
          */
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        ValueOperations<String, String> ops = strTemplate.opsForValue();
         
         String dataLoadKey =
             String.format(Keys.STD_STATUS_LOCK, "dataLoad", "");
@@ -90,22 +80,22 @@ public class RoundDataProvider
         
         try
         {
-            // 缓存轮次信息
-            dataUtil.cacheAllRule(redisTemplate);
+            // 缓存所有选课规则
+            ruleCacheService.cacheAllRule();
             
             /** 一小时后即将开始的选课参数 */
             List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
             
-            Set<String> keys = redisTemplate.keys(Keys.getRoundKeyPattern());
+            Set<String> keys = this.roundCacheService.getRoundKeys();
             
             Date now = new Date();
             Set<Long> calendarIds = new HashSet<>();
             for (ElectionRounds round : selectBeStart)
             {
-                String roundKey = Keys.getRoundKey(round.getId());
-                if (keys.contains(roundKey))
+                String id = round.getId().toString();
+                if (keys.contains(id))
                 {
-                    keys.remove(roundKey);
+                    keys.remove(id);
                 }
                 calendarIds.add(round.getCalendarId());
                 this.cacheData(round, now);
@@ -113,20 +103,18 @@ public class RoundDataProvider
             
             if (CollectionUtil.isNotEmpty(keys))
             {
-                redisTemplate.delete(keys);
+                this.roundCacheService.deleteRounds(keys.toArray());
             }
-            // 缓存教学班
+            // 缓存所有教学班
             for (Long calendarId : calendarIds)
             {
-                List<CourseOpenDto> lessons =
-                    roundCourseDao.selectTeachingClassByCalendarId(calendarId);
-                dataUtil.cacheTeachClass(ops, 100, lessons);
+                classCacheService.cacheAllTeachClass(calendarId);
             }
             
         }
         finally
         {
-            redisTemplate.delete(dataLoadKey);
+            strTemplate.delete(dataLoadKey);
         }
     }
     
@@ -150,14 +138,12 @@ public class RoundDataProvider
         }
         else
         {
-            String key = Keys.getRoundKey(roundId);
-            redisTemplate.delete(key);
+            this.roundCacheService.deleteRound(roundId);
         }
     }
     
     private void cacheData(ElectionRounds round, Date now)
     {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
         Long roundId = round.getId();
         Long calendarId = round.getCalendarId();
         
@@ -166,39 +152,38 @@ public class RoundDataProvider
             TimeUnit.MILLISECONDS.toMinutes(endTime.getTime() - now.getTime())
                 + 3;
         // 缓存轮次数据
-        dataUtil.cacheRound(ops, round, timeout);
+        roundCacheService.cacheRound(round, timeout);
         // 缓存轮次规则数据
-        dataUtil.cacheRoundRule(ops, roundId, timeout);
+        ruleCacheService.cacheRoundRule(roundId, timeout);
         //缓存轮次条件
-        dataUtil.cacheRoundCondition(ops, roundId, timeout);
+        roundCacheService.cacheRoundCondition(roundId, timeout);
         //缓存轮次学生
-        dataUtil.cacheRoundStu(redisTemplate, roundId, timeout);
+        roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
-        dataUtil.cachePreSemester(ops, round, timeout);
+        cachePreSemester(round, timeout);
         
-        // 加载所有教学班与课程数据到缓存中
-        List<CourseOpenDto> lessons = roundCourseDao
-            .selectCorseRefTeachClassByRoundId(roundId, calendarId);
-        
-        Map<String, Set<Long>> courseClassMap = new HashMap<>();
-        for (CourseOpenDto teachClasss : lessons)
-        {
-            String courseCode = teachClasss.getCourseCode();
-            Long teachingClassId = teachClasss.getTeachingClassId();
-            if (courseClassMap.containsKey(courseCode))
-            {
-                courseClassMap.get(courseCode).add(teachingClassId);
-            }
-            else
-            {
-                Set<Long> ids = new HashSet<>();
-                ids.add(teachingClassId);
-                courseClassMap.put(courseCode, ids);
-            }
-        }
         // 缓存课程
-        dataUtil.cacheCourse(redisTemplate, timeout, roundId, courseClassMap);
+        roundCacheService.cacheCourse(timeout, roundId, calendarId);
         
+    }
+    
+    /**
+     * 缓存上一学期
+     * 
+     * @param ops
+     * @param round 轮次
+     * @param timeout
+     * @see [类、类#方法、类#成员]
+     */
+    public void cachePreSemester(ElectionRounds round, long timeout)
+    {
+        ValueOperations<String, String> ops = strTemplate.opsForValue();
+        Long calendarId = round.getCalendarId();//当前学期
+        SchoolCalendarVo preSemester =
+            BaseresServiceInvoker.getPreSemester(calendarId);
+        Long id = preSemester.getId();
+        String roundPreSemester = Keys.getRoundPresemesterKey(round.getId());
+        ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
     }
     
     /**
@@ -208,22 +193,7 @@ public class RoundDataProvider
      */
     public List<ElectionRounds> getAllRound()
     {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        Set<String> keys = redisTemplate.keys(Keys.getRoundKeyPattern());
-        
-        List<String> ks = new ArrayList<>(keys);
-        Collections.sort(ks);
-        
-        List<String> texts = ops.multiGet(ks);
-        
-        List<ElectionRounds> list = new ArrayList<>();
-        for (String str : texts)
-        {
-            ElectionRounds round = JSON.parseObject(str, ElectionRounds.class);
-            list.add(round);
-        }
-        
-        return list;
+        return roundCacheService.getAllRound();
     }
     
     /**
@@ -234,12 +204,7 @@ public class RoundDataProvider
      */
     public ElectionRounds getRound(Long roundId)
     {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        String redisKey = Keys.getRoundKey(roundId);
-        String string = ops.get(redisKey);
-        
-        ElectionRounds round = JSON.parseObject(string, ElectionRounds.class);
-        return round;
+        return roundCacheService.getRound(roundId);
     }
     
     /**
@@ -250,13 +215,7 @@ public class RoundDataProvider
      */
     public ElcRoundCondition getRoundCondition(Long roundId)
     {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        String redisKey = Keys.getRoundConditionOne(roundId);
-        String value = ops.get(redisKey);
-        
-        ElcRoundCondition round =
-            JSON.parseObject(value, ElcRoundCondition.class);
-        return round;
+        return roundCacheService.getRoundCondition(roundId);
     }
     
     /**
@@ -267,9 +226,7 @@ public class RoundDataProvider
      */
     public List<ElectionRuleVo> getRules(Long roundId)
     {
-        List<ElectionRuleVo> rules =
-            this.dataUtil.getRules(roundId, redisTemplate);
-        return rules;
+        return ruleCacheService.getRules(roundId);
     }
     
     /**
@@ -281,7 +238,7 @@ public class RoundDataProvider
      */
     public ElectionRuleVo getRule(String serviceName)
     {
-        ElectionRuleVo vo = this.dataUtil.getRule(serviceName, redisTemplate);
+        ElectionRuleVo vo = this.ruleCacheService.getRule(serviceName);
         return vo;
     }
     
@@ -290,13 +247,13 @@ public class RoundDataProvider
      * 
      * @param roundId
      * @param serviceName
-     * @param redisTemplate
+     * @param strTemplate
      * @return
      * @see [类、类#方法、类#成员]
      */
     public boolean containsRule(Long roundId, String serviceName)
     {
-        return this.dataUtil.containsRule(roundId, serviceName, redisTemplate);
+        return this.ruleCacheService.containsRule(roundId, serviceName);
     }
     
     /**
@@ -309,42 +266,7 @@ public class RoundDataProvider
     public List<TeachingClassCache> getTeachClasss(Long roundId,
         String courseCode)
     {
-        List<TeachingClassCache> lessons = new ArrayList<>();
-        
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        
-        List<Long> teachClassIds =
-            this.dataUtil.getTeachClassIds(roundId, courseCode, ops);
-        if (CollectionUtil.isEmpty(teachClassIds))
-        {
-            return lessons;
-        }
-        List<String> keys = new ArrayList<>();
-        for (Long teachClassId : teachClassIds)
-        {
-            String classKey = Keys.getClassKey(teachClassId);
-            keys.add(classKey);
-        }
-        
-        if (CollectionUtil.isNotEmpty(keys))
-        {
-            Collections.sort(keys);
-            
-            List<String> list = ops.multiGet(keys);
-            if (CollectionUtil.isNotEmpty(list))
-            {
-                for (String json : list)
-                {
-                    if (StringUtils.isNotBlank(json))
-                    {
-                        TeachingClassCache lesson =
-                            JSON.parseObject(json, TeachingClassCache.class);
-                        lessons.add(lesson);
-                    }
-                }
-            }
-        }
-        return lessons;
+        return classCacheService.getTeachClasss(roundId, courseCode);
     }
     
     /**
@@ -357,31 +279,8 @@ public class RoundDataProvider
     public TeachingClassCache getTeachClass(Long roundId, String courseCode,
         Long teachClassId)
     {
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        
-        if (roundId == null || StringUtils.isBlank(courseCode)
-            || teachClassId == null)
-        {
-            logger.warn(
-                "---- roundId, courseCode and teachClassId can not be null ----");
-            return null;
-        }
-        
-        List<Long> teachClassIds =
-            this.dataUtil.getTeachClassIds(roundId, courseCode, ops);
-        
-        if (CollectionUtil.isEmpty(teachClassIds)
-            || !teachClassIds.contains(teachClassId))
-        {
-            return null;
-        }
-        
-        String classKey = Keys.getClassKey(teachClassId);
-        String string = ops.get(classKey);
-        
-        TeachingClassCache lesson =
-            JSON.parseObject(string, TeachingClassCache.class);
-        return lesson;
+        return classCacheService
+            .getTeachClass(roundId, courseCode, teachClassId);
     }
     
     /**
@@ -393,9 +292,7 @@ public class RoundDataProvider
      */
     public Integer getElecNumber(Long teachClassId)
     {
-        Integer num = this.elecNumRedis.opsForValue()
-            .get(Keys.getClassElecNumberKey(teachClassId));
-        return num;
+        return classCacheService.getElecNumber(teachClassId);
     }
     
     /**
@@ -407,9 +304,7 @@ public class RoundDataProvider
      */
     public int incrementElecNumber(Long teachClassId)
     {
-        return this.elecNumRedis.opsForValue()
-            .increment(Keys.getClassElecNumberKey(teachClassId), 1)
-            .intValue();
+        return classCacheService.incrementElecNumber(teachClassId);
     }
     
     /**
@@ -422,7 +317,7 @@ public class RoundDataProvider
      */
     public boolean containsStu(Long roundId, String studentId)
     {
-        return this.dataUtil.containsStu(redisTemplate, roundId, studentId);
+        return this.roundCacheService.containsStu(roundId, studentId);
     }
     
     /**
@@ -435,45 +330,7 @@ public class RoundDataProvider
      */
     public boolean containsStuCondition(Long roundId, String studentId)
     {
-        if (null == roundId || StringUtils.isBlank(studentId))
-        {
-            return false;
-        }
-        Student student = null;
-        
-        HashOperations<String, String, String> ops = redisTemplate.opsForHash();
-        String key = "elecStudentTempRedisKey";
-        String text = ops.get(key, studentId);
-        if (StringUtils.isBlank(text))
-        {
-            student = studentDao.selectByPrimaryKey(studentId);
-            if (null == student)
-            {
-                return false;
-            }
-            ops.put(key, studentId, JSON.toJSONString(student));
-            redisTemplate.expire(key, 1, TimeUnit.HOURS);
-        }
-        else
-        {
-            student = JSON.parseObject(text, Student.class);
-        }
-        
-        ElcRoundCondition roundsCondition = getRoundCondition(roundId);
-        if (roundsCondition != null)
-        {
-            if (roundsCondition.getCampus().contains(student.getCampus())
-                && roundsCondition.getFacultys().contains(student.getFaculty())
-                && roundsCondition.getGrades()
-                    .contains(student.getGrade().toString())
-                && roundsCondition.getMajors().contains(student.getProfession())
-                && roundsCondition.getTrainingLevels()
-                    .contains(student.getTrainingLevel()))
-            {
-                return true;
-            }
-        }
-        return false;
+        return roundCacheService.containsStuCondition(roundId, studentId);
     }
     
 }

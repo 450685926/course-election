@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -106,10 +107,10 @@ public class ElecContextUtil
     
     private String getByKey(String type)
     {
-        ValueOperations<String, String> opsForValue =
-            getRedisTemplate().opsForValue();
-        String value = opsForValue
-            .get(Keys.STD + type + "-" + calendarId + "-" + studentId);
+        HashOperations<String, String, String> ops =
+            getRedisTemplate().opsForHash();
+        
+        String value = ops.get(Keys.STD + calendarId + "-" + studentId, type);
         return value;
     }
     
@@ -117,10 +118,12 @@ public class ElecContextUtil
     {
         if (null != value)
         {
-            ValueOperations<String, String> opsForValue =
-                getRedisTemplate().opsForValue();
-            opsForValue.set(Keys.STD + type + "-" + calendarId + "-"
-                + studentId, JSON.toJSONString(value), 5, TimeUnit.DAYS);
+            HashOperations<String, String, String> ops =
+                getRedisTemplate().opsForHash();
+            
+            String key = Keys.STD + calendarId + "-" + studentId;
+            ops.put(key, type, JSON.toJSONString(value));
+            getRedisTemplate().expire(key, 5, TimeUnit.DAYS);
         }
     }
     
@@ -246,7 +249,7 @@ public class ElecContextUtil
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
+        String redisKey = Keys.getApplyCourseKey(calendarId);
         String value = opsForValue.get(redisKey);
         if (CollectionUtil.isNotEmpty(courses))
         {
@@ -276,7 +279,8 @@ public class ElecContextUtil
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = String.format(Keys.APPLY_COURSE, calendarId);
+        String redisKey = Keys.getApplyCourseKey(calendarId);
+        ;
         String value = opsForValue.get(redisKey);
         if (StringUtils.isEmpty(value))
         {
