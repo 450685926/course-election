@@ -23,6 +23,15 @@ public class RebuildCoursePaymentCondition {
     private String name;
     private Integer mode;
     private String deptId;
+    private String keyword;
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
     public String getDeptId() {
         return deptId;
