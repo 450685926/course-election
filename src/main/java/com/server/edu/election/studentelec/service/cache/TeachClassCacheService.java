@@ -144,27 +144,19 @@ public class TeachClassCacheService extends AbstractCacheService
                 gradeLoad.concatTime(collect, teacherMap, courseClass);
             courseClass.setTimes(times);
             if (CollectionUtil.isNotEmpty(times)) {
-				List<String[]> teacherSet =
-						times.stream().
-						map(ClassTimeUnit::getTeacherCode).map(TeachClassCacheService::split).collect(Collectors.toList());
+//				List<String[]> teacherSet =
+//						times.stream().map(TeachClassCacheService::split).collect(Collectors.toList());
+				List<String> teacherSet = new ArrayList<>(times.stream().
+						map(ClassTimeUnit::getTeacherCode).collect(Collectors.toSet()));
 				if(CollectionUtil.isNotEmpty(teacherSet)) {
-					Set<String> tSet = new HashSet<>();
-					for (String[] tt : teacherSet) {
-						for (String tCode : tt) {
-							tSet.add(tCode);
-						}
-					}
-					StringBuilder stringBuilder = new StringBuilder();
-					for(String t :tSet) {
-                        stringBuilder.append(TeacherCacheUtil.getName(t));
-                        stringBuilder.append("(");
-                        stringBuilder.append(t);
-                        stringBuilder.append(")");
-                        stringBuilder.append(",");
-					}
-                    courseClass.setTeacherName(
-                            stringBuilder.deleteCharAt(stringBuilder.length() - 1)
-                                .toString());
+					String str = StringUtils.join(teacherSet, ",");
+					List<String> nameList=new ArrayList<>();
+					Collections.addAll(nameList, str.split(","));
+					Set<String> tnames = new HashSet<>(nameList);
+					List<Teacher> teachers = TeacherCacheUtil.getTeachers(tnames.toString());
+					List<String> names = teachers.stream().map(t->{return String.format("%s(%s)",t.getName(), t.getCode());}).collect(Collectors.toList());
+					String tName = StringUtils.join(names, ",");
+					courseClass.setTeacherName(tName);
 				}
 			}
             numMap.put(teachingClassId.toString(),
