@@ -55,7 +55,7 @@ public interface ReportManagementService {
     String otherSelectCourse(StudentSelectCourseList studentSelectCourseList);
 
     /**导出未选课学生名单*/
-    String exportStudentNoCourseList(ReportManagementCondition condition) throws Exception;
+    String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception;
 
     /**导出点名册*/
     String exportRollBookList(ReportManagementCondition condition) throws Exception;
@@ -74,7 +74,7 @@ public interface ReportManagementService {
 
     List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode, Integer week);
 
-    ExcelResult export(ReportManagementCondition condition);
+    ExcelResult export(NoSelectCourseStdsDto condition);
 
     ExcelResult exportTeacher(ClassCodeToTeacher condition);
 

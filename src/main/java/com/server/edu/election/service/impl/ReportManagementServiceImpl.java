@@ -475,14 +475,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/20 15:08
     */
     @Override
-    public String exportStudentNoCourseList(ReportManagementCondition condition) throws Exception{
-        PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+    public String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception{
+        PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
         pageCondition.setCondition(condition);
         pageCondition.setPageSize_(Constants.ZERO);
         pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+        PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
         if(electCourseList!=null){
-            List<StudentSelectCourseList> list = electCourseList.getList();
+            List<NoSelectCourseStdsDto> list = electCourseList.getList();
             if (list == null) {
                 list = new ArrayList<>();
             }
@@ -849,22 +849,22 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/5/8 16:13
     */
     @Override
-    public ExcelResult export(ReportManagementCondition condition) {
+    public ExcelResult export(NoSelectCourseStdsDto condition) {
         ExcelResult excelResult = ExportExcelUtils.submitTask("eleCourseList", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
                 ExcelResult result = this.getResult();
-                PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+                PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
                 pageCondition.setCondition(condition);
                 pageCondition.setPageSize_(100);
                 int pageNum = 0;
                 pageCondition.setPageNum_(pageNum);
-                List<StudentSelectCourseList> list = new ArrayList<>();
+                List<NoSelectCourseStdsDto> list = new ArrayList<>();
                 while (true)
                 {
                     pageNum++;
                     pageCondition.setPageNum_(pageNum);
-                    PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+                    PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
                     list.addAll(electCourseList.getList());
 
                     result.setTotal((int)electCourseList.getTotal_());
