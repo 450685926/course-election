@@ -202,10 +202,12 @@ public class CourseGradeLoad extends DataProLoad
                 List<ClassTimeUnit> times =
                     concatTime(collect, teacherMap, selectedCourse);
                 selectedCourse.setTimes(times);
-                String teacherName = null;
-                teacherName = teachClassCacheService.getTeacherName(times, teacherName);
-                if(StringUtils.isNotBlank(teacherName)) {
-            		selectedCourse.setTeacherName(teacherName);
+                
+                String teacherName =
+                    teachClassCacheService.getTeacherName(times);
+                if (StringUtils.isNotBlank(teacherName))
+                {
+                    selectedCourse.setTeacherName(teacherName);
                 }
                 selectedCourses.add(selectedCourse);
                 
