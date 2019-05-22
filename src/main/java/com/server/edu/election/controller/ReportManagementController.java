@@ -271,7 +271,7 @@ public class ReportManagementController {
     @ApiOperation(value = "导出未选课学生名单")
     @PostMapping("/exportStudentNoCourseList2")
     public RestResult<String> exportStudentNoCourseList (
-            @RequestBody ReportManagementCondition condition)
+            @RequestBody NoSelectCourseStdsDto condition)
             throws Exception
     {
         LOG.info("export.start");
@@ -311,7 +311,7 @@ public class ReportManagementController {
 
     @ApiOperation(value = "导出未选课学生名单")
     @PostMapping("/export")
-    public RestResult<ExcelResult> export(@RequestBody ReportManagementCondition condition)
+    public RestResult<ExcelResult> export(@RequestBody NoSelectCourseStdsDto condition)
             throws Exception {
         LOG.info("export.start");
         ExcelResult result = managementService.export(condition);
