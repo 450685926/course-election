@@ -93,8 +93,9 @@ public class TeachClassCacheService extends AbstractCacheService
         }
     }
     
-    static String[] split(String str) {
-    return	str.split(",");
+    static String[] split(String str)
+    {
+        return str.split(",");
     }
     
     /**
@@ -145,8 +146,9 @@ public class TeachClassCacheService extends AbstractCacheService
             courseClass.setTimes(times);
             String tName = null;
             tName = getTeacherName(times, tName);
-            if(StringUtils.isNotBlank(tName)) {
-            	courseClass.setTeacherName(tName);
+            if (StringUtils.isNotBlank(tName))
+            {
+                courseClass.setTeacherName(tName);
             }
             numMap.put(teachingClassId.toString(),
                 courseClass.getCurrentNumber());
@@ -165,23 +167,33 @@ public class TeachClassCacheService extends AbstractCacheService
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
         
     }
-
-	public String getTeacherName(List<ClassTimeUnit> times, String tName) {
-		if (CollectionUtil.isNotEmpty(times)) {
-			List<String> teacherSet = new ArrayList<>(times.stream().
-					map(ClassTimeUnit::getTeacherCode).collect(Collectors.toSet()));
-			if(CollectionUtil.isNotEmpty(teacherSet)) {
-				String str = StringUtils.join(teacherSet, ",");
-				List<String> nameList=new ArrayList<>();
-				Collections.addAll(nameList, str.split(","));
-				Set<String> tnames = new HashSet<>(nameList);
-				List<Teacher> teachers = TeacherCacheUtil.getTeachers(tnames.toString());
-				List<String> names = teachers.stream().map(t->{return String.format("%s(%s)",t.getName(), t.getCode());}).collect(Collectors.toList());
-				tName = StringUtils.join(names, ",");
-			}
-		}
-		return tName;
-	}
+    
+    public String getTeacherName(List<ClassTimeUnit> times, String tName)
+    {
+        if (CollectionUtil.isNotEmpty(times))
+        {
+            List<String> teacherSet = new ArrayList<>(times.stream()
+                .map(ClassTimeUnit::getTeacherCode)
+                .collect(Collectors.toSet()));
+            if (CollectionUtil.isNotEmpty(teacherSet))
+            {
+                String str = StringUtils.join(teacherSet, ",");
+                List<String> nameList = new ArrayList<>();
+                Collections.addAll(nameList, str.split(","));
+                Set<String> tnames = new HashSet<>(nameList);
+                List<Teacher> teachers = TeacherCacheUtil
+                    .getTeachers(tnames.toArray(new String[] {}));
+                List<String> names = teachers.stream().map(t -> {
+                    if (t == null)
+                        return "";
+                    return String.format("%s(%s)", t.getName(), t.getCode());
+                }).collect(Collectors.toList());
+                
+                tName = StringUtils.join(names, ",");
+            }
+        }
+        return tName;
+    }
     
     /**
      * 
