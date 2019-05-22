@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.*;
+import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,18 +41,6 @@ import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
-import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -444,26 +435,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/19 15:42
     */
     @Override
-    public PageResult<StudentSelectCourseList> findElectCourseList(PageCondition<ReportManagementCondition> condition) {
+    public PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition) {
+        String deptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(deptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<StudentSelectCourseList> electCourseList = elecRoundsDao.findElectCourseList(condition.getCondition());
-        if(electCourseList!=null){
-            List<StudentSelectCourseList> result = electCourseList.getResult();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            if(schoolCalendarMap.size()!=0){
-                for (StudentSelectCourseList managementCondition : result) {
-                    String s = schoolCalendarMap.get(managementCondition.getCalendarId());
-                    if(StringUtils.isNotEmpty(s)){
-                        managementCondition.setCalendarName(s);
-                    }
-                }
-
-            }
-        }
+        Page<NoSelectCourseStdsDto> electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
         return new PageResult<>(electCourseList);
     }
 

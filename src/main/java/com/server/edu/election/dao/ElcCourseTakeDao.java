@@ -128,4 +128,9 @@ public interface ElcCourseTakeDao
 
     /**预警学生选课*/
     List<LoserStuElcCourse> findStudentElcCourse(@Param("calendarId")Long calendarId, @Param("studentId") String studentId);
+
+    /**
+     * 查询未选课学生
+     */
+    Page<NoSelectCourseStdsDto> findNoSelectCourseStds(NoSelectCourseStdsDto stdsDto);
 }

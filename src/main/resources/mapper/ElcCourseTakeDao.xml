@@ -680,4 +680,33 @@
         AND t1.CALENDAR_ID_ = #{calendarId}
 
     </select>
+    
+    <select id="findNoSelectCourseStds" parameterType="com.server.edu.election.dto.NoSelectCourseStdsDto" resultType="com.server.edu.election.dto.NoSelectCourseStdsDto">
+        select t1.STUDENT_CODE_ studentCode,t1.NAME_ studentName,t1.GRADE_ grade,t1.FACULTY_ faculty,t1.PROFESSION_ major,
+        t1.STUDENT_CATEGORY_ studentCategory,t2.REASON_ noSelectReason
+        from student_t t1
+        left join elc_no_elect_reason_t t2 on (t1.STUDENT_CODE_=t2.STUDENT_ID_ and t2.CALENDAR_ID_=#{calendarId})
+        <where>
+            t1.STUDENT_CODE_ not in (select STUDENT_ID_ from elc_course_takes_t where CALENDAR_ID_=#{calendarId})
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+               and t1.GRADE_ =#{grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+               and t1.MANAGER_DEPT_ID_ =#{deptId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and t1.FACULTY_ =#{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
+                and t1.PROFESSION_ =#{major}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
+                and t1.STUDENT_CATEGORY_ =#{studentCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (t1.STUDENT_CODE_ like concat('%',#{keyword},'%') or t1.NAME_ like concat('%',#{keyword},'%') )
+            </if>
+        </where>
+
+    </select>
 </mapper>

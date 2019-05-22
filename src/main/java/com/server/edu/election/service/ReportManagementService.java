@@ -4,16 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.RollBookList;
@@ -51,7 +42,7 @@ public interface ReportManagementService {
             PageCondition<ElcLogVo> condition);
 
     /**查询选课名单*/
-    PageResult<StudentSelectCourseList> findElectCourseList(PageCondition<ReportManagementCondition> condition);
+    PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition);
 
     /**未选课原因*/
     String addNoSelectReason(ElcNoSelectReason noSelectReason);

@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
+import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -26,16 +27,6 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
@@ -79,10 +70,10 @@ public class ReportManagementController {
     private String cacheDirectory;
 
 
-    @ApiOperation(value = "查询学生未选课名单")
-    @PostMapping("/findElectCourseList")
-    public RestResult<PageResult<StudentSelectCourseList>> findElectCourseList(@RequestBody PageCondition<ReportManagementCondition> condition) {
-        PageResult<StudentSelectCourseList> electCourseList = managementService.findElectCourseList(condition);
+    @ApiOperation(value = "查询未选课学生名单")
+    @PostMapping("/findNoSelectCourseList")
+    public RestResult<PageResult<NoSelectCourseStdsDto>> findElectCourseList(@RequestBody PageCondition<NoSelectCourseStdsDto> condition) {
+        PageResult<NoSelectCourseStdsDto> electCourseList = managementService.findElectCourseList(condition);
         return RestResult.successData(electCourseList);
     }
 
