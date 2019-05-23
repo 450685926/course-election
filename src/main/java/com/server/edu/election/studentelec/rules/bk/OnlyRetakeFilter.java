@@ -1,21 +1,14 @@
 package com.server.edu.election.studentelec.rules.bk;
 
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.rules.RetakeCourse;
-import com.server.edu.util.CollectionUtil;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 
 /**
  * 只允许选重修课
@@ -34,8 +27,9 @@ public class OnlyRetakeFilter extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        long count = RetakeCourse.isRetakeCourse(context, courseClass.getCourseCode());
-        if (count>0)//重修
+        boolean count = RetakeCourseUtil.isRetakeCourse(context,
+            courseClass.getCourseCode());
+        if (count)//重修
         {
             return true;
         }
