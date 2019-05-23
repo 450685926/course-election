@@ -354,7 +354,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Transactional
     private void recoverClass(RebuildCourseNoChargeList noChargeList){
         String studentCode = noChargeList.getStudentCode();
-        String courseCode = noChargeList.getCode();
+        String courseCode = noChargeList.getCourseCode();
         Long calendarId = noChargeList.getCalendarId();
         Integer chooseObj = noChargeList.getChooseObj();
         Integer courseTakeType = noChargeList.getCourseTakeType();
@@ -362,7 +362,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         String teachingClassCode = noChargeList.getTeachingClassCode();
         Integer mode = noChargeList.getMode();
         Integer turn = noChargeList.getTurn();
-        String courseName = noChargeList.getCodeName();
+        String courseName = noChargeList.getCourseName();
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentCode);
         record.setCourseCode(courseCode);
@@ -520,10 +520,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 String s=rebuildCourseNoChargeList.getStartWeek()+"-"+rebuildCourseNoChargeList.getEndWeek()+
                         "周"+format+"课时";
                 rebuildCourseNoChargeList.setCourseArr(s);
-                if(rebuildCourseNoChargeList.getId()!=null){
-                    String str=rebuildCourseNoChargeList.getPaid()==0?"未缴费":"已缴费";
-                    rebuildCourseNoChargeList.setStrPaid(str);
-                }
+
 
             }
             if (list == null) {
