@@ -120,7 +120,6 @@ public class TeachClassCacheService extends AbstractCacheService
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
-        Map<String, Teacher> teacherMap = new HashMap<>();
         
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -142,7 +141,7 @@ public class TeachClassCacheService extends AbstractCacheService
             courseClass.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
             List<ClassTimeUnit> times =
-                gradeLoad.concatTime(collect, teacherMap, courseClass);
+                gradeLoad.concatTime(collect, courseClass);
             courseClass.setTimes(times);
             
             String tName = getTeacherName(times);
@@ -189,7 +188,8 @@ public class TeachClassCacheService extends AbstractCacheService
                     List<String> names = teachers.stream().map(t -> {
                         if (t == null)
                             return "";
-                        return String.format("%s(%s)", t.getName(), t.getCode());
+                        return String
+                            .format("%s(%s)", t.getName(), t.getCode());
                     }).collect(Collectors.toList());
                     
                     tName = StringUtils.join(names, ",");
