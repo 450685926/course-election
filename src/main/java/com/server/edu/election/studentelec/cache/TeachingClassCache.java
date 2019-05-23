@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
 
@@ -150,7 +149,7 @@ public class TeachingClassCache extends ElecCourse
         this.times = times;
     }
     
-    @JsonIgnore
+    //@JsonIgnore
     public String getCourseCodeAndClassCode()
     {
         return String
