@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -148,7 +149,7 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "查询未缴费的课程名单")
     @PostMapping("/findCourseNoChargeList")
-    public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCourseDto> condition) {
         if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
             return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
         }
@@ -189,7 +190,7 @@ public class RebuildCourseController {
     @ApiOperation(value = "导出未缴费课程名单")
     @PostMapping("/exportNoChargeList2")
     public RestResult<String> exportNoChargeList2 (
-            @RequestBody RebuildCoursePaymentCondition condition)
+            @RequestBody RebuildCourseDto condition)
             throws Exception
     {
         LOG.info("export.start");
@@ -228,7 +229,7 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "导出重修缴费名单")
     @PostMapping("/export")
-    public RestResult<ExcelResult> export(@RequestBody RebuildCoursePaymentCondition condition)
+    public RestResult<ExcelResult> export(@RequestBody RebuildCourseDto condition)
             throws Exception {
         LOG.info("export.start");
         ExcelResult result = service.export(condition);

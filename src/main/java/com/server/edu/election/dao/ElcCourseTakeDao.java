@@ -43,7 +43,7 @@ public interface ElcCourseTakeDao
     
     /**查询重修未缴费课程名单*/
     Page<RebuildCourseNoChargeList> findCourseNoChargeList(
-        RebuildCoursePaymentCondition condition);
+            RebuildCourseDto condition);
     
     /**查询学生重修未缴费总门数*/
     Page<StudentVo> findCourseNoChargeStudentList(

@@ -12,6 +12,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -249,20 +250,18 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/2/13 15:17
     */
     @Override
-    public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition) {
+    public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
         if(courseNoChargeList!=null){
             List<RebuildCourseNoChargeList> list = courseNoChargeList.getResult();
-            SchoolCalendarVo schoolCalendarById = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
             for (RebuildCourseNoChargeList rebuildList : list) {
                 String courseArr="";
                 DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
                 String format = decimalFormat.format(rebuildList.getPeriod());
                 courseArr=rebuildList.getStartWeek()+"-"+rebuildList.getEndWeek()+"周"+format+"课时";
-                rebuildList.setCalendarName(schoolCalendarById.getFullName());
                 rebuildList.setCourseArr(courseArr);
             }
 
@@ -452,12 +451,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/5/20 9:48
     */
     @Override
-    public ExcelResult export(RebuildCoursePaymentCondition condition) {
+    public ExcelResult export(RebuildCourseDto condition) {
         ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildNoCharge", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
                 ExcelResult result = this.getResult();
-                PageCondition<RebuildCoursePaymentCondition> pageCondition=new PageCondition<>();
+                PageCondition<RebuildCourseDto> pageCondition=new PageCondition<>();
                 pageCondition.setCondition(condition);
                 pageCondition.setPageSize_(100);
                 int pageNum = 0;
@@ -497,8 +496,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/2/20 11:17
     */
     @Override
-    public String exportNoChargeList(RebuildCoursePaymentCondition condition) throws Exception{
-        PageCondition<RebuildCoursePaymentCondition> pageCondition = new PageCondition<RebuildCoursePaymentCondition>();
+    public String exportNoChargeList(RebuildCourseDto condition) throws Exception{
+        PageCondition<RebuildCourseDto> pageCondition = new PageCondition<RebuildCourseDto>();
         pageCondition.setCondition(condition);
         pageCondition.setPageSize_(Constants.ZERO);
         pageCondition.setPageNum_(Constants.ZERO);
