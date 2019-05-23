@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
@@ -58,7 +57,7 @@ public class ElcCourseSuggestController {
     @ApiOperation(value = "点击开启")
     @PostMapping("/start")
     public RestResult<Integer> start(
-    		@RequestParam("courses") @NotEmpty List<String> courses)
+    		@RequestBody @NotEmpty List<String> courses)
         throws Exception
     {
         LOG.info("start.start");
@@ -77,7 +76,7 @@ public class ElcCourseSuggestController {
     @ApiOperation(value = "点击关闭")
     @PostMapping("/stop")
     public RestResult<Integer> stop(
-    		@RequestParam("courses") @NotEmpty List<String> courses)
+    		@RequestBody @NotEmpty List<String> courses)
         throws Exception
     {
         LOG.info("stop.start");
