@@ -5,6 +5,8 @@ import java.net.URLDecoder;
 import java.util.List;
 
 import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.*;
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -30,11 +32,6 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
-import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -79,8 +76,8 @@ public class ReportManagementController {
 
     @ApiOperation(value = "新增未选课原因")
     @PostMapping("/addNoSelectReason")
-    public RestResult<String> addNoSelectReason(@RequestBody ElcNoSelectReason noSelectReason) {
-        if(noSelectReason.getCalendarId()==null||StringUtils.isEmpty(noSelectReason.getStudentId())){
+    public RestResult<String> addNoSelectReason(@RequestBody ElcNoSelectReasonVo noSelectReason) {
+        if(noSelectReason.getCalendarId()==null|| CollectionUtil.isEmpty(noSelectReason.getStudentIds())){
             return RestResult.fail("common.parameterError");
         }
         String s = managementService.addNoSelectReason(noSelectReason);

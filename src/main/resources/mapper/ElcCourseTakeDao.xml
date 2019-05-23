@@ -687,7 +687,7 @@
         from student_t t1
         left join elc_no_elect_reason_t t2 on (t1.STUDENT_CODE_=t2.STUDENT_ID_ and t2.CALENDAR_ID_=#{calendarId})
         <where>
-            t1.STUDENT_CODE_ not in (select STUDENT_ID_ from elc_course_takes_t where CALENDAR_ID_=#{calendarId} group by STUDENT_ID_)
+             t1.STUDENT_CODE_ not in (select STUDENT_ID_ from elc_course_takes_t where CALENDAR_ID_=#{calendarId} group by STUDENT_ID_)
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
                and t1.GRADE_ =#{grade}
             </if>

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.*;
 import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,11 +47,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
-import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -447,9 +443,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
      * 增加未选课原因
      * */
     @Override
-    public String addNoSelectReason(ElcNoSelectReason noSelectReason) {
-        reasonDao.deleteNoSelectReason(noSelectReason.getCalendarId(),noSelectReason.getStudentId());
-        reasonDao.insertSelective(noSelectReason);
+    public String addNoSelectReason(ElcNoSelectReasonVo noSelectReason) {
+        reasonDao.deleteNoSelectReason(noSelectReason.getCalendarId(),noSelectReason.getStudentIds());
+        reasonDao.insertReason(noSelectReason.getCalendarId(),noSelectReason.getStudentIds(),noSelectReason.getReason());
         return "common.editSuccess";
     }
 
