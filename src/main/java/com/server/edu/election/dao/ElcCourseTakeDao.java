@@ -47,7 +47,7 @@ public interface ElcCourseTakeDao
     
     /**查询学生重修未缴费总门数*/
     Page<StudentVo> findCourseNoChargeStudentList(
-        RebuildCoursePaymentCondition condition);
+            RebuildCourseDto condition);
     
     /**查询点名册教学班和老师*/
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);

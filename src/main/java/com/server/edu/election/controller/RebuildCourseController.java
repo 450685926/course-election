@@ -159,7 +159,10 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "查询学生的未缴费课程数")
     @PostMapping("/findCourseNoChargeStudentList")
-    public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+    public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(@RequestBody PageCondition<RebuildCourseDto > condition) {
+        if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
         PageResult<StudentVo> noChargeType = service.findCourseNoChargeStudentList(condition);
         return RestResult.successData(noChargeType);
     }
@@ -176,6 +179,9 @@ public class RebuildCourseController {
     @ApiOperation(value = "查询回收站")
     @PostMapping("/findRecycleCourse")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(@RequestBody PageCondition<RebuildCourseDto > condition) {
+        if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
         PageResult<RebuildCourseNoChargeList> noChargeType = service.findRecycleCourse(condition);
         return RestResult.successData(noChargeType);
     }

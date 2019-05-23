@@ -33,7 +33,7 @@ public interface RebuildCourseChargeService {
     PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition);
 
     //查询学生未缴费课程门数
-    PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCoursePaymentCondition > condition);
+    PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto > condition);
     /**移动到回收站*/
     String moveToRecycle(List<RebuildCourseNoChargeList> list);
 

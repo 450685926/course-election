@@ -278,7 +278,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@date: 2019/2/13 16:19
     */
     @Override
-    public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCoursePaymentCondition > condition) {
+    public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto > condition) {
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> courseNoChargeStudentList = courseTakeDao.findCourseNoChargeStudentList(condition.getCondition());
         return new PageResult<>(courseNoChargeStudentList);

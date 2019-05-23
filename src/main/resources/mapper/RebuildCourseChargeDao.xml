@@ -78,7 +78,7 @@
                 and re.MODE_ = #{mode,jdbcType=INTEGER}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-                and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=BIGINT}, '%') or st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
+                and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') or st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
                 and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
@@ -87,7 +87,7 @@
                 and te.COURSE_LABEL_ID_  = #{label,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-                and co.CODE_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
+                and co.CODE_ like CONCAT('%', #{courseCode,jdbcType=VARCHAR}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
                 and co.NAME_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
