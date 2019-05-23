@@ -19,7 +19,7 @@
   <delete id="deleteNoSelectReason">
     delete from elc_no_elect_reason_t
     WHERE CALENDAR_ID_=#{calendarId} and STUDENT_ID_ in
-    <foreach colleciton="list" open="(" separator="," close=")" item="studentCode">
+    <foreach collection="list" open="(" separator="," close=")" item="studentCode">
       #{studentCode}
     </foreach>
   </delete>

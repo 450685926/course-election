@@ -1048,12 +1048,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     return dictionaryService.query("X_YX", value, SessionUtils.getLang());
                 });
 
-        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "major").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
                 });
         design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "noSelectReason");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
         return design;
     }
 
