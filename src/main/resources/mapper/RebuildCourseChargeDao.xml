@@ -74,6 +74,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+                and re.MODE_ = #{mode,jdbcType=INTEGER}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
                 and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=BIGINT}, '%') or st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
             </if>
