@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -31,6 +33,7 @@ import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
+import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -50,6 +53,9 @@ public class StudentElecRushCourseServiceImpl
     
     @Autowired
     private StudentElecService elecService;
+    
+    @Autowired
+    private RebuildCourseChargeService chargeService;
     
     @Autowired
     protected StudentElecRushCourseServiceImpl(
@@ -152,6 +158,7 @@ public class StudentElecRushCourseServiceImpl
         
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
+        boolean hasRetakeCourse = false;
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
@@ -186,9 +193,21 @@ public class StudentElecRushCourseServiceImpl
             {
                 elecService
                     .saveElc(context, teachClass, ElectRuleType.ELECTION);
+                // 判断是否有重修课
+                if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
+                    teachClass.getCourseCode()))
+                {
+                    hasRetakeCourse = true;
+                }
             }
         }
-        
+        // 判断学生是否要重修缴费
+        String studentId = context.getStudentInfo().getStudentId();
+        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
+        {
+            context.getRespose().setData(new HashMap<>());
+            context.getRespose().getData().put("retakePay", "true");
+        }
     }
     
     /**退课*/

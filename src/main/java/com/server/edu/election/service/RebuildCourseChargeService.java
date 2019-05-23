@@ -1,15 +1,15 @@
 package com.server.edu.election.service;
 
+import java.util.List;
+
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.util.excel.export.ExcelResult;
-
-import java.util.List;
 
 public interface RebuildCourseChargeService {
     PageResult<RebuildCourseCharge> findCourseCharge(PageCondition<RebuildCourseCharge> condition);
@@ -28,10 +28,10 @@ public interface RebuildCourseChargeService {
 
     String editCourseNoChargeType(RebuildCourseNoChargeType courseNoCharge);
 
-    //查询未缴费课程名单
+    /**查询未缴费课程名单*/
     PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition);
 
-    //查询学生未缴费课程门数
+    /**查询学生未缴费课程门数*/
     PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCoursePaymentCondition > condition);
     /**移动到回收站*/
     String moveToRecycle(List<RebuildCourseNoChargeList> list);
@@ -50,5 +50,8 @@ public interface RebuildCourseChargeService {
 
     /**导出未缴费重修名单*/
     ExcelResult export(RebuildCoursePaymentCondition condition);
+    
+    /**学生是否不需要重修缴费*/
+    boolean isNoNeedPayForRetake(String studentId);
 }
 
