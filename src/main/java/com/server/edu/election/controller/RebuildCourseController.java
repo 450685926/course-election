@@ -4,14 +4,6 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.constants.Constants;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.excel.export.ExcelResult;
-import com.server.edu.util.excel.export.ExportExcelUtils;
-import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -23,7 +15,12 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
@@ -31,12 +28,23 @@ import com.server.edu.common.log.LogRecord;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * @description: 重修管理
