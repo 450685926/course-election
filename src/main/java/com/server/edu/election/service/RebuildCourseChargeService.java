@@ -38,7 +38,7 @@ public interface RebuildCourseChargeService {
     String moveToRecycle(List<RebuildCourseNoChargeList> list);
 
     /**查询回收站*/
-    PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCoursePaymentCondition> condition);
+    PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition);
 
     /**从回收站回复数据*/
     String moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);

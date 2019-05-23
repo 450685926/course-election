@@ -63,9 +63,9 @@
         </foreach>
     </insert>
 
-    <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCoursePaymentCondition" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
+    <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT re.ID_ id,re.CALENDAR_ID_ calendarId,te.CODE_ teachingClassCode,re.STUDENT_CODE_ studentCode,re.TEACHING_CLASS_ID_ teachingClassId,re.COURSE_TAKE_TYPE_ courseTakeType,re.TURN_ turn,re.MODE_ mode,re.CHOOSE_OBJ_ chooseObj,re.PAID_ paid
-        ,st.NAME_ studentName,re.COURSE_CODE_ code,co.NAME_ codeName,te.COURSE_LABEL_ID_ label,co.CREDITS_ credits
+        ,st.NAME_ studentName,re.COURSE_CODE_ courseCode,co.NAME_ courseName,te.COURSE_LABEL_ID_ label,co.CREDITS_ credits
         FROM rebuild_course_recycle_t re
         LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
@@ -74,44 +74,20 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
-                and st.STUDENT_CODE_ like CONCAT('%', #{studentCode,jdbcType=VARCHAR}, '%')
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
-                and st.NAME_ like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+                and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=BIGINT}, '%') or st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
                 and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
-                and st.GRADE_ =#{grade,jdbcType=INTEGER}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
-                and st.TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
-                and st.STUDENT_CATEGORY_ =#{studentCategory,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-                and st.FACULTY_ =#{faculty,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
-                and st.PROFESSION_ =#{profession,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(researchDirection)">
-                and st.RESEARCH_DIRECTION_ =#{researchDirection,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openFaculty)">
-                and co.COLLEGE_ =#{openFaculty,jdbcType=VARCHAR}
-            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(label)">
                 and te.COURSE_LABEL_ID_  = #{label,jdbcType=VARCHAR}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
-                and co.CODE_ like CONCAT('%', #{code,jdbcType=VARCHAR}, '%')
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+                and co.CODE_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
-                and co.NAME_ like CONCAT('%', #{name,jdbcType=VARCHAR}, '%')
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+                and co.NAME_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
             </if>
         </where>
     </select>

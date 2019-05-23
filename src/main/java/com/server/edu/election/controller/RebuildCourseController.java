@@ -175,7 +175,7 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "查询回收站")
     @PostMapping("/findRecycleCourse")
-    public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(@RequestBody PageCondition<RebuildCourseDto > condition) {
         PageResult<RebuildCourseNoChargeList> noChargeType = service.findRecycleCourse(condition);
         return RestResult.successData(noChargeType);
     }
