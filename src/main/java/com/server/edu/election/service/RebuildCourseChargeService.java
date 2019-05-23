@@ -47,7 +47,7 @@ public interface RebuildCourseChargeService {
     String exportNoChargeList(RebuildCourseDto condition) throws Exception;
 
     /**导出课程汇总名单*/
-    String exportStudentNoChargeCourse(RebuildCoursePaymentCondition condition) throws Exception;
+    String exportStudentNoChargeCourse(RebuildCourseDto condition) throws Exception;
 
     /**导出未缴费重修名单*/
     ExcelResult export(RebuildCourseDto condition);

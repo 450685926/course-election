@@ -408,8 +408,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
    *@date: 2019/2/20 12:41
    */
     @Override
-    public String exportStudentNoChargeCourse(RebuildCoursePaymentCondition condition) throws Exception{
-        PageCondition<RebuildCoursePaymentCondition> pageCondition = new PageCondition<RebuildCoursePaymentCondition>();
+    public String exportStudentNoChargeCourse(RebuildCourseDto condition) throws Exception{
+        PageCondition<RebuildCourseDto> pageCondition = new PageCondition<RebuildCourseDto>();
         pageCondition.setCondition(condition);
         pageCondition.setPageSize_(Constants.ZERO);
         pageCondition.setPageNum_(Constants.ZERO);

@@ -207,7 +207,7 @@ public class RebuildCourseController {
     @ApiOperation(value = "导出学生课程汇总名单")
     @PostMapping("/exportStudentNoChargeCourse")
     public RestResult<String> exportStudentNoChargeCourse (
-            @RequestBody RebuildCoursePaymentCondition condition)
+            @RequestBody RebuildCourseDto condition)
             throws Exception
     {
         LOG.info("export.start");
