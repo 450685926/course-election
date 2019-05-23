@@ -149,6 +149,7 @@ public class TeachingClassCache extends ElecCourse
         this.times = times;
     }
     
+    //@JsonIgnore
     public String getCourseCodeAndClassCode()
     {
         return String
