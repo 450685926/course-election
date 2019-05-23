@@ -838,7 +838,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-    *@Description: 导出选课名单
+    *@Description: 导出未选课名单
     *@Param: 
     *@return: 
     *@Author: bear
@@ -846,7 +846,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public ExcelResult export(NoSelectCourseStdsDto condition) {
-        ExcelResult excelResult = ExportExcelUtils.submitTask("eleCourseList", new ExcelExecuter() {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("noSelectCourseList", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
                 ExcelResult result = this.getResult();
@@ -1040,18 +1040,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
         design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_PYCC", value, SessionUtils.getLang());
-                });
-        design.addCell(I18nUtil.getMsg("rebuildCourse.campus"), "campus").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_XQ", value, SessionUtils.getLang());
-                });
         design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("X_YX", value, SessionUtils.getLang());
@@ -1061,19 +1052,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 (value, rawData, cell) -> {
                     return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
                 });
-        design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "registrationStatus").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("G_XJZT", value, SessionUtils.getLang());
-                });
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCode");
-        design.addCell(I18nUtil.getMsg("rollBookManage.eleStatus"), "classCode").setValueHandler((value, rawData, cell) -> {
-            return StringUtils.isBlank(value) ? "未选课" : "选课";
-        });
-        design.addCell(I18nUtil.getMsg("rollBookManage.reBuildStatus"), "isRebuildCourse").setValueHandler((value, rawData, cell) -> {
-            return "2".equals(value) ? "是" : "否";
-        });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "noSelectReason");
         return design;
     }
 
