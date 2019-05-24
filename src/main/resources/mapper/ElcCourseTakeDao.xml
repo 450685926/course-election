@@ -142,8 +142,8 @@
   <select id="findCourseNoChargeStudentList" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.StudentVo">
     SELECT  el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,
     st.GRADE_  grade, st.FACULTY_ faculty,st.PROFESSION_ profession,st.STUDENT_CATEGORY_ studentCategory,COUNT(el.ID_) rebuildNumber FROM elc_course_takes_t el
-    LEFT JOIN student_t st on st.STUDENT_CODE_=el.STUDENT_ID_
-      LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
+     JOIN student_t st on st.STUDENT_CODE_=el.STUDENT_ID_
+       JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
     <where>
       <if test="true">
         and el.COURSE_TAKE_TYPE_=2
