@@ -185,6 +185,15 @@ public class RoundDataProvider
         String roundPreSemester = Keys.getRoundPresemesterKey(round.getId());
         ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
     }
+    /**
+     *  获取轮次对应的上一个学期
+     */
+    public String getPreSemester(Long roundId)
+    {
+        String key = Keys.getRoundPresemesterKey(roundId);
+        String preSemester = strTemplate.opsForValue().get(key);
+        return preSemester;
+    }
     
     /**
      * 获取所有将要开始的轮次

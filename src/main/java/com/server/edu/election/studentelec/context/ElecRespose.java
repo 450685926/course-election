@@ -25,6 +25,8 @@ public class ElecRespose
     /** 选课失败原因 key为教学班id value为原因说明*/
     private Map<String, String> failedReasons;
     
+    private Map<String, String> data;
+    
     public ElecRespose() {
         
     }
@@ -70,5 +72,15 @@ public class ElecRespose
     public void setStatus(ElecStatus status)
     {
         this.status = status;
+    }
+
+    public Map<String, String> getData()
+    {
+        return data;
+    }
+
+    public void setData(Map<String, String> data)
+    {
+        this.data = data;
     }
 }

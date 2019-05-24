@@ -15,6 +15,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
@@ -33,6 +34,7 @@ public class ElectionConfig
             new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        om.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(om);
         template.setKeySerializer(new StringRedisSerializer());

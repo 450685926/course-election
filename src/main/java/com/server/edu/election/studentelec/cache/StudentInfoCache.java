@@ -14,11 +14,11 @@ public class StudentInfoCache
     
     private String studentName;
     
-    @Code2Text(transformer = "G_XBIE")
+    @Code2Text(DictTypeEnum.G_XBIE)
     private Integer sex;
     
     /**校区*/
-    @Code2Text(transformer = "X_XQ")
+    @Code2Text(DictTypeEnum.X_XQ)
     private String campus;
     
     /**学院*/
@@ -50,7 +50,7 @@ public class StudentInfoCache
     private boolean isGraduate;
 
     /**专项计划*/
-    @Code2Text(transformer = "X_ZXJH")
+    @Code2Text(DictTypeEnum.X_ZXJH)
     private String spcialPlan;
     
     public String getStudentId()

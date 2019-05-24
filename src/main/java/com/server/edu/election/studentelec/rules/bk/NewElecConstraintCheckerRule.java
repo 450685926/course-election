@@ -1,19 +1,13 @@
 package com.server.edu.election.studentelec.rules.bk;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.rules.RetakeCourse;
-import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -21,6 +15,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 
 /**
  * 选课限制检查器<br>
@@ -38,8 +33,9 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        long count = RetakeCourse.isRetakeCourse(context, courseClass.getCourseCode());
-        if (count>0)
+        boolean count = RetakeCourseUtil.isRetakeCourse(context,
+            courseClass.getCourseCode());
+        if (count)
         {//重修
             String number = constantsDao.findRebuildCourseNumber();
             if (StringUtils.isBlank(number))

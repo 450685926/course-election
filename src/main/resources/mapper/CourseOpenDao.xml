@@ -50,4 +50,51 @@
 	        and t1.COURSE_NAME_ like concat('%',#{courseName},'%')
 	    </if> 
   </select>
+    <resultMap id="SugesstResultMap" type="com.server.edu.election.vo.CourseOpenVo" extends="com.server.edu.election.dao.CourseOpenDao.BaseResultMap">
+    <result column="suggestStatus" jdbcType="INTEGER" property="suggestStatus" />
+  </resultMap>
+  <select id="selectCourseSuggestSwitch" parameterType="com.server.edu.election.dto.CourseOpenDto" resultMap="SugesstResultMap">
+		SELECT
+		    t1.ID_,
+			t1.COURSE_CODE_,
+			t1.COURSE_NAME_,
+			t1.COURSE_NAME_EN_,
+			t1.TRAINING_LEVEL_,
+			t1.CREDITS_,
+			t1.PERIOD_,
+		    IFNULL(t2.ID_,0) suggestStatus
+		FROM
+			course_open_t t1
+		LEFT JOIN elc_course_suggest_switch_t t2 ON t1.COURSE_CODE_ = t2.COURSE_CODE_
+		<where>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+		        and (t1.COURSE_CODE_ like concat(#{keyWord},'%') or t1.COURSE_NAME_ like concat(#{keyWord},'%') or t1.COURSE_NAME_EN_ like concat(#{keyWord},'%'))
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+		        and t1.CALENDAR_ID_  = #{calendarId}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+		        and t1.TRAINING_LEVEL_  = #{trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+		        and t1.FACULTY_  = #{faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+		        and t1.NATURE_  = #{nature}
+		    </if>
+		    <if test="credits !=null and credits !=0">
+		        and t1.CREDITS_  = #{credits}
+		    </if>
+		    <if test="period !=null and period !=0">
+		        and t1.PERIOD_  = #{period}
+		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courses)">
+		        and t1.COURSE_CODE_ in
+		        <foreach item="courseCode" collection="courses" index="index" open="(" separator="," close=")">
+		          #{courseCode}
+		        </foreach>
+		     </if>
+		    AND t1.IS_OPEN_ = 1
+		</where>
+  </select>
 </mapper>

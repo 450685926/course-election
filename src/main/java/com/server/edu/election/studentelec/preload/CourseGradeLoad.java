@@ -1,7 +1,6 @@
 package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
@@ -183,7 +181,6 @@ public class CourseGradeLoad extends DataProLoad
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-            Map<String, Teacher> teacherMap = new HashMap<>();
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
@@ -199,8 +196,7 @@ public class CourseGradeLoad extends DataProLoad
                 selectedCourse.setTeachClassId(c.getTeachingClassId());
                 selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
-                List<ClassTimeUnit> times =
-                    concatTime(collect, teacherMap, selectedCourse);
+                List<ClassTimeUnit> times = concatTime(collect, selectedCourse);
                 selectedCourse.setTimes(times);
                 
                 String teacherName =
@@ -242,8 +238,7 @@ public class CourseGradeLoad extends DataProLoad
      * @see [类、类#方法、类#成员]
      */
     public List<ClassTimeUnit> concatTime(
-        Map<Long, List<ClassTimeUnit>> collect, Map<String, Teacher> teacherMap,
-        TeachingClassCache c)
+        Map<Long, List<ClassTimeUnit>> collect, TeachingClassCache c)
     {
         //一个教学班的排课时间信息
         List<ClassTimeUnit> classTimeUnits = collect.get(c.getTeachClassId());
@@ -287,19 +282,14 @@ public class CourseGradeLoad extends DataProLoad
                     List<String> weekStr = CalUtil
                         .getWeekNums(weekNumbers.toArray(new Integer[] {}));
                     
-                    String teacherCode = room.getTeacherCode();
-                    Teacher teacherInfo =
-                        getTeacherInfo(teacherMap, teacherCode);
-                    String teacherName =
-                        teacherInfo != null ? teacherInfo.getName() : "";
+                    String teacherNames = getTeacherInfo(room.getTeacherCode());
                     if (step > 0)
                     {
                         sb.append(",");
                     }
                     // 老师名称(老师编号)周次
-                    sb.append(String.format("%s(%s)%s",
-                        teacherName,
-                        teacherCode,
+                    sb.append(String.format("%s%s",
+                        teacherNames,
                         StringUtils.join(weekStr, ",")));
                     step++;
                 }
@@ -313,20 +303,24 @@ public class CourseGradeLoad extends DataProLoad
         return null;
     }
     
-    private Teacher getTeacherInfo(Map<String, Teacher> teacherMap,
-        String teacherCode)
+    private String getTeacherInfo(String teacherCode)
     {
-        Teacher teacherInfo = null;
-        if (teacherMap.containsKey(teacherCode))
+        if (StringUtils.isEmpty(teacherCode))
         {
-            teacherInfo = teacherMap.get(teacherCode);
+            return "";
         }
-        else
+        StringBuilder sb = new StringBuilder();
+        
+        String[] codes = teacherCode.split(",");
+        List<String> names = TeacherCacheUtil.getNames(codes);
+        for (int i = 0; i < codes.length; i++)
         {
-            teacherInfo = TeacherCacheUtil.getTeacher(teacherCode);
-            teacherMap.put(teacherCode, teacherInfo);
+            String tCode = codes[i];
+            String tName = names.get(i);
+            // 老师名称(老师编号)
+            sb.append(String.format("%s(%s) ", tName, tCode));
         }
-        return teacherInfo;
+        return sb.toString();
     }
     
 }
