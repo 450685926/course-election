@@ -491,6 +491,51 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     }
 
     /**
+    *@Description: 导出汇总名单
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/5/24 10:14
+    */
+    @Override
+    public ExcelResult exportStuNumber(RebuildCourseDto condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildNoChargeStuNumber", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RebuildCourseDto> pageCondition=new PageCondition<>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                List<StudentVo> list=new ArrayList<>();
+                while (true){
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<StudentVo> studentList = findCourseNoChargeStudentList(pageCondition);
+                    list.addAll(studentList.getList());
+                    result.setTotal((int)studentList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (studentList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesignTWo();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    /**
     *@Description: 导出未缴费课程名单
     *@Param:
     *@return:
@@ -560,13 +605,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     private GeneralExcelDesigner getDesignTWo() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.sex"), "sex").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("G_XBIE", value, SessionUtils.getLang());
-                });
         design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
         design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
                 (value, rawData, cell) -> {
@@ -579,7 +619,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 });
         design.addCell(I18nUtil.getMsg("rebuildCourse.studentCategory"), "studentCategory");
         design.addCell(I18nUtil.getMsg("rebuildCourse.rebuildNumber"), "rebuildNumber");
-
         return design;
     }
 

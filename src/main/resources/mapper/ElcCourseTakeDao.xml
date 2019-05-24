@@ -158,7 +158,7 @@
             and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-            and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') or st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
+            and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') or st.NAME_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
             and st.GRADE_ =#{grade,jdbcType=INTEGER}

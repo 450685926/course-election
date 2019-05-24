@@ -234,6 +234,15 @@ public class RebuildCourseController {
 
 
     @ApiOperation(value = "导出重修缴费名单")
+    @PostMapping("/exportStuNumber")
+    public RestResult<ExcelResult> exportStuNumber(@RequestBody RebuildCourseDto condition)
+            throws Exception {
+        LOG.info("exportStuNumber.start");
+        ExcelResult result = service.exportStuNumber(condition);
+        return RestResult.successData(result);
+    }
+
+    @ApiOperation(value = "导出重修汇总名单")
     @PostMapping("/export")
     public RestResult<ExcelResult> export(@RequestBody RebuildCourseDto condition)
             throws Exception {
