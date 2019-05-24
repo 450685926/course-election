@@ -52,7 +52,7 @@
             (
             #{item.calendarId,jdbcType=BIGINT},
             #{item.studentCode,jdbcType=VARCHAR},
-            #{item.code,jdbcType=VARCHAR},
+            #{item.courseCode,jdbcType=VARCHAR},
             #{item.teachingClassId,jdbcType=VARCHAR},
             #{item.courseTakeType,jdbcType=INTEGER},
             #{item.turn,jdbcType=INTEGER},
