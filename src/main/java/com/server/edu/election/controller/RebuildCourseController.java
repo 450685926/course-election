@@ -233,7 +233,7 @@ public class RebuildCourseController {
     }
 
 
-    @ApiOperation(value = "导出重修缴费名单")
+    @ApiOperation(value = "导出重修汇总名单")
     @PostMapping("/exportStuNumber")
     public RestResult<ExcelResult> exportStuNumber(@RequestBody RebuildCourseDto condition)
             throws Exception {
@@ -242,12 +242,22 @@ public class RebuildCourseController {
         return RestResult.successData(result);
     }
 
-    @ApiOperation(value = "导出重修汇总名单")
+    @ApiOperation(value = "导出重修缴费名单")
     @PostMapping("/export")
     public RestResult<ExcelResult> export(@RequestBody RebuildCourseDto condition)
             throws Exception {
         LOG.info("export.start");
         ExcelResult result = service.export(condition);
+        return RestResult.successData(result);
+    }
+
+
+    @ApiOperation(value = "导出回收站名单")
+    @PostMapping("/exportRecycle")
+    public RestResult<ExcelResult> exportRecycle(@RequestBody RebuildCourseDto condition)
+            throws Exception {
+        LOG.info("exportRecycle.start");
+        ExcelResult result = service.exportRecycle(condition);
         return RestResult.successData(result);
     }
 

@@ -54,5 +54,8 @@ public interface RebuildCourseChargeService {
 
     /**导出课程汇总名单*/
     ExcelResult exportStuNumber(RebuildCourseDto condition);
+
+    /**导出回收站*/
+    ExcelResult exportRecycle(RebuildCourseDto condition);
 }
 

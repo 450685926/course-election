@@ -536,6 +536,51 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     }
 
     /**
+    *@Description: 导出回收站
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/5/24 11:12
+    */
+    @Override
+    public ExcelResult exportRecycle(RebuildCourseDto condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildRecycle", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RebuildCourseDto> pageCondition=new PageCondition<>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                List<RebuildCourseNoChargeList> list=new ArrayList<>();
+                while (true){
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<RebuildCourseNoChargeList> recycleCourse = findRecycleCourse(pageCondition);
+                    list.addAll(recycleCourse.getList());
+                    result.setTotal((int)recycleCourse.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (recycleCourse.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesignThere();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    /**
     *@Description: 导出未缴费课程名单
     *@Param:
     *@return:
@@ -619,6 +664,23 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 });
         design.addCell(I18nUtil.getMsg("rebuildCourse.studentCategory"), "studentCategory");
         design.addCell(I18nUtil.getMsg("rebuildCourse.rebuildNumber"), "rebuildNumber");
+        return design;
+    }
+
+    private GeneralExcelDesigner getDesignThere() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "teachingClassCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.revisionategory"), "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_XDLX", value, SessionUtils.getLang());
+                });
         return design;
     }
 
