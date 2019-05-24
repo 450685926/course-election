@@ -88,6 +88,12 @@
 		    <if test="period !=null and period !=0">
 		        and t1.PERIOD_  = #{period}
 		    </if>
+		    <if test="suggestStatus !=null and suggestStatus ==0">
+		        and t2.ID_  is null
+		    </if>
+		    <if test="suggestStatus !=null and suggestStatus ==1">
+		        and t2.ID_  is not null
+		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courses)">
 		        and t1.COURSE_CODE_ in
 		        <foreach item="courseCode" collection="courses" index="index" open="(" separator="," close=")">
