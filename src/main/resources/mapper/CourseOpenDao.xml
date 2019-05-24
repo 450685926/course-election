@@ -67,11 +67,12 @@
 			course_open_t t1
 		LEFT JOIN elc_course_suggest_switch_t t2 ON t1.COURSE_CODE_ = t2.COURSE_CODE_
 		<where>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-		        and (t1.COURSE_CODE_ like concat(#{keyWord},'%') or t1.COURSE_NAME_ like concat(#{keyWord},'%') or t1.COURSE_NAME_EN_ like concat(#{keyWord},'%'))
-		    </if>
+			t1.IS_OPEN_ = 1
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 		        and t1.CALENDAR_ID_  = #{calendarId}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+		        and (t1.COURSE_CODE_ like concat(#{keyWord},'%') or t1.COURSE_NAME_ like concat(#{keyWord},'%') or t1.COURSE_NAME_EN_ like concat(#{keyWord},'%'))
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 		        and t1.TRAINING_LEVEL_  = #{trainingLevel}
@@ -100,7 +101,6 @@
 		          #{courseCode}
 		        </foreach>
 		     </if>
-		    AND t1.IS_OPEN_ = 1
 		</where>
   </select>
 </mapper>
