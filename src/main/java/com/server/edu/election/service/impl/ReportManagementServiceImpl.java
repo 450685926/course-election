@@ -14,6 +14,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.*;
+import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,28 +42,11 @@ import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
-import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
-import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -444,26 +431,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/19 15:42
     */
     @Override
-    public PageResult<StudentSelectCourseList> findElectCourseList(PageCondition<ReportManagementCondition> condition) {
+    public PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition) {
+        String deptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(deptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<StudentSelectCourseList> electCourseList = elecRoundsDao.findElectCourseList(condition.getCondition());
-        if(electCourseList!=null){
-            List<StudentSelectCourseList> result = electCourseList.getResult();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            if(schoolCalendarMap.size()!=0){
-                for (StudentSelectCourseList managementCondition : result) {
-                    String s = schoolCalendarMap.get(managementCondition.getCalendarId());
-                    if(StringUtils.isNotEmpty(s)){
-                        managementCondition.setCalendarName(s);
-                    }
-                }
-
-            }
-        }
+        Page<NoSelectCourseStdsDto> electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
         return new PageResult<>(electCourseList);
     }
 
@@ -471,9 +443,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
      * 增加未选课原因
      * */
     @Override
-    public String addNoSelectReason(ElcNoSelectReason noSelectReason) {
-        reasonDao.deleteNoSelectReason(noSelectReason.getCalendarId(),noSelectReason.getStudentId());
-        reasonDao.insertSelective(noSelectReason);
+    public String addNoSelectReason(ElcNoSelectReasonVo noSelectReason) {
+        reasonDao.deleteNoSelectReason(noSelectReason.getCalendarId(),noSelectReason.getStudentIds());
+        reasonDao.insertReason(noSelectReason.getCalendarId(),noSelectReason.getStudentIds(),noSelectReason.getReason());
         return "common.editSuccess";
     }
 
@@ -499,14 +471,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/20 15:08
     */
     @Override
-    public String exportStudentNoCourseList(ReportManagementCondition condition) throws Exception{
-        PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+    public String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception{
+        PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
         pageCondition.setCondition(condition);
         pageCondition.setPageSize_(Constants.ZERO);
         pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+        PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
         if(electCourseList!=null){
-            List<StudentSelectCourseList> list = electCourseList.getList();
+            List<NoSelectCourseStdsDto> list = electCourseList.getList();
             if (list == null) {
                 list = new ArrayList<>();
             }
@@ -866,29 +838,29 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-    *@Description: 导出选课名单
+    *@Description: 导出未选课名单
     *@Param: 
     *@return: 
     *@Author: bear
     *@date: 2019/5/8 16:13
     */
     @Override
-    public ExcelResult export(ReportManagementCondition condition) {
-        ExcelResult excelResult = ExportExcelUtils.submitTask("eleCourseList", new ExcelExecuter() {
+    public ExcelResult export(NoSelectCourseStdsDto condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("noSelectCourseList", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
                 ExcelResult result = this.getResult();
-                PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+                PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
                 pageCondition.setCondition(condition);
                 pageCondition.setPageSize_(100);
                 int pageNum = 0;
                 pageCondition.setPageNum_(pageNum);
-                List<StudentSelectCourseList> list = new ArrayList<>();
+                List<NoSelectCourseStdsDto> list = new ArrayList<>();
                 while (true)
                 {
                     pageNum++;
                     pageCondition.setPageNum_(pageNum);
-                    PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+                    PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
                     list.addAll(electCourseList.getList());
 
                     result.setTotal((int)electCourseList.getTotal_());
@@ -1068,40 +1040,20 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
         design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_PYCC", value, SessionUtils.getLang());
-                });
-        design.addCell(I18nUtil.getMsg("rebuildCourse.campus"), "campus").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_XQ", value, SessionUtils.getLang());
-                });
         design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("X_YX", value, SessionUtils.getLang());
                 });
 
-        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "major").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
                 });
-        design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "registrationStatus").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("G_XJZT", value, SessionUtils.getLang());
-                });
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCode");
-        design.addCell(I18nUtil.getMsg("rollBookManage.eleStatus"), "classCode").setValueHandler((value, rawData, cell) -> {
-            return StringUtils.isBlank(value) ? "未选课" : "选课";
-        });
-        design.addCell(I18nUtil.getMsg("rollBookManage.reBuildStatus"), "isRebuildCourse").setValueHandler((value, rawData, cell) -> {
-            return "2".equals(value) ? "是" : "否";
-        });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
         return design;
     }
 
