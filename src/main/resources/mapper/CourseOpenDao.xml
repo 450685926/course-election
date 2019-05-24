@@ -54,6 +54,7 @@
     <result column="suggestStatus" jdbcType="INTEGER" property="suggestStatus" />
   </resultMap>
   <select id="selectCourseSuggestSwitch" parameterType="com.server.edu.election.dto.CourseOpenDto" resultMap="SugesstResultMap">
+    SELECT * from (
 		SELECT
 		    t1.ID_,
 			t1.COURSE_CODE_,
@@ -67,7 +68,7 @@
 			course_open_t t1
 		LEFT JOIN elc_course_suggest_switch_t t2 ON t1.COURSE_CODE_ = t2.COURSE_CODE_
 		<where>
-			t1.IS_OPEN_ = 1
+			and t1.IS_OPEN_ = 1
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 		        and t1.CALENDAR_ID_  = #{calendarId}
 		    </if>
@@ -89,12 +90,6 @@
 		    <if test="period !=null and period !=0">
 		        and t1.PERIOD_  = #{period}
 		    </if>
-		    <if test="suggestStatus !=null and suggestStatus ==0">
-		        and t2.ID_  is null
-		    </if>
-		    <if test="suggestStatus !=null and suggestStatus ==1">
-		        and t2.ID_  is not null
-		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courses)">
 		        and t1.COURSE_CODE_ in
 		        <foreach item="courseCode" collection="courses" index="index" open="(" separator="," close=")">
@@ -102,5 +97,16 @@
 		        </foreach>
 		     </if>
 		</where>
+		)t3 
+		<where>
+		    <if test="suggestStatus !=null and suggestStatus ==0">
+		        and t3.suggestStatus  = 0
+		    </if>
+		    <if test="suggestStatus !=null and suggestStatus ==1">
+		        and t3.suggestStatus  &gt; 0
+		    </if>
+		</where>
+		
+		
   </select>
 </mapper>
