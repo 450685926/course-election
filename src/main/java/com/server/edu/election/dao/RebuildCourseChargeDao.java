@@ -29,4 +29,5 @@ public interface RebuildCourseChargeDao extends Mapper<RebuildCourseCharge> {
 
     /**按培养层次和学习形式*/
     RebuildCourseCharge findPrice(@Param("trainingLevel") String trainingLevel,@Param("formLearning") String formLearning);
+
 }

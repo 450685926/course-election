@@ -21,9 +21,9 @@
             TRAINING_LEVEL_ in
             <choose>
                 <when test="manageDeptId == 1">
-                    (1,2,5)
+                    (1,2,5,7)
                 </when>
-                <otherwise>(4,6)</otherwise>
+                <otherwise>(4,6,7)</otherwise>
             </choose>
             <if test="trainingLevel !=null and trainingLevel !='' ">
                 and TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
