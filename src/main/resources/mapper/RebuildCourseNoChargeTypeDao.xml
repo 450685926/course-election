@@ -18,6 +18,13 @@
         <include refid="Base_Column_List"></include>
         from rebuild_course_nocharge_type_t
         <where>
+            TRAINING_LEVEL_ in
+            <choose>
+                <when test="deptId == 1">
+                    (1,2,5,7)
+                </when>
+                <otherwise>(4,6,7)</otherwise>
+            </choose>
             <if test="trainingLevel !=null and trainingLevel !='' ">
                 and TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
             </if>
@@ -35,4 +42,27 @@
             #{id}
         </foreach>
     </delete>
+
+    <select id="findTypeByCondition" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from rebuild_course_nocharge_type_t
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and TRAINING_LEVEL_ = #{trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and FORM_LEARNING_ = #{formLearning}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(spcialPlan)">
+                and SPCIAL_PLAN_ = #{spcialPlan}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(registrationStatus)">
+                and REGISTRATION_STATUS_ = #{registrationStatus}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(certificateType)">
+                and CERTIFICATE_TYPE_ = #{certificateType}
+            </if>
+        </where>
+    </select>
 </mapper>

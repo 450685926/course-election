@@ -20,6 +20,9 @@ public class RebuildCourseNoChargeType implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    private String deptId;
+
     /**
      * 培养层次 X_PYCC
      */
@@ -55,6 +58,14 @@ public class RebuildCourseNoChargeType implements Serializable {
     private Integer certificateType;
 
     private static final long serialVersionUID = 1L;
+
+    public String getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(String deptId) {
+        this.deptId = deptId;
+    }
 
     /**
      * @return ID_
