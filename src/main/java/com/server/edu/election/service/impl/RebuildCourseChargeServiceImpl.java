@@ -124,21 +124,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     @Transactional
     public String editCourseCharge(RebuildCourseCharge courseCharge) {
-        RebuildCourseCharge rebuildCourseCharge = new RebuildCourseCharge();
-        Page<RebuildCourseCharge> courseCharges =
-                courseChargeDao.findCourseCharge(rebuildCourseCharge);
-        if (courseCharges != null && courseCharges.getResult().size() > 0) {
-            List<RebuildCourseCharge> result = courseCharges.getResult();
-            List<RebuildCourseCharge> collect = result.stream()
-                    .filter((RebuildCourseCharge vo) -> vo.getId()
-                            .longValue() != courseCharge.getId().longValue())
-                    .collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(collect)) {
-                if (collect.contains(courseCharge)) {
-                    return "common.exist";
-                }
-            }
-        }
         courseChargeDao.updateByPrimaryKeySelective(courseCharge);
         return "common.editSuccess";
     }
@@ -153,16 +138,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     @Transactional
     public String addCourseCharge(RebuildCourseCharge courseCharge) {
-        RebuildCourseCharge rebuildCourseCharge = new RebuildCourseCharge();
-        Page<RebuildCourseCharge> courseCharges =
-                courseChargeDao.findCourseCharge(rebuildCourseCharge);
-        if (courseCharges != null) {
-            List<RebuildCourseCharge> result = courseCharges.getResult();
-            if (CollectionUtil.isNotEmpty(result)) {
-                if (result.contains(courseCharge)) {
-                    return "common.exist";
-                }
-            }
+        RebuildCourseCharge item = courseChargeDao.findPrice(courseCharge.getTrainingLevel(),courseCharge.getFormLearning());
+        if (item != null) {
+            return "common.exist";
         }
         courseChargeDao.insertSelective(courseCharge);
         return "common.addsuccess";
