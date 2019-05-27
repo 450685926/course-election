@@ -69,8 +69,8 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and t1.CALENDAR_ID_ =#{calendarId}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(content)">
-                and (t1.STUDENT_ID_ like concat('%',#{content},'%') or t2.NAME_ like concat('%',#{content},'%'))
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+                and (t2.STUDENT_CODE_ like concat('%',#{keyWord},'%') or t2.NAME_ like concat('%',#{keyWord},'%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(startTime)">
                 <![CDATA[
@@ -81,6 +81,9 @@
                 <![CDATA[
 				and unix_timestamp(t1.CREATED_AT_) <= unix_timestamp(#{endTime})
 			    ]]>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+                and t2.MANAGER_DEPT_ID_ = #{deptId}
             </if>
         </where>
     </select>

@@ -260,6 +260,9 @@ public class ReportManagementController {
     @ApiOperation(value = "查询选退课日志")
     @PostMapping("/findCourseLog")
     public RestResult<PageResult<ElcLogVo>> findCourseLog(@RequestBody PageCondition<ElcLogVo> condition){
+        if(condition.getCondition().getCalendarId()==null){
+            return RestResult.fail("common.parameterError");
+        }
         PageResult<ElcLogVo> courseLog = managementService.findCourseLog(condition);
         return RestResult.successData(courseLog);
     }

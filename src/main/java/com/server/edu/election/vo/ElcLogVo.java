@@ -22,7 +22,17 @@ public class ElcLogVo extends ElcLog
     public static final Integer MODE_2 = 2;
     
     private String studentName;
-    
+
+    private String deptId;
+
+    public String getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(String deptId) {
+        this.deptId = deptId;
+    }
+
     /**校区*/
     @Code2Text(transformer = "X_XQ")
     private String campus;

@@ -399,26 +399,18 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public PageResult<ElcLogVo> findCourseLog(PageCondition<ElcLogVo> condition) {
+        String currentManageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(currentManageDptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         Page<ElcLogVo> courseLog = elcLogDao.findCourseLog(condition.getCondition());
         if(courseLog !=null){
             List<ElcLogVo> result = courseLog.getResult();
             if(CollectionUtil.isNotEmpty(result)){
-                List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-                Map<Long, String> schoolCalendarMap = new HashMap<>();
-                for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                    schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-                }
-                if(schoolCalendarMap.size()!=0){
-                    for (ElcLogVo elcLogVo : result) {
-                        String s = schoolCalendarMap.get(elcLogVo.getCalendarId());
-                        if(StringUtils.isNotEmpty(s)) {
-                            elcLogVo.setCalendarName(s);
-                        }
-                    }
+                SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+                for (ElcLogVo elcLogVo : result) {
+                    elcLogVo.setCalendarName(schoolCalendarVo.getFullName());
                 }
             }
-
         }
         return new PageResult<>(courseLog);
     }
