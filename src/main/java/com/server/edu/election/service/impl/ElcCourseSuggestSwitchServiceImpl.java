@@ -35,7 +35,7 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 	public PageInfo<CourseOpenVo>  page(PageCondition<CourseOpenDto> condition){
 		CourseOpenDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
-		dto.setProjectId(Integer.parseInt(session.getCurrentManageDptId()));
+		dto.setProjectId(session.getCurrentManageDptId());
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<CourseOpenVo> list = courseOpenDao.selectCourseSuggestSwitch(dto);
 		PageInfo<CourseOpenVo> pageInfo = new PageInfo<>(list);

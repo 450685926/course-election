@@ -88,7 +88,7 @@
 		    <if test="period !=null and period !=0">
 		        and t1.PERIOD_  = #{period}
 		    </if>
-		    <if test="projectId !=null">
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 		        and t1.PROJ_ID_  = #{projectId}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courses)">
