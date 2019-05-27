@@ -1,5 +1,5 @@
 FROM 100.125.17.64:20202/audit_organization/centos7-base:1.0.1
-RUN yum -y install yum-plugin-ovl
+
 
 WORKDIR /home/apps/
 ADD target/course-election-0.0.1-SNAPSHOT.jar .
