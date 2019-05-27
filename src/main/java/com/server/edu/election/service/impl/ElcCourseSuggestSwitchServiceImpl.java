@@ -20,6 +20,8 @@ import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.service.ElcCourseSuggestSwitchService;
 import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -32,6 +34,8 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 	@Override
 	public PageInfo<CourseOpenVo>  page(PageCondition<CourseOpenDto> condition){
 		CourseOpenDto dto = condition.getCondition();
+		Session session = SessionUtils.getCurrentSession();
+		dto.setProjectId(Integer.parseInt(session.getCurrentManageDptId()));
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<CourseOpenVo> list = courseOpenDao.selectCourseSuggestSwitch(dto);
 		PageInfo<CourseOpenVo> pageInfo = new PageInfo<>(list);

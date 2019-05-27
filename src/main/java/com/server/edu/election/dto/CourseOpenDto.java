@@ -28,7 +28,17 @@ public class CourseOpenDto extends CourseOpen
     
     private List<String> courses;
     
+    private Integer projectId;
     
+    
+
+	public Integer getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(Integer projectId) {
+		this.projectId = projectId;
+	}
 
 	public List<String> getCourses() {
 		return courses;
