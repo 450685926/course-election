@@ -52,7 +52,7 @@
     <result column="suggestStatus" jdbcType="INTEGER" property="suggestStatus" />
   </resultMap>
   <select id="selectCourseSuggestSwitch" parameterType="com.server.edu.election.dto.CourseOpenDto" resultMap="SugesstResultMap">
-    SELECT * from (
+    SELECT DISTINCT * from (
 		SELECT
 		    t1.ID_,
 			t1.COURSE_CODE_,
@@ -87,6 +87,9 @@
 		    </if>
 		    <if test="period !=null and period !=0">
 		        and t1.PERIOD_  = #{period}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+		        and t1.PROJ_ID_  = #{projectId}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courses)">
 		        and t1.COURSE_CODE_ in
