@@ -102,4 +102,11 @@
             #{item.id}
         </foreach>
     </delete>
+
+    <select id="findPrice" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from rebuild_course_charge_t
+        where TRAINING_LEVEL_ = #{trainingLevel} and FORM_LEARNING_ = #{formLearning}
+    </select>
 </mapper>

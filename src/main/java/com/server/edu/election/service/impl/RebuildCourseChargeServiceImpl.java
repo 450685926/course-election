@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -617,6 +620,59 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             }
         }
         return false;
+    }
+
+    /**
+    *@Description: 查询学生应缴费用
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/27 11:15
+    */
+    @Override
+    public List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto) {
+        List<StudentRePaymentDto> paymentDtoList=new ArrayList<>();
+        String studentCode = studentRePaymentDto.getStudentCode();
+        /**是否在不缴费学生类型中*/
+        boolean retake = isNoNeedPayForRetake(studentCode);
+        if(retake){
+            return null;
+        }
+        //不再不缴费学生类型中，查询重修课程并且判断是否需要缴费
+        List<ElcCourseTakeVo> courseTakes=courseTakeDao.findStuRebuildCourse(studentRePaymentDto);
+        //没有重修课程
+        if(CollectionUtil.isEmpty(courseTakes)){
+            return null;
+        }
+        //查询收费单价
+        Student record = new Student();
+        record.setStudentCode(studentCode);
+        Student student = studentDao.selectOne(record);
+        String trainingLevel = student.getTrainingLevel();
+        String formLearning = student.getFormLearning();
+        RebuildCourseCharge prices = courseChargeDao.findPrice(trainingLevel,formLearning);
+        if(prices == null || prices.getIsCharge()==0){
+            return null;
+        }
+
+        for (ElcCourseTakeVo courseTake : courseTakes) {
+            double credits=courseTake.getCredits();
+            int unitPrice= prices.getUnitPrice();
+            double payable =  (unitPrice*credits);
+            StudentRePaymentDto paymentDto=new StudentRePaymentDto();
+            paymentDto.setCourseCode(courseTake.getCourseCode());
+            paymentDto.setCourseName(courseTake.getCourseName());
+            paymentDto.setStudentCode(studentRePaymentDto.getStudentCode());
+            paymentDto.setCredits(credits);
+            paymentDto.setUnitPrice(unitPrice);
+            paymentDto.setCalendarId(studentRePaymentDto.getCalendarId());
+            paymentDto.setPayable(payable);
+            paymentDto.setBillId(courseTake.getBillId());
+            paymentDto.setPaid(courseTake.getPaid());
+            paymentDtoList.add(paymentDto);
+        }
+
+        return paymentDtoList;
     }
 
 }
