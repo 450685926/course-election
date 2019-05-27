@@ -18,6 +18,22 @@
 
   <delete id="deleteNoSelectReason">
     delete from elc_no_elect_reason_t
-    WHERE CALENDAR_ID_=#{calendarId} and STUDENT_ID_=#{studentCode}
+    WHERE CALENDAR_ID_=#{calendarId} and STUDENT_ID_ in
+    <foreach collection="list" open="(" separator="," close=")" item="studentCode">
+      #{studentCode}
+    </foreach>
   </delete>
+
+  <insert id="insertReason">
+    INSERT into elc_no_elect_reason_t(STUDENT_ID_,CALENDAR_ID_,REASON_)
+    VALUES
+    <foreach collection="list" index="index" item="studentCode"
+             separator=",">
+      (
+      #{studentCode,jdbcType=VARCHAR},
+      #{calendarId,jdbcType=BIGINT},
+      #{reason}
+      )
+    </foreach>
+  </insert>
 </mapper>

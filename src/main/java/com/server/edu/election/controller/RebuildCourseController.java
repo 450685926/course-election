@@ -1,9 +1,13 @@
 package com.server.edu.election.controller;
 
 import java.io.File;
-import java.net.URLDecoder;
 import java.util.List;
-
+import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -11,9 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,18 +30,11 @@ import com.server.edu.common.log.LogRecord;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dmskafka.entity.AuditType;
-import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dto.RebuildCoursePaymentCondition;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.StudentVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.excel.export.ExcelResult;
-import com.server.edu.util.excel.export.ExportExcelUtils;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -156,7 +151,7 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "查询未缴费的课程名单")
     @PostMapping("/findCourseNoChargeList")
-    public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCourseDto> condition) {
         if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
             return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
         }
@@ -166,12 +161,14 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "查询学生的未缴费课程数")
     @PostMapping("/findCourseNoChargeStudentList")
-    public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+    public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(@RequestBody PageCondition<RebuildCourseDto > condition) {
+        if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
         PageResult<StudentVo> noChargeType = service.findCourseNoChargeStudentList(condition);
         return RestResult.successData(noChargeType);
     }
 
-    //导入未缴费todo
 
     @ApiOperation(value = "移动到回收站")
     @PostMapping("/moveCourseNoChargeListToRecycle")
@@ -182,7 +179,10 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "查询回收站")
     @PostMapping("/findRecycleCourse")
-    public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(@RequestBody PageCondition<RebuildCourseDto > condition) {
+        if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
         PageResult<RebuildCourseNoChargeList> noChargeType = service.findRecycleCourse(condition);
         return RestResult.successData(noChargeType);
     }
@@ -194,52 +194,31 @@ public class RebuildCourseController {
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
 
-    @ApiOperation(value = "导出未缴费课程名单")
-    @PostMapping("/exportNoChargeList2")
-    public RestResult<String> exportNoChargeList2 (
-            @RequestBody RebuildCoursePaymentCondition condition)
-            throws Exception
-    {
-        LOG.info("export.start");
-        String export = service.exportNoChargeList(condition);
-        return RestResult.successData(export);
+    @ApiOperation(value = "导出重修汇总名单")
+    @PostMapping("/exportStuNumber")
+    public RestResult<ExcelResult> exportStuNumber(@RequestBody RebuildCourseDto condition)
+            throws Exception {
+        LOG.info("exportStuNumber.start");
+        ExcelResult result = service.exportStuNumber(condition);
+        return RestResult.successData(result);
     }
-
-    @ApiOperation(value = "导出学生课程汇总名单")
-    @PostMapping("/exportStudentNoChargeCourse")
-    public RestResult<String> exportStudentNoChargeCourse (
-            @RequestBody RebuildCoursePaymentCondition condition)
-            throws Exception
-    {
-        LOG.info("export.start");
-        String export = service.exportStudentNoChargeCourse(condition);
-        return RestResult.successData(export);
-    }
-
-
-
-    @ApiOperation(value = "导出excel下载文件")
-    @GetMapping("/download2")
-    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
-    public ResponseEntity<Resource> download2(@RequestParam("fileName") String fileName) throws Exception
-    {
-        LOG.info("export.start");
-        fileName = new String(fileName.getBytes(), "ISO8859-1");
-        Resource resource = new FileSystemResource(URLDecoder.decode(cacheDirectory + fileName,"utf-8"));
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
-                .body(resource);
-    }
-
 
     @ApiOperation(value = "导出重修缴费名单")
     @PostMapping("/export")
-    public RestResult<ExcelResult> export(@RequestBody RebuildCoursePaymentCondition condition)
+    public RestResult<ExcelResult> export(@RequestBody RebuildCourseDto condition)
             throws Exception {
         LOG.info("export.start");
         ExcelResult result = service.export(condition);
+        return RestResult.successData(result);
+    }
+
+
+    @ApiOperation(value = "导出回收站名单")
+    @PostMapping("/exportRecycle")
+    public RestResult<ExcelResult> exportRecycle(@RequestBody RebuildCourseDto condition)
+            throws Exception {
+        LOG.info("exportRecycle.start");
+        ExcelResult result = service.exportRecycle(condition);
         return RestResult.successData(result);
     }
 
@@ -260,7 +239,6 @@ public class RebuildCourseController {
     @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
     public ResponseEntity<Resource> download(@RequestParam("path") String path)
             throws Exception {
-        Resource resource = new FileSystemResource(path);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/file-xls").header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=result.xls").body(resource);
+        return ExportExcelUtils.export(path);
     }
 }

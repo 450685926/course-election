@@ -3,7 +3,7 @@ package com.server.edu.election.dao;
 import java.util.List;
 
 import com.github.pagehelper.Page;
-import com.server.edu.election.dto.RebuildCoursePaymentCondition;
+import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 
@@ -20,7 +20,7 @@ public interface RebuildCourseChargeDao extends Mapper<RebuildCourseCharge> {
     void addCourseStudentToRecycle( List<RebuildCourseNoChargeList> list);
 
     /**查询回收站*/
-    Page<RebuildCourseNoChargeList> findRecycleCourse(RebuildCoursePaymentCondition condition);
+    Page<RebuildCourseNoChargeList> findRecycleCourse(RebuildCourseDto condition);
 
     /**从回收站回复数据*/
 
