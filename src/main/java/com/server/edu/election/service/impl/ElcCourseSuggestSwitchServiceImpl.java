@@ -46,8 +46,9 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 			List<String> courseCodes = list.stream().map(ElcCourseSuggestSwitch::getCourseCode).collect(Collectors.toList());
 			Iterator<String> iterator = courses.iterator();
 			while(iterator.hasNext()) {
-				if(courseCodes.contains(iterator.next())) {
-					courses.remove(iterator.next());
+				String coure = iterator.next(); 
+				if(courseCodes.contains(coure)) {
+					courses.remove(coure);
 				}
 			}
 			if(CollectionUtil.isEmpty(courses)) {
