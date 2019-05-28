@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -43,6 +44,7 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 	}
 	
 	@Override
+	@Transactional
 	public int start(List<String> courses) {
 		List<ElcCourseSuggestSwitch> list = elcCourseSuggestSwitchDao.selectAll();
 		int result = 0;
@@ -73,6 +75,7 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 	}
 	
 	@Override
+	@Transactional
 	public int stop(List<String> courses) {
 		Example example = new Example(ElcCourseSuggestSwitch.class);
 		Example.Criteria criteria = example.createCriteria();
