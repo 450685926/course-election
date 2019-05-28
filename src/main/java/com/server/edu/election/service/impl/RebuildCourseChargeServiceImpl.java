@@ -156,6 +156,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(
             PageCondition<RebuildCourseNoChargeType> condition) {
+        String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(manageDptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeType> courseNoChargeType =
                 noChargeTypeDao.findCourseNoChargeType(condition.getCondition());
@@ -171,17 +173,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public String addCourseNoChargeType(RebuildCourseNoChargeType noChargeType) {
-        RebuildCourseNoChargeType courseNoChargeType =
-                new RebuildCourseNoChargeType();
-        Page<RebuildCourseNoChargeType> chargeType =
-                noChargeTypeDao.findCourseNoChargeType(courseNoChargeType);
-        if (chargeType != null) {
-            List<RebuildCourseNoChargeType> result = chargeType.getResult();
-            if (CollectionUtil.isNotEmpty(result)) {
-                if (result.contains(noChargeType)) {
-                    return "common.exist";
-                }
-            }
+
+        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(noChargeType);
+        if (item != null) {
+            return "common.exist";
         }
         noChargeTypeDao.insertSelective(noChargeType);
         return "common.addsuccess";
@@ -214,24 +209,11 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public String editCourseNoChargeType(
             RebuildCourseNoChargeType courseNoCharge) {
-        RebuildCourseNoChargeType courseNoChargeType =
-                new RebuildCourseNoChargeType();
-        Page<RebuildCourseNoChargeType> chargeType =
-                noChargeTypeDao.findCourseNoChargeType(courseNoChargeType);
-        if (chargeType != null) {
-            List<RebuildCourseNoChargeType> result = chargeType.getResult();
-            if (CollectionUtil.isNotEmpty(result)) {
-                List<RebuildCourseNoChargeType> collect = result.stream()
-                        .filter((RebuildCourseNoChargeType vo) -> vo.getId()
-                                .longValue() != courseNoCharge.getId().longValue())
-                        .collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(collect)) {
-                    if (collect.contains(courseNoCharge)) {
-                        return "common.exist";
-                    }
-                }
+        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(courseNoCharge);
+        if(item!=null){
+            if(item.getId().intValue()!=courseNoCharge.getId().intValue()){
+                return "common.exist";
             }
-
         }
         noChargeTypeDao.updateByPrimaryKeySelective(courseNoCharge);
         return "common.editSuccess";
