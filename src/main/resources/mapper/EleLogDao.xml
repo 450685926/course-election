@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.EleLogDao">
+
+	<insert id="addOperateLog" parameterType="java.util.List">
+		INSERT INTO
+		achievement_log_t (
+			LOG_,
+			OPERATOR_,
+			CREATE_DATE_
+		)
+		values 
+		<foreach collection ="list" item="logEntity" index= "index" separator =",">
+		(
+			#{logEntity.log,jdbcType=VARCHAR},
+			#{logEntity.operator,jdbcType=VARCHAR},
+			#{logEntity.createDate,jdbcType=BIGINT}
+		)
+		</foreach >
+	</insert>
+	
+	<select id="getAgingLog" parameterType="java.lang.Long" resultType="com.server.edu.common.entity.LogEntity">
+		select * from ele_log_t where create_date_ &lt; #{overDueTime}
+	</select>
+	
+	<delete id="deleteAgingLog" parameterType="java.util.List">
+		delete from ele_log_t where LOG_ID_ in
+		<foreach collection="list" item="logEntity" open="(" close=")" separator=",">
+            #{logEntity.logId}
+        </foreach>
+	</delete>
+</mapper>
