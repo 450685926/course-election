@@ -52,7 +52,7 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 			while(iterator.hasNext()) {
 				String coure = iterator.next(); 
 				if(courseCodes.contains(coure)) {
-					courses.remove(coure);
+					iterator.remove();
 				}
 			}
 			if(CollectionUtil.isEmpty(courses)) {
