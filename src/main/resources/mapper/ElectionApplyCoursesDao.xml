@@ -26,6 +26,9 @@
 			election_apply_courses_t t1
 		INNER JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
 		<where>
+		  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+		        and t1.CALENDAR_ID_ = #{calendarId}
+		   </if>
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
 		        and t2.CODE_ like concat(#{code},'%')
 		   </if>
@@ -35,18 +38,24 @@
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
 		        and t2.COLLEGE_ = #{college}
 		   </if>
-		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(period)">
+		   <if test="period !=null and period !=0">
 		        and t2.PERIOD_ = #{period}
 		   </if>
-		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(credits)">
+		   <if test="credits !=null and credits !=0">
 		        and t2.CREDITS_ = #{credits}
 		   </if>
-		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(weekHour)">
+		   <if test="weekHour !=null and weekHour !=0">
 		        and t2.WEEK_HOUR_ = #{weekHour}
 		   </if>
-		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(weekNum)">
+		   <if test="weekNum !=null and weekNum !=0">
 		        and t2.PERIOD_/t2.WEEK_HOUR_ = #{weekNum}
 		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courses)">
+		        and t2.CODE_ in 
+	                <foreach collection="courses" open="(" separator="," close=")" item="code">
+			            #{code}
+			        </foreach>
+		    </if>
 		</where>
   </select>
 </mapper>

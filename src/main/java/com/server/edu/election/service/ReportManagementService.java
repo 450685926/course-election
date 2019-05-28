@@ -1,19 +1,30 @@
 package com.server.edu.election.service;
 
+import java.util.List;
+
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dto.*;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
-
-import java.util.List;
+import com.server.edu.election.vo.TimeTable;
+import com.server.edu.util.excel.export.ExcelResult;
 
 public interface ReportManagementService {
     /**点名册*/
-    PageResult<RollBookList> findRollBookList(PageCondition<ReportManagementCondition> condition);
+    PageResult<RollBookList> findRollBookList2(PageCondition<ReportManagementCondition> condition);
 
     /**预览点名册 */
     PreviewRollBookList findPreviewRollBookList(RollBookList bookList);
@@ -31,7 +42,7 @@ public interface ReportManagementService {
     PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition);
 
     /**查询教师课表*/
-    StudentSchoolTimetabVo findTeacherTimetable(Long calendarId,String teacherCode);
+    StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId,String teacherCode);
 
     /**
      * 查询选课日志
@@ -57,4 +68,25 @@ public interface ReportManagementService {
 
     /**导出点名册*/
     String exportRollBookList(ReportManagementCondition condition) throws Exception;
+
+    PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
+
+    PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
+
+    List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode);
+
+    PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
+
+    List<TimeTable> getStudentTimetab(Long calendarId, String studentCode, Integer week);
+
+    List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
+
+    List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode, Integer week);
+
+    ExcelResult export(ReportManagementCondition condition);
+
+    ExcelResult exportTeacher(ClassCodeToTeacher condition);
+
+    String exportPreRollBookList(ExportPreCondition condition) throws Exception;
+
 }

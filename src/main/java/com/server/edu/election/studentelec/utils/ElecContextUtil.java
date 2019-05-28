@@ -21,7 +21,6 @@ import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.DateUtil;
 
 /**
  * 选课上下文工具类
@@ -116,13 +115,12 @@ public class ElecContextUtil
     
     public void save(String type, Object value)
     {
-        if(null != value) {
-        	ValueOperations<String, String> opsForValue =
-        			getRedisTemplate().opsForValue();
-        	opsForValue.set(Keys.STD + type + "-" + calendarId + "-" + studentId,
-        			JSON.toJSONString(value),
-        			5,
-        			TimeUnit.DAYS);
+        if (null != value)
+        {
+            ValueOperations<String, String> opsForValue =
+                getRedisTemplate().opsForValue();
+            opsForValue.set(Keys.STD + type + "-" + calendarId + "-"
+                + studentId, JSON.toJSONString(value), 5, TimeUnit.DAYS);
         }
     }
     
@@ -167,16 +165,16 @@ public class ElecContextUtil
     public static void setElecStatus(Long roundId, String studentId,
         ElecStatus status)
     {
+        int timeout = 1;
+        if (status == ElecStatus.Ready)
+        {
+            timeout = 10;
+        }
         getRedisTemplate().opsForValue()
             .set(String.format(STD_STATUS, roundId, studentId),
                 status.toString(),
-                1,
+                timeout,
                 TimeUnit.HOURS);
-    }
-    
-    public static void main(String[] args)
-    {
-        System.out.println(DateUtil.addHour(new Date(), -1).getTime());
     }
     
     /**
@@ -240,4 +238,51 @@ public class ElecContextUtil
             getRedisTemplate().delete(redisKey);
         }
     }
+    
+    /**
+     * 设置选课申请管理课程
+     */
+    public static void setApplyCourse(Long calendarId, Set<String> courses)
+    {
+        ValueOperations<String, String> opsForValue =
+            getRedisTemplate().opsForValue();
+        String redisKey = Keys.getApplyCourseKey(calendarId);
+        String value = opsForValue.get(redisKey);
+        if (CollectionUtil.isNotEmpty(courses))
+        {
+            if (StringUtils.isNotBlank(value))
+            {
+                List<String> result = JSON.parseArray(value, String.class);
+                for (String course : courses)
+                {
+                    if (!value.contains(course))
+                    {
+                        result.add(course);
+                    }
+                    else
+                    {
+                        result.remove(course);
+                    }
+                }
+            }
+            opsForValue.set(redisKey, JSON.toJSONString(courses));
+        }
+    }
+    
+    /**
+     * 获取选课申请管理课程
+     */
+    public static List<String> getApplyCourse(Long calendarId)
+    {
+        ValueOperations<String, String> opsForValue =
+            getRedisTemplate().opsForValue();
+        String redisKey = Keys.getApplyCourseKey(calendarId);;
+        String value = opsForValue.get(redisKey);
+        if (StringUtils.isEmpty(value))
+        {
+            return new ArrayList<>();
+        }
+        return JSON.parseArray(value, String.class);
+    }
+    
 }

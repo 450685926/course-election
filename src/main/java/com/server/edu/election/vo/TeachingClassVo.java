@@ -8,7 +8,16 @@ public class TeachingClassVo extends TeachingClass
     private String courseName;
     private Double credits;
     
-    public String getCourseCode()
+    private String teacherName;
+    
+    
+	public String getTeacherName() {
+		return teacherName;
+	}
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
+	public String getCourseCode()
     {
         return courseCode;
     }

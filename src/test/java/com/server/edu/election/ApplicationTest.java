@@ -1,4 +1,4 @@
-package com.server.edu.arrangement;
+package com.server.edu.election;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

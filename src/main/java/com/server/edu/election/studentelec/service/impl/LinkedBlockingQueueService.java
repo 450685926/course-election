@@ -2,64 +2,67 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.service.ElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 
 /**
- * 用 LinkedBlockingDeque 做消息队列
- * TODO 临时使用 要用消息队列代替
+ * 用 LinkedBlockingQueue 做消息队列
  */
-@Service("simple")
-@Primary
+//@Service("linkedBlockingQueue")
+//@Primary
 public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
 {
     protected Logger LOG = LoggerFactory.getLogger(getClass());
     
-    private final ConcurrentHashMap<String, LinkedBlockingDeque<ElecRequest>> groupQueueMap =
+    private final ConcurrentHashMap<String, LinkedBlockingQueue<ElecRequest>> groupQueueMap =
         new ConcurrentHashMap<>();
     
     /** 消费执行线程*/
     private final ExecutorService comsumerThreadPool =
-        Executors.newFixedThreadPool(8);
+        new ThreadPoolExecutor(10, 100, 0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
     
     @Override
     public boolean add(String group, ElecRequest data)
     {
-        LinkedBlockingDeque<ElecRequest> queue = getQueue(group);
+        LinkedBlockingQueue<ElecRequest> queue = getQueue(group);
         return queue.add(data);
     }
     
-    private LinkedBlockingDeque<ElecRequest> getQueue(String group)
+    private LinkedBlockingQueue<ElecRequest> getQueue(String group)
     {
-        LinkedBlockingDeque<ElecRequest> queue;
+        LinkedBlockingQueue<ElecRequest> queue;
         if ((queue = groupQueueMap.get(group)) == null)
         {
-            queue = new LinkedBlockingDeque<>();
+            queue = new LinkedBlockingQueue<>();
             groupQueueMap.putIfAbsent(group, queue);
         }
         return queue;
     }
     
     @Override
-    public void consume(String group, ElecQueueComsumerService<ElecRequest> comsumer)
+    public void consume(String group,
+        ElecQueueComsumerService<ElecRequest> comsumer)
     {
         try
         {
-            LinkedBlockingDeque<ElecRequest> queue = getQueue(group);
+            LinkedBlockingQueue<ElecRequest> queue = getQueue(group);
             ElecRequest take = queue.take();
+            if (null != take)
+            {
+                comsumerThreadPool.execute(() -> {
+                    comsumer.consume(take);
+                });
+            }
             
-            comsumerThreadPool.execute(() -> {
-                comsumer.consume(take);
-            });
         }
         catch (InterruptedException e)
         {

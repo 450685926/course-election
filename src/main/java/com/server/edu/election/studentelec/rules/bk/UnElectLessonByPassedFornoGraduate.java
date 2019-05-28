@@ -37,6 +37,7 @@ public class UnElectLessonByPassedFornoGraduate extends AbstractElecRuleExceutor
         {
             if (studentInfo.isGraduate())//结业生
             {
+                //通过课程还要查找是否优替代的课程
                 Set<CompletedCourse> completedCourses =
                     context.getCompletedCourses();
                 if (CollectionUtil.isNotEmpty(completedCourses))

@@ -13,7 +13,7 @@ import com.server.edu.election.studentelec.rules.RulePriority;
 
 /**
  * filter，过滤掉学生不能选的任务（校区不对），使得学生在界面上看不见
- *
+ *CampusFilter
  */
 @Component("CampusRule")
 public class CampusRule extends AbstractElecRuleExceutor

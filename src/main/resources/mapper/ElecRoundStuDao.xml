@@ -16,7 +16,10 @@
   	join election_rounds_stu_t t2 ON t1.STUDENT_CODE_ = t2.STUDENT_ID_ AND t2.ROUNDS_ID_ = #{roundId}
   	<where>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.studentId)">
-  		t1.STUDENT_CODE_ = #{stu.studentId}
+  		AND t1.STUDENT_CODE_ = #{stu.studentId}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.keyword)">
+  		AND (t1.STUDENT_CODE_ like CONCAT(#{stu.keyword}, '%') OR t1.NAME_ like CONCAT(#{stu.keyword}, '%'))
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.name)">
   		and t1.NAME_ = #{stu.name}
@@ -34,6 +37,7 @@
   		and t1.GRADE_ = #{stu.grade}
   		</if>
   	</where>
+  	order by t1.STUDENT_CODE_
   </select>
   
   <select id="listNotExistStudent" resultMap="BaseResultMap">

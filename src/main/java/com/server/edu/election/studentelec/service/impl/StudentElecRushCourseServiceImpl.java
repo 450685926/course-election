@@ -69,7 +69,8 @@ public class StudentElecRushCourseServiceImpl
         try
         {
             ElectionRounds round = dataProvider.getRound(roundId);
-            context = new ElecContext(studentId, round.getCalendarId(), request);
+            context =
+                new ElecContext(studentId, round.getCalendarId(), request);
             
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
@@ -149,14 +150,15 @@ public class StudentElecRushCourseServiceImpl
         Collections.sort(exceutors);
         LOG.info("---- exceutors :{} ----", exceutors.size());
         
-        Long roundId = context.getRequest().getRoundId();
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
             TeachingClassCache teachClass =
-                dataProvider.getTeachClass(roundId, teachClassId);
+                dataProvider.getTeachClass(round.getId(),
+                    data.getCourseCode(),
+                    teachClassId);
             if (teachClass == null)
             {
                 failedReasons.put(String.format("%s[%s]",
@@ -182,10 +184,11 @@ public class StudentElecRushCourseServiceImpl
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
-                elecService.saveElc(context, teachClass, ElectRuleType.ELECTION);
+                elecService
+                    .saveElc(context, teachClass, ElectRuleType.ELECTION);
             }
         }
-
+        
     }
     
     /**退课*/
@@ -203,7 +206,7 @@ public class StudentElecRushCourseServiceImpl
         
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
-
+        
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
@@ -242,7 +245,8 @@ public class StudentElecRushCourseServiceImpl
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
-                elecService.saveElc(context, teachClass, ElectRuleType.WITHDRAW);
+                elecService
+                    .saveElc(context, teachClass, ElectRuleType.WITHDRAW);
                 // 删除缓存中的数据
                 Iterator<SelectedCourse> iterator = selectedCourses.iterator();
                 while (iterator.hasNext())

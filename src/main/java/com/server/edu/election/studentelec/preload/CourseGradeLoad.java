@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,18 +14,21 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.server.edu.common.entity.TeacherInfo;
+import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.StudentScoreVo;
+import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
-import com.server.edu.election.rpc.StudentServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -36,6 +40,8 @@ import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 查询学生有成绩的课程
@@ -70,6 +76,12 @@ public class CourseGradeLoad extends DataProLoad
     @Autowired
     private ExemptionApplyDao applyDao;
     
+    @Autowired
+    private ElectionApplyCoursesDao electionApplyCoursesDao;
+    
+    @Autowired
+    private TeachingClassTeacherDao teacherDao;
+    
     @Override
     public void load(ElecContext context)
     {
@@ -92,6 +104,7 @@ public class CourseGradeLoad extends DataProLoad
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
+        Set<ElecCourse> elecApplyCourses = context.getElecApplyCourses();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -103,14 +116,19 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
                 lesson.setCalendarId(studentScore.getCalendarId());
-                lesson.setCheat(StringUtils.isBlank(studentScore.getTotalMarkScore()));
-                if(studentScore.getIsPass()!=null&&studentScore.getIsPass().intValue()==Constants.ONE){//已經完成課程
+                lesson.setCheat(
+                    StringUtils.isBlank(studentScore.getTotalMarkScore()));
+                if (studentScore.getIsPass() != null
+                    && studentScore.getIsPass().intValue() == Constants.ONE)
+                {//已經完成課程
                     completedCourses.add(lesson);
-                }else{
-
+                }
+                else
+                {
+                    
                     failedCourse.add(lesson);
                 }
-
+                
             }
         }
         
@@ -129,13 +147,14 @@ public class CourseGradeLoad extends DataProLoad
         Long calendarId = electionRounds.getCalendarId();
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
-        
+        List<ElecCourse> electionApplies = elcCourseTakeDao
+            .selectApplyCourses(studentId, calendarId, Constants.ZERO);
+        elecApplyCourses = new HashSet<>(electionApplies);
         //3.学生免修课程
         List<ElecCourse> applyRecord =
             applyDao.findApplyRecord(calendarId, studentId);
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
-        
         // 4. 非本学期的选课并且没有成功的
     }
     
@@ -162,6 +181,10 @@ public class CourseGradeLoad extends DataProLoad
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
+            Example teacherExample = new Example(TeachingClassTeacher.class);
+            teacherExample.createCriteria().andIn("teachingClassId", teachClassIds).
+                    andEqualTo("type",Constants.TEACHER_DEFAULT);
+            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             
             //            Set<String> teacherCodeList = list.stream()
@@ -169,18 +192,17 @@ public class CourseGradeLoad extends DataProLoad
             //                .map(ClassTimeUnit::getTeacherCode)
             //                .collect(Collectors.toSet());
             
-            Map<String, TeacherInfo> teacherMap = new HashMap<>();
+            Map<String, Teacher> teacherMap = new HashMap<>();
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse selectedCourse = new SelectedCourse();
-                
+                selectedCourse.setApply(c.getApply());
                 selectedCourse.setCampus(c.getCampus());
                 selectedCourse.setChooseObj(c.getChooseObj());
                 selectedCourse.setCourseCode(c.getCourseCode());
                 selectedCourse.setCourseName(c.getCourseName());
                 selectedCourse.setCourseTakeType(c.getCourseTakeType());
                 selectedCourse.setCredits(c.getCredits());
-                
                 //selectedCourse.setNameEn(c.geten);
                 //selectedCourse.setPublicElec(publicElec);
                 //selectedCourse.setRebuildElec(rebuildElec);
@@ -190,6 +212,20 @@ public class CourseGradeLoad extends DataProLoad
                 selectedCourse.setTeachClassCode(c.getTeachingClassCode());
                 selectedCourse.setTurn(c.getTurn());
                 
+                if(CollectionUtil.isNotEmpty(teacherList)) {
+                	 List<TeachingClassTeacher> teachers = teacherList.stream().filter(a->c.getTeachingClassId().equals(a.getTeachingClassId())).collect(Collectors.toList());
+                	 if(CollectionUtil.isNotEmpty(teachers)) {
+                 		StringBuilder stringBuilder = new StringBuilder();
+                		for(TeachingClassTeacher teacher:teachers) {
+                			stringBuilder.append(teacher.getTeacherName());
+                			stringBuilder.append("(");
+                			stringBuilder.append(teacher.getTeacherCode());
+                			stringBuilder.append(")");
+                			stringBuilder.append(",");
+                		}
+                		selectedCourse.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+                	 }
+                }
                 List<ClassTimeUnit> times =
                     concatTime(collect, teacherMap, selectedCourse);
                 selectedCourse.setTimes(times);
@@ -227,8 +263,8 @@ public class CourseGradeLoad extends DataProLoad
      * @see [类、类#方法、类#成员]
      */
     public List<ClassTimeUnit> concatTime(
-        Map<Long, List<ClassTimeUnit>> collect,
-        Map<String, TeacherInfo> teacherMap, TeachingClassCache c)
+        Map<Long, List<ClassTimeUnit>> collect, Map<String, Teacher> teacherMap,
+        TeachingClassCache c)
     {
         //一个教学班的排课时间信息
         List<ClassTimeUnit> classTimeUnits = collect.get(c.getTeachClassId());
@@ -273,7 +309,7 @@ public class CourseGradeLoad extends DataProLoad
                         .getWeekNums(weekNumbers.toArray(new Integer[] {}));
                     
                     String teacherCode = room.getTeacherCode();
-                    TeacherInfo teacherInfo =
+                    Teacher teacherInfo =
                         getTeacherInfo(teacherMap, teacherCode);
                     String teacherName =
                         teacherInfo != null ? teacherInfo.getName() : "";
@@ -298,18 +334,17 @@ public class CourseGradeLoad extends DataProLoad
         return null;
     }
     
-    private TeacherInfo getTeacherInfo(Map<String, TeacherInfo> teacherMap,
+    private Teacher getTeacherInfo(Map<String, Teacher> teacherMap,
         String teacherCode)
     {
-        TeacherInfo teacherInfo = null;
+        Teacher teacherInfo = null;
         if (teacherMap.containsKey(teacherCode))
         {
             teacherInfo = teacherMap.get(teacherCode);
         }
         else
         {
-            teacherInfo =
-                StudentServiceInvoker.findTeacherInfoBycode(teacherCode);
+            teacherInfo = TeacherCacheUtil.getTeacher(teacherCode);
             teacherMap.put(teacherCode, teacherInfo);
         }
         return teacherInfo;

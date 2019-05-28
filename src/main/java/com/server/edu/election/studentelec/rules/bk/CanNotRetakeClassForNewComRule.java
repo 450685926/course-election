@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.constants.Constants;
+import com.server.edu.election.studentelec.rules.RetakeCourse;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -17,6 +19,10 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 新选课程不出现重修班
+ * 课程是新选 教学班不能是重修班
+ * CanNotRetakeClassForNewComFilter
+ *
+ * !elected&&lesson.getTags().size()>0
  */
 @Component("CanNotRetakeClassForNewComRule")
 public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
@@ -31,16 +37,8 @@ public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-        Set<CompletedCourse> set = new HashSet<>();
-        set.addAll(context.getFailedCourse());
-        set.addAll(context.getCompletedCourses());
-        if (CollectionUtil.isNotEmpty(set))
-        {
-            Set<CompletedCourse> collect = set.stream()
-                .filter(vo -> vo.getCourseCode()
-                    .equals(courseClass.getCourseCode()))
-                .collect(Collectors.toSet());
-            if (CollectionUtil.isNotEmpty(collect))
+        long count = RetakeCourse.isRetakeCourse(context, courseClass.getCourseCode());
+            if (count == 0 && courseClass.getTeachClassType().equals(Constants.REBUILD_CALSS))
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
@@ -49,7 +47,7 @@ public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
                             .getMsg("ruleCheck.canNotRetakeClassForNewCom"));
                 return false;
             }
-        }
+
         
         return true;
     }

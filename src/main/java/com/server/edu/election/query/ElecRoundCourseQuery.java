@@ -13,10 +13,13 @@ public class ElecRoundCourseQuery
     //校历id
     @NotNull(groups = {RoundGroup.class, Default.class})
     private Long calendarId;
+    
     //选课模式
     @NotNull(groups = {RoundGroup.class})
     private Integer mode;
-
+    
+    private String projectId;
+    
     private String courseCode;
     
     private String courseName;
@@ -29,16 +32,29 @@ public class ElecRoundCourseQuery
     
     /**课程性质*/
     private String nature;
-
-
-    public Integer getMode() {
+    
+    private String keyword;
+    
+    public Integer getMode()
+    {
         return mode;
     }
-
-    public void setMode(Integer mode) {
+    
+    public void setMode(Integer mode)
+    {
         this.mode = mode;
     }
-
+    
+    public String getProjectId()
+    {
+        return projectId;
+    }
+    
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
+    }
+    
     public Long getRoundId()
     {
         return roundId;
@@ -107,6 +123,16 @@ public class ElecRoundCourseQuery
     public void setNature(String nature)
     {
         this.nature = nature;
+    }
+    
+    public String getKeyword()
+    {
+        return keyword;
+    }
+    
+    public void setKeyword(String keyword)
+    {
+        this.keyword = keyword;
     }
     
 }

@@ -26,6 +26,26 @@ public class ClassTeacherDto {
     private Double weekHour;
     private String remark;
     private Integer selectCourseNumber;
+    @Code2Text(transformer = "X_XQ")
+    private String campus;
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    private String className;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
     public String getCourseCode() {
         return courseCode;

@@ -4,8 +4,17 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.constants.Constants;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +61,15 @@ public class RebuildCourseController {
     @ApiOperation(value = "查询重修收费信息")
     @PostMapping("/findCourseCharge")
     public RestResult<PageResult<RebuildCourseCharge>> findCourseCharge(@RequestBody PageCondition<RebuildCourseCharge> condition) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String dptId = currentSession.getCurrentManageDptId();
+        if(StringUtils.isBlank(dptId)){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.projIdNotExtist"));
+        }
+        if(Constants.PROJ_LINE_GRADUATE.equals(dptId)){
+            return null;
+        }
+        condition.getCondition().setManageDeptId(dptId);
         PageResult<RebuildCourseCharge> exemptionCourse = service.findCourseCharge(condition);
         return RestResult.successData(exemptionCourse);
     }
@@ -69,6 +87,11 @@ public class RebuildCourseController {
     @ApiOperation(value = "编辑重修收费信息")
     @PostMapping("/editCourseCharge")
     public RestResult<String> editCourseCharge(@RequestBody RebuildCourseCharge courseCharge) {
+        if(StringUtils.isBlank(courseCharge.getFormLearning())
+                ||StringUtils.isBlank(courseCharge.getTrainingLevel())
+                ||courseCharge.getIsCharge()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError "));
+        }
         String s = service.editCourseCharge(courseCharge);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
@@ -78,6 +101,11 @@ public class RebuildCourseController {
     @ApiOperation(value = "新增重修收费信息")
     @PostMapping("/addCourseCharge")
     public RestResult<String> addCourseCharge(@RequestBody RebuildCourseCharge courseCharge) {
+        if(StringUtils.isBlank(courseCharge.getFormLearning())
+                ||StringUtils.isBlank(courseCharge.getTrainingLevel())
+                ||courseCharge.getIsCharge()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError "));
+        }
         String s = service.addCourseCharge(courseCharge);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
@@ -121,6 +149,9 @@ public class RebuildCourseController {
     @ApiOperation(value = "查询未缴费的课程名单")
     @PostMapping("/findCourseNoChargeList")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(@RequestBody PageCondition<RebuildCoursePaymentCondition > condition) {
+        if(condition.getCondition().getCalendarId()==null ||condition.getCondition().getMode()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
         PageResult<RebuildCourseNoChargeList> noChargeType = service.findCourseNoChargeList(condition);
         return RestResult.successData(noChargeType);
     }
@@ -155,10 +186,9 @@ public class RebuildCourseController {
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
 
-
     @ApiOperation(value = "导出未缴费课程名单")
-    @PostMapping("/exportNoChargeList")
-    public RestResult<String> exportNoChargeList (
+    @PostMapping("/exportNoChargeList2")
+    public RestResult<String> exportNoChargeList2 (
             @RequestBody RebuildCoursePaymentCondition condition)
             throws Exception
     {
@@ -181,9 +211,9 @@ public class RebuildCourseController {
 
 
     @ApiOperation(value = "导出excel下载文件")
-    @GetMapping("/download")
+    @GetMapping("/download2")
     @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
-    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName) throws Exception
+    public ResponseEntity<Resource> download2(@RequestParam("fileName") String fileName) throws Exception
     {
         LOG.info("export.start");
         fileName = new String(fileName.getBytes(), "ISO8859-1");
@@ -193,5 +223,36 @@ public class RebuildCourseController {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment;filename*=UTF-8''"+URLDecoder.decode(fileName,"utf-8"))
                 .body(resource);
+    }
+
+
+    @ApiOperation(value = "导出重修缴费名单")
+    @PostMapping("/export")
+    public RestResult<ExcelResult> export(@RequestBody RebuildCoursePaymentCondition condition)
+            throws Exception {
+        LOG.info("export.start");
+        ExcelResult result = service.export(condition);
+        return RestResult.successData(result);
+    }
+
+    /**
+     * @Description: 根据key循环去redis取数据
+     */
+    @GetMapping("result/{key}")
+    public RestResult<?> getResultByKey(@PathVariable("key") @NotBlank String key) {
+        ExcelResult excelResult = ExportExcelUtils.getResultByKey(key);
+        return RestResult.successData(excelResult);
+    }
+
+    /**
+     * @Description: 下载
+     */
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("path") String path)
+            throws Exception {
+        Resource resource = new FileSystemResource(path);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/file-xls").header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=result.xls").body(resource);
     }
 }

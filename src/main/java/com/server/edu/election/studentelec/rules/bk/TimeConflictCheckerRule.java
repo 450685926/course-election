@@ -18,6 +18,7 @@ import com.server.edu.util.CollectionUtil;
 
 /**
  * 时间冲突检查
+ * TimeConflictChecker
  */
 @Component("TimeConflictCheckerRule")
 public class TimeConflictCheckerRule extends AbstractElecRuleExceutor

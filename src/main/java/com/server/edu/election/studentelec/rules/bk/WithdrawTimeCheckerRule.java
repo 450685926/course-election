@@ -14,6 +14,7 @@ import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 
 /**
  * 只能退本轮选的课
+ * WithdrawTimeChecker
  */
 @Component("WithdrawTimeCheckerRule")
 public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutor
