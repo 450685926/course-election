@@ -14,15 +14,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.vo.*;
-import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
@@ -38,15 +33,31 @@ import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
-import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.ElcNoSelectReasonVo;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
+import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -77,16 +88,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private StudentDao studentDao;
 
     @Autowired
-    private ElcLogDao elcLogDao;
-
-    @Autowired
-    private ElecRoundsDao elecRoundsDao;
-
-    @Autowired
     private ElcNoSelectReasonDao reasonDao;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -388,31 +390,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         vo.setTeacherDtos(list);
         vo.setTimeTables(timeTables);
         return vo;
-    }
-
-    /**
-    *@Description: 选退课日志
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/18 16:30
-    */
-    @Override
-    public PageResult<ElcLogVo> findCourseLog(PageCondition<ElcLogVo> condition) {
-        String currentManageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        condition.getCondition().setDeptId(currentManageDptId);
-        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<ElcLogVo> courseLog = elcLogDao.findCourseLog(condition.getCondition());
-        if(courseLog !=null){
-            List<ElcLogVo> result = courseLog.getResult();
-            if(CollectionUtil.isNotEmpty(result)){
-                SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
-                for (ElcLogVo elcLogVo : result) {
-                    elcLogVo.setCalendarName(schoolCalendarVo.getFullName());
-                }
-            }
-        }
-        return new PageResult<>(courseLog);
     }
 
     /**

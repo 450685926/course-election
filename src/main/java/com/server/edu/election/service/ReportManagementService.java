@@ -4,9 +4,23 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dto.*;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.vo.*;
+import com.server.edu.election.vo.ElcNoSelectReasonVo;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
+import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.TimeTable;
 import com.server.edu.util.excel.export.ExcelResult;
 
 public interface ReportManagementService {
@@ -30,12 +44,6 @@ public interface ReportManagementService {
 
     /**查询教师课表*/
     StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId,String teacherCode);
-
-    /**
-     * 查询选课日志
-     * */
-    PageResult<ElcLogVo> findCourseLog(
-            PageCondition<ElcLogVo> condition);
 
     /**查询选课名单*/
     PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition);

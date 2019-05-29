@@ -4,9 +4,6 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.util.List;
 
-import com.server.edu.election.dto.*;
-import com.server.edu.election.vo.*;
-import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -29,11 +26,27 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.ElcNoSelectReasonVo;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentSchoolTimetabVo;
+import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 
@@ -56,9 +69,6 @@ public class ReportManagementController {
 
     @Autowired
     private ReportManagementService managementService;
-
-    @Autowired
-    private ElcLogService elcLogService;
 
     private static Logger LOG =
             LoggerFactory.getLogger(ExemptionController.class);
@@ -256,17 +266,6 @@ public class ReportManagementController {
         List<TimeTable> teacherTimetable = managementService.getTeacherTimetable(calendarId, teacherCode, week);
         return RestResult.successData(teacherTimetable);
     }
-
-    @ApiOperation(value = "查询选退课日志")
-    @PostMapping("/findCourseLog")
-    public RestResult<PageResult<ElcLogVo>> findCourseLog(@RequestBody PageCondition<ElcLogVo> condition){
-        if(condition.getCondition().getCalendarId()==null){
-            return RestResult.fail("common.parameterError");
-        }
-        PageResult<ElcLogVo> courseLog = managementService.findCourseLog(condition);
-        return RestResult.successData(courseLog);
-    }
-
 
     @ApiOperation(value = "导出未选课学生名单")
     @PostMapping("/exportStudentNoCourseList2")
