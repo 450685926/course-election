@@ -49,30 +49,30 @@
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
 	  	and t1.MODE_ = #{query.mode}
 	  	</if>
-	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
-            and t1.TEACHING_CLASS_CODE_ like CONCAT(#{teachingClassCode},'%')
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
+            and t1.TEACHING_CLASS_CODE_ like CONCAT(#{query.teachingClassCode},'%')
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-            and t1.COURSE_CODE_ like CONCAT(#{courseCode},'%')
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+            and t1.COURSE_CODE_ like CONCAT(#{query.courseCode},'%')
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-            and t1.COURSE_NAME_ like CONCAT(#{courseName},'%')
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+            and t1.COURSE_NAME_ like CONCAT(#{query.courseName},'%')
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-            and (t2.STUDENT_CODE_ like CONCAT(#{keyword},'%') or t2.NAME_ like CONCAT(#{keyword},'%'))
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+            and (t2.STUDENT_CODE_ like CONCAT(#{query.keyword},'%') or t2.NAME_ like CONCAT(#{query.keyword},'%'))
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(startTime)">
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.startTime)">
             <![CDATA[
-				and t1.CREATED_AT_ >= #{startTime}
+				and t1.CREATED_AT_ >= #{query.startTime}
 				   ]]>
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(endTime)">
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.endTime)">
             <![CDATA[
-				and t1.CREATED_AT_ <= #{endTime}
+				and t1.CREATED_AT_ <= #{query.endTime}
 				   ]]>
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
-            and t2.MANAGER_DEPT_ID_ = #{deptId}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.deptId)">
+            and t2.MANAGER_DEPT_ID_ = #{query.deptId}
         </if>
   	</where>
   </select>
