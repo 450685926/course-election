@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -20,6 +21,8 @@ import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.service.ElcCourseSuggestSwitchService;
 import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -32,6 +35,8 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 	@Override
 	public PageInfo<CourseOpenVo>  page(PageCondition<CourseOpenDto> condition){
 		CourseOpenDto dto = condition.getCondition();
+		Session session = SessionUtils.getCurrentSession();
+		dto.setProjectId(session.getCurrentManageDptId());
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<CourseOpenVo> list = courseOpenDao.selectCourseSuggestSwitch(dto);
 		PageInfo<CourseOpenVo> pageInfo = new PageInfo<>(list);
@@ -39,6 +44,7 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 	}
 	
 	@Override
+	@Transactional
 	public int start(List<String> courses) {
 		List<ElcCourseSuggestSwitch> list = elcCourseSuggestSwitchDao.selectAll();
 		int result = 0;
@@ -46,8 +52,9 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 			List<String> courseCodes = list.stream().map(ElcCourseSuggestSwitch::getCourseCode).collect(Collectors.toList());
 			Iterator<String> iterator = courses.iterator();
 			while(iterator.hasNext()) {
-				if(courseCodes.contains(iterator.next())) {
-					courses.remove(iterator.next());
+				String coure = iterator.next(); 
+				if(courseCodes.contains(coure)) {
+					iterator.remove();
 				}
 			}
 			if(CollectionUtil.isEmpty(courses)) {
@@ -68,6 +75,7 @@ public class ElcCourseSuggestSwitchServiceImpl implements ElcCourseSuggestSwitch
 	}
 	
 	@Override
+	@Transactional
 	public int stop(List<String> courses) {
 		Example example = new Example(ElcCourseSuggestSwitch.class);
 		Example.Criteria criteria = example.createCriteria();

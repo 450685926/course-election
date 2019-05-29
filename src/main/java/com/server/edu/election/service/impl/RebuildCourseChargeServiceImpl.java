@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -121,21 +124,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     @Transactional
     public String editCourseCharge(RebuildCourseCharge courseCharge) {
-        RebuildCourseCharge rebuildCourseCharge = new RebuildCourseCharge();
-        Page<RebuildCourseCharge> courseCharges =
-                courseChargeDao.findCourseCharge(rebuildCourseCharge);
-        if (courseCharges != null && courseCharges.getResult().size() > 0) {
-            List<RebuildCourseCharge> result = courseCharges.getResult();
-            List<RebuildCourseCharge> collect = result.stream()
-                    .filter((RebuildCourseCharge vo) -> vo.getId()
-                            .longValue() != courseCharge.getId().longValue())
-                    .collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(collect)) {
-                if (collect.contains(courseCharge)) {
-                    return "common.exist";
-                }
-            }
-        }
         courseChargeDao.updateByPrimaryKeySelective(courseCharge);
         return "common.editSuccess";
     }
@@ -150,16 +138,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     @Transactional
     public String addCourseCharge(RebuildCourseCharge courseCharge) {
-        RebuildCourseCharge rebuildCourseCharge = new RebuildCourseCharge();
-        Page<RebuildCourseCharge> courseCharges =
-                courseChargeDao.findCourseCharge(rebuildCourseCharge);
-        if (courseCharges != null) {
-            List<RebuildCourseCharge> result = courseCharges.getResult();
-            if (CollectionUtil.isNotEmpty(result)) {
-                if (result.contains(courseCharge)) {
-                    return "common.exist";
-                }
-            }
+        RebuildCourseCharge item = courseChargeDao.findPrice(courseCharge.getTrainingLevel(),courseCharge.getFormLearning());
+        if (item != null) {
+            return "common.exist";
         }
         courseChargeDao.insertSelective(courseCharge);
         return "common.addsuccess";
@@ -175,6 +156,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(
             PageCondition<RebuildCourseNoChargeType> condition) {
+        String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(manageDptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeType> courseNoChargeType =
                 noChargeTypeDao.findCourseNoChargeType(condition.getCondition());
@@ -190,17 +173,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public String addCourseNoChargeType(RebuildCourseNoChargeType noChargeType) {
-        RebuildCourseNoChargeType courseNoChargeType =
-                new RebuildCourseNoChargeType();
-        Page<RebuildCourseNoChargeType> chargeType =
-                noChargeTypeDao.findCourseNoChargeType(courseNoChargeType);
-        if (chargeType != null) {
-            List<RebuildCourseNoChargeType> result = chargeType.getResult();
-            if (CollectionUtil.isNotEmpty(result)) {
-                if (result.contains(noChargeType)) {
-                    return "common.exist";
-                }
-            }
+
+        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(noChargeType);
+        if (item != null) {
+            return "common.exist";
         }
         noChargeTypeDao.insertSelective(noChargeType);
         return "common.addsuccess";
@@ -233,24 +209,11 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public String editCourseNoChargeType(
             RebuildCourseNoChargeType courseNoCharge) {
-        RebuildCourseNoChargeType courseNoChargeType =
-                new RebuildCourseNoChargeType();
-        Page<RebuildCourseNoChargeType> chargeType =
-                noChargeTypeDao.findCourseNoChargeType(courseNoChargeType);
-        if (chargeType != null) {
-            List<RebuildCourseNoChargeType> result = chargeType.getResult();
-            if (CollectionUtil.isNotEmpty(result)) {
-                List<RebuildCourseNoChargeType> collect = result.stream()
-                        .filter((RebuildCourseNoChargeType vo) -> vo.getId()
-                                .longValue() != courseNoCharge.getId().longValue())
-                        .collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(collect)) {
-                    if (collect.contains(courseNoCharge)) {
-                        return "common.exist";
-                    }
-                }
+        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(courseNoCharge);
+        if(item!=null){
+            if(item.getId().intValue()!=courseNoCharge.getId().intValue()){
+                return "common.exist";
             }
-
         }
         noChargeTypeDao.updateByPrimaryKeySelective(courseNoCharge);
         return "common.editSuccess";
@@ -617,6 +580,59 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             }
         }
         return false;
+    }
+
+    /**
+    *@Description: 查询学生应缴费用
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/27 11:15
+    */
+    @Override
+    public List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto) {
+        List<StudentRePaymentDto> paymentDtoList=new ArrayList<>();
+        String studentCode = studentRePaymentDto.getStudentCode();
+        /**是否在不缴费学生类型中*/
+        boolean retake = isNoNeedPayForRetake(studentCode);
+        if(retake){
+            return null;
+        }
+        //不再不缴费学生类型中，查询重修课程并且判断是否需要缴费
+        List<ElcCourseTakeVo> courseTakes=courseTakeDao.findStuRebuildCourse(studentRePaymentDto);
+        //没有重修课程
+        if(CollectionUtil.isEmpty(courseTakes)){
+            return null;
+        }
+        //查询收费单价
+        Student record = new Student();
+        record.setStudentCode(studentCode);
+        Student student = studentDao.selectOne(record);
+        String trainingLevel = student.getTrainingLevel();
+        String formLearning = student.getFormLearning();
+        RebuildCourseCharge prices = courseChargeDao.findPrice(trainingLevel,formLearning);
+        if(prices == null || prices.getIsCharge()==0){
+            return null;
+        }
+
+        for (ElcCourseTakeVo courseTake : courseTakes) {
+            double credits=courseTake.getCredits();
+            int unitPrice= prices.getUnitPrice();
+            double payable =  (unitPrice*credits);
+            StudentRePaymentDto paymentDto=new StudentRePaymentDto();
+            paymentDto.setCourseCode(courseTake.getCourseCode());
+            paymentDto.setCourseName(courseTake.getCourseName());
+            paymentDto.setStudentCode(studentRePaymentDto.getStudentCode());
+            paymentDto.setCredits(credits);
+            paymentDto.setUnitPrice(unitPrice);
+            paymentDto.setCalendarId(studentRePaymentDto.getCalendarId());
+            paymentDto.setPayable(payable);
+            paymentDto.setBillId(courseTake.getBillId());
+            paymentDto.setPaid(courseTake.getPaid());
+            paymentDtoList.add(paymentDto);
+        }
+
+        return paymentDtoList;
     }
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -241,4 +242,17 @@ public class RebuildCourseController {
             throws Exception {
         return ExportExcelUtils.export(path);
     }
+
+    @ApiOperation(value = "学生重修缴费明细")
+    @PostMapping("/findStuRePayment")
+    public RestResult<List<StudentRePaymentDto>> findStuRePayment(@RequestBody StudentRePaymentDto studentRePaymentDto){
+        if(studentRePaymentDto.getCalendarId()==null){
+            return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        String studentCode = SessionUtils.getCurrentSession().realUid();
+        studentRePaymentDto.setStudentCode(studentCode);
+        List<StudentRePaymentDto> list=service.findStuRePayment(studentRePaymentDto);
+        return RestResult.successData(list);
+    }
+
 }

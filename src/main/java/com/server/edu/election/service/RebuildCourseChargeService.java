@@ -3,6 +3,7 @@ package com.server.edu.election.service;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
@@ -53,5 +54,7 @@ public interface RebuildCourseChargeService {
     ExcelResult exportRecycle(RebuildCourseDto condition);
 
     boolean isNoNeedPayForRetake(String studentId);
+
+    List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto);
 }
 

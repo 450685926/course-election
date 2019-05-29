@@ -12,4 +12,7 @@ public interface RebuildCourseNoChargeTypeDao extends Mapper<RebuildCourseNoChar
     Page<RebuildCourseNoChargeType> findCourseNoChargeType(RebuildCourseNoChargeType condition);
 
     void deleteRebuildCourseNoChargeType(List<Long> list);
+
+    RebuildCourseNoChargeType findTypeByCondition(RebuildCourseNoChargeType noChargeType);
+
 }

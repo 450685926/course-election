@@ -133,4 +133,7 @@ public interface ElcCourseTakeDao
      * 查询未选课学生
      */
     Page<NoSelectCourseStdsDto> findNoSelectCourseStds(NoSelectCourseStdsDto stdsDto);
+
+    /**查询学生未缴费明细*/
+    List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
 }
