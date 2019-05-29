@@ -244,11 +244,16 @@ public class CourseGradeLoad extends DataProLoad
         List<ClassTimeUnit> classTimeUnits = collect.get(c.getTeachClassId());
         if (CollectionUtil.isNotEmpty(classTimeUnits))
         {
+            StringBuilder sb = new StringBuilder();
+            sb.append(String
+                .format("%s(%s) ", c.getCourseName(), c.getCourseCode()));
+            
             List<ClassTimeUnit> classTimeList = new ArrayList<>();
             // 按上课节次分组取每个节次下对应的教室与老师
             Map<Long, List<ClassTimeUnit>> collect2 = classTimeUnits.stream()
                 .collect(
                     Collectors.groupingBy(ClassTimeUnit::getArrangeTimeId));
+            
             for (Entry<Long, List<ClassTimeUnit>> entry : collect2.entrySet())
             {
                 List<ClassTimeUnit> times = entry.getValue();
@@ -261,9 +266,6 @@ public class CourseGradeLoad extends DataProLoad
                 Map<String, List<ClassTimeUnit>> collect3 = times.stream()
                     .collect(
                         Collectors.groupingBy(CourseGradeLoad::groupByRoom));
-                StringBuilder sb = new StringBuilder();
-                sb.append(String
-                    .format("%s(%s) ", c.getCourseName(), c.getCourseCode()));
                 int step = 0;
                 for (Entry<String, List<ClassTimeUnit>> entry1 : collect3
                     .entrySet())
