@@ -24,23 +24,23 @@ public class ElcNoGradCouSubs implements Serializable {
      */
     @Column(name = "PROJECT_ID_")
     private String projectId;
-
-    @Column(name = "CALENDAR_ID_")
+    
     @NotNull
+    @Column(name = "CALENDAR_ID_")
     private Long calendarId;
 
     /**
      * 原课程代码
      */
-    @Column(name = "ORIGS_COURSE_ID_")
     @NotBlank
+    @Column(name = "ORIGS_COURSE_ID_")
     private String origsCourseId;
 
     /**
      * 替代课程代码
      */
-    @Column(name = "SUB_COURSE_ID_")
     @NotBlank
+    @Column(name = "SUB_COURSE_ID_")
     private String subCourseId;
 
     /**
@@ -55,6 +55,9 @@ public class ElcNoGradCouSubs implements Serializable {
     @Column(name = "CREATED_AT_")
     private Date createdAt;
 
+    /**
+     * 修改时间
+     */
     @Column(name = "UPDATED_AT")
     private Date updatedAt;
 
@@ -179,14 +182,18 @@ public class ElcNoGradCouSubs implements Serializable {
     }
 
     /**
-     * @return UPDATED_AT
+     * 获取修改时间
+     *
+     * @return UPDATED_AT - 修改时间
      */
     public Date getUpdatedAt() {
         return updatedAt;
     }
 
     /**
-     * @param updatedAt
+     * 设置修改时间
+     *
+     * @param updatedAt 修改时间
      */
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;

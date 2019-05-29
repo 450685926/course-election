@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,6 @@ import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.service.ElcNoGradCouSubsService;
 import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.exception.ParameterValidateException;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -29,8 +28,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 	@Override
 	public PageInfo<ElcNoGradCouSubsVo> page(PageCondition<ElcNoGradCouSubs> condition) {
 		ElcNoGradCouSubs dto = condition.getCondition();
-		Session session = SessionUtils.getCurrentSession();
-		dto.setProjectId(session.getCurrentManageDptId());
+		dto.setProjectId(dto.getProjectId());
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElcNoGradCouSubsVo> list = elcNoGradCouSubsDao.selectElcNoGradCouSubs(dto);
 		if(CollectionUtil.isNotEmpty(list)) {
@@ -48,8 +46,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 	public int add(ElcNoGradCouSubs elcNoGradCouSubs) {
 		Example example = new Example(ElcNoGradCouSubs.class);
 		Example.Criteria criteria = example.createCriteria();
-		Session session = SessionUtils.getCurrentSession();
-		criteria.andEqualTo("projectId", session.getCurrentManageDptId());
+		criteria.andEqualTo("projectId", elcNoGradCouSubs.getProjectId());
 		criteria.andEqualTo("calendarId", elcNoGradCouSubs.getCalendarId());
 		criteria.andEqualTo("origsCourseId", elcNoGradCouSubs.getOrigsCourseId());
 		criteria.andEqualTo("subCourseId", elcNoGradCouSubs.getSubCourseId());
@@ -57,6 +54,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		if(subs!=null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("election.elcNoGradCouSubs")));
 		}
+		elcNoGradCouSubs.setCreatedAt(new Date());
 		int result = elcNoGradCouSubsDao.insertSelective(elcNoGradCouSubs);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
@@ -79,6 +77,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		criteria.andEqualTo("origsCourseId", elcNoGradCouSubs.getOrigsCourseId());
 		criteria.andEqualTo("subCourseId", elcNoGradCouSubs.getSubCourseId());
 		ElcNoGradCouSubs subs = elcNoGradCouSubsDao.selectOneByExample(example);
+		elcNoGradCouSubs.setUpdatedAt(new Date());
 		if(subs!=null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("election.elcNoGradCouSubs")));
 		}
@@ -96,7 +95,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andIn("id", ids);
 		List<ElcNoGradCouSubs> list = elcNoGradCouSubsDao.selectByExample(example);
-		if(CollectionUtil.isNotEmpty(list)) {
+		if(CollectionUtil.isEmpty(list)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		int result = elcNoGradCouSubsDao.deleteByExample(example);

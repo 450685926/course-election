@@ -11,8 +11,8 @@
     <result column="ORIGS_COURSE_ID_" jdbcType="VARCHAR" property="origsCourseId" />
     <result column="SUB_COURSE_ID_" jdbcType="VARCHAR" property="subCourseId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
-    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
-    <result column="UPDATED_AT" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="CREATED_AT_" jdbcType="DATE" property="createdAt" />
+    <result column="UPDATED_AT" jdbcType="DATE" property="updatedAt" />
   </resultMap>
   
   <resultMap id="subsMap" type="com.server.edu.election.vo.ElcNoGradCouSubsVo" extends="com.server.edu.election.dao.ElcNoGradCouSubsDao.BaseResultMap">
