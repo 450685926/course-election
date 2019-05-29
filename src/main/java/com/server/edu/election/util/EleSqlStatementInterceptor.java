@@ -70,9 +70,8 @@ public class EleSqlStatementInterceptor implements Interceptor {
             int hour = LocalTime.now().getHour();
             // 此拦截器方法会执行两次，插入前先判断是否与redis上一条数据重复
             String prePush = redisTemplate.opsForList().index(RedisConstant.ELE_SQL_KEY, -1).toString();
-            if (prePush != null) {
-            	prePush = prePush.split(":")[3];
-            	if (!StringUtils.equals(prePush.split("\\|")[0], sql.split(":")[3].split("\\|")[0])) {
+            if (StringUtils.isNotBlank(prePush)) {
+            	if (!StringUtils.equals(prePush.split(":")[3].split("\\|")[0], sql.split(":")[3].split("\\|")[0])) {
             		redisTemplate.opsForList().rightPush(RedisConstant.ELE_SQL_KEY + nowDate + hour, sql);
             	}
             } else {
