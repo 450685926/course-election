@@ -63,6 +63,12 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
   	 and t3.CODE_ = #{query.courseCode}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
+  	 and t3.CODE_ IN
+  	 	<foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">
+            #{code}
+        </foreach>
+  	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
   	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>

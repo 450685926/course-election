@@ -11,4 +11,8 @@ public interface ElectionConstantsDao extends Mapper<ElectionConstants> {
     String findNewCreditsLimit();
     /**预警学生不及格学分*/
     String findMaxFailCredits();
+    /**查询体育课程*/
+    String findPECourses();
+    /**查询英语课程*/
+    String findEnglishCourses();
 }
