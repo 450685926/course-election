@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -25,7 +26,7 @@ public class ElcNoGradCouSubs implements Serializable {
     private String projectId;
 
     @Column(name = "CALENDAR_ID_")
-    @NotBlank
+    @NotNull
     private Long calendarId;
 
     /**
