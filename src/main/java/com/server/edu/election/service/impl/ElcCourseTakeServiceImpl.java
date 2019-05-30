@@ -66,7 +66,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     public PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page)
     {
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcCourseTakeQuery cond = page.getCondition();
         List<String> includeCodes = new ArrayList<>();
         // 1体育课
@@ -88,6 +87,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
         cond.setIncludeCourseCodes(includeCodes);
+        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
         
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);

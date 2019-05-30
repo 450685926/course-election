@@ -7,6 +7,7 @@ import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.util.excel.export.ExcelResult;
 
@@ -21,7 +22,7 @@ public interface RebuildCourseChargeService {
 
     String addCourseCharge(RebuildCourseCharge courseCharge);
 
-    PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(PageCondition<RebuildCourseNoChargeType> condition);
+    PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(PageCondition<RebuildCourseNoChargeTypeVo> condition);
 
     String addCourseNoChargeType(RebuildCourseNoChargeType noChargeType);
 

@@ -5,6 +5,7 @@ import java.util.List;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -117,7 +118,7 @@ public class RebuildCourseController {
 
     @ApiOperation(value = "查询重修不收费学生类型")
     @PostMapping("/findCourseNoChargeType")
-    public RestResult<PageResult<RebuildCourseNoChargeType>> findCourseNoChargeType(@RequestBody PageCondition<RebuildCourseNoChargeType> condition) {
+    public RestResult<PageResult<RebuildCourseNoChargeType>> findCourseNoChargeType(@RequestBody PageCondition<RebuildCourseNoChargeTypeVo > condition) {
         PageResult<RebuildCourseNoChargeType> noChargeType = service.findCourseNoChargeType(condition);
         return RestResult.successData(noChargeType);
     }

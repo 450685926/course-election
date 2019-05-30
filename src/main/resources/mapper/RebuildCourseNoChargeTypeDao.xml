@@ -13,7 +13,7 @@
         ID_, TRAINING_LEVEL_, FORM_LEARNING_, SPCIAL_PLAN_, REGISTRATION_STATUS_, CERTIFICATE_TYPE_
     </sql>
 
-    <select id="findCourseNoChargeType" parameterType="com.server.edu.election.entity.RebuildCourseNoChargeType" resultMap="BaseResultMap">
+    <select id="findCourseNoChargeType" parameterType="com.server.edu.election.vo.RebuildCourseNoChargeTypeVo" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"></include>
         from rebuild_course_nocharge_type_t
