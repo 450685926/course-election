@@ -2,7 +2,6 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-import com.sun.javafx.binding.StringFormatter;
 
 import java.io.Serializable;
 
