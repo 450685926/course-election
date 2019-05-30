@@ -70,7 +70,6 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     public PageResult<CourseOpenDto> listTeachingClassPage(
         PageCondition<ElecRoundCourseQuery> condition)
     {
-        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
         List<String> includeCodes = new ArrayList<>();
         // 1体育课
@@ -92,6 +91,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
             }
         }
         query.setIncludeCourseCodes(includeCodes);
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<CourseOpenDto> listPage =
             roundCourseDao.listTeachingClassPage(query);
         
