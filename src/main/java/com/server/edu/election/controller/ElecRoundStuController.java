@@ -2,6 +2,7 @@ package com.server.edu.election.controller;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -82,16 +83,20 @@ public class ElecRoundStuController
     @ApiOperation(value = "添加可选课学生")
     @PutMapping("/{roundId}/{mode}")
     public RestResult<?> add(@PathVariable("roundId") @NotNull Long roundId,
-        @RequestBody @NotNull List<String> studentCodes,@PathVariable("mode") @NotNull Integer mode)
+        @RequestBody @NotEmpty List<String> studentCodes,
+        @PathVariable("mode") @NotNull Integer mode)
     {
-        String add = elecRoundStuService.add(roundId, studentCodes,mode);
-        if ((mode==1||mode==2)&&StringUtils.isNotBlank(add))
+        studentCodes = new ArrayList<>(new LinkedHashSet<>(studentCodes));
+        String add = elecRoundStuService.add(roundId, studentCodes, mode);
+        if ((mode == 1 || mode == 2) && StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在";
-        }else if(StringUtils.isNotBlank(add)){
+        }
+        else if (StringUtils.isNotBlank(add))
+        {
             add = "学号" + add + "已经添加或不存在,或与是否留学身份不匹配";
         }
-
+        
         return RestResult.success(add);
     }
     
@@ -145,7 +150,8 @@ public class ElecRoundStuController
     
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
-        @RequestPart(name = "roundId") @NotNull Long roundId,@RequestPart(name = "mode") @NotNull Integer mode)
+        @RequestPart(name = "roundId") @NotNull Long roundId,
+        @RequestPart(name = "mode") @NotNull Integer mode)
     {
         if (file == null)
         {
@@ -178,7 +184,7 @@ public class ElecRoundStuController
                     codes.add(studentId);
                 }
             }
-            return this.add(roundId, codes,mode);
+            return this.add(roundId, codes, mode);
         }
         catch (Exception e)
         {
@@ -200,7 +206,5 @@ public class ElecRoundStuController
                 "attachment;filename=" + "keXuanKeMingDan.xls")
             .body(resource);
     }
-
-
-
+    
 }
