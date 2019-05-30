@@ -39,19 +39,19 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	public PageInfo<ElectionApplyVo> applyList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
 		List<ElectionApplyVo> applylist = electionApplyDao.selectApplys(dto);
-		Example roundExample = new Example(ElectionRounds.class);
-		roundExample.setOrderByClause("beginTime asc");
-		Example.Criteria roundCriteria = roundExample.createCriteria();
-		roundCriteria.andEqualTo("calendarId", dto.getCalendarId());
-		roundCriteria.andEqualTo("projectId", dto.getProjectId());
-		roundCriteria.andEqualTo("ELECTION_OBJ_",Constants.DEPART_ADMIN);
-		Date date = new Date();
-		roundCriteria.andGreaterThanOrEqualTo("beginTime", date);
-		roundCriteria.andLessThanOrEqualTo("endTime", date);
-		roundCriteria.andEqualTo("OPEN_FLAG_", Constants.ONE);
-		ElectionRounds electionRounds = elecRoundsDao.selectOneByExample(roundExample);
 		Session session = SessionUtils.getCurrentSession();
 		if(CollectionUtil.isNotEmpty(applylist)) {
+			Example roundExample = new Example(ElectionRounds.class);
+			roundExample.setOrderByClause("beginTime asc");
+			Example.Criteria roundCriteria = roundExample.createCriteria();
+			roundCriteria.andEqualTo("calendarId", dto.getCalendarId());
+			roundCriteria.andEqualTo("projectId", dto.getProjectId());
+			roundCriteria.andEqualTo("electionObj",Constants.DEPART_ADMIN);
+			Date date = new Date();
+			roundCriteria.andGreaterThanOrEqualTo("beginTime", date);
+			roundCriteria.andLessThanOrEqualTo("endTime", date);
+			roundCriteria.andEqualTo("openFlag", Constants.ONE);
+			ElectionRounds electionRounds = elecRoundsDao.selectOneByExample(roundExample);
 			for(ElectionApplyVo electionApplyVo:applylist) {
 				electionApplyVo.setStatus(Constants.ZERO);
 				if(session.isAcdemicDean()||electionRounds!=null) {
