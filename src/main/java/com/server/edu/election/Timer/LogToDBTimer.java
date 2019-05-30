@@ -124,8 +124,9 @@ public class LogToDBTimer {
 	private void output2DB(LocalDate preDate) {
 		LocalDate minusDays = LocalDate.now().minusDays(1);
 		for (int i = 0; i < 24; i++) {
+			List<String> list = new ArrayList<>();
 			if (redisTemplate.hasKey(RedisConstant.ELE_SQL_KEY + preDate + i)) {
-				List<String> list = redisTemplate.opsForList().range(RedisConstant.ELE_SQL_KEY + preDate + i, 0, -1);
+				list = redisTemplate.opsForList().range(RedisConstant.ELE_SQL_KEY + preDate + i, 0, -1);
 				if (list != null && list.size() > 0) {
 					List<LogEntity> entityList = new ArrayList<>();
 					for (String s : list) {
