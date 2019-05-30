@@ -122,6 +122,12 @@
 				  or op.COURSE_NAME_ like CONCAT(#{courseName},'%')
 			  )
 		  </if>
+		  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(includeCourseCodes)">
+			 and op.COURSE_CODE_ in
+			  <foreach collection="includeCourseCodes" open="(" separator="," close=")" item="code">
+				  #{code}
+			  </foreach>
+		  </if>
 	  </where>
   </select>
   

@@ -1,9 +1,13 @@
 package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
+import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +32,9 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     
     @Autowired
     private ElecRoundsDao elecRoundsDao;
+
+    @Autowired
+    private ElectionConstantsDao constantsDao;
     
     @Override
     public PageResult<CourseOpenDto> listPage(
@@ -63,8 +70,28 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     public PageResult<CourseOpenDto> listTeachingClassPage(
         PageCondition<ElecRoundCourseQuery> condition)
     {
-        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
+        List<String> includeCodes = new ArrayList<>();
+        // 1体育课
+        if (Objects.equals(query.getCourseType(), 1))
+        {
+            String findPECourses = constantsDao.findPECourses();
+            if (StringUtils.isNotBlank(findPECourses))
+            {
+                includeCodes.addAll(Arrays.asList(findPECourses.split(",")));
+            }
+        }
+        else if (Objects.equals(query.getCourseType(), 2))
+        {// 2英语课
+            String findEnglishCourses = constantsDao.findEnglishCourses();
+            if (StringUtils.isNotBlank(findEnglishCourses))
+            {
+                includeCodes
+                        .addAll(Arrays.asList(findEnglishCourses.split(",")));
+            }
+        }
+        query.setIncludeCourseCodes(includeCodes);
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<CourseOpenDto> listPage =
             roundCourseDao.listTeachingClassPage(query);
         
