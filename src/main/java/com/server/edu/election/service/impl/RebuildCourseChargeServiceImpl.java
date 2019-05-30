@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.dto.StudentRePaymentDto;
-import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -34,9 +34,6 @@ import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
-import com.server.edu.election.vo.StudentVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -155,7 +152,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(
-            PageCondition<RebuildCourseNoChargeType> condition) {
+            PageCondition<RebuildCourseNoChargeTypeVo> condition) {
         String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(manageDptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
