@@ -62,7 +62,10 @@ public class EleSqlStatementInterceptor implements Interceptor {
         long end = System.currentTimeMillis();
         long time = (end - start);
         if (time > 1) {
-            String operator = SessionUtils.getCurrentSession().realName();
+        	String operator = null;
+            if (StringUtils.isNotBlank(SessionUtils.getCurrentSession().realName())) {
+            	operator = SessionUtils.getCurrentSession().realName();
+            }
             String sql = getSql(configuration, boundSql, sqlId, operator, end);
             System.err.println(sql);
             logger.info(sql);
