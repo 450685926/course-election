@@ -14,4 +14,49 @@
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
+  <resultMap id="ApplyMap" type="com.server.edu.election.vo.ElectionApplyVo" extends="com.server.edu.election.dao.ElectionApplyDao.BaseResultMap">
+      <result column="studentName" jdbcType="VARCHAR" property="studentName" />
+      <result column="courseName" jdbcType="VARCHAR" property="courseName" />
+      <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+      <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+      <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+      <result column="GRADE_" jdbcType="INTEGER" property="grade" />
+  </resultMap>
+  <select id="selectApplys" parameterType="com.server.edu.election.dto.ElectionApplyDto" resultMap="ApplyMap">
+		SELECT
+		  t1.*,
+		  t2.NAME_ courseName,
+		  t3.NAME_ studentName,
+		  t3.FACULTY_,
+		  t3.PROFESSION_,
+		  t3.TRAINING_LEVEL_,
+		  t3.GRADE_ 
+		FROM
+			election_applys_t t1
+		INNER JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
+		INNER JOIN student_t t3 ON t3.STUDENT_CODE_ = t1.STUDENT_ID_
+	<where>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+	        and t1.CALENDAR_ID_  = #{calendarId}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+	        and t1.STUDENT_ID_  like concat(#{studentId},'%')
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+	        and t3.NAME_  like concat(#{studentName},'%')
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyCode)">
+	        and (t1.COURSE_CODE_  like concat(#{keyCode},'%') or t2.NAME_ like concat(#{keyCode},'%') )
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+	        and t3.PROFESSION_ = #{profession}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+	        and t3.TRAINING_LEVEL_ = #{trainingLevel}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+	        and t3.FACULTY_ = #{faculty}
+	    </if>
+	</where>
+  </select>
 </mapper>

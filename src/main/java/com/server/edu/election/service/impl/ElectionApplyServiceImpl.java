@@ -1,6 +1,5 @@
 package com.server.edu.election.service.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -39,8 +38,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	@Override
 	public PageInfo<ElectionApplyVo> applyList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
-		List<ElectionApply> applylist = electionApplyDao.selectAll();
-		List<ElectionApplyVo> list = new ArrayList<>();
+		List<ElectionApplyVo> applylist = electionApplyDao.selectApplys(dto);
 		Example roundExample = new Example(ElectionRounds.class);
 		roundExample.setOrderByClause("beginTime asc");
 		Example.Criteria roundCriteria = roundExample.createCriteria();
@@ -54,17 +52,14 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		ElectionRounds electionRounds = elecRoundsDao.selectOneByExample(roundExample);
 		Session session = SessionUtils.getCurrentSession();
 		if(CollectionUtil.isNotEmpty(applylist)) {
-			for(ElectionApply electionApply:applylist) {
-				ElectionApplyVo electionApplyVo = new ElectionApplyVo();
-				BeanUtils.copyProperties(electionApply, electionApplyVo);
+			for(ElectionApplyVo electionApplyVo:applylist) {
 				electionApplyVo.setStatus(Constants.ZERO);
 				if(session.isAcdemicDean()||electionRounds!=null) {
 					electionApplyVo.setStatus(Constants.ONE);
 				}
-				list.add(electionApplyVo);
 			}
 		}
-		PageInfo<ElectionApplyVo> pageInfo = new PageInfo<>(list);
+		PageInfo<ElectionApplyVo> pageInfo = new PageInfo<>(applylist);
 		return pageInfo;
 	}
 
