@@ -5,6 +5,8 @@ import javax.validation.groups.Default;
 
 import com.server.edu.election.validate.RoundGroup;
 
+import java.util.List;
+
 public class ElecRoundCourseQuery
 {
     @NotNull(groups = {RoundGroup.class})
@@ -23,6 +25,11 @@ public class ElecRoundCourseQuery
     private String courseCode;
     
     private String courseName;
+
+    /** 课程类型 1体育课，2英语课*/
+    private Integer courseType;
+
+    private List<String> includeCourseCodes;
     
     /** 学院 */
     private String faculty;
@@ -34,7 +41,23 @@ public class ElecRoundCourseQuery
     private String nature;
     
     private String keyword;
-    
+
+    public Integer getCourseType() {
+        return courseType;
+    }
+
+    public void setCourseType(Integer courseType) {
+        this.courseType = courseType;
+    }
+
+    public List<String> getIncludeCourseCodes() {
+        return includeCourseCodes;
+    }
+
+    public void setIncludeCourseCodes(List<String> includeCourseCodes) {
+        this.includeCourseCodes = includeCourseCodes;
+    }
+
     public Integer getMode()
     {
         return mode;
