@@ -90,7 +90,7 @@ public class RoundCacheService extends AbstractCacheService
         if (null != roundId)
         {
             HashOperations<String, String, ElectionRounds> hash = opsRound();
-            hash.delete(Keys.getRoundKey(), roundId);
+            hash.delete(Keys.getRoundKey(), roundId.toString());
         }
     }
     
