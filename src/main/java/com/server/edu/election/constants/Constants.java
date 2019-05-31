@@ -31,7 +31,7 @@ public interface Constants
 	 public static final int TEACHER_DEFAULT=0;
 	 
 	 public static final Integer NORMAL_MODEL=1;
-	 public static final Integer ENGLISH_MODEL=2;
-	 public static final Integer PE_MODEL=3;
+	 public static final Integer PE_MODEL=2;
+	 public static final Integer ENGLISH_MODEL=3;
 
 }
