@@ -4,7 +4,7 @@
 
 	<insert id="addOperateLog" parameterType="java.util.List">
 		INSERT INTO
-		achievement_log_t (
+		ele_log_t (
 			LOG_,
 			OPERATOR_,
 			CREATE_DATE_
