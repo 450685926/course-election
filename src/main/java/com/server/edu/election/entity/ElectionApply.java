@@ -17,8 +17,8 @@ public class ElectionApply implements Serializable {
     /**
      * 主键（自增）
      */
-	@NotNull
     @Id
+    @NotNull
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -59,6 +59,12 @@ public class ElectionApply implements Serializable {
     @NotBlank
     @Column(name = "REMARK_")
     private String remark;
+
+    /**
+     * 模式：1正常，2英语 3体育
+     */
+    @Column(name = "MODE_")
+    private Integer mode;
 
     /**
      * 创建时间
@@ -195,6 +201,24 @@ public class ElectionApply implements Serializable {
     }
 
     /**
+     * 获取模式：1正常，2英语 3体育
+     *
+     * @return MODE_ - 模式：1正常，2英语 3体育
+     */
+    public Integer getMode() {
+        return mode;
+    }
+
+    /**
+     * 设置模式：1正常，2英语 3体育
+     *
+     * @param mode 模式：1正常，2英语 3体育
+     */
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
+    /**
      * 获取创建时间
      *
      * @return CREATED_AT_ - 创建时间
@@ -225,6 +249,7 @@ public class ElectionApply implements Serializable {
         sb.append(", apply=").append(apply);
         sb.append(", applyBy=").append(applyBy);
         sb.append(", remark=").append(remark);
+        sb.append(", mode=").append(mode);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

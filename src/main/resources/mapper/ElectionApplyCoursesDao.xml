@@ -8,11 +8,13 @@
     <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
     <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+    <result column="MODE_" jdbcType="INTEGER" property="mode" />
   </resultMap>
   <select id="selectApplyCourse" parameterType="com.server.edu.election.dto.ElectionApplyCoursesDto" resultType="com.server.edu.election.vo.ElectionApplyCoursesVo">
 		SELECT
 		  t1.ID_ electionApplyCourseId,
-		  t1.CALENDAR_ID_,
+		  t1.CALENDAR_ID_ calendarId,
+		  t1.MODE_ mode,
 		  t2.CODE_ code,
 		  t2.NAME_ name,
 		  t2.NAME_EN_ nameEn,
@@ -28,6 +30,9 @@
 		<where>
 		  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 		        and t1.CALENDAR_ID_ = #{calendarId}
+		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+		        and t1.MODE_ = #{mode}
 		   </if>
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
 		        and t2.CODE_ like concat(#{code},'%')

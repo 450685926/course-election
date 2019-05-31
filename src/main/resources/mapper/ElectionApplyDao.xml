@@ -12,6 +12,7 @@
     <result column="APPLY_" jdbcType="INTEGER" property="apply" />
     <result column="APPLY_BY_" jdbcType="VARCHAR" property="applyBy" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="MODE_" jdbcType="INTEGER" property="mode" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
   <resultMap id="ApplyMap" type="com.server.edu.election.vo.ElectionApplyVo" extends="com.server.edu.election.dao.ElectionApplyDao.BaseResultMap">
@@ -38,6 +39,9 @@
 	<where>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 	        and t1.CALENDAR_ID_  = #{calendarId}
+	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+	        and t1.MODE_  = #{mode}
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 	        and t1.STUDENT_ID_  like concat(#{studentId},'%')

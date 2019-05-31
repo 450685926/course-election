@@ -77,6 +77,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		Example example = new Example(ElectionApply.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("calendarId", calendarId);
+		criteria.andEqualTo("apply", Constants.ONE);
 		int result = electionApplyDao.deleteByExample(example);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("electionApply.application")));
