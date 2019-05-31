@@ -1,7 +1,12 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Table(name = "election_apply_courses_t")
 public class ElectionApplyCourses implements Serializable {
@@ -26,7 +31,7 @@ public class ElectionApplyCourses implements Serializable {
     private String courseCode;
 
     /**
-     * 模式：1正常，2英语 3体育
+     * 模式：1正常，2体育 3英语 
      */
     @Column(name = "MODE_")
     private Integer mode;

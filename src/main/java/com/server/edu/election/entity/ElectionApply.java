@@ -61,7 +61,7 @@ public class ElectionApply implements Serializable {
     private String remark;
 
     /**
-     * 模式：1正常，2英语 3体育
+     * 模式：1正常，2体育 3英语 
      */
     @Column(name = "MODE_")
     private Integer mode;
