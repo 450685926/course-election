@@ -3,7 +3,6 @@ package com.server.edu.election.service.impl;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +12,14 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dto.ElectionApplyDto;
-import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElectionApply;
+import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.ElectionApplyService;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElectionApplyVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -34,7 +35,10 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	private ElecRoundsDao elecRoundsDao;
 	@Autowired
 	private ElcCourseTakeDao elcCourseTakeDao;
-
+	@Autowired
+	private ElectionApplyCoursesDao electionApplyCoursesDao;
+	@Autowired
+	private ElecContextUtil elecContextUtil;
 	@Override
 	public PageInfo<ElectionApplyVo> applyList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
@@ -100,24 +104,35 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	}
 	
 	@Override
-	public int apply(String studentId,String teachingClassId) {
-		Example example = new Example(ElcCourseTake.class);
+	public int apply(String studentId,Long calendarId,String courseCode) {
+		Example example =new Example(ElectionApply.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("studentId", studentId);
-		criteria.andEqualTo("teachingClassId", teachingClassId);
-		ElcCourseTake elcCourseTake =elcCourseTakeDao.selectOneByExample(example);
-		if(elcCourseTake==null) {
-			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		criteria.andEqualTo("calendarId", calendarId);
+		criteria.andEqualTo("courseCode", courseCode);
+		ElectionApply apply = electionApplyDao.selectOneByExample(example);
+		if(apply!=null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("election.electionApply")));
 		}
+		Example cExample =new Example(ElectionApplyCourses.class);
+		Example.Criteria cCriteria = cExample.createCriteria();
+		cCriteria.andEqualTo("calendarId", calendarId);
+		cCriteria.andEqualTo("courseCode", courseCode);
+		ElectionApplyCourses electionApplyCourses = electionApplyCoursesDao.selectOneByExample(cExample);
 		ElectionApply electionApply = new ElectionApply();
-		BeanUtils.copyProperties(elcCourseTake, electionApply);
-		electionApply.setId(null);
+		electionApply.setStudentId(studentId);
+		electionApply.setCalendarId(calendarId);
+		electionApply.setCourseCode(courseCode);
+		if(electionApplyCourses!=null) {
+			electionApply.setMode(electionApplyCourses.getMode());
+		}
 		electionApply.setApply(Constants.ZERO);
 		electionApply.setCreatedAt(new Date());
 		int result = electionApplyDao.insertSelective(electionApply);
 		if(result<=0) {
 			throw new ParameterValidateException(I18nUtil.getMsg("electionApply.applyError"));
 		}
+		elecContextUtil.save("elecApplyCourses", electionApply);
 		return result;
 	}
 

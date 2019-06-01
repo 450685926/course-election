@@ -16,7 +16,6 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
-import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dto.CourseDto;
 import com.server.edu.election.dto.ElectionApplyCoursesDto;
 import com.server.edu.election.entity.Course;
@@ -35,8 +34,6 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	private CourseDao courseDao;
 	@Autowired
 	private  ElectionApplyCoursesDao electionApplyCoursesDao;
-	@Autowired
-	private  ElectionConstantsDao electionConstantsDao;
 	@Override
 	public PageInfo<ElectionApplyCoursesVo> applyCourseList(PageCondition<ElectionApplyCoursesDto> condition){
 		ElectionApplyCoursesDto dto = condition.getCondition();
