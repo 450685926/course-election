@@ -71,7 +71,7 @@ public class ElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = this.contextUtil.getSet("applyCourse", String.class);
+        applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
         elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElecCourse.class);
     }
     
