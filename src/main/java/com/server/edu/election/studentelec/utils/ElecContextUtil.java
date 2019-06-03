@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -102,7 +103,13 @@ public class ElecContextUtil
         {
             return new ArrayList<>();
         }
-        return JSON.parseArray(value, clazz);
+        try {
+        	return JSON.parseArray(value, clazz);
+        }catch (JSONException e) {
+			logger.error(e.getMessage(), e);
+		}
+        
+        return new ArrayList<>();
     }
     
     private String getByKey(String type)
