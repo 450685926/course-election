@@ -116,11 +116,11 @@ public class ElectionApplyController {
     @ApiOperation(value = "选课申请")
     @PostMapping("/apply")
     public RestResult<Integer> apply(
-    		@RequestParam("studentId") @NotBlank String studentId,@RequestParam("calendarId") @NotNull Long calendarId,@RequestParam("courseCode") @NotBlank String courseCode)
+    		@RequestParam("studentId") @NotBlank String studentId,@RequestParam("roundId") @NotNull Long roundId,@RequestParam("courseCode") @NotBlank String courseCode)
         throws Exception
     {
         LOG.info("apply.start");
-        int result =electionApplyService.apply(studentId,calendarId,courseCode);
+        int result =electionApplyService.apply(studentId,roundId,courseCode);
         return RestResult.successData(result);
     }
     
