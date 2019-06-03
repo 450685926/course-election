@@ -12,7 +12,7 @@ import java.util.List;
 public interface ExemptionCourseRuleDao extends Mapper<ExemptionCourseRule> {
 
 
-    Page<ExemptionCourseRuleVo> findExemptionCourseRule(ExemptionCourseRule courseRule);
+    Page<ExemptionCourseRuleVo> findExemptionCourseRule(ExemptionCourseRuleVo courseRule);
 
     void deleteExemptionCourseRule(List<Long> list);
 

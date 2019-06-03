@@ -30,22 +30,25 @@
     </sql>
 
 
-    <select id="findExemptionCourseRule" parameterType="com.server.edu.election.entity.ExemptionCourseRule" resultMap="VoBaseResultMap">
+    <select id="findExemptionCourseRule" parameterType="com.server.edu.election.vo.ExemptionCourseRuleVo" resultMap="VoBaseResultMap">
         select
         <include refid="Base_Column_List"></include>
         from exemption_rule_t
         <where>
-            <if test="calendarId !=null">
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             </if>
-            <if test="trainingLevel !=null and trainingLevel !='' ">
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
                 and TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
             </if>
-            <if test="trainingCategory !=null and trainingCategory !='' ">
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
                 and TRAINING_CATEGORY_ =#{trainingCategory,jdbcType=VARCHAR}
             </if>
-            <if test="applyType !=null and applyType!='' ">
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(applyType)">
                 and APPLY_TYPE_ =#{applyType,jdbcType=INTEGER}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+                and ( COURSE_CODE_ like concat('%',#{keyWord},'%') or COURSE_NAME like concat('%',#{keyWord},'%') )
             </if>
         </where>
     </select>

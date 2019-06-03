@@ -109,7 +109,7 @@ public class ExemptionController {
 
     @ApiOperation(value = "查询免修免考申请规则")
     @PostMapping("/findExemptionCourseRule")
-    public RestResult<PageResult<ExemptionCourseRuleVo>> findExemptionCourseRule(@RequestBody PageCondition<ExemptionCourseRule> courseRule){
+    public RestResult<PageResult<ExemptionCourseRuleVo>> findExemptionCourseRule(@RequestBody PageCondition<ExemptionCourseRuleVo> courseRule){
         PageResult<ExemptionCourseRuleVo> exemptionRule = exemptionCourseService.findExemptionRule(courseRule);
         return RestResult.successData(exemptionRule);
     }
@@ -127,8 +127,8 @@ public class ExemptionController {
     @LogRecord(title="新增免修免考申请规则",type = AuditType.INSERT)
     @ApiOperation(value = "新增免修免考申请规则")
     @PostMapping("/addExemptionCourseRule")
-    public RestResult<String> addExemptionCourseRule(@RequestBody ExemptionCourseRuleVo courseRuleVo,@RequestParam Integer applyType){
-        String s = exemptionCourseService.addExemptionCourseRule(courseRuleVo, applyType);
+    public RestResult<String> addExemptionCourseRule(@RequestBody ExemptionCourseRuleVo courseRuleVo){
+        String s = exemptionCourseService.addExemptionCourseRule(courseRuleVo);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
 
