@@ -15,7 +15,6 @@ import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dto.ElectionApplyDto;
-import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
@@ -104,18 +103,14 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	
 	@Override
 	public int apply(String studentId,Long roundId,String courseCode) {
-		Example tEample = new Example(ElcCourseTake.class);
-		Example.Criteria tCriteria = tEample.createCriteria();
-		tCriteria.andEqualTo("studentId", studentId);
-		tCriteria.andEqualTo("roundId", roundId);
-		ElcCourseTake elcCourseTake = elcCourseTakeDao.selectOneByExample(tEample);
-		if(elcCourseTake==null) {
+		ElectionRounds elecRounds = elecRoundsDao.selectByPrimaryKey(roundId);
+		if(elecRounds==null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		Example example =new Example(ElectionApply.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("studentId", studentId);
-		criteria.andEqualTo("calendarId", elcCourseTake.getCalendarId());
+		criteria.andEqualTo("calendarId", elecRounds.getCalendarId());
 		criteria.andEqualTo("courseCode", courseCode);
 		ElectionApply apply = electionApplyDao.selectOneByExample(example);
 		if(apply!=null) {
@@ -123,12 +118,12 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		}
 		Example cExample =new Example(ElectionApplyCourses.class);
 		Example.Criteria cCriteria = cExample.createCriteria();
-		cCriteria.andEqualTo("calendarId", elcCourseTake.getCalendarId());
+		cCriteria.andEqualTo("calendarId", elecRounds.getCalendarId());
 		cCriteria.andEqualTo("courseCode", courseCode);
 		ElectionApplyCourses electionApplyCourses = electionApplyCoursesDao.selectOneByExample(cExample);
 		ElectionApply electionApply = new ElectionApply();
 		electionApply.setStudentId(studentId);
-		electionApply.setCalendarId(elcCourseTake.getCalendarId());
+		electionApply.setCalendarId(elecRounds.getCalendarId());
 		electionApply.setCourseCode(courseCode);
 		if(electionApplyCourses!=null) {
 			electionApply.setMode(electionApplyCourses.getMode());
@@ -139,7 +134,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		if(result<=0) {
 			throw new ParameterValidateException(I18nUtil.getMsg("electionApply.applyError"));
 		}
-		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elcCourseTake.getCalendarId());
+		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elecRounds.getCalendarId());
 		elecContextUtil.save("elecApplyCourses", electionApply);
 		return result;
 	}
