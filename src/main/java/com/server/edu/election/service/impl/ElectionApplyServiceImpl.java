@@ -37,8 +37,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	private ElcCourseTakeDao elcCourseTakeDao;
 	@Autowired
 	private ElectionApplyCoursesDao electionApplyCoursesDao;
-	@Autowired
-	private ElecContextUtil elecContextUtil;
 	@Override
 	public PageInfo<ElectionApplyVo> applyList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
@@ -132,6 +130,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		if(result<=0) {
 			throw new ParameterValidateException(I18nUtil.getMsg("electionApply.applyError"));
 		}
+		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, calendarId);
 		elecContextUtil.save("elecApplyCourses", electionApply);
 		return result;
 	}
