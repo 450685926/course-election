@@ -44,7 +44,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		Session session = SessionUtils.getCurrentSession();
 		if(CollectionUtil.isNotEmpty(applylist)) {
 			Example roundExample = new Example(ElectionRounds.class);
-			roundExample.setOrderByClause("beginTime asc");
+			roundExample.setOrderByClause("BEGIN_TIME_ ASC");
 			Example.Criteria roundCriteria = roundExample.createCriteria();
 			roundCriteria.andEqualTo("calendarId", dto.getCalendarId());
 			roundCriteria.andEqualTo("projectId", dto.getProjectId());
