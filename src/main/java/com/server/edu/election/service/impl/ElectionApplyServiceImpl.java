@@ -110,7 +110,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		tCriteria.andEqualTo("roundId", roundId);
 		ElcCourseTake elcCourseTake = elcCourseTakeDao.selectOneByExample(tEample);
 		if(elcCourseTake==null) {
-			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError");
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		Example example =new Example(ElectionApply.class);
 		Example.Criteria criteria = example.createCriteria();
