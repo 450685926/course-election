@@ -135,7 +135,12 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 			throw new ParameterValidateException(I18nUtil.getMsg("electionApply.applyError"));
 		}
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elecRounds.getCalendarId());
-		elecContextUtil.save("elecApplyCourses", electionApply);
+		Example aExample =new Example(ElectionApply.class);
+		Example.Criteria aCriteria = example.createCriteria();
+		aCriteria.andEqualTo("studentId", studentId);
+		aCriteria.andEqualTo("calendarId", elecRounds.getCalendarId());
+		List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
+		elecContextUtil.save("elecApplyCourses", electionApplys);
 		return result;
 	}
 
