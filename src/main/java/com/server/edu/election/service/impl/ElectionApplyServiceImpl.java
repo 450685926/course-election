@@ -10,7 +10,6 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ElectionApplyDao;
@@ -33,8 +32,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	private ElectionApplyDao electionApplyDao;
 	@Autowired
 	private ElecRoundsDao elecRoundsDao;
-	@Autowired
-	private ElcCourseTakeDao elcCourseTakeDao;
 	@Autowired
 	private ElectionApplyCoursesDao electionApplyCoursesDao;
 	@Override
@@ -134,13 +131,37 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		if(result<=0) {
 			throw new ParameterValidateException(I18nUtil.getMsg("electionApply.applyError"));
 		}
-		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elecRounds.getCalendarId());
-		Example aExample =new Example(ElectionApply.class);
-		Example.Criteria aCriteria = example.createCriteria();
-		aCriteria.andEqualTo("studentId", studentId);
-		aCriteria.andEqualTo("calendarId", elecRounds.getCalendarId());
-		List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
-		elecContextUtil.save("elecApplyCourses", electionApplys);
+        ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elecRounds.getCalendarId());
+        Example aExample =new Example(ElectionApply.class);
+        Example.Criteria aCriteria = example.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", elecRounds.getCalendarId());
+        List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
+        elecContextUtil.save("elecApplyCourses", electionApplys);
+		return result;
+	}
+	@Override
+	public int update(String studentId,Long calendarId,String courseCode,ElecContextUtil elecContextUtil) {
+		Example example =new Example(ElectionApply.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("studentId", studentId);
+		criteria.andEqualTo("calendarId", calendarId);
+		criteria.andEqualTo("courseCode", courseCode);
+		ElectionApply apply = electionApplyDao.selectOneByExample(example);
+		if(apply==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		apply.setApply(Constants.ZERO);
+		int result = electionApplyDao.updateByPrimaryKeySelective(apply);
+		if(result<=0) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.editError"));
+		}
+        Example aExample =new Example(ElectionApply.class);
+        Example.Criteria aCriteria = example.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
+        elecContextUtil.save("elecApplyCourses", electionApplys);
 		return result;
 	}
 

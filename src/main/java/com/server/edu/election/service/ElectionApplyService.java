@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.election.dto.ElectionApplyDto;
 import com.server.edu.election.entity.ElectionApply;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElectionApplyVo;
 
 public interface ElectionApplyService {
@@ -12,4 +13,5 @@ public interface ElectionApplyService {
 	int delete(Long calendarId);
 	int agree(Long id);
 	int apply(String studentId,Long roundId,String courseCode);
+	int update(String studentId,Long calendarId,String courseCode,ElecContextUtil elecContextUtil);
 }
