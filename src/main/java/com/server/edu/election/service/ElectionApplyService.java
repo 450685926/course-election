@@ -13,5 +13,6 @@ public interface ElectionApplyService {
 	int delete(Long calendarId);
 	int agree(Long id);
 	int apply(String studentId,Long roundId,String courseCode);
-	int update(String studentId,Long calendarId,String courseCode,ElecContextUtil elecContextUtil);
+	int cancelApply(String studentId,Long roundId,String courseCode);
+	int update(String studentId,Long roundId,String courseCode,ElecContextUtil elecContextUtil);
 }

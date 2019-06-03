@@ -124,6 +124,24 @@ public class ElectionApplyController {
         return RestResult.successData(result);
     }
     
+    /**
+     * 取消申请
+     * 
+     * @param ids
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "取消申请")
+    @PostMapping("/cancelApply")
+    public RestResult<Integer> cancelApply(
+    		@RequestParam("studentId") @NotBlank String studentId,@RequestParam("roundId") @NotNull Long roundId,@RequestParam("courseCode") @NotBlank String courseCode)
+        throws Exception
+    {
+        LOG.info("cancelApply.start");
+        int result =electionApplyService.cancelApply(studentId,roundId,courseCode);
+        return RestResult.successData(result);
+    }
+    
     
 	
 }

@@ -164,5 +164,28 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
         elecContextUtil.save("elecApplyCourses", electionApplys);
 		return result;
 	}
-
+	
+	@Override
+	public int cancelApply(String studentId,Long roundId,String courseCode) {
+		ElectionRounds elecRounds = elecRoundsDao.selectByPrimaryKey(roundId);
+		if(elecRounds==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		Example example =new Example(ElectionApply.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("studentId", studentId);
+		criteria.andEqualTo("calendarId", elecRounds.getCalendarId());
+		criteria.andEqualTo("courseCode", courseCode);
+		ElectionApply apply = electionApplyDao.selectOneByExample(example);
+		if(apply==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		int result = electionApplyDao.delete(apply);
+		if(result<=0) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("election.electionApply")));
+		}
+        ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elecRounds.getCalendarId());
+        elecContextUtil.save("elecApplyCourses", null);
+		return result;
+	}
 }
