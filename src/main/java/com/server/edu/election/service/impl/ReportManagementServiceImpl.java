@@ -987,7 +987,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private GeneralExcelDesigner getDesignTwo() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "calssCode");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "classCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
         design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "className");
