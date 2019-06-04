@@ -222,4 +222,10 @@
             </if>
         </where>
     </select>
+    <select id="findCourseName" resultType="java.lang.String">
+        select NAME_ from course_t where CODE_ in
+        <foreach collection="list" item="code" open="(" close=")" separator=",">
+            #{code}
+        </foreach>
+    </select>
 </mapper>

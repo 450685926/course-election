@@ -25,4 +25,7 @@ public interface ExemptionCourseRuleDao extends Mapper<ExemptionCourseRule> {
 
     /**查询条件下已有课程规则*/
     List<String> findRuleExist(@Param("courseRuleVo") ExemptionCourseRuleVo courseRuleVo,@Param("applyType") Integer applyType);
+
+    List<String> findCourseName(List<String> list);
+
 }

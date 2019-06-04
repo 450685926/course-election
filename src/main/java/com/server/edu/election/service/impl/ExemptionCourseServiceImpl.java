@@ -203,6 +203,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
             List<ExemptionCourseRuleVo> result = exemptionCourseRule.getResult();
             if(CollectionUtil.isNotEmpty(result)){
                 for (ExemptionCourseRuleVo exemptionCourseRuleVo : result) {
+                    List<String> codes = Arrays.asList(exemptionCourseRuleVo.getCourseCode().split(","));
+                    if(CollectionUtil.isNotEmpty(codes)){
+                      List<String> courseNames= ruleDao.findCourseName(codes);
+                        exemptionCourseRuleVo.setCourseName(StringUtils.join(courseNames,","));
+                    }
                     exemptionCourseRuleVo.setCalendarName(schoolCalendar.getFullName());
                 }
             }
