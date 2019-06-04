@@ -223,7 +223,7 @@
         </where>
     </select>
     <select id="findCourseName" resultType="com.server.edu.election.entity.Course">
-        select NAME_,CODE_ from course_t where CODE_ in
+        select NAME_ name,CODE_ code from course_t where CODE_ in
         <foreach collection="list" item="code" open="(" close=")" separator=",">
             #{code}
         </foreach>
