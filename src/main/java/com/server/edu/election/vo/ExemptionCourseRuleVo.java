@@ -15,6 +15,16 @@ public class ExemptionCourseRuleVo extends ExemptionCourseRule {
 
     private List<ExemptionCourseMaterial> list;
 
+    private String keyWord;
+
+    public String getKeyWord() {
+        return keyWord;
+    }
+
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
+    }
+
     public String getCalendarName() {
         return calendarName;
     }
