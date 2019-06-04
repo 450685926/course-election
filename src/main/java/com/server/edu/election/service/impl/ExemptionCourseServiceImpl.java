@@ -205,8 +205,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
                 for (ExemptionCourseRuleVo exemptionCourseRuleVo : result) {
                     List<String> codes = Arrays.asList(exemptionCourseRuleVo.getCourseCode().split(","));
                     if(CollectionUtil.isNotEmpty(codes)){
-                      List<String> courseNames= ruleDao.findCourseName(codes);
-                        exemptionCourseRuleVo.setCourseName(StringUtils.join(courseNames,","));
+                      List<Course> courseNames= ruleDao.findCourseName(codes);
+                      List<String> names=new ArrayList<>();
+                        Map<String, List<Course>> map = courseNames.stream().collect(Collectors.groupingBy(Course::getCode));
+                        for (String code : codes) {
+                            names.add(map.get(code).get(0).getName());
+                        }
+                        exemptionCourseRuleVo.setCourseName(StringUtils.join(names,","));
                     }
                     exemptionCourseRuleVo.setCalendarName(schoolCalendar.getFullName());
                 }

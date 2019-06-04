@@ -1,6 +1,7 @@
 package com.server.edu.election.dao;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ExemptionCourseRule;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.vo.ExemptionCourseRuleVo;
@@ -26,6 +27,6 @@ public interface ExemptionCourseRuleDao extends Mapper<ExemptionCourseRule> {
     /**查询条件下已有课程规则*/
     List<String> findRuleExist(@Param("courseRuleVo") ExemptionCourseRuleVo courseRuleVo,@Param("applyType") Integer applyType);
 
-    List<String> findCourseName(List<String> list);
+    List<Course> findCourseName(List<String> list);
 
 }
