@@ -91,19 +91,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(condition.getCondition());
         if(exemptionCourse!=null){
             List<ExemptionCourseVo> result = exemptionCourse.getResult();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            if(schoolCalendarMap.size()!=0){
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
                 for (ExemptionCourseVo exemptionCourseVo : result) {
-                    String schoolCalendarName = schoolCalendarMap.get(exemptionCourseVo.getCalendarId());
-                    if(StringUtils.isNotEmpty(schoolCalendarName)) {
-                        exemptionCourseVo.setCalendarName(schoolCalendarName);
-                    }
+                    exemptionCourseVo.setCalendarName(schoolCalendar.getFullName());
                 }
-            }
         }
         return new PageResult<>(exemptionCourse);
     }

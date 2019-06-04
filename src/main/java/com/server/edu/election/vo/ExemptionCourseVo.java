@@ -17,6 +17,16 @@ public class ExemptionCourseVo extends ExemptionCourse {
 
     private String courseName;
 
+    private String keyWord;
+
+    public String getKeyWord() {
+        return keyWord;
+    }
+
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
+    }
+
     /**
      * 培养层次X_PYCC(专科,本科,硕士,博士,其他,预科)
      */
