@@ -472,44 +472,43 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/20 15:48
     */
     @Override
-    public String exportRollBookList(ReportManagementCondition condition) throws Exception{
-        PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
-        pageCondition.setCondition(condition);
-        pageCondition.setPageSize_(Constants.ZERO);
-        pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<RollBookList> rollBookList = findRollBookList2(pageCondition);
-        if(rollBookList!=null){
-            List<RollBookList> list = rollBookList.getList();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            for (RollBookList bookList : list) {
-                if(0!=schoolCalendarMap.size()){
-                    String s = schoolCalendarMap.get(bookList.getCalendarId());
-                    if(StringUtils.isNotEmpty(s)){
-                        bookList.setCalendarName(s);
+    public ExcelResult exportRollBookList(RollBookConditionDto condition) throws Exception{
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rollBookList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RollBookConditionDto> pageCondition = new PageCondition<RollBookConditionDto>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<RollBookList> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<RollBookList> rollBookList = findRollBookList(pageCondition);
+                    list.addAll(rollBookList.getList());
 
+                    result.setTotal((int)rollBookList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (rollBookList.getTotal_() <= list.size())
+                    {
+                        break;
                     }
                 }
-                bookList.setClassCodeAndcourseName(bookList.getCourseName()+bookList.getClassCode());
+                //组装excel
+                GeneralExcelDesigner design = getDesignTwo();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
             }
-            if (list == null) {
-                list = new ArrayList<>();
-            }
-            GeneralExcelDesigner design = getDesignTwo();
-            design.setDatas(list);
-            ExcelWriterUtil generalExcelHandle;
-            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
-            FileUtil.mkdirs(cacheDirectory);
-            String fileName = "rollBookList.xls";
-            String path = cacheDirectory + fileName;
-            generalExcelHandle.writeExcel(new FileOutputStream(path));
-            return fileName;
-
-        }
-        return "";
+        });
+        return excelResult;
     }
 
     /**
@@ -988,12 +987,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private GeneralExcelDesigner getDesignTwo() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
         design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "calssCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCodeAndcourseName");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "className");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "courseLabel");
         design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"), "selectCourseNumber");
         design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"), "numberLimit");
 
