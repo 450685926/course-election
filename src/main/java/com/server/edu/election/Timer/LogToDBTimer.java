@@ -138,6 +138,7 @@ public class LogToDBTimer {
 						//ald.addOperateLog(al);
 					}
 					eld.addOperateLog(entityList);
+					entityList.clear();
 				}
 			}
 		}
