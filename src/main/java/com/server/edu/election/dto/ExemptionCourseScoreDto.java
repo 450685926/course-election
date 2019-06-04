@@ -19,8 +19,25 @@ public class ExemptionCourseScoreDto implements Serializable{
     private String  registrationStatus;
     private String  isOverseas;
     private String enrolSeason;
-    private String condition;
+    private String keyWord;
     private String calendarName;
+    private String leaveSchool;
+
+    public String getKeyWord() {
+        return keyWord;
+    }
+
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
+    }
+
+    public String getLeaveSchool() {
+        return leaveSchool;
+    }
+
+    public void setLeaveSchool(String leaveSchool) {
+        this.leaveSchool = leaveSchool;
+    }
 
     public String getCalendarName() {
         return calendarName;
@@ -118,11 +135,5 @@ public class ExemptionCourseScoreDto implements Serializable{
         this.enrolSeason = enrolSeason;
     }
 
-    public String getCondition() {
-        return condition;
-    }
 
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
 }

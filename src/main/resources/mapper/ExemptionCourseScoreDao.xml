@@ -52,8 +52,8 @@
                 <if test="enrolSeason !=null and enrolSeason!='' ">
                     and st.ENROL_SEASON_ =#{enrolSeason,jdbcType=VARCHAR}
                 </if>
-                <if test="condition !=null and condition !='' ">
-                    and (st.STUDENT_CODE_ like concat('%',#{condition},'%') or st.NAME_ like concat('%',#{condition},'%') )
+                <if test="keyWord !=null and keyWord !='' ">
+                    and (st.STUDENT_CODE_ like concat('%',#{keyWord},'%') or st.NAME_ like concat('%',#{keyWord},'%') )
                 </if>
             </where>
     </select>
