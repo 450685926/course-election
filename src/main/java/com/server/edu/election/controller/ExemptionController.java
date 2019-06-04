@@ -134,6 +134,14 @@ public class ExemptionController {
 
     //修改免修免考规则todo
 
+    @LogRecord(title="编辑免修免考申请规则",type = AuditType.UPDATE)
+    @ApiOperation(value = "新增免修免考申请规则")
+    @PostMapping("/editExemptionCourseRule")
+    public RestResult<String> editExemptionCourseRule(@RequestBody ExemptionCourseRuleVo courseRuleVo){
+        String s = exemptionCourseService.editExemptionCourseRule(courseRuleVo);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+
 
     @ApiOperation(value = "查询免修免考申请管理")
     @PostMapping("/findExemptionApply")

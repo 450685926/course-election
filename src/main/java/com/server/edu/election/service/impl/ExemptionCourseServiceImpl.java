@@ -627,6 +627,19 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     }
 
+    /**
+    *@Description: 编辑申请规则
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/6/4 18:28
+    */
+    @Override
+    public String editExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo) {
+        //todo
+        return null;
+    }
+
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");

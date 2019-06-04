@@ -53,5 +53,8 @@ public interface ExemptionCourseService {
 
     /**免修新增规则下拉取值*/
     RestResult<List<ExemptionCourseVo>> filterCourseCode(ExemptionCourseRuleVo courseRuleVo, Integer applyType);
+
+    /**编辑申请规则*/
+    String editExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo);
 }
 
