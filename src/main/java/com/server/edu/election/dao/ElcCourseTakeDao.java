@@ -2,10 +2,21 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
-import com.server.edu.election.dto.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseLimitDto;
+import com.server.edu.election.dto.LoserStuElcCourse;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -137,6 +148,11 @@ public interface ElcCourseTakeDao
     /**查询学生未缴费明细*/
     List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
 
+
     /**查询学籍异动选课*/
     List<ElcCourseTakeVo> findStuAbnormalElcCourse(ElcCourseTakeQuery query);
+
+    
+    int editStudyType(@Param("courseTakeType") Integer courseTakeType,@Param("ids") List<Long> ids);
+
 }

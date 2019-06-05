@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -337,6 +338,15 @@ public class ElcCourseTakeController
         
         return ExportUtil
             .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
+    }
+    
+    @ApiOperation(value = "修改修读类别")
+    @PostMapping("/editStudyType")
+    public RestResult<Integer> editStudyType(
+        @RequestParam("courseTakeType") @NotNull Integer courseTakeType,@RequestParam("ids") @NotEmpty List<Long> ids)
+    {
+        int result =courseTakeService.editStudyType(courseTakeType,ids);
+        return RestResult.successData(result);
     }
     
 }

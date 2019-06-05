@@ -371,4 +371,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
 
+
+    
+    @Override
+    @Transactional
+	public int editStudyType(Integer courseTakeType,List<Long> ids) {
+    	int result = courseTakeDao.editStudyType(courseTakeType, ids);
+    	return result;
+    }
+
 }
