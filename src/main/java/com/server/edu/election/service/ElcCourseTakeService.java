@@ -5,6 +5,7 @@ import java.util.List;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -62,6 +63,6 @@ public interface ElcCourseTakeService
     */
     PageResult<Student> findStudentList(PageCondition<ElcCourseTakeQuery> condition);
     
-    int editStudyType(Integer courseTakeType,List<Long> ids);
+    int editStudyType(ElcCourseTakeDto elcCourseTakeDto);
     
 }

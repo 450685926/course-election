@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
@@ -28,6 +29,7 @@ import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.Student;
@@ -36,6 +38,7 @@ import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -321,8 +324,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Override
     @Transactional
-	public int editStudyType(Integer courseTakeType,List<Long> ids) {
-    	int result = courseTakeDao.editStudyType(courseTakeType, ids);
+	public int editStudyType(ElcCourseTakeDto elcCourseTakeDto) {
+    	if(elcCourseTakeDto.getCourseTakeType()==null||CollectionUtil.isEmpty(elcCourseTakeDto.getIds())) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+    	}
+    	int result = courseTakeDao.editStudyType(elcCourseTakeDto.getCourseTakeType(), elcCourseTakeDto.getIds());
     	return result;
     }
     
