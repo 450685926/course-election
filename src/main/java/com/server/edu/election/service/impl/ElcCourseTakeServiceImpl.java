@@ -335,7 +335,15 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String studentId = query.getStudentId();
         Long calendarId = query.getCalendarId();
         //查询学生已选课程
-        List<ElcCourseTakeVo> elcList= courseTakeDao.findStuAbnormalElcCourse(query);
+        List<ElcCourseTakeVo> elcList =new ArrayList<>();
+        PageCondition<ElcCourseTakeQuery> page =new PageCondition<>();
+        page.setPageNum_(1);
+        page.setPageSize_(1000);
+        page.setCondition(query);
+        PageResult<ElcCourseTakeVo> listPage = listPage(page);
+        if(listPage!=null){
+            elcList = listPage.getList();
+        }
         if(CollectionUtil.isEmpty(elcList)){
             return null;
         }

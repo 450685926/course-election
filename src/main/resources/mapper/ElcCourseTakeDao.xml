@@ -685,49 +685,6 @@
 
     </select>
 
-    <select id="findStuAbnormalElcCourse" resultMap="VoResultMap">
-        t1.*,
-        t2.NAME_,t2.PROFESSION_,
-        t3.NAME_ as courseName, t3.CREDITS_,
-        t4.CODE_ as teachingClassCode,
-        t4.CAMPUS_
-        from elc_course_takes_t t1
-        left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-        left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
-        join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
-        <where>
-            t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
-                and t1.STUDENT_ID_ = #{query.studentId}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
-                and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
-                and t2.NAME_ = #{query.stuName}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-                and t2.FACULTY_ = #{query.faculty}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
-                and t2.PROFESSION_ = #{query.profession}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
-                and t3.CODE_ = #{query.courseCode}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
-                and t4.CODE_ = #{query.teachingClassCode}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
-                and t1.MODE_ = #{query.mode}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-                AND (t1.STUDENT_ID_ like CONCAT(#{query.keyword}, '%') OR t2.NAME_ like CONCAT(#{query.keyword}, '%'))
-            </if>
-        </where>
-    </select>
-
-    
    <update id="editStudyType">
       update elc_course_takes_t SET COURSE_TAKE_TYPE_ = #{courseTakeType}
       where ID_ in
