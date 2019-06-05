@@ -269,8 +269,8 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
-                and (st.STUDENT_CODE_ like concat('%',#{condition},'%') or st.NAME_ like concat('%',#{condition},'%') )
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+                and (st.STUDENT_CODE_ like concat('%',#{keyWord},'%') or st.NAME_ like concat('%',#{keyWord},'%') )
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
                 and st.GRADE_ =#{grade,jdbcType=INTEGER}
