@@ -684,4 +684,12 @@
           </where>
 
     </select>
+    
+   <update id="editStudyType">
+      update elc_course_takes_t SET COURSE_TAKE_TYPE_ = #{courseTakeType}
+      where ID_ in
+        <foreach collection="ids" open="(" separator="," close=")" item="id">
+            #{id}
+         </foreach>
+    </update>
 </mapper>

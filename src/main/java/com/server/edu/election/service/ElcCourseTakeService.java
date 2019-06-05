@@ -62,4 +62,6 @@ public interface ElcCourseTakeService
     */
     PageResult<Student> findStudentList(PageCondition<ElcCourseTakeQuery> condition);
     
+    int editStudyType(Integer courseTakeType,List<Long> ids);
+    
 }

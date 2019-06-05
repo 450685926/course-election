@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -73,6 +74,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	}
 	
 	@Override
+	@Transactional
 	public int addCourses(ElectionApplyCoursesDto dto) {
 		Example courseExample = new Example(Course.class);
 		Example.Criteria courdseCriteria = courseExample.createCriteria();
@@ -101,6 +103,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	}
 	
 	@Override
+	@Transactional
 	public int deleteCourses(List<Long> ids) {
 		Example example = new Example(ElectionApplyCourses.class);
 		Example.Criteria criteria = example.createCriteria();

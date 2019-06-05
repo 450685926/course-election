@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
@@ -63,6 +64,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	}
 
 	@Override
+	@Transactional
 	public int reply(ElectionApply electionApply) {
 		int result = electionApplyDao.updateByPrimaryKeySelective(electionApply);
 		if(result<=0) {
@@ -85,6 +87,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	}
 
 	@Override
+	@Transactional
 	public int agree(Long id) {
 		Session session = SessionUtils.getCurrentSession();
 		ElectionApply electionApply = new ElectionApply();
@@ -99,6 +102,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	}
 	
 	@Override
+	@Transactional
 	public int apply(String studentId,Long roundId,String courseCode) {
 		ElectionRounds elecRounds = elecRoundsDao.selectByPrimaryKey(roundId);
 		if(elecRounds==null) {
@@ -141,6 +145,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		return result;
 	}
 	@Override
+	@Transactional
 	public int update(String studentId,Long calendarId,String courseCode,ElecContextUtil elecContextUtil) {
 		Example example =new Example(ElectionApply.class);
 		Example.Criteria criteria = example.createCriteria();
@@ -166,6 +171,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	}
 	
 	@Override
+	@Transactional
 	public int cancelApply(String studentId,Long roundId,String courseCode) {
 		ElectionRounds elecRounds = elecRoundsDao.selectByPrimaryKey(roundId);
 		if(elecRounds==null) {
