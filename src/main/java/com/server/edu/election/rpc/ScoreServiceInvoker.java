@@ -69,4 +69,17 @@ public class ScoreServiceInvoker {
 
         return restResult;
     }
+
+    public static List<StudentScoreVo> findStuScoreByCalendarIdAndStudentCode(Long calendarId,String studentCode)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<StudentScoreVo>> restResult =
+                ServicePathEnum.SCORESERVICE.getForObject(
+                        "/studentScoreCount/findStuScoreByCalendarIdAndStudentCode/?calendarId={calendarId}&studentCode={studentCode}",
+                        RestResult.class,
+                        calendarId,
+                        studentCode);
+
+        return restResult.getData();
+    }
 }
