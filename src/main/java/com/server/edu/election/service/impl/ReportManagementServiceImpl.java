@@ -225,19 +225,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         Page<StudentVo> allSchoolTimetab = courseTakeDao.findAllSchoolTimetab(condition.getCondition());
         if(allSchoolTimetab!=null){
             List<StudentVo> result = allSchoolTimetab.getResult();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            SchoolCalendarVo schoolCalendar= BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+            for (StudentVo studentVo : result) {
+                studentVo.setCalendarName(schoolCalendar.getFullName());
             }
-            if(schoolCalendarMap.size()!=0){
-                for (StudentVo studentVo : result) {
-                    String s = schoolCalendarMap.get(studentVo.getCalendarId());
-                    if(StringUtils.isNotEmpty(s)) {
-                        studentVo.setCalendarName(s);
-                    }
-                }
-            }
+
         }
         return new PageResult<>(allSchoolTimetab);
     }
