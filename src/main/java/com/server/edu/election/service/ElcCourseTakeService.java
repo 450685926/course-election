@@ -62,7 +62,16 @@ public interface ElcCourseTakeService
     *@date: 2019/2/23 14:15
     */
     PageResult<Student> findStudentList(PageCondition<ElcCourseTakeQuery> condition);
+
+
+    /**学籍异动选课信息*/
+    List<ElcCourseTakeVo> page2StuAbnormal(ElcCourseTakeQuery query);
+
+    /**学籍异动退课*/
+    void withdraw2StuAbnormal(ElcCourseTakeQuery query);
+
     
     int editStudyType(ElcCourseTakeDto elcCourseTakeDto);
     
+
 }

@@ -168,15 +168,13 @@ public class ElcCourseTakeController
         @RequestBody @Valid ElcCourseTakeQuery query)
         throws Exception
     {
-        PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
-        condition.setPageNum_(1);
-        condition.setPageSize_(10);
-        
-        PageResult<ElcCourseTakeVo> page =
-            courseTakeService.listPage(condition);
-        // TODO 只查询没有成绩的选课
-        
-        return RestResult.successData(page.getList());
+        if (StringUtils.isBlank(query.getStudentId()))
+        {
+            throw new ParameterValidateException("studentId not be empty");
+        }
+        //只查询没有成绩的选课
+        List<ElcCourseTakeVo> list= courseTakeService.page2StuAbnormal(query);
+        return RestResult.successData(list);
     }
     
     @ApiOperation(value = "学生学籍异动退课")
@@ -188,7 +186,8 @@ public class ElcCourseTakeController
         {
             throw new ParameterValidateException("studentId not be empty");
         }
-        // TODO 对学生无成绩的选课进行退课处理
+        //对学生无成绩的选课进行退课处理
+        courseTakeService.withdraw2StuAbnormal(query);
         return RestResult.success();
     }
     

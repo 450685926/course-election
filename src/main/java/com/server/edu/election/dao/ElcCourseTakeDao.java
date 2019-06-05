@@ -147,6 +147,8 @@ public interface ElcCourseTakeDao
 
     /**查询学生未缴费明细*/
     List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
+
     
     int editStudyType(@Param("courseTakeType") Integer courseTakeType,@Param("ids") List<Long> ids);
+
 }
