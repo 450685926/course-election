@@ -136,4 +136,7 @@ public interface ElcCourseTakeDao
 
     /**查询学生未缴费明细*/
     List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
+
+    /**查询学籍异动选课*/
+    List<ElcCourseTakeVo> findStuAbnormalElcCourse(ElcCourseTakeQuery query);
 }
