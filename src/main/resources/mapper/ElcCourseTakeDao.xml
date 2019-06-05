@@ -582,8 +582,8 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
             and t1.NATURE_ =#{nature,jdbcType=VARCHAR}
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition)">
-            and (t2.TEACHER_CODE_ like concat('%',#{condition,jdbcType=VARCHAR},'%') or  t2.TEACHER_NAME_ like concat('%',#{condition,jdbcType=VARCHAR},'%'))
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+            and (t2.TEACHER_CODE_ like concat('%',#{keyWord,jdbcType=VARCHAR},'%') or  t2.TEACHER_NAME_ like concat('%',#{keyWord,jdbcType=VARCHAR},'%'))
         </if>
     </where>
     </select>
