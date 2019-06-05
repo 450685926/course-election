@@ -116,11 +116,29 @@ public class ElectionApplyController {
     @ApiOperation(value = "选课申请")
     @PostMapping("/apply")
     public RestResult<Integer> apply(
-    		@RequestParam("studentId") @NotBlank String studentId,@RequestParam("teachingClassId") @NotBlank String teachingClassId)
+    		@RequestParam("studentId") @NotBlank String studentId,@RequestParam("roundId") @NotNull Long roundId,@RequestParam("courseCode") @NotBlank String courseCode)
         throws Exception
     {
         LOG.info("apply.start");
-        int result =electionApplyService.apply(studentId,teachingClassId);
+        int result =electionApplyService.apply(studentId,roundId,courseCode);
+        return RestResult.successData(result);
+    }
+    
+    /**
+     * 取消申请
+     * 
+     * @param ids
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "取消申请")
+    @PostMapping("/cancelApply")
+    public RestResult<Integer> cancelApply(
+    		@RequestParam("studentId") @NotBlank String studentId,@RequestParam("roundId") @NotNull Long roundId,@RequestParam("courseCode") @NotBlank String courseCode)
+        throws Exception
+    {
+        LOG.info("cancelApply.start");
+        int result =electionApplyService.cancelApply(studentId,roundId,courseCode);
         return RestResult.successData(result);
     }
     

@@ -34,7 +34,7 @@ public class ElectionConfig
             new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
+        om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(om);
         template.setKeySerializer(new StringRedisSerializer());
