@@ -85,7 +85,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     andEqualTo("type",Constants.TEACHER_DEFAULT);
             List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
             for(TeachingClassVo vo: list) {
-            	if(CollectionUtil.isEmpty(teacherList)) {
+            	if(CollectionUtil.isNotEmpty(teacherList)) {
                 	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
                 	StringBuilder stringBuilder = new StringBuilder();
                 	if(CollectionUtil.isEmpty(teachers)) {
