@@ -26,7 +26,7 @@ public class ClassCodeToTeacher implements Serializable {
     private Integer sex;
     private String nature;
     private Long teachingClassId;
-    private String condition;//查询条件
+    private String keyWord;//查询条件
 
     public Long getTeachingClassId() {
         return teachingClassId;
@@ -44,12 +44,12 @@ public class ClassCodeToTeacher implements Serializable {
         this.nature = nature;
     }
 
-    public String getCondition() {
-        return condition;
+    public String getKeyWord() {
+        return keyWord;
     }
 
-    public void setCondition(String condition) {
-        this.condition = condition;
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
     }
 
     public Long getCalendarId() {
