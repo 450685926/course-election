@@ -20,11 +20,11 @@ public interface ExemptionCourseService {
 
     PageResult<ExemptionCourseScoreVo> findExemptionScore(PageCondition<ExemptionCourseScoreDto> courseScoreDto);
 
-    PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRule> rulePageCondition);
+    PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRuleVo> rulePageCondition);
 
     String deleteExemptionCourseRule(List<Long> ids,Integer applyType);
 
-    String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo,Integer applyType);
+    String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo);
 
     PageResult<ExemptionApplyManageVo> findExemptionApply(PageCondition<ExemptionApplyCondition> condition);
 
@@ -53,5 +53,8 @@ public interface ExemptionCourseService {
 
     /**免修新增规则下拉取值*/
     RestResult<List<ExemptionCourseVo>> filterCourseCode(ExemptionCourseRuleVo courseRuleVo, Integer applyType);
+
+    /**编辑申请规则*/
+    String editExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo);
 }
 

@@ -91,19 +91,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         Page<ExemptionCourseVo> exemptionCourse = exemptionCourseDao.findExemptionCourse(condition.getCondition());
         if(exemptionCourse!=null){
             List<ExemptionCourseVo> result = exemptionCourse.getResult();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            if(schoolCalendarMap.size()!=0){
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
                 for (ExemptionCourseVo exemptionCourseVo : result) {
-                    String schoolCalendarName = schoolCalendarMap.get(exemptionCourseVo.getCalendarId());
-                    if(StringUtils.isNotEmpty(schoolCalendarName)) {
-                        exemptionCourseVo.setCalendarName(schoolCalendarName);
-                    }
+                    exemptionCourseVo.setCalendarName(schoolCalendar.getFullName());
                 }
-            }
         }
         return new PageResult<>(exemptionCourse);
     }
@@ -204,22 +195,25 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/2/1 16:22
     */
     @Override
-    public PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRule> rulePageCondition) {
+    public PageResult<ExemptionCourseRuleVo> findExemptionRule(PageCondition<ExemptionCourseRuleVo> rulePageCondition) {
         PageHelper.startPage(rulePageCondition.getPageNum_(), rulePageCondition.getPageSize_());
         Page<ExemptionCourseRuleVo> exemptionCourseRule = ruleDao.findExemptionCourseRule(rulePageCondition.getCondition());
         if(exemptionCourseRule!=null){
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(rulePageCondition.getCondition().getCalendarId());
             List<ExemptionCourseRuleVo> result = exemptionCourseRule.getResult();
             if(CollectionUtil.isNotEmpty(result)){
                 for (ExemptionCourseRuleVo exemptionCourseRuleVo : result) {
-                    String calendarName=schoolCalendarMap.get(exemptionCourseRuleVo.getCalendarId());
-                    if(StringUtils.isNotEmpty(calendarName)) {
-                        exemptionCourseRuleVo.setCalendarName(calendarName);
+                    List<String> codes = Arrays.asList(exemptionCourseRuleVo.getCourseCode().split(","));
+                    if(CollectionUtil.isNotEmpty(codes)){
+                      List<Course> courseNames= ruleDao.findCourseName(codes);
+                      List<String> names=new ArrayList<>();
+                        Map<String, List<Course>> map = courseNames.stream().collect(Collectors.groupingBy(Course::getCode));
+                        for (String code : codes) {
+                            names.add(map.get(code).get(0).getName());
+                        }
+                        exemptionCourseRuleVo.setCourseName(StringUtils.join(names,","));
                     }
+                    exemptionCourseRuleVo.setCalendarName(schoolCalendar.getFullName());
                 }
             }
         }
@@ -254,9 +248,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/2/2 9:28
     */
     @Override
-    public String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo, Integer applyType) {
+    public String addExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo) {
         String courseCode = courseRuleVo.getCourseCode();
         Long calendarId = courseRuleVo.getCalendarId();
+        Integer applyType = courseRuleVo.getApplyType();
         if("".equals(courseCode) || calendarId==null){
             return "common.parameterError";
         }
@@ -294,7 +289,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         }else{
             List<ExemptionCourseMaterial> list = courseRuleVo.getList();
             if(CollectionUtil.isNotEmpty(list)){
-                courseRuleVo.setApplyType(applyType);
                 ruleDao.addExemptionCourseRule(courseRuleVo);
                 Long ruleId = courseRuleVo.getId();
                 for (ExemptionCourseMaterial exemptionCourseMaterial : list) {
@@ -631,6 +625,19 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
         return RestResult.fail("请先添加免修免考课程");
 
+    }
+
+    /**
+    *@Description: 编辑申请规则
+    *@Param: 
+    *@return: 
+    *@Author: bear
+    *@date: 2019/6/4 18:28
+    */
+    @Override
+    public String editExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo) {
+        //todo
+        return null;
     }
 
     private GeneralExcelDesigner getDesign() {
