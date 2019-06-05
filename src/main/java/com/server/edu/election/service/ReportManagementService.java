@@ -62,7 +62,7 @@ public interface ReportManagementService {
     String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception;
 
     /**导出点名册*/
-    String exportRollBookList(ReportManagementCondition condition) throws Exception;
+    ExcelResult exportRollBookList(RollBookConditionDto condition) throws Exception;
 
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 

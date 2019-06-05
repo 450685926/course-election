@@ -280,12 +280,12 @@ public class ReportManagementController {
 
     @ApiOperation(value = "导出点名册")
     @PostMapping("/exportRollBookList")
-    public RestResult<String> exportRollBookList (
-            @RequestBody ReportManagementCondition condition)
+    public RestResult<ExcelResult> exportRollBookList (
+            @RequestBody RollBookConditionDto condition)
             throws Exception
     {
         LOG.info("export.start");
-        String export = managementService.exportRollBookList(condition);
+        ExcelResult export = managementService.exportRollBookList(condition);
         return RestResult.successData(export);
     }
 
