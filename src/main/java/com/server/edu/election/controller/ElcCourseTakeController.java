@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +37,7 @@ import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -344,9 +344,9 @@ public class ElcCourseTakeController
     @ApiOperation(value = "修改修读类别")
     @PostMapping("/editStudyType")
     public RestResult<Integer> editStudyType(
-        @RequestParam("courseTakeType") @NotNull Integer courseTakeType,@RequestParam("ids") @NotEmpty List<Long> ids)
+        @RequestBody ElcCourseTakeDto elcCourseTakeDto)
     {
-        int result =courseTakeService.editStudyType(courseTakeType,ids);
+        int result =courseTakeService.editStudyType(elcCourseTakeDto);
         return RestResult.successData(result);
     }
     
