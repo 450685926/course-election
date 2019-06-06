@@ -905,6 +905,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         String calendarName ="同济大学"+ condition.getCalendarName()+"学生点名册";
         Integer lineNumber = preViewRollDto.getLineNumber();
         Integer rowNumber = preViewRollDto.getRowNumber();
+        List<Integer> lineList = new ArrayList<>();
+        for(int i=0;i<lineNumber-1;i++) {
+        	lineList.add(i);
+        }
         FileUtil.mkdirs(cacheDirectory);
         String fileName = "preRollBookList-" + System.currentTimeMillis() + ".xls";
         String path = cacheDirectory + fileName;
@@ -913,8 +917,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         map.put("calendar",calendarName);
         map.put("lineNumber",lineNumber);
         map.put("rowNumber",rowNumber);
+        map.put("lineList",lineList);
         map.put("item",condition);
-        Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("preRollBookList.ftl");
+        Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("preRollBookList1.ftl");
         // 将模板和数据模型合并生成文件
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
         tpl.process(map, out);
