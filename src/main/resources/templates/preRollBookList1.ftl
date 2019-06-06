@@ -188,7 +188,7 @@
    </#list>
     <#list lineList as line>
     <Row  ss:AutoFitHeight="0">
-    <Cell ss:Index="7" ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+    <Cell ss:Index="7" ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
