@@ -5,10 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -18,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.server.edu.dmskafka.clients.KafkaClients;
 import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.service.AbstractElecQueue;
 import com.server.edu.election.studentelec.service.ElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.utils.QueueGroups;
@@ -26,7 +23,8 @@ import com.server.edu.election.studentelec.utils.QueueGroups;
  * 用 Kafka 做消息队列
  */
 //@Service("kafkaQueue")
-public class KafkaQueueService implements ElecQueueService<ElecRequest>
+public class KafkaQueueService extends AbstractElecQueue
+    implements ElecQueueService<ElecRequest>
 {
     private static final Logger LOG =
         LoggerFactory.getLogger(KafkaQueueService.class);
@@ -36,15 +34,10 @@ public class KafkaQueueService implements ElecQueueService<ElecRequest>
     
     Map<String, String> groupMap = new HashMap<>();
     
-    /** 消费执行线程*/
-    private final ExecutorService comsumerThreadPool =
-        new ThreadPoolExecutor(10, 100, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
-    
     public KafkaQueueService()
     {
-        this.groupMap.put(QueueGroups.STUDENT_LOADING, "");// TODO 增加对应的group-id
-        this.groupMap.put(QueueGroups.STUDENT_ELEC, "");// TODO 增加对应的group-id
+        this.groupMap.put(QueueGroups.STUDENT_LOADING, "");// 增加对应的group-id
+        this.groupMap.put(QueueGroups.STUDENT_ELEC, "");// 增加对应的group-id
     }
     
     @Override
@@ -90,7 +83,7 @@ public class KafkaQueueService implements ElecQueueService<ElecRequest>
         try
         {
             KafkaClients.consumeMsg(cons -> {
-                comsumerThreadPool.execute(() -> {
+                super.execute(() -> {
                     comsumer.consume(
                         JSON.parseObject(cons.value(), ElecRequest.class));
                 });
