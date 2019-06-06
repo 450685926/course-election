@@ -1,10 +1,6 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +12,7 @@ import org.springframework.data.redis.support.collections.RedisList;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.service.AbstractElecQueue;
 import com.server.edu.election.studentelec.service.ElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 
@@ -24,7 +21,8 @@ import com.server.edu.election.studentelec.service.ElecQueueService;
  */
 @Service("redisQueue")
 @Primary
-public class RedisQueueService implements ElecQueueService<ElecRequest>
+public class RedisQueueService extends AbstractElecQueue
+    implements ElecQueueService<ElecRequest>
 {
     protected Logger LOG = LoggerFactory.getLogger(getClass());
     
@@ -33,11 +31,6 @@ public class RedisQueueService implements ElecQueueService<ElecRequest>
     
     private final ConcurrentHashMap<String, RedisList<ElecRequest>> groupQueueMap =
         new ConcurrentHashMap<>();
-    
-    /** 消费执行线程*/
-    private final ExecutorService comsumerThreadPool =
-        new ThreadPoolExecutor(10, 100, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
     
     @Override
     public boolean add(String group, ElecRequest data)
@@ -67,7 +60,7 @@ public class RedisQueueService implements ElecQueueService<ElecRequest>
             ElecRequest take = queue.take();
             if (null != take)
             {
-                comsumerThreadPool.execute(() -> {
+                super.execute(() -> {
                     comsumer.consume(take);
                 });
             }
