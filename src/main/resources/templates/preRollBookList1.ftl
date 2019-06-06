@@ -167,9 +167,26 @@
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}><Data ss:Type="String">${item.sex}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}><Data ss:Type="Number">${item.grade}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}><Data ss:Type="String">${item.faculty}</Data></Cell>
+       <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
+       <Cell ss:StyleID="s64"><Data ss:Type="Number"></Data></Cell>
     <#list lineList as line>
     <Row  ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
+    <Cell ss:Index="7" ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="Number"></Data></Cell>

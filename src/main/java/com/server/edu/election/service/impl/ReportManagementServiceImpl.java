@@ -906,8 +906,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         Integer lineNumber = preViewRollDto.getLineNumber();
         Integer rowNumber = preViewRollDto.getRowNumber();
         List<Integer> lineList = new ArrayList<>();
-        for(int i=0;i<lineNumber-1;i++) {
-        	lineList.add(i);
+        if(lineNumber>1) {
+            for(int i=0;i<lineNumber-1;i++) {
+            	lineList.add(i);
+            }
         }
         FileUtil.mkdirs(cacheDirectory);
         String fileName = "preRollBookList-" + System.currentTimeMillis() + ".xls";
