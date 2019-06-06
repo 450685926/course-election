@@ -149,6 +149,7 @@ public class ElcCourseTakeController
         PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
         condition.setPageNum_(1);
         condition.setPageSize_(10);
+        condition.setCondition(query);
         
         PageResult<ElcCourseTakeVo> page =
             courseTakeService.listPage(condition);
