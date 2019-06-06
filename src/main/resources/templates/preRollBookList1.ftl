@@ -92,8 +92,8 @@
   </Style>
  </Styles>
  <Worksheet ss:Name="Sheet1">
-  <Table ss:ExpandedColumnCount="21" ss:ExpandedRowCount="9" x:FullColumns="1"
-   x:FullRows="1" ss:DefaultColumnWidth="54" ss:DefaultRowHeight="14.25">
+   <Table x:FullColumns="1"
+   x:FullRows="1">
    <Column ss:AutoFitWidth="0" ss:Width="48.75"/>
    <Column ss:AutoFitWidth="0" ss:Width="58.5"/>
    <Column ss:AutoFitWidth="0" ss:Width="60"/>
