@@ -917,7 +917,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         Map<String, Object> map = new HashMap<>();
         map.put("list", studentsList);
         map.put("calendar",calendarName);
-        map.put("lineNumber",lineNumber);
+        map.put("lineNumber",lineNumber-1);
         map.put("rowNumber",rowNumber);
         map.put("lineList",lineList);
         map.put("item",condition);
