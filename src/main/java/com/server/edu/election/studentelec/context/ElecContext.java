@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.context;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 
@@ -43,7 +44,7 @@ public class ElecContext
     private Set<String> applyCourse;
     
     /**选课申请课程*/
-    private Set<ElecCourse> elecApplyCourses;
+    private Set<ElectionApply> elecApplyCourses;
     
     private ElecRequest request;
     
@@ -71,8 +72,8 @@ public class ElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = this.contextUtil.getSet("applyCourse", String.class);
-        elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElecCourse.class);
+        applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
+        elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElectionApply.class);
     }
     
     public ElecContext(String studentId, Long calendarId,
@@ -194,14 +195,15 @@ public class ElecContext
 		return applyCourse;
 	}
 
-
-	public Set<ElecCourse> getElecApplyCourses() {
+	public Set<ElectionApply> getElecApplyCourses() {
 		return elecApplyCourses;
 	}
 
-	public void setElecApplyCourses(Set<ElecCourse> elecApplyCourses) {
+	public void setElecApplyCourses(Set<ElectionApply> elecApplyCourses) {
 		this.elecApplyCourses = elecApplyCourses;
 	}
+
+
 	
 	
     

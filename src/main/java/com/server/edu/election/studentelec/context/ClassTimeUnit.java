@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.List;
+
 public class ClassTimeUnit
 {
     private Long teachClassId;
@@ -12,13 +14,11 @@ public class ClassTimeUnit
     
     private int dayOfWeek;
     
-    private Integer weekNumber;
-    
-    private String roomId;
-    
-    private String teacherCode;
+    private List<Integer> weeks;
     
     private String value;
+    
+    private String teacherCode;
     
     public Long getTeachClassId()
     {
@@ -70,40 +70,34 @@ public class ClassTimeUnit
         this.dayOfWeek = dayOfWeek;
     }
     
-    public Integer getWeekNumber()
-    {
-        return weekNumber;
-    }
-    
-    public void setWeekNumber(Integer weekNumber)
-    {
-        this.weekNumber = weekNumber;
-    }
-
-	public String getRoomId() {
-		return roomId;
-	}
-
-	public void setRoomId(String roomId) {
-		this.roomId = roomId;
-	}
-
-	public String getTeacherCode() {
-		return teacherCode;
-	}
-
-	public void setTeacherCode(String teacherCode) {
-		this.teacherCode = teacherCode;
-	}
-
     public String getValue()
     {
         return value;
     }
-
+    
     public void setValue(String value)
     {
         this.value = value;
+    }
+    
+    public List<Integer> getWeeks()
+    {
+        return weeks;
+    }
+    
+    public void setWeeks(List<Integer> weeks)
+    {
+        this.weeks = weeks;
+    }
+    
+    public String getTeacherCode()
+    {
+        return teacherCode;
+    }
+    
+    public void setTeacherCode(String teacherCode)
+    {
+        this.teacherCode = teacherCode;
     }
     
 }

@@ -29,7 +29,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
@@ -276,20 +275,16 @@ public class StudentElecServiceImpl implements StudentElecService
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
             //更新数据库,缓存中选课申请数据
-            Set<ElecCourse> elecApplyCourses = context.getElecApplyCourses();
+            Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
             if (CollectionUtil.isNotEmpty(elecApplyCourses))
             {
-                ElecCourse elecCourse = elecApplyCourses.stream()
+            	ElectionApply electionApply = elecApplyCourses.stream()
                     .filter(c -> courseCode.equals(c.getCourseCode()))
                     .findFirst()
-                    .orElse(null);
-                if (elecCourse != null)
+                    .orElse(new ElectionApply());
+                if (electionApply != null)
                 {
-                    elecCourse.setApply(Constants.ONE);
-                    Long electionApplyId = elecCourse.getElectionApplyId();
-                    ElectionApply electionApply = new ElectionApply();
-                    electionApply.setId(electionApplyId);
-                    electionApply.setApply(Constants.ONE);
+                	electionApply.setApply(Constants.ONE);
                     this.electionApplyDao
                         .updateByPrimaryKeySelective(electionApply);
                 }

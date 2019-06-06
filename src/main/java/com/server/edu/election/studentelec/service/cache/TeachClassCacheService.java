@@ -19,19 +19,14 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.server.edu.common.entity.Teacher;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
-import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.CourseOpenDto;
-import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.preload.CourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.util.CollectionUtil;
-
-import tk.mybatis.mapper.entity.Example;
 
 /**
  * 缓存教学班，教学班是公共的
@@ -46,9 +41,6 @@ import tk.mybatis.mapper.entity.Example;
 public class TeachClassCacheService extends AbstractCacheService
 {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
-    @Autowired
-    private TeachingClassTeacherDao teacherDao;
     
     @Autowired
     private ElecRoundCourseDao roundCourseDao;
@@ -97,6 +89,11 @@ public class TeachClassCacheService extends AbstractCacheService
         }
     }
     
+    static String[] split(String str)
+    {
+        return str.split(",");
+    }
+    
     /**
      * 缓存教学班
      * 
@@ -119,63 +116,33 @@ public class TeachClassCacheService extends AbstractCacheService
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
-        Map<String, Teacher> teacherMap = new HashMap<>();
         
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
-        
-        Example teacherExample = new Example(TeachingClassTeacher.class);
-        teacherExample.createCriteria()
-            .andIn("teachingClassId", classIds)
-            .andEqualTo("type", Constants.TEACHER_DEFAULT);
-        List<TeachingClassTeacher> teacherList =
-            teacherDao.selectByExample(teacherExample);
-        
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
-            TeachingClassCache courseClass = new TeachingClassCache();
+            TeachingClassCache tc = new TeachingClassCache();
             
-            courseClass.setCourseCode(lesson.getCourseCode());
-            courseClass.setCourseName(lesson.getCourseName());
-            courseClass.setCredits(lesson.getCredits());
-            courseClass.setNameEn(lesson.getCourseNameEn());
-            courseClass.setTeachClassId(teachingClassId);
-            courseClass.setTeachClassCode(lesson.getTeachingClassCode());
-            courseClass.setCampus(lesson.getCampus());
-            courseClass.setTeachClassType(lesson.getTeachClassType());
-            courseClass.setMaxNumber(lesson.getMaxNumber());
-            courseClass.setCurrentNumber(lesson.getCurrentNumber());
-            courseClass.setPublicElec(
+            tc.setCourseCode(lesson.getCourseCode());
+            tc.setCourseName(lesson.getCourseName());
+            tc.setCredits(lesson.getCredits());
+            tc.setNameEn(lesson.getCourseNameEn());
+            tc.setTeachClassId(teachingClassId);
+            tc.setTeachClassCode(lesson.getTeachingClassCode());
+            tc.setCampus(lesson.getCampus());
+            tc.setTeachClassType(lesson.getTeachClassType());
+            tc.setMaxNumber(lesson.getMaxNumber());
+            tc.setCurrentNumber(lesson.getCurrentNumber());
+            tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
             List<ClassTimeUnit> times =
-                gradeLoad.concatTime(collect, teacherMap, courseClass);
-            courseClass.setTimes(times);
+                gradeLoad.concatTime(collect, tc);
+            tc.setTimes(times);
             
-            if (CollectionUtil.isNotEmpty(teacherList))
-            {
-                List<TeachingClassTeacher> teachers = teacherList.stream()
-                    .filter(c -> teachingClassId.equals(c.getTeachingClassId()))
-                    .collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(teachers))
-                {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (TeachingClassTeacher teacher : teachers)
-                    {
-                        stringBuilder.append(teacher.getTeacherName());
-                        stringBuilder.append("(");
-                        stringBuilder.append(teacher.getTeacherCode());
-                        stringBuilder.append(")");
-                        stringBuilder.append(",");
-                    }
-                    courseClass.setTeacherName(
-                        stringBuilder.deleteCharAt(stringBuilder.length() - 1)
-                            .toString());
-                }
-            }
             numMap.put(teachingClassId.toString(),
-                courseClass.getCurrentNumber());
-            map.put(teachingClassId.toString(), courseClass);
+                tc.getCurrentNumber());
+            map.put(teachingClassId.toString(), tc);
         }
         // 缓存选课人数
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);

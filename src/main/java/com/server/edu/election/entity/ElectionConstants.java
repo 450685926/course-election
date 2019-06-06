@@ -10,6 +10,11 @@ import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
+@CodeI18n
 @Table(name = "election_constants_t")
 public class ElectionConstants implements Serializable {
     @Id
@@ -28,6 +33,7 @@ public class ElectionConstants implements Serializable {
      * 培养层次(专科   本科   硕士   博士    其他    预科)
      */
     @NotBlank
+    @Code2Text(value=DictTypeEnum.X_PYCC)
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
 

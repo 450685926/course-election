@@ -43,11 +43,11 @@ public interface ElcCourseTakeDao
     
     /**查询重修未缴费课程名单*/
     Page<RebuildCourseNoChargeList> findCourseNoChargeList(
-        RebuildCoursePaymentCondition condition);
+            RebuildCourseDto condition);
     
     /**查询学生重修未缴费总门数*/
     Page<StudentVo> findCourseNoChargeStudentList(
-        RebuildCoursePaymentCondition condition);
+            RebuildCourseDto condition);
     
     /**查询点名册教学班和老师*/
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);
@@ -128,4 +128,12 @@ public interface ElcCourseTakeDao
 
     /**预警学生选课*/
     List<LoserStuElcCourse> findStudentElcCourse(@Param("calendarId")Long calendarId, @Param("studentId") String studentId);
+
+    /**
+     * 查询未选课学生
+     */
+    Page<NoSelectCourseStdsDto> findNoSelectCourseStds(NoSelectCourseStdsDto stdsDto);
+
+    /**查询学生未缴费明细*/
+    List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
 }

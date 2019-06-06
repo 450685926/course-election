@@ -7,7 +7,6 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -39,6 +38,7 @@ import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
@@ -148,6 +148,7 @@ public class ElcCourseTakeController
         PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
         condition.setPageNum_(1);
         condition.setPageSize_(10);
+        condition.setCondition(query);
         
         PageResult<ElcCourseTakeVo> page =
             courseTakeService.listPage(condition);
@@ -191,10 +192,30 @@ public class ElcCourseTakeController
         return RestResult.success();
     }
     
+    /**
+     *@Description: 根据学期模式查找可以加课的学生
+     *@Param:
+     *@return: 
+     *@Author: bear
+     *@date: 2019/2/23 14:16
+     */
+     @ApiOperation(value = "加课学生列表")
+     @PostMapping("/studentPage")
+     public RestResult<PageResult<Student>> studentPage(
+         @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+         throws Exception
+     {
+         ValidatorUtil.validateAndThrow(condition.getCondition());
+         
+         PageResult<Student> list = courseTakeService.findStudentList(condition);
+         
+         return RestResult.successData(list);
+     }
+    
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
         @RequestPart(name = "calendarId") @NotNull Long calendarId,
-                                @RequestPart(name = "mode") @NotNull Integer mode         )
+        @RequestPart(name = "mode") @NotNull Integer mode)
     {
         if (file == null)
         {
@@ -220,7 +241,7 @@ public class ElcCourseTakeController
             List<ElcCourseTakeAddDto> datas = GeneralExcelUtil
                 .parseExcel(workbook, designer, ElcCourseTakeAddDto.class);
             
-            String msg = courseTakeService.addByExcel(calendarId, datas,mode);
+            String msg = courseTakeService.addByExcel(calendarId, datas, mode);
             return RestResult.success(msg);
         }
         catch (Exception e)
@@ -319,29 +340,5 @@ public class ElcCourseTakeController
         return ExportUtil
             .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
     }
-
-
-    /**
-    *@Description: 根据学期模式查找可以加课的学生
-    *@Param:
-    *@return: 
-    *@Author: bear
-    *@date: 2019/2/23 14:16
-    */
-    @ApiOperation(value = "加课学生列表")
-    @PostMapping("/studentPage")
-    public RestResult<PageResult<Student>> studentPage(
-            @RequestBody PageCondition<ElcCourseTakeQuery> condition) throws Exception{
-
-        {
-            ValidatorUtil.validateAndThrow(condition.getCondition());
-
-            PageResult<Student> list =
-                    courseTakeService.findStudentList(condition);
-
-            return RestResult.successData(list);
-        }
-
-
-    }
+    
 }

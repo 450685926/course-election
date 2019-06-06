@@ -1,5 +1,7 @@
 package com.server.edu.election.query;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 public class ElcCourseTakeQuery
@@ -38,6 +40,11 @@ public class ElcCourseTakeQuery
     private Integer mode;
 
     private String keyword;
+    
+    /** 课程类型 1体育课，2英语课*/
+    private Integer courseType;
+    
+    private List<String> includeCourseCodes;
     
     public Integer getMode() {
         return mode;
@@ -132,6 +139,26 @@ public class ElcCourseTakeQuery
     public void setKeyword(String keyword)
     {
         this.keyword = keyword;
+    }
+
+    public Integer getCourseType()
+    {
+        return courseType;
+    }
+
+    public void setCourseType(Integer courseType)
+    {
+        this.courseType = courseType;
+    }
+
+    public List<String> getIncludeCourseCodes()
+    {
+        return includeCourseCodes;
+    }
+
+    public void setIncludeCourseCodes(List<String> includeCourseCodes)
+    {
+        this.includeCourseCodes = includeCourseCodes;
     }
     
     

@@ -22,7 +22,12 @@
     SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='MAXNEWCREDITS'
   </select>
 
-  <select id="findMaxFailCredits" resultType="java.lang.String">
-    SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='MAXFAILCREDITS'
+  <select id="findPECourses" resultType="java.lang.String">
+    SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='PE_COURSE_CODES'
   </select>
+  
+  <select id="findEnglishCourses" resultType="java.lang.String">
+    SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='ENGLISH_COURSE_CODES'
+  </select>
+  
 </mapper>

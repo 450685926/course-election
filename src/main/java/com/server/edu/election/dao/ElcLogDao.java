@@ -18,7 +18,4 @@ public interface ElcLogDao extends Mapper<ElcLog>, MySqlMapper<ElcLog>
 {
     Page<ElcLogVo> listPage(@Param("query") ElcLogQuery elcLog);
     
-    /**查询选退课日志*/
-    Page<ElcLogVo> findCourseLog(ElcLogVo logVo);
-    
 }

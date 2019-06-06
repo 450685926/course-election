@@ -1,49 +1,46 @@
 package com.server.edu.election.service.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.election.constants.ChooseObj;
-import com.server.edu.election.constants.Constants;
-import com.server.edu.election.constants.CourseTakeType;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.ElcCourseTakeAddDto;
-import com.server.edu.election.dto.RebuildCoursePaymentCondition;
-import com.server.edu.election.entity.ElcCourseTake;
-import com.server.edu.election.entity.ElcLog;
-import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.service.ElcCourseTakeService;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
-import com.server.edu.election.entity.RebuildCourseNoChargeType;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.service.RebuildCourseChargeService;
-import com.server.edu.election.vo.StudentVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.FileUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.util.excel.export.ExcelExecuter;
-import com.server.edu.util.excel.export.ExcelResult;
-import com.server.edu.util.excel.export.ExportExcelUtils;
-import org.apache.commons.lang.StringUtils;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.FileOutputStream;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.RebuildCourseChargeDao;
+import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.RebuildCourseCharge;
+import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.entity.Student;
+import com.server.edu.election.service.ElcCourseTakeService;
+import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 
 /**
  * @description: 重修收费管理
@@ -75,194 +72,170 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Autowired
     private DictionaryService dictionaryService;
 
+    @Autowired
+    private StudentDao studentDao;
+
     @Value("${cache.directory}")
     private String cacheDirectory;
 
     /**
-    *@Description: 查询收费管理
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/1 8:58
-    */
+     * @Description: 查询收费管理
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 8:58
+     */
     @Override
-    public PageResult<RebuildCourseCharge> findCourseCharge(PageCondition<RebuildCourseCharge> condition) {
+    public PageResult<RebuildCourseCharge> findCourseCharge(
+            PageCondition<RebuildCourseCharge> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RebuildCourseCharge> courseCharge = courseChargeDao.findCourseCharge(condition.getCondition());
+        Page<RebuildCourseCharge> courseCharge =
+                courseChargeDao.findCourseCharge(condition.getCondition());
         return new PageResult<>(courseCharge);
     }
 
-
     /**
-    *@Description: 删除重修收费信息
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/1 9:14
-    */
+     * @Description: 删除重修收费信息
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 9:14
+     */
     @Override
     @Transactional
     public String deleteCourseCharge(List<Long> ids) {
-        if(CollectionUtil.isEmpty(ids)){
+        if (CollectionUtil.isEmpty(ids)) {
             return "common.parameterError";
         }
         courseChargeDao.deleteCourseCharge(ids);
-         return  "common.deleteSuccess";
+        return "common.deleteSuccess";
     }
 
-    
     /**
-    *@Description: 编辑收费信息
-    *@Param: 
-    *@return: 
-    *@Author: bear
-    *@date: 2019/2/1 9:42
-    */
+     * @Description: 编辑收费信息
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 9:42
+     */
     @Override
     @Transactional
     public String editCourseCharge(RebuildCourseCharge courseCharge) {
-        RebuildCourseCharge rebuildCourseCharge=new RebuildCourseCharge();
-        Page<RebuildCourseCharge> courseCharges = courseChargeDao.findCourseCharge(rebuildCourseCharge);
-        if(courseCharges!=null&&courseCharges.getResult().size()>0){
-            List<RebuildCourseCharge> result = courseCharges.getResult();
-            List<RebuildCourseCharge> collect = result.stream().filter((RebuildCourseCharge vo) -> vo.getId().longValue() != courseCharge.getId().longValue()).collect(Collectors.toList());
-            if(CollectionUtil.isNotEmpty(collect)){
-                if(collect.contains(courseCharge)){
-                    return "common.exist";
-                }
-            }
-        }
         courseChargeDao.updateByPrimaryKeySelective(courseCharge);
         return "common.editSuccess";
     }
 
     /**
-    *@Description: 新增收费信息
-    *@Param:
-    *@return: 
-    *@Author: bear
-    *@date: 2019/2/1 9:50
-    */
+     * @Description: 新增收费信息
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 9:50
+     */
     @Override
     @Transactional
     public String addCourseCharge(RebuildCourseCharge courseCharge) {
-        RebuildCourseCharge rebuildCourseCharge=new RebuildCourseCharge();
-        Page<RebuildCourseCharge> courseCharges = courseChargeDao.findCourseCharge(rebuildCourseCharge);
-        if(courseCharges!=null){
-            List<RebuildCourseCharge> result = courseCharges.getResult();
-            if(CollectionUtil.isNotEmpty(result)){
-                if(result.contains(courseCharge)){
-                    return "common.exist";
-                }
-            }
+        RebuildCourseCharge item = courseChargeDao.findPrice(courseCharge.getTrainingLevel(),courseCharge.getFormLearning());
+        if (item != null) {
+            return "common.exist";
         }
         courseChargeDao.insertSelective(courseCharge);
         return "common.addsuccess";
     }
 
     /**
-    *@Description: 查询重修不收费类型
-    *@Param: 
-    *@return: 
-    *@Author: bear
-    *@date: 2019/2/1 14:02
-    */
+     * @Description: 查询重修不收费类型
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 14:02
+     */
     @Override
-    public PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(PageCondition<RebuildCourseNoChargeType> condition) {
+    public PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(
+            PageCondition<RebuildCourseNoChargeTypeVo> condition) {
+        String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(manageDptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RebuildCourseNoChargeType> courseNoChargeType = noChargeTypeDao.findCourseNoChargeType(condition.getCondition());
+        Page<RebuildCourseNoChargeType> courseNoChargeType =
+                noChargeTypeDao.findCourseNoChargeType(condition.getCondition());
         return new PageResult<>(courseNoChargeType);
     }
 
     /**
-    *@Description: 新增重修不收费类型
-    *@Param: 
-    *@return: 
-    *@Author: bear
-    *@date: 2019/2/1 14:19
-    */
+     * @Description: 新增重修不收费类型
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 14:19
+     */
     @Override
     public String addCourseNoChargeType(RebuildCourseNoChargeType noChargeType) {
-        RebuildCourseNoChargeType courseNoChargeType=new RebuildCourseNoChargeType();
-        Page<RebuildCourseNoChargeType> chargeType = noChargeTypeDao.findCourseNoChargeType(courseNoChargeType);
-        if(chargeType!=null){
-            List<RebuildCourseNoChargeType> result = chargeType.getResult();
-            if(CollectionUtil.isNotEmpty(result)){
-                if(result.contains(noChargeType)){
-                    return "common.exist";
-                }
-            }
+
+        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(noChargeType);
+        if (item != null) {
+            return "common.exist";
         }
         noChargeTypeDao.insertSelective(noChargeType);
         return "common.addsuccess";
     }
 
     /**
-    *@Description: 删除重修不收费类型
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/1 14:29
-    */
+     * @Description: 删除重修不收费类型
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 14:29
+     */
     @Override
     public String deleteCourseNoChargeType(List<Long> ids) {
-        if(CollectionUtil.isEmpty(ids)){
+        if (CollectionUtil.isEmpty(ids)) {
             return "common.parameterError";
         }
 
         noChargeTypeDao.deleteRebuildCourseNoChargeType(ids);
-        return  "common.deleteSuccess";
+        return "common.deleteSuccess";
     }
 
     /**
-    *@Description: 编辑重修不收费学生类型
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/1 14:37
-    */
+     * @Description: 编辑重修不收费学生类型
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/1 14:37
+     */
     @Override
-    public String editCourseNoChargeType(RebuildCourseNoChargeType courseNoCharge) {
-        RebuildCourseNoChargeType courseNoChargeType=new RebuildCourseNoChargeType();
-        Page<RebuildCourseNoChargeType> chargeType = noChargeTypeDao.findCourseNoChargeType(courseNoChargeType);
-        if(chargeType!=null){
-            List<RebuildCourseNoChargeType> result = chargeType.getResult();
-            if(CollectionUtil.isNotEmpty(result)){
-                List<RebuildCourseNoChargeType> collect = result.stream().filter((RebuildCourseNoChargeType vo) -> vo.getId().longValue() != courseNoCharge.getId().longValue()).collect(Collectors.toList());
-                if(CollectionUtil.isNotEmpty(collect)){
-                    if(collect.contains(courseNoCharge)){
-                        return "common.exist";
-                    }
-                }
+    public String editCourseNoChargeType(
+            RebuildCourseNoChargeType courseNoCharge) {
+        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(courseNoCharge);
+        if(item!=null){
+            if(item.getId().intValue()!=courseNoCharge.getId().intValue()){
+                return "common.exist";
             }
-
         }
         noChargeTypeDao.updateByPrimaryKeySelective(courseNoCharge);
         return "common.editSuccess";
     }
 
     /**
-    *@Description: 查询未缴费课程名单
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/13 15:17
-    */
+     * @Description: 查询未缴费课程名单
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/13 15:17
+     */
     @Override
-    public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCoursePaymentCondition > condition) {
+    public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
-        if(courseNoChargeList!=null){
+        if (courseNoChargeList != null) {
             List<RebuildCourseNoChargeList> list = courseNoChargeList.getResult();
-            SchoolCalendarVo schoolCalendarById = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
             for (RebuildCourseNoChargeList rebuildList : list) {
-                String courseArr="";
+                String courseArr = "";
                 DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
                 String format = decimalFormat.format(rebuildList.getPeriod());
-                courseArr=rebuildList.getStartWeek()+"-"+rebuildList.getEndWeek()+"周"+format+"课时";
-                rebuildList.setCalendarName(schoolCalendarById.getFullName());
+                courseArr = rebuildList.getStartWeek() + "-" + rebuildList.getEndWeek() + "周" + format + "课时";
                 rebuildList.setCourseArr(courseArr);
             }
 
@@ -270,38 +243,41 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         return new PageResult<>(courseNoChargeList);
     }
 
-    
     /**
-    *@Description: 重新汇总名单
-    *@Param:
-    *@return: 
-    *@Author: bear
-    *@date: 2019/2/13 16:19
-    */
+     * @Description: 重新汇总名单
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/13 16:19
+     */
     @Override
-    public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCoursePaymentCondition > condition) {
+
+    public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto> condition) {
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<StudentVo> courseNoChargeStudentList = courseTakeDao.findCourseNoChargeStudentList(condition.getCondition());
+        Page<StudentVo> courseNoChargeStudentList = courseTakeDao
+                .findCourseNoChargeStudentList(condition.getCondition());
         return new PageResult<>(courseNoChargeStudentList);
     }
 
-
     /**
-    *@Description: 移动到回收站
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/14 10:56
-    */
+     * @Description: 移动到回收站
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/14 10:56
+     */
     @Override
+    @Transactional
     public String moveToRecycle(List<RebuildCourseNoChargeList> list) {
-        if(CollectionUtil.isEmpty(list)){
+        if (CollectionUtil.isEmpty(list)) {
             return "common.parameterError";
         }
         //调用退课接口todo
-        List<ElcCourseTake> takes=new ArrayList<>();
+        List<ElcCourseTake> takes = new ArrayList<>();
         for (RebuildCourseNoChargeList courseNoChargeList : list) {
-            ElcCourseTake take=new ElcCourseTake();
+            ElcCourseTake take = new ElcCourseTake();
             take.setStudentId(courseNoChargeList.getStudentCode());
             take.setCalendarId(courseNoChargeList.getCalendarId());
             take.setTeachingClassId(courseNoChargeList.getTeachingClassId());
@@ -313,33 +289,36 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         return "common.deleteSuccess";
     }
 
-
     /**
-    *@Description: 查询回收站
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/14 11:32
-    */
+     * @Description: 查询回收站
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/14 11:32
+     */
     @Override
-    public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCoursePaymentCondition> condition) {
+
+    public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RebuildCourseNoChargeList> recycleCourse = courseChargeDao.findRecycleCourse(condition.getCondition());
+        Page<RebuildCourseNoChargeList> recycleCourse =
+                courseChargeDao.findRecycleCourse(condition.getCondition());
         return new PageResult<>(recycleCourse);
     }
 
     /**
-    *@Description: 从回收站回复数据
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/14 14:03
-    */
+     * @Description: 从回收站回复数据
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/2/14 14:03
+     */
     @Override
-    public String moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list) {
-        if(CollectionUtil.isEmpty(list)){
+    @Transactional
+    public String moveRecycleCourseToNoChargeList(
+            List<RebuildCourseNoChargeList> list) {
+        if (CollectionUtil.isEmpty(list)) {
             return "common.parameterError";
         }
         for (RebuildCourseNoChargeList noChargeList : list) {
@@ -350,9 +329,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         return "common.deleteSuccess";
     }
 
-    private void recoverClass(RebuildCourseNoChargeList noChargeList){
+    @Transactional
+    private void recoverClass(RebuildCourseNoChargeList noChargeList) {
         String studentCode = noChargeList.getStudentCode();
-        String courseCode = noChargeList.getCode();
+        String courseCode = noChargeList.getCourseCode();
         Long calendarId = noChargeList.getCalendarId();
         Integer chooseObj = noChargeList.getChooseObj();
         Integer courseTakeType = noChargeList.getCourseTakeType();
@@ -360,12 +340,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         String teachingClassCode = noChargeList.getTeachingClassCode();
         Integer mode = noChargeList.getMode();
         Integer turn = noChargeList.getTurn();
-        String courseName = noChargeList.getCodeName();
+        String courseName = noChargeList.getCourseName();
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentCode);
         record.setCourseCode(courseCode);
         int selectCount = courseTakeDao.selectCount(record);
-        if(selectCount == 0){
+        if (selectCount == 0) {
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(calendarId);
             take.setChooseObj(chooseObj);
@@ -387,7 +367,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             log.setCreateBy(currentSession.getUid());
             log.setCreatedAt(new Date());
             log.setCreateIp(currentSession.getIp());
-            log.setMode(chooseObj !=1 ? ElcLogVo.MODE_2:ElcLogVo.MODE_1);
+            log.setMode(chooseObj != 1 ? ElcLogVo.MODE_2 : ElcLogVo.MODE_1);
             log.setStudentId(studentCode);
             log.setTeachingClassCode(teachingClassCode);
             log.setTurn(turn);
@@ -396,84 +376,37 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         }
     }
 
-   /**
-   *@Description: 导出课程汇总名单
-   *@Param: 
-   *@return: 
-   *@Author: bear
-   *@date: 2019/2/20 12:41
-   */
-    @Override
-    public String exportStudentNoChargeCourse(RebuildCoursePaymentCondition condition) throws Exception{
-        PageCondition<RebuildCoursePaymentCondition> pageCondition = new PageCondition<RebuildCoursePaymentCondition>();
-        pageCondition.setCondition(condition);
-        pageCondition.setPageSize_(Constants.ZERO);
-        pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<StudentVo> result = findCourseNoChargeStudentList(pageCondition);
-        if(result!=null){
-            List<StudentVo> list = result.getList();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for (SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            for (StudentVo studentVo : list) {
-                if(0!=schoolCalendarMap.size()){
-                    String str = schoolCalendarMap.get(studentVo.getCalendarId());
-                    if (StringUtils.isNotEmpty(str)) {
-                        studentVo.setCalendarName(str);
-                    }
-                }
-            }
-            if (list == null) {
-                list = new ArrayList<>();
-            }
-            GeneralExcelDesigner design = getDesignTWo();
-            design.setDatas(list);
-            ExcelWriterUtil generalExcelHandle;
-            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
-            FileUtil.mkdirs(cacheDirectory);
-            String fileName = "studentNoChargeCourse.xls";
-            String path = cacheDirectory + fileName;
-            generalExcelHandle.writeExcel(new FileOutputStream(path));
-            return fileName;
-        }
-        return "";
-    }
 
     /**
-    *@Description: 导出重修缴费名单
-    *@Param:
-    *@return: 
-    *@Author: bear
-    *@date: 2019/5/20 9:48
-    */
+     * @Description: 导出重修缴费名单
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/5/20 9:48
+     */
     @Override
-    public ExcelResult export(RebuildCoursePaymentCondition condition) {
+    public ExcelResult export(RebuildCourseDto condition) {
         ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildNoCharge", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
                 ExcelResult result = this.getResult();
-                PageCondition<RebuildCoursePaymentCondition> pageCondition=new PageCondition<>();
+                PageCondition<RebuildCourseDto> pageCondition = new PageCondition<>();
                 pageCondition.setCondition(condition);
                 pageCondition.setPageSize_(100);
                 int pageNum = 0;
-                List<RebuildCourseNoChargeList> list=new ArrayList<>();
-                while (true){
+                List<RebuildCourseNoChargeList> list = new ArrayList<>();
+                while (true) {
                     pageNum++;
                     pageCondition.setPageNum_(pageNum);
                     PageResult<RebuildCourseNoChargeList> courseNoChargeList = findCourseNoChargeList(pageCondition);
                     list.addAll(courseNoChargeList.getList());
-                    result.setTotal((int)courseNoChargeList.getTotal_());
+                    result.setTotal((int) courseNoChargeList.getTotal_());
                     Double count = list.size() / 1.5;
                     result.setDoneCount(count.intValue());
                     this.updateResult(result);
-
-                    if (courseNoChargeList.getTotal_() <= list.size())
-                    {
+                    if (courseNoChargeList.getTotal_() <= list.size()) {
                         break;
                     }
-
                 }
                 //组装excel
                 GeneralExcelDesigner design = getDesign();
@@ -487,86 +420,116 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     }
 
     /**
-    *@Description: 导出未缴费课程名单
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/20 11:17
-    */
+     * @Description: 导出汇总名单
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/5/24 10:14
+     */
     @Override
-    public String exportNoChargeList(RebuildCoursePaymentCondition condition) throws Exception{
-        PageCondition<RebuildCoursePaymentCondition> pageCondition = new PageCondition<RebuildCoursePaymentCondition>();
-        pageCondition.setCondition(condition);
-        pageCondition.setPageSize_(Constants.ZERO);
-        pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<RebuildCourseNoChargeList> result = findCourseNoChargeList(pageCondition);
-        if(result!=null){
-            List<RebuildCourseNoChargeList> list = result.getList();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for (SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            for (RebuildCourseNoChargeList rebuildCourseNoChargeList : list) {
-                if (0 != schoolCalendarMap.size()) {
-                    String schoolCalendarName = schoolCalendarMap.get(rebuildCourseNoChargeList.getCalendarId());
-                    if (StringUtils.isNotEmpty(schoolCalendarName)) {
-                        rebuildCourseNoChargeList.setCalendarName(schoolCalendarName);
-                    }
-                }
-                String format = new DecimalFormat("###################.###########").format(rebuildCourseNoChargeList.getPeriod());
-                String s=rebuildCourseNoChargeList.getStartWeek()+"-"+rebuildCourseNoChargeList.getEndWeek()+
-                        "周"+format+"课时";
-                rebuildCourseNoChargeList.setCourseArr(s);
-                if(rebuildCourseNoChargeList.getId()!=null){
-                    String str=rebuildCourseNoChargeList.getPaid()==0?"未缴费":"已缴费";
-                    rebuildCourseNoChargeList.setStrPaid(str);
-                }
+    public ExcelResult exportStuNumber(RebuildCourseDto condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildNoChargeStuNumber", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RebuildCourseDto> pageCondition = new PageCondition<>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                List<StudentVo> list = new ArrayList<>();
+                while (true) {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<StudentVo> studentList = findCourseNoChargeStudentList(pageCondition);
+                    list.addAll(studentList.getList());
+                    result.setTotal((int) studentList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
 
+                    if (studentList.getTotal_() <= list.size()) {
+                        break;
+                    }
+
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesignTWo();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
             }
-            if (list == null) {
-                list = new ArrayList<>();
-            }
-            GeneralExcelDesigner design = getDesign();
-            design.setDatas(list);
-            ExcelWriterUtil generalExcelHandle;
-            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
-            FileUtil.mkdirs(cacheDirectory);
-            String fileName = "rebuildCourseNoChargeList.xls";
-            String path = cacheDirectory + fileName;
-            generalExcelHandle.writeExcel(new FileOutputStream(path));
-            return fileName;
-        }
-        return "";
+        });
+        return excelResult;
     }
+
+    /**
+     * @Description: 导出回收站
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/5/24 11:12
+     */
+    @Override
+    public ExcelResult exportRecycle(RebuildCourseDto condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rebuildRecycle", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RebuildCourseDto> pageCondition = new PageCondition<>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                List<RebuildCourseNoChargeList> list = new ArrayList<>();
+                while (true) {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<RebuildCourseNoChargeList> recycleCourse = findRecycleCourse(pageCondition);
+                    list.addAll(recycleCourse.getList());
+                    result.setTotal((int) recycleCourse.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (recycleCourse.getTotal_() <= list.size()) {
+                        break;
+                    }
+
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesignThere();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
 
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "code");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "codeName");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
         design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
         design.addCell(I18nUtil.getMsg("rebuildCourse.courseArr"), "courseArr");
         design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "paid").setValueHandler((value, rawData, cell) -> {
-            return "0".equals(value)?"未缴费":"已缴费";
-        });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "paid")
+                .setValueHandler((value, rawData, cell) -> {
+                    return "0".equals(value) ? "未缴费" : "已缴费";
+                });
         return design;
     }
 
     private GeneralExcelDesigner getDesignTWo() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.sex"), "sex").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("G_XBIE", value, SessionUtils.getLang());
-                });
         design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
         design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
                 (value, rawData, cell) -> {
@@ -579,8 +542,94 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 });
         design.addCell(I18nUtil.getMsg("rebuildCourse.studentCategory"), "studentCategory");
         design.addCell(I18nUtil.getMsg("rebuildCourse.rebuildNumber"), "rebuildNumber");
-
         return design;
+    }
+
+    private GeneralExcelDesigner getDesignThere() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "teachingClassCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.revisionategory"), "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_XDLX", value, SessionUtils.getLang());
+                });
+        return design;
+    }
+
+    @Override
+    public boolean isNoNeedPayForRetake(String studentId) {
+        Student record = new Student();
+        record.setStudentCode(studentId);
+        Student student = studentDao.selectOne(record);
+        List<RebuildCourseNoChargeType> list = noChargeTypeDao.selectAll();
+        for (RebuildCourseNoChargeType t : list) {
+            if (t.getFormLearning().equals(student.getFormLearning())
+                    && t.getRegistrationStatus().equals(student.getRegistrationStatus())
+                    && t.getSpcialPlan().equals(student.getSpcialPlan())
+                    && t.getTrainingLevel().equals(student.getTrainingLevel())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+    *@Description: 查询学生应缴费用
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/5/27 11:15
+    */
+    @Override
+    public List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto) {
+        List<StudentRePaymentDto> paymentDtoList=new ArrayList<>();
+        String studentCode = studentRePaymentDto.getStudentCode();
+        /**是否在不缴费学生类型中*/
+        boolean retake = isNoNeedPayForRetake(studentCode);
+        if(retake){
+            return null;
+        }
+        //不再不缴费学生类型中，查询重修课程并且判断是否需要缴费
+        List<ElcCourseTakeVo> courseTakes=courseTakeDao.findStuRebuildCourse(studentRePaymentDto);
+        //没有重修课程
+        if(CollectionUtil.isEmpty(courseTakes)){
+            return null;
+        }
+        //查询收费单价
+        Student record = new Student();
+        record.setStudentCode(studentCode);
+        Student student = studentDao.selectOne(record);
+        String trainingLevel = student.getTrainingLevel();
+        String formLearning = student.getFormLearning();
+        RebuildCourseCharge prices = courseChargeDao.findPrice(trainingLevel,formLearning);
+        if(prices == null || prices.getIsCharge()==0){
+            return null;
+        }
+
+        for (ElcCourseTakeVo courseTake : courseTakes) {
+            double credits=courseTake.getCredits();
+            int unitPrice= prices.getUnitPrice();
+            double payable =  (unitPrice*credits);
+            StudentRePaymentDto paymentDto=new StudentRePaymentDto();
+            paymentDto.setCourseCode(courseTake.getCourseCode());
+            paymentDto.setCourseName(courseTake.getCourseName());
+            paymentDto.setStudentCode(studentRePaymentDto.getStudentCode());
+            paymentDto.setCredits(credits);
+            paymentDto.setUnitPrice(unitPrice);
+            paymentDto.setCalendarId(studentRePaymentDto.getCalendarId());
+            paymentDto.setPayable(payable);
+            paymentDto.setBillId(courseTake.getBillId());
+            paymentDto.setPaid(courseTake.getPaid());
+            paymentDtoList.add(paymentDto);
+        }
+
+        return paymentDtoList;
     }
 
 }

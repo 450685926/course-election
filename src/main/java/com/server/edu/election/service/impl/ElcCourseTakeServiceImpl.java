@@ -1,11 +1,13 @@
 package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,6 +25,7 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.entity.ElcCourseTake;
@@ -54,15 +57,38 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     private ElcLogDao elcLogDao;
     
     @Autowired
+    private ElectionConstantsDao constantsDao;
+    
+    @Autowired
     private ApplicationContext applicationContext;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page)
     {
+        ElcCourseTakeQuery cond = page.getCondition();
+        List<String> includeCodes = new ArrayList<>();
+        // 1体育课
+        if (Objects.equals(cond.getCourseType(), 1))
+        {
+            String findPECourses = constantsDao.findPECourses();
+            if (StringUtils.isNotBlank(findPECourses))
+            {
+                includeCodes.addAll(Arrays.asList(findPECourses.split(",")));
+            }
+        }
+        else if (Objects.equals(cond.getCourseType(), 2))
+        {// 2英语课
+            String findEnglishCourses = constantsDao.findEnglishCourses();
+            if (StringUtils.isNotBlank(findEnglishCourses))
+            {
+                includeCodes
+                    .addAll(Arrays.asList(findEnglishCourses.split(",")));
+            }
+        }
+        cond.setIncludeCourseCodes(includeCodes);
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        Page<ElcCourseTakeVo> listPage =
-            courseTakeDao.listPage(page.getCondition());
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
         
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
@@ -248,7 +274,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setTurn(0);
                 log.setType(ElcLogVo.TYPE_2);
                 logList.add(log);
-
+                
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
                 withdrawMap.put(

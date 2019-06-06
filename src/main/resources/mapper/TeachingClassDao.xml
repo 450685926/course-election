@@ -177,7 +177,7 @@
   </select>
   
 
-    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.dto.TeacherClassTimeRoom">
         select ti.ID_ arrangeTimeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber
         from teaching_class_t t2
         join teaching_class_arrange_time_t ti on t2.ID_ = ti.TEACHING_CLASS_ID_
@@ -185,7 +185,7 @@
         where t2.ID_=#{teachingClassId}
     </select>
 
-  <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+  <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.dto.TeacherClassTimeRoom">
 		 SELECT
 			t2.ID_ teachClassId,
 			t3.ID_ arrangeTimeId,

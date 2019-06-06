@@ -21,6 +21,9 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
           and t1.CALENDAR_ID_ =#{calendarId}
         </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+        and (t2.STUDENT_CODE_ like concat ('%',#{keyword},'%') or t2.NAME_ like concat ('%',#{keyword},'%') )
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
         and t2.STUDENT_CODE_ like concat ('%',#{studentId},'%')
       </if>

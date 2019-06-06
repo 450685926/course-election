@@ -27,19 +27,21 @@ import io.swagger.annotations.SwaggerDefinition;
 @SwaggerDefinition(info = @Info(title = "选课常量", version = ""))
 @RestSchema(schemaId = "ElectionConstantsController")
 @RequestMapping("electionConstants")
-public class ElectionConstantsController {
-	private static Logger LOG =
-	        LoggerFactory.getLogger(ElectionConstantsController.class);
-	@Autowired
-	private ElectionConstantsService electionConstantsService;
-	
-	 /**
-     * 选课常量列表
-     * 
-     * @param condition
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+public class ElectionConstantsController
+{
+    private static Logger LOG =
+        LoggerFactory.getLogger(ElectionConstantsController.class);
+    
+    @Autowired
+    private ElectionConstantsService electionConstantsService;
+    
+    /**
+    * 选课常量列表
+    * 
+    * @param condition
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "选课常量列表")
     @PostMapping("/list")
     public RestResult<PageInfo<ElectionConstants>> list(
@@ -47,7 +49,8 @@ public class ElectionConstantsController {
         throws Exception
     {
         LOG.info("list.start");
-        PageInfo<ElectionConstants> list =electionConstantsService.list(condition);
+        PageInfo<ElectionConstants> list =
+            electionConstantsService.list(condition);
         return RestResult.successData(list);
     }
     
@@ -60,12 +63,11 @@ public class ElectionConstantsController {
      */
     @ApiOperation(value = "添加选课常量")
     @PostMapping("/add")
-    public RestResult<Integer> add(
-        @RequestBody @Valid ElectionConstantsDto dto)
+    public RestResult<Integer> add(@RequestBody @Valid ElectionConstantsDto dto)
         throws Exception
     {
         LOG.info("add.start");
-        int result =electionConstantsService.add(dto);
+        int result = electionConstantsService.add(dto);
         return RestResult.successData(result);
     }
     
@@ -83,7 +85,7 @@ public class ElectionConstantsController {
         throws Exception
     {
         LOG.info("update.start");
-        int result =electionConstantsService.update(dto);
+        int result = electionConstantsService.update(dto);
         return RestResult.successData(result);
     }
     
@@ -97,12 +99,13 @@ public class ElectionConstantsController {
     @ApiOperation(value = "查看选课常量")
     @GetMapping("/getConstants")
     public RestResult<ElectionConstants> getConstants(
-    		@RequestParam("id") @NotNull Long id)
+        @RequestParam("id") @NotNull Long id)
         throws Exception
     {
         LOG.info("getConstants.start");
-        ElectionConstants electionConstants =electionConstantsService.getConstants(id);
+        ElectionConstants electionConstants =
+            electionConstantsService.getConstants(id);
         return RestResult.successData(electionConstants);
     }
-
+    
 }

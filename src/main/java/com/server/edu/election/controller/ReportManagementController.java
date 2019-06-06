@@ -29,6 +29,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.dto.PreViewRollDto;
 import com.server.edu.election.dto.PreviewRollBookList;
 import com.server.edu.election.dto.ReportManagementCondition;
@@ -37,15 +38,15 @@ import com.server.edu.election.dto.StudentSelectCourseList;
 import com.server.edu.election.dto.StudnetTimeTable;
 import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.ElcNoSelectReasonVo;
 import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 
@@ -69,9 +70,6 @@ public class ReportManagementController {
     @Autowired
     private ReportManagementService managementService;
 
-    @Autowired
-    private ElcLogService elcLogService;
-
     private static Logger LOG =
             LoggerFactory.getLogger(ExemptionController.class);
 
@@ -79,17 +77,17 @@ public class ReportManagementController {
     private String cacheDirectory;
 
 
-    @ApiOperation(value = "查询学生未选课名单")
-    @PostMapping("/findElectCourseList")
-    public RestResult<PageResult<StudentSelectCourseList>> findElectCourseList(@RequestBody PageCondition<ReportManagementCondition> condition) {
-        PageResult<StudentSelectCourseList> electCourseList = managementService.findElectCourseList(condition);
+    @ApiOperation(value = "查询未选课学生名单")
+    @PostMapping("/findNoSelectCourseList")
+    public RestResult<PageResult<NoSelectCourseStdsDto>> findElectCourseList(@RequestBody PageCondition<NoSelectCourseStdsDto> condition) {
+        PageResult<NoSelectCourseStdsDto> electCourseList = managementService.findElectCourseList(condition);
         return RestResult.successData(electCourseList);
     }
 
     @ApiOperation(value = "新增未选课原因")
     @PostMapping("/addNoSelectReason")
-    public RestResult<String> addNoSelectReason(@RequestBody ElcNoSelectReason noSelectReason) {
-        if(noSelectReason.getCalendarId()==null||StringUtils.isEmpty(noSelectReason.getStudentId())){
+    public RestResult<String> addNoSelectReason(@RequestBody ElcNoSelectReasonVo noSelectReason) {
+        if(noSelectReason.getCalendarId()==null|| CollectionUtil.isEmpty(noSelectReason.getStudentIds())){
             return RestResult.fail("common.parameterError");
         }
         String s = managementService.addNoSelectReason(noSelectReason);
@@ -269,18 +267,10 @@ public class ReportManagementController {
         return RestResult.successData(teacherTimetable);
     }
 
-    @ApiOperation(value = "查询选退课日志")
-    @PostMapping("/findCourseLog")
-    public RestResult<PageResult<ElcLogVo>> findCourseLog(@RequestBody PageCondition<ElcLogVo> condition){
-        PageResult<ElcLogVo> courseLog = managementService.findCourseLog(condition);
-        return RestResult.successData(courseLog);
-    }
-
-
     @ApiOperation(value = "导出未选课学生名单")
     @PostMapping("/exportStudentNoCourseList2")
     public RestResult<String> exportStudentNoCourseList (
-            @RequestBody ReportManagementCondition condition)
+            @RequestBody NoSelectCourseStdsDto condition)
             throws Exception
     {
         LOG.info("export.start");
@@ -320,7 +310,7 @@ public class ReportManagementController {
 
     @ApiOperation(value = "导出未选课学生名单")
     @PostMapping("/export")
-    public RestResult<ExcelResult> export(@RequestBody ReportManagementCondition condition)
+    public RestResult<ExcelResult> export(@RequestBody NoSelectCourseStdsDto condition)
             throws Exception {
         LOG.info("export.start");
         ExcelResult result = managementService.export(condition);
@@ -352,8 +342,7 @@ public class ReportManagementController {
     @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
     public ResponseEntity<Resource> download(@RequestParam("path") String path)
             throws Exception {
-        Resource resource = new FileSystemResource(path);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/file-xls").header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=result.xls").body(resource);
+        return ExportExcelUtils.export(path);
     }
 
     @ApiOperation(value = "导出预览点名册")

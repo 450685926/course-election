@@ -1,9 +1,13 @@
 package com.server.edu.election.dto;
 
+import java.util.List;
+
 import com.server.edu.election.entity.CourseOpen;
 
 public class CourseOpenDto extends CourseOpen
 {
+    private static final long serialVersionUID = 1L;
+
     private Long roundId;
     
     private Long teachingClassId;
@@ -17,8 +21,51 @@ public class CourseOpenDto extends CourseOpen
     private Integer maxNumber;
 
     private Integer currentNumber;
+    
+    private Integer suggestStatus;
+    
+    private String keyWord;
+    
+    private List<String> courses;
+    
+    private String projectId;
+    
+    
 
-    public String getCampus() {
+
+	public String getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
+
+	public List<String> getCourses() {
+		return courses;
+	}
+
+	public void setCourses(List<String> courses) {
+		this.courses = courses;
+	}
+
+	public String getKeyWord() {
+		return keyWord;
+	}
+
+	public void setKeyWord(String keyWord) {
+		this.keyWord = keyWord;
+	}
+
+	public Integer getSuggestStatus() {
+		return suggestStatus;
+	}
+
+	public void setSuggestStatus(Integer suggestStatus) {
+		this.suggestStatus = suggestStatus;
+	}
+
+	public String getCampus() {
         return campus;
     }
 
