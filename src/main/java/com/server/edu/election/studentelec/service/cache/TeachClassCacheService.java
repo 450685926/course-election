@@ -3,10 +3,8 @@ package com.server.edu.election.studentelec.service.cache;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -21,8 +19,6 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.server.edu.common.entity.Teacher;
-import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dto.CourseOpenDto;
@@ -126,32 +122,27 @@ public class TeachClassCacheService extends AbstractCacheService
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
-            TeachingClassCache courseClass = new TeachingClassCache();
+            TeachingClassCache tc = new TeachingClassCache();
             
-            courseClass.setCourseCode(lesson.getCourseCode());
-            courseClass.setCourseName(lesson.getCourseName());
-            courseClass.setCredits(lesson.getCredits());
-            courseClass.setNameEn(lesson.getCourseNameEn());
-            courseClass.setTeachClassId(teachingClassId);
-            courseClass.setTeachClassCode(lesson.getTeachingClassCode());
-            courseClass.setCampus(lesson.getCampus());
-            courseClass.setTeachClassType(lesson.getTeachClassType());
-            courseClass.setMaxNumber(lesson.getMaxNumber());
-            courseClass.setCurrentNumber(lesson.getCurrentNumber());
-            courseClass.setPublicElec(
+            tc.setCourseCode(lesson.getCourseCode());
+            tc.setCourseName(lesson.getCourseName());
+            tc.setCredits(lesson.getCredits());
+            tc.setNameEn(lesson.getCourseNameEn());
+            tc.setTeachClassId(teachingClassId);
+            tc.setTeachClassCode(lesson.getTeachingClassCode());
+            tc.setCampus(lesson.getCampus());
+            tc.setTeachClassType(lesson.getTeachClassType());
+            tc.setMaxNumber(lesson.getMaxNumber());
+            tc.setCurrentNumber(lesson.getCurrentNumber());
+            tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
             List<ClassTimeUnit> times =
-                gradeLoad.concatTime(collect, courseClass);
-            courseClass.setTimes(times);
+                gradeLoad.concatTime(collect, tc);
+            tc.setTimes(times);
             
-            String tName = getTeacherName(times);
-            if (StringUtils.isNotBlank(tName))
-            {
-                courseClass.setTeacherName(tName);
-            }
             numMap.put(teachingClassId.toString(),
-                courseClass.getCurrentNumber());
-            map.put(teachingClassId.toString(), courseClass);
+                tc.getCurrentNumber());
+            map.put(teachingClassId.toString(), tc);
         }
         // 缓存选课人数
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
@@ -165,38 +156,6 @@ public class TeachClassCacheService extends AbstractCacheService
         
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
         
-    }
-    
-    public String getTeacherName(List<ClassTimeUnit> times)
-    {
-        String tName = null;
-        if (CollectionUtil.isNotEmpty(times))
-        {
-            List<String> teacherSet = new ArrayList<>(times.stream()
-                .map(ClassTimeUnit::getTeacherCode)
-                .collect(Collectors.toSet()));
-            if (CollectionUtil.isNotEmpty(teacherSet))
-            {
-                String str = StringUtils.join(teacherSet, ",");
-                List<String> nameList = new ArrayList<>();
-                Collections.addAll(nameList, str.split(","));
-                Set<String> tnames = new HashSet<>(nameList);
-                List<Teacher> teachers = TeacherCacheUtil
-                    .getTeachers(tnames.toArray(new String[] {}));
-                if (CollectionUtil.isNotEmpty(teachers))
-                {
-                    List<String> names = teachers.stream().map(t -> {
-                        if (t == null)
-                            return "";
-                        return String
-                            .format("%s(%s)", t.getName(), t.getCode());
-                    }).collect(Collectors.toList());
-                    
-                    tName = StringUtils.join(names, ",");
-                }
-            }
-        }
-        return tName;
     }
     
     /**

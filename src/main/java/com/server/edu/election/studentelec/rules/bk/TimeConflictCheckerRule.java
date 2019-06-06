@@ -1,13 +1,12 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -27,9 +26,6 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
     public static final Boolean CHECK_CONFLICT = true;
     
     public static final Boolean CHECK_UN_CONFLICT = false;
-    
-    @Autowired
-    private TeachingClassDao teachingClassDao;
     
     @Override
     public boolean checkRule(ElecContext context,
@@ -54,11 +50,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
                         {
                             for (ClassTimeUnit v1 : times)
                             {
-                                if (v0.getDayOfWeek() == v1.getDayOfWeek()
-                                    && v0.getTimeStart() == v1.getTimeStart()
-                                    && v0.getWeekNumber().intValue() == v1
-                                        .getWeekNumber()
-                                        .intValue())
+                                if (conflict(v0, v1))
                                 {
                                     ElecRespose respose = context.getRespose();
                                     respose.getFailedReasons()
@@ -78,6 +70,38 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
             }
         }
         return true;
+    }
+    
+    /**
+     * 判断两个上课时间是否冲突
+     * 
+     * @param a
+     * @param b
+     * @return true冲突, false不冲突
+     * @see [类、类#方法、类#成员]
+     */
+    public static boolean conflict(ClassTimeUnit a, ClassTimeUnit b)
+    {
+        boolean c = a.getDayOfWeek() == b.getDayOfWeek()
+            && ((a.getTimeStart() <= b.getTimeStart()
+                && a.getTimeEnd() >= b.getTimeStart())
+                || (a.getTimeStart() <= b.getTimeEnd()
+                    && a.getTimeEnd() >= b.getTimeEnd()));
+        
+        if (!c && CollectionUtil.isNotEmpty(a.getWeeks())
+            && CollectionUtil.isNotEmpty(b.getWeeks()))
+        {
+            for (Integer w : b.getWeeks())
+            {
+                int binarySearch = Collections.binarySearch(a.getWeeks(), w);
+                if (binarySearch >= 0)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        return c;
     }
     
 }

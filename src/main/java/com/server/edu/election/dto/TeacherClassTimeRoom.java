@@ -1,8 +1,15 @@
-package com.server.edu.election.studentelec.context;
+package com.server.edu.election.dto;
 
-import java.util.List;
-
-public class ClassTimeUnit
+/**
+ * 教学班的上课时间和地点类
+ * 
+ * 
+ * @author  OuYangGuoDong
+ * @version  [版本号, 2019年6月5日]
+ * @see  [相关类/方法]
+ * @since  [产品/模块版本]
+ */
+public class TeacherClassTimeRoom
 {
     private Long teachClassId;
     
@@ -14,9 +21,9 @@ public class ClassTimeUnit
     
     private int dayOfWeek;
     
-    private List<Integer> weeks;
+    private Integer weekNumber;
     
-    private String value;
+    private String roomId;
     
     private String teacherCode;
     
@@ -70,24 +77,24 @@ public class ClassTimeUnit
         this.dayOfWeek = dayOfWeek;
     }
     
-    public String getValue()
+    public Integer getWeekNumber()
     {
-        return value;
+        return weekNumber;
     }
     
-    public void setValue(String value)
+    public void setWeekNumber(Integer weekNumber)
     {
-        this.value = value;
+        this.weekNumber = weekNumber;
     }
     
-    public List<Integer> getWeeks()
+    public String getRoomId()
     {
-        return weeks;
+        return roomId;
     }
     
-    public void setWeeks(List<Integer> weeks)
+    public void setRoomId(String roomId)
     {
-        this.weeks = weeks;
+        this.roomId = roomId;
     }
     
     public String getTeacherCode()
