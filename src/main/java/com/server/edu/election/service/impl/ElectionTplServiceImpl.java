@@ -52,13 +52,18 @@ public class ElectionTplServiceImpl implements ElectionTplService
         List<ElectionTplVo> tplList = new ArrayList<>();
         Example example = new Example(ElectionTpl.class);
         Example.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(condition.getCondition().getName()))
+        ElectionTplDto cond = condition.getCondition();
+        if (StringUtils.isNotBlank(cond.getName()))
         {
-            criteria.andEqualTo("name", condition.getCondition().getName());
+            criteria.andEqualTo("name", cond.getName());
         }
-        if (condition.getCondition().getStatus() != null)
+        if (StringUtils.isNotBlank(cond.getProjectId()))
         {
-            criteria.andEqualTo("status", condition.getCondition().getStatus());
+            criteria.andEqualTo("projectId", cond.getProjectId());
+        }
+        if (cond.getStatus() != null)
+        {
+            criteria.andEqualTo("status", cond.getStatus());
         }
         //选课方案模板
         List<ElectionTpl> list = electionTplDao.selectByExample(example);
