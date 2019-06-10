@@ -12,4 +12,5 @@ public interface ElcNoGradCouSubsService {
 	int add(ElcNoGradCouSubs elcNoGradCouSubs);
 	int update(ElcNoGradCouSubs elcNoGradCouSubs);
 	int delete(List<Long> ids);
+	List<ElcNoGradCouSubs> getElcNoGradCouSubs(String projectId,Long calendarId);
 }

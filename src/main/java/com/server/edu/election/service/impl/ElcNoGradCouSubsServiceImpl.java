@@ -16,6 +16,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcNoGradCouSubsDao;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.service.ElcNoGradCouSubsService;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -59,6 +60,8 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
 		}
+		List<ElcNoGradCouSubs> list = getElcNoGradCouSubs(elcNoGradCouSubs.getProjectId(),elcNoGradCouSubs.getCalendarId());
+		ElecContextUtil.setNoGradCouSubs(elcNoGradCouSubs.getProjectId(),elcNoGradCouSubs.getCalendarId(), list);
 		return result;
 	}
 
@@ -85,6 +88,8 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
 		}
+		List<ElcNoGradCouSubs> list = getElcNoGradCouSubs(elcNoGradCouSubs.getProjectId(),elcNoGradCouSubs.getCalendarId());
+		ElecContextUtil.setNoGradCouSubs(elcNoGradCouSubs.getProjectId(),elcNoGradCouSubs.getCalendarId(), list);
 		return result;
 	}
 	
@@ -102,7 +107,19 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("election.elcNoGradCouSubs")));
 		}
+		List<ElcNoGradCouSubs> elcNoGradCouSubsList = getElcNoGradCouSubs(list.get(0).getProjectId(),list.get(0).getCalendarId());
+		ElecContextUtil.setNoGradCouSubs(list.get(0).getProjectId(),list.get(0).getCalendarId(), elcNoGradCouSubsList);
 		return result;
+	}
+	
+	@Override
+	public List<ElcNoGradCouSubs> getElcNoGradCouSubs(String projectId,Long calendarId){
+		Example example = new Example(ElcNoGradCouSubs.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("projectId", projectId);
+		criteria.andEqualTo("calendarId", calendarId);
+		List<ElcNoGradCouSubs> list = elcNoGradCouSubsDao.selectByExample(example);
+		return list;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.util.CollectionUtil;
@@ -29,6 +30,8 @@ public class RetakeCourseUtil
         //替代课程待做
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();
+        Set<ElcNoGradCouSubs> noGradCouSubsCourses =  context.getNoGradCouSubsCourses();
+        ElcNoGradCouSubs elcNoGradCouSubs = noGradCouSubsCourses.stream().filter(c->courseCode.equals(c.getSubCourseId())).findFirst().orElse(new ElcNoGradCouSubs());
         List<CompletedCourse> list = new ArrayList<>();
         list.addAll(completedCourses);
         list.addAll(failedCourse);
@@ -38,7 +41,13 @@ public class RetakeCourseUtil
             count = list.stream()
                 .filter(vo -> vo.getCourseCode().equals(courseCode))
                 .count();
+            if(elcNoGradCouSubs!=null) {
+            	count = list.stream()
+                        .filter(vo -> vo.getCourseCode().equals(courseCode)).filter(c->elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode()))
+                        .count();
+            }
         }
+        
         return count > 0;
     }
     
