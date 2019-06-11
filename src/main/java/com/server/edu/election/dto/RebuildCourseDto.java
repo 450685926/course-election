@@ -2,14 +2,12 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 
-import java.io.Serializable;
-
 /**
  * @description:
  * @author: bear
  * @create: 2019-05-23 17:23
  */
-public class RebuildCourseDto implements Serializable{
+public class RebuildCourseDto{
     private Long calendarId;
     private String courseCode;
     private String courseName;

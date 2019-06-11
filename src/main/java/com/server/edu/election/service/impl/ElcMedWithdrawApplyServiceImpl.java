@@ -176,7 +176,6 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 	}
     //期中退课规则校验
 	private int medWithdrawCheck(Integer projectId, ElcCourseTake elcCourseTake, ElcMedWithdrawApplyLog log,int type) {
-		int result = Constants.ZERO;
 		int checkResult = Constants.ZERO;
 		//查询选择学期的退课规则和课程
 		ElcMedWithdrawRuleRefCourDto ruleDto = new ElcMedWithdrawRuleRefCourDto();
@@ -203,8 +202,6 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			List<TeachingClassVo> teachingClassList = teachingClassDao.findTeachingClass(elcResultQuery);
 			if(CollectionUtil.isEmpty(teachingClassList)) {
 				if(Constants.APPIY==type) {
-					log.setContent(I18nUtil.getMsg("elcMedWithdraw.teachingClassError"));
-					result = elcMedWithdrawApplyLogDao.insertSelective(log);
 					throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.teachingClassError"));
 				}
 				return checkResult;
@@ -215,8 +212,6 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 				    ROUND_HALF_UP).intValue();
 			if(elcMedWithdrawRules.getCourseEndWeek()>week) {
 				if(Constants.APPIY==type) {
-					log.setContent(I18nUtil.getMsg("elcMedWithdraw.courseEndWeek"));
-					result = elcMedWithdrawApplyLogDao.insertSelective(log);
 					throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.courseEndWeek"));
 				}
 				return checkResult;
@@ -239,8 +234,6 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 				String courses = stringBuilder.deleteCharAt(stringBuilder.length()-1).toString();
 				if(courses.contains(elcCourseTake.getCourseCode())) {
 					if(Constants.APPIY==type) {
-						log.setContent(I18nUtil.getMsg("elcMedWithdraw.englishCourse"));
-						result = elcMedWithdrawApplyLogDao.insertSelective(log);
 						throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.englishCourse"));
 					}
 					return checkResult;
@@ -257,8 +250,6 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 				String courses = electionConstants.getValue();
 				if(courses.contains(elcCourseTake.getCourseCode())) {
 					if(Constants.APPIY==type) {
-						log.setContent(I18nUtil.getMsg("elcMedWithdraw.pcCourse"));
-						result = elcMedWithdrawApplyLogDao.insertSelective(log);
 						throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.pcCourse"));
 					}
 					return checkResult;
@@ -283,8 +274,6 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 						List<String> courseCodes = elcRoundsCours.stream().map(ElcRoundsCour::getCourseCode).collect(Collectors.toList());
 						if(courseCodes.contains(elcCourseTake.getCourseCode())) {
 							if(Constants.APPIY==type) {
-								log.setContent(I18nUtil.getMsg("elcMedWithdraw.practiceCourse"));
-								result = elcMedWithdrawApplyLogDao.insertSelective(log);
 								throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.practiceCourse"));
 							}
 							return checkResult;
@@ -298,8 +287,6 @@ public class ElcMedWithdrawApplyServiceImpl implements ElcMedWithdrawApplyServic
 			if(elcMedWithdrawRules.getRetakeCourse()) {
 				if(Constants.REBUILD_CALSS.equals(elcCourseTake.getCourseTakeType().toString())) {
 					if(Constants.APPIY==type) {
-						log.setContent(I18nUtil.getMsg("elcMedWithdraw.retakeCourse"));
-						result = elcMedWithdrawApplyLogDao.insertSelective(log);
 						throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.retakeCourse"));
 					}
 					return checkResult;

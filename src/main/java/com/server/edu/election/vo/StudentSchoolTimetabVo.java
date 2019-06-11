@@ -1,10 +1,10 @@
 package com.server.edu.election.vo;
 
+import java.util.List;
+
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.entity.Student;
-
-import java.util.List;
 
 /**
  * @description: 学生课表
@@ -12,6 +12,10 @@ import java.util.List;
  * @create: 2019-02-15 15:15
  */
 public class StudentSchoolTimetabVo extends Student {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private Double totalCredits;
     private List<StudentSchoolTimetab> list;
     private List<TimeTable> timeTables;

@@ -12,6 +12,11 @@ import com.server.edu.election.entity.ExemptionApplyManage;
 @CodeI18n
 public class ExemptionApplyManageVo extends ExemptionApplyManage{
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     @Code2Text(transformer="X_YX")
     private String faculty;
 

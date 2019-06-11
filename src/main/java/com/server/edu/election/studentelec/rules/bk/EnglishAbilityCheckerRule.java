@@ -2,8 +2,8 @@ package com.server.edu.election.studentelec.rules.bk;
 
 import org.springframework.stereotype.Component;
 
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 
 /**
@@ -16,9 +16,9 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 @Component("EnglishAbilityCheckerRule")
 public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutor {
 
-	private static final String PARAM_ENG_COURSES = "PARAM_ENG_COURSE_ABILITY_MAP";
+//	private static final String PARAM_ENG_COURSES = "PARAM_ENG_COURSE_ABILITY_MAP";
 
-	private static final String PARAM_ENG_STD = "PARAM_ENG_STD_ABILITIES";
+//	private static final String PARAM_ENG_STD = "PARAM_ENG_STD_ABILITIES";
 
 	/**
 	 * 执行选课操作时

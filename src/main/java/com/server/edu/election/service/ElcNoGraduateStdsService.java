@@ -1,12 +1,11 @@
 package com.server.edu.election.service;
 
+import java.util.List;
+
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.GraduateExcelDto;
-import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.vo.ElcNoGraduateStdsVo;
-
-import java.util.List;
 
 public interface ElcNoGraduateStdsService {
     /**查询结业生名单*/

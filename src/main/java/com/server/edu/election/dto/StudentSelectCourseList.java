@@ -8,6 +8,10 @@ import com.server.edu.election.entity.Student;
  * @create: 2019-02-19 17:11
  */
 public class StudentSelectCourseList extends Student{
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private Long calendarId;
     private String calendarName;
     private String courseCode;

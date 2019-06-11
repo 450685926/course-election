@@ -8,6 +8,10 @@ import com.server.edu.election.entity.ElcNoGraduateStds;
  * @create: 2019-02-27 22:15
  */
 public class GraduateExcelDto extends ElcNoGraduateStds {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private String graduateYearStr;
 
     public String getGraduateYearStr() {

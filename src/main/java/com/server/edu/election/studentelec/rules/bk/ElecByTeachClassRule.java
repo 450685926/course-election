@@ -1,16 +1,15 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dto.ElcCourseLimitDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
+import com.server.edu.election.dto.ElcCourseLimitDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -46,7 +45,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 
     private static final String IS_OVERSEAS_ = "1";
     private static final String IS_NOT_OVERSEAS_ = "0";
-    private static final String NOT_DISTINGYISH_SEX = "0";//不区分性别
+//    private static final String NOT_DISTINGYISH_SEX = "0";//不区分性别
     private static final String MALE = "1";//男性
     private static final String FEMALE = "2";//女性
 

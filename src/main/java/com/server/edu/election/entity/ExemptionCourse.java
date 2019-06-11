@@ -1,13 +1,14 @@
 package com.server.edu.election.entity;
 
-import com.server.edu.dictionary.annotation.Code2Text;
-import com.server.edu.dictionary.annotation.CodeI18n;
-
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
 
-@CodeI18n
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 @Table(name = "exemption_course_t")
 public class ExemptionCourse implements Serializable {
     /**
@@ -17,7 +18,6 @@ public class ExemptionCourse implements Serializable {
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     /**
      * 课程代码
@@ -30,11 +30,6 @@ public class ExemptionCourse implements Serializable {
      */
     @Column(name = "CALENDAR_ID_")
     private Long calendarId;
-
-
-
-
-
 
     /**
      * 备注

@@ -1,11 +1,10 @@
 package com.server.edu.election.dto;
 
+import java.io.Serializable;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-
-
-import java.io.Serializable;
 
 /**
  * @description: 预警学生选课
@@ -14,6 +13,10 @@ import java.io.Serializable;
  */
 @CodeI18n
 public class LoserStuElcCourse implements Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private Long id;
     private Long calendarId;
     private String studentId;
