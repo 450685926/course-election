@@ -8,6 +8,10 @@ import com.server.edu.election.entity.RebuildCourseNoChargeType;
  * @create: 2019-05-30 12:53
  */
 public class RebuildCourseNoChargeTypeVo extends RebuildCourseNoChargeType {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private String deptId;
 
     public String getDeptId() {

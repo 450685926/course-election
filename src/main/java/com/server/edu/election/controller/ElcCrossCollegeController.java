@@ -29,7 +29,7 @@ public class ElcCrossCollegeController
     public RestResult<PageResult<Courses>> getStuCrossCourse(PageCondition<String> page)
     {
         PageResult<Courses> pageResult = new PageResult<>();
-        String studentId = page.getCondition();
+        // String studentId = page.getCondition();
         List<Courses> data = new ArrayList<>();
         Courses e = new Courses();
         e.setId(3L);

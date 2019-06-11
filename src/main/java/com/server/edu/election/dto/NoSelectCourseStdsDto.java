@@ -3,15 +3,13 @@ package com.server.edu.election.dto;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
-import java.io.Serializable;
-
 /**
  * @description: 未选课学生
  * @author: bear
  * @create: 2019-05-22 17:14
  */
 @CodeI18n
-public class NoSelectCourseStdsDto implements Serializable{
+public class NoSelectCourseStdsDto{
     private Long calendarId;
     private Integer grade;
     @Code2Text(transformer = "X_YX")

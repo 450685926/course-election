@@ -1,15 +1,13 @@
 package com.server.edu.election.rpc;
 
+import java.util.List;
+
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.StudentScore;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.StudentScoreVo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * 成绩模块微服务调用
@@ -20,10 +18,6 @@ import java.util.List;
  * @since [产品/模块版本]
  */
 public class ScoreServiceInvoker {
-    private static Logger LOG =
-            LoggerFactory.getLogger(ScoreServiceInvoker.class);
-
-
     public static List<StudentScoreVo> findStuScoreBest(String studentCode)
     {
         @SuppressWarnings("unchecked")

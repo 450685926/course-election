@@ -1,8 +1,5 @@
 package com.server.edu.election.studentelec.context;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -10,7 +7,7 @@ import java.util.Objects;
  * @author: bear
  * @create: 2019-03-12 15:44
  */
-public class CourseGroup implements Serializable {
+public class CourseGroup{
     private Long label;
     private Double crrdits;
     /**通识标识 1 为通识 0 非通识*/
