@@ -8,6 +8,11 @@ import com.server.edu.election.entity.Student;
  * @create: 2019-02-13 16:14
  */
 public class StudentVo extends Student {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     private Integer rebuildNumber;
 
     private Long calendarId;

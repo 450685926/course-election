@@ -1,13 +1,11 @@
 package com.server.edu.election.dto;
 
-import java.io.Serializable;
-
 /**
  * @description: 学生缴费详情
  * @author: bear
  * @create: 2019-05-27 10:52
  */
-public class StudentRePaymentDto implements Serializable {
+public class StudentRePaymentDto{
     private Long calendarId;
     private String courseCode;
     private String courseName;

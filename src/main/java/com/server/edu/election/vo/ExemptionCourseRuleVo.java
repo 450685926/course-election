@@ -1,9 +1,9 @@
 package com.server.edu.election.vo;
 
+import java.util.List;
+
 import com.server.edu.election.entity.ExemptionCourseMaterial;
 import com.server.edu.election.entity.ExemptionCourseRule;
-
-import java.util.List;
 
 /**
  * @description: 免修免考申请规则
@@ -11,6 +11,11 @@ import java.util.List;
  * @create: 2019-02-01 15:59
  */
 public class ExemptionCourseRuleVo extends ExemptionCourseRule {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     private String calendarName;
 
     private List<ExemptionCourseMaterial> list;

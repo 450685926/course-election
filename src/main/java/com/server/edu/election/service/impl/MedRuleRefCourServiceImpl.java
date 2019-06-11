@@ -35,7 +35,7 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		List<ElcMedWithdrawRuleRefCourVo> list = new ArrayList<>();
-		if(elcMedWithdrawRuleRefCourDto.getIsOpen()==elcMedWithdrawRuleRefCourDto.ISOPEN) {
+		if(elcMedWithdrawRuleRefCourDto.getIsOpen() == ElcMedWithdrawRuleRefCourDto.ISOPEN) {
 			list =elcMedWithdrawRuleRefCourDao.selectMedRuleRefCours(condition.getCondition());
 		}else {
 			list = elcMedWithdrawRuleRefCourDao.selectUnMedRuleRefCours(condition.getCondition());

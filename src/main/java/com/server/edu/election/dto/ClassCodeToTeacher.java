@@ -2,9 +2,6 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-import com.sun.javafx.binding.StringFormatter;
-
-import java.io.Serializable;
 
 /**
  * @description: 老师课表
@@ -12,7 +9,7 @@ import java.io.Serializable;
  * @create: 2019-02-16 17:34
  */
 @CodeI18n
-public class ClassCodeToTeacher implements Serializable {
+public class ClassCodeToTeacher {
     private Long calendarId;
     private String calendarName;
     private String teacherCode;

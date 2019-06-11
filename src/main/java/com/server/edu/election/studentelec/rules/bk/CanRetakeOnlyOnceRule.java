@@ -1,15 +1,10 @@
 package com.server.edu.election.studentelec.rules.bk;
 
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.sun.org.apache.regexp.internal.RE;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
