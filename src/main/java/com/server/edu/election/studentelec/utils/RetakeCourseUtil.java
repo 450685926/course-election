@@ -3,10 +3,15 @@ package com.server.edu.election.studentelec.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -30,6 +35,10 @@ public class RetakeCourseUtil
         //替代课程待做
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();
+        /**培养计划课程 */
+        Set<PlanCourse> planCourses =context.getPlanCourses();
+        /**学生信息 */
+        StudentInfoCache studentInfo = context.getStudentInfo();
         Set<ElcNoGradCouSubs> noGradCouSubsCourses =  context.getNoGradCouSubsCourses();
         ElcNoGradCouSubs elcNoGradCouSubs = noGradCouSubsCourses.stream().filter(c->courseCode.equals(c.getSubCourseId())).findFirst().orElse(new ElcNoGradCouSubs());
         List<CompletedCourse> list = new ArrayList<>();
@@ -38,14 +47,30 @@ public class RetakeCourseUtil
         long count = 0L;
         if (CollectionUtil.isNotEmpty(list))
         {
-            count = list.stream()
-                .filter(vo -> vo.getCourseCode().equals(courseCode))
-                .count();
-            if(elcNoGradCouSubs!=null) {
-            	count = list.stream()
-                        .filter(vo -> vo.getCourseCode().equals(courseCode)).filter(c->elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode()))
-                        .count();
-            }
+            if(studentInfo.isGraduate()) {
+                if(elcNoGradCouSubs!=null) {
+                	count = list.stream()
+                            .filter(vo -> vo.getCourseCode().equals(courseCode)).filter(c->elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode()))
+                            .count();
+                }
+            }else {
+            	if(CollectionUtil.isNotEmpty(planCourses)) {
+                	List<PlanCourse> subCourseCodes = planCourses.stream()
+                			.filter(c->StringUtils.isNotBlank(c.getSubCourseCode()))
+                			.collect(Collectors.toList());
+                	if(CollectionUtil.isNotEmpty(subCourseCodes)) {
+                		 List<String> subCourses = subCourseCodes.stream()
+                				 .filter(c->courseCode.equals(c.getSubCourseCode()))
+                				 .map(PlanCourse::getCourseCode)
+                				 .collect(Collectors.toList());
+                		 if(CollectionUtil.isNotEmpty(subCourses)) {
+                			 count = list.stream()
+                					 .filter(vo -> vo.getCourseCode().equals(courseCode))
+                					 .filter(vo->subCourses.contains(vo.getCourseCode())).count();
+                		 }
+                	}
+            	}
+			}
         }
         
         return count > 0;
