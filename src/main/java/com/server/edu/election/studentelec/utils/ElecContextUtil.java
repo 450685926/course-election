@@ -23,8 +23,6 @@ import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -301,11 +299,10 @@ public class ElecContextUtil
     /**
      * 获取替代课程
      */
-    public static List<ElcNoGradCouSubs> getNoGradCouSubs(Long calendarId){
-        Session session = SessionUtils.getCurrentSession();
+    public static List<ElcNoGradCouSubs> getNoGradCouSubs(String projectId, Long calendarId){
     	ValueOperations<String, String> opsForValue =
                 getRedisTemplate().opsForValue();
-            String redisKey = Keys.getReplaceCourseKey(session.getCurrentManageDptId(), calendarId);
+            String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
             String value = opsForValue.get(redisKey);
             if (StringUtils.isEmpty(value))
             {
@@ -317,7 +314,7 @@ public class ElecContextUtil
     /**
      * 设置替代课程
      */
-    public static void setNoGradCouSubs(String projectId,Long calendarId, List<ElcNoGradCouSubs> list)
+    public static void setNoGradCouSubs(String projectId, Long calendarId, List<ElcNoGradCouSubs> list)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();

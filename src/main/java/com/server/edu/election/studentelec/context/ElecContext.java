@@ -3,7 +3,6 @@ package com.server.edu.election.studentelec.context;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -22,9 +21,6 @@ public class ElecContext
     
     /** 已完成通過课程 */
     private Set<CompletedCourse> completedCourses;
-    
-    /** 替代课程 */
-    private Set<ElcNoGradCouSubs> noGradCouSubsCourses;
     
     /** 本学期已选择课程 */
     private Set<SelectedCourse> selectedCourses;
@@ -78,7 +74,6 @@ public class ElecContext
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
         elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElectionApply.class);
-        noGradCouSubsCourses = new HashSet<>(ElecContextUtil.getNoGradCouSubs(calendarId));
     }
     
     public ElecContext(String studentId, Long calendarId,
@@ -207,21 +202,6 @@ public class ElecContext
 	public void setElecApplyCourses(Set<ElectionApply> elecApplyCourses) {
 		this.elecApplyCourses = elecApplyCourses;
 	}
-
-	public Set<ElcNoGradCouSubs> getNoGradCouSubsCourses() {
-		return noGradCouSubsCourses;
-	}
-
-	public void setNoGradCouSubsCourses(Set<ElcNoGradCouSubs> noGradCouSubsCourses) {
-		this.noGradCouSubsCourses = noGradCouSubsCourses;
-	}
-	
-	
-
-
-	
-	
-    
     
     
 }

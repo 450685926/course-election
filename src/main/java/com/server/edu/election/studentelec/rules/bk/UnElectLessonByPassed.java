@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
@@ -19,6 +21,8 @@ import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.election.studentelec.service.cache.RoundCacheService;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -39,7 +43,10 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutor
     public boolean checkRule(ElecContext context,
         TeachingClassCache courseClass)
     {
-    	Set<ElcNoGradCouSubs> noGradCouSubsCourses = context.getNoGradCouSubsCourses();
+		RoundDataProvider bean = SpringUtils.getBean(RoundDataProvider.class);
+		ElectionRounds round = bean.getRound(context.getRequest().getRoundId());
+		List<ElcNoGradCouSubs> noGradCouSubsCourses = ElecContextUtil.getNoGradCouSubs(round.getProjectId(),
+				round.getCalendarId());
         /** 已完成课程 */
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         /**培养计划课程 */
@@ -63,7 +70,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutor
                     ElcNoGradCouSubs  elcNoGradCouSubs=  noGradCouSubsCourses.stream()
                     		.filter(c->calendarId.equals(c.getCalendarId()))
                     		.filter(c->courseClass.getCourseCode().equals(c.getSubCourseId()))
-                    		.findFirst().orElse(new ElcNoGradCouSubs());
+                    		.findFirst().orElse(null);
                     if(elcNoGradCouSubs!=null) {
                         count = completedCourses.stream().filter(c->elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode())).count();
                     }
