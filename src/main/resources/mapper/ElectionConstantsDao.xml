@@ -30,4 +30,9 @@
     SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='ENGLISH_COURSE_CODES'
   </select>
   
+    <select id="findMaxFailCredits" resultType="java.lang.String">
+    SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='MAXFAILCREDITS'
+  </select>
+  
+  
 </mapper>
