@@ -17,7 +17,6 @@ import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.entity.ElcCourseTake;
@@ -62,9 +61,6 @@ public class StudentElecServiceImpl implements StudentElecService
     
     @Autowired
     private StudentDao stuDao;
-    
-    @Autowired
-    private ElectionApplyDao electionApplyDao;
     
     @Autowired
     private ElectionApplyService electionApplyService;
@@ -269,6 +265,12 @@ public class StudentElecServiceImpl implements StudentElecService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
+            //更新选课申请数据
+            ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, round.getCalendarId());
+            electionApplyService.update(studentId,round.getCalendarId(),courseCode,elecContextUtil);
+            // 更新缓存
+            dataProvider.incrementElecNumber(teachClassId);
+            
             respose.getSuccessCourses().add(teachClassId);
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTeachClassId(teachClassId);
@@ -276,11 +278,6 @@ public class StudentElecServiceImpl implements StudentElecService
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
-            //更新选课申请数据
-            ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, round.getCalendarId());
-            electionApplyService.update(studentId,round.getCalendarId(),courseCode,elecContextUtil);
-            // 更新缓存中的数据
-            dataProvider.incrementElecNumber(teachClassId);
         }
     }
     
