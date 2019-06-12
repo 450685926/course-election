@@ -149,6 +149,6 @@ public interface ElcCourseTakeDao
     List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
 
     
-    int editStudyType(@Param("courseTakeType") Integer courseTakeType,@Param("ids") List<Long> ids);
+    int editStudyType(@Param("courseTakeType") Integer courseTakeType,@Param("ids") List<Long> ids, @Param("caladerId") Long caladerId);
 
 }

@@ -389,7 +389,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     	if(elcCourseTakeDto.getCourseTakeType()==null||CollectionUtil.isEmpty(elcCourseTakeDto.getIds())) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
     	}
-    	int result = courseTakeDao.editStudyType(elcCourseTakeDto.getCourseTakeType(), elcCourseTakeDto.getIds());
+    	int result = courseTakeDao.editStudyType(elcCourseTakeDto.getCourseTakeType(), elcCourseTakeDto.getIds(),elcCourseTakeDto.getCalendarId());
     	return result;
     }
 
