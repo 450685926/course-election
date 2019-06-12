@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.server.edu.common.jackson.LongJsonSerializer;
 import com.server.edu.common.validator.DelGroup;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
@@ -22,6 +24,7 @@ public class ElcCourseTake implements Serializable
      */
     @Id
     @Column(name = "ID_")
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
     
     /**
