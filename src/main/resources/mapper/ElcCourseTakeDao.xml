@@ -687,7 +687,7 @@
 
    <update id="editStudyType">
       update elc_course_takes_t SET COURSE_TAKE_TYPE_ = #{courseTakeType}
-      where CALENDAR_ID_ = #{caladerId} and ID_ in
+      where  ID_ in
         <foreach collection="ids" open="(" separator="," close=")" item="id">
             #{id}
          </foreach>
