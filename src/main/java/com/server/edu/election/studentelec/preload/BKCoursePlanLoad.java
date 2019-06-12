@@ -56,6 +56,7 @@ public class BKCoursePlanLoad extends DataProLoad
                         pl.setCourseCode(planCourseTypeDto.getCourseCode());
                         pl.setCourseName(planCourseTypeDto.getName());
                         pl.setNameEn(planCourseTypeDto.getNameEn());
+                        pl.setSubCourseCode(planCourseTypeDto.getSubCourseCode());
                         pl.setCredits(planCourseTypeDto.getCredits());
                         String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                         pl.setCalendarName(calendarName);
