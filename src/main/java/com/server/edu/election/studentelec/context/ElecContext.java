@@ -202,11 +202,6 @@ public class ElecContext
 	public void setElecApplyCourses(Set<ElectionApply> elecApplyCourses) {
 		this.elecApplyCourses = elecApplyCourses;
 	}
-
-
-	
-	
-    
     
     
 }

@@ -1,16 +1,15 @@
 package com.server.edu.election.dto;
 
-import com.server.edu.election.vo.StudentVo;
-
-import java.io.Serializable;
 import java.util.List;
+
+import com.server.edu.election.vo.StudentVo;
 
 /**
  * @description: 预览点名册
  * @author: bear
  * @create: 2019-04-29 10:32
  */
-public class PreViewRollDto implements Serializable{
+public class PreViewRollDto{
     private List<StudentVo> studentsList;
     /**
      * 班级人数

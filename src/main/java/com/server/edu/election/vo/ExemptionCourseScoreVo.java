@@ -12,6 +12,11 @@ import com.server.edu.election.entity.ExemptionCourseScore;
 
 @CodeI18n
 public class ExemptionCourseScoreVo extends ExemptionCourseScore {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     private Integer grade;
 
     @Code2Text(transformer = "X_PYCC")
@@ -21,6 +26,16 @@ public class ExemptionCourseScoreVo extends ExemptionCourseScore {
     private String faculty;
 
     private String courseName;
+
+    private String studentName;
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
 
     public Integer getGrade() {
         return grade;

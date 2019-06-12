@@ -1,10 +1,10 @@
 package com.server.edu.election.vo;
 
+import java.io.Serializable;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-
-import java.io.Serializable;
 
 /**
  * @description: 未缴费课程名单
@@ -13,6 +13,10 @@ import java.io.Serializable;
  */
 @CodeI18n
 public class RebuildCourseNoChargeList implements Serializable{
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private Long id;
     private Long calendarId;
     private String studentCode;

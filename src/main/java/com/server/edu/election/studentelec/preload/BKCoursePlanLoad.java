@@ -5,22 +5,17 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
-import com.server.edu.election.dao.ElectionApplyCoursesDao;
-import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.PlanCourse;
-import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -33,12 +28,6 @@ public class BKCoursePlanLoad extends DataProLoad
 {
     Logger log = LoggerFactory.getLogger(getClass());
     
-	@Autowired
-	private ElectionApplyCoursesDao electionApplyCoursesDao;
-	
-	@Autowired
-	private RoundDataProvider roundDataProvider;
-    
     @Override
     public int getOrder()
     {
@@ -49,50 +38,12 @@ public class BKCoursePlanLoad extends DataProLoad
     public void load(ElecContext context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        /*List<String> courseCodes =
-            CultureSerivceInvoker.getCourseCodes(stu.getStudentId());
-        
-        if (CollectionUtil.isNotEmpty(courseCodes))
-        {
-            log.info("plan course size:{}", courseCodes.size());
-            
-            Set<ElecCourse> planCourses = context.getPlanCourses();
-            
-            Example example = new Example(Course.class);
-            example.createCriteria().andIn("code", courseCodes);
-            List<Course> list = courseDao.selectByExample(example);
-            
-            for (Course course : list)
-            {
-                ElecCourse c = new ElecCourse();
-                c.setCourseCode(course.getCode());
-                c.setCourseName(course.getName());
-                c.setCredits(course.getCredits());
-                c.setNameEn(course.getNameEn());
-                planCourses.add(c);
-            }
-        }*/
-        ElecRequest request = context.getRequest();
-        Long roundId = request.getRoundId();
-        ElectionRounds electionRounds = roundDataProvider.getRound(roundId);
-//        ElectionApplyCoursesDto dto = new ElectionApplyCoursesDto();
-//        dto.setCalendarId(electionRounds.getCalendarId());
-//        List<ElectionApplyCoursesVo> applyCourses = electionApplyCoursesDao.selectApplyCourse(dto);
-//        List<String> courses = new ArrayList<>();
-//        if(CollectionUtil.isNotEmpty(applyCourses)) {
-//        	courses = applyCourses.stream().map(ElectionApplyCoursesVo::getCode).collect(Collectors.toList());
-//        }
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(stu.getStudentId());
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
-            
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
             Set<ElecCourse> publicCourses = context.getPublicCourses();//通识选修课
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
-//            Set<String> applyCourse = context.getApplyCourse();//选课申请课程
-//            for(String course:courses) {
-//            	applyCourse.add(course);
-//            }
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
@@ -105,6 +56,7 @@ public class BKCoursePlanLoad extends DataProLoad
                         pl.setCourseCode(planCourseTypeDto.getCourseCode());
                         pl.setCourseName(planCourseTypeDto.getName());
                         pl.setNameEn(planCourseTypeDto.getNameEn());
+                        pl.setSubCourseCode(planCourseTypeDto.getSubCourseCode());
                         pl.setCredits(planCourseTypeDto.getCredits());
                         String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                         pl.setCalendarName(calendarName);
@@ -120,11 +72,8 @@ public class BKCoursePlanLoad extends DataProLoad
                             c.setCalendarName(calendar);
                             publicCourses.add(c);
                         }
-
                     }
-
                 }
-
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
                     CourseGroup courseGroup=new CourseGroup();
                     courseGroup.setLabel(label);
@@ -135,7 +84,6 @@ public class BKCoursePlanLoad extends DataProLoad
                         courseGroup.setLimitType("0");
                     }
                     courseGroups.add(courseGroup);
-
                 }
             }
         }

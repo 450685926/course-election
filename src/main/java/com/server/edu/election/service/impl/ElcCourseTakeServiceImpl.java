@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
@@ -28,14 +31,17 @@ import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -318,5 +324,73 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             courseTakeDao.findStudentList(condition.getCondition());
         return new PageResult<>(page);
     }
+
+    /**
+    *@Description: 查询学籍异动学生选课信息
+    *@Param:
+    *@return: 
+    *@Author: bear
+    *@date: 2019/6/5 16:29
+    */
+    @Override
+    public List<ElcCourseTakeVo> page2StuAbnormal(ElcCourseTakeQuery query) {
+        String studentId = query.getStudentId();
+        Long calendarId = query.getCalendarId();
+        //查询学生已选课程
+        List<ElcCourseTakeVo> elcList =new ArrayList<>();
+        PageCondition<ElcCourseTakeQuery> page =new PageCondition<>();
+        page.setPageNum_(1);
+        page.setPageSize_(1000);
+        page.setCondition(query);
+        PageResult<ElcCourseTakeVo> listPage = listPage(page);
+        if(listPage!=null){
+            elcList = listPage.getList();
+        }
+        if(CollectionUtil.isEmpty(elcList)){
+            return null;
+        }
+        List<StudentScoreVo> stuScore = ScoreServiceInvoker.findStuScoreByCalendarIdAndStudentCode(calendarId, studentId);
+        if(CollectionUtil.isEmpty(stuScore)){
+            return elcList;
+        }
+        List<String> codes = stuScore.stream().filter(vo ->StringUtils.isNotBlank(vo.getCourseCode())).map(StudentScoreVo::getCourseCode).collect(Collectors.toList());
+        List<ElcCourseTakeVo> collect = elcList.stream().filter(vo -> !codes.contains(vo.getCourseCode())).collect(Collectors.toList());
+        return collect;
+    }
+
+    /**
+     *@Description: 学籍异动学生退课
+     *@Param:
+     *@return:
+     *@Author: bear
+     *@date: 2019/6/5 16:29
+     */
+    @Override
+    public void withdraw2StuAbnormal(ElcCourseTakeQuery query) {
+        List<ElcCourseTakeVo> elcCourseTakeVos = page2StuAbnormal(query);
+        List<ElcCourseTake> list =new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(elcCourseTakeVos)){
+            for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                ElcCourseTake courseTake=new ElcCourseTake();
+                courseTake.setCalendarId(elcCourseTakeVo.getCalendarId());
+                courseTake.setStudentId(elcCourseTakeVo.getStudentId());
+                courseTake.setTeachingClassId(elcCourseTakeVo.getTeachingClassId());
+                list.add(courseTake);
+            }
+            withdraw(list);
+        }
+    }
+
+
     
+    @Override
+    @Transactional
+	public int editStudyType(ElcCourseTakeDto elcCourseTakeDto) {
+    	if(elcCourseTakeDto.getCourseTakeType()==null||CollectionUtil.isEmpty(elcCourseTakeDto.getIds())) {
+			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+    	}
+    	int result = courseTakeDao.editStudyType(elcCourseTakeDto.getCourseTakeType(), elcCourseTakeDto.getIds());
+    	return result;
+    }
+
 }

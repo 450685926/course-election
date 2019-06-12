@@ -1,13 +1,11 @@
 package com.server.edu.election.dto;
 
-import java.io.Serializable;
-
 /**
  * @description: 免修免考成绩查询条件
  * @author: bear
  * @create: 2019-01-31 09:49
  */
-public class ExemptionCourseScoreDto implements Serializable{
+public class ExemptionCourseScoreDto{
     private  Long calendarId;
     private Integer grade;
     private String  trainingCategory;
@@ -19,8 +17,25 @@ public class ExemptionCourseScoreDto implements Serializable{
     private String  registrationStatus;
     private String  isOverseas;
     private String enrolSeason;
-    private String condition;
+    private String keyWord;
     private String calendarName;
+    private String leaveSchool;
+
+    public String getKeyWord() {
+        return keyWord;
+    }
+
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
+    }
+
+    public String getLeaveSchool() {
+        return leaveSchool;
+    }
+
+    public void setLeaveSchool(String leaveSchool) {
+        this.leaveSchool = leaveSchool;
+    }
 
     public String getCalendarName() {
         return calendarName;
@@ -118,11 +133,5 @@ public class ExemptionCourseScoreDto implements Serializable{
         this.enrolSeason = enrolSeason;
     }
 
-    public String getCondition() {
-        return condition;
-    }
 
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
 }

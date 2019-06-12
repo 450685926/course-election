@@ -51,8 +51,8 @@ public class LogToDBTimer {
 	@Autowired
 	private EleLogDao eld;
 
-	//@Scheduled(cron = "0 10 0 * * ? ") // 每天0点10分
-	 @Scheduled(cron = "0 0/1 * * * ?")//每分钟
+	@Scheduled(cron = "0 10 0 * * ? ") // 每天0点10分
+	// @Scheduled(cron = "0 0/1 * * * ?")//每分钟
 	// @Scheduled(cron = "0 0 0/1 * * ?")//每小时
 	public void output2FileTimer() {
 		LocalDate preDate = LocalDate.now().minusDays(1);
@@ -138,6 +138,7 @@ public class LogToDBTimer {
 						//ald.addOperateLog(al);
 					}
 					eld.addOperateLog(entityList);
+					entityList.clear();
 				}
 			}
 		}

@@ -38,6 +38,9 @@ public class Keys
     /**选课申请管理课程 elec-calendarId-%s-applyCourse*/
     private static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
     
+    /**替代课程 elec-projectId-calendarId-%s-replaceCourse*/
+    private static final String REPLACE_COURSE = "elec-projectId-%s-calendarId-%s-replaceCourse";
+    
     /**轮次上一学期 elec-roundPreSemester-%s */
     private static final String ROUND_PRESEMESTER = "elec-roundPreSemester-%s";
     
@@ -103,5 +106,10 @@ public class Keys
     public static String getRoundPresemesterKey(Long roundId)
     {
         return String.format(Keys.ROUND_PRESEMESTER, roundId);
+    }
+    
+    public static String getReplaceCourseKey(String projectId,Long calendarId)
+    {
+        return String.format(Keys.REPLACE_COURSE, projectId,calendarId);
     }
 }

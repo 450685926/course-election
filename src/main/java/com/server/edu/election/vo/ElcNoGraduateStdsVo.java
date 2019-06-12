@@ -12,6 +12,10 @@ import com.server.edu.election.entity.ElcNoGraduateStds;
 
 @CodeI18n
 public class ElcNoGraduateStdsVo extends ElcNoGraduateStds {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private String studentName;
     private Integer grade;
     @Code2Text(transformer = "X_PYCC")

@@ -2,9 +2,6 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-import com.sun.javafx.binding.StringFormatter;
-
-import java.io.Serializable;
 
 /**
  * @description: 老师课表
@@ -12,7 +9,7 @@ import java.io.Serializable;
  * @create: 2019-02-16 17:34
  */
 @CodeI18n
-public class ClassCodeToTeacher implements Serializable {
+public class ClassCodeToTeacher {
     private Long calendarId;
     private String calendarName;
     private String teacherCode;
@@ -26,7 +23,7 @@ public class ClassCodeToTeacher implements Serializable {
     private Integer sex;
     private String nature;
     private Long teachingClassId;
-    private String condition;//查询条件
+    private String keyWord;//查询条件
 
     public Long getTeachingClassId() {
         return teachingClassId;
@@ -44,12 +41,12 @@ public class ClassCodeToTeacher implements Serializable {
         this.nature = nature;
     }
 
-    public String getCondition() {
-        return condition;
+    public String getKeyWord() {
+        return keyWord;
     }
 
-    public void setCondition(String condition) {
-        this.condition = condition;
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
     }
 
     public Long getCalendarId() {

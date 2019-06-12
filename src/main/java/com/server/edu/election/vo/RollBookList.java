@@ -3,15 +3,13 @@ package com.server.edu.election.vo;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
-import java.io.Serializable;
-
 /**
  * @description: 点名册
  * @author: bear
  * @create: 2019-02-14 17:54
  */
 @CodeI18n
-public class RollBookList implements Serializable {
+public class RollBookList {
     private Long id;
     private Long calendarId;
     private Long teachingClassId;

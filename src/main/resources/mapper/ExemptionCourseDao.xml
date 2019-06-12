@@ -25,8 +25,8 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
                 and ct.TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-                and (ct.CODE_ like concat('%',#{courseName},'%') or ct.NAME_ like concat('%',#{courseName},'%') )
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+                and (ct.CODE_ like concat('%',#{keyWord},'%') or ct.NAME_ like concat('%',#{keyWord},'%') )
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
                 and ct.FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR}

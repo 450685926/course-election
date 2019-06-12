@@ -11,8 +11,18 @@ public class PlanCourse extends ElecCourse
 
     /**学期周学时*/
     private String semester;
+    /**个人替代课程*/
+    private String subCourseCode;
+    
+    public String getSubCourseCode() {
+		return subCourseCode;
+	}
 
-    public Integer getWeekType() {
+	public void setSubCourseCode(String subCourseCode) {
+		this.subCourseCode = subCourseCode;
+	}
+
+	public Integer getWeekType() {
         return weekType;
     }
 

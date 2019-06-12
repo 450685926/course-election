@@ -5,7 +5,12 @@ import java.util.List;
 import com.server.edu.election.entity.ElectionTpl;
 
 public class ElectionTplVo extends ElectionTpl{
-	private List<ElectionRuleVo> list;
+	/**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private List<ElectionRuleVo> list;
 	
 	private String rules;
 	

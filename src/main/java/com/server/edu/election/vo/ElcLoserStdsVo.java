@@ -1,11 +1,10 @@
 package com.server.edu.election.vo;
 
+import java.util.List;
+
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcLoserStds;
-
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * @description:
@@ -15,6 +14,10 @@ import java.util.List;
 
 @CodeI18n
 public class ElcLoserStdsVo extends ElcLoserStds {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private String calendarName;
     private String studentName;
     private Integer grade;
