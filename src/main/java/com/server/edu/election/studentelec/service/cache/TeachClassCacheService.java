@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -188,6 +189,8 @@ public class TeachClassCacheService extends AbstractCacheService
             HashOperations<String, String, TeachingClassCache> hash =
                 opsTeachClass();
             lessons = hash.multiGet(Keys.getClassKey(), keys);
+            // 过滤null
+            lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
         }
         return lessons;
     }
