@@ -84,21 +84,29 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		List<ElectionApplyCourses> list = new ArrayList<>();
-		Set<String> applyCourses = new HashSet<>();
 		for(String course:dto.getCourses()) {
 			ElectionApplyCourses electionApplyCourses = new ElectionApplyCourses();
 			electionApplyCourses.setMode(dto.getMode());
 			electionApplyCourses.setCourseCode(course);
 			electionApplyCourses.setCalendarId(dto.getCalendarId());
 			list.add(electionApplyCourses);
-			applyCourses.add(course);
 		}
 		int result = electionApplyCoursesDao.insertList(list);
-		//存入redis
-		ElecContextUtil.setApplyCourse(dto.getCalendarId(), applyCourses);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionApply.electionApplyCourses")));
 		}
+		Example applyExample = new Example(ElectionApplyCourses.class);
+		Example.Criteria applyCriteria = applyExample.createCriteria();
+		applyCriteria.andEqualTo("calendarId", dto.getCalendarId());
+		List<ElectionApplyCourses> electionApplyCourseList = electionApplyCoursesDao.selectByExample(applyExample);
+		Set<String> applyCourses = new HashSet<>();
+		if(CollectionUtil.isNotEmpty(electionApplyCourseList)) {
+			for(ElectionApplyCourses electionApplyCourses:electionApplyCourseList) {
+				applyCourses.add(electionApplyCourses.getCourseCode());
+			}
+		}
+		//存入redis
+		ElecContextUtil.setApplyCourse(dto.getCalendarId(), applyCourses);
 		return result;
 	}
 	
@@ -113,16 +121,22 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		Long calendarId= list.get(0).getCalendarId();
-		Set<String> applyCourses = new HashSet<>();
-		for(ElectionApplyCourses electionApplyCourses:list) {
-			applyCourses.add(electionApplyCourses.getCourseCode());
-		}
-		//存入redis
-		ElecContextUtil.setApplyCourse(calendarId, applyCourses);
 		int result = electionApplyCoursesDao.deleteByExample(example);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("electionApply.electionApplyCourses")));
 		}
+		Example applyExample = new Example(ElectionApplyCourses.class);
+		Example.Criteria applyCriteria = applyExample.createCriteria();
+		applyCriteria.andEqualTo("calendarId", calendarId);
+		List<ElectionApplyCourses> electionApplyCourseList = electionApplyCoursesDao.selectByExample(applyExample);
+		Set<String> applyCourses = new HashSet<>();
+		if(CollectionUtil.isNotEmpty(electionApplyCourseList)) {
+			for(ElectionApplyCourses electionApplyCourses:electionApplyCourseList) {
+				applyCourses.add(electionApplyCourses.getCourseCode());
+			}
+		}
+		//存入redis
+		ElecContextUtil.setApplyCourse(calendarId, applyCourses);
 		return result;
 	}
 

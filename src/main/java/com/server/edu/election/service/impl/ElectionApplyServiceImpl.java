@@ -137,11 +137,11 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 		}
         ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elecRounds.getCalendarId());
         Example aExample =new Example(ElectionApply.class);
-        Example.Criteria aCriteria = example.createCriteria();
+        Example.Criteria aCriteria = aExample.createCriteria();
         aCriteria.andEqualTo("studentId", studentId);
         aCriteria.andEqualTo("calendarId", elecRounds.getCalendarId());
         List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
-        elecContextUtil.save("elecApplyCourses", electionApplys);
+        elecContextUtil.setElecApplyCourse(electionApplys);
 		return result;
 	}
 	@Override
@@ -162,11 +162,11 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError"));
 		}
         Example aExample =new Example(ElectionApply.class);
-        Example.Criteria aCriteria = example.createCriteria();
+        Example.Criteria aCriteria = aExample.createCriteria();
         aCriteria.andEqualTo("studentId", studentId);
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
-        elecContextUtil.save("elecApplyCourses", electionApplys);
+        elecContextUtil.setElecApplyCourse(electionApplys);
 		return result;
 	}
 	
@@ -191,7 +191,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("election.electionApply")));
 		}
         ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, elecRounds.getCalendarId());
-        elecContextUtil.save("elecApplyCourses", null);
+        elecContextUtil.setElecApplyCourse(null);
 		return result;
 	}
 }
