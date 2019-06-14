@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -47,11 +48,20 @@ public class ElecContextUtil
     
     private String studentId;
     
+    public Map<String, String> cacheData;
+    
     public static ElecContextUtil create(String studentId, Long calendarId)
     {
         ElecContextUtil u = new ElecContextUtil();
         u.studentId = studentId;
         u.calendarId = calendarId;
+        
+        HashOperations<String, String, String> ops =
+            getRedisTemplate().opsForHash();
+        
+        Map<String, String> entries =
+            ops.entries(Keys.STD + calendarId + "-" + studentId);
+        u.cacheData = entries;
         return u;
     }
     
@@ -104,21 +114,25 @@ public class ElecContextUtil
         {
             return new ArrayList<>();
         }
-        try {
-        	return JSON.parseArray(value, clazz);
-        }catch (JSONException e) {
-			logger.error(e.getMessage(), e);
-		}
+        try
+        {
+            return JSON.parseArray(value, clazz);
+        }
+        catch (JSONException e)
+        {
+            logger.error(e.getMessage(), e);
+        }
         
         return new ArrayList<>();
     }
     
     private String getByKey(String type)
     {
-        HashOperations<String, String, String> ops =
-            getRedisTemplate().opsForHash();
-        
-        String value = ops.get(Keys.STD + calendarId + "-" + studentId, type);
+        String value = null;
+        if (null != this.cacheData)
+        {
+            value = this.cacheData.get(type);
+        }
         return value;
     }
     
@@ -131,7 +145,7 @@ public class ElecContextUtil
             
             String key = Keys.STD + calendarId + "-" + studentId;
             ops.put(key, type, JSON.toJSONString(value));
-            getRedisTemplate().expire(key, 5, TimeUnit.DAYS);
+            getRedisTemplate().expire(key, 1, TimeUnit.DAYS);
         }
     }
     
@@ -296,25 +310,29 @@ public class ElecContextUtil
         }
         return JSON.parseArray(value, String.class);
     }
+    
     /**
      * 获取替代课程
      */
-    public static List<ElcNoGradCouSubs> getNoGradCouSubs(String projectId, Long calendarId){
-    	ValueOperations<String, String> opsForValue =
-                getRedisTemplate().opsForValue();
-            String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
-            String value = opsForValue.get(redisKey);
-            if (StringUtils.isEmpty(value))
-            {
-                return new ArrayList<>();
-            }
-            return JSON.parseArray(value, ElcNoGradCouSubs.class);
+    public static List<ElcNoGradCouSubs> getNoGradCouSubs(String projectId,
+        Long calendarId)
+    {
+        ValueOperations<String, String> opsForValue =
+            getRedisTemplate().opsForValue();
+        String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
+        String value = opsForValue.get(redisKey);
+        if (StringUtils.isEmpty(value))
+        {
+            return new ArrayList<>();
+        }
+        return JSON.parseArray(value, ElcNoGradCouSubs.class);
     }
     
     /**
      * 设置替代课程
      */
-    public static void setNoGradCouSubs(String projectId, Long calendarId, List<ElcNoGradCouSubs> list)
+    public static void setNoGradCouSubs(String projectId, Long calendarId,
+        List<ElcNoGradCouSubs> list)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
