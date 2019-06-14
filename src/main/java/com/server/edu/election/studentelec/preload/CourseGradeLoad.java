@@ -151,6 +151,7 @@ public class CourseGradeLoad extends DataProLoad
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
+        
         //5.保存选课申请
         Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
         Example aExample =new Example(ElectionApply.class);
@@ -158,7 +159,7 @@ public class CourseGradeLoad extends DataProLoad
         aCriteria.andEqualTo("studentId", studentId);
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
-        elecApplyCourses = new HashSet<>(electionApplys);
+        elecApplyCourses.addAll(electionApplys);
         
     }
     
