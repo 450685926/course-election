@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.util.CollectionUtil;
@@ -341,6 +342,20 @@ public class ElecContextUtil
         {
             opsForValue.set(redisKey, JSON.toJSONString(list));
         }
+    }
+    
+    /**
+     *保存选课申请课程
+     */
+    public  void setElecApplyCourse(List<ElectionApply> electionApplys) {
+    	save("elecApplyCourses", electionApplys);
+    }
+    
+    /**
+              * 获取选课申请课程
+     */
+    public Set<ElectionApply> getElecApplyCourse(){
+    	return getSet("elecApplyCourses", ElectionApply.class);
     }
     
 }
