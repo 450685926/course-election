@@ -22,10 +22,12 @@ import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
+import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
@@ -40,6 +42,8 @@ import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 查询学生有成绩的课程
@@ -74,6 +78,9 @@ public class CourseGradeLoad extends DataProLoad
     @Autowired
     private ExemptionApplyDao applyDao;
     
+    @Autowired
+    private ElectionApplyDao electionApplyDao;
+    
     @Override
     public void load(ElecContext context)
     {
@@ -96,7 +103,6 @@ public class CourseGradeLoad extends DataProLoad
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
-        //        Set<ElecCourse> elecApplyCourses = context.getElecApplyCourses();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -139,15 +145,21 @@ public class CourseGradeLoad extends DataProLoad
         Long calendarId = electionRounds.getCalendarId();
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
-        //        List<ElecCourse> electionApplies = elcCourseTakeDao
-        //            .selectApplyCourses(studentId, calendarId, Constants.ZERO);
-        //        elecApplyCourses = new HashSet<>(electionApplies);
         //3.学生免修课程
         List<ElecCourse> applyRecord =
             applyDao.findApplyRecord(calendarId, studentId);
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
+        //5.保存选课申请
+        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
+        Example aExample =new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
+        elecApplyCourses = new HashSet<>(electionApplys);
+        
     }
     
     /**
