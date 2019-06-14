@@ -28,8 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.server.edu.common.rest.RedisConstant;
-import com.server.edu.session.util.SessionUtils;  
+import com.server.edu.common.rest.RedisConstant;  
 
 @SuppressWarnings("all")
 @Intercepts({
@@ -47,6 +46,7 @@ public class EleSqlStatementInterceptor implements Interceptor {
 	@Autowired
     private RedisTemplate redisTemplate;
 
+    @Override
     public Object intercept(Invocation invocation) throws Throwable {
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         Object parameter = null;
@@ -159,10 +159,12 @@ public class EleSqlStatementInterceptor implements Interceptor {
         return sql;
     }
 
+    @Override
     public Object plugin(Object target) {
         return Plugin.wrap(target, this);
     }
 
+    @Override
     public void setProperties(Properties properties0) {
         this.properties = properties0;
     }

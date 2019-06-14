@@ -146,20 +146,22 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
 	}
 	@Override
 	@Transactional
-	public int update(String studentId,Long calendarId,String courseCode,ElecContextUtil elecContextUtil) {
+	public void update(String studentId,Long calendarId,String courseCode,ElecContextUtil elecContextUtil) {
 		Example example =new Example(ElectionApply.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("studentId", studentId);
 		criteria.andEqualTo("calendarId", calendarId);
 		criteria.andEqualTo("courseCode", courseCode);
 		ElectionApply apply = electionApplyDao.selectOneByExample(example);
-		if(apply==null) {
-			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
-		}
-		apply.setApply(Constants.ZERO);
-		int result = electionApplyDao.updateByPrimaryKeySelective(apply);
-		if(result<=0) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.editError"));
+		if(apply!=null) {
+		    apply.setApply(Constants.ZERO);
+		    electionApplyDao.updateByPrimaryKeySelective(apply);
+		    Example aExample =new Example(ElectionApply.class);
+		    Example.Criteria aCriteria = example.createCriteria();
+		    aCriteria.andEqualTo("studentId", studentId);
+		    aCriteria.andEqualTo("calendarId", calendarId);
+		    List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
+		    elecContextUtil.save("elecApplyCourses", electionApplys);
 		}
         Example aExample =new Example(ElectionApply.class);
         Example.Criteria aCriteria = aExample.createCriteria();
@@ -167,7 +169,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService {
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
         elecContextUtil.setElecApplyCourse(electionApplys);
-		return result;
 	}
 	
 	@Override
