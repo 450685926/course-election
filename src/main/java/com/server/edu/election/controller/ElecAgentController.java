@@ -8,6 +8,7 @@ import java.util.Objects;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.servicecomb.common.rest.codec.RestObjectMapperFactory;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.entity.ElectionRounds;
@@ -109,6 +111,43 @@ public class ElecAgentController
         ElecContext c = new ElecContext(studentId, round.getCalendarId());
         
         return RestResult.successData(c);
+    }
+    
+    @ApiOperation(value = "获取学生选课数据(测试不返回，只查询redis)")
+    @PostMapping("/getData1")
+    public RestResult<ElecContext> getData1(@RequestBody ElecRequest elecRequest) throws JsonProcessingException
+    {
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        
+        String studentId = elecRequest.getStudentId();
+        
+        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
+        if (round == null)
+        {
+            return RestResult.error("elec.roundNotExistTip");
+        }
+        ElecContext c = new ElecContext(studentId, round.getCalendarId());
+        RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(c);
+        System.out.println(c.getClass());
+        return RestResult.success();
+    }
+    
+    @ApiOperation(value = "获取学生选课数据2")
+    @PostMapping("/getData2")
+    public String getData2(@RequestBody ElecRequest elecRequest) throws JsonProcessingException
+    {
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        
+        String studentId = elecRequest.getStudentId();
+        
+        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
+        if (round == null)
+        {
+            return RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(RestResult.error("elec.roundNotExistTip"));
+        }
+        ElecContext c = new ElecContext(studentId, round.getCalendarId());
+        
+        return RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(RestResult.successData(c));
     }
     
     /**
