@@ -111,6 +111,24 @@ public class ElecAgentController
         return RestResult.successData(c);
     }
     
+    @ApiOperation(value = "获取学生选课数据(测试不返回，只查询redis)")
+    @PostMapping("/getData1")
+    public RestResult<ElecContext> getData1(@RequestBody ElecRequest elecRequest)
+    {
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        
+        String studentId = elecRequest.getStudentId();
+        
+        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
+        if (round == null)
+        {
+            return RestResult.error("elec.roundNotExistTip");
+        }
+        ElecContext c = new ElecContext(studentId, round.getCalendarId());
+        System.out.println(c.getClass());
+        return RestResult.success();
+    }
+    
     /**
      * 选课请求,选课时发送一次，此时应该返回ElecRespose.status=processing
      */
