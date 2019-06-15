@@ -144,10 +144,9 @@ public class StudentElecServiceImpl implements StudentElecService
         {
             return new ElecRespose();
         }
-        ElecContextUtil contextUtil =
-            ElecContextUtil.create(studentId, round.getCalendarId());
         
-        ElecRespose response = contextUtil.getElecRespose();
+        ElecRespose response =
+            ElecContextUtil.getElecRespose(studentId, round.getCalendarId());
         ElecStatus status = ElecContextUtil.getElecStatus(roundId, studentId);
         if (response == null)
         {
@@ -266,8 +265,8 @@ public class StudentElecServiceImpl implements StudentElecService
         if (ElectRuleType.ELECTION.equals(type))
         {
             //更新选课申请数据
-            ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId, round.getCalendarId());
-            electionApplyService.update(studentId,round.getCalendarId(),courseCode,elecContextUtil);
+            electionApplyService
+                .update(studentId, round.getCalendarId(), courseCode);
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
             
