@@ -128,7 +128,6 @@ public class ElecAgentController
         }
         ElecContext c = new ElecContext(studentId, round.getCalendarId());
         RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(c);
-        System.out.println(c.getClass());
         return RestResult.success();
     }
     
