@@ -127,7 +127,8 @@ public class ElecAgentController
             return RestResult.error("elec.roundNotExistTip");
         }
         ElecContext c = new ElecContext(studentId, round.getCalendarId());
-        RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(c);
+        String str = RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(c);
+        System.out.println(str.substring(0, 20));
         return RestResult.success();
     }
     
