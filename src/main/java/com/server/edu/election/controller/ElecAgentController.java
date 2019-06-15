@@ -132,6 +132,24 @@ public class ElecAgentController
         return RestResult.success();
     }
     
+    @ApiOperation(value = "获取学生选课数据2")
+    @PostMapping("/getData2")
+    public String getData2(@RequestBody ElecRequest elecRequest) throws JsonProcessingException
+    {
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        
+        String studentId = elecRequest.getStudentId();
+        
+        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
+        if (round == null)
+        {
+            return RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(RestResult.error("elec.roundNotExistTip"));
+        }
+        ElecContext c = new ElecContext(studentId, round.getCalendarId());
+        
+        return RestObjectMapperFactory.getRestObjectMapper().writeValueAsString(RestResult.successData(c));
+    }
+    
     /**
      * 选课请求,选课时发送一次，此时应该返回ElecRespose.status=processing
      */
