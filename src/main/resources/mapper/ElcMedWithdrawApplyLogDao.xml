@@ -6,15 +6,13 @@
       WARNING - @mbg.generated
     -->
     <id column="ID_" jdbcType="BIGINT" property="id" />
-    <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
-    <result column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
+    <result column="TEACHING_CLASS_CODE_" jdbcType="VARCHAR" property="teachingClassCode" />
     <result column="OPRATION_OBJ_CODE" jdbcType="VARCHAR" property="oprationObjCode" />
     <result column="OPRATION_OBJ_NAME" jdbcType="VARCHAR" property="oprationObjName" />
     <result column="OPRATION_CLIENT_IP" jdbcType="VARCHAR" property="oprationClientIp" />
     <result column="OPRATION_TYPE" jdbcType="VARCHAR" property="oprationType" />
     <result column="TARGET_OBJ_CODE" jdbcType="VARCHAR" property="targetObjCode" />
     <result column="TARGET_OBJ_NAME" jdbcType="VARCHAR" property="targetObjName" />
-    <result column="CONTENT_" jdbcType="VARCHAR" property="content" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
 </mapper>
