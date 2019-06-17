@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.Constants;
@@ -63,6 +66,15 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         }
         List<ElectionRule> list = electionRuleDao.selectByExample(example);
         return list;
+    }
+    
+    @Override
+	public PageInfo<ElectionRule> page(PageCondition<ElectionRuleDto> condition){
+    	ElectionRuleDto electionRuleDto = condition.getCondition();
+    	PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+    	List<ElectionRule> list =list(electionRuleDto);
+    	PageInfo<ElectionRule> pageInfo = new PageInfo<>(list);
+    	return pageInfo;
     }
     
     @Override
