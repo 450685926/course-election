@@ -84,7 +84,9 @@ public class ElectionTplServiceImpl implements ElectionTplService
                 tplList.add(electionTplVo);
             });
         }
+        PageInfo<ElectionTpl> page = new PageInfo<>(list);
         PageInfo<ElectionTplVo> pageInfo = new PageInfo<>(tplList);
+        pageInfo.setTotal(page.getTotal());
         return pageInfo;
     }
     
