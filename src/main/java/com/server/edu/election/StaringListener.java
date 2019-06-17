@@ -64,7 +64,7 @@ public class StaringListener
         
         if (null != convert && StringUtils.isNotBlank(convert.getStudentCode()))
         {
-            Example example = new Example(Course.class);
+            Example example = new Example(Student.class);
             example.createCriteria()
                 .andEqualTo("studentCode", convert.getStudentCode());
             int count = studentDao.selectCountByExample(example);
