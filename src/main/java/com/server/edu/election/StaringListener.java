@@ -14,7 +14,6 @@ import com.server.edu.dmskafka.dataSync.SyncType;
 import com.server.edu.dmskafka.dataSync.data.StudentInfoSync;
 import com.server.edu.dmskafka.dataSync.data.StudentStatusSync;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.util.StuInfoSyncUtil;
 
