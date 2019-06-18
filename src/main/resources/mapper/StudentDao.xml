@@ -98,6 +98,9 @@
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
 			        and t2.NAME_ =#{name}
 			    </if>
+			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(managerDeptId)">
+			        and t2.MANAGER_DEPT_ID_ =#{managerDeptId}
+			    </if>
 			</where>
     </select>
     
