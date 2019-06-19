@@ -50,6 +50,8 @@ public class ElcCourseTakeQuery
     /** 课程类型 1体育课，2英语课*/
     private Integer courseType;
     
+    private String projectId;
+    
     private List<String> includeCourseCodes;
     
     public Integer getMode()
@@ -172,6 +174,16 @@ public class ElcCourseTakeQuery
         this.courseType = courseType;
     }
     
+    public String getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
+    }
+
     public List<String> getIncludeCourseCodes()
     {
         return includeCourseCodes;
