@@ -349,6 +349,14 @@ public class ReportManagementController
         return RestResult.successData(export);
     }
     
+    /**
+     * 从磁盘中下载
+     * 
+     * @param fileName
+     * @return
+     * @throws Exception
+     * @see [类、类#方法、类#成员]
+     */
     @ApiOperation(value = "导出excel下载文件")
     @GetMapping("/download2")
     @ApiResponses({
