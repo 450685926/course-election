@@ -78,7 +78,21 @@ public class Student4Elc
     
     private String projectId;
     
-    public String getCampus()
+    /**
+     * 研究方向
+     */
+    @Code2Text(transformer = "X_YJFX")
+    private String researchDirection;
+    
+    public String getResearchDirection() {
+		return researchDirection;
+	}
+
+	public void setResearchDirection(String researchDirection) {
+		this.researchDirection = researchDirection;
+	}
+
+	public String getCampus()
     {
         return campus;
     }

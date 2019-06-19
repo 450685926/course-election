@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.github.pagehelper.PageInfo;
+import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElectionRuleDto;
 import com.server.edu.election.entity.ElectionRule;
@@ -51,6 +53,24 @@ public class ElectionRuleController
         LOG.info("ruleList.start");
         List<ElectionRule> ruleList = service.list(electionRuleDto);
         return RestResult.successData(ruleList);
+    }
+    
+	 /**
+     * 分页查询规则
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "分页查询规则")
+    @PostMapping("/page")
+    public RestResult<PageInfo<ElectionRule>> page(
+        @RequestBody PageCondition<ElectionRuleDto> condition)
+        throws Exception
+    {
+        LOG.info("page.start");
+        PageInfo<ElectionRule> list =service.page(condition);
+        return RestResult.successData(list);
     }
     
     

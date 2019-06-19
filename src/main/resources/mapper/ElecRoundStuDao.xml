@@ -58,6 +58,9 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.profession)">
   		and t1.PROFESSION_ = #{stu.profession}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.researchDirection)">
+		and t1.RESEARCH_DIRECTION_ = #{stu.researchDirection}
+	    </if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.isOverseas)">
   		and t1.IS_OVERSEAS_ = #{stu.isOverseas}
   		</if>
@@ -118,6 +121,9 @@
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.faculty)">
 				and t1.FACULTY_ = #{stu.faculty}
+			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.researchDirection)">
+				and t1.RESEARCH_DIRECTION_ = #{stu.researchDirection}
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.profession)">
 				and t1.PROFESSION_ = #{stu.profession}
