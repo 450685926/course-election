@@ -357,8 +357,7 @@ public class ReportManagementController
         @RequestParam("fileName") String fileName)
         throws Exception
     {
-        LOG.info("export.start");
-        return ExportExcelUtils.export(fileName);
+        return ExportUtil.export(fileName, "DianMingCe.xls");
     }
     
     @ApiOperation(value = "导出未选课学生名单")
@@ -401,7 +400,7 @@ public class ReportManagementController
     public ResponseEntity<Resource> download(@RequestParam("path") String path)
         throws Exception
     {
-        return ExportUtil.export(path, "DianMingCe.xls");
+        return ExportExcelUtils.export(path);
     }
     
     @ApiOperation(value = "导出预览点名册")
