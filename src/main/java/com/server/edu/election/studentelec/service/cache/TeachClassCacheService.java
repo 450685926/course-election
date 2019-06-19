@@ -55,7 +55,7 @@ public class TeachClassCacheService extends AbstractCacheService
     @Autowired
     private StringRedisTemplate strTemplate;
     
-    public static HashOperations<String, String, TeachingClassCache> opsTeachClass()
+    public HashOperations<String, String, TeachingClassCache> opsTeachClass()
     {
         RedisTemplate<String, TeachingClassCache> redisTemplate =
             redisTemplate(TeachingClassCache.class);
@@ -64,7 +64,7 @@ public class TeachClassCacheService extends AbstractCacheService
         return ops;
     }
     
-    public static HashOperations<String, String, Integer> opsClassNum()
+    public HashOperations<String, String, Integer> opsClassNum()
     {
         RedisTemplate<String, Integer> redisTemplate =
             redisTemplate(Integer.class);

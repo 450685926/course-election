@@ -1,16 +1,19 @@
 package com.server.edu.election.studentelec.service.cache;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
-
-import com.server.edu.dictionary.utils.SpringUtils;
 
 public abstract class AbstractCacheService
 {
+    @SuppressWarnings("rawtypes")
+    @Autowired
+    @Qualifier("redisTemplate2")
+    RedisTemplate redisTemplate;
+    
     @SuppressWarnings({"unchecked"})
-    static <T> RedisTemplate<String, T> redisTemplate(Class<T> clazz)
+    public <T> RedisTemplate<String, T> redisTemplate(Class<T> clazz)
     {
-        RedisTemplate<String, T> redisTemplate =
-            SpringUtils.getBean("redisTemplate2", RedisTemplate.class);
         return redisTemplate;
     }
 }
