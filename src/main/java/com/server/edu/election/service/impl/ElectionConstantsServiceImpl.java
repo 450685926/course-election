@@ -45,7 +45,7 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
         }
         if (StringUtils.isNotBlank(quer.getTrainingLevel()))
         {
-        	createCriteria.andEqualTo("name", quer.getTrainingLevel());
+        	createCriteria.andEqualTo("trainingLevel", quer.getTrainingLevel());
         }
         
         List<ElectionConstants> list =
