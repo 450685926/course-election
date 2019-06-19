@@ -20,7 +20,7 @@ public class Student4Elc
     
     private String name;
     
-    @Code2Text(transformer="G_XBIE")
+    @Code2Text(transformer = "G_XBIE")
     private Integer sex;
     
     /**学院*/
@@ -76,13 +76,13 @@ public class Student4Elc
     @Code2Text(transformer = "X_XQ")
     private String campus;
     
+    private String projectId;
+    
     /**
      * 研究方向
      */
     @Code2Text(transformer = "X_YJFX")
     private String researchDirection;
-    
-    
     
     public String getResearchDirection() {
 		return researchDirection;
@@ -270,6 +270,16 @@ public class Student4Elc
     public void setIsOverseas(String isOverseas)
     {
         this.isOverseas = isOverseas;
+    }
+    
+    public String getProjectId()
+    {
+        return projectId;
+    }
+    
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
     }
     
 }

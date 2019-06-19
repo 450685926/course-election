@@ -8,13 +8,16 @@ import com.server.edu.election.vo.ElcPeFreeStdsVo;
 
 import tk.mybatis.mapper.common.Mapper;
 
-public interface ElcPeFreeStdsDao extends Mapper<ElcPeFreeStds> {
-	List<ElcPeFreeStdsVo> selectElcPeFreeStds(ElcPeFreeStdsDto dto);
-	int batchInsert(List<String> list);
-	List<ElcPeFreeStdsVo> selectElcStudents(ElcPeFreeStdsDto dto);
-
-	/**学生是否在不限选名单中
-	 */
-	int findStudentByStuId(String studentId);
-
+public interface ElcPeFreeStdsDao extends Mapper<ElcPeFreeStds>
+{
+    List<ElcPeFreeStdsVo> selectElcPeFreeStds(ElcPeFreeStdsDto dto);
+    
+    int batchInsert(List<String> list);
+    
+    List<ElcPeFreeStdsVo> selectElcStudents(ElcPeFreeStdsDto dto);
+    
+    /**学生是否在不限选名单中
+     */
+    int findStudentByStuId(String studentId);
+    
 }
