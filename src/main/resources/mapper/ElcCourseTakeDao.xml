@@ -51,6 +51,9 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
   	 and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
+  	 and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
+  	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
   	 and t2.NAME_ = #{query.stuName}
   	 </if>
@@ -79,6 +82,7 @@
 	 AND (t1.STUDENT_ID_ like CONCAT(#{query.keyword}, '%') OR t2.NAME_ like CONCAT(#{query.keyword}, '%'))
 	 </if>
   	</where>
+  	order by CREATED_AT_ DESC, t1.STUDENT_ID_
   </select>
   
   <select id="getTeachingClassInfo" resultMap="VoResultMap">

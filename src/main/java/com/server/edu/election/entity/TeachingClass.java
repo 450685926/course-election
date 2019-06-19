@@ -11,7 +11,9 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.server.edu.common.BaseEntity;
+import com.server.edu.common.jackson.LongJsonSerializer;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -37,6 +39,7 @@ public class TeachingClass extends BaseEntity
     @Id
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
     
     /**

@@ -69,7 +69,7 @@ public class ElcPeFreeStdsDto extends ElcPeFreeStds {
     /**模糊查询*/
     private String codeAndName;
     
-    
+    private String projectId;
     
     public String getCodeAndName() {
 		return codeAndName;
@@ -257,6 +257,16 @@ public class ElcPeFreeStdsDto extends ElcPeFreeStds {
 	public void setStudentCode(String studentCode) {
 		this.studentCode = studentCode;
 	}
+
+    public String getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
+    }
     
     
 

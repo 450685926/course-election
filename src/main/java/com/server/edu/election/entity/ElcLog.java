@@ -7,6 +7,9 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.server.edu.common.jackson.LongJsonSerializer;
+
 /**
  * 
  * 选课日志
@@ -23,6 +26,7 @@ public class ElcLog implements Serializable {
      */
     @Id
     @Column(name = "ID_")
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
 
     /**

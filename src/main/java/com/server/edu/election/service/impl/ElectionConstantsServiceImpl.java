@@ -42,11 +42,11 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
         if (StringUtils.isNotBlank(quer.getName()))
         {
             createCriteria.andLike("name", "%" + quer.getName() + "%");
-        }
+        } 
         if (StringUtils.isNotBlank(quer.getTrainingLevel()))
         {
         	createCriteria.andEqualTo("trainingLevel", quer.getTrainingLevel());
-        }
+        } 
         
         List<ElectionConstants> list =
             electionConstantsDao.selectByExample(example);
