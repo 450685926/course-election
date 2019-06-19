@@ -44,6 +44,7 @@ import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 
@@ -400,7 +401,7 @@ public class ReportManagementController
     public ResponseEntity<Resource> download(@RequestParam("path") String path)
         throws Exception
     {
-        return ExportExcelUtils.export(path);
+        return ExportUtil.export(path, "DianMingCe.xls");
     }
     
     @ApiOperation(value = "导出预览点名册")
