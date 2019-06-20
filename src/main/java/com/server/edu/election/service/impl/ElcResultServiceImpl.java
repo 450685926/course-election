@@ -93,7 +93,7 @@ public class ElcResultServiceImpl implements ElcResultService
             	if(CollectionUtil.isNotEmpty(teacherList)) {
                 	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
                 	StringBuilder stringBuilder = new StringBuilder();
-                	if(CollectionUtil.isEmpty(teachers)) {
+                	if(CollectionUtil.isNotEmpty(teachers)) {
                 		for(TeachingClassTeacher teacher:teachers) {
                 			stringBuilder.append(teacher.getTeacherName());
                 			stringBuilder.append("(");
