@@ -88,7 +88,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
                 || (a.getTimeStart() <= b.getTimeEnd()
                     && a.getTimeEnd() >= b.getTimeEnd()));
         
-        if (!c && CollectionUtil.isNotEmpty(a.getWeeks())
+        if (c && CollectionUtil.isNotEmpty(a.getWeeks())
             && CollectionUtil.isNotEmpty(b.getWeeks()))
         {
             for (Integer w : b.getWeeks())
