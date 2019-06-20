@@ -123,6 +123,7 @@ public class ElecRoundServiceImpl implements ElecRoundService
             .andEqualTo("turn", dto.getTurn())
             .andEqualTo("mode", dto.getMode())
             .andEqualTo("electionObj", dto.getElectionObj())
+            .andEqualTo("projectId",dto.getProjectId())
             .andNotEqualTo("id", dto.getId());
         int count = roundsDao.selectCountByExample(example);
         if (count > 0)
