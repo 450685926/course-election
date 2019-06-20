@@ -82,13 +82,28 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
      */
     public static boolean conflict(ClassTimeUnit a, ClassTimeUnit b)
     {
-        boolean c = a.getDayOfWeek() == b.getDayOfWeek()
-            && ((a.getTimeStart() <= b.getTimeStart()
-                && a.getTimeEnd() >= b.getTimeStart())
-                || (a.getTimeStart() <= b.getTimeEnd()
-                    && a.getTimeEnd() >= b.getTimeEnd()));
+        if (a.getDayOfWeek() == b.getDayOfWeek())
+        {
+            return true;
+        }
+        int aTimeStart = a.getTimeStart();
+        int aTimeEnd = a.getTimeEnd();
+        int bTimeStart = b.getTimeStart();
+        int bTimeEnd = b.getTimeEnd();
+        // b 是否在 a 内  a=[1,3], b=[2,4]
+        if ((aTimeStart <= bTimeStart && aTimeEnd >= bTimeStart)
+            || (aTimeStart <= bTimeEnd && aTimeEnd >= bTimeEnd))
+        {
+            return true;
+        }
+        // a 是否在 b 内 a=[3,5], b=[2,6]
+        if ((bTimeStart <= aTimeStart && bTimeEnd >= aTimeStart)
+            || (bTimeStart <= aTimeEnd && bTimeEnd >= aTimeEnd))
+        {
+            return true;
+        }
         
-        if (c && CollectionUtil.isNotEmpty(a.getWeeks())
+        if (CollectionUtil.isNotEmpty(a.getWeeks())
             && CollectionUtil.isNotEmpty(b.getWeeks()))
         {
             for (Integer w : b.getWeeks())
@@ -101,7 +116,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
             }
         }
         
-        return c;
+        return false;
     }
     
 }
