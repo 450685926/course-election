@@ -82,15 +82,17 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
      */
     public static boolean conflict(ClassTimeUnit a, ClassTimeUnit b)
     {
-        if (a.getDayOfWeek() == b.getDayOfWeek())
+        // 星期几不相同肯定不会冲突
+        if (a.getDayOfWeek() != b.getDayOfWeek())
         {
-            return true;
+            return false;
         }
+        // 星期相同时比较上课节次是否有重合
         int aTimeStart = a.getTimeStart();
         int aTimeEnd = a.getTimeEnd();
         int bTimeStart = b.getTimeStart();
         int bTimeEnd = b.getTimeEnd();
-        // b 是否在 a 内  a=[1,3], b=[2,4]
+        // b 是否在 a 内  a=[2,6], b=[3,5]
         if ((aTimeStart <= bTimeStart && aTimeEnd >= bTimeStart)
             || (aTimeStart <= bTimeEnd && aTimeEnd >= bTimeEnd))
         {
@@ -102,7 +104,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
         {
             return true;
         }
-        
+        // 节次不冲突判断上课周是否有重合
         if (CollectionUtil.isNotEmpty(a.getWeeks())
             && CollectionUtil.isNotEmpty(b.getWeeks()))
         {
