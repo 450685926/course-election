@@ -24,6 +24,17 @@ cse:
       serverUri: https://cse.cn-east-2.myhuaweicloud.com:443
   rest:
     address: 0.0.0.0:8113
+    client:
+      maxPoolSize: 100
+      thread-count: 10
+      verticle-count: 10
+      connection:
+        idleTimeoutInSeconds: 130000
+    server:
+      thread-count: 8
+      verticle-count: 8
+      connection:
+        idleTimeoutInSeconds: 140000
   uploads:
     directory: /home/edu/cacheFile/
     maxSize: -1

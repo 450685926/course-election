@@ -78,11 +78,13 @@ public class ElecRoundServiceImpl implements ElecRoundService
     public void add(ElectionRoundsDto dto)
     {
         Example example = new Example(ElectionRounds.class);
-        example.createCriteria()
-            .andEqualTo("calendarId", dto.getCalendarId())
-            .andEqualTo("turn", dto.getTurn())
-            .andEqualTo("mode", dto.getMode())
-            .andEqualTo("electionObj", dto.getElectionObj());
+        	example.createCriteria()
+        		.andEqualTo("calendarId", dto.getCalendarId())
+        		.andEqualTo("turn", dto.getTurn())
+        		.andEqualTo("mode", dto.getMode())
+        		.andEqualTo("electionObj", dto.getElectionObj())
+        	    .andEqualTo("projectId",dto.getProjectId());
+        	
         int count = roundsDao.selectCountByExample(example);
         if (count > 0)
         {

@@ -5,8 +5,10 @@ import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +23,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.util.CollectionUtil;
@@ -39,25 +42,147 @@ public class ElecContextUtil
     private static Logger logger =
         LoggerFactory.getLogger(ElecContextUtil.class);
     
-    private ElecContextUtil()
+    private ElecContextUtil(Long calendarId, String studentId)
     {
+        this.calendarId = calendarId;
+        this.studentId = studentId;
     }
     
     private Long calendarId;
     
     private String studentId;
+    // 由于使用redis的hash来保存数据，为了能快速得到所有的数据使用map先保存起来
+    public Map<String, String> cacheData;
     
+    /**
+     * 创建，此方法比较重量级，如果只是操作某个属性先找一下有没有static方法能满足
+     * 
+     * @param studentId
+     * @param calendarId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
     public static ElecContextUtil create(String studentId, Long calendarId)
     {
-        ElecContextUtil u = new ElecContextUtil();
-        u.studentId = studentId;
-        u.calendarId = calendarId;
+        ElecContextUtil u = new ElecContextUtil(calendarId, studentId);
+        
+        HashOperations<String, String, String> ops =
+            getRedisTemplate().opsForHash();
+        
+        Map<String, String> entries = ops.entries(u.getRedisKey());
+        u.cacheData = entries;
+        if (u.cacheData == null)
+        {
+            u.cacheData = new HashMap<>();
+        }
         return u;
+    }
+    
+    String getRedisKey()
+    {
+        return ElecContextUtil.getKey(studentId, calendarId);
+    }
+    
+    static String getKey(String studentId, Long calendarId)
+    {
+        return Keys.STD + calendarId + "-" + studentId;
     }
     
     static StringRedisTemplate getRedisTemplate()
     {
         return SpringUtils.getBean(StringRedisTemplate.class);
+    }
+    
+    public <T> T getObject(String type, Class<T> clazz)
+    {
+        String value = getByKey(type);
+        return JSON.parseObject(value, clazz);
+    }
+    
+    public <T> Set<T> getSet(String type, Class<T> clazz)
+    {
+        List<T> list = getList(type, clazz);
+        return new HashSet<>(list);
+    }
+    
+    public <T> List<T> getList(String type, Class<T> clazz)
+    {
+        String value = getByKey(type);
+        
+        if (StringUtils.isEmpty(value))
+        {
+            return new ArrayList<>();
+        }
+        try
+        {
+            return JSON.parseArray(value, clazz);
+        }
+        catch (JSONException e)
+        {
+            logger.error(e.getMessage(), e);
+        }
+        
+        return new ArrayList<>();
+    }
+    
+    private String getByKey(String type)
+    {
+        String value = null;
+        if (null != this.cacheData)
+        {
+            value = this.cacheData.get(type);
+        }
+        return value;
+    }
+    
+    /**
+     * 更新内存中的缓存
+     * 
+     * @param type
+     * @param value
+     * @see [类、类#方法、类#成员]
+     */
+    public void updateMem(String type, Object value)
+    {
+        String jsonString = JSON.toJSONString(value);
+        this.cacheData.put(type, jsonString);
+    }
+    
+    /**
+     * 保存单个值到redis
+     * 
+     * @param type
+     * @param value
+     * @see [类、类#方法、类#成员]
+     */
+    public void saveOne(String type, Object value)
+    {
+        if (null != value)
+        {
+            HashOperations<String, String, String> ops =
+                getRedisTemplate().opsForHash();
+            
+            String key = getRedisKey();
+            String jsonString = JSON.toJSONString(value);
+            this.cacheData.put(type, jsonString);
+            ops.put(key, type, jsonString);
+            this.updateMem(type, jsonString);
+            getRedisTemplate().expire(key, 1, TimeUnit.DAYS);
+        }
+    }
+    
+    /**
+     * 保存所有数据到redis
+     * 
+     * @see [类、类#方法、类#成员]
+     */
+    public void saveAll()
+    {
+        HashOperations<String, String, String> ops =
+            getRedisTemplate().opsForHash();
+        String key = getRedisKey();
+        ops.putAll(key, this.cacheData);
+        getRedisTemplate().expire(key, 1, TimeUnit.DAYS);
     }
     
     public StudentInfoCache getStudentInfo()
@@ -84,55 +209,51 @@ public class ElecContextUtil
         return respose;
     }
     
-    public <T> T getObject(String type, Class<T> clazz)
+    /**
+     * 获取选课申请课程
+     */
+    public Set<ElectionApply> getElecApplyCourse()
     {
-        String value = getByKey(type);
-        return JSON.parseObject(value, clazz);
+        return getSet("elecApplyCourses", ElectionApply.class);
     }
     
-    public <T> Set<T> getSet(String type, Class<T> clazz)
+    /**
+     *保存学生选课申请课程
+     */
+    public static void setElecApplyCourse(String studentId, Long calendarId,
+        List<ElectionApply> electionApplys)
     {
-        List<T> list = getList(type, clazz);
-        return new HashSet<>(list);
-    }
-    
-    public <T> List<T> getList(String type, Class<T> clazz)
-    {
-        String value = getByKey(type);
-        
-        if (StringUtils.isEmpty(value))
-        {
-            return new ArrayList<>();
-        }
-        try {
-        	return JSON.parseArray(value, clazz);
-        }catch (JSONException e) {
-			logger.error(e.getMessage(), e);
-		}
-        
-        return new ArrayList<>();
-    }
-    
-    private String getByKey(String type)
-    {
-        HashOperations<String, String, String> ops =
-            getRedisTemplate().opsForHash();
-        
-        String value = ops.get(Keys.STD + calendarId + "-" + studentId, type);
-        return value;
-    }
-    
-    public void save(String type, Object value)
-    {
-        if (null != value)
+        String key = getKey(studentId, calendarId);
+        if (getRedisTemplate().hasKey(key))
         {
             HashOperations<String, String, String> ops =
                 getRedisTemplate().opsForHash();
-            
-            String key = Keys.STD + calendarId + "-" + studentId;
-            ops.put(key, type, JSON.toJSONString(value));
-            getRedisTemplate().expire(key, 5, TimeUnit.DAYS);
+            String jsonString = JSON.toJSONString(electionApplys);
+            ops.put(key, "elecApplyCourses", jsonString);
         }
+    }
+    
+    /**
+     * 得到学生选课响应
+     * 
+     * @param studentId
+     * @param calendarId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public static ElecRespose getElecRespose(String studentId, Long calendarId)
+    {
+        HashOperations<String, String, String> ops =
+            getRedisTemplate().opsForHash();
+        String key = getKey(studentId, calendarId);
+        
+        String value = ops.get(key, ElecRespose.class.getSimpleName());
+        ElecRespose respose = JSON.parseObject(value, ElecRespose.class);
+        if (null == respose)
+        {
+            respose = new ElecRespose(ElecStatus.Init);
+        }
+        return respose;
     }
     
     /**
@@ -244,10 +365,7 @@ public class ElecContextUtil
     public static void unlock(Long roundId, String studentId)
     {
         String redisKey = String.format(STD_STATUS_LOCK, roundId, studentId);
-        if (getRedisTemplate().hasKey(redisKey))
-        {
-            getRedisTemplate().delete(redisKey);
-        }
+        getRedisTemplate().delete(redisKey);
     }
     
     /**
@@ -296,25 +414,29 @@ public class ElecContextUtil
         }
         return JSON.parseArray(value, String.class);
     }
+    
     /**
      * 获取替代课程
      */
-    public static List<ElcNoGradCouSubs> getNoGradCouSubs(String projectId, Long calendarId){
-    	ValueOperations<String, String> opsForValue =
-                getRedisTemplate().opsForValue();
-            String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
-            String value = opsForValue.get(redisKey);
-            if (StringUtils.isEmpty(value))
-            {
-                return new ArrayList<>();
-            }
-            return JSON.parseArray(value, ElcNoGradCouSubs.class);
+    public static List<ElcNoGradCouSubs> getNoGradCouSubs(String projectId,
+        Long calendarId)
+    {
+        ValueOperations<String, String> opsForValue =
+            getRedisTemplate().opsForValue();
+        String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
+        String value = opsForValue.get(redisKey);
+        if (StringUtils.isEmpty(value))
+        {
+            return new ArrayList<>();
+        }
+        return JSON.parseArray(value, ElcNoGradCouSubs.class);
     }
     
     /**
      * 设置替代课程
      */
-    public static void setNoGradCouSubs(String projectId, Long calendarId, List<ElcNoGradCouSubs> list)
+    public static void setNoGradCouSubs(String projectId, Long calendarId,
+        List<ElcNoGradCouSubs> list)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();

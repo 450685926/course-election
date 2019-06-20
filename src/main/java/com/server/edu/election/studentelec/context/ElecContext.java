@@ -52,6 +52,13 @@ public class ElecContext
     
     private ElecContextUtil contextUtil;
     
+    public ElecContext(String studentId, Long calendarId,
+        ElecRequest elecRequest)
+    {
+        this(studentId, calendarId);
+        this.request = elecRequest;
+    }
+    
     public ElecContext(String studentId, Long calendarId)
     {
         this.calendarId = calendarId;
@@ -73,14 +80,7 @@ public class ElecContext
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-        elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElectionApply.class);
-    }
-    
-    public ElecContext(String studentId, Long calendarId,
-        ElecRequest elecRequest)
-    {
-        this(studentId, calendarId);
-        this.request = elecRequest;
+        elecApplyCourses = this.contextUtil.getElecApplyCourse();
     }
     
     /**
@@ -89,23 +89,29 @@ public class ElecContext
      */
     public void saveToCache()
     {
-        this.contextUtil.save(StudentInfoCache.class.getSimpleName(),
+        this.contextUtil.updateMem(StudentInfoCache.class.getSimpleName(),
             this.studentInfo);
-        this.saveResponse();
-        this.contextUtil.save("CompletedCourses", this.completedCourses);
-        this.contextUtil.save("SelectedCourses", this.selectedCourses);
-        this.contextUtil.save("ApplyForDropCourses", this.applyForDropCourses);
-        this.contextUtil.save("PlanCourses", this.planCourses);
-        this.contextUtil.save("courseGroups", this.courseGroups);
-        this.contextUtil.save("publicCourses", this.publicCourses);
-        this.contextUtil.save("failedCourse", this.failedCourse);
-        this.contextUtil.save("elecApplyCourses", this.elecApplyCourses);
+        this.respose.setStatus(null);
+        this.contextUtil.updateMem(ElecRespose.class.getSimpleName(),
+            this.respose);
+        this.contextUtil.updateMem("CompletedCourses", this.completedCourses);
+        this.contextUtil.updateMem("SelectedCourses", this.selectedCourses);
+        this.contextUtil.updateMem("ApplyForDropCourses",
+            this.applyForDropCourses);
+        this.contextUtil.updateMem("PlanCourses", this.planCourses);
+        this.contextUtil.updateMem("courseGroups", this.courseGroups);
+        this.contextUtil.updateMem("publicCourses", this.publicCourses);
+        this.contextUtil.updateMem("failedCourse", this.failedCourse);
+        this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
+        // 保存所有到redis
+        this.contextUtil.saveAll();
     }
     
     public void saveResponse()
     {
         this.respose.setStatus(null);
-        this.contextUtil.save(ElecRespose.class.getSimpleName(), this.respose);
+        this.contextUtil.saveOne(ElecRespose.class.getSimpleName(),
+            this.respose);
     }
     
     /**
@@ -186,22 +192,21 @@ public class ElecContext
     {
         this.respose = respose;
     }
-
-	public Set<String> getApplyCourse() {
-		
-		if(applyCourse == null) {
-			applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-		}
-		return applyCourse;
-	}
-
-	public Set<ElectionApply> getElecApplyCourses() {
-		return elecApplyCourses;
-	}
-
-	public void setElecApplyCourses(Set<ElectionApply> elecApplyCourses) {
-		this.elecApplyCourses = elecApplyCourses;
-	}
     
+    public Set<String> getApplyCourse()
+    {
+        
+        if (applyCourse == null)
+        {
+            applyCourse =
+                new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
+        }
+        return applyCourse;
+    }
+    
+    public Set<ElectionApply> getElecApplyCourses()
+    {
+        return elecApplyCourses;
+    }
     
 }

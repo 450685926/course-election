@@ -40,9 +40,9 @@
 	teaching_class_t t1 
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
 	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
-	left join teaching_class_teacher_t t4 on (t4.TYPE_=0 and t4.TEACHING_CLASS_ID_ =t1.ID_)
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
+      and t1.DEPLOY_FLAG_ &gt; 0
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
@@ -93,10 +93,11 @@
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
-  		</if>
-  	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-  	      and t4.TEACHER_CODE_ = #{teacherCode}
-  		</if>
+  	  </if>
+  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+  	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4 
+  	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
+  	  </if>
     </where>
   </select>
   

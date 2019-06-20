@@ -75,6 +75,7 @@
             and t2.MANAGER_DEPT_ID_ = #{query.deptId}
         </if>
   	</where>
+  	order by t1.CREATED_AT_ DESC
   </select>
 
 </mapper>
