@@ -42,6 +42,7 @@
 	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
+      and t1.DEPLOY_FLAG_ &gt; 0
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
