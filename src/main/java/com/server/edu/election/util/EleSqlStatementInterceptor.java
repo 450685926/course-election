@@ -83,11 +83,11 @@ public class EleSqlStatementInterceptor implements Interceptor {
             if (StringUtils.isNotBlank(prePush)) {
             	if (!StringUtils.equals(prePush.split(":")[3].split("\\|")[0], sql.split(":")[3].split("\\|")[0])) {
             		redisTemplate.opsForList().rightPush(RedisConstant.ELE_SQL_KEY + nowDate + hour, sql);
-            		redisTemplate.expire(RedisConstant.LOG_KEY + nowDate + hour, 25, TimeUnit.HOURS);
+            		redisTemplate.expire(RedisConstant.ELE_SQL_KEY + nowDate + hour, 25, TimeUnit.HOURS);
             	}
             } else {
             	redisTemplate.opsForList().rightPush(RedisConstant.ELE_SQL_KEY + nowDate + hour, sql);
-            	redisTemplate.expire(RedisConstant.LOG_KEY + nowDate + hour, 25, TimeUnit.HOURS);
+            	redisTemplate.expire(RedisConstant.ELE_SQL_KEY + nowDate + hour, 25, TimeUnit.HOURS);
             }
         }
         return returnValue;
