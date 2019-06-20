@@ -361,11 +361,10 @@ public class ReportManagementController
     @GetMapping("/download2")
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
-    public ResponseEntity<Resource> download2(
-        @RequestParam("fileName") String fileName)
+    public ResponseEntity<Resource> download2(@RequestParam("path") String path)
         throws Exception
     {
-        return ExportUtil.export(fileName, "DianMingCe.xls");
+        return ExportUtil.export(path, "DianMingCe.xls");
     }
     
     @ApiOperation(value = "导出未选课学生名单")
