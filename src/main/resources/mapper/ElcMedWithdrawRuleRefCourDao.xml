@@ -80,7 +80,7 @@
 	                           and r.PROJECT_ID = #{projectId}
 	                          </if>
 					)
-				AND t1.DEPLOY_FLAG_ = 1
+				AND t1.DEPLOY_FLAG_ &gt; 0
 			) t2
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN (

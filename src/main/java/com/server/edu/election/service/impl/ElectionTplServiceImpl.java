@@ -51,6 +51,7 @@ public class ElectionTplServiceImpl implements ElectionTplService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         List<ElectionTplVo> tplList = new ArrayList<>();
         Example example = new Example(ElectionTpl.class);
+        example.setOrderByClause("ID_ DESC");
         Example.Criteria criteria = example.createCriteria();
         ElectionTplDto cond = condition.getCondition();
         if (StringUtils.isNotBlank(cond.getName()))

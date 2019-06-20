@@ -158,7 +158,7 @@
   	  	op.COURSE_CODE_, cl.ID_ AS teachingClassId
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
-	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ = 1)
+	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
 	  JOIN election_rounds_cour_t co ON co.COURSE_CODE_ = op.COURSE_CODE_
 	  where
 		 co.ROUNDS_ID_ = #{roundId}
@@ -172,7 +172,7 @@
   	  	cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
-	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ = 1)
+	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
 	  where
 		 op.CALENDAR_ID_ = #{calendarId}
 		 order by cl.CODE_
