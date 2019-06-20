@@ -67,6 +67,8 @@ public class ElcPeFreeStdsVo extends ElcPeFreeStds {
     @Code2Text(transformer = "X_XQ")
     private String campus;
     
+    private String projectId;
+    
     public String getCampus()
     {
         return campus;
@@ -245,5 +247,15 @@ public class ElcPeFreeStdsVo extends ElcPeFreeStds {
 	public void setStudentCode(String studentCode) {
 		this.studentCode = studentCode;
 	}
+
+    public String getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
+    }
 
 }

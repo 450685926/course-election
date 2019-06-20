@@ -44,6 +44,7 @@ import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 
@@ -348,16 +349,22 @@ public class ReportManagementController
         return RestResult.successData(export);
     }
     
+    /**
+     * 从磁盘中下载
+     * 
+     * @param fileName
+     * @return
+     * @throws Exception
+     * @see [类、类#方法、类#成员]
+     */
     @ApiOperation(value = "导出excel下载文件")
     @GetMapping("/download2")
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
-    public ResponseEntity<Resource> download2(
-        @RequestParam("fileName") String fileName)
+    public ResponseEntity<Resource> download2(@RequestParam("path") String path)
         throws Exception
     {
-        LOG.info("export.start");
-        return ExportExcelUtils.export(fileName);
+        return ExportUtil.export(path, "DianMingCe.xls");
     }
     
     @ApiOperation(value = "导出未选课学生名单")

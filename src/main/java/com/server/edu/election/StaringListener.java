@@ -14,7 +14,6 @@ import com.server.edu.dmskafka.dataSync.SyncType;
 import com.server.edu.dmskafka.dataSync.data.StudentInfoSync;
 import com.server.edu.dmskafka.dataSync.data.StudentStatusSync;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.util.StuInfoSyncUtil;
 
@@ -64,7 +63,7 @@ public class StaringListener
         
         if (null != convert && StringUtils.isNotBlank(convert.getStudentCode()))
         {
-            Example example = new Example(Course.class);
+            Example example = new Example(Student.class);
             example.createCriteria()
                 .andEqualTo("studentCode", convert.getStudentCode());
             int count = studentDao.selectCountByExample(example);

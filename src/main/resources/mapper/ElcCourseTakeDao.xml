@@ -51,6 +51,9 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
   	 and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
+  	 and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
+  	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
   	 and t2.NAME_ = #{query.stuName}
   	 </if>
@@ -79,6 +82,7 @@
 	 AND (t1.STUDENT_ID_ like CONCAT(#{query.keyword}, '%') OR t2.NAME_ like CONCAT(#{query.keyword}, '%'))
 	 </if>
   	</where>
+  	order by CREATED_AT_ DESC, t1.STUDENT_ID_
   </select>
   
   <select id="getTeachingClassInfo" resultMap="VoResultMap">
@@ -361,36 +365,33 @@
     </delete>
 
     <select id="findStudentList" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultType="com.server.edu.election.entity.Student">
-			SELECT
-				st.STUDENT_CODE_ studentCode,
-				st.NAME_ NAME,
-				st.TRAINING_LEVEL_ trainingLevel,
-				st.FACULTY_ faculty,
-				st.PROFESSION_ profession
-			FROM
-				student_t st
-			JOIN election_rounds_stu_t t2 ON (
-				st.STUDENT_CODE_ = t2.STUDENT_ID_
-				AND t2.ROUNDS_ID_ IN (
-					SELECT
-						ID_
-					FROM
-						`election_rounds_t`
-					WHERE
-						CALENDAR_ID_=#{calendarId}
-					AND MODE_=#{mode}
-				)
+		SELECT
+			st.STUDENT_CODE_ studentCode,
+			st.NAME_ NAME,
+			st.TRAINING_LEVEL_ trainingLevel,
+			st.FACULTY_ faculty,
+			st.PROFESSION_ profession
+		FROM
+			student_t st
+		JOIN election_rounds_stu_t t2 ON (
+			st.STUDENT_CODE_ = t2.STUDENT_ID_
+			AND t2.ROUNDS_ID_ IN (
+				SELECT ID_ FROM election_rounds_t WHERE CALENDAR_ID_=#{calendarId} AND MODE_=#{mode}
 			)
-			<where>
-              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuName)">
-                  and (st.STUDENT_CODE_ like concat ('%',#{stuName},'%') or st.NAME_ like concat ('%',#{stuName},'%'))
-              </if>
-                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-                    and st.FACULTY_ =#{faculty}
-                </if>
-                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
-                    and st.PROFESSION_ =#{profession}
-                </if>
+		)
+		<where>
+           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+               st.MANAGER_DEPT_ID_ = #{projectId}
+           </if>
+           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuName)">
+               and (st.STUDENT_CODE_ like concat ('%',#{stuName},'%') or st.NAME_ like concat ('%',#{stuName},'%'))
+           </if>
+           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+               and st.FACULTY_ =#{faculty}
+           </if>
+           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+               and st.PROFESSION_ =#{profession}
+           </if>
         </where>
     </select>
 

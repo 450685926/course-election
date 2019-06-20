@@ -19,8 +19,11 @@
 		t2.PROFESSION_ profession
 	FROM
 		elc_pe_free_stds_t t1
-	INNER JOIN student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_
-	where 1=1
+	JOIN student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_
+	<where>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+        and t2.MANAGER_DEPT_ID_ = #{projectId}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(codeAndName)">
         and (t2.STUDENT_CODE_ like concat('%',#{codeAndName},'%') or t2.NAME_ like concat('%',#{codeAndName},'%'))
       </if>
@@ -54,6 +57,7 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
         and t2.IS_OVERSEAS_ = #{isOverseas}
       </if>      
+	</where>
   </select>
   
   <insert id="batchInsert" parameterType="java.util.List">
@@ -68,6 +72,7 @@
       )
     </foreach>
   </insert>
+  
   <select id="selectElcStudents" parameterType="com.server.edu.election.dto.ElcPeFreeStdsDto" resultType="com.server.edu.election.vo.ElcPeFreeStdsVo">
 	SELECT
 		t1.STUDENT_CODE_ studentId,
@@ -85,6 +90,9 @@
 			FROM
 				elc_pe_free_stds_t
 		)
+	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+        and t1.MANAGER_DEPT_ID_ = #{projectId}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(codeAndName)">
         and (t1.STUDENT_CODE_ like concat('%',#{codeAndName},'%') or t1.NAME_ like concat('%',#{codeAndName},'%'))
       </if>
@@ -120,7 +128,7 @@
       </if>      
   </select>
 
-    <select id="findStudentByStuId" resultType="int">
-        select count(*) from elc_pe_free_stds_t where STUDENT_ID_ = #{studentId}
-    </select>
+  <select id="findStudentByStuId" resultType="int">
+     select count(*) from elc_pe_free_stds_t where STUDENT_ID_ = #{studentId}
+  </select>
 </mapper>

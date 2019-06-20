@@ -912,6 +912,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
         }
         FileUtil.mkdirs(cacheDirectory);
+        FileUtil.deleteFile(cacheDirectory, 2);
         String fileName = "preRollBookList-" + System.currentTimeMillis() + ".xls";
         String path = cacheDirectory + fileName;
         Map<String, Object> map = new HashMap<>();
