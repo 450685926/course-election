@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.servicecomb.swagger.invocation.context.ContextUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -463,8 +462,8 @@ public class ElcMedWithdrawApplyServiceImpl
             elcLog.setCourseCode(teachingClassVo.getCourseName());
             elcLog.setTeachingClassCode(teachingClassVo.getCode());
             elcLog.setType(Constants.THREE);
-            //获取的是本地的IP地址 //PC-20140317PXKX/192.168.0.121
-            String ip = ContextUtils.getInvocationContext().getContext("IP");
+            String ip  = SessionUtils.getCurrentSession().getIp();
+            elcLog.setCreateIp(ip);
             log.setOprationClientIp(ip);
             String userId = SessionUtils.getCurrentSession().realUid();
             String userName = SessionUtils.getCurrentSession().realName();

@@ -278,6 +278,7 @@ public class CourseGradeLoad extends DataProLoad
                     sb.append(this.fillValue(r, roomWeeks)).append(";");
                 }
                 Collections.sort(weeks);
+                un.setValue(sb.toString());
                 un.setWeeks(weeks);
                 times.add(un);
             }
