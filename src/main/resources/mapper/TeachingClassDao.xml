@@ -39,7 +39,7 @@
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
 	teaching_class_t t1 
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
-	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
+	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
