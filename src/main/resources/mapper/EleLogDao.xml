@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.server.edu.election.dao.EleLogDao">
+	<resultMap id="LogMap" type="com.server.edu.common.entity.LogEntity" >
+		<id column="LOG_ID_" property="logId" jdbcType="BIGINT" />
+		<result column="OPERATOR_" property="operator" jdbcType="VARCHAR" />
+		<result column="LOG_" property="log" jdbcType="VARCHAR" />
+		<result column="CREATE_DATE_" property="createDate" jdbcType="BIGINT"/>
+	</resultMap>
 
 	<insert id="addOperateLog" parameterType="java.util.List">
 		INSERT INTO
@@ -19,8 +25,8 @@
 		</foreach >
 	</insert>
 	
-	<select id="getAgingLog" parameterType="java.lang.Long" resultType="com.server.edu.common.entity.LogEntity">
-		select * from ele_log_t where create_date_ &lt; #{overDueTime}
+	<select id="getAgingLog" parameterType="java.lang.Long" resultMap="LogMap">
+		select * from login_log_t where CREATE_DATE_ &lt; #{overDueTime}
 	</select>
 	
 	<delete id="deleteAgingLog" parameterType="java.util.List">
