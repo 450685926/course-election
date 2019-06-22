@@ -366,6 +366,7 @@
 
     <select id="findStudentList" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultType="com.server.edu.election.entity.Student">
 		SELECT
+		    DISTINCT
 			st.STUDENT_CODE_ studentCode,
 			st.NAME_ NAME,
 			st.TRAINING_LEVEL_ trainingLevel,
