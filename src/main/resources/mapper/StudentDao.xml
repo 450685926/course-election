@@ -109,16 +109,15 @@
 		  <include refid="Base_Column_List"></include>
 		FROM
 			student_t t1
-		WHERE
+		<where>
 			STUDENT_CODE_ NOT IN (
 				SELECT
 					STUDENT_ID_
 				FROM
 					elc_invincible_stds_t
 			)
-			<where>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
-			        t1.STUDENT_CODE_ =#{studentCode}
+			       and  t1.STUDENT_CODE_ =#{studentCode}
 			    </if>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
 			        and t1.NAME_ =#{name}
