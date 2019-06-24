@@ -207,7 +207,7 @@ public class ElcMedWithdrawApplyServiceImpl
         log.setOprationObjName(userName);
         log.setTargetObjCode(userId);
         log.setTargetObjName(userName);
-        log.setOprationType(Constants.EN_AUDIT);
+        log.setOprationType(Constants.CREATE);
         log.setCreatedAt(new Date());
         int type = Constants.ONE;
         medWithdrawCheck(projectId, elcCourseTake, log, type);
@@ -496,7 +496,7 @@ public class ElcMedWithdrawApplyServiceImpl
                 msg = I18nUtil.getMsg("elcMedWithdraw.unCheck",
                     student.getName(),
                     elcCourseTake.getCourseCode());
-                list.remove(temp);
+                iterator.remove();
             }
         }
         //审核
