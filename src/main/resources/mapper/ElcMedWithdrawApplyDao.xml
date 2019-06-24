@@ -35,8 +35,8 @@
 			t4.TRAINING_LEVEL_ trainingLevel,
 			t4.NATURE_ nature,
 			t4.FACULTY_ faculty,
-			t5.OPRATION_OBJ_CODE,
-			t5.OPRATION_OBJ_NAME,
+			t5.OPRATION_OBJ_CODE approvalCode,
+			t5.OPRATION_OBJ_NAME approvalName,
 			t6.NAME_  studentName
 		FROM
 			elc_med_withdraw_apply_t t1
