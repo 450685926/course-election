@@ -444,8 +444,7 @@ public class ElcMedWithdrawApplyServiceImpl
             elcLog.setCreatedAt(new Date());
             log.setOprationObjCode(userId);
             log.setOprationObjName(userName);
-            log.setTargetObjCode(userId);
-            log.setTargetObjName(userName);
+            log.setTargetObjCode(elcCourseTake.getStudentId());
             log.setOprationType(Constants.EN_AUDIT);
             log.setCreatedAt(new Date());
             checkResult = medWithdrawCheck(approvalInfo.getProjectId(),
