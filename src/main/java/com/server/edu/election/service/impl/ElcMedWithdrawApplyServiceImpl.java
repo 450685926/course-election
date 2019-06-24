@@ -41,7 +41,6 @@ import com.server.edu.election.entity.ElcMedWithdrawRules;
 import com.server.edu.election.entity.ElcRoundsCour;
 import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcMedWithdrawApplyService;
@@ -418,6 +417,7 @@ public class ElcMedWithdrawApplyServiceImpl
         List<ElcLog> elcLogs = new ArrayList<>();
         int type = Constants.TOW;
         Iterator<ElcMedWithdrawApply> iterator = list.iterator();
+        int checkResult = Constants.ZERO;
         while (iterator.hasNext())
         {
             ElcMedWithdrawApply temp = iterator.next();
@@ -476,7 +476,7 @@ public class ElcMedWithdrawApplyServiceImpl
             log.setTargetObjName(userName);
             log.setOprationType(Constants.EN_AUDIT);
             log.setCreatedAt(new Date());
-            int checkResult = medWithdrawCheck(approvalInfo.getProjectId(),
+            checkResult = medWithdrawCheck(approvalInfo.getProjectId(),
                 elcCourseTake,
                 log,
                 type);
@@ -486,48 +486,50 @@ public class ElcMedWithdrawApplyServiceImpl
                 logs.add(log);
                 elcLogs.add(elcLog);
             }
-            else
-            {
-                Example stuExample = new Example(Student.class);
-                Example.Criteria stuCriteria = stuExample.createCriteria();
-                stuCriteria.andEqualTo("studentCode",
-                    elcCourseTake.getStudentId());
-                Student student = studentDao.selectOneByExample(stuExample);
-                msg = I18nUtil.getMsg("elcMedWithdraw.unCheck",
-                    student.getName(),
-                    elcCourseTake.getCourseCode());
-                iterator.remove();
-            }
+//            else
+//            {
+//                Example stuExample = new Example(Student.class);
+//                Example.Criteria stuCriteria = stuExample.createCriteria();
+//                stuCriteria.andEqualTo("studentCode",
+//                    elcCourseTake.getStudentId());
+//                Student student = studentDao.selectOneByExample(stuExample);
+//                msg = I18nUtil.getMsg("elcMedWithdraw.unCheck",
+//                    student.getName(),
+//                    elcCourseTake.getCourseCode());
+//                iterator.remove();
+//            }
         }
         //审核
-        int result = elcMedWithdrawApplyDao.batchUpdate(list);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
-        }
-        result = elcMedWithdrawApplyLogDao.insertList(logs);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
-        }
-        //批量删除选课数据
-        Example takeExample = new Example(ElcCourseTake.class);
-        Example.Criteria takeCriteria = takeExample.createCriteria();
-        takeCriteria.andIn("id", takeIds);
-        result = elcCourseTakeDao.deleteByExample(takeExample);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
-        }
-        //批量保存退课日志数据
-        result = elcLogDao.insertList(elcLogs);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+        if(checkResult==Constants.ONE) {
+            int result = elcMedWithdrawApplyDao.batchUpdate(list);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
+            result = elcMedWithdrawApplyLogDao.insertList(logs);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
+            //批量删除选课数据
+            Example takeExample = new Example(ElcCourseTake.class);
+            Example.Criteria takeCriteria = takeExample.createCriteria();
+            takeCriteria.andIn("id", takeIds);
+            result = elcCourseTakeDao.deleteByExample(takeExample);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
+            //批量保存退课日志数据
+            result = elcLogDao.insertList(elcLogs);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
         }
         return msg;
     }
