@@ -26,7 +26,7 @@
 	</insert>
 	
 	<select id="getAgingLog" parameterType="java.lang.Long" resultMap="LogMap">
-		select * from login_log_t where CREATE_DATE_ &lt; #{overDueTime}
+		select * from ele_log_t where CREATE_DATE_ &lt; #{overDueTime}
 	</select>
 	
 	<delete id="deleteAgingLog" parameterType="java.util.List">
