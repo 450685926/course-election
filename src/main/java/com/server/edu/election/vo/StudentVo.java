@@ -18,9 +18,19 @@ public class StudentVo extends Student {
     private Long calendarId;
 
     private String calendarName;
+    
+    private String exportName;
+    
 
+    public String getExportName() {
+		return exportName;
+	}
 
-    public String getCalendarName() {
+	public void setExportName(String exportName) {
+		this.exportName = exportName;
+	}
+
+	public String getCalendarName() {
         return calendarName;
     }
 
