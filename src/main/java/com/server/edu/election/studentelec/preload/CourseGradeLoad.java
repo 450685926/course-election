@@ -63,6 +63,12 @@ public class CourseGradeLoad extends DataProLoad
         return 1;
     }
     
+    @Override
+    public String getProjectIds()
+    {
+        return "1";
+    }
+    
     @Autowired
     private StudentDao studentDao;
     

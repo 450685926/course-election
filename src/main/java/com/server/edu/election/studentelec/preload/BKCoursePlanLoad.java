@@ -35,6 +35,12 @@ public class BKCoursePlanLoad extends DataProLoad
     }
     
     @Override
+    public String getProjectIds()
+    {
+        return "1";
+    }
+
+    @Override
     public void load(ElecContext context)
     {
         StudentInfoCache stu = context.getStudentInfo();
