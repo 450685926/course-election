@@ -557,9 +557,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
         if(CollectionUtil.isNotEmpty(student)) {
         	for(StudentVo vo:student) {
-        		if(StringUtils.equals(vo.getTrainingLevel(), "1")) {
-        			vo.setExportName("(#)"+vo.getName());
+        		String exportName = vo.getName();
+        		if(!StringUtils.equals(vo.getTrainingLevel(), "1")) {
+        			exportName ="(#)"+vo.getName();
         		}
+        		vo.setExportName(exportName);
         	}
         }
         pre.setStudentsList(student);
