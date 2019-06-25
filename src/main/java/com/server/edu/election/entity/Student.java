@@ -13,9 +13,8 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 @Table(name = "student_t")
 public class Student implements Serializable
 {
-    
     /**
-     * 学号
+     * 学生号
      */
     @Id
     @Column(name = "STUDENT_CODE_")
@@ -133,25 +132,53 @@ public class Student implements Serializable
     @Column(name = "MANAGER_DEPT_ID_")
     private String managerDeptId;
     
+    /**
+     * 录取类别
+     */
+    @Column(name = "ENROL_CATEGORY_")
+    private String enrolCategory;
+    
+    /**
+     * 学位类型
+     */
+    @Column(name = "DEGREE_TYPE_")
+    private String degreeType;
+    
+    /**
+     * 学位代码
+     */
+    @Column(name = "DEGREE_CODE_")
+    private String degreeCode;
+    
+    /**
+     * 学历代码
+     */
+    @Column(name = "EDUCATION_CODE_")
+    private String educationCode;
+    
+    /**
+     * 录取类别
+     */
+    @Column(name = "ENROL_METHODS_")
+    private String enrolMethods;
+    
     private static final long serialVersionUID = 1L;
     
     /**
-     * 获取学生代码
+     * 获取学生号
      *
-     * @return STUDENT_CODE_ - 学生代码
+     * @return STUDENT_CODE_ - 学生号
      */
-    
     public String getStudentCode()
     {
         return studentCode;
     }
     
     /**
-     * 设置学生代码
+     * 设置学生号
      *
-     * @param studentCode 学生代码
+     * @param studentCode 学生号
      */
-    
     public void setStudentCode(String studentCode)
     {
         this.studentCode = studentCode == null ? null : studentCode.trim();
@@ -162,7 +189,6 @@ public class Student implements Serializable
      *
      * @return NAME_ - 姓名
      */
-    
     public String getName()
     {
         return name;
@@ -173,7 +199,6 @@ public class Student implements Serializable
      *
      * @param name 姓名
      */
-    
     public void setName(String name)
     {
         this.name = name == null ? null : name.trim();
@@ -184,7 +209,6 @@ public class Student implements Serializable
      *
      * @return SEX_ - 性别(根据数据字典统一使用)
      */
-    
     public Integer getSex()
     {
         return sex;
@@ -195,7 +219,6 @@ public class Student implements Serializable
      *
      * @param sex 性别(根据数据字典统一使用)
      */
-    
     public void setSex(Integer sex)
     {
         this.sex = sex;
@@ -206,7 +229,6 @@ public class Student implements Serializable
      *
      * @return FORM_LEARNING_ - 学习形式(全日制,非全日制,其他)
      */
-    
     public String getFormLearning()
     {
         return formLearning;
@@ -217,7 +239,6 @@ public class Student implements Serializable
      *
      * @param formLearning 学习形式(全日制,非全日制,其他)
      */
-    
     public void setFormLearning(String formLearning)
     {
         this.formLearning = formLearning == null ? null : formLearning.trim();
@@ -228,7 +249,6 @@ public class Student implements Serializable
      *
      * @return IS_OVERSEAS_ - 是否留学生 0：否  1：是
      */
-    
     public String getIsOverseas()
     {
         return isOverseas;
@@ -239,7 +259,6 @@ public class Student implements Serializable
      *
      * @param isOverseas 是否留学生 0：否  1：是
      */
-    
     public void setIsOverseas(String isOverseas)
     {
         this.isOverseas = isOverseas == null ? null : isOverseas.trim();
@@ -250,7 +269,6 @@ public class Student implements Serializable
      *
      * @return TRAINING_LEVEL_ - 培养层次(专科   本科   硕士   博士    其他    预科)
      */
-    
     public String getTrainingLevel()
     {
         return trainingLevel;
@@ -261,7 +279,6 @@ public class Student implements Serializable
      *
      * @param trainingLevel 培养层次(专科   本科   硕士   博士    其他    预科)
      */
-    
     public void setTrainingLevel(String trainingLevel)
     {
         this.trainingLevel =
@@ -273,7 +290,6 @@ public class Student implements Serializable
      *
      * @return FACULTY_ - 学院
      */
-    
     public String getFaculty()
     {
         return faculty;
@@ -284,7 +300,6 @@ public class Student implements Serializable
      *
      * @param faculty 学院
      */
-    
     public void setFaculty(String faculty)
     {
         this.faculty = faculty == null ? null : faculty.trim();
@@ -295,7 +310,6 @@ public class Student implements Serializable
      *
      * @return PROFESSION_ - 专业
      */
-    
     public String getProfession()
     {
         return profession;
@@ -306,7 +320,6 @@ public class Student implements Serializable
      *
      * @param profession 专业
      */
-    
     public void setProfession(String profession)
     {
         this.profession = profession == null ? null : profession.trim();
@@ -317,7 +330,6 @@ public class Student implements Serializable
      *
      * @return GRADE_ - 年级
      */
-    
     public Integer getGrade()
     {
         return grade;
@@ -328,7 +340,6 @@ public class Student implements Serializable
      *
      * @param grade 年级
      */
-    
     public void setGrade(Integer grade)
     {
         this.grade = grade;
@@ -339,7 +350,6 @@ public class Student implements Serializable
      *
      * @return SPCIAL_PLAN_ - 专项计划
      */
-    
     public String getSpcialPlan()
     {
         return spcialPlan;
@@ -350,7 +360,6 @@ public class Student implements Serializable
      *
      * @param spcialPlan 专项计划
      */
-    
     public void setSpcialPlan(String spcialPlan)
     {
         this.spcialPlan = spcialPlan == null ? null : spcialPlan.trim();
@@ -361,7 +370,6 @@ public class Student implements Serializable
      *
      * @return REGISTRATION_STATUS_ - 学籍状态
      */
-    
     public String getRegistrationStatus()
     {
         return registrationStatus;
@@ -372,7 +380,6 @@ public class Student implements Serializable
      *
      * @param registrationStatus 学籍状态
      */
-    
     public void setRegistrationStatus(String registrationStatus)
     {
         this.registrationStatus =
@@ -384,7 +391,6 @@ public class Student implements Serializable
      *
      * @return ENROL_SEASON_ - 入学季节
      */
-    
     public String getEnrolSeason()
     {
         return enrolSeason;
@@ -395,7 +401,6 @@ public class Student implements Serializable
      *
      * @param enrolSeason 入学季节
      */
-    
     public void setEnrolSeason(String enrolSeason)
     {
         this.enrolSeason = enrolSeason == null ? null : enrolSeason.trim();
@@ -406,7 +411,6 @@ public class Student implements Serializable
      *
      * @return CAMPUS_ - 校区
      */
-    
     public String getCampus()
     {
         return campus;
@@ -417,7 +421,6 @@ public class Student implements Serializable
      *
      * @param campus 校区
      */
-    
     public void setCampus(String campus)
     {
         this.campus = campus == null ? null : campus.trim();
@@ -428,7 +431,6 @@ public class Student implements Serializable
      *
      * @return TRAINING_CATEGORY_ - 培养类别
      */
-    
     public String getTrainingCategory()
     {
         return trainingCategory;
@@ -439,7 +441,6 @@ public class Student implements Serializable
      *
      * @param trainingCategory 培养类别
      */
-    
     public void setTrainingCategory(String trainingCategory)
     {
         this.trainingCategory =
@@ -451,7 +452,6 @@ public class Student implements Serializable
      *
      * @return DEGREE_CATEGORY_ - 学位类别
      */
-    
     public String getDegreeCategory()
     {
         return degreeCategory;
@@ -468,34 +468,169 @@ public class Student implements Serializable
             degreeCategory == null ? null : degreeCategory.trim();
     }
     
+    /**
+     * 获取研究方向
+     *
+     * @return RESEARCH_DIRECTION_ - 研究方向
+     */
     public String getResearchDirection()
     {
         return researchDirection;
     }
     
+    /**
+     * 设置研究方向
+     *
+     * @param researchDirection 研究方向
+     */
     public void setResearchDirection(String researchDirection)
     {
-        this.researchDirection = researchDirection;
+        this.researchDirection =
+            researchDirection == null ? null : researchDirection.trim();
     }
     
+    /**
+     * 获取学生类别
+     *
+     * @return STUDENT_CATEGORY_ - 学生类别
+     */
     public String getStudentCategory()
     {
         return studentCategory;
     }
     
+    /**
+     * 设置学生类别
+     *
+     * @param studentCategory 学生类别
+     */
     public void setStudentCategory(String studentCategory)
     {
-        this.studentCategory = studentCategory;
+        this.studentCategory =
+            studentCategory == null ? null : studentCategory.trim();
     }
     
+    /**
+     * 获取管理部门id（字典取值）
+     *
+     * @return MANAGER_DEPT_ID_ - 管理部门id（字典取值）
+     */
     public String getManagerDeptId()
     {
         return managerDeptId;
     }
     
+    /**
+     * 设置管理部门id（字典取值）
+     *
+     * @param managerDeptId 管理部门id（字典取值）
+     */
     public void setManagerDeptId(String managerDeptId)
     {
-        this.managerDeptId = managerDeptId;
+        this.managerDeptId =
+            managerDeptId == null ? null : managerDeptId.trim();
+    }
+    
+    /**
+     * 获取录取类别
+     *
+     * @return ENROL_CATEGORY_ - 录取类别
+     */
+    public String getEnrolCategory()
+    {
+        return enrolCategory;
+    }
+    
+    /**
+     * 设置录取类别
+     *
+     * @param enrolCategory 录取类别
+     */
+    public void setEnrolCategory(String enrolCategory)
+    {
+        this.enrolCategory =
+            enrolCategory == null ? null : enrolCategory.trim();
+    }
+    
+    /**
+     * 获取学位类型
+     *
+     * @return DEGREE_TYPE_ - 学位类型
+     */
+    public String getDegreeType()
+    {
+        return degreeType;
+    }
+    
+    /**
+     * 设置学位类型
+     *
+     * @param degreeType 学位类型
+     */
+    public void setDegreeType(String degreeType)
+    {
+        this.degreeType = degreeType == null ? null : degreeType.trim();
+    }
+    
+    /**
+     * 获取学位代码
+     *
+     * @return DEGREE_CODE_ - 学位代码
+     */
+    public String getDegreeCode()
+    {
+        return degreeCode;
+    }
+    
+    /**
+     * 设置学位代码
+     *
+     * @param degreeCode 学位代码
+     */
+    public void setDegreeCode(String degreeCode)
+    {
+        this.degreeCode = degreeCode == null ? null : degreeCode.trim();
+    }
+    
+    /**
+     * 获取学历代码
+     *
+     * @return EDUCATION_CODE_ - 学历代码
+     */
+    public String getEducationCode()
+    {
+        return educationCode;
+    }
+    
+    /**
+     * 设置学历代码
+     *
+     * @param educationCode 学历代码
+     */
+    public void setEducationCode(String educationCode)
+    {
+        this.educationCode =
+            educationCode == null ? null : educationCode.trim();
+    }
+    
+    /**
+     * 获取录取类别
+     *
+     * @return ENROL_METHODS_ - 录取类别
+     */
+    public String getEnrolMethods()
+    {
+        return enrolMethods;
+    }
+    
+    /**
+     * 设置录取类别
+     *
+     * @param enrolMethods 录取类别
+     */
+    public void setEnrolMethods(String enrolMethods)
+    {
+        this.enrolMethods = enrolMethods == null ? null : enrolMethods.trim();
     }
     
     @Override
@@ -520,6 +655,14 @@ public class Student implements Serializable
         sb.append(", campus=").append(campus);
         sb.append(", trainingCategory=").append(trainingCategory);
         sb.append(", degreeCategory=").append(degreeCategory);
+        sb.append(", researchDirection=").append(researchDirection);
+        sb.append(", studentCategory=").append(studentCategory);
+        sb.append(", managerDeptId=").append(managerDeptId);
+        sb.append(", enrolCategory=").append(enrolCategory);
+        sb.append(", degreeType=").append(degreeType);
+        sb.append(", degreeCode=").append(degreeCode);
+        sb.append(", educationCode=").append(educationCode);
+        sb.append(", enrolMethods=").append(enrolMethods);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

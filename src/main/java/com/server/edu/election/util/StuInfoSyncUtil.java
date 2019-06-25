@@ -20,7 +20,12 @@ public class StuInfoSyncUtil
         Student s = new Student();
         s.setCampus(b.getCampus());
         s.setDegreeCategory(b.getDegreeCategory());
+        s.setDegreeCode(b.getDegreeCode());
+        s.setDegreeType(b.getDegreeType());
+        s.setEducationCode(b.getEducationCode());
         s.setEnrolSeason(b.getEnrolSeason());
+        s.setEnrolCategory(b.getEnrolCategory());
+        s.setEnrolMethods(b.getEnrolMethods());
         s.setFaculty(b.getFaculty());
         s.setFormLearning(b.getFormLearning());
         s.setGrade(b.getGrade());
@@ -31,8 +36,9 @@ public class StuInfoSyncUtil
         s.setSpcialPlan(b.getSpcialPlan());
         s.setStudentCategory(b.getStudentCategory());
         s.setStudentCode(b.getStudentId());
-        s.setTrainingCategory(b.getTrainingLevel());
+        s.setTrainingCategory(b.getTrainingCategory());
         s.setTrainingLevel(b.getTrainingLevel());
+        s.setManagerDeptId(b.getPorjId());
         
         return s;
     }
