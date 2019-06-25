@@ -92,20 +92,21 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
         int aTimeEnd = a.getTimeEnd();
         int bTimeStart = b.getTimeStart();
         int bTimeEnd = b.getTimeEnd();
+        boolean sameTime = false;
         // b 是否在 a 内  a=[2,6], b=[3,5]
         if ((aTimeStart <= bTimeStart && aTimeEnd >= bTimeStart)
             || (aTimeStart <= bTimeEnd && aTimeEnd >= bTimeEnd))
         {
-            return true;
+        	sameTime = true;
         }
         // a 是否在 b 内 a=[3,5], b=[2,6]
         if ((bTimeStart <= aTimeStart && bTimeEnd >= aTimeStart)
             || (bTimeStart <= aTimeEnd && bTimeEnd >= aTimeEnd))
         {
-            return true;
+        	sameTime = true;
         }
-        // 节次不冲突判断上课周是否有重合
-        if (CollectionUtil.isNotEmpty(a.getWeeks())
+        // 节次有冲突时还要判断上课周是否有重合，a[1,2] 1-8; b[1,2] 9-10 是可以选的
+        if (sameTime && CollectionUtil.isNotEmpty(a.getWeeks())
             && CollectionUtil.isNotEmpty(b.getWeeks()))
         {
             for (Integer w : b.getWeeks())
