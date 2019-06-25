@@ -32,6 +32,12 @@ public class StudentInfoLoad extends DataProLoad
         return 0;
     }
     
+    @Override
+    public String getProjectIds()
+    {
+        return "1";
+    }
+    
     @Autowired
     private StudentDao studentDao;
     

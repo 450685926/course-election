@@ -76,12 +76,15 @@ public class LogToDBTimer {
 	  * @author: zhang yichi 
 	  * @date: 2019年5月28日 上午10:12:07
 	  */
-	 @Scheduled(cron = "0 30 0 ? * SAT")//每周六0：30执行
+	 //@Scheduled(cron = "0 30 0 ? * SAT")//每周六0：30执行
+	@Scheduled(cron = "0 10 0 * * ? ")
 	 public void agingLogTimer() {
 		 //获取一年前的时间
-		 LocalDate minusYears = LocalDate.now().minusYears(1);
+		 //LocalDate minusYears = LocalDate.now().minusYears(1);
+		 LocalDate minusYears = LocalDate.now().minusDays(1);
 		 Calendar calendar = Calendar.getInstance();
-		 calendar.set(minusYears.getYear(), minusYears.getMonthValue(), minusYears.getDayOfMonth(), 0, 0, 0);
+		 //minusYears.getMonthValue()-1 才是本月
+		 calendar.set(minusYears.getYear(), minusYears.getMonthValue()-1, minusYears.getDayOfMonth(), 0, 0, 0);
 		 long overDueTime = calendar.getTimeInMillis();
 		 List<LogEntity> list = eld.getAgingLog(overDueTime);
 		 if (list != null && list.size() > 0) {
