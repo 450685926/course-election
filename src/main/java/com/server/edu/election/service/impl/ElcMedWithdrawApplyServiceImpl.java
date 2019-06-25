@@ -41,7 +41,6 @@ import com.server.edu.election.entity.ElcMedWithdrawRules;
 import com.server.edu.election.entity.ElcRoundsCour;
 import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcMedWithdrawApplyService;
@@ -207,7 +206,7 @@ public class ElcMedWithdrawApplyServiceImpl
         log.setOprationObjName(userName);
         log.setTargetObjCode(userId);
         log.setTargetObjName(userName);
-        log.setOprationType(Constants.EN_AUDIT);
+        log.setOprationType(Constants.CREATE);
         log.setCreatedAt(new Date());
         int type = Constants.ONE;
         medWithdrawCheck(projectId, elcCourseTake, log, type);
@@ -237,12 +236,8 @@ public class ElcMedWithdrawApplyServiceImpl
             .collect(Collectors.toList());
         if (CollectionUtil.isEmpty(refList))
         {
-            if (Constants.APPIY == type)
-            {
-                throw new ParameterValidateException(
+            throw new ParameterValidateException(
                     I18nUtil.getMsg("elcMedWithdraw.courseExist"));
-            }
-            return checkResult;
         }
         //获取期中退课规则
         Example elcExample = new Example(ElcMedWithdrawRules.class);
@@ -262,12 +257,8 @@ public class ElcMedWithdrawApplyServiceImpl
                 teachingClassDao.findTeachingClass(elcResultQuery);
             if (CollectionUtil.isEmpty(teachingClassList))
             {
-                if (Constants.APPIY == type)
-                {
-                    throw new ParameterValidateException(
+                throw new ParameterValidateException(
                         I18nUtil.getMsg("elcMedWithdraw.teachingClassError"));
-                }
-                return checkResult;
             }
             //课程结束周小于等于不得退课
             TeachingClassVo teachingClassVo = teachingClassList.get(0);
@@ -277,12 +268,8 @@ public class ElcMedWithdrawApplyServiceImpl
                 .intValue();
             if (elcMedWithdrawRules.getCourseEndWeek() > week)
             {
-                if (Constants.APPIY == type)
-                {
-                    throw new ParameterValidateException(
+                throw new ParameterValidateException(
                         I18nUtil.getMsg("elcMedWithdraw.courseEndWeek"));
-                }
-                return checkResult;
             }
             //外语强化班不得退课
             if (elcMedWithdrawRules.getEnglishCourse())
@@ -308,12 +295,8 @@ public class ElcMedWithdrawApplyServiceImpl
                         .toString();
                 if (courses.contains(elcCourseTake.getCourseCode()))
                 {
-                    if (Constants.APPIY == type)
-                    {
-                        throw new ParameterValidateException(
+                    throw new ParameterValidateException(
                             I18nUtil.getMsg("elcMedWithdraw.englishCourse"));
-                    }
-                    return checkResult;
                 }
                 
             }
@@ -330,12 +313,8 @@ public class ElcMedWithdrawApplyServiceImpl
                 String courses = electionConstants.getValue();
                 if (courses.contains(elcCourseTake.getCourseCode()))
                 {
-                    if (Constants.APPIY == type)
-                    {
-                        throw new ParameterValidateException(
+                    throw new ParameterValidateException(
                             I18nUtil.getMsg("elcMedWithdraw.pcCourse"));
-                    }
-                    return checkResult;
                 }
             }
             //实践课不得退课
@@ -367,12 +346,8 @@ public class ElcMedWithdrawApplyServiceImpl
                             .collect(Collectors.toList());
                         if (courseCodes.contains(elcCourseTake.getCourseCode()))
                         {
-                            if (Constants.APPIY == type)
-                            {
-                                throw new ParameterValidateException(I18nUtil
+                            throw new ParameterValidateException(I18nUtil
                                     .getMsg("elcMedWithdraw.practiceCourse"));
-                            }
-                            return checkResult;
                         }
                     }
                     
@@ -385,12 +360,8 @@ public class ElcMedWithdrawApplyServiceImpl
                 if (Constants.REBUILD_CALSS
                     .equals(elcCourseTake.getCourseTakeType().toString()))
                 {
-                    if (Constants.APPIY == type)
-                    {
-                        throw new ParameterValidateException(
+                    throw new ParameterValidateException(
                             I18nUtil.getMsg("elcMedWithdraw.retakeCourse"));
-                    }
-                    return checkResult;
                 }
             }
         }
@@ -400,9 +371,9 @@ public class ElcMedWithdrawApplyServiceImpl
     
     @Override
     @Transactional
-    public String approval(ApprovalInfo approvalInfo)
+    public int approval(ApprovalInfo approvalInfo)
     {
-        String msg = "";
+    	int result = Constants.ZERO;
         List<ElcMedWithdrawApplyLog> logs = new ArrayList<>();
         Example example = new Example(ElcMedWithdrawApply.class);
         Example.Criteria criteria = example.createCriteria();
@@ -418,6 +389,7 @@ public class ElcMedWithdrawApplyServiceImpl
         List<ElcLog> elcLogs = new ArrayList<>();
         int type = Constants.TOW;
         Iterator<ElcMedWithdrawApply> iterator = list.iterator();
+        int checkResult = Constants.ZERO;
         while (iterator.hasNext())
         {
             ElcMedWithdrawApply temp = iterator.next();
@@ -472,11 +444,10 @@ public class ElcMedWithdrawApplyServiceImpl
             elcLog.setCreatedAt(new Date());
             log.setOprationObjCode(userId);
             log.setOprationObjName(userName);
-            log.setTargetObjCode(userId);
-            log.setTargetObjName(userName);
+            log.setTargetObjCode(elcCourseTake.getStudentId());
             log.setOprationType(Constants.EN_AUDIT);
             log.setCreatedAt(new Date());
-            int checkResult = medWithdrawCheck(approvalInfo.getProjectId(),
+            checkResult = medWithdrawCheck(approvalInfo.getProjectId(),
                 elcCourseTake,
                 log,
                 type);
@@ -486,50 +457,40 @@ public class ElcMedWithdrawApplyServiceImpl
                 logs.add(log);
                 elcLogs.add(elcLog);
             }
-            else
-            {
-                Example stuExample = new Example(Student.class);
-                Example.Criteria stuCriteria = stuExample.createCriteria();
-                stuCriteria.andEqualTo("studentCode",
-                    elcCourseTake.getStudentId());
-                Student student = studentDao.selectOneByExample(stuExample);
-                msg = I18nUtil.getMsg("elcMedWithdraw.unCheck",
-                    student.getName(),
-                    elcCourseTake.getCourseCode());
-                list.remove(temp);
-            }
         }
         //审核
-        int result = elcMedWithdrawApplyDao.batchUpdate(list);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+        if(checkResult==Constants.ONE) {
+            result = elcMedWithdrawApplyDao.batchUpdate(list);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
+            result = elcMedWithdrawApplyLogDao.insertList(logs);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
+            //批量删除选课数据
+            Example takeExample = new Example(ElcCourseTake.class);
+            Example.Criteria takeCriteria = takeExample.createCriteria();
+            takeCriteria.andIn("id", takeIds);
+            result = elcCourseTakeDao.deleteByExample(takeExample);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
+            //批量保存退课日志数据
+            result = elcLogDao.insertList(elcLogs);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.approvalError"));
+            }
         }
-        result = elcMedWithdrawApplyLogDao.insertList(logs);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
-        }
-        //批量删除选课数据
-        Example takeExample = new Example(ElcCourseTake.class);
-        Example.Criteria takeCriteria = takeExample.createCriteria();
-        takeCriteria.andIn("id", takeIds);
-        result = elcCourseTakeDao.deleteByExample(takeExample);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
-        }
-        //批量保存退课日志数据
-        result = elcLogDao.insertList(elcLogs);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("elcMedWithdraw.approvalError"));
-        }
-        return msg;
+        return result;
     }
     
 }

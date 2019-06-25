@@ -35,8 +35,8 @@
 			t4.TRAINING_LEVEL_ trainingLevel,
 			t4.NATURE_ nature,
 			t4.FACULTY_ faculty,
-			t5.OPRATION_OBJ_CODE,
-			t5.OPRATION_OBJ_NAME,
+			t5.OPRATION_OBJ_CODE approvalCode,
+			t5.OPRATION_OBJ_NAME approvalName,
 			t6.NAME_  studentName
 		FROM
 			elc_med_withdraw_apply_t t1
@@ -84,7 +84,6 @@
 		t1.ID_ id,
 		t1.STUDENT_ID_ studentId,
 		t1.WITHDRAW_FLAG_ withdrawFlag,
-		t2.CONTENT_ content,
 		t2.OPRATION_OBJ_CODE oprationObjCode,
 		t2.OPRATION_OBJ_NAME oprationObjName,  
 		t3.ID_ teachingClassId,
@@ -103,7 +102,7 @@
 		elc_med_withdraw_apply_t t1
 	INNER JOIN teaching_class_t t3 ON t3.ID_ = t1.TEACHING_CLASS_ID_
     INNER JOIN elc_med_withdraw_apply_log_t t2 ON (
-		t1.STUDENT_ID_ = t2.STUDENT_ID_
+		t1.STUDENT_ID_ = t2.TARGET_OBJ_CODE
 		AND t3.CODE_ = t2.TEACHING_CLASS_CODE_
 	)
 	INNER JOIN teaching_task_t t4 ON t3.TASK_ID_ = t4.ID_

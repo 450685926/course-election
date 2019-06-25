@@ -7,6 +7,7 @@ public interface Constants
 	 public static final int TOW = 2;
 	 public static final int THREE = 3;
 	 public static final String EN_AUDIT = "EN_AUDIT";
+	 public static final String CREATE = "CREATE";
 	 /**普通班*/
 	 public static final String ORDINARY_CALSS = "1";
 	 /**重修班*/
