@@ -12,9 +12,20 @@ public class CourseOpenDto extends CourseOpen
     
     private Long teachingClassId;
     
+    /**
+     *  教学班编号
+     */
     private String teachingClassCode;
 
+    /**
+     *  校区
+     */
     private String campus;
+    
+    /**
+     * 教学班名称
+     */
+    private String teachingClassName;
 
     private String teachClassType;
 
@@ -126,5 +137,13 @@ public class CourseOpenDto extends CourseOpen
     {
         this.teachingClassCode = teachingClassCode;
     }
+
+	public String getTeachingClassName() {
+		return teachingClassName;
+	}
+
+	public void setTeachingClassName(String teachingClassName) {
+		this.teachingClassName = teachingClassName;
+	}
     
 }
