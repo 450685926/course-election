@@ -40,6 +40,9 @@ public class ElecRoundCourseQuery
     /**课程性质*/
     private String nature;
     
+    /**校区*/
+    private String campus;   
+    
     private String keyword;
 
     public Integer getCourseType() {
@@ -157,5 +160,13 @@ public class ElecRoundCourseQuery
     {
         this.keyword = keyword;
     }
+
+	public String getCampus() {
+		return campus;
+	}
+
+	public void setCampus(String campus) {
+		this.campus = campus;
+	}
     
 }
