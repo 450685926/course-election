@@ -2,16 +2,16 @@ APPLICATION_ID: ${application_id}
 service_description:
   name: electionservice
   description: 选课微服务
-  version: 0.0.2
-  #environment: ${dev_type}
+  version: 0.0.3
+  environment: development
 
   properties:
     allowCrossApp: false
 cse:
   service:
     registry:
-      address: https://cse.cn-east-2.myhuaweicloud.com:443
-      #address: http://127.0.0.1:30100
+      #address: https://cse.cn-east-2.myhuaweicloud.com:443
+      address: http://127.0.0.1:30100
       instance:
         watch: false
   config:
