@@ -3,7 +3,7 @@ service_description:
   name: electionservice
   description: 选课微服务
   version: 0.0.3
-  environment: development
+  #environment: development
 
   properties:
     allowCrossApp: false
