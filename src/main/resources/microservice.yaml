@@ -10,8 +10,8 @@ service_description:
 cse:
   service:
     registry:
-      #address: https://cse.cn-east-2.myhuaweicloud.com:443
-      address: http://127.0.0.1:30100
+      address: https://cse.cn-east-2.myhuaweicloud.com:443
+      #address: http://127.0.0.1:30100
       instance:
         watch: false
   config:
