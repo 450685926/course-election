@@ -114,4 +114,10 @@ public class ExemptionApplyCondition {
     public void setDegreeCategory(String degreeCategory) {
         this.degreeCategory = degreeCategory;
     }
+
+	public ExemptionApplyCondition(String studentCode) {
+		super();
+		this.studentCode = studentCode;
+	}
+    
 }
