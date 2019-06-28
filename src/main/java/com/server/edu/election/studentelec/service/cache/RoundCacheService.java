@@ -21,13 +21,13 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.server.edu.election.dao.ElcRoundConditionDao;
-import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ElectionRoundsCour;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.service.ElecRoundCourseService;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.util.CollectionUtil;
 
@@ -47,7 +47,7 @@ public class RoundCacheService extends AbstractCacheService
     private ElcRoundConditionDao elcRoundConditionDao;
     
     @Autowired
-    private ElecRoundCourseDao roundCourseDao;
+    private ElecRoundCourseService elecRoundCourseService;
     
     @Autowired
     private StringRedisTemplate strTemplate;
@@ -229,73 +229,72 @@ public class RoundCacheService extends AbstractCacheService
     }
     
     /**
-     * 缓存课程与教学班的关系
+     * 缓存轮次教学班的关系
      * @param redisTemplate
      * @param timeout 缓存结束时间分钟
      * @param roundId 轮次ID
      */
-    public void cacheCourse(long timeout, Long roundId, Long calendarId)
+    public void cacheCourse(long timeout, Long roundId)
     {
         // 加载所有教学班与课程数据到缓存中
-        List<CourseOpenDto> lessons = roundCourseDao
-            .selectCorseRefTeachClassByRoundId(roundId, calendarId);
-        
-        Map<String, Set<Long>> courseClassMap = new HashMap<>();
-        for (CourseOpenDto teachClasss : lessons)
+    	List<ElectionRoundsCour> lessons = elecRoundCourseService.getTeachingClassIds(roundId);
+        Map<Long, Set<Long>> courseClassMap = new HashMap<>();
+        for (ElectionRoundsCour teachClasss : lessons)
         {
-            String courseCode = teachClasss.getCourseCode();
             Long teachingClassId = teachClasss.getTeachingClassId();
-            if (courseClassMap.containsKey(courseCode))
+            if (courseClassMap.containsKey(roundId))
             {
-                courseClassMap.get(courseCode).add(teachingClassId);
+                courseClassMap.get(roundId).add(teachingClassId);
             }
             else
             {
                 Set<Long> ids = new HashSet<>();
                 ids.add(teachingClassId);
-                courseClassMap.put(courseCode, ids);
+                courseClassMap.put(roundId, ids);
             }
         }
         
-        HashOperations<String, String, String> ops = strTemplate.opsForHash();
+//        HashOperations<String, String, String> ops = strTemplate.opsForHash();
+        ValueOperations<String, String> opsForValue =
+        		strTemplate.opsForValue();
         String key = Keys.getRoundCourseKey(roundId);
         
-        Set<String> existKeys = ops.keys(key);
+//        Set<String> existKeys = ops.keys(key);
         
-        for (Entry<String, Set<Long>> entry : courseClassMap.entrySet())
+        String value= opsForValue.get(key);
+        for (Entry<Long, Set<Long>> entry : courseClassMap.entrySet())
         {
-            String courseCode = entry.getKey();
+            Long roundsId = entry.getKey();
             Set<Long> teachClassIds = entry.getValue();
-            
-            ops.put(key, courseCode, JSON.toJSONString(teachClassIds));
-            
-            // 移除存在的
-            existKeys.remove(courseCode);
+            opsForValue.set(key, JSON.toJSONString(teachClassIds));
+//            // 移除存在的
+//            existKeys.remove(courseCode);
         }
         
-        if (null != existKeys && !existKeys.isEmpty())
-        {
-            // 删除掉没有关联的课程
-            ops.delete(key, existKeys.toArray());
-        }
+//        if (null != existKeys && !existKeys.isEmpty())
+//        {
+//            // 删除掉没有关联的课程
+//            ops.delete(key, existKeys.toArray());
+//        }
     }
     
     /**
-     * 得到轮次课程所对应的教学班ID
+     * 得到轮次所对应的教学班ID
      * 
      * @param roundId
-     * @param courseCode
      * @param ops
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public List<Long> getTeachClassIds(Long roundId, String courseCode)
+    public List<Long> getTeachClassIds(Long roundId)
     {
-        HashOperations<String, String, String> ops = strTemplate.opsForHash();
-        
+//        HashOperations<String, String, String> ops = strTemplate.opsForHash();
+        ValueOperations<String, String> opsForValue =
+        		strTemplate.opsForValue();
         String key = Keys.getRoundCourseKey(roundId);
         
-        String text = ops.get(key, courseCode);
+//        String text = ops.get(key, courseCode);
+        String text = opsForValue.get(key);
         List<Long> teachClassIds = null;
         if (StringUtils.isEmpty(text))
         {

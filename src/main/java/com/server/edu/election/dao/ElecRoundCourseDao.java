@@ -6,7 +6,11 @@ import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.entity.ElectionRoundsCour;
 import com.server.edu.election.query.ElecRoundCourseQuery;
+
+import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.common.MySqlMapper;
 
 /**
  * 可选教学任务
@@ -17,7 +21,7 @@ import com.server.edu.election.query.ElecRoundCourseQuery;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public interface ElecRoundCourseDao
+public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMapper<ElectionRoundsCour>
 {
     /**
      * 分页查询已添加的教学任务
@@ -56,8 +60,8 @@ public interface ElecRoundCourseDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    List<String> listAddedCourse(@Param("roundId") Long roundId,
-        @Param("courseCodes") List<String> courseCodes);
+    List<Long> listAddedCourse(@Param("roundId") Long roundId,
+        @Param("teachingClassIds") List<Long> teachingClassIds);
     
     /**
      * 添加可选课学生名单
@@ -67,7 +71,7 @@ public interface ElecRoundCourseDao
      * @see [类、类#方法、类#成员]
      */
     void add(@Param("roundId") Long roundId,
-        @Param("courseCode") String courseCode);
+        @Param("teachingClassId") Long teachingClassId);
     
     /**
      * 删除可选课学生名单
@@ -77,7 +81,7 @@ public interface ElecRoundCourseDao
      * @see [类、类#方法、类#成员]
      */
     void delete(@Param("roundId") Long roundId,
-        @Param("courseCodes") List<String> courseCodes);
+        @Param("teachingClassIds") List<Long> teachingClassIds);
     
     /**
      * 删除指定轮次的学生名单
