@@ -72,6 +72,10 @@ public interface ElcCourseTakeService
 
     
     int editStudyType(ElcCourseTakeDto elcCourseTakeDto);
-    
+
+    /***查询学生选课列表
+     * @return*/
+	List<String> findAllByStudentId(String studentId);
+
 
 }

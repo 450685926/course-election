@@ -349,5 +349,20 @@ public class ElcCourseTakeController
         int result =courseTakeService.editStudyType(elcCourseTakeDto);
         return RestResult.successData(result);
     }
-    
+
+    @ApiOperation(value = "学生选课列表")
+    @GetMapping(value = "/findTeachingClassId")
+    public RestResult<?> findTeachingClassIdByStudentId(String studentId){
+        try {
+            if (StringUtils.isBlank(studentId)) {
+                throw new ParameterValidateException("studentId not be empty");
+            }
+            List<String> list = courseTakeService.findAllByStudentId(studentId);
+            return RestResult.successData(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RestResult.fail();
+        }
+    }
+
 }
