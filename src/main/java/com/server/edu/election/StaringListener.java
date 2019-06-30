@@ -11,14 +11,10 @@ import org.springframework.stereotype.Component;
 import com.alibaba.fastjson.JSON;
 import com.server.edu.dmskafka.dataSync.SyncReceiver;
 import com.server.edu.dmskafka.dataSync.SyncType;
-import com.server.edu.dmskafka.dataSync.data.CourseSync;
 import com.server.edu.dmskafka.dataSync.data.StudentInfoSync;
 import com.server.edu.dmskafka.dataSync.data.StudentStatusSync;
-import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.util.CourseSyncUtil;
 import com.server.edu.election.util.StuInfoSyncUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -27,9 +23,6 @@ import tk.mybatis.mapper.entity.Example;
 public class StaringListener
     implements ApplicationListener<ApplicationReadyEvent>
 {
-    @Autowired
-    private CourseDao courseDao;
-    
     @Autowired
     private StudentDao studentDao;
     
@@ -42,38 +35,13 @@ public class StaringListener
         taskExecutor.execute(() -> {
             SyncReceiver.receive(cons -> {
                 SyncType find = SyncType.find(cons.key());
-                if (SyncType.COURSE == find)
-                {
-                    syncCourse(cons, find);
-                }
-                else if (SyncType.STU_BASE == find
+                if (SyncType.STU_BASE == find
                     || SyncType.STU_STATUS == find)
                 {
                     syncStu(cons, find);
                 }
             });
         });
-    }
-    
-    private void syncCourse(ConsumerRecord<String, String> cons, SyncType find)
-    {
-        CourseSync c = JSON.parseObject(cons.value(), CourseSync.class);
-        Course convert = CourseSyncUtil.convert(c);
-        
-        if (null != convert.getId())
-        {
-            Example example = new Example(Course.class);
-            example.createCriteria().andEqualTo("id", convert.getId());
-            int count = courseDao.selectCountByExample(example);
-            if (count == 0)
-            {
-                courseDao.insertSelective(convert);
-            }
-            else
-            {
-                courseDao.updateByPrimaryKeySelective(convert);
-            }
-        }
     }
     
     private void syncStu(ConsumerRecord<String, String> cons, SyncType find)
@@ -95,7 +63,7 @@ public class StaringListener
         
         if (null != convert && StringUtils.isNotBlank(convert.getStudentCode()))
         {
-            Example example = new Example(Course.class);
+            Example example = new Example(Student.class);
             example.createCriteria()
                 .andEqualTo("studentCode", convert.getStudentCode());
             int count = studentDao.selectCountByExample(example);

@@ -1,10 +1,16 @@
 package com.server.edu.election.entity;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-
-import java.io.Serializable;
-import javax.persistence.*;
 
 @CodeI18n
 @Table(name = "rebuild_course_nocharge_type_t")
@@ -17,28 +23,28 @@ public class RebuildCourseNoChargeType implements Serializable {
     /**
      * 培养层次 X_PYCC
      */
-    @Code2Text(transformer = "X_PYCC")
+    @Code2Text(DictTypeEnum.X_PYCC)
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
 
     /**
      * 学习形式(全日制,非全日制,其他)
      */
-    @Code2Text(transformer = "X_XXXS")
+    @Code2Text(DictTypeEnum.X_XXXS)
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
 
     /**
      * 专项计划
      */
-    @Code2Text(transformer = "X_ZXJH")
+    @Code2Text(DictTypeEnum.X_ZXJH)
     @Column(name = "SPCIAL_PLAN_")
     private String spcialPlan;
 
     /**
      * 学籍状态
      */
-    @Code2Text(transformer = "G_XJZT")
+    @Code2Text(DictTypeEnum.G_XJZT)
     @Column(name = "REGISTRATION_STATUS_")
     private String registrationStatus;
 

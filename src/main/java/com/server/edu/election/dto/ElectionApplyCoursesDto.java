@@ -17,7 +17,15 @@ public class ElectionApplyCoursesDto extends Course {
     private String keyCode;
     private Integer weekNum;
     
+    private Integer mode;
     
+    
+	public Integer getMode() {
+		return mode;
+	}
+	public void setMode(Integer mode) {
+		this.mode = mode;
+	}
 	public Integer getWeekNum() {
 		return weekNum;
 	}

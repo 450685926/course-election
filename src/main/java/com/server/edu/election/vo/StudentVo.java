@@ -8,14 +8,29 @@ import com.server.edu.election.entity.Student;
  * @create: 2019-02-13 16:14
  */
 public class StudentVo extends Student {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     private Integer rebuildNumber;
 
     private Long calendarId;
 
     private String calendarName;
+    
+    private String exportName;
+    
 
+    public String getExportName() {
+		return exportName;
+	}
 
-    public String getCalendarName() {
+	public void setExportName(String exportName) {
+		this.exportName = exportName;
+	}
+
+	public String getCalendarName() {
         return calendarName;
     }
 

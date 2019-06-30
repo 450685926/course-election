@@ -3,9 +3,6 @@ package com.server.edu.election.rpc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.TeacherInfo;
@@ -23,8 +20,6 @@ import com.server.edu.common.rest.ResultStatus;
  * @since [产品/模块版本]
  */
 public class StudentServiceInvoker {
-    private static Logger LOG = LoggerFactory.getLogger(StudentServiceInvoker.class);
-
     /**
      * 根据code查询老师信息
      */
@@ -89,6 +84,7 @@ public class StudentServiceInvoker {
         if (null == enrolCategory) {
             enrolCategory = "";
         }
+        @SuppressWarnings("unchecked")
         RestResult<List<String>> list = ServicePathEnum.STUDENT.postForObject(String.format("/studentInfo/getNationalPreStudentInfo?enrolCategory=%s", enrolCategory), studentIds, RestResult.class);
         return list.getData();
     }

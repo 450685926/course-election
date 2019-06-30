@@ -4,8 +4,6 @@ import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ExemptionCourse;
 
-import javax.persistence.Column;
-
 /**
  * @description:
  * @author: bear
@@ -13,9 +11,24 @@ import javax.persistence.Column;
  */
 @CodeI18n
 public class ExemptionCourseVo extends ExemptionCourse {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
     private String calendarName;
 
     private String courseName;
+
+    private String keyWord;
+
+    public String getKeyWord() {
+        return keyWord;
+    }
+
+    public void setKeyWord(String keyWord) {
+        this.keyWord = keyWord;
+    }
 
     /**
      * 培养层次X_PYCC(专科,本科,硕士,博士,其他,预科)

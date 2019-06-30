@@ -1,10 +1,10 @@
 package com.server.edu.election.vo;
 
+import java.io.Serializable;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-
-import java.io.Serializable;
 
 /**
  * @description: 未缴费课程名单
@@ -13,16 +13,19 @@ import java.io.Serializable;
  */
 @CodeI18n
 public class RebuildCourseNoChargeList implements Serializable{
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     private Long id;
     private Long calendarId;
     private String studentCode;
     private String studentName;
-    private String code;//课程代码
-    private String codeName;
+    private String courseCode;//课程代码
+    private String courseName;
     private String nature;
     private Double credits;
     private Integer paid;
-    private String strPaid;
     private Double weekHour;
     private Integer endWeek;
     private Integer startWeek;
@@ -37,6 +40,22 @@ public class RebuildCourseNoChargeList implements Serializable{
     private Integer mode;
     private Integer turn;
     private Integer chooseObj;
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
 
     public Integer getCourseTakeType() {
         return courseTakeType;
@@ -70,13 +89,7 @@ public class RebuildCourseNoChargeList implements Serializable{
         this.chooseObj = chooseObj;
     }
 
-    public String getStrPaid() {
-        return strPaid;
-    }
 
-    public void setStrPaid(String strPaid) {
-        this.strPaid = strPaid;
-    }
 
     public String getCalendarName() {
         return calendarName;
@@ -156,22 +169,6 @@ public class RebuildCourseNoChargeList implements Serializable{
 
     public void setStudentName(String studentName) {
         this.studentName = studentName;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getCodeName() {
-        return codeName;
-    }
-
-    public void setCodeName(String codeName) {
-        this.codeName = codeName;
     }
 
     public String getNature() {

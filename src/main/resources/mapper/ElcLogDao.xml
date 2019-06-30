@@ -20,7 +20,6 @@
     <result column="CREATE_NAME_" jdbcType="VARCHAR" property="createName" />
     <result column="CONTENT_" jdbcType="VARCHAR" property="content" />
 
-
   </resultMap>
   
   <resultMap type="com.server.edu.election.vo.ElcLogVo" id="VoElcLogMap" extends="BaseResultMap">
@@ -50,38 +49,33 @@
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
 	  	and t1.MODE_ = #{query.mode}
 	  	</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
+            and t1.TEACHING_CLASS_CODE_ like CONCAT(#{query.teachingClassCode},'%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+            and t1.COURSE_CODE_ like CONCAT(#{query.courseCode},'%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+            and t1.COURSE_NAME_ like CONCAT(#{query.courseName},'%')
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+            and (t2.STUDENT_CODE_ like CONCAT(#{query.keyword},'%') or t2.NAME_ like CONCAT(#{query.keyword},'%'))
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.startTime)">
+            <![CDATA[
+				and t1.CREATED_AT_ >= #{query.startTime}
+				   ]]>
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.endTime)">
+            <![CDATA[
+				and t1.CREATED_AT_ <= #{query.endTime}
+				   ]]>
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.deptId)">
+            and t2.MANAGER_DEPT_ID_ = #{query.deptId}
+        </if>
   	</where>
+  	order by t1.CREATED_AT_ DESC
   </select>
 
-    <select id="findCourseLog" parameterType="com.server.edu.election.vo.ElcLogVo" resultMap="VoElcLogMap">
-        select t1.*,t2.NAME_ from  election_log_t t1
-        left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-        <where>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
-                and t1.TEACHING_CLASS_CODE_ like concat('%',#{teachingClassCode},'%')
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-                and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-                and t1.COURSE_NAME_ like concat('%',#{courseName},'%')
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-                and t1.CALENDAR_ID_ =#{calendarId}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(content)">
-                and (t1.STUDENT_ID_ like concat('%',#{content},'%') or t2.NAME_ like concat('%',#{content},'%'))
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(startTime)">
-                <![CDATA[
-				and unix_timestamp(t1.CREATED_AT_) >= unix_timestamp(#{startTime})
-			    ]]>
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(endTime)">
-                <![CDATA[
-				and unix_timestamp(t1.CREATED_AT_) <= unix_timestamp(#{endTime})
-			    ]]>
-            </if>
-        </where>
-    </select>
 </mapper>

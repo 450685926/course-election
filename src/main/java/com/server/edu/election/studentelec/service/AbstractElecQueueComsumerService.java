@@ -22,6 +22,8 @@ public abstract class AbstractElecQueueComsumerService<T>
     {
         // 启动
         starter.execute(() -> {
+            Thread.currentThread()
+                .setName("elecConsume-" + Thread.currentThread().getName());
             while (true)
             {
                 try

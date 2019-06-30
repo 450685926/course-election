@@ -1,13 +1,11 @@
 package com.server.edu.election.dto;
 
-import java.io.Serializable;
-
 /**
  * @description: 选课限制男女生人数
  * @author: bear
  * @create: 2019-05-06 14:57
  */
-public class ElcCourseLimitDto implements Serializable{
+public class ElcCourseLimitDto{
     private Integer maleNum;
     private Integer feMaleNum;
 

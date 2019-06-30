@@ -1,6 +1,5 @@
 package com.server.edu.election.dto;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -8,7 +7,7 @@ import java.util.List;
  * @author: bear
  * @create: 2019-02-16 10:03
  */
-public class TeacherTimeAndRoom implements Serializable {
+public class TeacherTimeAndRoom {
     private String courseCode;
     private String courseName;
     private String classCode;

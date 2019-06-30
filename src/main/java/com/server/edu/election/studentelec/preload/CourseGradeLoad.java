@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.preload;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,18 +17,19 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.StudentScoreVo;
+import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.ElectionApplyCoursesDao;
+import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.dao.TeachingClassTeacherDao;
+import com.server.edu.election.dto.TeacherClassTimeRoom;
+import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -61,6 +63,12 @@ public class CourseGradeLoad extends DataProLoad
         return 1;
     }
     
+    @Override
+    public String getProjectIds()
+    {
+        return "1";
+    }
+    
     @Autowired
     private StudentDao studentDao;
     
@@ -77,10 +85,7 @@ public class CourseGradeLoad extends DataProLoad
     private ExemptionApplyDao applyDao;
     
     @Autowired
-    private ElectionApplyCoursesDao electionApplyCoursesDao;
-    
-    @Autowired
-    private TeachingClassTeacherDao teacherDao;
+    private ElectionApplyDao electionApplyDao;
     
     @Override
     public void load(ElecContext context)
@@ -104,7 +109,6 @@ public class CourseGradeLoad extends DataProLoad
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
-        Set<ElecCourse> elecApplyCourses = context.getElecApplyCourses();
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -147,20 +151,22 @@ public class CourseGradeLoad extends DataProLoad
         Long calendarId = electionRounds.getCalendarId();
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
-        List<ElecCourse> electionApplies = elcCourseTakeDao
-            .selectApplyCourses(studentId, calendarId, Constants.ZERO);
-        elecApplyCourses = new HashSet<>(electionApplies);
         //3.学生免修课程
         List<ElecCourse> applyRecord =
             applyDao.findApplyRecord(calendarId, studentId);
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
-    }
-    
-    static String groupByRoom(ClassTimeUnit time)
-    {
-        return String.format("%s-%s", time.getRoomId(), time.getTeacherCode());
+        
+        //5.保存选课申请
+        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
+        Example aExample =new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
+        elecApplyCourses.addAll(electionApplys);
+        
     }
     
     /**
@@ -181,56 +187,26 @@ public class CourseGradeLoad extends DataProLoad
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
-            Example teacherExample = new Example(TeachingClassTeacher.class);
-            teacherExample.createCriteria().andIn("teachingClassId", teachClassIds).
-                    andEqualTo("type",Constants.TEACHER_DEFAULT);
-            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-            
-            //            Set<String> teacherCodeList = list.stream()
-            //                .filter(time -> StringUtils.isNotBlank(time.getTeacherCode()))
-            //                .map(ClassTimeUnit::getTeacherCode)
-            //                .collect(Collectors.toSet());
-            
-            Map<String, Teacher> teacherMap = new HashMap<>();
             for (ElcCourseTakeVo c : courseTakes)
             {
-                SelectedCourse selectedCourse = new SelectedCourse();
-                selectedCourse.setApply(c.getApply());
-                selectedCourse.setCampus(c.getCampus());
-                selectedCourse.setChooseObj(c.getChooseObj());
-                selectedCourse.setCourseCode(c.getCourseCode());
-                selectedCourse.setCourseName(c.getCourseName());
-                selectedCourse.setCourseTakeType(c.getCourseTakeType());
-                selectedCourse.setCredits(c.getCredits());
-                //selectedCourse.setNameEn(c.geten);
-                //selectedCourse.setPublicElec(publicElec);
-                //selectedCourse.setRebuildElec(rebuildElec);
-                selectedCourse.setPublicElec(
+                SelectedCourse course = new SelectedCourse();
+                course.setApply(c.getApply());
+                course.setCampus(c.getCampus());
+                course.setChooseObj(c.getChooseObj());
+                course.setCourseCode(c.getCourseCode());
+                course.setCourseName(c.getCourseName());
+                course.setCourseTakeType(c.getCourseTakeType());
+                course.setCredits(c.getCredits());
+                course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
-                selectedCourse.setTeachClassId(c.getTeachingClassId());
-                selectedCourse.setTeachClassCode(c.getTeachingClassCode());
-                selectedCourse.setTurn(c.getTurn());
+                course.setTeachClassId(c.getTeachingClassId());
+                course.setTeachClassCode(c.getTeachingClassCode());
+                course.setTurn(c.getTurn());
+                List<ClassTimeUnit> times = this.concatTime(collect, course);
+                course.setTimes(times);
                 
-                if(CollectionUtil.isNotEmpty(teacherList)) {
-                	 List<TeachingClassTeacher> teachers = teacherList.stream().filter(a->c.getTeachingClassId().equals(a.getTeachingClassId())).collect(Collectors.toList());
-                	 if(CollectionUtil.isNotEmpty(teachers)) {
-                 		StringBuilder stringBuilder = new StringBuilder();
-                		for(TeachingClassTeacher teacher:teachers) {
-                			stringBuilder.append(teacher.getTeacherName());
-                			stringBuilder.append("(");
-                			stringBuilder.append(teacher.getTeacherCode());
-                			stringBuilder.append(")");
-                			stringBuilder.append(",");
-                		}
-                		selectedCourse.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
-                	 }
-                }
-                List<ClassTimeUnit> times =
-                    concatTime(collect, teacherMap, selectedCourse);
-                selectedCourse.setTimes(times);
-                
-                selectedCourses.add(selectedCourse);
+                selectedCourses.add(course);
                 
             }
         }
@@ -245,12 +221,78 @@ public class CourseGradeLoad extends DataProLoad
      */
     public Map<Long, List<ClassTimeUnit>> groupByTime(List<Long> teachClassIds)
     {
+        Map<Long, List<ClassTimeUnit>> map = new HashMap<>();
         //按周数拆分的选课数据集合
-        List<ClassTimeUnit> list = classDao.getClassTimes(teachClassIds);
+        List<TeacherClassTimeRoom> list = classDao.getClassTimes(teachClassIds);
+        if (CollectionUtil.isEmpty(list))
+        {
+            return map;
+        }
         //一个教学班分组
-        Map<Long, List<ClassTimeUnit>> collect = list.stream()
-            .collect(Collectors.groupingBy(ClassTimeUnit::getTeachClassId));
-        return collect;
+        Map<Long, List<TeacherClassTimeRoom>> classTimeMap = list.stream()
+            .collect(
+                Collectors.groupingBy(TeacherClassTimeRoom::getTeachClassId));
+        
+        for (Entry<Long, List<TeacherClassTimeRoom>> entry : classTimeMap
+            .entrySet())
+        {
+            List<TeacherClassTimeRoom> ls = entry.getValue();
+            if (CollectionUtil.isEmpty(ls))
+            {
+                continue;
+            }
+            List<ClassTimeUnit> times = new ArrayList<>();
+            // time->room
+            Map<Long, List<TeacherClassTimeRoom>> timeRoomMap = ls.stream()
+                .collect(Collectors
+                    .groupingBy(TeacherClassTimeRoom::getArrangeTimeId));
+            for (Entry<Long, List<TeacherClassTimeRoom>> entry2 : timeRoomMap
+                .entrySet())
+            {
+                List<TeacherClassTimeRoom> rooms = entry2.getValue();
+                if (CollectionUtil.isEmpty(rooms))
+                {
+                    continue;
+                }
+                ClassTimeUnit un = new ClassTimeUnit();
+                TeacherClassTimeRoom room = rooms.get(0);
+                un.setArrangeTimeId(room.getArrangeTimeId());
+                un.setDayOfWeek(room.getDayOfWeek());
+                un.setTeachClassId(room.getTeachClassId());
+                un.setTimeEnd(room.getTimeEnd());
+                un.setTimeStart(room.getTimeStart());
+                un.setTeacherCode(room.getTeacherCode());
+                // 所有周
+                List<Integer> weeks = rooms.stream()
+                    .map(TeacherClassTimeRoom::getWeekNumber)
+                    .collect(Collectors.toList());
+                // 相同教室相同老师的周次
+                Map<String, List<TeacherClassTimeRoom>> roomTeacherMap =
+                    rooms.stream().collect(Collectors.groupingBy(r -> {
+                        return r.getRoomId() + "_" + r.getTeacherCode();
+                    }));
+                
+                StringBuilder sb = new StringBuilder();
+                for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
+                    .entrySet())
+                {
+                    List<TeacherClassTimeRoom> roomTeachers = e.getValue();
+                    TeacherClassTimeRoom r = roomTeachers.get(0);
+                    List<Integer> roomWeeks = roomTeachers.stream()
+                        .map(TeacherClassTimeRoom::getWeekNumber)
+                        .collect(Collectors.toList());
+                    sb.append(this.fillValue(r, roomWeeks)).append(";");
+                }
+                Collections.sort(weeks);
+                un.setValue(sb.toString());
+                un.setWeeks(weeks);
+                times.add(un);
+            }
+            
+            map.put(entry.getKey(), times);
+        }
+        
+        return map;
     }
     
     /**
@@ -263,91 +305,90 @@ public class CourseGradeLoad extends DataProLoad
      * @see [类、类#方法、类#成员]
      */
     public List<ClassTimeUnit> concatTime(
-        Map<Long, List<ClassTimeUnit>> collect, Map<String, Teacher> teacherMap,
-        TeachingClassCache c)
+        Map<Long, List<ClassTimeUnit>> collect, TeachingClassCache c)
     {
         //一个教学班的排课时间信息
-        List<ClassTimeUnit> classTimeUnits = collect.get(c.getTeachClassId());
-        if (CollectionUtil.isNotEmpty(classTimeUnits))
+        List<ClassTimeUnit> times = collect.get(c.getTeachClassId());
+        if (CollectionUtil.isNotEmpty(times))
         {
-            List<ClassTimeUnit> classTimeList = new ArrayList<>();
-            // 按上课节次分组取每个节次下对应的教室与老师
-            Map<Long, List<ClassTimeUnit>> collect2 = classTimeUnits.stream()
-                .collect(
-                    Collectors.groupingBy(ClassTimeUnit::getArrangeTimeId));
-            for (Entry<Long, List<ClassTimeUnit>> entry : collect2.entrySet())
+            for (ClassTimeUnit ctu : times)
             {
-                List<ClassTimeUnit> times = entry.getValue();
-                if (CollectionUtil.isEmpty(times))
-                {
-                    continue;
-                }
-                
-                // 按教室、老师分组
-                Map<String, List<ClassTimeUnit>> collect3 = times.stream()
-                    .collect(
-                        Collectors.groupingBy(CourseGradeLoad::groupByRoom));
-                StringBuilder sb = new StringBuilder();
-                sb.append(String
-                    .format("%s(%s) ", c.getCourseName(), c.getCourseCode()));
-                int step = 0;
-                for (Entry<String, List<ClassTimeUnit>> entry1 : collect3
-                    .entrySet())
-                {
-                    List<ClassTimeUnit> rooms = entry1.getValue();
-                    if (CollectionUtil.isEmpty(rooms))
-                    {
-                        continue;
-                    }
-                    ClassTimeUnit room = rooms.get(0);
-                    List<Integer> weekNumbers = rooms.stream()
-                        .map(ClassTimeUnit::getWeekNumber)
-                        .sorted()
-                        .collect(Collectors.toList());
-                    
-                    List<String> weekStr = CalUtil
-                        .getWeekNums(weekNumbers.toArray(new Integer[] {}));
-                    
-                    String teacherCode = room.getTeacherCode();
-                    Teacher teacherInfo =
-                        getTeacherInfo(teacherMap, teacherCode);
-                    String teacherName =
-                        teacherInfo != null ? teacherInfo.getName() : "";
-                    if (step > 0)
-                    {
-                        sb.append(",");
-                    }
-                    // 老师名称(老师编号)周次
-                    sb.append(String.format("%s(%s)%s",
-                        teacherName,
-                        teacherCode,
-                        StringUtils.join(weekStr, ",")));
-                    step++;
-                }
-                ClassTimeUnit time = times.get(0);
-                time.setValue(sb.toString());
-                classTimeList.add(time);
+                ctu.setValue(String.format("%s(%s) %s",
+                    c.getCourseName(),
+                    c.getCourseCode(),
+                    ctu.getValue()));
             }
-            return classTimeList;
+            
+            String teacherName = this.getTeacherName(times);
+            c.setTeacherName(teacherName);
+            
+            return times;
         }
         
         return null;
     }
     
-    private Teacher getTeacherInfo(Map<String, Teacher> teacherMap,
-        String teacherCode)
+    private String getTeacherName(List<ClassTimeUnit> times)
     {
-        Teacher teacherInfo = null;
-        if (teacherMap.containsKey(teacherCode))
+        String tName = null;
+        if (CollectionUtil.isNotEmpty(times))
         {
-            teacherInfo = teacherMap.get(teacherCode);
+            List<String> teacherSet = new ArrayList<>(times.stream()
+                .map(ClassTimeUnit::getTeacherCode)
+                .collect(Collectors.toSet()));
+            if (CollectionUtil.isNotEmpty(teacherSet))
+            {
+                String str = StringUtils.join(teacherSet, ",");
+                List<String> nameList = new ArrayList<>();
+                Collections.addAll(nameList, str.split(","));
+                Set<String> tnames = new HashSet<>(nameList);
+                List<Teacher> teachers = TeacherCacheUtil
+                    .getTeachers(tnames.toArray(new String[] {}));
+                if (CollectionUtil.isNotEmpty(teachers))
+                {
+                    List<String> names = teachers.stream().map(t -> {
+                        if (t == null)
+                            return "";
+                        return String
+                            .format("%s(%s)", t.getName(), t.getCode());
+                    }).collect(Collectors.toList());
+                    
+                    tName = StringUtils.join(names, ",");
+                }
+            }
         }
-        else
+        return tName;
+    }
+    
+    private String fillValue(TeacherClassTimeRoom r, List<Integer> weeks)
+    {
+        String weekStr = CalUtil.getWeeks(weeks);
+        
+        String teacherNames = getTeacherInfo(r.getTeacherCode());
+        
+        String roomName = ClassroomCacheUtil.getRoomName(r.getRoomId());
+        // 老师名称(老师编号)[周] 教室
+        return String.format("%s[%s] %s", teacherNames, weekStr, roomName);
+    }
+    
+    private String getTeacherInfo(String teacherCode)
+    {
+        if (StringUtils.isEmpty(teacherCode))
         {
-            teacherInfo = TeacherCacheUtil.getTeacher(teacherCode);
-            teacherMap.put(teacherCode, teacherInfo);
+            return "";
         }
-        return teacherInfo;
+        StringBuilder sb = new StringBuilder();
+        
+        String[] codes = teacherCode.split(",");
+        List<String> names = TeacherCacheUtil.getNames(codes);
+        for (int i = 0; i < codes.length; i++)
+        {
+            String tCode = codes[i];
+            String tName = names.get(i);
+            // 老师名称(老师编号)
+            sb.append(String.format("%s(%s) ", tName, tCode));
+        }
+        return sb.toString();
     }
     
 }

@@ -1,7 +1,12 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Table(name = "election_tpl_t")
@@ -33,6 +38,9 @@ public class ElectionTpl implements Serializable {
     @NotNull
     @Column(name = "STATUS_")
     private Integer status;
+    
+    @Column(name = "MANAGER_DEPT_ID_")
+    private String projectId;
 
     private static final long serialVersionUID = 1L;
 
@@ -108,6 +116,16 @@ public class ElectionTpl implements Serializable {
         this.status = status;
     }
 
+    public String getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -118,6 +136,7 @@ public class ElectionTpl implements Serializable {
         sb.append(", name=").append(name);
         sb.append(", remark=").append(remark);
         sb.append(", status=").append(status);
+        sb.append(", projectId=").append(projectId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

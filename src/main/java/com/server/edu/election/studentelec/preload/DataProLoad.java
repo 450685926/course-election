@@ -15,6 +15,8 @@ public abstract class DataProLoad implements Comparable<DataProLoad>
 {
     /**执行优先级，越小越先执行*/
     public abstract int getOrder();
+    /**对应的管理部门*/
+    public abstract String getProjectIds();
     
     @Override
     public int compareTo(DataProLoad rule)

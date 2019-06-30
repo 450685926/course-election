@@ -18,6 +18,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
+import com.server.edu.election.dao.ElcCourseSuggestSwitchDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
 import com.server.edu.election.dao.StudentDao;
@@ -27,6 +28,7 @@ import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
+import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
@@ -70,6 +72,9 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private TeachingClassTeacherDao teacherDao;
     
+    @Autowired
+    private ElcCourseSuggestSwitchDao elcCourseSuggestSwitchDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -85,10 +90,10 @@ public class ElcResultServiceImpl implements ElcResultService
                     andEqualTo("type",Constants.TEACHER_DEFAULT);
             List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
             for(TeachingClassVo vo: list) {
-            	if(CollectionUtil.isEmpty(teacherList)) {
+            	if(CollectionUtil.isNotEmpty(teacherList)) {
                 	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
                 	StringBuilder stringBuilder = new StringBuilder();
-                	if(CollectionUtil.isEmpty(teachers)) {
+                	if(CollectionUtil.isNotEmpty(teachers)) {
                 		for(TeachingClassTeacher teacher:teachers) {
                 			stringBuilder.append(teacher.getTeacherName());
                 			stringBuilder.append("(");
@@ -128,6 +133,16 @@ public class ElcResultServiceImpl implements ElcResultService
             ElcCourseTake param = new ElcCourseTake();
             param.setTeachingClassId(teachingClassId);
             List<ElcCourseTake> takes = courseTakeDao.select(param);
+            String course = takes.get(0).getCourseCode();
+        	if(Boolean.TRUE.equals(dto.getSuggestSwitchCourse())) {
+        		List<ElcCourseSuggestSwitch> suggestSwitchs = elcCourseSuggestSwitchDao.selectAll();
+        		if(CollectionUtil.isNotEmpty(suggestSwitchs)) {
+        			List<String> suggestCoures = suggestSwitchs.stream().map(ElcCourseSuggestSwitch::getCourseCode).collect(Collectors.toList());
+        			if(!suggestCoures.contains(course)) {
+        				return;
+        			}
+        		}
+        	}
             // 特殊学生
             List<String> invincibleStdIds =
                 invincibleStdsDao.selectAllStudentId();

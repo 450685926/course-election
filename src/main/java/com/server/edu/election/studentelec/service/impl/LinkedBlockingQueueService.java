@@ -1,15 +1,13 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.service.AbstractElecQueue;
 import com.server.edu.election.studentelec.service.ElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 
@@ -18,17 +16,13 @@ import com.server.edu.election.studentelec.service.ElecQueueService;
  */
 //@Service("linkedBlockingQueue")
 //@Primary
-public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
+public class LinkedBlockingQueueService extends AbstractElecQueue
+    implements ElecQueueService<ElecRequest>
 {
     protected Logger LOG = LoggerFactory.getLogger(getClass());
     
     private final ConcurrentHashMap<String, LinkedBlockingQueue<ElecRequest>> groupQueueMap =
         new ConcurrentHashMap<>();
-    
-    /** 消费执行线程*/
-    private final ExecutorService comsumerThreadPool =
-        new ThreadPoolExecutor(10, 100, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>());
     
     @Override
     public boolean add(String group, ElecRequest data)
@@ -58,11 +52,10 @@ public class LinkedBlockingQueueService implements ElecQueueService<ElecRequest>
             ElecRequest take = queue.take();
             if (null != take)
             {
-                comsumerThreadPool.execute(() -> {
+                super.execute(() -> {
                     comsumer.consume(take);
                 });
             }
-            
         }
         catch (InterruptedException e)
         {

@@ -7,7 +7,6 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -38,7 +37,9 @@ import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
@@ -148,6 +149,7 @@ public class ElcCourseTakeController
         PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
         condition.setPageNum_(1);
         condition.setPageSize_(10);
+        condition.setCondition(query);
         
         PageResult<ElcCourseTakeVo> page =
             courseTakeService.listPage(condition);
@@ -167,15 +169,13 @@ public class ElcCourseTakeController
         @RequestBody @Valid ElcCourseTakeQuery query)
         throws Exception
     {
-        PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
-        condition.setPageNum_(1);
-        condition.setPageSize_(10);
-        
-        PageResult<ElcCourseTakeVo> page =
-            courseTakeService.listPage(condition);
-        // TODO 只查询没有成绩的选课
-        
-        return RestResult.successData(page.getList());
+        if (StringUtils.isBlank(query.getStudentId()))
+        {
+            throw new ParameterValidateException("studentId not be empty");
+        }
+        //只查询没有成绩的选课
+        List<ElcCourseTakeVo> list= courseTakeService.page2StuAbnormal(query);
+        return RestResult.successData(list);
     }
     
     @ApiOperation(value = "学生学籍异动退课")
@@ -187,14 +187,35 @@ public class ElcCourseTakeController
         {
             throw new ParameterValidateException("studentId not be empty");
         }
-        // TODO 对学生无成绩的选课进行退课处理
+        //对学生无成绩的选课进行退课处理
+        courseTakeService.withdraw2StuAbnormal(query);
         return RestResult.success();
     }
+    
+    /**
+     *@Description: 根据学期模式查找可以加课的学生
+     *@Param:
+     *@return: 
+     *@Author: bear
+     *@date: 2019/2/23 14:16
+     */
+     @ApiOperation(value = "加课学生列表")
+     @PostMapping("/studentPage")
+     public RestResult<PageResult<Student>> studentPage(
+         @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+         throws Exception
+     {
+         ValidatorUtil.validateAndThrow(condition.getCondition());
+         
+         PageResult<Student> list = courseTakeService.findStudentList(condition);
+         
+         return RestResult.successData(list);
+     }
     
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
         @RequestPart(name = "calendarId") @NotNull Long calendarId,
-                                @RequestPart(name = "mode") @NotNull Integer mode         )
+        @RequestPart(name = "mode") @NotNull Integer mode)
     {
         if (file == null)
         {
@@ -220,7 +241,7 @@ public class ElcCourseTakeController
             List<ElcCourseTakeAddDto> datas = GeneralExcelUtil
                 .parseExcel(workbook, designer, ElcCourseTakeAddDto.class);
             
-            String msg = courseTakeService.addByExcel(calendarId, datas,mode);
+            String msg = courseTakeService.addByExcel(calendarId, datas, mode);
             return RestResult.success(msg);
         }
         catch (Exception e)
@@ -319,29 +340,29 @@ public class ElcCourseTakeController
         return ExportUtil
             .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
     }
-
-
-    /**
-    *@Description: 根据学期模式查找可以加课的学生
-    *@Param:
-    *@return: 
-    *@Author: bear
-    *@date: 2019/2/23 14:16
-    */
-    @ApiOperation(value = "加课学生列表")
-    @PostMapping("/studentPage")
-    public RestResult<PageResult<Student>> studentPage(
-            @RequestBody PageCondition<ElcCourseTakeQuery> condition) throws Exception{
-
-        {
-            ValidatorUtil.validateAndThrow(condition.getCondition());
-
-            PageResult<Student> list =
-                    courseTakeService.findStudentList(condition);
-
-            return RestResult.successData(list);
-        }
-
-
+    
+    @ApiOperation(value = "修改修读类别")
+    @PostMapping("/editStudyType")
+    public RestResult<Integer> editStudyType(
+        @RequestBody ElcCourseTakeDto elcCourseTakeDto)
+    {
+        int result =courseTakeService.editStudyType(elcCourseTakeDto);
+        return RestResult.successData(result);
     }
+
+    @ApiOperation(value = "学生选课列表")
+    @GetMapping(value = "/findTeachingClassId")
+    public RestResult<?> findTeachingClassIdByStudentId(String studentId){
+        try {
+            if (StringUtils.isBlank(studentId)) {
+                throw new ParameterValidateException("studentId not be empty");
+            }
+            List<String> list = courseTakeService.findAllByStudentId(studentId);
+            return RestResult.successData(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RestResult.fail();
+        }
+    }
+
 }

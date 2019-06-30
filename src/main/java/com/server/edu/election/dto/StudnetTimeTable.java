@@ -1,12 +1,11 @@
 package com.server.edu.election.dto;
 
+import java.util.List;
+
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.Code2Text.DataType;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.dictionary.translator.ClassRoomTranslator;
-
-import java.io.Serializable;
-import java.util.List;
 
 /**
  * @description: 学生课表
@@ -14,7 +13,7 @@ import java.util.List;
  * @create: 2019-04-30 11:40
  */
 @CodeI18n
-public class StudnetTimeTable implements Serializable{
+public class StudnetTimeTable{
     private Long teachingClassId;
     private Long classCode;
     private String className;

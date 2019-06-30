@@ -47,6 +47,24 @@ public class ElcRoundCondition implements Serializable {
      */
     @Column(name = "SPCIAL_PLANS_")
     private String spcialPlans;
+    
+    /**
+              *  培养类别(逗号分隔)
+     */
+    @Column(name = "TRAINING_CATEGORY_")
+    private String trainingCategory;
+    
+    /**
+             *  学位类型(逗号分隔)
+     */
+    @Column(name = "DEGREE_TYPE_")
+    private String degreeType;
+    
+    /**
+            *  学习形式(逗号分隔)
+     */
+    @Column(name = "FORM_LEARNING_")
+    private String formLearing;
 
     private static final long serialVersionUID = 1L;
 
@@ -175,8 +193,64 @@ public class ElcRoundCondition implements Serializable {
     public void setSpcialPlans(String spcialPlans) {
         this.spcialPlans = spcialPlans == null ? null : spcialPlans.trim();
     }
+    
+    
 
-    @Override
+    /**
+             * 获取培养类别(逗号分隔)
+     * 
+     * @return TRAINING_CATEGORY_ 培养类别(逗号分隔)
+     */
+    public String getTrainingCategory() {
+		return trainingCategory;
+	}
+
+	/**
+	 * 设置培养类别(逗号分隔)
+	 * 
+	 * @param TRAINING_CATEGORY_ 培养类别(逗号分隔)
+	 */
+	public void setTrainingCategory(String trainingCategory) {
+		this.trainingCategory = trainingCategory;
+	}
+
+	/**
+	 * 获取学位类型(逗号分隔)
+	 * 
+	 * @return DEGREE_TYPE_  学位类型(逗号分隔)
+	 */
+	public String getDegreeType() {
+		return degreeType;
+	}
+
+	/**
+	 * 设置学位类型(逗号分隔)
+	 * 
+	 * @param DEGREE_TYPE_  学位类型(逗号分隔)
+	 */
+	public void setDegreeType(String degreeType) {
+		this.degreeType = degreeType;
+	}
+
+	/**
+	  * 获取学习形式(逗号分隔)
+	 * 
+	 * @return FORM_LEARNING_  学习形式(逗号分隔)
+	 */
+	public String getFormLearing() {
+		return formLearing;
+	}
+
+	/**
+	 * 设置学习形式(逗号分隔)
+	 * 
+	 * @param FORM_LEARNING_  学习形式(逗号分隔)
+	 */
+	public void setFormLearing(String formLearing) {
+		this.formLearing = formLearing;
+	}
+
+	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());

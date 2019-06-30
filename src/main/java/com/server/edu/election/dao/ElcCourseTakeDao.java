@@ -2,10 +2,21 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
-import com.server.edu.election.dto.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseLimitDto;
+import com.server.edu.election.dto.LoserStuElcCourse;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -43,11 +54,11 @@ public interface ElcCourseTakeDao
     
     /**查询重修未缴费课程名单*/
     Page<RebuildCourseNoChargeList> findCourseNoChargeList(
-        RebuildCoursePaymentCondition condition);
+            RebuildCourseDto condition);
     
     /**查询学生重修未缴费总门数*/
     Page<StudentVo> findCourseNoChargeStudentList(
-        RebuildCoursePaymentCondition condition);
+            RebuildCourseDto condition);
     
     /**查询点名册教学班和老师*/
     Page<RollBookList> findRollBookList(ReportManagementCondition condition);
@@ -128,4 +139,20 @@ public interface ElcCourseTakeDao
 
     /**预警学生选课*/
     List<LoserStuElcCourse> findStudentElcCourse(@Param("calendarId")Long calendarId, @Param("studentId") String studentId);
+
+    /**
+     * 查询未选课学生
+     */
+    Page<NoSelectCourseStdsDto> findNoSelectCourseStds(NoSelectCourseStdsDto stdsDto);
+
+    /**查询学生未缴费明细*/
+    List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
+
+    
+    int editStudyType(@Param("courseTakeType") Integer courseTakeType,@Param("ids") List<Long> ids, @Param("caladerId") Long caladerId);
+
+    /**查询学生选课列表
+     * @return*/
+    List<String> findAllByStudentId(@Param("studentId")String studentId);
+
 }

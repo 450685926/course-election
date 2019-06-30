@@ -39,10 +39,10 @@
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
 	teaching_class_t t1 
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
-	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
-	left join teaching_class_teacher_t t4 on (t4.TYPE_=0 and t4.TEACHING_CLASS_ID_ =t1.ID_)
+	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
+      and t1.DEPLOY_FLAG_ &gt; 0
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
@@ -93,10 +93,11 @@
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
-  		</if>
-  	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-  	      and t4.TEACHER_CODE_ = #{teacherCode}
-  		</if>
+  	  </if>
+  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+  	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4 
+  	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
+  	  </if>
     </where>
   </select>
   
@@ -177,7 +178,7 @@
   </select>
   
 
-    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+    <select id="findTeachingClassIdTime" resultType="com.server.edu.election.dto.TeacherClassTimeRoom">
         select ti.ID_ arrangeTimeId,ti.DAY_OF_WEEK_ dayOfWeek,ti.TIME_START_ timeStart,ti.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber
         from teaching_class_t t2
         join teaching_class_arrange_time_t ti on t2.ID_ = ti.TEACHING_CLASS_ID_
@@ -185,7 +186,7 @@
         where t2.ID_=#{teachingClassId}
     </select>
 
-  <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.studentelec.context.ClassTimeUnit">
+  <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.dto.TeacherClassTimeRoom">
 		 SELECT
 			t2.ID_ teachClassId,
 			t3.ID_ arrangeTimeId,

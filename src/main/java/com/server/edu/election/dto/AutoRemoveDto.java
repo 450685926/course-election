@@ -34,6 +34,9 @@ public class AutoRemoveDto
     /**按教学班对应专业配比人数进行筛选*/
     private Boolean gradAndPrePeople;
     
+    /**按建议课表进行筛选*/
+    private Boolean suggestSwitchCourse;
+    
     public Long getCalendarId()
     {
         return calendarId;
@@ -103,5 +106,15 @@ public class AutoRemoveDto
     {
         this.gradAndPrePeople = gradAndPrePeople;
     }
+
+	public Boolean getSuggestSwitchCourse() {
+		return suggestSwitchCourse;
+	}
+
+	public void setSuggestSwitchCourse(Boolean suggestSwitchCourse) {
+		this.suggestSwitchCourse = suggestSwitchCourse;
+	}
+    
+    
     
 }

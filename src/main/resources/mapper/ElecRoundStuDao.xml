@@ -36,6 +36,9 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.grade)">
   		and t1.GRADE_ = #{stu.grade}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.projectId)">
+  		and t1.MANAGER_DEPT_ID_ = #{stu.projectId}
+  		</if>
   	</where>
   	order by t1.STUDENT_CODE_
   </select>
@@ -55,11 +58,17 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.profession)">
   		and t1.PROFESSION_ = #{stu.profession}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.researchDirection)">
+		and t1.RESEARCH_DIRECTION_ = #{stu.researchDirection}
+	    </if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.isOverseas)">
   		and t1.IS_OVERSEAS_ = #{stu.isOverseas}
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.grade)">
   		and t1.GRADE_ = #{stu.grade}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.projectId)">
+  		and t1.MANAGER_DEPT_ID_ = #{stu.projectId}
   		</if>
   		and t1.STUDENT_CODE_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
   	</where>
@@ -113,6 +122,9 @@
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.faculty)">
 				and t1.FACULTY_ = #{stu.faculty}
 			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.researchDirection)">
+				and t1.RESEARCH_DIRECTION_ = #{stu.researchDirection}
+			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.profession)">
 				and t1.PROFESSION_ = #{stu.profession}
 			</if>
@@ -122,6 +134,9 @@
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.grade)">
 				and t1.GRADE_ = #{stu.grade}
 			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.projectId)">
+	  		    and t1.MANAGER_DEPT_ID_ = #{stu.projectId}
+	  		</if>
 			and t2.STUDENT_ID_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
 		</where>
 	</select>

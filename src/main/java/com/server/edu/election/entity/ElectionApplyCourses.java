@@ -1,7 +1,12 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Table(name = "election_apply_courses_t")
 public class ElectionApplyCourses implements Serializable {
@@ -24,6 +29,12 @@ public class ElectionApplyCourses implements Serializable {
      */
     @Column(name = "COURSE_CODE_")
     private String courseCode;
+
+    /**
+     * 模式：1正常，2体育 3英语 
+     */
+    @Column(name = "MODE_")
+    private Integer mode;
 
     private static final long serialVersionUID = 1L;
 
@@ -81,6 +92,24 @@ public class ElectionApplyCourses implements Serializable {
         this.courseCode = courseCode == null ? null : courseCode.trim();
     }
 
+    /**
+     * 获取模式：1正常，2英语 3体育
+     *
+     * @return MODE_ - 模式：1正常，2英语 3体育
+     */
+    public Integer getMode() {
+        return mode;
+    }
+
+    /**
+     * 设置模式：1正常，2英语 3体育
+     *
+     * @param mode 模式：1正常，2英语 3体育
+     */
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -90,6 +119,7 @@ public class ElectionApplyCourses implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", calendarId=").append(calendarId);
         sb.append(", courseCode=").append(courseCode);
+        sb.append(", mode=").append(mode);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

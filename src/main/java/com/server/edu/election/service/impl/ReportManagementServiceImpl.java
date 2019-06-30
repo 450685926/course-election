@@ -18,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
@@ -34,13 +33,12 @@ import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
-import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.dto.PreViewRollDto;
 import com.server.edu.election.dto.PreviewRollBookList;
 import com.server.edu.election.dto.ReportManagementCondition;
@@ -55,7 +53,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.ElcNoSelectReasonVo;
 import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
@@ -90,16 +88,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private StudentDao studentDao;
 
     @Autowired
-    private ElcLogDao elcLogDao;
-
-    @Autowired
-    private ElecRoundsDao elecRoundsDao;
-
-    @Autowired
     private ElcNoSelectReasonDao reasonDao;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -236,19 +225,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         Page<StudentVo> allSchoolTimetab = courseTakeDao.findAllSchoolTimetab(condition.getCondition());
         if(allSchoolTimetab!=null){
             List<StudentVo> result = allSchoolTimetab.getResult();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
+            SchoolCalendarVo schoolCalendar= BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+            for (StudentVo studentVo : result) {
+                studentVo.setCalendarName(schoolCalendar.getFullName());
             }
-            if(schoolCalendarMap.size()!=0){
-                for (StudentVo studentVo : result) {
-                    String s = schoolCalendarMap.get(studentVo.getCalendarId());
-                    if(StringUtils.isNotEmpty(s)) {
-                        studentVo.setCalendarName(s);
-                    }
-                }
-            }
+
         }
         return new PageResult<>(allSchoolTimetab);
     }
@@ -404,39 +385,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-    *@Description: 选退课日志
-    *@Param:
-    *@return:
-    *@Author: bear
-    *@date: 2019/2/18 16:30
-    */
-    @Override
-    public PageResult<ElcLogVo> findCourseLog(PageCondition<ElcLogVo> condition) {
-        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<ElcLogVo> courseLog = elcLogDao.findCourseLog(condition.getCondition());
-        if(courseLog !=null){
-            List<ElcLogVo> result = courseLog.getResult();
-            if(CollectionUtil.isNotEmpty(result)){
-                List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-                Map<Long, String> schoolCalendarMap = new HashMap<>();
-                for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                    schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-                }
-                if(schoolCalendarMap.size()!=0){
-                    for (ElcLogVo elcLogVo : result) {
-                        String s = schoolCalendarMap.get(elcLogVo.getCalendarId());
-                        if(StringUtils.isNotEmpty(s)) {
-                            elcLogVo.setCalendarName(s);
-                        }
-                    }
-                }
-            }
-
-        }
-        return new PageResult<>(courseLog);
-    }
-
-    /**
     *@Description: 查询学生未选课名单
     *@Param:
     *@return: 
@@ -444,26 +392,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/19 15:42
     */
     @Override
-    public PageResult<StudentSelectCourseList> findElectCourseList(PageCondition<ReportManagementCondition> condition) {
+    public PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition) {
+        String deptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(deptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<StudentSelectCourseList> electCourseList = elecRoundsDao.findElectCourseList(condition.getCondition());
-        if(electCourseList!=null){
-            List<StudentSelectCourseList> result = electCourseList.getResult();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            if(schoolCalendarMap.size()!=0){
-                for (StudentSelectCourseList managementCondition : result) {
-                    String s = schoolCalendarMap.get(managementCondition.getCalendarId());
-                    if(StringUtils.isNotEmpty(s)){
-                        managementCondition.setCalendarName(s);
-                    }
-                }
-
-            }
-        }
+        Page<NoSelectCourseStdsDto> electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
         return new PageResult<>(electCourseList);
     }
 
@@ -471,9 +404,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
      * 增加未选课原因
      * */
     @Override
-    public String addNoSelectReason(ElcNoSelectReason noSelectReason) {
-        reasonDao.deleteNoSelectReason(noSelectReason.getCalendarId(),noSelectReason.getStudentId());
-        reasonDao.insertSelective(noSelectReason);
+    public String addNoSelectReason(ElcNoSelectReasonVo noSelectReason) {
+        reasonDao.deleteNoSelectReason(noSelectReason.getCalendarId(),noSelectReason.getStudentIds());
+        reasonDao.insertReason(noSelectReason.getCalendarId(),noSelectReason.getStudentIds(),noSelectReason.getReason());
         return "common.editSuccess";
     }
 
@@ -499,14 +432,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/20 15:08
     */
     @Override
-    public String exportStudentNoCourseList(ReportManagementCondition condition) throws Exception{
-        PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+    public String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception{
+        PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
         pageCondition.setCondition(condition);
         pageCondition.setPageSize_(Constants.ZERO);
         pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+        PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
         if(electCourseList!=null){
-            List<StudentSelectCourseList> list = electCourseList.getList();
+            List<NoSelectCourseStdsDto> list = electCourseList.getList();
             if (list == null) {
                 list = new ArrayList<>();
             }
@@ -531,44 +464,43 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/20 15:48
     */
     @Override
-    public String exportRollBookList(ReportManagementCondition condition) throws Exception{
-        PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
-        pageCondition.setCondition(condition);
-        pageCondition.setPageSize_(Constants.ZERO);
-        pageCondition.setPageNum_(Constants.ZERO);
-        PageResult<RollBookList> rollBookList = findRollBookList2(pageCondition);
-        if(rollBookList!=null){
-            List<RollBookList> list = rollBookList.getList();
-            List<SchoolCalendarVo> schoolCalendarList = BaseresServiceInvoker.getSchoolCalendarList();
-            Map<Long, String> schoolCalendarMap = new HashMap<>();
-            for(SchoolCalendarVo schoolCalendarVo : schoolCalendarList) {
-                schoolCalendarMap.put(schoolCalendarVo.getId(), schoolCalendarVo.getFullName());
-            }
-            for (RollBookList bookList : list) {
-                if(0!=schoolCalendarMap.size()){
-                    String s = schoolCalendarMap.get(bookList.getCalendarId());
-                    if(StringUtils.isNotEmpty(s)){
-                        bookList.setCalendarName(s);
+    public ExcelResult exportRollBookList(RollBookConditionDto condition) throws Exception{
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rollBookList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RollBookConditionDto> pageCondition = new PageCondition<RollBookConditionDto>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<RollBookList> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<RollBookList> rollBookList = findRollBookList(pageCondition);
+                    list.addAll(rollBookList.getList());
 
+                    result.setTotal((int)rollBookList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (rollBookList.getTotal_() <= list.size())
+                    {
+                        break;
                     }
                 }
-                bookList.setClassCodeAndcourseName(bookList.getCourseName()+bookList.getClassCode());
+                //组装excel
+                GeneralExcelDesigner design = getDesignTwo();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
             }
-            if (list == null) {
-                list = new ArrayList<>();
-            }
-            GeneralExcelDesigner design = getDesignTwo();
-            design.setDatas(list);
-            ExcelWriterUtil generalExcelHandle;
-            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
-            FileUtil.mkdirs(cacheDirectory);
-            String fileName = "rollBookList.xls";
-            String path = cacheDirectory + fileName;
-            generalExcelHandle.writeExcel(new FileOutputStream(path));
-            return fileName;
-
-        }
-        return "";
+        });
+        return excelResult;
     }
 
     /**
@@ -623,6 +555,15 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId) {
         PreViewRollDto pre=new PreViewRollDto();
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
+        if(CollectionUtil.isNotEmpty(student)) {
+        	for(StudentVo vo:student) {
+        		String exportName = vo.getName();
+        		if(!StringUtils.equals(vo.getTrainingLevel(), "1")) {
+        			exportName ="(#)"+vo.getName();
+        		}
+        		vo.setExportName(exportName);
+        	}
+        }
         pre.setStudentsList(student);
         pre.setSize(student.size());
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
@@ -866,29 +807,29 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-    *@Description: 导出选课名单
+    *@Description: 导出未选课名单
     *@Param: 
     *@return: 
     *@Author: bear
     *@date: 2019/5/8 16:13
     */
     @Override
-    public ExcelResult export(ReportManagementCondition condition) {
-        ExcelResult excelResult = ExportExcelUtils.submitTask("eleCourseList", new ExcelExecuter() {
+    public ExcelResult export(NoSelectCourseStdsDto condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("noSelectCourseList", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
                 ExcelResult result = this.getResult();
-                PageCondition<ReportManagementCondition> pageCondition = new PageCondition<ReportManagementCondition>();
+                PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
                 pageCondition.setCondition(condition);
                 pageCondition.setPageSize_(100);
                 int pageNum = 0;
                 pageCondition.setPageNum_(pageNum);
-                List<StudentSelectCourseList> list = new ArrayList<>();
+                List<NoSelectCourseStdsDto> list = new ArrayList<>();
                 while (true)
                 {
                     pageNum++;
                     pageCondition.setPageNum_(pageNum);
-                    PageResult<StudentSelectCourseList> electCourseList = findElectCourseList(pageCondition);
+                    PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
                     list.addAll(electCourseList.getList());
 
                     result.setTotal((int)electCourseList.getTotal_());
@@ -973,16 +914,24 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         String calendarName ="同济大学"+ condition.getCalendarName()+"学生点名册";
         Integer lineNumber = preViewRollDto.getLineNumber();
         Integer rowNumber = preViewRollDto.getRowNumber();
+        List<Integer> lineList = new ArrayList<>();
+        if(lineNumber>1) {
+            for(int i=0;i<lineNumber-1;i++) {
+            	lineList.add(i);
+            }
+        }
         FileUtil.mkdirs(cacheDirectory);
+        FileUtil.deleteFile(cacheDirectory, 2);
         String fileName = "preRollBookList-" + System.currentTimeMillis() + ".xls";
         String path = cacheDirectory + fileName;
         Map<String, Object> map = new HashMap<>();
         map.put("list", studentsList);
         map.put("calendar",calendarName);
-        map.put("lineNumber",lineNumber);
+        map.put("lineNumber",lineNumber-1);
         map.put("rowNumber",rowNumber);
+        map.put("lineList",lineList);
         map.put("item",condition);
-        Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("preRollBookList.ftl");
+        Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("preRollBookList1.ftl");
         // 将模板和数据模型合并生成文件
         Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
         tpl.process(map, out);
@@ -1047,12 +996,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private GeneralExcelDesigner getDesignTwo() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "calssCode");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "classCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCodeAndcourseName");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "className");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "courseLabel");
         design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"), "selectCourseNumber");
         design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"), "numberLimit");
 
@@ -1068,40 +1016,20 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private GeneralExcelDesigner getDesign() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("exemptionApply.calendarName"), "calendarName");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "name");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
         design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_PYCC", value, SessionUtils.getLang());
-                });
-        design.addCell(I18nUtil.getMsg("rebuildCourse.campus"), "campus").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_XQ", value, SessionUtils.getLang());
-                });
         design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("X_YX", value, SessionUtils.getLang());
                 });
 
-        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "major").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
                 });
-        design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "registrationStatus").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("G_XJZT", value, SessionUtils.getLang());
-                });
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "classCode");
-        design.addCell(I18nUtil.getMsg("rollBookManage.eleStatus"), "classCode").setValueHandler((value, rawData, cell) -> {
-            return StringUtils.isBlank(value) ? "未选课" : "选课";
-        });
-        design.addCell(I18nUtil.getMsg("rollBookManage.reBuildStatus"), "isRebuildCourse").setValueHandler((value, rawData, cell) -> {
-            return "2".equals(value) ? "是" : "否";
-        });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
         return design;
     }
 

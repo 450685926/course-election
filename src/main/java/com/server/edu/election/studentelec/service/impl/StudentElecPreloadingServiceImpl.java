@@ -1,9 +1,9 @@
 package com.server.edu.election.studentelec.service.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,12 +61,17 @@ public class StudentElecPreloadingServiceImpl
                 {
                     context = new ElecContext(studentId, round.getCalendarId());
                     context.setRequest(preloadRequest);
+                    String projectId = round.getProjectId();
                     
                     Map<String, DataProLoad> beansOfType =
                         applicationContext.getBeansOfType(DataProLoad.class);
                     
+                    // 获取轮次对应管理部门的DataProLoad
                     List<DataProLoad> values =
-                        new ArrayList<>(beansOfType.values());
+                        beansOfType.values().stream().filter(load -> {
+                            return load.getProjectIds().contains(projectId);
+                        }).collect(Collectors.toList());
+                    
                     //排序
                     Collections.sort(values);
                     
