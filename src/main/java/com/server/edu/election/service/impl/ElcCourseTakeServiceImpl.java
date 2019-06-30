@@ -393,4 +393,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     	return result;
     }
 
+    @Override
+    public List<String> findAllByStudentId(String studentId) {
+        return courseTakeDao.findAllByStudentId(studentId) ;
+    }
+
 }
