@@ -22,10 +22,10 @@ public class TeachingClassCache extends ElecCourse
     private String teachClassType;
     
     /** 是否实践课*/
-    private Boolean isPractice = false;
+    private Boolean practice = Boolean.FALSE;
     
     /** 是否重修班*/
-    private Boolean isRetraining = false;
+    private Boolean retraining = Boolean.FALSE;
     
     /** 最大人数 */
     private Integer maxNumber;
@@ -40,24 +40,7 @@ public class TeachingClassCache extends ElecCourse
     
     private String teacherName;
     
-    
-    public String getTeacherCode() {
-		return teacherCode;
-	}
-
-	public void setTeacherCode(String teacherCode) {
-		this.teacherCode = teacherCode;
-	}
-
-	public String getTeacherName() {
-		return teacherName;
-	}
-
-	public void setTeacherName(String teacherName) {
-		this.teacherName = teacherName;
-	}
-
-	public TeachingClassCache()
+    public TeachingClassCache()
     {
     }
     
@@ -68,6 +51,26 @@ public class TeachingClassCache extends ElecCourse
         this.setCourseName(course.getCourseName());
         this.setCredits(course.getCredits());
         this.setNameEn(course.getNameEn());
+    }
+    
+    public String getTeacherCode()
+    {
+        return teacherCode;
+    }
+    
+    public void setTeacherCode(String teacherCode)
+    {
+        this.teacherCode = teacherCode;
+    }
+    
+    public String getTeacherName()
+    {
+        return teacherName;
+    }
+    
+    public void setTeacherName(String teacherName)
+    {
+        this.teacherName = teacherName;
     }
     
     public Long getTeachClassId()
@@ -100,24 +103,24 @@ public class TeachingClassCache extends ElecCourse
         this.teachClassType = teachClassType;
     }
     
-    public Boolean isPractice()
+    public Boolean getPractice()
     {
-        return isPractice;
+        return practice;
     }
     
     public void setPractice(Boolean practice)
     {
-        isPractice = practice;
+        this.practice = practice;
     }
     
-    public boolean isRetraining()
+    public Boolean getRetraining()
     {
-        return isRetraining;
+        return retraining;
     }
     
     public void setRetraining(Boolean retraining)
     {
-        isRetraining = retraining;
+        this.retraining = retraining;
     }
     
     public Integer getMaxNumber()
