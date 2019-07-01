@@ -176,17 +176,6 @@
     </foreach>
   </select>
   
-  <insert id="add">
-  	insert into election_rounds_cour_t(ROUNDS_ID_, TEACHING_CLASS_ID_) values(#{roundId}, #{courseCode})
-  </insert>
-  
-  <delete id="delete">
-  	delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId} and TEACHING_CLASS_ID_ IN
-  	<foreach item="id" collection="teachingClassIds"  index="index" open="(" separator="," close=")">  
-       #{id}  
-    </foreach>
-  </delete>
-  
   <delete id="deleteByRoundId">
     delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId}
   </delete>
