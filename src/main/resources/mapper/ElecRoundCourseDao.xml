@@ -53,7 +53,7 @@
 	JOIN teaching_class_t t3 ON t3.TASK_ID_ = t2.ID_
 	JOIN election_rounds_cour_t t4 ON t4.TEACHING_CLASS_ID_ = t3.ID_
 	LEFT JOIN teaching_class_teacher_t t5 ON (
-		t5.TEACHING_CLASS_ID_ = t4.ID_
+		t5.TEACHING_CLASS_ID_ = t3.ID_
 		AND t5.TYPE_ = 0
 	)
   	<where>
@@ -80,8 +80,8 @@
   		and t3.COURSE_LABEL_ID_ = #{query.label}
   		</if>
   	</where>
-  		GROUP BY t4.ID_
-	  	order by t4.ID_
+  		GROUP BY t3.ID_
+	  	order by t3.ID_
   </select>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
