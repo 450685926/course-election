@@ -51,19 +51,19 @@ public class ElcRoundCondition implements Serializable {
     /**
               *  培养类别(逗号分隔)
      */
-    @Column(name = "TRAINING_CATEGORY_")
+    @Column(name = "TRAINING_CATEGORYS_")
     private String trainingCategorys;
     
     /**
              *  学位类型(逗号分隔)
      */
-    @Column(name = "DEGREE_TYPE_")
+    @Column(name = "DEGREE_TYPES_")
     private String degreeTypes;
     
     /**
             *  学习形式(逗号分隔)
      */
-    @Column(name = "FORM_LEARNING_")
+    @Column(name = "FORM_LEARNINGS_")
     private String formLearings;
 
     private static final long serialVersionUID = 1L;
