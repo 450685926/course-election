@@ -151,4 +151,8 @@ public interface ElcCourseTakeDao
     
     int editStudyType(@Param("courseTakeType") Integer courseTakeType,@Param("ids") List<Long> ids, @Param("caladerId") Long caladerId);
 
+    /**查询学生选课列表
+     * @return*/
+    List<String> findAllByStudentId(@Param("studentId")String studentId);
+
 }
