@@ -163,7 +163,7 @@ public class RoundDataProvider
         cachePreSemester(round, timeout);
         
         // 缓存课程
-        roundCacheService.cacheCourse(timeout, roundId, calendarId);
+        roundCacheService.cacheCourse(timeout, roundId);
         
     }
     
@@ -285,11 +285,11 @@ public class RoundDataProvider
      * @param teachClassId 教学班ID
      * @return
      */
-    public TeachingClassCache getTeachClass(Long roundId, String courseCode,
+    public TeachingClassCache getTeachClass(Long roundId,
         Long teachClassId)
     {
         return classCacheService
-            .getTeachClass(roundId, courseCode, teachClassId);
+            .getTeachClass(roundId,teachClassId);
     }
     
     /**

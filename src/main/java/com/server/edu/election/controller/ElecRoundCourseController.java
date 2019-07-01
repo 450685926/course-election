@@ -78,9 +78,9 @@ public class ElecRoundCourseController
     @ApiOperation(value = "添加课程")
     @PutMapping("/{roundId}")
     public RestResult<?> add(@PathVariable("roundId") @NotNull Long roundId,
-        @RequestBody @NotNull List<String> courseCodes)
+        @RequestBody @NotNull List<Long> teachingClassIds)
     {
-        service.add(roundId, courseCodes);
+        service.add(roundId, teachingClassIds);
         
         return RestResult.success();
     }
@@ -102,17 +102,17 @@ public class ElecRoundCourseController
     }
     
     /**
-     * 删除可选课学生
+     * 删除可选教学班
      *
-     * @param ids
+     * @param teachingClassIds
      * @return
      */
     @ApiOperation(value = "删除")
     @DeleteMapping("/{roundId}")
     public RestResult<?> delete(@PathVariable("roundId") @NotNull Long roundId,
-        @RequestBody @NotEmpty List<String> studentCodes)
+        @RequestBody @NotEmpty List<Long> teachingClassIds)
     {
-        service.delete(roundId, studentCodes);
+        service.delete(roundId, teachingClassIds);
         
         return RestResult.success();
     }
