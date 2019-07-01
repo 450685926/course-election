@@ -64,26 +64,6 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
         @Param("teachingClassIds") List<Long> teachingClassIds);
     
     /**
-     * 添加可选课学生名单
-     * 
-     * @param roundId
-     * @param studentId
-     * @see [类、类#方法、类#成员]
-     */
-    void add(@Param("roundId") Long roundId,
-        @Param("teachingClassId") Long teachingClassId);
-    
-    /**
-     * 删除可选课学生名单
-     * 
-     * @param roundId
-     * @param courseCodes
-     * @see [类、类#方法、类#成员]
-     */
-    void delete(@Param("roundId") Long roundId,
-        @Param("teachingClassIds") List<Long> teachingClassIds);
-    
-    /**
      * 删除指定轮次的学生名单
      * 
      * @see [类、类#方法、类#成员]
