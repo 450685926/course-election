@@ -54,7 +54,27 @@ public class ElcCourseTakeQuery
     
     private List<String> includeCourseCodes;
     
-    public Integer getMode()
+    private String label;
+    
+    private String courseName;
+    
+    public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public String getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
+
+	public Integer getMode()
     {
         return mode;
     }
