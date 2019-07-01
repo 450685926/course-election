@@ -6,12 +6,16 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ElecCourse
 {
+	/**课程代码*/
     private String courseCode;
     
+    /**课程名称*/
     private String courseName;
     
+    /**学分*/
     private Double credits;
     
+    /**课程名称（英文）*/
     private String nameEn;
     
     /**校区*/
@@ -19,7 +23,6 @@ public class ElecCourse
     
     /** 是否公选课 */
     private boolean publicElec;
-
 
     /**学期周学时对应学期*/
     private String calendarName;

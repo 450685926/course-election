@@ -52,19 +52,19 @@ public class ElcRoundCondition implements Serializable {
               *  培养类别(逗号分隔)
      */
     @Column(name = "TRAINING_CATEGORY_")
-    private String trainingCategory;
+    private String trainingCategorys;
     
     /**
              *  学位类型(逗号分隔)
      */
     @Column(name = "DEGREE_TYPE_")
-    private String degreeType;
+    private String degreeTypes;
     
     /**
             *  学习形式(逗号分隔)
      */
     @Column(name = "FORM_LEARNING_")
-    private String formLearing;
+    private String formLearings;
 
     private static final long serialVersionUID = 1L;
 
@@ -201,8 +201,8 @@ public class ElcRoundCondition implements Serializable {
      * 
      * @return TRAINING_CATEGORY_ 培养类别(逗号分隔)
      */
-    public String getTrainingCategory() {
-		return trainingCategory;
+    public String getTrainingCategorys() {
+		return trainingCategorys;
 	}
 
 	/**
@@ -210,8 +210,8 @@ public class ElcRoundCondition implements Serializable {
 	 * 
 	 * @param TRAINING_CATEGORY_ 培养类别(逗号分隔)
 	 */
-	public void setTrainingCategory(String trainingCategory) {
-		this.trainingCategory = trainingCategory;
+	public void setTrainingCategorys(String trainingCategorys) {
+		this.trainingCategorys = trainingCategorys;
 	}
 
 	/**
@@ -219,8 +219,8 @@ public class ElcRoundCondition implements Serializable {
 	 * 
 	 * @return DEGREE_TYPE_  学位类型(逗号分隔)
 	 */
-	public String getDegreeType() {
-		return degreeType;
+	public String getDegreeTypes() {
+		return degreeTypes;
 	}
 
 	/**
@@ -228,8 +228,8 @@ public class ElcRoundCondition implements Serializable {
 	 * 
 	 * @param DEGREE_TYPE_  学位类型(逗号分隔)
 	 */
-	public void setDegreeType(String degreeType) {
-		this.degreeType = degreeType;
+	public void setDegreeTypes(String degreeTypes) {
+		this.degreeTypes = degreeTypes;
 	}
 
 	/**
@@ -237,8 +237,8 @@ public class ElcRoundCondition implements Serializable {
 	 * 
 	 * @return FORM_LEARNING_  学习形式(逗号分隔)
 	 */
-	public String getFormLearing() {
-		return formLearing;
+	public String getFormLearings() {
+		return formLearings;
 	}
 
 	/**
@@ -246,8 +246,8 @@ public class ElcRoundCondition implements Serializable {
 	 * 
 	 * @param FORM_LEARNING_  学习形式(逗号分隔)
 	 */
-	public void setFormLearing(String formLearing) {
-		this.formLearing = formLearing;
+	public void setFormLearings(String formLearings) {
+		this.formLearings = formLearings;
 	}
 
 	@Override
