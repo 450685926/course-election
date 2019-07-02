@@ -23,6 +23,7 @@ public class CourseCache extends ElecCourse
         this.setCourseName(course.getCourseName());
         this.setCredits(course.getCredits());
         this.setNameEn(course.getNameEn());
+        this.setNature(course.getNature());
     }
     
     public Set<Long> getTeachClassIds()

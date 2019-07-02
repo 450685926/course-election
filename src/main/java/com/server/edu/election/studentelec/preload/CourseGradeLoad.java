@@ -120,6 +120,8 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
                 lesson.setCalendarId(studentScore.getCalendarId());
+                lesson.setIsPass(studentScore.getIsPass());
+                lesson.setNature(studentScore.getCourseNature());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 if (studentScore.getIsPass() != null
