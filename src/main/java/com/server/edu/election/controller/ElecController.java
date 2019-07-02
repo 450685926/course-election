@@ -135,12 +135,11 @@ public class ElecController
     @ApiOperation(value = "获取可选课程列表")
     @PostMapping("/getOptionalCourses")
     public RestResult<List<ElcCourseResult>> getOptionalCourses(
-        @RequestParam("roundId") @NotBlank String roundId,
-        @RequestBody @Valid ElecContext elecContext)
+        @RequestParam("roundId") @NotBlank String roundId)
     {
         Session session = SessionUtils.getCurrentSession();
         String studentId = session.realUid();
-        List<ElcCourseResult> data = elecService.getOptionalCourses(Long.parseLong(roundId),studentId,elecContext);
+        List<ElcCourseResult> data = elecService.getOptionalCourses(Long.parseLong(roundId),studentId);
         return RestResult.successData(data);
     }
     

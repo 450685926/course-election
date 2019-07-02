@@ -414,16 +414,19 @@ public class StudentElecServiceImpl implements StudentElecService
     /** 获取学生可选课程 */
    	@Override
    	public List<ElcCourseResult> getOptionalCourses(Long roundId,
-   			String studentId,ElecContext elecContext) {
+   			String studentId) {
    		
    		RoundDataProvider dataProvider =
    				SpringUtils.getBean(RoundDataProvider.class);
 
-//		ElectionRounds round = dataProvider.getRound(roundId);
+		ElectionRounds round = dataProvider.getRound(roundId);
+		
+		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
+		
 		//获取学生本轮次已经选取的课程
-		Set<SelectedCourse> selectedCourseSet = elecContext.getSelectedCourses();
+		Set<SelectedCourse> selectedCourseSet = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
 		//获取学生未完成的课程
-		Set<CompletedCourse> inCompletedCourseSet = elecContext.getFailedCourse();
+		Set<CompletedCourse> inCompletedCourseSet = elecContextUtil.getSet("failedCourse", CompletedCourse.class);
 		//从缓存中拿到本轮次排课信息
 		HashOperations<String, String, String> ops = strTemplate.opsForHash();
 		String key = Keys.getRoundCourseKey(roundId);
