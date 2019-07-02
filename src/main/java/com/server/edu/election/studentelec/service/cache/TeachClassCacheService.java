@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,7 +172,7 @@ public class TeachClassCacheService extends AbstractCacheService
         List<TeachingClassCache> lessons = new ArrayList<>();
         
         List<Long> teachClassIds =
-            this.roundCacheService.getTeachClassIds(roundId);
+            this.roundCacheService.getTeachClassIds(roundId, courseCode);
         if (CollectionUtil.isEmpty(teachClassIds))
         {
             return lessons;
@@ -201,19 +202,19 @@ public class TeachClassCacheService extends AbstractCacheService
      * @param teachClassId 教学班ID
      * @return
      */
-    public TeachingClassCache getTeachClass(Long roundId, 
+    public TeachingClassCache getTeachClass(Long roundId, String courseCode,
         Long teachClassId)
     {
-        if (roundId == null 
+        if (roundId == null || StringUtils.isBlank(courseCode)
             || teachClassId == null)
         {
             logger.warn(
-                "---- roundId and teachClassId can not be null ----");
+                "---- roundId, courseCode and teachClassId can not be null ----");
             return null;
         }
         
         List<Long> teachClassIds =
-            this.roundCacheService.getTeachClassIds(roundId);
+            this.roundCacheService.getTeachClassIds(roundId, courseCode);
         
         if (CollectionUtil.isEmpty(teachClassIds)
             || !teachClassIds.contains(teachClassId))

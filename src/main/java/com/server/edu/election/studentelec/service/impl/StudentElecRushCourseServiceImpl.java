@@ -164,6 +164,7 @@ public class StudentElecRushCourseServiceImpl
             Long teachClassId = data.getTeachClassId();
             TeachingClassCache teachClass =
                 dataProvider.getTeachClass(round.getId(),
+                    data.getCourseCode(),
                     teachClassId);
             if (teachClass == null)
             {

@@ -186,7 +186,7 @@
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
-	  JOIN election_rounds_cour_t co ON co.COURSE_CODE_ = op.COURSE_CODE_
+	  JOIN election_rounds_cour_t co ON co.TEACHING_CLASS_ID_ = cl.ID_
 	  where
 		 co.ROUNDS_ID_ = #{roundId}
 		 and op.CALENDAR_ID_ = #{calendarId}
