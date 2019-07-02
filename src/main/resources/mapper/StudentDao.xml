@@ -147,7 +147,7 @@
 	</select>
 
     <select id="getAllCourse" parameterType="com.server.edu.election.vo.AllCourseVo" resultType="com.server.edu.election.studentelec.context.ElcCourseResult">
-       select course.NATURE_ natrue,class.CODE_ teachingClassCode,
+       select class.CODE_ teachingClassCode,
               course.COURSE_CODE_ courseCode,course.COURSE_NAME_ courseName,
               course.CREDITS_ credits,teacher.TEACHER_CODE_ teacherCode,teacher.TEACHER_NAME_ teacherName,
               course.FACULTY_ faculty,
