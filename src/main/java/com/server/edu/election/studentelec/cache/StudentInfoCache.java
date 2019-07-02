@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.cache;
 
+import javax.persistence.Column;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -52,6 +54,11 @@ public class StudentInfoCache
     /**专项计划*/
     @Code2Text(DictTypeEnum.X_ZXJH)
     private String spcialPlan;
+    
+    /**
+     * 管理部门id（字典取值）
+     */
+    private String managerDeptId;
     
     public String getStudentId()
     {
@@ -190,4 +197,13 @@ public class StudentInfoCache
     public void setSpcialPlan(String spcialPlan) {
         this.spcialPlan = spcialPlan;
     }
+
+	public String getManagerDeptId() {
+		return managerDeptId;
+	}
+
+	public void setManagerDeptId(String managerDeptId) {
+		this.managerDeptId = managerDeptId;
+	}
+    
 }

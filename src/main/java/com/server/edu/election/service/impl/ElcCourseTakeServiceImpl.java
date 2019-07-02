@@ -29,6 +29,7 @@ import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
@@ -39,6 +40,7 @@ import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -64,6 +66,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private ElectionConstantsDao constantsDao;
+    
+    @Autowired
+    private StudentDao studentDao;
     
     @Autowired
     private ApplicationContext applicationContext;
@@ -397,5 +402,24 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     public List<String> findAllByStudentId(String studentId) {
         return courseTakeDao.findAllByStudentId(studentId) ;
     }
+
+	@Override
+	public PageResult<ElcCourseTakeNameListVo> courseTakeNameListPage(PageCondition<ElcCourseTakeQuery> condition) {
+		PageResult<ElcCourseTakeVo> list = listPage(condition);
+		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
+    	for (ElcCourseTakeVo elcCourseTakeVo : list.getList()) {
+    		ElcCourseTakeNameListVo elcCourseTakeNameListVo = new ElcCourseTakeNameListVo();
+    		elcCourseTakeNameListVo.setElcCourseTakeVo(elcCourseTakeVo);
+    		Student stu = studentDao.findStudentByCode(elcCourseTakeVo.getStudentId());
+    		elcCourseTakeNameListVo.setStudentInfo(stu);
+    		nameList.add(elcCourseTakeNameListVo);
+		}
+    	PageResult<ElcCourseTakeNameListVo> result = new PageResult<>();
+    	result.setList(nameList);
+    	result.setPageNum_(list.getPageNum_());
+    	result.setPageSize_(list.getPageSize_());
+    	result.setTotal_(list.getTotal_());
+		return result;
+	}
 
 }

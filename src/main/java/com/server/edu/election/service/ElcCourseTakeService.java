@@ -9,6 +9,7 @@ import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 
 /**
@@ -72,6 +73,10 @@ public interface ElcCourseTakeService
 
     
     int editStudyType(ElcCourseTakeDto elcCourseTakeDto);
+
+    /** 研究生选课名单 */
+	PageResult<ElcCourseTakeNameListVo> courseTakeNameListPage(PageCondition<ElcCourseTakeQuery> condition);
+    
 
     /***查询学生选课列表
      * @return*/

@@ -52,6 +52,7 @@ public class TeachingClassCache extends ElecCourse
         this.setCourseName(course.getCourseName());
         this.setCredits(course.getCredits());
         this.setNameEn(course.getNameEn());
+        this.setNature(course.getNature());
     }
     
     public String getTeacherCode()

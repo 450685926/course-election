@@ -44,6 +44,7 @@ import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecRoundCourseService;
+import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -99,6 +100,26 @@ public class ElcCourseTakeController
             courseTakeService.listPage(condition);
         
         return RestResult.successData(list);
+    }
+    
+    /**
+     * 研究生上课名单列表
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "研究生上课名单列表")
+    @PostMapping("/courseTakePage")
+    public RestResult<PageResult<ElcCourseTakeNameListVo>> courseTakePage(
+    		@RequestBody PageCondition<ElcCourseTakeQuery> condition)
+    				throws Exception
+    {
+    	ValidatorUtil.validateAndThrow(condition.getCondition());
+    	
+    	PageResult<ElcCourseTakeNameListVo> list = 
+    			courseTakeService.courseTakeNameListPage(condition);
+    	return RestResult.successData(list);
     }
     
     @ApiOperation(value = "分页查询已可选课程信息")
