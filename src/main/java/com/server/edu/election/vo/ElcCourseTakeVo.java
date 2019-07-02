@@ -43,8 +43,8 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String teachingCode;
     
     private String teachingName;
-    /**开课学院*/
-    private String startCollege;
+    @Code2Text(transformer="X_YX")
+    private String faculty;
 
     public String getTeachingCode() {
 		return teachingCode;
@@ -70,12 +70,12 @@ public class ElcCourseTakeVo extends ElcCourseTake
 		this.apply = apply;
 	}
 
-    public String getStartCollege() {
-        return startCollege;
+    public String getFaculty() {
+        return faculty;
     }
 
-    public void setStartCollege(String startCollege) {
-        this.startCollege = startCollege;
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
     }
 
     public Long getElectionApplyId() {

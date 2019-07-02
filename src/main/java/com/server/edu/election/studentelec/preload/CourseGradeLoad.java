@@ -131,9 +131,9 @@ public class CourseGradeLoad extends DataProLoad
 
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
-                String startCollege = courseOpenDao.selectStartCollege(courseCode);
-                if (startCollege != null) {
-                    lesson.setStartCollege(startCollege);
+                String faculty = courseOpenDao.selectFaculty(courseCode);
+                if (faculty != null) {
+                    lesson.setFaculty(faculty);
                 }
 
                 if (studentScore.getIsPass() != null
@@ -217,7 +217,7 @@ public class CourseGradeLoad extends DataProLoad
                 course.setTeachClassId(c.getTeachingClassId());
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
-                course.setStartCollege(c.getStartCollege());
+                course.setFaculty(c.getFaculty());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
                 
