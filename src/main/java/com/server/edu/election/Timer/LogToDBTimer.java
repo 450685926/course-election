@@ -113,7 +113,7 @@ public class LogToDBTimer {
 		}
 		
 		try {
-			input = new ByteArrayInputStream(sb.toString().getBytes());
+			input = new ByteArrayInputStream(sb.toString().getBytes("GBK"));
 			request.setInput(input);
 			request.setObjectKey(objectkey.toString());
 			request.setBucketName(bucketName);
