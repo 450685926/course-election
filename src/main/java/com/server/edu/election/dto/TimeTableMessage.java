@@ -33,6 +33,7 @@ public class TimeTableMessage {
     private String campus;
     // 所有的周 1,2,3,5,6,7
     private List<Integer> weeks;
+    private Long timeId; //教学班排课时间ID
 
     public String getCampus() {
         return campus;
@@ -171,4 +172,13 @@ public class TimeTableMessage {
     {
         this.weeks = weeks;
     }
+
+	public Long getTimeId() {
+		return timeId;
+	}
+
+	public void setTimeId(Long timeId) {
+		this.timeId = timeId;
+	}
+    
 }

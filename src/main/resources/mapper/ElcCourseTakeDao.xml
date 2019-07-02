@@ -81,6 +81,12 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
   	 and t3.CODE_ = #{query.courseCode}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+  	  and t3.NAME_ = #{query.courseName}
+  	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
+  	  and t3.LABEL_ = #{query.label}
+  	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
   	 and t3.CODE_ IN
   	 	<foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">
@@ -268,6 +274,22 @@
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
+    </select>
+    
+    <select id="findClassTimeAndRoomStr" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT
+        ro.ARRANGE_TIME_ID_ timeId,
+        ti.DAY_OF_WEEK_ dayOfWeek,
+        ti.TIME_START_ timeStart,
+        ti.TIME_END_ timeEnd,
+        ro.ROOM_ID_ roomID,
+        GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumberStr
+        FROM
+        teaching_class_t te
+        join teaching_class_arrange_time_t ti on te.ID_=ti.TEACHING_CLASS_ID_
+        JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
+        WHERE te.ID_ = #{id}
         GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
     </select>
 

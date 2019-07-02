@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Param;
 
 import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.studentelec.context.ElcCourseResult;
+import com.server.edu.election.vo.AllCourseVo;
 
 import tk.mybatis.mapper.common.Mapper;
 
@@ -23,6 +25,21 @@ public interface StudentDao extends Mapper<Student> {
 
     /**是否是预警学生*/
     Student isLoserStu(@Param("roundId") Long roundId, @Param("studentId")String studentId);
+	
+    
+    /** 
+     * 获取全部课程信息
+     * @param AllCourseVo allCourseVo
+     * @return
+     */
+    List<ElcCourseResult> getAllCourse(AllCourseVo allCourseVo);
+    
+    /**
+            *    获取课程类别
+     * @param allCourseVo
+     * @return
+     */
+    List<String> getNature(AllCourseVo allCourseVo);
 }
 
 
