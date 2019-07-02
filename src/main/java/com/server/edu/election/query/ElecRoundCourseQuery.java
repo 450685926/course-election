@@ -168,5 +168,13 @@ public class ElecRoundCourseQuery
     {
         this.keyword = keyword;
     }
+
+	public String getCampus() {
+		return campus;
+	}
+
+	public void setCampus(String campus) {
+		this.campus = campus;
+	}
     
 }

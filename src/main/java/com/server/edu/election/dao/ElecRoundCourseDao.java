@@ -24,7 +24,7 @@ import tk.mybatis.mapper.common.MySqlMapper;
 public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMapper<ElectionRoundsCour>
 {
     /**
-     * 分页查询已添加的教学任务
+     * 分页查询已添加的教学任务(本科生)
      * 
      * @param query
      * @return
@@ -33,7 +33,16 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
     Page<CourseOpenDto> listPage(@Param("query") ElecRoundCourseQuery query);
     
     /**
-     * 查询未添加的教学任务
+     * 分页查询已添加的教学任务(研究生)
+     * 
+     * @param query
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<CourseOpenDto> listPageGraduate(@Param("query") ElecRoundCourseQuery query);
+    
+    /**
+     * 查询未添加的教学任务(本科生)
      * 
      * @param query
      * @return
@@ -42,6 +51,15 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
     Page<CourseOpenDto> listUnAddPage(
         @Param("query") ElecRoundCourseQuery query,
         @Param("list") List<String> list);
+    
+    /**
+     * 查询未添加的教学任务(研究生)
+     * 
+     * @param query
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<CourseOpenDto> listUnAddPageGraduate(@Param("query") ElecRoundCourseQuery query);
     
     /**
      * 查询已添加的教学任务中所有的教学班
@@ -88,4 +106,5 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
      */
     List<CourseOpenDto> selectTeachingClassByCalendarId(
         @Param("calendarId") Long calendarId);
+
 }

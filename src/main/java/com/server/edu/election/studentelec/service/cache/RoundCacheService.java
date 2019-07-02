@@ -168,9 +168,10 @@ public class RoundCacheService extends AbstractCacheService
     @Autowired
     private StudentDao studentDao;
     
-    /**
-     * 判断学生的校区、学院、年级、专业、培养层次是否匹配轮次条件
-     * 
+    /**<ul>
+     * 	 <li>判断学生的校区、学院、年级、专业、培养层次是否匹配轮次条件(本科生)
+     * 	 <li>判断学生的校区、学院、年级、专业、培养层次、培养类别、学位类型、学习形式是否匹配轮次条件（研究生）
+     * <ul>
      * @param roundId
      * @param studentId
      * @return
@@ -209,8 +210,10 @@ public class RoundCacheService extends AbstractCacheService
                 && contains(con.getFacultys(), student.getFaculty())
                 && contains(con.getGrades(), student.getGrade().toString())
                 && contains(con.getMajors(), student.getProfession())
-                && contains(con.getTrainingLevels(),
-                    student.getTrainingLevel()))
+                && contains(con.getTrainingLevels(),student.getTrainingLevel())
+                && contains(con.getTrainingCategorys(), student.getTrainingCategory())
+                && contains(con.getDegreeTypes(), student.getDegreeCategory())
+            	&& contains(con.getTrainingCategorys(), student.getTrainingCategory()))
             {
                 return true;
             }
