@@ -1,9 +1,14 @@
 package com.server.edu.election.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +22,11 @@ import com.server.edu.election.service.ElcNumberSetService;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.DateUtil;
 
 import tk.mybatis.mapper.entity.Example;
 @Service
+@Primary
 public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 	@Autowired
 	private TeachingClassDao teachingClassDao;
@@ -50,9 +57,41 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 
 	@Override
 	public int save(ElcNumberSet elcNumberSet) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = elcNumberSetDao.insertSelective(elcNumberSet);
+        if (result <= Constants.ZERO)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("election.elcNumberSet")));
+        }
+        if(Constants.IS_OPEN==elcNumberSet.getStatus()) {
+    		Runnable runnable = new Runnable() {
+	  		    @Override
+	  			public void run() {
+	  		    	  releaseAll(elcNumberSet.getCalendarId());
+	  		    }
+    		};
+  		SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+  		executeEightAtNightPerDay(runnable,df.format(elcNumberSet.getFirstTime()));
+  		executeEightAtNightPerDay(runnable,df.format(elcNumberSet.getSecondTime()));
+        }
+		return result;
 	}
+	
+	/** 
+	 * 每天指定时间执行
+	 * 每天定时安排任务进行执行 
+	 */  
+	public static void executeEightAtNightPerDay(Runnable runnable,String time) { 
+	    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);  
+	    long oneDay = 24 * 60 * 60 * 1000;  
+	    long initDelay  =DateUtil.getTimeMillis(time) - System.currentTimeMillis();  
+	    initDelay = initDelay > 0 ? initDelay : oneDay + initDelay;  
+	    executor.scheduleAtFixedRate(  
+	    		runnable,  
+	            initDelay,  
+	            oneDay,  
+	            TimeUnit.MILLISECONDS);  
+	}  
 
 	@Override
 	public ElcNumberSet getElcNumberSetInfo(Long calendarId) {
