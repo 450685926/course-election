@@ -41,7 +41,8 @@ public class ElecRoundCourseQuery
     private String nature;
     
     /**校区*/
-    private String campus;   
+    private String campus; 
+    
     /**课程类别*/
     private String label;
     
