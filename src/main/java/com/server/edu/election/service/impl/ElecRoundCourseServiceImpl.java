@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
@@ -45,7 +46,12 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
-        Page<CourseOpenDto> listPage = roundCourseDao.listPage(query);
+        Page<CourseOpenDto> listPage;
+        if ("1".equals(query.getProjectId())) {
+        	listPage = roundCourseDao.listPage(query);
+        }else {
+        	listPage = roundCourseDao.listPageGraduate(query);
+		}
         
         PageResult<CourseOpenDto> result = new PageResult<>(listPage);
         
@@ -60,10 +66,14 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         if(condition.getCondition().getMode()==2){//实践课
              practicalCourse = CultureSerivceInvoker.findPracticalCourse();
         }
+        Page<CourseOpenDto> listPage;
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
-        Page<CourseOpenDto> listPage = roundCourseDao.listUnAddPage(query,practicalCourse);
-
+        if ("1".equals(query.getProjectId())) {
+        	listPage = roundCourseDao.listUnAddPage(query,practicalCourse);
+		}else {
+			listPage = roundCourseDao.listUnAddPageGraduate(query);
+		}
         PageResult<CourseOpenDto> result = new PageResult<>(listPage);
         
         return result;
@@ -109,7 +119,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         ElectionRounds rounds = elecRoundsDao.selectByPrimaryKey(roundId);
         if (rounds == null)
         {
-            throw new ParameterValidateException("选课轮次不存在");
+            throw new ParameterValidateException(I18nUtil.getMsg("elec.roundCourseExistTip"));
         }
         //过滤已经添加的课程
         List<Long> listAddedCourse =
