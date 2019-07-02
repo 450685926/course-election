@@ -31,15 +31,36 @@
   	<result column="maxNumber" jdbcType="INTEGER" property="maxNumber" />
   	<result column="currentNumber" jdbcType="INTEGER" property="currentNumber" />
   	<result column="teachingClassName" jdbcType="VARCHAR" property="teachingClassName" />
+  	<result column="COURSE_LABEL_ID_" jdbcType="BIGINT" property="courseLabelId" />
+  	<result column="teacherCode" jdbcType="VARCHAR" property="teacherCode" />
   </resultMap>
   
   <select id="listPage" resultMap="CourseOpenDtoMap">
-  	select t1.* from course_open_t t1 
-  	JOIN election_rounds_cour_t t2 ON t2.COURSE_CODE_ = t1.COURSE_CODE_
+	SELECT
+		t1.CALENDAR_ID_,
+		t1.COURSE_CODE_,
+		t1.COURSE_NAME_,
+		t1.NATURE_,
+		t1.FACULTY_,
+		t1.CREDITS_,
+		t1.PERIOD_,
+		t3.ID_,
+		t3.CODE_,
+		t3.COURSE_LABEL_ID_,
+		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
+	FROM
+		course_open_t t1
+	JOIN teaching_task_t t2 ON t2.COURSE_OPEN_ID_ = t1.ID_
+	JOIN teaching_class_t t3 ON t3.TASK_ID_ = t2.ID_
+	JOIN election_rounds_cour_t t4 ON t4.TEACHING_CLASS_ID_ = t3.ID_
+	LEFT JOIN teaching_class_teacher_t t5 ON (
+		t5.TEACHING_CLASS_ID_ = t3.ID_
+		AND t5.TYPE_ = 0
+	)
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId} 
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
-  		and t2.ROUNDS_ID_ = #{query.roundId}
+  		and t4.ROUNDS_ID_ = #{query.roundId}
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
   		and t1.PROJ_ID_ = #{query.projectId}
@@ -50,14 +71,18 @@
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
   		and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
   		</if>
-	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
-  		and t1.NATURE_ = #{query.nature}
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+  		and t1.COURSE_CODE_ = #{query.courseCode}
   		</if>
-	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  		and (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+  		and t1.COURSE_NAME_ = #{query.courseName}
+  		</if>
+  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
+  		and t3.COURSE_LABEL_ID_ = #{query.label}
   		</if>
   	</where>
-  	order by t1.COURSE_CODE_
+  		GROUP BY t3.ID_
+	  	order by t3.ID_
   </select>
   
   <select id="listPageGraduate" resultMap="CourseOpenDtoMap">
@@ -94,11 +119,23 @@
   </select>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
-    select * from(
-	  	select DISTINCT t1.* 
-		from course_open_t t1 
-	  	JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
-	  	JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
+		SELECT DISTINCT
+		t1.CALENDAR_ID_,
+		t1.COURSE_CODE_,
+		t1.COURSE_NAME_,
+		t1.NATURE_,
+		t1.FACULTY_,
+		t1.CREDITS_,
+		t1.PERIOD_,
+		t4.ID_,
+		t4.CODE_,
+		t4.COURSE_LABEL_ID_,
+		GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
+		FROM
+			course_open_t t1
+		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
+		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
+		LEFT JOIN teaching_class_teacher_t t5  ON (t5.TEACHING_CLASS_ID_  = t4.ID_ AND t5.TYPE_ =0)
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{query.calendarId}
 		  	and t1.IS_OPEN_ = 1
@@ -121,17 +158,18 @@
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
 	  		and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
 	  		</if>
-		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
-	  		and t1.NATURE_ = #{query.nature}
+		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+	  		and t1.COURSE_CODE_ = #{query.courseCode}
+	  		</if>
+	  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+	  		and t1.COURSE_NAME_ = #{query.courseName}
+	  		</if>
+	  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
+	  		and t4.COURSE_LABEL_ID_ = #{query.label}
 	  		</if>
 	  	</where>
-	  	order by t1.COURSE_CODE_
-    )tt
-    <where>
-    	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  		 (tt.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR tt.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
-  		</if>
-    </where>
+	  	GROUP BY t4.ID_
+	  	order by t4.ID_
   </select>
   
     <select id="listUnAddPageGraduate" resultMap="CourseOpenDtoMap">
@@ -209,23 +247,12 @@
 	  </where>
   </select>
   
-  <select id="listAddedCourse" resultType="string">
-  	select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{roundId} and COURSE_CODE_ IN
-  	<foreach item="id" collection="courseCodes"  index="index" open="(" separator="," close=")">  
+  <select id="listAddedCourse" resultType="long">
+  	select TEACHING_CLASS_ID_ from election_rounds_cour_t where ROUNDS_ID_ = #{roundId} and TEACHING_CLASS_ID_ IN
+  	<foreach item="id" collection="teachingClassIds"  index="index" open="(" separator="," close=")">  
        #{id}  
     </foreach>
   </select>
-  
-  <insert id="add">
-  	insert into election_rounds_cour_t(ROUNDS_ID_, COURSE_CODE_) values(#{roundId}, #{courseCode})
-  </insert>
-  
-  <delete id="delete">
-  	delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId} and COURSE_CODE_ IN
-  	<foreach item="id" collection="courseCodes"  index="index" open="(" separator="," close=")">  
-       #{id}  
-    </foreach>
-  </delete>
   
   <delete id="deleteByRoundId">
     delete from election_rounds_cour_t where ROUNDS_ID_ = #{roundId}
@@ -237,7 +264,7 @@
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
-	  JOIN election_rounds_cour_t co ON co.COURSE_CODE_ = op.COURSE_CODE_
+	  JOIN election_rounds_cour_t co ON co.TEACHING_CLASS_ID_ = cl.ID_
 	  where
 		 co.ROUNDS_ID_ = #{roundId}
 		 and op.CALENDAR_ID_ = #{calendarId}

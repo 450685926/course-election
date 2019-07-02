@@ -68,8 +68,8 @@ public class SelectedCourse extends TeachingClassCache
         this.setTeachClassId(course.getTeachClassId());
         this.setTeachClassCode(course.getTeachClassCode());
         this.setTeachClassType(course.getTeachClassType());
-        this.setPractice(course.isPractice());
-        this.setRetraining(course.isRetraining());
+        this.setPractice(course.getPractice());
+        this.setRetraining(course.getRetraining());
         this.setMaxNumber(course.getMaxNumber());
         this.setCurrentNumber(course.getCurrentNumber());
         this.setTeacherName(course.getTeacherName());

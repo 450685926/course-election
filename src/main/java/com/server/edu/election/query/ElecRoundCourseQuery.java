@@ -1,11 +1,11 @@
 package com.server.edu.election.query;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.groups.Default;
 
 import com.server.edu.election.validate.RoundGroup;
-
-import java.util.List;
 
 public class ElecRoundCourseQuery
 {
@@ -42,10 +42,20 @@ public class ElecRoundCourseQuery
     
     /**校区*/
     private String campus;   
+    /**课程类别*/
+    private String label;
     
     private String keyword;
 
-    public Integer getCourseType() {
+    public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Integer getCourseType() {
         return courseType;
     }
 
