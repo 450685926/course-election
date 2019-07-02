@@ -1,5 +1,7 @@
 package com.server.edu.election;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -10,13 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.election.entity.ElecContextMock;
 
 @ActiveProfiles("dev")
 public class JacksonTest extends ApplicationTest
 {
     Logger logger = LoggerFactory.getLogger(getClass());
+    
     @Test
     public void test()
         throws JsonProcessingException
@@ -52,4 +57,16 @@ public class JacksonTest extends ApplicationTest
         }
     }
     
+    @Test
+    public void test1()
+    {
+        ElecContextMock c = new ElecContextMock("1659350", 107L);
+        JSONObject convertObj = JacksonUtil.convertObj(c);
+        System.out.println(convertObj.getJSONObject("studentInfo").getString("trainingLevelI18n"));
+        
+        List<ElecContextMock> list = new ArrayList<>();
+        list.add(c);
+        List<JSONObject> convertList = JacksonUtil.convertList(list);
+        System.out.println(convertList);
+    }
 }
