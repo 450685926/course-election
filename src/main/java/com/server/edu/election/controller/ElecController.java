@@ -136,7 +136,7 @@ public class ElecController
     @PostMapping("/getOptionalCourses")
     public RestResult<List<ElcCourseResult>> getOptionalCourses(
         @RequestParam("roundId") @NotBlank String roundId )
-    {
+    { 
         Session session = SessionUtils.getCurrentSession();
         String studentId = session.realUid();
         List<ElcCourseResult> data = elecService.getOptionalCourses(Long.parseLong(roundId),studentId);

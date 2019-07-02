@@ -67,5 +67,5 @@ public interface StudentElecService
 	
     /** 选取学生本轮次可选课程 
      * @param elecContext */
-    List<ElcCourseResult> getOptionalCourses(Long roundId, String studentId );
+    List<ElcCourseResult> getOptionalCourses(Long roundId, String studentId);
 }

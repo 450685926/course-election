@@ -424,7 +424,7 @@ public class StudentElecServiceImpl implements StudentElecService
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
 		
 		//获取学生本轮次已经选取的课程
-		Set<SelectedCourse> selectedCourseSet  = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
+		Set<SelectedCourse> selectedCourseSet = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
 		//获取学生未完成的课程
 		Set<CompletedCourse> inCompletedCourseSet = elecContextUtil.getSet("failedCourse", CompletedCourse.class);
 		//从缓存中拿到本轮次排课信息
