@@ -39,10 +39,11 @@ public class TeachingClassCache extends ElecCourse
     private String teacherCode;
     
     private String teacherName;
-    
-    public TeachingClassCache()
+
     /**开课学院*/
     private String startCollege;
+
+    public TeachingClassCache(){}
 
     public TeachingClassCache(ElecCourse course)
     {
