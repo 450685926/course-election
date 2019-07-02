@@ -11,4 +11,5 @@ import tk.mybatis.mapper.common.Mapper;
 public interface CourseOpenDao extends Mapper<CourseOpen> {
 	List<CourseOpen> selectCourseList(CourseOpen courseOpen);
 	List<CourseOpenVo> selectCourseSuggestSwitch(CourseOpenDto dto);
+	String selectFaculty(String courseCode);
 }

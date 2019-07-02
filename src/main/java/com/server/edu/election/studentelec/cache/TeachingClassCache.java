@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.cache;
 import java.util.List;
 import java.util.Objects;
 
+import com.server.edu.dictionary.annotation.Code2Text;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,11 +40,12 @@ public class TeachingClassCache extends ElecCourse
     private String teacherCode;
     
     private String teacherName;
-    
-    public TeachingClassCache()
-    {
-    }
-    
+
+    @Code2Text(transformer="X_YX")
+    private String faculty;
+
+    public TeachingClassCache(){}
+
     public TeachingClassCache(ElecCourse course)
     {
         this.setCampus(course.getCampus());
@@ -58,22 +60,22 @@ public class TeachingClassCache extends ElecCourse
     {
         return teacherCode;
     }
-    
+
     public void setTeacherCode(String teacherCode)
     {
         this.teacherCode = teacherCode;
     }
-    
+
     public String getTeacherName()
     {
         return teacherName;
     }
-    
+
     public void setTeacherName(String teacherName)
     {
         this.teacherName = teacherName;
     }
-    
+
     public Long getTeachClassId()
     {
         return teachClassId;
@@ -153,7 +155,15 @@ public class TeachingClassCache extends ElecCourse
     {
         this.times = times;
     }
-    
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
+
     @JsonIgnore
     public String getCourseCodeAndClassCode()
     {

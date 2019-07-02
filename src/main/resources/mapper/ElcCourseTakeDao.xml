@@ -38,6 +38,7 @@
   	<result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
   	<result column="courseName" jdbcType="VARCHAR" property="courseName" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+  	<result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
   	<result column="PERIOD_" jdbcType="DOUBLE" property="period" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
   	<result column="teachingClassName" jdbcType="VARCHAR" property="teachingClassName" />
@@ -453,7 +454,7 @@
     <select id="findSelectedCourses" resultMap="VoResultMap">
       select
 	      t1.*,
-	      op.COURSE_NAME_ as courseName, op.CREDITS_,t4.PERIOD_,
+	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, t4.PERIOD_,
 	      t4.CODE_ as teachingClassCode,
 	      t4.NAME_ as teachingClassName,
           op.IS_ELECTIVE_ as isPublicCourse

@@ -526,13 +526,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
                     }
                     if (map.size() != 0) {
-                        for (RollBookList bookList : result) {
-                            List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
-                            if (CollectionUtil.isNotEmpty(rollBookLists)) {
-                                Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
-                                String teacherName = String.join(",", collect);
-                                bookList.setTeacherName(teacherName);
-                            }
+                                for (RollBookList bookList : result) {
+                                    List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
+                                    if (CollectionUtil.isNotEmpty(rollBookLists)) {
+                                        Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
+                                        String teacherName = String.join(",", collect);
+                                        bookList.setTeacherName(teacherName);
+                                    }
 
                         }
                     }
