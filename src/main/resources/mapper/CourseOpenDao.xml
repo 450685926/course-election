@@ -108,4 +108,7 @@
 		    </if>
 		</where>
   </select>
+	<select id="selectStartCollege" resultType="java.lang.String">
+		SELECT FACULTY_ as startCollege FROM course_open_t where COURSE_CODE_ = #{courseCode}
+	</select>
 </mapper>

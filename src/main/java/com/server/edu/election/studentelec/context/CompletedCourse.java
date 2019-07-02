@@ -2,12 +2,13 @@ package com.server.edu.election.studentelec.context;
 
 import java.util.Objects;
 
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * 已完成课程
  */
-public class CompletedCourse extends ElecCourse {
+public class CompletedCourse extends TeachingClassCache {
     /**
      * 成绩
      */

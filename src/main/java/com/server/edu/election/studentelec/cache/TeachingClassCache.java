@@ -39,7 +39,8 @@ public class TeachingClassCache extends ElecCourse
     private String teacherCode;
     
     private String teacherName;
-    
+    /**开课学院*/
+    private String startCollege;
     
     public String getTeacherCode() {
 		return teacherCode;
@@ -149,7 +150,15 @@ public class TeachingClassCache extends ElecCourse
     {
         this.times = times;
     }
-    
+
+    public String getStartCollege() {
+        return startCollege;
+    }
+
+    public void setStartCollege(String startCollege) {
+        this.startCollege = startCollege;
+    }
+
     @JsonIgnore
     public String getCourseCodeAndClassCode()
     {

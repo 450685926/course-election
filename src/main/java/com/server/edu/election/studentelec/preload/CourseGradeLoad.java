@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dao.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,6 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.ElectionApplyDao;
-import com.server.edu.election.dao.ExemptionApplyDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionRounds;
@@ -86,6 +81,9 @@ public class CourseGradeLoad extends DataProLoad
     
     @Autowired
     private ElectionApplyDao electionApplyDao;
+
+    @Autowired
+    private CourseOpenDao courseOpenDao;
     
     @Override
     public void load(ElecContext context)
@@ -111,10 +109,16 @@ public class CourseGradeLoad extends DataProLoad
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
+            List<Long> teachClassIds = stuScoreBest.stream()
+                    .map(temp -> temp.getTeachingClassId())
+                    .collect(Collectors.toList());
+            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
+
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
-                lesson.setCourseCode(studentScore.getCourseCode());
+                String courseCode = studentScore.getCourseCode();
+                lesson.setCourseCode(courseCode);
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
@@ -122,6 +126,14 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCalendarId(studentScore.getCalendarId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
+
+                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
+                lesson.setTimes(times);
+                String startCollege = courseOpenDao.selectStartCollege(courseCode);
+                if (startCollege != null) {
+                    lesson.setStartCollege(startCollege);
+                }
+
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -203,6 +215,7 @@ public class CourseGradeLoad extends DataProLoad
                 course.setTeachClassId(c.getTeachingClassId());
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
+                course.setStartCollege(c.getStartCollege());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
                 
@@ -321,7 +334,7 @@ public class CourseGradeLoad extends DataProLoad
             
             String teacherName = this.getTeacherName(times);
             c.setTeacherName(teacherName);
-            
+
             return times;
         }
         
