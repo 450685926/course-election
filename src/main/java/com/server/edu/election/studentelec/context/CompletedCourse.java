@@ -32,6 +32,8 @@ public class CompletedCourse extends ElecCourse {
      * 学期
      */
     private Long calendarId;
+    
+    private Integer isPass; 
 
     public Long getCalendarId() {
         return calendarId;
@@ -73,7 +75,15 @@ public class CompletedCourse extends ElecCourse {
         this.excellent = excellent;
     }
 
-    @Override
+    public Integer getIsPass() {
+		return isPass;
+	}
+
+	public void setIsPass(Integer isPass) {
+		this.isPass = isPass;
+	}
+
+	@Override
     public int hashCode() {
         return Objects.hash(this.score, this.getCourseCode(), this.calendarId);
     }

@@ -64,6 +64,7 @@ public class StudentInfoLoad extends DataProLoad
         studentInfo.setSex(stu.getSex());
         studentInfo.setStudentName(stu.getName());
         studentInfo.setCampus(stu.getCampus());
+        studentInfo.setManagerDeptId(stu.getManagerDeptId());
         //专项计划
         studentInfo.setSpcialPlan(stu.getSpcialPlan());
         // 是否留学生

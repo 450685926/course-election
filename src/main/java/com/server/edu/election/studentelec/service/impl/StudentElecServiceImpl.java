@@ -6,11 +6,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,7 @@ import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
@@ -33,6 +38,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -44,6 +50,7 @@ import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
+import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcLogVo;
@@ -74,7 +81,13 @@ public class StudentElecServiceImpl implements StudentElecService
     private StudentDao stuDao;
     
     @Autowired
+    private ElecRoundCourseDao roundCourseDao;
+    
+    @Autowired
     private ElectionApplyService electionApplyService;
+    
+    @Autowired
+    private StringRedisTemplate strTemplate;
     
     @Override
     public RestResult<ElecRespose> loading(Long roundId, String studentId)
@@ -275,9 +288,11 @@ public class StudentElecServiceImpl implements StudentElecService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
-            //更新选课申请数据
-            electionApplyService
-                .update(studentId, round.getCalendarId(), courseCode);
+        	if (stu.getManagerDeptId().equals(Constants.PROJ_GRADUATE)) {
+        		//更新选课申请数据
+        		electionApplyService
+        		.update(studentId, round.getCalendarId(), courseCode);
+			}
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
             
@@ -395,4 +410,83 @@ public class StudentElecServiceImpl implements StudentElecService
        }
        return week;
    }
+
+    /** 获取学生可选课程 */
+   	@Override
+   	public List<ElcCourseResult> getOptionalCourses(Long roundId,
+   			String studentId,ElecContext elecContext) {
+   		
+   		RoundDataProvider dataProvider =
+   				SpringUtils.getBean(RoundDataProvider.class);
+
+//		ElectionRounds round = dataProvider.getRound(roundId);
+		//获取学生本轮次已经选取的课程
+		Set<SelectedCourse> selectedCourseSet = elecContext.getSelectedCourses();
+		//获取学生未完成的课程
+		Set<CompletedCourse> inCompletedCourseSet = elecContext.getFailedCourse();
+		//从缓存中拿到本轮次排课信息
+		HashOperations<String, String, String> ops = strTemplate.opsForHash();
+		String key = Keys.getRoundCourseKey(roundId);
+		Map<String, String> roundsCoursesMap =  ops.entries(key);
+		
+		List<String> roundsCoursesIdsList = new ArrayList<>();
+		for (Entry<String, String> entry : roundsCoursesMap.entrySet()) {
+			 String courseCode = entry.getKey();
+			 roundsCoursesIdsList.add(courseCode);
+		}
+		List<CompletedCourse> centerCourse = new ArrayList<>();
+   		//两个结果取交集 拿到学生可选课程
+   		for (String courseOpenCode : roundsCoursesIdsList) {
+   			for (CompletedCourse inCompletedCourse :inCompletedCourseSet) {
+   				if(courseOpenCode.equals(inCompletedCourse.getCourseCode())){
+   					if (inCompletedCourse.getIsPass() == null) {
+   						centerCourse.add(inCompletedCourse);
+   					}
+   				}
+   			}
+   		}
+		List<CompletedCourse> OptionalGraduateCoursesList = new ArrayList<>();
+   		for (CompletedCourse completedCourseModel : OptionalGraduateCoursesList) {
+   			Boolean flag = true;
+   			for (SelectedCourse selectedCourseModel :selectedCourseSet) {
+   				if(selectedCourseModel.getCourseCode().equals(completedCourseModel.getCourseCode())){
+   						flag = false;
+   						continue;
+   				}
+   			}
+   			if (flag) {
+   				OptionalGraduateCoursesList.add(completedCourseModel);
+			}
+   		}
+   		List<ElcCourseResult> result = new ArrayList<>();
+   		for (CompletedCourse completedCourse : OptionalGraduateCoursesList) {
+   			
+   			ElcCourseResult elcCourseResult = new ElcCourseResult();
+   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
+   			elcCourseResult.setCourseName(completedCourse.getCourseName());
+   			elcCourseResult.setCredits(completedCourse.getCredits());
+   			elcCourseResult.setFaculty(null);
+   			List<TeachingClassCache> teachClasss =
+   		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+	        if (CollectionUtil.isNotEmpty(teachClasss))
+	        {
+	            for (TeachingClassCache teachClass : teachClasss)
+	            {
+	                Long teachClassId = teachClass.getTeachClassId();
+	                Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+	                teachClass.setCurrentNumber(elecNumber);
+	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
+	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
+	       			elcCourseResult.setTeacherName(teachClass.getTeacherName());
+	                elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
+	                elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                result.add(elcCourseResult);
+	            }
+	        }
+   			
+		}
+   		return result;
+   	}
 }

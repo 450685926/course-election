@@ -132,6 +132,18 @@ public class ElecController
         return RestResult.successData(c);
     }
     
+    @ApiOperation(value = "获取可选课程列表")
+    @PostMapping("/getOptionalCourses")
+    public RestResult<List<ElcCourseResult>> getOptionalCourses(
+        @RequestParam("roundId") @NotBlank String roundId,
+        @RequestBody @Valid ElecContext elecContext)
+    {
+        Session session = SessionUtils.getCurrentSession();
+        String studentId = session.realUid();
+        List<ElcCourseResult> data = elecService.getOptionalCourses(Long.parseLong(roundId),studentId,elecContext);
+        return RestResult.successData(data);
+    }
+    
     @ApiOperation(value = "获取课程对应的教学班数据")
     @PostMapping("/getTeachClass")
     public RestResult<List<TeachingClassCache>> getTeachClass(

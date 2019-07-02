@@ -18,6 +18,9 @@ public class ElecCourse
     /**课程名称（英文）*/
     private String nameEn;
     
+    /**课程性质*/
+    private String nature;
+    
     /**校区*/
     private String campus;
     
@@ -98,7 +101,15 @@ public class ElecCourse
         this.nameEn = nameEn;
     }
     
-    public String getCampus()
+    public String getNature() {
+		return nature;
+	}
+
+	public void setNature(String nature) {
+		this.nature = nature;
+	}
+
+	public String getCampus()
     {
         return campus;
     }

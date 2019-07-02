@@ -63,4 +63,9 @@ public interface StudentElecService
      * @return
      */
     Map<String,List<ElcCourseResult>> getAllCourse(AllCourseVo allCourseVo);
+
+	
+    /** 选取学生本轮次可选课程 
+     * @param elecContext */
+    List<ElcCourseResult> getOptionalCourses(Long roundId, String studentId, ElecContext elecContext);
 }
