@@ -44,6 +44,8 @@ public class ElecRoundCourseQuery
     private String label;
     
     private String keyword;
+    
+    private String campus;
 
     public String getLabel() {
 		return label;
@@ -176,5 +178,6 @@ public class ElecRoundCourseQuery
 	public void setCampus(String campus) {
 		this.campus = campus;
 	}
+
     
 }
