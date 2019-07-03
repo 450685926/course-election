@@ -266,7 +266,9 @@ public class StudentElecServiceImpl implements StudentElecService
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
-            classDao.decrElcNumber(teachClassId);
+            if(round.getTurn()!=Constants.THIRD_TURN&&round.getTurn()!=Constants.FOURTH_TURN) {
+                classDao.decrElcNumber(teachClassId);
+            }
         }
         
         // 添加选课日志

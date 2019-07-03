@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ElcNumberSetDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.TeachingClass;
@@ -103,5 +104,9 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     List<TeacherClassTimeRoom> getClassTimes(List<Long> list);
     
     List<TeachingClassVo>  findTeachingClass(ElcResultQuery condition);
+    
+    List<TeachingClassVo> selectDrawClasss(ElcNumberSetDto elcNumberSetDto);
+    
+    int batchDecrElcNumber(List<TeachingClassVo> list);
 
 }

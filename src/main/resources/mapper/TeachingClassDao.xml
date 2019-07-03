@@ -206,5 +206,41 @@
             #{id}
          </foreach>
    </select>
+   
+   <select id="selectDrawClasss" parameterType="com.server.edu.election.dto.ElcNumberSetDto" resultType="com.server.edu.election.vo.TeachingClassVo">
+		SELECT
+			t2.ID_,
+			t2.CODE_,
+			COUNT(t1.ID_) withdrawNum
+		FROM
+			election_log_t_5 t1
+		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_CODE_ = t2.CODE_
+		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
+		INNER JOIN course_open_t t4 ON (
+			t4.ID_ = t3.COURSE_OPEN_ID_
+			AND t1.CALENDAR_ID_ = t4.CALENDAR_ID_
+		)
+		<where>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+		    t1.CALENDAR_ID_ = #{calendarId}
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(turns)">
+	        AND t1.TURN_ IN
+	        <foreach item="id" collection="turns" index="index" open="(" separator="," close=")">
+	          #{turn}
+	        </foreach>
+        </if>
+        </where>
+		GROUP BY
+			t2.ID_
+   </select>
+   
+   <update id="batchDecrElcNumber" parameterType="java.util.List">
+    <foreach item="item" collection="list" index="index"
+      separator=",">
+      update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - #{item.withdrawNum} where 
+      id_ = #{item.id} and ELC_NUMBER_ > 0
+    </foreach>
+   </update>
 
 </mapper>
