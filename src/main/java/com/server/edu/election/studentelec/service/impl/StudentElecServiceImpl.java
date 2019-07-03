@@ -317,7 +317,7 @@ public class StudentElecServiceImpl implements StudentElecService
     }
 
 	@Override
-	public Map<String,List<ElcCourseResult>> getAllCourse(AllCourseVo allCourseVo) {
+	public RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(AllCourseVo allCourseVo) {
 	    Map<String,List<ElcCourseResult>> map = new HashMap<String, List<ElcCourseResult>>();
 	    // 课程list
 	    List<ElcCourseResult> list = new ArrayList<ElcCourseResult>();
@@ -337,7 +337,7 @@ public class StudentElecServiceImpl implements StudentElecService
 			List<ElcCourseResult> timeList = getTimeList(list);
 			map.put(allCourseVo.getNatrue(), timeList);
 		}
-		return map;
+		return RestResult.successData(map);
 	}
 	
 	private List<ElcCourseResult>  getTimeList(List<ElcCourseResult> list){
