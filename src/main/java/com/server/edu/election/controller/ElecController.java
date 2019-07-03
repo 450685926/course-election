@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
+import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.ElectionRoundsDto;
@@ -50,6 +54,9 @@ import io.swagger.annotations.SwaggerDefinition;
 @RequestMapping("student")
 public class ElecController
 {
+
+	private RestTemplate restTemplate = RestTemplateBuilder.create();
+	
     @Autowired
     private StudentElecService elecService;
     
@@ -208,7 +215,7 @@ public class ElecController
      */
     @ApiOperation(value = "查询全部课程")
     @PostMapping("/{roundId}/allCourse")
-    public RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(
+    public RestResult getAllCourse(
     		@RequestBody @Valid AllCourseVo allCourseVo){
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.getUid();
@@ -220,7 +227,23 @@ public class ElecController
     	ElectionRoundsDto roundsDto = electionRoundService.get(allCourseVo.getRoundId());
     	allCourseVo.setCalendarId(roundsDto.getCalendarId());
     	
-    	Map<String,List<ElcCourseResult>> map = elecService.getAllCourse(allCourseVo);
-    	return RestResult.successData(map);
+    	RestResult<Map<String,List<ElcCourseResult>>> restResult = elecService.getAllCourse(allCourseVo);
+    	restResult.setCode(ResultStatus.SUCCESS.code());
+    	return restResult;
     }
+    
+//    @ApiOperation(value = "获取个人培养计划完成情况")
+//    @PostMapping("/culturePlanData")
+//    public RestResult<ElecRespose> getCulturePlanData() {
+//    	Session session = SessionUtils.getCurrentSession();
+//    	String uid = session.getUid();
+//    	// 调用培养：个人培养计划完成情况接口
+//    	String path = ServicePathEnum.USER.getPath("/culturePlan/getCulturePlanByStudentIdAndIsPass?id={id}&&isPass={isPass}");
+//    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(path,RestResult.class, uid, 0);
+//    	
+//    	
+//    	
+//    	
+//		return RestResult.successData();
+//	}
 }
