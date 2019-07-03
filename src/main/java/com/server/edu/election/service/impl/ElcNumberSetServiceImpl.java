@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElcNumberSetDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcNumberSetDto;
 import com.server.edu.election.entity.ElcNumberSet;
@@ -16,10 +17,14 @@ import com.server.edu.election.service.ElcNumberSetService;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 	@Autowired
 	private TeachingClassDao teachingClassDao;
+	@Autowired
+	private ElcNumberSetDao elcNumberSetDao;
 	@Override
 	@Transactional
 	public int releaseAll(Long calendarId) {
@@ -51,8 +56,11 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 
 	@Override
 	public ElcNumberSet getElcNumberSetInfo(Long calendarId) {
-		// TODO Auto-generated method stub
-		return null;
+		Example example = new Example(ElcNumberSet.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("calendarId", calendarId);
+		ElcNumberSet elcNumberSet =elcNumberSetDao.selectOneByExample(example);
+		return elcNumberSet;
 	}
 	
 
