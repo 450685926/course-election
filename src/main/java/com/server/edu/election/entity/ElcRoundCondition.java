@@ -64,7 +64,7 @@ public class ElcRoundCondition implements Serializable {
             *  学习形式(逗号分隔)
      */
     @Column(name = "FORM_LEARNINGS_")
-    private String formLearings;
+    private String formLearnings;
 
     private static final long serialVersionUID = 1L;
 
@@ -237,8 +237,8 @@ public class ElcRoundCondition implements Serializable {
 	 * 
 	 * @return FORM_LEARNING_  学习形式(逗号分隔)
 	 */
-	public String getFormLearings() {
-		return formLearings;
+	public String getFormLearnings() {
+		return formLearnings;
 	}
 
 	/**
@@ -246,8 +246,8 @@ public class ElcRoundCondition implements Serializable {
 	 * 
 	 * @param FORM_LEARNING_  学习形式(逗号分隔)
 	 */
-	public void setFormLearings(String formLearings) {
-		this.formLearings = formLearings;
+	public void setFormLearnings(String formLearnings) {
+		this.formLearnings = formLearnings;
 	}
 
 	@Override

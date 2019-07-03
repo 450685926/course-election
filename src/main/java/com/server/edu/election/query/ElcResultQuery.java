@@ -17,8 +17,11 @@ public class ElcResultQuery
     
     private String projectId;
     
+    /**
+     * 校区（取字典X_XQ）
+     */
     private String campus;
-    
+        
     /**
      * 课程编号
      */
@@ -30,7 +33,7 @@ public class ElcResultQuery
     private String courseName;
     
     /**
-     * 教学班编号
+     * 教学班编号（课程序号）
      */
     private String teachingClassCode;
     
@@ -58,6 +61,9 @@ public class ElcResultQuery
     
     private String keyword;
     
+    /**
+     * 开课学院
+     */
     private String faculty;
     
     /**
@@ -65,6 +71,16 @@ public class ElcResultQuery
      */
     @Code2Text(DictTypeEnum.X_KCFL)
     private Long courseLabelId;
+    
+    /**
+     * 课程性质
+     */
+    private String nature;
+    
+    /**
+     * 培养层次
+     */
+    private String trainingLevel;
     
     private String teacherCode;
     
@@ -260,8 +276,21 @@ public class ElcResultQuery
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
+
+	public String getNature() {
+		return nature;
+	}
+
+	public void setNature(String nature) {
+		this.nature = nature;
+	}
+
+	public String getTrainingLevel() {
+		return trainingLevel;
+	}
+
+	public void setTrainingLevel(String trainingLevel) {
+		this.trainingLevel = trainingLevel;
+	}
 	
-    
-    
-    
 }
