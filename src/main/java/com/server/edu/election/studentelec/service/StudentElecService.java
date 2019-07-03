@@ -2,7 +2,6 @@ package com.server.edu.election.studentelec.service;
 
 import java.util.List;
 import java.util.Map;
-
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.entity.Student;
@@ -55,6 +54,10 @@ public interface StudentElecService
     
     /**根据轮次查询学生信息*/
     Student findStuRound(Long roundId, String studentId);
+	
+    /** 选取学生本轮次可选课程 
+     * @param elecContext */
+    List<ElcCourseResult> getOptionalCourses(Long roundId, String studentId);
     
     /**
      * <ul>获取全部课程
@@ -62,10 +65,5 @@ public interface StudentElecService
      * @param AllCourseVo allCourseVo
      * @return
      */
-    Map<String,List<ElcCourseResult>> getAllCourse(AllCourseVo allCourseVo);
-
-	
-    /** 选取学生本轮次可选课程 
-     * @param elecContext */
-    List<ElcCourseResult> getOptionalCourses(Long roundId, String studentId);
+    RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(AllCourseVo allCourseVo);
 }
