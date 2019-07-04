@@ -149,6 +149,30 @@ public class ReportManagementController
             managementService.findRollBookList(condition);
         return RestResult.successData(bookList);
     }
+
+    @ApiOperation(value = "研究生点名册查询")
+    @PostMapping("/findGraduteRollBookList")
+    public RestResult<PageResult<RollBookList>> findGraduteRollBookList(
+            @RequestBody PageCondition<RollBookConditionDto> condition)
+    {
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        if (rollBookConditionDto.getCalendarId() == null)
+        {
+            return RestResult.fail("common.parameterError");
+        }
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<RollBookList> bookList = null;
+        if (session.isAdmin()) {
+            bookList = managementService.findRollBookList(condition);
+        }else if (session.isAcdemicDean()) {
+            rollBookConditionDto.setFaculty(session.getFaculty());
+            bookList = managementService.findRollBookList(condition);
+        }else if (session.isTeacher()) {
+            rollBookConditionDto.setTeacherCode(session.realUid());
+            bookList = managementService.findRollBookList(condition);
+        }
+        return RestResult.successData(bookList);
+    }
     
     @ApiOperation(value = "预览点名册")
     @PostMapping("/previewRollBookList2")
@@ -346,6 +370,17 @@ public class ReportManagementController
     {
         LOG.info("export.start");
         ExcelResult export = managementService.exportRollBookList(condition);
+        return RestResult.successData(export);
+    }
+
+    @ApiOperation(value = "导出研究生点名册")
+    @PostMapping("/exportGraduteRollBookList")
+    public RestResult<ExcelResult> exportGraduteRollBookList(
+            @RequestBody RollBookConditionDto condition)
+            throws Exception
+    {
+        LOG.info("export.start");
+        ExcelResult export = managementService.exportGraduteRollBookList(condition);
         return RestResult.successData(export);
     }
     
