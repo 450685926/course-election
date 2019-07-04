@@ -57,12 +57,22 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 
 	@Override
 	public int save(ElcNumberSet elcNumberSet) {
-		int result = elcNumberSetDao.insertSelective(elcNumberSet);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("election.elcNumberSet")));
-        }
+		int result = 0;
+		if(elcNumberSet.getId()!=null) {
+			result = elcNumberSetDao.updateByPrimaryKeySelective(elcNumberSet);
+	        if (result <= Constants.ZERO)
+	        {
+	            throw new ParameterValidateException(
+	                I18nUtil.getMsg("common.editError",I18nUtil.getMsg("election.elcNumberSet")));
+	        }
+		}else {
+			result = elcNumberSetDao.insertSelective(elcNumberSet);
+	        if (result <= Constants.ZERO)
+	        {
+	            throw new ParameterValidateException(
+	                I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("election.elcNumberSet")));
+	        }
+		}
         if(Constants.IS_OPEN==elcNumberSet.getStatus()) {
     		Runnable runnable = new Runnable() {
 	  		    @Override
