@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,14 @@ public class ElcResultServiceImpl implements ElcResultService
         PageCondition<ElcResultQuery> page)
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        Page<TeachingClassVo> listPage = classDao.listPage(page.getCondition());
+        ElcResultQuery condition = page.getCondition();
+        Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
+        if (StringUtils.equals(condition.getProjectId(), "1")) {
+        	listPage = classDao.listPage(page.getCondition());
+		}else {
+			listPage = classDao.grduateListPage(page.getCondition());
+		}
+        
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
         	List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());

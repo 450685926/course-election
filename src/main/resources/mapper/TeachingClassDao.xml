@@ -28,12 +28,15 @@
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="NAME_" jdbcType="VARCHAR" property="name" />
   </resultMap>
   
   <resultMap type="com.server.edu.election.vo.TeachingClassVo" id="TeachingClassVoMap" extends="BaseResultMap">
   	<result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
   	<result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+  	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
+  	<result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
@@ -91,6 +94,41 @@
       <if test="credits!=null and credits!=0">
         and t3.CREDITS_ = #{credits}
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+  		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  	  </if>
+  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+  	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4 
+  	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
+  	  </if>
+    </where>
+  </select>
+  
+  <select id="grduateListPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
+    select t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
+    	   t2.CAMPUS_,
+    	   t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_ 
+    from teaching_class_t  t1  
+		join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+		join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ = 1)
+    <where>
+      t3.CALENDAR_ID_ = #{calendarId}
+      and t1.DEPLOY_FLAG_ &gt; 0
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+        and t3.FACULTY_ = #{faculty}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+        and t2.CAMPUS_ = #{campus}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+        and t3.NATURE_ = #{nature}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+        and t3.TRAINING_LEVEL_ = #{trainingLevel}
+      </if>
+<!--       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+        and t3.PROJ_ID_ = #{projectId}
+      </if> -->
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
   	  </if>
