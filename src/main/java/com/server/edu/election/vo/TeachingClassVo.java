@@ -10,7 +10,14 @@ public class TeachingClassVo extends TeachingClass
     
     private String teacherName;
     
+    private int withdrawNum;
     
+	public int getWithdrawNum() {
+		return withdrawNum;
+	}
+	public void setWithdrawNum(int withdrawNum) {
+		this.withdrawNum = withdrawNum;
+	}
 	public String getTeacherName() {
 		return teacherName;
 	}
