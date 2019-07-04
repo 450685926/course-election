@@ -504,6 +504,73 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     *@Description: 导出研究生点名册
+     *@Param:
+     *@return:
+     *@Author:
+     *@date: 2019/7/4
+     */
+    @Override
+    public ExcelResult exportGraduteRollBookList(RollBookConditionDto condition) throws Exception{
+        ExcelResult excelResult = ExportExcelUtils.submitTask("rollBookList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<RollBookConditionDto> pageCondition = new PageCondition<RollBookConditionDto>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<RollBookList> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<RollBookList> rollBookList = findRollBookList(pageCondition);
+                    list.addAll(rollBookList.getList());
+
+                    result.setTotal((int)rollBookList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (rollBookList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesignGradute();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    private GeneralExcelDesigner getDesignGradute() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "classCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "className");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseNature"), "courseNature");
+        design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"), "selectCourseNumber");
+        design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"), "numberLimit");
+
+        design.addCell(I18nUtil.getMsg("rollBookManage.courseOpenFaculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+
+        design.addCell(I18nUtil.getMsg("rollBookManage.teacher"), "teacherName");
+        return design;
+    }
+
+    /**
     *@Description: 查询点名册
     *@Param: 
     *@return: 

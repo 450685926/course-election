@@ -555,7 +555,10 @@
     </select>
 
     <select id="findClassByTeacherCode" parameterType="com.server.edu.election.dto.RollBookConditionDto" resultType="com.server.edu.election.vo.RollBookList">
-                SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,t3.LABEL_ courseLabel,t3.COLLEGE_ faculty
+        SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,
+            t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,
+            t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,
+            t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature
         from elc_course_takes_t t1
         join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
         join course_t t3 on t1.COURSE_CODE_=t3.CODE_
@@ -566,6 +569,9 @@
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
             and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
+            and t2.CODE_ =#{classCode,jdbcType=VARCHAR}
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
             and t3.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
@@ -578,6 +584,9 @@
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabel)">
             and t3.LABEL_ =#{courseLabel,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseNature)">
+            and t3.NATURE_ =#{courseNature,jdbcType=VARCHAR}
         </if>
         </where>
         GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_

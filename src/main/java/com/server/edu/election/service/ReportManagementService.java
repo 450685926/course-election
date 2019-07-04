@@ -64,6 +64,9 @@ public interface ReportManagementService {
     /**导出点名册*/
     ExcelResult exportRollBookList(RollBookConditionDto condition) throws Exception;
 
+    /**导出研究生点名册*/
+    ExcelResult exportGraduteRollBookList(RollBookConditionDto condition) throws Exception;
+
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 
     PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);

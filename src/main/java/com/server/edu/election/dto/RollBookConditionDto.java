@@ -12,6 +12,24 @@ public class RollBookConditionDto {
     private String courseLabel;
     private String faculty;
     private String teacherCode;
+    private String courseNature;
+    private String classCode;
+
+    public String getCourseNature() {
+        return courseNature;
+    }
+
+    public void setCourseNature(String courseNature) {
+        this.courseNature = courseNature;
+    }
+
+    public String getClassCode() {
+        return classCode;
+    }
+
+    public void setClassCode(String classCode) {
+        this.classCode = classCode;
+    }
 
     public Long getCalendarId() {
         return calendarId;
