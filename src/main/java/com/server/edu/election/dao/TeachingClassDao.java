@@ -28,13 +28,23 @@ import tk.mybatis.mapper.common.Mapper;
 public interface TeachingClassDao extends Mapper<TeachingClass>
 {
     /**
-     * 分页查询教学班
+     * 分页查询教学班(本科生)
      * 
      * @param condition
      * @return
      * @see [类、类#方法、类#成员]
      */
     Page<TeachingClassVo> listPage(ElcResultQuery condition);
+    
+    /**
+     * 分页查询教学班（研究生）
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<TeachingClassVo> grduateListPage(ElcResultQuery condition);
+    
     /**
      * 对选课人数进行自增，不会判断限制人数
      * 
