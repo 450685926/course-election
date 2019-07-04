@@ -19,10 +19,45 @@ public class NoSelectCourseStdsDto{
     private String studentCategory;
     private String studentCode;
     private String studentName;
+    /**
+     * 学籍变动信息
+     */
     private String stdStatusChanges;
+    /**
+     * 未选课原因
+     */
     private String noSelectReason;
+    /**
+     * 用户管理部门ID（MANAGER_DEPT_ID）
+     */
     private String deptId;
+    
     private String keyword;
+    
+    /**
+     * 培养层次
+     */
+    @Code2Text(transformer = "X_PYCC")
+    private String trainingLevel;
+    
+    /**
+     * 培养类别
+     */
+    @Code2Text(transformer = "X_PYLB")
+    private String trainingCategory;
+    
+    /**
+     * 学位类型
+     */
+    @Code2Text(transformer = "X_XWLX")
+    private String degreeType;
+    
+    /**
+     * 学习形式
+     */
+    @Code2Text(transformer = "X_XXXS")
+    private String formLearning;
+    
 
     public String getKeyword() {
         return keyword;
@@ -111,4 +146,37 @@ public class NoSelectCourseStdsDto{
     public void setNoSelectReason(String noSelectReason) {
         this.noSelectReason = noSelectReason;
     }
+
+	public String getTrainingLevel() {
+		return trainingLevel;
+	}
+
+	public void setTrainingLevel(String trainingLevel) {
+		this.trainingLevel = trainingLevel;
+	}
+
+	public String getTrainingCategory() {
+		return trainingCategory;
+	}
+
+	public void setTrainingCategory(String trainingCategory) {
+		this.trainingCategory = trainingCategory;
+	}
+
+	public String getDegreeType() {
+		return degreeType;
+	}
+
+	public void setDegreeType(String degreeType) {
+		this.degreeType = degreeType;
+	}
+
+	public String getFormLearning() {
+		return formLearning;
+	}
+
+	public void setFormLearning(String formLearning) {
+		this.formLearning = formLearning;
+	}
+    
 }

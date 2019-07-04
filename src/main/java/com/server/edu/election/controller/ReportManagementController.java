@@ -327,7 +327,7 @@ public class ReportManagementController
         return RestResult.successData(teacherTimetable);
     }
     
-    @ApiOperation(value = "导出未选课学生名单")
+    @ApiOperation(value = "导出未选课学生名单本科生")
     @PostMapping("/exportStudentNoCourseList2")
     public RestResult<String> exportStudentNoCourseList(
         @RequestBody NoSelectCourseStdsDto condition)
@@ -336,6 +336,17 @@ public class ReportManagementController
         LOG.info("export.start");
         String export = managementService.exportStudentNoCourseList(condition);
         return RestResult.successData(export);
+    }
+    
+    @ApiOperation(value = "导出未选课学生名单研究生")
+    @PostMapping("/exportStudentNoCourseListGradute")
+    public RestResult<String> exportStudentNoCourseListGradute(
+    		@RequestBody NoSelectCourseStdsDto condition)
+    				throws Exception
+    {
+    	LOG.info("export.gradute.start");
+    	String export = managementService.exportStudentNoCourseListGradute(condition);
+    	return RestResult.successData(export);
     }
     
     @ApiOperation(value = "导出点名册")
