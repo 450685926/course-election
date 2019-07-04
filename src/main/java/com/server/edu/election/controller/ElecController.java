@@ -232,18 +232,27 @@ public class ElecController
     	return restResult;
     }
     
-//    @ApiOperation(value = "获取个人培养计划完成情况")
-//    @PostMapping("/culturePlanData")
-//    public RestResult<ElecRespose> getCulturePlanData() {
-//    	Session session = SessionUtils.getCurrentSession();
-//    	String uid = session.getUid();
-//    	// 调用培养：个人培养计划完成情况接口
-//    	String path = ServicePathEnum.USER.getPath("/culturePlan/getCulturePlanByStudentIdAndIsPass?id={id}&&isPass={isPass}");
-//    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(path,RestResult.class, uid, 0);
-//    	
-//    	
-//    	
-//    	
-//		return RestResult.successData();
-//	}
+    @ApiOperation(value = "获取个人培养计划完成情况")
+    @PostMapping("/culturePlanData")
+    public RestResult getCulturePlanData() {
+    	Session session = SessionUtils.getCurrentSession();
+    	String uid = session.getUid();
+
+    	/**
+    	 * 调用培养：个人培养计划完成情况接口
+    	 * coursesLabelList (课程分类列表)
+    	 * cultureCourseLabelRelationList(课程列表)
+    	 */
+    	String path = ServicePathEnum.USER.getPath("/culturePlan/getCulturePlanByStudentIdForElection?id={id}&&isPass={isPass}");
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(path,RestResult.class, uid, 0);
+    	
+    	/** 调用培养：培养方案的课程分类学分 */
+    	String culturePath = ServicePathEnum.USER.getPath("/studentCultureRel/getCultureCredit?studentId={id}");
+    	RestResult<Map<String, Object>> restResult2 = restTemplate.getForObject(culturePath,RestResult.class, uid);
+    	
+    	Map<String, Object> data = restResult2.getData();
+    	restResult.setData(data);
+    	restResult.setCode(ResultStatus.SUCCESS.code());
+		return restResult;
+	}
 }
