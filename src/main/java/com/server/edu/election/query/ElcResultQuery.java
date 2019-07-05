@@ -82,6 +82,9 @@ public class ElcResultQuery
      */
     private String trainingLevel;
     
+    /**
+     * 教室编号
+     */
     private String teacherCode;
     
     private Integer actualAndUpper;

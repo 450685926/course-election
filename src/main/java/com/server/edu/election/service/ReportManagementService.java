@@ -58,11 +58,14 @@ public interface ReportManagementService {
     /**代选课*/
     String otherSelectCourse(StudentSelectCourseList studentSelectCourseList);
 
-    /**导出未选课学生名单*/
+    /**本科生导出未选课学生名单*/
     String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception;
 
     /**导出点名册*/
     ExcelResult exportRollBookList(RollBookConditionDto condition) throws Exception;
+
+    /**导出研究生点名册*/
+    ExcelResult exportGraduteRollBookList(RollBookConditionDto condition) throws Exception;
 
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 
@@ -83,5 +86,8 @@ public interface ReportManagementService {
     ExcelResult exportTeacher(ClassCodeToTeacher condition);
 
     String exportPreRollBookList(ExportPreCondition condition) throws Exception;
+    
+    /**研究生导出未选课学生名单*/
+	String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception;
 
 }

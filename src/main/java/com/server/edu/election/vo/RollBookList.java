@@ -22,6 +22,15 @@ public class RollBookList {
     private Integer numberLimit;
     private String calendarName;
     private String classCodeAndcourseName;
+    private String courseNature;
+
+    public String getCourseNature() {
+        return courseNature;
+    }
+
+    public void setCourseNature(String courseNature) {
+        this.courseNature = courseNature;
+    }
 
     public String getClassCodeAndcourseName() {
         return classCodeAndcourseName;

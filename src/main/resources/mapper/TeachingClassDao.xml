@@ -37,6 +37,7 @@
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
   	<result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+  	<result column="classNumber" jdbcType="INTEGER" property="classNumber" />
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
@@ -107,10 +108,10 @@
   <select id="grduateListPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
     	   t2.CAMPUS_,
-    	   t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_ 
+    	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,t3.NUMBER_ classNumber 
     from teaching_class_t  t1  
 		join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
-		join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ = 1)
+		join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_ 
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
@@ -126,11 +127,11 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
         and t3.TRAINING_LEVEL_ = #{trainingLevel}
       </if>
-<!--       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
-      </if> -->
+      </if> 
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-  		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  		and (t1.CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
   	  </if>
   	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
   	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4 

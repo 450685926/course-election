@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcCourseSuggestSwitch;
@@ -39,7 +41,10 @@ import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
+import com.server.edu.election.studentelec.context.ElcCourseResult;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.vo.TeachingClassVo;
+import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -113,8 +118,79 @@ public class ElcResultServiceImpl implements ElcResultService
                 	}
             	}
             }
+            // 处理教学安排（上课时间地点）信息
+            getTimeList(list);
         }
         return new PageResult<>(listPage);
+    }
+    
+	private List<TeachingClassVo>  getTimeList(List<TeachingClassVo> list){
+		if(CollectionUtil.isNotEmpty(list)){
+			for (TeachingClassVo teachingClassVo : list) {
+				List<TimeAndRoom> tableMessages = getTimeById(teachingClassVo.getId());
+				teachingClassVo.setTimeTableList(tableMessages);
+			}
+		}
+		return list;
+	}
+	
+	private List<TimeAndRoom>  getTimeById(Long teachingClassId){
+        List<TimeAndRoom> list=new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoomStr(teachingClassId);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+            	TimeAndRoom time=new TimeAndRoom();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                Long timeId = classTeacherDto.getTimeId();
+                String[] str = weekNumber.split(",");
+                
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
+                time.setTimeId(timeId);
+                time.setTimeAndRoom(timeStr);
+                time.setRoomId(roomID);
+                list.add(time);
+            }
+        }
+        return list;
+    }
+	
+   /**
+   *  @Description: 星期
+   */
+	private String findWeek(Integer number){
+       String week="";
+       switch(number){
+           case 1:
+               week="星期一";
+               break;
+           case 2:
+               week="星期二";
+               break;
+           case 3:
+               week="星期三";
+               break;
+           case 4:
+               week="星期四";
+               break;
+           case 5:
+               week="星期五";
+               break;
+           case 6:
+               week="星期六";
+               break;
+           case 7:
+               week="星期日";
+               break;
+       }
+       return week;
     }
     
     @Override
