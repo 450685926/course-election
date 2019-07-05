@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
@@ -10,7 +11,7 @@ import com.server.edu.election.service.ElcClassEditAuthorityService;
 import com.server.edu.exception.ParameterValidateException;
 
 import tk.mybatis.mapper.entity.Example;
-
+@Service
 public class ElcClassEditAuthorityServiceImpl implements ElcClassEditAuthorityService {
 	@Autowired
 	private ElcClassEditAuthorityDao elcClassEditAuthorityDao;
