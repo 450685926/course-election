@@ -197,7 +197,7 @@ public class ElecController
      */
     @ApiOperation(value = "查询全部课程")
     @PostMapping("/{roundId}/allCourse")
-    public RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(
+    public RestResult<?> getAllCourse(
     		@RequestBody @Valid AllCourseVo allCourseVo){
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.getUid();
