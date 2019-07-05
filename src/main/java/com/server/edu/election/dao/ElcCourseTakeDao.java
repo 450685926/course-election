@@ -144,10 +144,15 @@ public interface ElcCourseTakeDao
     List<LoserStuElcCourse> findStudentElcCourse(@Param("calendarId")Long calendarId, @Param("studentId") String studentId);
 
     /**
-     * 查询未选课学生
+     * 查询未选课学生（本科生）
      */
     Page<NoSelectCourseStdsDto> findNoSelectCourseStds(NoSelectCourseStdsDto stdsDto);
 
+    /**
+     * 查询未选课学生(研究生)
+     */
+    Page<NoSelectCourseStdsDto> findNoSelectCourseGraduteStds(NoSelectCourseStdsDto condition);
+    
     /**查询学生未缴费明细*/
     List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
 
@@ -157,5 +162,6 @@ public interface ElcCourseTakeDao
     /**查询学生选课列表
      * @return*/
     List<String> findAllByStudentId(@Param("studentId")String studentId);
+
 
 }

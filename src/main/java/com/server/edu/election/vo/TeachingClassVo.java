@@ -1,12 +1,15 @@
 package com.server.edu.election.vo;
 
+import java.util.List;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 
 @CodeI18n
-public class TeachingClassVo extends TeachingClass
+public class TeachingClassVo extends TeachingClass 
 {
     private String courseCode;
     private String courseName;
@@ -32,6 +35,16 @@ public class TeachingClassVo extends TeachingClass
      */
     @Code2Text(DictTypeEnum.X_XQ)
     private String campus; 
+    
+    /**
+     * 教室容量
+     */
+    private Integer classNumber;
+    
+    /**
+     * 教学安排（上课时间地点）
+     */
+    private List<TimeAndRoom> timeTableList;
     
 	public int getWithdrawNum() {
 		return withdrawNum;
@@ -86,6 +99,19 @@ public class TeachingClassVo extends TeachingClass
 	}
 	public void setCampus(String campus) {
 		this.campus = campus;
+	}
+	
+	public Integer getClassNumber() {
+		return classNumber;
+	}
+	public void setClassNumber(Integer classNumber) {
+		this.classNumber = classNumber;
+	}
+	public List<TimeAndRoom> getTimeTableList() {
+		return timeTableList;
+	}
+	public void setTimeTableList(List<TimeAndRoom> timeTableList) {
+		this.timeTableList = timeTableList;
 	}
     
 }

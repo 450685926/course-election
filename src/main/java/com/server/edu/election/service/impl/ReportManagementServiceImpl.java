@@ -394,9 +394,15 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Override
     public PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition) {
         String deptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        condition.getCondition().setDeptId(deptId);
+    	condition.getCondition().setDeptId(deptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<NoSelectCourseStdsDto> electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
+        
+        Page<NoSelectCourseStdsDto> electCourseList;
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && "1".equals(deptId)) {
+        	electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
+		}else {
+			electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
+		}
         return new PageResult<>(electCourseList);
     }
 
@@ -425,7 +431,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-    *@Description: 导出未选课学生名单
+    *@Description: 本科生导出未选课学生名单
     *@Param:
     *@return:
     *@Author: bear
@@ -449,6 +455,34 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
             FileUtil.mkdirs(cacheDirectory);
             String fileName = "studentNoSelectCourseList.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
+    }
+    
+    /* 
+     * 研究生导出未选课学生名单
+     */
+    @Override
+    public String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception {
+    	PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
+        pageCondition.setCondition(condition);
+        pageCondition.setPageSize_(Constants.ZERO);
+        pageCondition.setPageNum_(Constants.ZERO);
+        PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
+        if(electCourseList!=null){
+            List<NoSelectCourseStdsDto> list = electCourseList.getList();
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            GeneralExcelDesigner design = getDesignGradute();
+            design.setDatas(list);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "studentNoSelectCourseListGradute.xls";
             String path = cacheDirectory + fileName;
             generalExcelHandle.writeExcel(new FileOutputStream(path));
             return fileName;
@@ -1098,6 +1132,40 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
         design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
         return design;
+    }
+    
+    private GeneralExcelDesigner getDesignGradute() {
+    	GeneralExcelDesigner design = new GeneralExcelDesigner();
+    	design.setNullCellValue("");
+    	design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+    	design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
+    	design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
+    	design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("exemptionApply.major"), "major").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_PYCC", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("noElection.trainingCategory"), "trainingCategory").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_PYLB", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("noElection.degreeType"), "degreeType").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_XWLX", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("noElection.formLearning"), "formLearning").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_XXXS", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
+    	return design;
     }
 
     private GeneralExcelDesigner getDesignTeacher() {

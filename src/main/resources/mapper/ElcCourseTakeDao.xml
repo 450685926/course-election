@@ -719,6 +719,47 @@
         </where>
 
     </select>
+    <!-- 查询未选课学生名单(研究生) -->
+    <select id="findNoSelectCourseGraduteStds" parameterType="com.server.edu.election.dto.NoSelectCourseStdsDto" resultType="com.server.edu.election.dto.NoSelectCourseStdsDto">
+        SELECT STUDENT_CODE_ studentCode,NAME_ studentName,GRADE_ grade,
+			   FACULTY_ faculty,PROFESSION_ major,TRAINING_LEVEL_ trainingLevel,
+			   TRAINING_CATEGORY_ trainingCategory,DEGREE_CATEGORY_ degreeType,
+			   FORM_LEARNING_ formLearning
+		FROM student_t 
+        <where>
+             STUDENT_CODE_ not in (select STUDENT_ID_ from elc_course_takes_t where CALENDAR_ID_=#{calendarId} group by STUDENT_ID_)
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and FACULTY_ =#{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
+                and PROFESSION_ =#{major}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
+                and STUDENT_CODE_ like concat('%',#{studentCode},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+                and NAME_ like concat('%',#{studentName},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+               and TRAINING_LEVEL_ =#{trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+               and TRAINING_CATEGORY_ =#{trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
+               and DEGREE_CATEGORY_ =#{degreeType}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+               and FORM_LEARNING_ =#{formLearning}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+               and MANAGER_DEPT_ID_ =#{deptId}
+            </if>
+          	<!--   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (STUDENT_CODE_ like concat('%',#{keyword},'%') or NAME_ like concat('%',#{keyword},'%') )
+            </if> -->
+        </where>
+    </select>
 
     <select id="findStuRebuildCourse" resultMap="VoResultMap" parameterType="com.server.edu.election.dto.StudentRePaymentDto">
           select t1.COURSE_CODE_ courseCode,t2.NAME_ courseName,t2.CREDITS_ credits,t1.PAID_ paid,t1.BILL_ID_ billId
