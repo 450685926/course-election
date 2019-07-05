@@ -5,6 +5,7 @@ import java.util.List;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.entity.ElectionRoundsCour;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 
 /**
@@ -53,7 +54,7 @@ public interface ElecRoundCourseService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    void add(Long roundId, List<String> courseCodes);
+    void add(Long roundId, List<Long> teachingClassIds);
     
     /**
      * 添加所有
@@ -70,7 +71,7 @@ public interface ElecRoundCourseService
      * @param studentCodes
      * @see [类、类#方法、类#成员]
      */
-    void delete(Long roundId, List<String> courseCodes);
+    void delete(Long roundId, List<Long> teachingClassIds);
     
     /**
      * 删除全部
@@ -79,4 +80,12 @@ public interface ElecRoundCourseService
      * @see [类、类#方法、类#成员]
      */
     void deleteAll(Long roundId);
+    
+    /**
+     * 获取教学班id
+     * 
+     * @param roundId
+     * @see [类、类#方法、类#成员]
+     */
+    List<ElectionRoundsCour> getTeachingClassIds(Long roundId);
 }

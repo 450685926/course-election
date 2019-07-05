@@ -74,6 +74,9 @@ public interface ElcCourseTakeDao
     
     List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
     
+    /** 查询教学安排*/
+    List<ClassTeacherDto> findClassTimeAndRoomStr(Long list);
+    
     /**查询学生课表*/
     List<StudentSchoolTimetab> findSchoolTimetab(
         @Param("calendarId") Long calendarId,
@@ -150,5 +153,9 @@ public interface ElcCourseTakeDao
 
     
     int editStudyType(@Param("courseTakeType") Integer courseTakeType,@Param("ids") List<Long> ids, @Param("caladerId") Long caladerId);
+
+    /**查询学生选课列表
+     * @return*/
+    List<String> findAllByStudentId(@Param("studentId")String studentId);
 
 }

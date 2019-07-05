@@ -12,9 +12,20 @@ public class CourseOpenDto extends CourseOpen
     
     private Long teachingClassId;
     
+    /**
+     *  教学班编号
+     */
     private String teachingClassCode;
 
+    /**
+     *  校区
+     */
     private String campus;
+    
+    /**
+     * 教学班名称
+     */
+    private String teachingClassName;
 
     private String teachClassType;
 
@@ -31,7 +42,27 @@ public class CourseOpenDto extends CourseOpen
     private String projectId;
     
     
+    private Long courseLabelId;
+    
+    private String teacherCode;
+    
+    
 
+	public Long getCourseLabelId() {
+		return courseLabelId;
+	}
+
+	public void setCourseLabelId(Long courseLabelId) {
+		this.courseLabelId = courseLabelId;
+	}
+
+	public String getTeacherCode() {
+		return teacherCode;
+	}
+
+	public void setTeacherCode(String teacherCode) {
+		this.teacherCode = teacherCode;
+	}
 
 	public String getProjectId() {
 		return projectId;
@@ -126,5 +157,13 @@ public class CourseOpenDto extends CourseOpen
     {
         this.teachingClassCode = teachingClassCode;
     }
+
+	public String getTeachingClassName() {
+		return teachingClassName;
+	}
+
+	public void setTeachingClassName(String teachingClassName) {
+		this.teachingClassName = teachingClassName;
+	}
     
 }

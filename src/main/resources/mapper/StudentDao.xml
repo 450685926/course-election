@@ -109,16 +109,15 @@
 		  <include refid="Base_Column_List"></include>
 		FROM
 			student_t t1
-		WHERE
+		<where>
 			STUDENT_CODE_ NOT IN (
 				SELECT
 					STUDENT_ID_
 				FROM
 					elc_invincible_stds_t
 			)
-			<where>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
-			        t1.STUDENT_CODE_ =#{studentCode}
+			       and  t1.STUDENT_CODE_ =#{studentCode}
 			    </if>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
 			        and t1.NAME_ =#{name}
@@ -146,4 +145,55 @@
 		(select CALENDAR_ID_ from election_rounds_t
 		WHERE ID_=#{roundId}) and t1.STUDENT_CODE_=#{studentId}
 	</select>
+
+    <select id="getAllCourse" parameterType="com.server.edu.election.vo.AllCourseVo" resultType="com.server.edu.election.studentelec.context.ElcCourseResult">
+       select course.NATURE_ natrue,class.CODE_ teachingClassCode,
+              course.COURSE_CODE_ courseCode,course.COURSE_NAME_ courseName,
+              course.CREDITS_ credits,teacher.TEACHER_CODE_ teacherCode,teacher.TEACHER_NAME_ teacherName,
+              course.FACULTY_ faculty,
+			  class.ID_ teachClassId,
+			  class.ELC_NUMBER_ elcNumber,class.NUMBER_ number,
+			  class.REMARK_ remark
+		from course_open_t course
+   			 left join teaching_task_t task on course.ID_ = task.COURSE_OPEN_ID_
+	         left join teaching_class_t class on task.ID_ = class.TASK_ID_
+	         left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
+		where 
+		     course.CALENDAR_ID_ = #{calendarId} and
+             course.TRAINING_LEVEL_ = #{trainingLevel} and 
+             class.CAMPUS_ = #{campu}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+            and course.COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+            and teacher.TEACHER_CODE_ =#{teacherCode,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+            and course.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(natrue)">
+            and course.NATURE_ =#{natrue,jdbcType=VARCHAR}
+        </if>
+   </select>
+   
+    <select id="getNature" parameterType="com.server.edu.election.vo.AllCourseVo" resultType="com.server.edu.election.studentelec.context.ElcCourseResult">
+       select distinct(course.NATURE_) natrue
+		from course_open_t course
+   			 left join teaching_task_t task on course.ID_ = task.COURSE_OPEN_ID_
+	         left join teaching_class_t class on task.ID_ = class.TASK_ID_
+	         left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
+		where 
+		     course.CALENDAR_ID_ = #{calendarId} and
+             course.TRAINING_LEVEL_ = #{trainingLevel} and  
+             class.CAMPUS_ = #{campu} 
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+            and course.COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+            and teacher.TEACHER_CODE_ =#{teacherCode,jdbcType=VARCHAR}
+        </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+            and course.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+        </if>
+   </select>
 </mapper>

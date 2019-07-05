@@ -163,7 +163,7 @@
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="Number">${item_index + 1}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.studentCode}</Data></Cell>
-    <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.name}</Data></Cell>
+    <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.exportName}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.sex}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="Number">${item.grade}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.faculty}</Data></Cell>
@@ -185,7 +185,6 @@
        <Cell ss:StyleID="s64"><Data ss:Type="String"></Data></Cell>
        <Cell ss:StyleID="s64"><Data ss:Type="String"></Data></Cell>
    </Row>
-   </#list>
     <#list lineList as line>
     <Row  ss:AutoFitHeight="0">
     <Cell ss:Index="7" ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
@@ -207,6 +206,7 @@
     <Cell ss:StyleID="s64"><Data ss:Type="String"></Data></Cell>
     </Row>
     </#list>
+   </#list>
    <Row ss:AutoFitHeight="0"/>
   </Table>
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">

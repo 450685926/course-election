@@ -73,7 +73,8 @@ public class StaringListener
             }
             else
             {
-                studentDao.updateByPrimaryKeySelective(convert);
+            	convert.setStudentCode(null);
+                studentDao.updateByExampleSelective(convert, example);
             }
         }
     }

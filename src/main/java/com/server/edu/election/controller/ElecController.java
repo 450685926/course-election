@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -21,13 +22,19 @@ import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.Student;
+import com.server.edu.election.service.ElecRoundService;
+import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.session.util.SessionUtils;
@@ -48,6 +55,12 @@ public class ElecController
     
     @Autowired
     private RoundDataProvider dataProvider;
+    
+    @Autowired
+    private ExemptionCourseService exemptionCourseServiceImpl;
+    
+    @Autowired
+    private ElecRoundService electionRoundService;
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -179,4 +192,24 @@ public class ElecController
         return RestResult.successData(response);
     }
     
+    /**
+     * 全部课程指：在本次选课学期，学生学籍所在校区对应的培养层次所有的排课信息
+     */
+    @ApiOperation(value = "查询全部课程")
+    @PostMapping("/{roundId}/allCourse")
+    public RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(
+    		@RequestBody @Valid AllCourseVo allCourseVo){
+    	Session session = SessionUtils.getCurrentSession();
+    	String uid = session.getUid();
+    	RestResult<Student> studentMessage = exemptionCourseServiceImpl.findStudentMessage(uid);
+    	Student student = studentMessage.getData();
+    	allCourseVo.setTrainingLevel(student.getTrainingLevel());
+    	allCourseVo.setCampu(student.getCampus());
+    	
+    	ElectionRoundsDto roundsDto = electionRoundService.get(allCourseVo.getRoundId());
+    	allCourseVo.setCalendarId(roundsDto.getCalendarId());
+    	
+    	Map<String,List<ElcCourseResult>> map = elecService.getAllCourse(allCourseVo);
+    	return RestResult.successData(map);
+    }
 }

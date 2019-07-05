@@ -6,7 +6,11 @@ import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.entity.ElectionRoundsCour;
 import com.server.edu.election.query.ElecRoundCourseQuery;
+
+import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.common.MySqlMapper;
 
 /**
  * 可选教学任务
@@ -17,10 +21,10 @@ import com.server.edu.election.query.ElecRoundCourseQuery;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public interface ElecRoundCourseDao
+public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMapper<ElectionRoundsCour>
 {
     /**
-     * 分页查询已添加的教学任务
+     * 分页查询已添加的教学任务(本科生)
      * 
      * @param query
      * @return
@@ -29,7 +33,16 @@ public interface ElecRoundCourseDao
     Page<CourseOpenDto> listPage(@Param("query") ElecRoundCourseQuery query);
     
     /**
-     * 查询未添加的教学任务
+     * 分页查询已添加的教学任务(研究生)
+     * 
+     * @param query
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<CourseOpenDto> listPageGraduate(@Param("query") ElecRoundCourseQuery query);
+    
+    /**
+     * 查询未添加的教学任务(本科生)
      * 
      * @param query
      * @return
@@ -38,6 +51,15 @@ public interface ElecRoundCourseDao
     Page<CourseOpenDto> listUnAddPage(
         @Param("query") ElecRoundCourseQuery query,
         @Param("list") List<String> list);
+    
+    /**
+     * 查询未添加的教学任务(研究生)
+     * 
+     * @param query
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<CourseOpenDto> listUnAddPageGraduate(@Param("query") ElecRoundCourseQuery query);
     
     /**
      * 查询已添加的教学任务中所有的教学班
@@ -56,28 +78,8 @@ public interface ElecRoundCourseDao
      * @return
      * @see [类、类#方法、类#成员]
      */
-    List<String> listAddedCourse(@Param("roundId") Long roundId,
-        @Param("courseCodes") List<String> courseCodes);
-    
-    /**
-     * 添加可选课学生名单
-     * 
-     * @param roundId
-     * @param studentId
-     * @see [类、类#方法、类#成员]
-     */
-    void add(@Param("roundId") Long roundId,
-        @Param("courseCode") String courseCode);
-    
-    /**
-     * 删除可选课学生名单
-     * 
-     * @param roundId
-     * @param courseCodes
-     * @see [类、类#方法、类#成员]
-     */
-    void delete(@Param("roundId") Long roundId,
-        @Param("courseCodes") List<String> courseCodes);
+    List<Long> listAddedCourse(@Param("roundId") Long roundId,
+        @Param("teachingClassIds") List<Long> teachingClassIds);
     
     /**
      * 删除指定轮次的学生名单
@@ -104,4 +106,5 @@ public interface ElecRoundCourseDao
      */
     List<CourseOpenDto> selectTeachingClassByCalendarId(
         @Param("calendarId") Long calendarId);
+
 }

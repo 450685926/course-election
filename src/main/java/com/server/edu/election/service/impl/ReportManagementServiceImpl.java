@@ -555,6 +555,15 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId) {
         PreViewRollDto pre=new PreViewRollDto();
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
+        if(CollectionUtil.isNotEmpty(student)) {
+        	for(StudentVo vo:student) {
+        		String exportName = vo.getName();
+        		if(!StringUtils.equals(vo.getTrainingLevel(), "1")) {
+        			exportName ="(#)"+vo.getName();
+        		}
+        		vo.setExportName(exportName);
+        	}
+        }
         pre.setStudentsList(student);
         pre.setSize(student.size());
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
