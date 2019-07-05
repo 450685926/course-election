@@ -477,7 +477,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             if (list == null) {
                 list = new ArrayList<>();
             }
-            GeneralExcelDesigner design = getDesignGradute();
+            GeneralExcelDesigner design = getDesignGraduteStudent();
             design.setDatas(list);
             ExcelWriterUtil generalExcelHandle;
             generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
@@ -1134,7 +1134,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return design;
     }
     
-    private GeneralExcelDesigner getDesignGradute() {
+    private GeneralExcelDesigner getDesignGraduteStudent() {
     	GeneralExcelDesigner design = new GeneralExcelDesigner();
     	design.setNullCellValue("");
     	design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
