@@ -243,11 +243,11 @@ public class ElecController
     	 * coursesLabelList (课程分类列表)
     	 * cultureCourseLabelRelationList(课程列表)
     	 */
-    	String path = ServicePathEnum.USER.getPath("/culturePlan/getCulturePlanByStudentIdForElection?id={id}&&isPass={isPass}");
+    	String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByStudentIdForElection?id={id}&&isPass={isPass}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(path,RestResult.class, uid, 0);
     	
     	/** 调用培养：培养方案的课程分类学分 */
-    	String culturePath = ServicePathEnum.USER.getPath("/studentCultureRel/getCultureCredit?studentId={id}");
+    	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureCredit?studentId={id}");
     	RestResult<Map<String, Object>> restResult2 = restTemplate.getForObject(culturePath,RestResult.class, uid);
     	
     	Map<String, Object> data = restResult2.getData();
