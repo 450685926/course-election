@@ -271,6 +271,26 @@ public class ReportManagementController
             managementService.findAllSchoolTimetab(condition);
         return RestResult.successData(allSchoolTimetab);
     }
+
+    @ApiOperation(value = "根据用户角色查询学生课表")
+    @PostMapping("/findStudentTimeTableByRole")
+    public RestResult<PageResult<StudentVo>> findStudentTimeTableByRole(
+            @RequestBody PageCondition<ReportManagementCondition> condition)
+    {
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<StudentVo> schoolTimetab = null;
+        if (session.isAdmin()) {
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (session.isAcdemicDean()) {
+            reportManagementCondition.setFaculty(session.getFaculty());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (session.isStudent()) {
+            reportManagementCondition.setStudentCode(session.realUid());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }
+        return RestResult.successData(schoolTimetab);
+    }
     
     @ApiOperation(value = "查询学生课表对应老师时间地点") //不用
     @GetMapping("/findStudentAndTeacherTime")
@@ -304,6 +324,26 @@ public class ReportManagementController
         PageResult<ClassCodeToTeacher> allClassTeacher =
             managementService.findAllTeacherTimeTable(condition);
         return RestResult.successData(allClassTeacher);
+    }
+
+    @ApiOperation(value = "根据用户角色查询教师课表")
+    @PostMapping("/findTeacherTimeTableByRole")
+    public RestResult<PageResult<ClassCodeToTeacher>> findTeacherTimeTableByRole(
+            @RequestBody PageCondition<ClassCodeToTeacher> condition)
+    {
+        ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<ClassCodeToTeacher> classTeacher = null;
+        if (session.isAdmin()) {
+            classTeacher = managementService.findTeacherTimeTableByRole(condition);
+        }else if (session.isAcdemicDean()) {
+            classCodeToTeacher.setFaculty(session.getFaculty());
+            classTeacher = managementService.findTeacherTimeTableByRole(condition);
+        }else if (session.isTeacher()) {
+            classCodeToTeacher.setTeacherCode(session.realUid());
+            classTeacher = managementService.findTeacherTimeTableByRole(condition);
+        }
+        return RestResult.successData(classTeacher);
     }
     
     //学生课表调用预览点名册
@@ -351,7 +391,7 @@ public class ReportManagementController
         return RestResult.successData(teacherTimetable);
     }
     
-    @ApiOperation(value = "导出未选课学生名单本科生")
+    @ApiOperation(value = "导出未选课学生名单")
     @PostMapping("/exportStudentNoCourseList2")
     public RestResult<String> exportStudentNoCourseList(
         @RequestBody NoSelectCourseStdsDto condition)
@@ -360,17 +400,6 @@ public class ReportManagementController
         LOG.info("export.start");
         String export = managementService.exportStudentNoCourseList(condition);
         return RestResult.successData(export);
-    }
-    
-    @ApiOperation(value = "导出未选课学生名单研究生")
-    @PostMapping("/exportStudentNoCourseListGradute")
-    public RestResult<String> exportStudentNoCourseListGradute(
-    		@RequestBody NoSelectCourseStdsDto condition)
-    				throws Exception
-    {
-    	LOG.info("export.gradute.start");
-    	String export = managementService.exportStudentNoCourseListGradute(condition);
-    	return RestResult.successData(export);
     }
     
     @ApiOperation(value = "导出点名册")
@@ -432,6 +461,18 @@ public class ReportManagementController
     {
         LOG.info("export.start");
         ExcelResult result = managementService.exportTeacher(condition);
+        return RestResult.successData(result);
+    }
+
+    @ApiOperation(value = "导出学生课表")
+    @GetMapping("/exportStudent")
+    public RestResult<ExcelResult> exportStudent(
+            @RequestParam("calendarId") Long calendarId,
+            @RequestParam("studentCode") String studentCode)
+            throws Exception
+    {
+        LOG.info("export.start");
+        ExcelResult result = managementService.exportStudent(calendarId, studentCode);
         return RestResult.successData(result);
     }
     

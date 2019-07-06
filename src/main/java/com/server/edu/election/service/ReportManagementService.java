@@ -36,14 +36,17 @@ public interface ReportManagementService {
     /**查询所有学生课表*/
     PageResult<StudentVo> findAllSchoolTimetab(PageCondition<ReportManagementCondition> condition);
 
+    /**根据用户角色查询学生课表*/
+    PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition);
+
     /**查询课表对应教师详细信息*/
-    List<ClassTeacherDto> findStudentAndTeacherTime( Long teachingClassId);
+    List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId);
 
     /**查询教学班对应老师信息*/
     PageResult<ClassCodeToTeacher> findAllClassTeacher(PageCondition<ClassCodeToTeacher> condition);
 
     /**查询教师课表*/
-    StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId,String teacherCode);
+    StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode);
 
     /**查询选课名单*/
     PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition);
@@ -58,7 +61,7 @@ public interface ReportManagementService {
     /**代选课*/
     String otherSelectCourse(StudentSelectCourseList studentSelectCourseList);
 
-    /**本科生导出未选课学生名单*/
+    /**导出未选课学生名单*/
     String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception;
 
     /**导出点名册*/
@@ -69,11 +72,13 @@ public interface ReportManagementService {
 
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 
-    PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
+    PreViewRollDto findPreviewRollBookListById(Long teachingClassId, Long calendarId);
 
     List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode);
 
     PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
+
+    PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition);
 
     List<TimeTable> getStudentTimetab(Long calendarId, String studentCode, Integer week);
 
@@ -85,9 +90,8 @@ public interface ReportManagementService {
 
     ExcelResult exportTeacher(ClassCodeToTeacher condition);
 
+    ExcelResult exportStudent(Long calendarId, String studentCode);
+
     String exportPreRollBookList(ExportPreCondition condition) throws Exception;
-    
-    /**研究生导出未选课学生名单*/
-	String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception;
 
 }
