@@ -506,5 +506,5 @@ public class ReportManagementController
         String fileName = managementService.exportPreRollBookList(condition);
         return RestResult.successData(fileName);
     }
-    
+
 }
