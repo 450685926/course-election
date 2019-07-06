@@ -82,13 +82,13 @@ public interface ReportManagementService {
 
     List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
 
+    PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition);
+
     List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode, Integer week);
 
     ExcelResult export(NoSelectCourseStdsDto condition);
 
     ExcelResult exportTeacher(ClassCodeToTeacher condition);
-
-    ExcelResult exportStudent(Long calendarId, String studentCode);
 
     String exportPreRollBookList(ExportPreCondition condition) throws Exception;
 

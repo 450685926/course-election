@@ -475,18 +475,6 @@ public class ReportManagementController
         return RestResult.successData(result);
     }
 
-    @ApiOperation(value = "导出学生课表")
-    @GetMapping("/exportStudent")
-    public RestResult<ExcelResult> exportStudent(
-            @RequestParam("calendarId") Long calendarId,
-            @RequestParam("studentCode") String studentCode)
-            throws Exception
-    {
-        LOG.info("export.start");
-        ExcelResult result = managementService.exportStudent(calendarId, studentCode);
-        return RestResult.successData(result);
-    }
-    
     /**
      * @Description: 根据key循环去redis取数据
      */
