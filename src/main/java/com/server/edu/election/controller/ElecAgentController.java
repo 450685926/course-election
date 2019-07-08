@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -175,6 +178,17 @@ public class ElecAgentController
             ElecStatus.Init);
         
         return RestResult.success();
+    }
+    
+    @ApiOperation(value = "获取被代理选课的学生列表")
+    @PostMapping("/findAgentElcStudentList")
+    public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
+    		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
+    {
+    	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
+    	
+    	PageResult<NoSelectCourseStdsDto> list = elecService.findAgentElcStudentList(condition);
+    	return RestResult.successData(list);
     }
     
 }

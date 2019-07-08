@@ -873,5 +873,43 @@
         from elc_course_takes_t
         where STUDENT_ID_=#{studentId,jdbcType=VARCHAR}
     </select>
+    
+    <!-- 获取教务员/管理员代选课的学生名单 -->
+    <select id="findAgentElcStudentList" parameterType="com.server.edu.election.dto.NoSelectCourseStdsDto" resultType="com.server.edu.election.dto.NoSelectCourseStdsDto">
+        select
+        	STUDENT_CODE_ studentCode,NAME_ studentName,GRADE_ grade,TRAINING_LEVEL_ trainingLevel,TRAINING_CATEGORY_ trainingCategory,
+			DEGREE_TYPE_ degreeType,FORM_LEARNING_ formLearning,FACULTY_ faculty,PROFESSION_ major
+        from student_t
+        <where>
+            MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
+                and STUDENT_CODE_ like concat('%',#{studentCode,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+                and NAME_ like concat('%',#{studentName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and GRADE_ = #{grade,jdbcType=INTEGER}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
+                and PROFESSION_ = #{major,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and TRAINING_LEVEL_ = #{trainingLevel,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+                and TRAINING_CATEGORY_ = #{trainingCategory,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
+                and DEGREE_TYPE_ = #{degreeType,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(role)">
+                and FACULTY_ = (select FACULTY_ from student_t where STUDENT_CODE_ = #{uId})
+            </if>
+        </where>
+    </select>
 
 </mapper>

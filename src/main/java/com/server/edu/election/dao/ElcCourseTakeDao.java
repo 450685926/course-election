@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.common.PageCondition;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElcCourseLimitDto;
@@ -167,5 +168,13 @@ public interface ElcCourseTakeDao
      * @return*/
     List<String> findAllByStudentId(@Param("studentId")String studentId);
 
+	/**
+	 * 获取教务员/管理员代选课的学生名单
+	 * @param noSelectCourseStds
+	 * @return
+	 */
+	Page<NoSelectCourseStdsDto> findAgentElcStudentList(NoSelectCourseStdsDto noSelectCourseStds);
+    
+    
 
 }

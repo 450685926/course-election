@@ -18,7 +18,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.ChooseObj;
@@ -31,6 +35,7 @@ import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRounds;
@@ -54,6 +59,8 @@ import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -494,4 +501,20 @@ public class StudentElecServiceImpl implements StudentElecService
 		}
    		return result;
    	}
+
+	@Override
+	public PageResult<NoSelectCourseStdsDto> findAgentElcStudentList(PageCondition<NoSelectCourseStdsDto> condition) {
+		Session session = SessionUtils.getCurrentSession();
+		NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
+
+		if (session.isAcdemicDean()) {// 教务员
+			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
+		    noSelectCourseStds.setuId(session.getUid());
+		} 
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        
+        Page<NoSelectCourseStdsDto> agentElcStudentList = courseTakeDao.findAgentElcStudentList(noSelectCourseStds);
+
+        return new PageResult<>(agentElcStudentList);
+	}
 }
