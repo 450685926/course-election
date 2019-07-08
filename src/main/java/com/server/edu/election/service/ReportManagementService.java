@@ -36,6 +36,9 @@ public interface ReportManagementService {
     /**查询所有学生课表*/
     PageResult<StudentVo> findAllSchoolTimetab(PageCondition<ReportManagementCondition> condition);
 
+    /**根据用户角色查询学生课表*/
+    PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition);
+
     /**查询课表对应教师详细信息*/
     List<ClassTeacherDto> findStudentAndTeacherTime( Long teachingClassId);
 
@@ -79,6 +82,8 @@ public interface ReportManagementService {
 
     List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
 
+    PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition);
+
     List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode, Integer week);
 
     ExcelResult export(NoSelectCourseStdsDto condition);
@@ -86,7 +91,7 @@ public interface ReportManagementService {
     ExcelResult exportTeacher(ClassCodeToTeacher condition);
 
     String exportPreRollBookList(ExportPreCondition condition) throws Exception;
-    
+
     /**研究生导出未选课学生名单*/
 	String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception;
 

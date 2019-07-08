@@ -235,9 +235,31 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     * @Description: 根据用户角色查询学生课表
+     * @Param:
+     * @return:
+     * @Author:
+     * @date: 2019/7/4
+     */
+    @Override
+    public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(condition.getCondition());
+        if (!schoolTimetab.isEmpty()) {
+            List<StudentVo> result = schoolTimetab.getResult();
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+            for (StudentVo studentVo : result) {
+                studentVo.setCalendarName(schoolCalendar.getFullName());
+            }
+
+        }
+        return new PageResult<>(schoolTimetab);
+    }
+
+    /**
     *@Description: 教师上课时间地点详情
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/2/16 10:18
     */
@@ -387,7 +409,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     /**
     *@Description: 查询学生未选课名单
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/2/19 15:42
     */
@@ -396,7 +418,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         String deptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
     	condition.getCondition().setDeptId(deptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        
+
         Page<NoSelectCourseStdsDto> electCourseList;
         if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && "1".equals(deptId)) {
         	electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
@@ -461,8 +483,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
         return "";
     }
-    
-    /* 
+
+    /*
      * 研究生导出未选课学生名单
      */
     @Override
@@ -606,8 +628,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 查询点名册
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/4/28 16:26
     */
@@ -702,7 +724,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     /**
     *@Description: 查询学生个人课表
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/4/30 11:58
     */
@@ -751,8 +773,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 查询所有教师课表
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/4/30 17:39
     */
@@ -773,9 +795,32 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     * @Description: 查询所有教师课表
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/4/30 17:39
+     */
+    @Override
+    public PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(condition.getCondition());
+        if (CollectionUtil.isNotEmpty(teacherTimeTable)) {
+            List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
+            if (CollectionUtil.isNotEmpty(result)) {
+                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+                for (ClassCodeToTeacher toTeacher : result) {
+                    toTeacher.setCalendarName(schoolCalendar.getFullName());
+                }
+            }
+        }
+        return new PageResult<>(teacherTimeTable);
+    }
+
+    /**
     *@Description: 学生课表其他服务调用
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/5/5 9:34
     */
@@ -814,7 +859,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     /**
     *@Description: 查询教师课表
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/5/5 14:13
     */
@@ -880,7 +925,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 teacherList = tableMessages.stream().filter(vo -> {
                   return Arrays.asList(vo.getTeacherCode().split(",")).contains(teacherCode) && vo.getWeeks().contains(week);
                 }).collect(Collectors.toList());
-                
+
                 if(CollectionUtil.isNotEmpty(teacherList)) {
                     for (TimeTableMessage tm : teacherList) {
                         TimeTable tt=new TimeTable();
@@ -909,8 +954,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 导出未选课名单
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/5/8 16:13
     */
@@ -956,8 +1001,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 导出所有教师课表
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/5/8 16:13
     */
@@ -1004,7 +1049,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     /**
     *@Description: 导出预览点名册
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/5/8 16:14
     */
@@ -1056,19 +1101,19 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 String teacherCode = classTeacherDto.getTeacherCode();
                 String weekNumber = classTeacherDto.getWeekNumberStr();
                 String[] str = weekNumber.split(",");
-                
+
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
                 String weekstr = findWeek(dayOfWeek);//星期
-                
+
                 String[] tcodes = teacherCode.split(",");
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
                 String teacherName="";
                 if(teachers != null) {
                     teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
                 }
-                
+
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
                 String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
                 time.setDayOfWeek(dayOfWeek);
@@ -1133,7 +1178,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
         return design;
     }
-    
+
     private GeneralExcelDesigner getDesignGraduteStudent() {
     	GeneralExcelDesigner design = new GeneralExcelDesigner();
     	design.setNullCellValue("");
@@ -1287,4 +1332,5 @@ public class ReportManagementServiceImpl implements ReportManagementService {
        }
        return str.toString();
    }
+
 }

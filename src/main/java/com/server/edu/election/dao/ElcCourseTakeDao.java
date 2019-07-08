@@ -84,7 +84,9 @@ public interface ElcCourseTakeDao
     
     /**查询所有学生课表*/
     Page<StudentVo> findAllSchoolTimetab(ReportManagementCondition condition);
-    
+
+    Page<StudentVo> findSchoolTimetabByRole(ReportManagementCondition condition);
+
     /**教师上课时间地点详情*/
     List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId);
     
@@ -132,6 +134,8 @@ public interface ElcCourseTakeDao
     List<StudnetTimeTable> findStudentTable(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
+
+    Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
     
