@@ -58,6 +58,8 @@ public class ElcCourseTakeQuery
     
     private String courseName;
     
+    private List<String> studentIds;
+    
     public String getLabel() {
 		return label;
 	}
@@ -213,5 +215,13 @@ public class ElcCourseTakeQuery
     {
         this.includeCourseCodes = includeCourseCodes;
     }
+
+	public List<String> getStudentIds() {
+		return studentIds;
+	}
+
+	public void setStudentIds(List<String> studentIds) {
+		this.studentIds = studentIds;
+	}
     
 }

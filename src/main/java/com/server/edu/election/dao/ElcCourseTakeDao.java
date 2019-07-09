@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.common.PageCondition;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElcCourseLimitDto;
@@ -84,7 +85,9 @@ public interface ElcCourseTakeDao
     
     /**查询所有学生课表*/
     Page<StudentVo> findAllSchoolTimetab(ReportManagementCondition condition);
-    
+
+    Page<StudentVo> findSchoolTimetabByRole(ReportManagementCondition condition);
+
     /**教师上课时间地点详情*/
     List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId);
     
@@ -133,6 +136,8 @@ public interface ElcCourseTakeDao
 
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
+    Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
+
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
     
     List<ElecCourse> selectApplyCourses(@Param("studentId") String studentId,
@@ -163,5 +168,13 @@ public interface ElcCourseTakeDao
      * @return*/
     List<String> findAllByStudentId(@Param("studentId")String studentId);
 
+	/**
+	 * 获取教务员/管理员代选课的学生名单
+	 * @param noSelectCourseStds
+	 * @return
+	 */
+	Page<NoSelectCourseStdsDto> findAgentElcStudentList(NoSelectCourseStdsDto noSelectCourseStds);
+    
+    
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.web.bind.annotation.RequestPart;
 
 import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.DelGroup;
@@ -34,6 +35,10 @@ public class ElcCourseTakeAddDto
      */
     @NotEmpty(groups = {AddGroup.class})
     private List<Long> teachingClassIds;
+    /**
+     * 教学班ID
+     */
+    private String courseCode;
 
     /**
      * 模式
@@ -102,4 +107,13 @@ public class ElcCourseTakeAddDto
     public void setMode(Integer mode) {
         this.mode = mode;
     }
+
+	public String getCourseCode() {
+		return courseCode;
+	}
+
+	public void setCourseCode(String courseCode) {
+		this.courseCode = courseCode;
+	}
+    
 }

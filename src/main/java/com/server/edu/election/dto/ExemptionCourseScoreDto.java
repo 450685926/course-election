@@ -6,20 +6,48 @@ package com.server.edu.election.dto;
  * @create: 2019-01-31 09:49
  */
 public class ExemptionCourseScoreDto{
+    //学年学期
     private  Long calendarId;
+    //年级
     private Integer grade;
+    //培养类别
     private String  trainingCategory;
+    //培养层次
     private String trainingLevel;
+    //学习形式
     private String formLearning;
+    //学院
     private String faculty;
+    //专业
     private String  profession;
     private String campus;
     private String  registrationStatus;
     private String  isOverseas;
     private String enrolSeason;
+    //搜索条件，学生姓名或学号
     private String keyWord;
     private String calendarName;
     private String leaveSchool;
+    //学位类型
+    private String degreeType;
+    //学生id
+    private String studentCode;
+
+    public String getStudentCode() {
+        return studentCode;
+    }
+
+    public void setStudentCode(String studentCode) {
+        this.studentCode = studentCode;
+    }
+
+    public String getDegreeType() {
+        return degreeType;
+    }
+
+    public void setDegreeType(String degreeType) {
+        this.degreeType = degreeType;
+    }
 
     public String getKeyWord() {
         return keyWord;

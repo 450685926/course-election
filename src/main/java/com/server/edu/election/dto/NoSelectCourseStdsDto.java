@@ -10,56 +10,72 @@ import com.server.edu.dictionary.annotation.CodeI18n;
  */
 @CodeI18n
 public class NoSelectCourseStdsDto{
-    private Long calendarId;
+    /** 学年学期 */
+	private Long calendarId;
+	
+	/** 年级 */
     private Integer grade;
     @Code2Text(transformer = "X_YX")
+    
+    /** 学院 */
     private String faculty;
+    
+    /** 专业 */
     @Code2Text(transformer = "G_ZY")
     private String major;
+    
+    /** 学生类别 */
     private String studentCategory;
+    
+    /** 学生学号 */
     private String studentCode;
+    
+    /** 学生姓名 */
     private String studentName;
-    /**
-     * 学籍变动信息
-     */
+
+    /** 学籍变动信息 */
     private String stdStatusChanges;
-    /**
-     * 未选课原因
-     */
+
+    /** 未选课原因 */
     private String noSelectReason;
-    /**
-     * 用户管理部门ID（MANAGER_DEPT_ID）
-     */
+
+    /** 用户管理部门ID(MANAGER_DEPT_ID) */
     private String deptId;
     
+    /** 学生姓名 */
     private String keyword;
     
-    /**
-     * 培养层次
-     */
+    /** 培养层次 */
     @Code2Text(transformer = "X_PYCC")
     private String trainingLevel;
     
-    /**
-     * 培养类别
-     */
+    /** 培养类别 */
     @Code2Text(transformer = "X_PYLB")
     private String trainingCategory;
     
-    /**
-     * 学位类型
-     */
+    /**  学位类型 */
     @Code2Text(transformer = "X_XWLX")
     private String degreeType;
     
-    /**
-     * 学习形式
-     */
+    /** 学习形式 */
     @Code2Text(transformer = "X_XXXS")
     private String formLearning;
     
+    /** 用户角色 */
+    private String role;
+    
+    /** 登录人ID */
+    private String uId;
 
-    public String getKeyword() {
+    public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public String getKeyword() {
         return keyword;
     }
 
@@ -177,6 +193,14 @@ public class NoSelectCourseStdsDto{
 
 	public void setFormLearning(String formLearning) {
 		this.formLearning = formLearning;
+	}
+
+	public String getuId() {
+		return uId;
+	}
+
+	public void setuId(String uId) {
+		this.uId = uId;
 	}
     
 }

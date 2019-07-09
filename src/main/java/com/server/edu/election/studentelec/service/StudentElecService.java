@@ -2,8 +2,12 @@ package com.server.edu.election.studentelec.service;
 
 import java.util.List;
 import java.util.Map;
+
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
@@ -66,4 +70,11 @@ public interface StudentElecService
      * @return
      */
     RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(AllCourseVo allCourseVo);
+
+	/**
+	   *     获取被代理选课的学生列表
+	 * @param condition
+	 * @return
+	 */
+    PageResult<NoSelectCourseStdsDto> findAgentElcStudentList(PageCondition<NoSelectCourseStdsDto> condition);
 }
