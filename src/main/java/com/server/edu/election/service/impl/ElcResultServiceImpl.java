@@ -41,7 +41,6 @@ import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
-import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.util.CalUtil;
@@ -232,9 +231,9 @@ public class ElcResultServiceImpl implements ElcResultService
                 invincibleStdsDao.selectAllStudentId();
             // 优先学生
             List<ElcAffinityCoursesStds> affinityCoursesStds =
-                affinityCoursesStdsDao.selectStuAndCourse();
+                affinityCoursesStdsDao.selectAll();
             Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
-                .map(aff -> aff.getCourseCode() + "-" + aff.getStudentId())
+                .map(aff -> aff.getCourseId() + "-" + aff.getStudentId())
                 .collect(toSet());
             
             List<Student> normalStus = new ArrayList<>();

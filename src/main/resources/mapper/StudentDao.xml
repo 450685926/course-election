@@ -48,7 +48,7 @@
 			elc_affinity_courses_stds_t t1
 		INNER JOIN student_t t2 ON (t1.STUDENT_ID_ = t2.STUDENT_CODE_)
 		<where>
-			t1.COURSE_CODE_ =#{courseCode}
+			t1.COURSE_ID_ =#{courseId}
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
 		        and t2.STUDENT_CODE_ like concat('%',#{studentCode},'%')
 		    </if>
@@ -76,7 +76,7 @@
 				FROM
 					elc_affinity_courses_stds_t
 				where 
-				COURSE_CODE_ =#{courseCode}
+				COURSE_ID_ =#{courseId}
 			)
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
 	        and t1.STUDENT_CODE_ like concat('%',#{studentCode},'%')
