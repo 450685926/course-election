@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +28,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.enums.UserTypeEnum;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
@@ -38,6 +44,7 @@ import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -47,6 +54,8 @@ import com.server.edu.election.service.ElecRoundCourseService;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -81,6 +90,8 @@ public class ElcCourseTakeController
     @Value("${cache.directory}")
     private String cacheDirectory;
     
+	private RestTemplate restTemplate = RestTemplateBuilder.create();
+    
     /**
      * 上课名单列表
      * 
@@ -107,7 +118,6 @@ public class ElcCourseTakeController
      * 
      * @param condition
      * @return
-     * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "研究生上课名单列表")
     @PostMapping("/courseTakePage")
@@ -155,6 +165,60 @@ public class ElcCourseTakeController
         courseTakeService.withdraw(value);
         
         return RestResult.success();
+    }
+
+    
+    @ApiOperation(value = "研究生学生加课")
+    @PutMapping("/graduateAdd")
+    public RestResult<?> graduateAdd(@RequestBody ElcCourseTakeAddDto value)
+    {
+        ValidatorUtil.validateAndThrow(value, AddGroup.class);
+        Session session = SessionUtils.getCurrentSession();
+    	
+        String msg = courseTakeService.graduateAdd(value,session.realType());
+        
+        return RestResult.success(msg);
+    }   
+    
+    @ApiOperation(value = "个人培养计划中有该课程且又没有选课的学生名")
+    @PutMapping("/studentList")
+    public RestResult<PageResult<Student4Elc>> getGraduateStudentForCulturePlan(
+    		@RequestBody PageCondition<ElcCourseTakeQuery> condition)
+    {
+    	ValidatorUtil.validateAndThrow(condition.getCondition());
+    	Session session = SessionUtils.getCurrentSession();
+    	/**
+    	 * 调用培养：个人培养计划中有该课程且又没有选课的学生名单
+    	 * coursesLabelList (课程分类列表)
+    	 * cultureCourseLabelRelationList(课程列表)
+    	 */
+    	String path = ServicePathEnum.USER.getPath("/culturePlan/getCulturePlanByCourseCodeForElection?courseCode={courseCode}&&selCourse={selCourse}");
+    	RestResult<List<String>> restResult = restTemplate.getForObject(path,RestResult.class, condition.getCondition().getCourseCode(), 0);
+    	
+    	if (CollectionUtil.isEmpty(restResult.getData())) {
+			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
+		}
+    	condition.getCondition().setStudentIds(restResult.getData());
+    	PageResult<Student4Elc> msg = courseTakeService.getGraduateStudentForCulturePlan(session.realType(),condition);
+    	
+    	return RestResult.successData(msg);
+    }    
+    
+    
+    
+    @ApiOperation(value = "研究生学生退课")
+    @DeleteMapping("/graduateWithdraw")
+    public RestResult<?> graduateWithdraw(
+		 @RequestPart(name = "calendarId") @NotNull Long calendarId,
+		 @RequestPart(name = "teachingClassId") @NotNull Long teachingClassId,
+		 @RequestPart(name = "courseCode") @NotNull String courseCode,
+	     @RequestPart(name = "students") @NotNull List<String> students)
+    {
+    	Session session = SessionUtils.getCurrentSession();
+        
+    	courseTakeService.graduateWithdraw(calendarId,teachingClassId,courseCode,students,session.realType());
+    	
+    	return RestResult.success();
     }
     
     @ApiOperation(value = "查询学生学期是否有选课")

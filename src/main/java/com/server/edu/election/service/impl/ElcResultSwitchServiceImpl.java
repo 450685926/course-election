@@ -10,9 +10,10 @@ import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.exception.ParameterValidateException;
 
 import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
 
 @Service
-public class elcResultSwitchServiceImpl implements ElecResultSwitchService{
+public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 	@Autowired
 	ElecResultSwitchDao elecResultSwitchDao;
 	
@@ -42,6 +43,14 @@ public class elcResultSwitchServiceImpl implements ElecResultSwitchService{
 	@Override
 	public ElcResultSwitch get(Long id) {
 		return elecResultSwitchDao.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public ElcResultSwitch getSwitch(Long calendarId) {
+		Example example = new Example(ElcResultSwitch.class);
+		Criteria createCriteria = example.createCriteria();
+		createCriteria.andEqualTo("calendarId",calendarId);
+		return elecResultSwitchDao.selectOneByExample(example);
 	}
 	
 }
