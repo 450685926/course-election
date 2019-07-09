@@ -192,7 +192,7 @@ public class ElcCourseTakeController
     	 * coursesLabelList (课程分类列表)
     	 * cultureCourseLabelRelationList(课程列表)
     	 */
-    	String path = ServicePathEnum.USER.getPath("/culturePlan/getCulturePlanByCourseCodeForElection?courseCode={courseCode}&&selCourse={selCourse}");
+    	String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByCourseCodeForElection?courseCode={courseCode}&&selCourse={selCourse}");
     	RestResult<List<String>> restResult = restTemplate.getForObject(path,RestResult.class, condition.getCondition().getCourseCode(), 0);
     	
     	if (CollectionUtil.isEmpty(restResult.getData())) {
