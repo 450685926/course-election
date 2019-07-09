@@ -78,4 +78,24 @@
   	order by t1.CREATED_AT_ DESC
   </select>
 
+    <insert id="saveCourseLog" parameterType="java.util.List">
+        insert into elc_course_takes_t
+        (STUDENT_ID_, CALENDAR_ID_,COURSE_CODE_,COURSE_NAME_,TEACHING_CLASS_CODE_,TYPE_,MODE,CREATE_BY_,CREATE_NAME_,CREATED_AT_)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.studentId},
+            #{item.calendarId},
+            #{item.courseCode},
+            #{item.courseName},
+            #{item.teachingClassCode},
+            #{item.type},
+            #{item.mode},
+            #{item.createBy},
+            #{item.createName},
+            #{item.createdAt}
+            )
+        </foreach>
+    </insert>
+
 </mapper>
