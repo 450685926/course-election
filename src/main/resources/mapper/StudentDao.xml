@@ -150,6 +150,18 @@
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
 	        and t1.NAME_ like concat('%',#{name},'%')
 	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+	        and t1.TRAINING_LEVEL_ = #{trainingLevel}
+	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+	        and t1.FACULTY_ = #{faculty}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+	        and t1.PROFESSION_ = #{profession}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+	        and t1.GRADE_ = #{grade}
+	    </if>
     </select>
     <select id="selectElcInvincibleStds" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
 			SELECT

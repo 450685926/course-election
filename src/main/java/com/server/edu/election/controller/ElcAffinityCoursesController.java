@@ -180,11 +180,11 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "批量添加学生")
     @PostMapping("/batchAddStudent")
     public RestResult<Integer> batchAddStudent(
-    		@RequestParam("courseId")  @NotNull Long courseId)
+    		@RequestBody  @Valid StudentDto studentDto)
         throws Exception
     {
         LOG.info("batchAddStudent.start");
-        int result = elcAffinityCoursesService.batchAddStudent(courseId);
+        int result = elcAffinityCoursesService.batchAddStudent(studentDto);
         return RestResult.successData(result);
     }
     

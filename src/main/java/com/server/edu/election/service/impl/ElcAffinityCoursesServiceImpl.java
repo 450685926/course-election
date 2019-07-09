@@ -158,16 +158,14 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int batchAddStudent(Long courseId)
+    public int batchAddStudent(StudentDto studentDto)
     {
-        StudentDto student = new StudentDto();
-        student.setCourseId(courseId);
-        List<Student> list = studentDao.selectUnElcStudents(student);
+        List<Student> list = studentDao.selectUnElcStudents(studentDto);
         List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
         list.forEach(temp -> {
             ElcAffinityCoursesStds elcAffinityCoursesStds =
                 new ElcAffinityCoursesStds();
-            elcAffinityCoursesStds.setCourseId(courseId);
+            elcAffinityCoursesStds.setCourseId(studentDto.getCourseId());
             elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
             stuList.add(elcAffinityCoursesStds);
         });

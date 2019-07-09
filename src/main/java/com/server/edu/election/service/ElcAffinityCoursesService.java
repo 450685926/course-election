@@ -28,7 +28,7 @@ public interface ElcAffinityCoursesService
     
     int addStudent(ElcAffinityCoursesVo elcAffinityCoursesVo);
     
-    int batchAddStudent(Long courseId);
+    int batchAddStudent(StudentDto studentDto);
     
     int deleteStudent(ElcAffinityCoursesVo elcAffinityCoursesVo);
     
