@@ -105,7 +105,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
             elcAffinityCourses.setCourseId(temp);
             list.add(elcAffinityCourses);
         });
-        int result = elcAffinityCoursesDao.batchInsert(list);
+        int result = elcAffinityCoursesDao.insertList(list);
         if (result <= Constants.ZERO)
         {
             throw new ParameterValidateException(

@@ -32,17 +32,4 @@
 		    </if>
 		</where>
   </select>
-  
-   <insert id="batchInsert" parameterType="java.util.List">
-    insert into elc_affinity_courses_t(
-    COURSE_CODE_
-    )
-    values
-    <foreach item="item" collection="list" index="index"
-             separator=",">
-      (
-      #{item.courseCode,jdbcType=VARCHAR}
-      )
-    </foreach>
-  </insert>
 </mapper>
