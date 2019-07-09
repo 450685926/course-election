@@ -463,7 +463,7 @@ public class StudentElecServiceImpl implements StudentElecService
    			for (SelectedCourse selectedCourseModel :selectedCourseSet) {
    				if(selectedCourseModel.getCourseCode().equals(completedCourseModel.getCourseCode())){
    						flag = false;
-   						continue;
+   						break;
    				}
    			}
    			if (flag) {

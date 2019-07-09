@@ -22,6 +22,7 @@ import com.server.edu.election.entity.ElcAffinityCourses;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcAffinityCoursesService;
+import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -55,11 +56,11 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int delete(List<String> courseCodes)
+    public int delete(List<Long> courseIds)
     {
         Example example = new Example(ElcAffinityCourses.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andIn("courseCode", courseCodes);
+        criteria.andIn("courseId", courseIds);
         int result = elcAffinityCoursesDao.deleteByExample(example);
         if (result <= Constants.ZERO)
         {
@@ -69,7 +70,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         }
         Example refExample = new Example(ElcAffinityCoursesStds.class);
         Example.Criteria refCriteria = refExample.createCriteria();
-        refCriteria.andIn("courseCode", courseCodes);
+        refCriteria.andIn("courseId", courseIds);
         List<ElcAffinityCoursesStds> list =
             elcAffinityCoursesStdsDao.selectByExample(refExample);
         if (CollectionUtil.isNotEmpty(list))
@@ -86,25 +87,25 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public PageInfo<CourseOpen> courseList(PageCondition<CourseOpen> condition)
+    public PageInfo<CourseOpenVo> courseList(PageCondition<CourseOpen> condition)
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         CourseOpen courseOpen = condition.getCondition();
-        List<CourseOpen> list = courseOpenDao.selectCourseList(courseOpen);
-        PageInfo<CourseOpen> pageInfo = new PageInfo<>(list);
+        List<CourseOpenVo> list = courseOpenDao.selectCourseList(courseOpen);
+        PageInfo<CourseOpenVo> pageInfo = new PageInfo<>(list);
         return pageInfo;
     }
     
     @Override
-    public int addCourse(List<String> ids)
+    public int addCourse(List<Long> ids)
     {
         List<ElcAffinityCourses> list = new ArrayList<>();
         ids.forEach(temp -> {
             ElcAffinityCourses elcAffinityCourses = new ElcAffinityCourses();
-            elcAffinityCourses.setCourseCode(temp);
+            elcAffinityCourses.setCourseId(temp);
             list.add(elcAffinityCourses);
         });
-        int result = elcAffinityCoursesDao.batchInsert(list);
+        int result = elcAffinityCoursesDao.insertList(list);
         if (result <= Constants.ZERO)
         {
             throw new ParameterValidateException(
@@ -142,7 +143,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
             ElcAffinityCoursesStds elcAffinityCoursesStds =
                 new ElcAffinityCoursesStds();
             elcAffinityCoursesStds
-                .setCourseCode(elcAffinityCoursesVo.getCourseCode());
+                .setCourseId(elcAffinityCoursesVo.getCourseId());
             elcAffinityCoursesStds.setStudentId(temp);
             stuList.add(elcAffinityCoursesStds);
         });
@@ -157,25 +158,26 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int batchAddStudent(String courseCode)
+    public int batchAddStudent(StudentDto studentDto)
     {
-        StudentDto student = new StudentDto();
-        student.setCourseCode(courseCode);
-        List<Student> list = studentDao.selectUnElcStudents(student);
-        List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
-        list.forEach(temp -> {
-            ElcAffinityCoursesStds elcAffinityCoursesStds =
-                new ElcAffinityCoursesStds();
-            elcAffinityCoursesStds.setCourseCode(courseCode);
-            elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
-            stuList.add(elcAffinityCoursesStds);
-        });
-        int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("common.saveError",
-                    I18nUtil.getMsg("elcAffinity.courses")));
+        List<Student> list = studentDao.selectUnElcStudents(studentDto);
+        int result = 0;
+        if(CollectionUtil.isNotEmpty(list)) {
+            List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
+            list.forEach(temp -> {
+                ElcAffinityCoursesStds elcAffinityCoursesStds =
+                    new ElcAffinityCoursesStds();
+                elcAffinityCoursesStds.setCourseId(studentDto.getCourseId());
+                elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
+                stuList.add(elcAffinityCoursesStds);
+            });
+            result = elcAffinityCoursesStdsDao.batchInsert(stuList);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("common.saveError",
+                        I18nUtil.getMsg("elcAffinity.courses")));
+            }
         }
         return result;
     }
@@ -185,7 +187,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     {
         Example example = new Example(ElcAffinityCoursesStds.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("courseCode", vo.getCourseCode());
+        criteria.andEqualTo("courseId", vo.getCourseId());
         criteria.andIn("studentId", vo.getStudentIds());
         int result = elcAffinityCoursesStdsDao.deleteByExample(example);
         if (result <= Constants.ZERO)
@@ -198,11 +200,11 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int batchDeleteStudent(String courseCode)
+    public int batchDeleteStudent(Long courseId)
     {
         Example example = new Example(ElcAffinityCoursesStds.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("courseCode", courseCode);
+        criteria.andEqualTo("courseId", courseId);
         int result = elcAffinityCoursesStdsDao.deleteByExample(example);
         if (result <= Constants.ZERO)
         {

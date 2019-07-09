@@ -21,11 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
@@ -33,12 +36,16 @@ import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.ElcResultSwitch;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
+import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
@@ -49,6 +56,7 @@ import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
+import tk.mybatis.mapper.entity.Example.Criteria;
 
 @Service
 public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
@@ -57,6 +65,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+    
+    @Autowired
+    private CourseDao courseDao;
     
     @Autowired
     private TeachingClassDao classDao;
@@ -72,6 +83,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private ApplicationContext applicationContext;
+    
+    @Autowired
+    private ElecResultSwitchService elecResultSwitchService;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -231,6 +245,39 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return StringUtils.EMPTY;
     }
     
+
+	@Override
+	public String graduateAdd(ElcCourseTakeAddDto value, int realType) {
+		Date date = new Date();
+		if (CollectionUtil.isEmpty(value.getStudentIds())) {
+			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
+		}
+    	//如果当前操作人是老师
+        if (realType == UserTypeEnum.TEACHER.getValue())
+        {
+        	//判断选课结果开关状态
+    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId());
+    		if (elcResultSwitch.getStatus() == Constants.ZERO) {
+    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
+    		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
+    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.operationalerror",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+    		}
+    		
+    		//判断课程性质
+    		
+    		Example example = new Example(Course.class);
+    		Criteria createCriteria = example.createCriteria();
+    		createCriteria.andEqualTo("code",value.getCourseCode());
+    		Course course = courseDao.selectOneByExample(example);
+    		if(course.getIsElective().intValue() == Constants.ONE){
+    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noPower",I18nUtil.getMsg("elecResultSwitch.noPower")));
+    		}
+
+        }
+		return this.add(value);
+	}
+
+    
     @Transactional
     @Override
     public void withdraw(List<ElcCourseTake> value)
@@ -313,6 +360,53 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
     
+    @Override
+	public void graduateWithdraw(Long calendarId, Long teachingClassId,String courseCode, List<String> students, int realType) {
+    	
+    	Date date = new Date();
+    	//如果当前操作人是老师
+        if (realType == UserTypeEnum.TEACHER.getValue())
+        {
+        	//判断选课结果开关状态
+    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(calendarId);
+    		if (elcResultSwitch.getStatus() == Constants.ZERO) {
+    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
+    		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
+    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.operationalerror",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+    		}
+    		
+    		//判断课程性质
+    		
+    		Example example = new Example(Course.class);
+    		Criteria createCriteria = example.createCriteria();
+    		createCriteria.andEqualTo("code",courseCode);
+    		Course course = courseDao.selectOneByExample(example);
+    		if(course.getIsElective().intValue() == Constants.ONE){
+    			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noPower",I18nUtil.getMsg("elecResultSwitch.noPower")));
+    		}
+
+        }
+        List<ElcCourseTake> value = new ArrayList<ElcCourseTake>();
+        for (String studentId : students) {
+        	ElcCourseTake elcCourseTake = new ElcCourseTake();
+        	elcCourseTake.setStudentId(studentId);
+        	elcCourseTake.setCalendarId(calendarId);
+        	elcCourseTake.setCourseCode(courseCode);
+        	elcCourseTake.setTeachingClassId(teachingClassId);
+        	value.add(elcCourseTake);
+		}
+		this.withdraw(value);
+	}
+    
+
+	@Override
+	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(int realType, PageCondition<ElcCourseTakeQuery> page) {
+		ElcCourseTakeQuery cond = page.getCondition();
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+        Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
+        PageResult<Student4Elc> result = new PageResult<>(listPage);
+		return result;
+	}
     /**
     *@Description: 查找加课学生
     *@Param:

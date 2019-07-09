@@ -18,4 +18,11 @@ public interface ElecResultSwitchService {
 	 */
 	ElcResultSwitch get(Long id);
 	
+	/**
+	 * 根据学期号查询选课结果设置开关
+	 * @param calendarId
+	 * @return
+	 */
+	ElcResultSwitch getSwitch(Long calendarId);
+	
 }
