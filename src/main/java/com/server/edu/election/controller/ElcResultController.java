@@ -106,10 +106,8 @@ public class ElcResultController
     {
     	ValidatorUtil.validateAndThrow(condition);
     	Session session = SessionUtils.getCurrentSession();
-        
-        if (session.realType() == UserTypeEnum.STUDENT.getValue() || session.realType() == UserTypeEnum.TEACHER.getValue())
-        {
-            return RestResult.fail("elec.mustBeAdmin");
+    	if (!session.isAdmin()) {
+    		return RestResult.fail("elec.mustBeAdmin");
         }
     	ElcResultCountVo result = elcResultService.elcResultCountByStudent(condition);
     	return RestResult.successData(result);
