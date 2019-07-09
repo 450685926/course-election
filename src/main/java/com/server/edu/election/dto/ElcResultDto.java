@@ -2,6 +2,7 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.DictTypeEnum;
 
 /**
  * 选课结果统计（学生统计）
@@ -19,25 +20,25 @@ public class ElcResultDto
     /**
      * 培养层次
      */
-    @Code2Text(transformer = "X_PYCC")
+    @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
     
     /**
      * 培养类别
      */
-    @Code2Text(transformer = "X_PYLB")
+    @Code2Text(DictTypeEnum.X_PYLB)
     private String trainingCategory;
     
     /**
      * 学习形式
      */
-    @Code2Text(transformer = "X_XXXS")
+    @Code2Text(DictTypeEnum.X_XXXS)
     private String formLearning;
     
     /**
      * 学位类型
      */
-    @Code2Text(transformer = "X_XWLX")
+    @Code2Text(DictTypeEnum.X_XWLX)
     private String degreeType;
     
     /**
@@ -48,28 +49,29 @@ public class ElcResultDto
     /**
      * 专业
      */
+    @Code2Text(DictTypeEnum.G_ZY)
     private String profession;
     
     /**
      * 学院
      */
-    @Code2Text(transformer = "X_YX")
+    @Code2Text(DictTypeEnum.X_YX)
     private String faculty;
     
     /**
      * 已选人数
      */
-    private Integer NumberOfelectedPersons;
+    private Integer numberOfelectedPersons;
   
     /**
      * 未选人数
      */
-    private Integer NumberOfNonCandidates;
+    private Integer numberOfNonCandidates;
     
     /**
      * 已选人数百分比
      */
-    private Double NumberOfelectedPersonsPoint;
+    private Double numberOfelectedPersonsPoint;
 
 	public String getGrade() {
 		return grade;
@@ -120,27 +122,27 @@ public class ElcResultDto
 	}
 
 	public Integer getNumberOfelectedPersons() {
-		return NumberOfelectedPersons;
+		return numberOfelectedPersons;
 	}
 
 	public void setNumberOfelectedPersons(Integer numberOfelectedPersons) {
-		NumberOfelectedPersons = numberOfelectedPersons;
+		this.numberOfelectedPersons = numberOfelectedPersons;
 	}
 
 	public Integer getNumberOfNonCandidates() {
-		return NumberOfNonCandidates;
+		return numberOfNonCandidates;
 	}
 
 	public void setNumberOfNonCandidates(Integer numberOfNonCandidates) {
-		NumberOfNonCandidates = numberOfNonCandidates;
+		this.numberOfNonCandidates = numberOfNonCandidates;
 	}
 
 	public Double getNumberOfelectedPersonsPoint() {
-		return NumberOfelectedPersonsPoint;
+		return numberOfelectedPersonsPoint;
 	}
 
 	public void setNumberOfelectedPersonsPoint(Double numberOfelectedPersonsPoint) {
-		NumberOfelectedPersonsPoint = numberOfelectedPersonsPoint;
+		this.numberOfelectedPersonsPoint = numberOfelectedPersonsPoint;
 	}
 
 	public String getProfession() {

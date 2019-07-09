@@ -2,6 +2,7 @@ package com.server.edu.election.vo;
 
 import java.util.List;
 
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.ElcResultDto;
 
 /**
@@ -41,9 +42,9 @@ public class ElcResultCountVo
      */
     private Integer elcPersonTimeByFaculty;
     
-    private List<ElcResultDto> elceResultByStudent;
+    private PageResult<ElcResultDto> elceResultByStudent;
     
-    private List<ElcResultDto> elceResultByFaculty;
+    private PageResult<ElcResultDto> elceResultByFaculty;
 
 	public Integer getElcNumberByStudent() {
 		return elcNumberByStudent;
@@ -93,20 +94,22 @@ public class ElcResultCountVo
 		this.elcPersonTimeByFaculty = elcPersonTimeByFaculty;
 	}
 
-	public List<ElcResultDto> getElceResultByStudent() {
+	public PageResult<ElcResultDto> getElceResultByStudent() {
 		return elceResultByStudent;
 	}
 
-	public void setElceResultByStudent(List<ElcResultDto> elceResultByStudent) {
+	public void setElceResultByStudent(PageResult<ElcResultDto> elceResultByStudent) {
 		this.elceResultByStudent = elceResultByStudent;
 	}
 
-	public List<ElcResultDto> getElceResultByFaculty() {
+	public PageResult<ElcResultDto> getElceResultByFaculty() {
 		return elceResultByFaculty;
 	}
 
-	public void setElceResultByFaculty(List<ElcResultDto> elceResultByFaculty) {
+	public void setElceResultByFaculty(PageResult<ElcResultDto> elceResultByFaculty) {
 		this.elceResultByFaculty = elceResultByFaculty;
 	}
+
+
 
 }
