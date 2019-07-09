@@ -28,6 +28,8 @@ public class ElectionRoundsVo extends ElectionRounds
         this.setOpenFlag(round.getOpenFlag());
         this.setProjectId(round.getProjectId());
         this.setRemark(round.getRemark());
+        this.setTurn(round.getTurn());
+        this.setCalendarName(round.getCalendarName());
     }
     
     public List<ElectionRuleVo> getRuleVos()
