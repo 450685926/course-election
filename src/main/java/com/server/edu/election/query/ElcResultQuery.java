@@ -129,6 +129,8 @@ public class ElcResultQuery
     
     private Integer maxUpperNumber;
     
+    private Integer dimension;
+    
     
     public Integer getActualAndUpper() {
 		return actualAndUpper;
@@ -383,5 +385,14 @@ public class ElcResultQuery
 	public void setManagerDeptId(String managerDeptId) {
 		this.managerDeptId = managerDeptId;
 	}
+
+	public Integer getDimension() {
+		return dimension;
+	}
+
+	public void setDimension(Integer dimension) {
+		this.dimension = dimension;
+	}
+	
 	
 }
