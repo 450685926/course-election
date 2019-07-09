@@ -5,11 +5,14 @@ import java.util.List;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcAffinityCourses;
-
+@CodeI18n
 public class ElcAffinityCoursesVo extends ElcAffinityCourses
 {
     private static final long serialVersionUID = 1L;
+    
+    private String courseCode;
     
     private String courseName;
     
@@ -73,5 +76,15 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
     {
         this.credits = credits;
     }
+
+	public String getCourseCode() {
+		return courseCode;
+	}
+
+	public void setCourseCode(String courseCode) {
+		this.courseCode = courseCode;
+	}
+    
+    
     
 }
