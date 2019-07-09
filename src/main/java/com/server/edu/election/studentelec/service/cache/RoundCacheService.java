@@ -212,7 +212,7 @@ public class RoundCacheService extends AbstractCacheService
                 && contains(con.getMajors(), student.getProfession())
                 && contains(con.getTrainingLevels(),student.getTrainingLevel())
                 && contains(con.getTrainingCategorys(), student.getTrainingCategory())
-                && contains(con.getDegreeTypes(), student.getDegreeCategory())
+                && contains(con.getDegreeTypes(), student.getDegreeType())
             	&& contains(con.getTrainingCategorys(), student.getTrainingCategory()))
             {
                 return true;
