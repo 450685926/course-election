@@ -4,8 +4,10 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -81,6 +83,30 @@ public interface ElcCourseTakeService
     /***查询学生选课列表
      * @return*/
 	List<String> findAllByStudentId(String studentId);
+
+	/**
+     * 为指定学研究生退课
+     * 
+     * @param teachingClassIds
+     * @param studentId
+     */
+	void graduateWithdraw(Long calendarId, Long teachingClassId,String courseCode, List<String> students, int realType);
+
+	/**
+     * 为指定学研究生加退课
+	 * @param teachingClassIds
+     * @param studentId
+     */
+	String graduateAdd(ElcCourseTakeAddDto value, int realType);
+
+	/**
+	 * 个人培养计划中有该课程且又没有选课的学生名单
+	 * @param realType
+	 * @param data
+	 * @param condition 
+	 * @return
+	 */
+	PageResult<Student4Elc> getGraduateStudentForCulturePlan(int realType, PageCondition<ElcCourseTakeQuery> condition);
 
 
 }

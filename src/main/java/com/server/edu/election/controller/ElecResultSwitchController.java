@@ -39,4 +39,11 @@ public class ElecResultSwitchController {
 		return RestResult.successData(result);
 	}
 	
+	@ApiOperation(value = "根据学历学期号查询开关结果")
+	@GetMapping("/{calendarId}")
+	public RestResult<ElcResultSwitch> getSwitch(
+			@PathVariable("calendarId") Long calendarId){
+		ElcResultSwitch result = elecResultSwitchService.getSwitch(calendarId);
+		return RestResult.successData(result);
+	}
 }

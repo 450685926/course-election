@@ -23,12 +23,15 @@ import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcCourseSuggestSwitchDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
+import com.server.edu.election.dao.ElcResultCountDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcResultDto;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcCourseSuggestSwitch;
@@ -41,8 +44,8 @@ import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
-import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -80,6 +83,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElcCourseSuggestSwitchDao elcCourseSuggestSwitchDao;
+    
+    @Autowired
+    private ElcResultCountDao elcResultCountDao;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -343,5 +349,94 @@ public class ElcResultServiceImpl implements ElcResultService
             courseTakeService.withdraw(values);
         }
     }
+
+    /**
+     * 选课结果统计
+     */
+	@Override
+	public ElcResultCountVo elcResultCountByStudent(ElcResultQuery condition) {
+		//从学生维度查询
+		//根据条件查出满足条件的学生分类（年级、培养层次、培养类别、学位类型、学习形式）
+		condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
+		List<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
+		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
+		Integer elcNumber = 0;
+		for (ElcResultDto elcResultDto : elcResultList) {
+			
+			//该年级、培养层次、培养类别、学位类型、学习形式查询条件
+			ElcResultQuery query = new ElcResultQuery();
+			if (StringUtils.isNotEmpty(condition.getGrade())) {
+				query.setGrade(condition.getGrade());
+			}else{
+				elcResultDto.setGrade(null);
+			}
+			query.setFaculty(condition.getFaculty());
+			query.setEnrolSeason(condition.getEnrolSeason());
+			query.setDegreeType(elcResultDto.getDegreeType());
+			query.setFormLearning(elcResultDto.getFormLearning());
+			query.setTrainingCategory(elcResultDto.getTrainingCategory());
+			query.setTrainingLevel(elcResultDto.getTrainingLevel());
+			query.setCalendarId(condition.getCalendarId());
+			//根据条件查询查询已将选课学生人数
+			Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
+			elcNumber += numberOfelectedPersons;
+			elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
+			elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+			elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
+		}
+		Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
+		Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
+		elcResultCountVo.setElcNumberByStudent(elcNumber);
+		elcResultCountVo.setElceResultByStudent(elcResultList);
+		elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
+		elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
+		
+		//从学院维度查询
+		List<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
+		Integer elcNumberByFaculty = 0;
+		for (ElcResultDto elcResultDto : eleResultByFacultyList) {
+			//该学院该专业查询条件
+			ElcResultQuery query = new ElcResultQuery();
+			if (StringUtils.isNotEmpty(condition.getGrade())) {
+				query.setGrade(condition.getGrade());
+			}else{
+				elcResultDto.setGrade(null);
+			}
+			query.setFaculty(elcResultDto.getFaculty());
+			query.setEnrolSeason(condition.getEnrolSeason());
+			query.setProfession(elcResultDto.getProfession());
+			query.setDegreeType(condition.getDegreeType());
+			query.setFormLearning(condition.getFormLearning());
+			query.setTrainingCategory(condition.getTrainingCategory());
+			query.setTrainingLevel(condition.getTrainingLevel());
+			query.setCalendarId(condition.getCalendarId());
+			
+			//根据条件查询查询已将选课学生人数
+			Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
+			elcNumberByFaculty += numberOfelectedPersons;
+			elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
+			elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+			elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
+		}
+		Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
+		Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
+		elcResultCountVo.setElceResultByFaculty(eleResultByFacultyList);
+		elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
+		elcResultCountVo.setElceResultByStudent(elcResultList);
+		elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
+		elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
+		return elcResultCountVo;
+	}
+
+	/**
+	 * 未选课学生名单
+	 * 
+	 */
+	@Override
+	public List<Student4Elc> getStudentPage(ElcResultQuery condition) {
+		//查询该条件下未选课学生名单
+		List<Student4Elc> result = studentDao.getAllNonSelectedCourseStudent(condition);
+		return result;
+	}
     
 }

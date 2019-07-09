@@ -43,6 +43,31 @@ public class ElcResultQuery
     private Long teachingClassId;
     
     /**
+     * 培养类别
+     */
+    private String trainingCategory;
+    
+    /**
+     * 学习形式
+     */
+    private String formLearning;
+    
+    /**
+     * 年级
+     */
+    private String grade;
+    
+    /**
+     * 入学季节
+     */
+    private String enrolSeason;
+    
+    /**
+     * 学位类型
+     */
+    private String degreeType;
+    
+    /**
      * 教学班ids
      */
     private List<Long> teachingClassIds;
@@ -61,10 +86,17 @@ public class ElcResultQuery
     
     private String keyword;
     
+    private String managerDeptId;
+    
     /**
      * 开课学院
      */
     private String faculty;
+    
+    /**
+     * 专业
+     */
+    private String profession;
     
     /**
      * 课程类别ID
@@ -244,7 +276,55 @@ public class ElcResultQuery
         this.teachingClassIds = teachingClassIds;
     }
     
-    public String getLabel()
+    public String getTrainingLevel() {
+		return trainingLevel;
+	}
+
+	public void setTrainingLevel(String trainingLevel) {
+		this.trainingLevel = trainingLevel;
+	}
+
+	public String getTrainingCategory() {
+		return trainingCategory;
+	}
+
+	public void setTrainingCategory(String trainingCategory) {
+		this.trainingCategory = trainingCategory;
+	}
+
+	public String getFormLearning() {
+		return formLearning;
+	}
+
+	public void setFormLearning(String formLearning) {
+		this.formLearning = formLearning;
+	}
+
+	public String getGrade() {
+		return grade;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+
+	public String getEnrolSeason() {
+		return enrolSeason;
+	}
+
+	public void setEnrolSeason(String enrolSeason) {
+		this.enrolSeason = enrolSeason;
+	}
+
+	public String getDegreeType() {
+		return degreeType;
+	}
+
+	public void setDegreeType(String degreeType) {
+		this.degreeType = degreeType;
+	}
+
+	public String getLabel()
     {
         return label;
     }
@@ -280,6 +360,14 @@ public class ElcResultQuery
 		this.faculty = faculty;
 	}
 
+	public String getProfession() {
+		return profession;
+	}
+
+	public void setProfession(String profession) {
+		this.profession = profession;
+	}
+
 	public String getNature() {
 		return nature;
 	}
@@ -288,12 +376,12 @@ public class ElcResultQuery
 		this.nature = nature;
 	}
 
-	public String getTrainingLevel() {
-		return trainingLevel;
+	public String getManagerDeptId() {
+		return managerDeptId;
 	}
 
-	public void setTrainingLevel(String trainingLevel) {
-		this.trainingLevel = trainingLevel;
+	public void setManagerDeptId(String managerDeptId) {
+		this.managerDeptId = managerDeptId;
 	}
 	
 }
