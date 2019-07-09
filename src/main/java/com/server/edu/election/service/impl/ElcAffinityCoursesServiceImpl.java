@@ -161,20 +161,23 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     public int batchAddStudent(StudentDto studentDto)
     {
         List<Student> list = studentDao.selectUnElcStudents(studentDto);
-        List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
-        list.forEach(temp -> {
-            ElcAffinityCoursesStds elcAffinityCoursesStds =
-                new ElcAffinityCoursesStds();
-            elcAffinityCoursesStds.setCourseId(studentDto.getCourseId());
-            elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
-            stuList.add(elcAffinityCoursesStds);
-        });
-        int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
-        if (result <= Constants.ZERO)
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("common.saveError",
-                    I18nUtil.getMsg("elcAffinity.courses")));
+        int result = 0;
+        if(CollectionUtil.isNotEmpty(list)) {
+            List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
+            list.forEach(temp -> {
+                ElcAffinityCoursesStds elcAffinityCoursesStds =
+                    new ElcAffinityCoursesStds();
+                elcAffinityCoursesStds.setCourseId(studentDto.getCourseId());
+                elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
+                stuList.add(elcAffinityCoursesStds);
+            });
+            result = elcAffinityCoursesStdsDao.batchInsert(stuList);
+            if (result <= Constants.ZERO)
+            {
+                throw new ParameterValidateException(
+                    I18nUtil.getMsg("common.saveError",
+                        I18nUtil.getMsg("elcAffinity.courses")));
+            }
         }
         return result;
     }
