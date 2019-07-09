@@ -147,7 +147,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
             elcAffinityCoursesStds.setStudentId(temp);
             stuList.add(elcAffinityCoursesStds);
         });
-        int result = elcAffinityCoursesStdsDao.insertList(stuList);
+        int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
         if (result <= Constants.ZERO)
         {
             throw new ParameterValidateException(
@@ -171,7 +171,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
             elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
             stuList.add(elcAffinityCoursesStds);
         });
-        int result = elcAffinityCoursesStdsDao.insertList(stuList);
+        int result = elcAffinityCoursesStdsDao.batchInsert(stuList);
         if (result <= Constants.ZERO)
         {
             throw new ParameterValidateException(

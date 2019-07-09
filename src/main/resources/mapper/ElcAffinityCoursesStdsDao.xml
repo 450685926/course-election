@@ -8,4 +8,18 @@
     <id column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
     <id column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
   </resultMap>
+  
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into elc_affinity_courses_stds_t(
+    COURSE_ID_,STUDENT_ID_
+    )
+    values
+    <foreach item="item" collection="list" index="index"
+             separator=",">
+      (
+      #{item.courseId},
+      #{item.studentId}
+      )
+    </foreach>
+  </insert>
 </mapper>
