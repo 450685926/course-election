@@ -1,6 +1,12 @@
 package com.server.edu.election.studentelec.service.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +25,7 @@ import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRounds;
@@ -26,17 +33,21 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.rules.bk.LimitCountCheckerRule;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
+import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
 @Service
@@ -287,5 +298,101 @@ public class StudentElecServiceImpl implements StudentElecService
         Student stu = stuDao.findStuRound(roundId, studentId);
         return stu;
     }
-    
+
+	@Override
+	public Map<String,List<ElcCourseResult>> getAllCourse(AllCourseVo allCourseVo) {
+	    Map<String,List<ElcCourseResult>> map = new HashMap<String, List<ElcCourseResult>>();
+	    // 课程list
+	    List<ElcCourseResult> list = new ArrayList<ElcCourseResult>();
+	    // natrue集合
+		List<String> natrueList = new ArrayList<String>();
+		
+		if (org.apache.commons.lang.StringUtils.isBlank(allCourseVo.getNatrue())) {
+			natrueList = stuDao.getNature(allCourseVo);
+			for (String natrue : natrueList) {
+				allCourseVo.setNatrue(natrue);
+				list = stuDao.getAllCourse(allCourseVo);
+				List<ElcCourseResult> timeList = getTimeList(list);
+				map.put(natrue, timeList);
+			}
+		}else {
+			list = stuDao.getAllCourse(allCourseVo);
+			List<ElcCourseResult> timeList = getTimeList(list);
+			map.put(allCourseVo.getNatrue(), timeList);
+		}
+		return map;
+	}
+	
+	private List<ElcCourseResult>  getTimeList(List<ElcCourseResult> list){
+		if(CollectionUtil.isNotEmpty(list)){
+			for (ElcCourseResult courseResult : list) {
+				List<TimeAndRoom> tableMessages = getTimeById(courseResult.getTeachClassId());
+				courseResult.setTimeTableList(tableMessages);
+			}
+		}
+		return list;
+	}
+	
+	private List<TimeAndRoom>  getTimeById(Long teachingClassId){
+        List<TimeAndRoom> list=new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoomStr(teachingClassId);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+            	TimeAndRoom time=new TimeAndRoom();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                Long timeId = classTeacherDto.getTimeId();
+                String[] str = weekNumber.split(",");
+                
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
+                time.setTimeId(timeId);
+                time.setTimeAndRoom(timeStr);
+                time.setRoomId(roomID);
+                list.add(time);
+            }
+        }
+        return list;
+    }
+	
+   /**
+   *@Description: 星期
+   *@Param:
+   *@return:
+   *@Author: bear
+   *@date: 2019/2/15 13:59
+   */
+	private String findWeek(Integer number){
+       String week="";
+       switch(number){
+           case 1:
+               week="星期一";
+               break;
+           case 2:
+               week="星期二";
+               break;
+           case 3:
+               week="星期三";
+               break;
+           case 4:
+               week="星期四";
+               break;
+           case 5:
+               week="星期五";
+               break;
+           case 6:
+               week="星期六";
+               break;
+           case 7:
+               week="星期日";
+               break;
+       }
+       return week;
+   }
 }
