@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -58,6 +60,7 @@ import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.AllCourseVo;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -516,5 +519,63 @@ public class StudentElecServiceImpl implements StudentElecService
         Page<NoSelectCourseStdsDto> agentElcStudentList = courseTakeDao.findAgentElcStudentList(noSelectCourseStds);
 
         return new PageResult<>(agentElcStudentList);
+	}
+
+	@Override
+	public Map<String, Object> getElectResultCount(String studentId, Long roundId,Map<String,Object> result) {
+
+		RoundDataProvider dataProvider =
+   				SpringUtils.getBean(RoundDataProvider.class);
+		//获取当前选课轮次
+//		ElectionRounds round = dataProvider.getRound(roundId);
+		//获取学生已选课程
+		List<ElcCourseTakeVo> eleCourse = courseTakeDao.findAllByStudentId4Course(studentId);
+//		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
+		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,107l);
+		//获取当前已经完成的课程
+		Set<CompletedCourse> completedCourses = elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
+		
+		//获取本学期已选课程
+		Set<SelectedCourse> selectedCourses = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
+		Set<SelectedCourse> thisSelectedCourses = new TreeSet<>();
+		for (SelectedCourse selectedCourse : selectedCourses) {
+			//获取本次选课信息
+//			if (selectedCourse.getTurn().intValue() == round.getTurn()) {
+			if (selectedCourse.getTurn().intValue() == 10) {
+				//已完成课程数
+				thisSelectedCourses.add(selectedCourse);
+				
+			}
+		}
+		for(Entry<String, Object> entry : result.entrySet()){
+			Map<String,Object> map = new HashMap<String,Object>();
+			//已完成课程数
+			Integer courseNum = 0;
+			//已完成学分
+			Double sumMcredits = 0.0;
+			for (CompletedCourse completedCourse : completedCourses) {
+				if (completedCourse.getCourseLabelId() == Long.parseLong(entry.getKey())) {
+					courseNum ++;
+					sumMcredits += completedCourse.getCredits();
+				}
+			}
+			//统计本次选课门数
+			Integer thisTimecourseNum = 0;
+			//统计本次选课学分
+			Double thisTimeSumMcredits = 0.0;
+			for (SelectedCourse thisSelected : thisSelectedCourses) {
+				if (thisSelected.getLabel().equals(entry.getKey())) {
+					thisTimecourseNum ++;
+					thisTimeSumMcredits += thisSelected.getCredits();
+				}
+			}
+			map.put("courseNum", courseNum+thisTimecourseNum);
+			map.put("sumMcredits", sumMcredits+thisTimeSumMcredits);
+			map.put("culturePlan", entry.getValue());
+			map.put("thisTimeSumMcredits", thisTimeSumMcredits.doubleValue());
+			result.put(entry.getKey(), map);
+		}
+		
+		return result;
 	}
 }

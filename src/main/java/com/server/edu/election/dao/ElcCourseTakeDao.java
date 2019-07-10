@@ -167,6 +167,10 @@ public interface ElcCourseTakeDao
     /**查询学生选课列表
      * @return*/
     List<String> findAllByStudentId(@Param("studentId")String studentId);
+    
+    /**查询学生选课列表
+     * @return*/
+    List<ElcCourseTakeVo> findAllByStudentId4Course(@Param("studentId")String studentId);
 
 	/**
 	 * 获取教务员/管理员代选课的学生名单
