@@ -4,13 +4,13 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 
@@ -101,12 +101,11 @@ public interface ElcCourseTakeService
 
 	/**
 	 * 个人培养计划中有该课程且又没有选课的学生名单
-	 * @param realType
 	 * @param data
 	 * @param condition 
 	 * @return
 	 */
-	PageResult<Student4Elc> getGraduateStudentForCulturePlan(int realType, PageCondition<ElcCourseTakeQuery> condition);
+	PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> condition);
 
 
 }

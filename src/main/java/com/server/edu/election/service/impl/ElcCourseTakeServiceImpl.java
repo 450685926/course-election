@@ -43,6 +43,7 @@ import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElcResultSwitch;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
@@ -400,8 +401,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
 
 	@Override
-	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(int realType, PageCondition<ElcCourseTakeQuery> page) {
-		ElcCourseTakeQuery cond = page.getCondition();
+	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
+		ElcResultQuery cond = page.getCondition();
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);

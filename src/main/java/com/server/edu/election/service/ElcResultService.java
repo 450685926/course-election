@@ -82,13 +82,13 @@ public interface ElcResultService
      * @param condition
      * @return
      */
-	ElcResultCountVo elcResultCountByStudent(ElcResultQuery condition);
+	ElcResultCountVo elcResultCountByStudent(PageCondition<ElcResultQuery> condition);
 
 	/**
 	 * 未选课学生名单
-	 * @param condition
+	 * @param page
 	 * @return
 	 */
-	List<Student4Elc> getStudentPage(ElcResultQuery condition);
+	PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page);
 
 }

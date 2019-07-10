@@ -50,14 +50,14 @@ public interface StudentDao extends Mapper<Student> {
      * @param condition
      * @return
      */
-	List<Student4Elc> getAllNonSelectedCourseStudent(@Param("query")ElcResultQuery query);
+	Page<Student4Elc> getAllNonSelectedCourseStudent(@Param("query")ElcResultQuery query);
 	
 	/**
 	 * 查询可选课名单中培养计划中有这门课又没选该门课的学生信息
 	 * @param cond
 	 * @return
 	 */
-	Page<Student4Elc> getStudent4CulturePlan(@Param("query")ElcCourseTakeQuery cond);
+	Page<Student4Elc> getStudent4CulturePlan(@Param("query")ElcResultQuery cond);
 }
 
 

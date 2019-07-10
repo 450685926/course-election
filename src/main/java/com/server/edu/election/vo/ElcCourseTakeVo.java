@@ -46,6 +46,8 @@ public class ElcCourseTakeVo extends ElcCourseTake
     @Code2Text(transformer="X_YX")
     private String faculty;
 
+    @Code2Text(transformer="X_KCFL")
+    private String label;
     public String getTeachingCode() {
 		return teachingCode;
 	}
@@ -168,6 +170,14 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
 	public void setTeachingClassName(String teachingClassName) {
 		this.teachingClassName = teachingClassName;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 	
 	

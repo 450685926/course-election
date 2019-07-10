@@ -77,4 +77,13 @@ public interface StudentElecService
 	 * @return
 	 */
     PageResult<NoSelectCourseStdsDto> findAgentElcStudentList(PageCondition<NoSelectCourseStdsDto> condition);
+
+    /**
+     * 统计研究生选课信息与本轮次选课情况
+     * @param uid
+     * @param roundId
+     * @param map 
+     * @return
+     */
+	Map<String, Object> getElectResultCount(String uid, Long roundId, Map<String, Object> map);
 }

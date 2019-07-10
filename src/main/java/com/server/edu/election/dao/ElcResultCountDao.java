@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcResultQuery;
@@ -17,7 +18,7 @@ public interface ElcResultCountDao extends Mapper<Student> {
 	 * @param elcResult
 	 * @return
 	 */
-	List<ElcResultDto> getElcResult(@Param("elcResult") ElcResultQuery elcResult);
+	Page<ElcResultDto> getElcResult(@Param("elcResult") ElcResultQuery elcResult);
 
 	/**
 	 * 查找对应类别下学生已选课人数
@@ -45,7 +46,7 @@ public interface ElcResultCountDao extends Mapper<Student> {
 	 * @param query
 	 * @return
 	 */
-	List<ElcResultDto> getElcResultByFacult(@Param("elcResult")ElcResultQuery elcResult);
+	Page<ElcResultDto> getElcResultByFacult(@Param("elcResult")ElcResultQuery elcResult);
 
 	/**
 	 * 从学院层面从查询每个学院每个转专业选课人数

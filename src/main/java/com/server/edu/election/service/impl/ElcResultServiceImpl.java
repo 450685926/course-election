@@ -431,77 +431,81 @@ public class ElcResultServiceImpl implements ElcResultService
      * 选课结果统计
      */
 	@Override
-	public ElcResultCountVo elcResultCountByStudent(ElcResultQuery condition) {
+	public ElcResultCountVo elcResultCountByStudent(PageCondition<ElcResultQuery> page) {
 		//从学生维度查询
 		//根据条件查出满足条件的学生分类（年级、培养层次、培养类别、学位类型、学习形式）
-		condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
-		List<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+		ElcResultQuery condition = page.getCondition();
 		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
-		Integer elcNumber = 0;
-		for (ElcResultDto elcResultDto : elcResultList) {
-			
-			//该年级、培养层次、培养类别、学位类型、学习形式查询条件
-			ElcResultQuery query = new ElcResultQuery();
-			if (StringUtils.isNotEmpty(condition.getGrade())) {
-				query.setGrade(condition.getGrade());
-			}else{
-				elcResultDto.setGrade(null);
+		if(condition.getDimension().intValue() == Constants.ONE){
+			condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
+			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
+			Integer elcNumber = 0;
+			for (ElcResultDto elcResultDto : elcResultList) {
+				
+				//该年级、培养层次、培养类别、学位类型、学习形式查询条件
+				ElcResultQuery query = new ElcResultQuery();
+				if (StringUtils.isNotEmpty(condition.getGrade())) {
+					query.setGrade(condition.getGrade());
+				}else{
+					elcResultDto.setGrade("全部");
+				}
+				query.setFaculty(condition.getFaculty());
+				query.setEnrolSeason(condition.getEnrolSeason());
+				query.setDegreeType(elcResultDto.getDegreeType());
+				query.setFormLearning(elcResultDto.getFormLearning());
+				query.setTrainingCategory(elcResultDto.getTrainingCategory());
+				query.setTrainingLevel(elcResultDto.getTrainingLevel());
+				query.setCalendarId(condition.getCalendarId());
+				//根据条件查询查询已将选课学生人数
+				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
+				elcNumber += numberOfelectedPersons;
+				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
+				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
-			query.setFaculty(condition.getFaculty());
-			query.setEnrolSeason(condition.getEnrolSeason());
-			query.setDegreeType(elcResultDto.getDegreeType());
-			query.setFormLearning(elcResultDto.getFormLearning());
-			query.setTrainingCategory(elcResultDto.getTrainingCategory());
-			query.setTrainingLevel(elcResultDto.getTrainingLevel());
-			query.setCalendarId(condition.getCalendarId());
-			//根据条件查询查询已将选课学生人数
-			Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
-			elcNumber += numberOfelectedPersons;
-			elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-			elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
-			elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
-		}
-		Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
-		Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
-		elcResultCountVo.setElcNumberByStudent(elcNumber);
-		elcResultCountVo.setElceResultByStudent(elcResultList);
-		elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
-		elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
-		
-		//从学院维度查询
-		List<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
-		Integer elcNumberByFaculty = 0;
-		for (ElcResultDto elcResultDto : eleResultByFacultyList) {
-			//该学院该专业查询条件
-			ElcResultQuery query = new ElcResultQuery();
-			if (StringUtils.isNotEmpty(condition.getGrade())) {
-				query.setGrade(condition.getGrade());
-			}else{
-				elcResultDto.setGrade(null);
+			Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
+			Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
+			elcResultCountVo.setElcNumberByStudent(elcNumber);
+			elcResultCountVo.setElceResultByStudent(new PageResult<>(elcResultList));
+			elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
+			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
+		}else{
+			condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
+			//从学院维度查询
+			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
+			Integer elcNumberByFaculty = 0;
+			for (ElcResultDto elcResultDto : eleResultByFacultyList) {
+				//该学院该专业查询条件
+				ElcResultQuery query = new ElcResultQuery();
+				if (StringUtils.isNotEmpty(condition.getGrade())) {
+					query.setGrade(condition.getGrade());
+				}else{
+					elcResultDto.setGrade("全部");
+				}
+				query.setFaculty(elcResultDto.getFaculty());
+				query.setEnrolSeason(condition.getEnrolSeason());
+				query.setProfession(elcResultDto.getProfession());
+				query.setDegreeType(condition.getDegreeType());
+				query.setFormLearning(condition.getFormLearning());
+				query.setTrainingCategory(condition.getTrainingCategory());
+				query.setTrainingLevel(condition.getTrainingLevel());
+				query.setCalendarId(condition.getCalendarId());
+				
+				//根据条件查询查询已将选课学生人数
+				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
+				elcNumberByFaculty += numberOfelectedPersons;
+				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
+				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
-			query.setFaculty(elcResultDto.getFaculty());
-			query.setEnrolSeason(condition.getEnrolSeason());
-			query.setProfession(elcResultDto.getProfession());
-			query.setDegreeType(condition.getDegreeType());
-			query.setFormLearning(condition.getFormLearning());
-			query.setTrainingCategory(condition.getTrainingCategory());
-			query.setTrainingLevel(condition.getTrainingLevel());
-			query.setCalendarId(condition.getCalendarId());
-			
-			//根据条件查询查询已将选课学生人数
-			Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
-			elcNumberByFaculty += numberOfelectedPersons;
-			elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-			elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
-			elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
+			Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
+			Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
+			elcResultCountVo.setElceResultByFaculty(new PageResult<>(eleResultByFacultyList));
+			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
+			elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
+			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
 		}
-		Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
-		Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
-		elcResultCountVo.setElceResultByFaculty(eleResultByFacultyList);
-		elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
-		elcResultCountVo.setElceResultByStudent(elcResultList);
-		elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
-		elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
 		return elcResultCountVo;
 	}
 
@@ -510,10 +514,11 @@ public class ElcResultServiceImpl implements ElcResultService
 	 * 
 	 */
 	@Override
-	public List<Student4Elc> getStudentPage(ElcResultQuery condition) {
+	public PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page ) {
 		//查询该条件下未选课学生名单
-		List<Student4Elc> result = studentDao.getAllNonSelectedCourseStudent(condition);
-		return result;
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+		Page<Student4Elc> result = studentDao.getAllNonSelectedCourseStudent(page.getCondition());
+		return new PageResult<>(result);
 	}
     
 }

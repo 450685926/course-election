@@ -28,6 +28,11 @@ public class CompletedCourse extends TeachingClassCache {
      * 是否为优级
      */
     private boolean excellent;
+    
+    /**
+     * 课程分类
+     */
+    private Long courseLabelId;
 
     /**
      * 学期
@@ -82,6 +87,14 @@ public class CompletedCourse extends TeachingClassCache {
 
 	public void setIsPass(Integer isPass) {
 		this.isPass = isPass;
+	}
+
+	public Long getCourseLabelId() {
+		return courseLabelId;
+	}
+
+	public void setCourseLabelId(Long courseLabelId) {
+		this.courseLabelId = courseLabelId;
 	}
 
 	@Override
