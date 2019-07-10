@@ -126,6 +126,7 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCalendarId(studentScore.getCalendarId());
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
+                lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
 
@@ -206,6 +207,7 @@ public class CourseGradeLoad extends DataProLoad
             {
                 SelectedCourse course = new SelectedCourse();
                 course.setApply(c.getApply());
+                course.setLabel(c.getLabel());
                 course.setCampus(c.getCampus());
                 course.setChooseObj(c.getChooseObj());
                 course.setCourseCode(c.getCourseCode());

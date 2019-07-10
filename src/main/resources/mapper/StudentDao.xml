@@ -76,7 +76,7 @@
 		</where>
     </select>
     
-    <select id="getStudent4CulturePlan" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultMap="BaseResultMap">
+    <select id="getStudent4CulturePlan" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="BaseResultMap">
 		SELECT 
 			t1.STUDENT_CODE_,
 			t1.NAME_,
@@ -89,11 +89,12 @@
 			t1.PROFESSION_
 		FROM student_t t1
 		<where>
-			t1.STUDENT_CODE_  IN  
+			1=1 
+			and t1.STUDENT_CODE_  IN  
 			<foreach item="studentId" collection="query.studentIds" index="index" open="(" separator="," close=")">
 		          #{studentId}
 		    </foreach>
-			AND t1.STUDENT_CODE_  NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
+			AND t1.STUDENT_CODE_  NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} and COURSE_CODE_ = #{query.courseCode})
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
 	        and t1.STUDENT_CODE_ like concat('%',#{studentCode},'%')
 		    </if>
@@ -276,8 +277,9 @@
    </select>
    
     <select id="getAllNonSelectedCourseStudent" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
-       SELECT t4.* FROM student_t t4 WHERE t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
+       SELECT t4.* FROM student_t t4 
         <where>
+        	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t4.FACULTY_ = #{query.faculty}
 		    </if>

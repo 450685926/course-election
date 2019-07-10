@@ -57,7 +57,7 @@ public interface StudentDao extends Mapper<Student> {
 	 * @param cond
 	 * @return
 	 */
-	Page<Student4Elc> getStudent4CulturePlan(@Param("query")ElcCourseTakeQuery cond);
+	Page<Student4Elc> getStudent4CulturePlan(@Param("query")ElcResultQuery cond);
 }
 
 

@@ -27,6 +27,10 @@ public class SelectedCourse extends TeachingClassCache
     @Code2Text(DictTypeEnum.X_XDLX)
     private Integer courseTakeType;
     
+
+    @Code2Text(transformer="X_KCFL")
+    private String label;
+    
     /**
      * 第几轮
      */
@@ -106,7 +110,14 @@ public class SelectedCourse extends TeachingClassCache
         this.turn = turn;
     }
     
-    
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
 	@Override
     public int hashCode()
     {

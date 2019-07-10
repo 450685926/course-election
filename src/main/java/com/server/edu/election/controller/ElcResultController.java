@@ -16,18 +16,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
-import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
@@ -35,6 +34,7 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
 
@@ -53,6 +53,9 @@ public class ElcResultController
     
     @Autowired
     private ElcResultService elcResultService;
+    
+    @Autowired
+    private DictionaryService dictionaryService;
      
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -142,10 +145,30 @@ public class ElcResultController
     	       }
     		GeneralExcelDesigner design = new GeneralExcelDesigner();
             design.addCell("年级", "grade");
-            design.addCell("培养层次", "trainingLevel");
-            design.addCell("培养类别", "trainingCategory");
-            design.addCell("学位类型", "degreeType");
-            design.addCell("学习形式", "formLearning");
+            design.addCell("培养层次", "trainingLevel").setValueHandler(
+                    (String value, Object rawData, GeneralExcelCell cell) -> {
+                        String dict = dictionaryService
+                            .query(DictTypeEnum.X_PYCC.getType(), value);
+                        return dict;
+                    });
+            design.addCell("培养类别", "trainingCategory").setValueHandler(
+                    (String value, Object rawData, GeneralExcelCell cell) -> {
+                        String dict = dictionaryService
+                            .query(DictTypeEnum.X_PYLB.getType(), value);
+                        return dict;
+                    });
+            design.addCell("学位类型", "degreeType").setValueHandler(
+                    (String value, Object rawData, GeneralExcelCell cell) -> {
+                        String dict = dictionaryService
+                            .query(DictTypeEnum.X_XWLX.getType(), value);
+                        return dict;
+                    });
+            design.addCell("学习形式", "formLearning").setValueHandler(
+                    (String value, Object rawData, GeneralExcelCell cell) -> {
+                        String dict = dictionaryService
+                            .query(DictTypeEnum.X_XXXS.getType(), value);
+                        return dict;
+                    });
             design.addCell("人数", "studentNum");
             design.addCell("已选人数", "numberOfelectedPersons");
             design.addCell("未选人数", "numberOfNonCandidates");
@@ -168,8 +191,18 @@ public class ElcResultController
  	       }
     		GeneralExcelDesigner design = new GeneralExcelDesigner();
             design.addCell("年级", "grade");
-            design.addCell("学院", "faculty");
-            design.addCell("专业", "profession");
+            design.addCell("学院", "faculty").setValueHandler(
+                    (String value, Object rawData, GeneralExcelCell cell) -> {
+                        String dict = dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                        return dict;
+                    });
+            design.addCell("专业", "profession").setValueHandler(
+                    (String value, Object rawData, GeneralExcelCell cell) -> {
+                        String dict = dictionaryService
+                            .query(DictTypeEnum.G_ZY.getType(), value);
+                        return dict;
+                    });
             design.addCell("人数", "studentNum");
             design.addCell("已选人数", "nNumberOfelectedPersons");
             design.addCell("未选人数", "numberOfNonCandidates");
@@ -188,19 +221,16 @@ public class ElcResultController
     @ApiOperation(value = "未选课学生名单")
     @PostMapping("/elcResultNonSelectedStudent")
     public RestResult<PageResult<Student4Elc>> studentPage(
-    		@RequestBody ElcResultQuery condition)
+    		@RequestBody PageCondition<ElcResultQuery> condition)
     				throws Exception
     {
-    	ValidatorUtil.validateAndThrow(condition);
+    	ValidatorUtil.validateAndThrow(condition.getCondition());
     	Session session = SessionUtils.getCurrentSession();
         
-        if (session.realType() == UserTypeEnum.STUDENT.getValue() || session.realType() == UserTypeEnum.TEACHER.getValue())
-        {
-            return RestResult.fail("elec.mustBeAdmin");
+    	if (!session.isAdmin()) {
+    		return RestResult.fail("elec.mustBeAdmin");
         }
-        PageCondition<ElcResultQuery> page = new PageCondition<>();
-        page.setCondition(condition);
-        PageResult<Student4Elc> result = elcResultService.getStudentPage(page);
+        PageResult<Student4Elc> result = elcResultService.getStudentPage(condition);
     	return RestResult.successData(result);
     }
     
@@ -232,13 +262,48 @@ public class ElcResultController
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.addCell("学号", "studentId");
         design.addCell("姓名", "name");
-        design.addCell("培养层次", "trainingLevel");
-        design.addCell("培养类别", "degreeCategory");
-        design.addCell("学位类型", "degreeType");
-        design.addCell("学习形式", "formLearning");
-        design.addCell("学院", "faculty");
-        design.addCell("专业", "profession");
-        design.addCell("入学季节", "enrolSeason");
+        design.addCell("培养层次", "trainingLevel").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_PYCC.getType(), value);
+                    return dict;
+                });
+        design.addCell("培养类别", "degreeCategory").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_PYLB.getType(), value);
+                    return dict;
+                });
+        design.addCell("学位类型", "degreeType").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_XWLX.getType(), value);
+                    return dict;
+                });
+        design.addCell("学习形式", "formLearning").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_XXXS.getType(), value);
+                    return dict;
+                });
+        design.addCell("学院", "faculty").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_YX.getType(), value);
+                    return dict;
+                });
+        design.addCell("专业", "profession").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.G_ZY.getType(), value);
+                    return dict;
+                });
+        design.addCell("入学季节", "enrolSeason").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_RXJJ.getType(), value);
+                    return dict;
+                });
         design.setDatas(res.getList());
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         

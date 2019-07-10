@@ -3,7 +3,6 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -33,8 +32,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
-import com.server.edu.common.enums.UserTypeEnum;
-import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
@@ -48,6 +45,7 @@ import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecRoundCourseService;
@@ -183,10 +181,9 @@ public class ElcCourseTakeController
     @ApiOperation(value = "个人培养计划中有该课程且又没有选课的学生名")
     @PutMapping("/studentList")
     public RestResult<PageResult<Student4Elc>> getGraduateStudentForCulturePlan(
-    		@RequestBody PageCondition<ElcCourseTakeQuery> condition)
+    		@RequestBody PageCondition<ElcResultQuery> condition)
     {
     	ValidatorUtil.validateAndThrow(condition.getCondition());
-    	Session session = SessionUtils.getCurrentSession();
     	/**
     	 * 调用培养：个人培养计划中有该课程且又没有选课的学生名单
     	 * coursesLabelList (课程分类列表)
@@ -196,10 +193,10 @@ public class ElcCourseTakeController
     	RestResult<List<String>> restResult = restTemplate.getForObject(path,RestResult.class, condition.getCondition().getCourseCode(), 0);
     	
     	if (CollectionUtil.isEmpty(restResult.getData())) {
-			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
+    		return RestResult.successData(null);
 		}
     	condition.getCondition().setStudentIds(restResult.getData());
-    	PageResult<Student4Elc> msg = courseTakeService.getGraduateStudentForCulturePlan(session.realType(),condition);
+    	PageResult<Student4Elc> msg = courseTakeService.getGraduateStudentForCulturePlan(condition);
     	
     	return RestResult.successData(msg);
     }    
