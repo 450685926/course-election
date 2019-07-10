@@ -46,6 +46,8 @@ public class TeachingClassVo extends TeachingClass
      */
     private List<TimeAndRoom> timeTableList;
     
+    private Long calendarId;
+    
 	public int getWithdrawNum() {
 		return withdrawNum;
 	}
@@ -94,9 +96,11 @@ public class TeachingClassVo extends TeachingClass
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
+	@Override
 	public String getCampus() {
 		return campus;
 	}
+	@Override
 	public void setCampus(String campus) {
 		this.campus = campus;
 	}
@@ -113,5 +117,13 @@ public class TeachingClassVo extends TeachingClass
 	public void setTimeTableList(List<TimeAndRoom> timeTableList) {
 		this.timeTableList = timeTableList;
 	}
+	public Long getCalendarId() {
+		return calendarId;
+	}
+	public void setCalendarId(Long calendarId) {
+		this.calendarId = calendarId;
+	}
+	
+	
     
 }

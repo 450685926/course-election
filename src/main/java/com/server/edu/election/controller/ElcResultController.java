@@ -3,6 +3,8 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
@@ -82,9 +85,89 @@ public class ElcResultController
     @ApiOperation(value = "调整教学班容量")
     @PostMapping("/adjustClassNumber")
     public RestResult<?> adjustClassNumber(
+        @RequestBody TeachingClassVo teachingClassVo)
+    {
+        elcResultService.adjustClassNumber(teachingClassVo);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 设置具体预留人数
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "设置具体预留人数")
+    @PostMapping("/setReserveNum")
+    public RestResult<?> setReserveNum(
         @RequestBody TeachingClass teachingClass)
     {
-        elcResultService.adjustClassNumber(teachingClass);
+        elcResultService.setReserveNum(teachingClass);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 批量设置预留人数
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "批量设置预留人数")
+    @PostMapping("/batchSetReserveNum")
+    public RestResult<?> batchSetReserveNum(
+        @RequestBody @Valid ReserveDto reserveDto)
+    {
+        elcResultService.batchSetReserveNum(reserveDto);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 设置具体预留人数比例
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "设置具体预留人数比例")
+    @PostMapping("/setReserveProportion")
+    public RestResult<?> setReserveProportion(
+        @RequestBody @Valid ReserveDto reserveDto)
+    {
+        elcResultService.setReserveProportion(reserveDto);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 释放人数
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "释放人数")
+    @PostMapping("/release")
+    public RestResult<?> release(
+        @RequestBody @Valid ReserveDto reserveDto)
+    {
+        elcResultService.release(reserveDto);
+        
+        return RestResult.success();
+    }
+    
+    
+    /**
+     * 释放所有
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "释放所有")
+    @PostMapping("/releaseAll")
+    public RestResult<?> releaseAll(@RequestBody ElcResultQuery condition)
+    {
+        elcResultService.releaseAll(condition);
         
         return RestResult.success();
     }

@@ -5,6 +5,7 @@ import java.util.List;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
@@ -25,10 +26,48 @@ public interface ElcResultService
     /**
      * 调整教学班容量
      * 
+     * @param teachingClassVo
+     * @see [类、类#方法、类#成员]
+     */
+    void adjustClassNumber(TeachingClassVo teachingClassVo);
+    
+    /**
+     * 设置教学班预留人数
+     * 
      * @param teachingClass
      * @see [类、类#方法、类#成员]
      */
-    void adjustClassNumber(TeachingClass teachingClass);
+    void setReserveNum(TeachingClass teachingClass);
+    
+    /**
+     * 设置教学班预留人数比例
+     * 
+     * @param reserveDto
+     * @see [类、类#方法、类#成员]
+     */
+    void setReserveProportion(ReserveDto reserveDto);
+    /**
+     * 批量设置教学班预留人数
+     * 
+     * @param reserveDto
+     * @see [类、类#方法、类#成员]
+     */
+    void batchSetReserveNum(ReserveDto reserveDto);
+    /**
+     * 释放教学班预留人数
+     * 
+     * @param reserveDto
+     * @see [类、类#方法、类#成员]
+     */
+    void release(ReserveDto reserveDto);
+    
+    /**
+     * 释放所有教学班预留人数
+     * 
+     * @param condition
+     * @see [类、类#方法、类#成员]
+     */
+    void releaseAll(ElcResultQuery condition);
     
     /**
      * 自动剔除超过人数

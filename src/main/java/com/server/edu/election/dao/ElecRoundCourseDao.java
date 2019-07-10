@@ -106,5 +106,16 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
      */
     List<CourseOpenDto> selectTeachingClassByCalendarId(
         @Param("calendarId") Long calendarId);
+    
+    /**
+     * 批量保存
+     * 
+     * @param list
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int batchInsert(List<ElectionRoundsCour> list);
+    
+    
 
 }

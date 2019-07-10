@@ -118,5 +118,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     List<TeachingClassVo> selectDrawClasss(ElcNumberSetDto elcNumberSetDto);
     
     int batchDecrElcNumber(List<TeachingClassVo> list);
+    
+    int updateReserveProportion(List<TeachingClass> list);
 
 }
