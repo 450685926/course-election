@@ -283,4 +283,34 @@
 		 order by cl.CODE_
   </select>
   
+   <insert id="batchInsert" parameterType="java.util.List">
+    insert into election_rounds_cour_t(
+    ROUNDS_ID_,TEACHING_CLASS_ID_
+    )
+    values
+    <foreach item="item" collection="list" index="index"
+      separator=",">
+      (
+      #{item.roundsId},
+      #{item.teachingClassId}
+      )
+    </foreach>
+    </insert>
+    
+    <select id="getAddedCourseByRoundIds" parameterType="java.util.List" resultMap="CourseOpenDtoMap">
+		SELECT
+			t1.*,t4.COURSE_CODE_,t4.COURSE_NAME_
+		FROM
+			election_rounds_cour_t t1
+		JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_ID_ = t2.ID_
+		JOIN teaching_task_t t3 ON t3.ID_ = t2.TASK_ID_
+		JOIN course_open_t t4 ON t4.ID_ = t3.COURSE_OPEN_ID_
+		<where>
+	        t1.ROUNDS_ID_ in
+	        <foreach item="id" collection="list" index="index" open="(" separator="," close=")">
+	          #{id}
+	        </foreach>
+		</where> 
+    </select>
+  
 </mapper>

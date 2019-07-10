@@ -116,6 +116,8 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
      */
     int batchInsert(List<ElectionRoundsCour> list);
     
+    List<CourseOpenDto> getAddedCourseByRoundIds(List<Long> list);
+    
     
 
 }
