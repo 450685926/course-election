@@ -32,6 +32,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(page);
     }
 
+    /**
+     * 返回的可加课程列表修读类型为正常修读
+     * @param condition
+     * @return
+     */
     @ApiOperation(value = "查询学生加课列表")
     @PostMapping("/addCourseList")
     public RestResult<PageResult<ElcStudentVo>> addCourseList(
@@ -40,6 +45,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(page);
     }
 
+    /**
+     * 默认修读类型为正常修读
+     * @param courseDto
+     * @return
+     */
     @ApiOperation(value = "加课")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(
@@ -57,6 +67,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(count);
     }
 
+    /**
+     * 返回的退课课程列表修读类型为正常修读
+     * @param condition
+     * @return
+     */
     @ApiOperation(value = "查询学生退课列表")
     @PostMapping("/removedCourseList")
     public RestResult<PageResult<ElcStudentVo>> removedCourseList(
@@ -65,6 +80,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(page);
     }
 
+    /**
+     * 默认修读类型为正常修读
+     * @param courseDto
+     * @return
+     */
     @ApiOperation(value = "退课")
     @PostMapping("/removedCourse")
     public RestResult<Integer> removedCourse(

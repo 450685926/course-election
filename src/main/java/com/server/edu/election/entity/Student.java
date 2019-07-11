@@ -110,7 +110,7 @@ public class Student implements Serializable
     /**
      * 学位类别
      */
-    @Code2Text(transformer = "X_XWLX")
+    @Code2Text(transformer = "X_XWLB")
     @Column(name = "DEGREE_CATEGORY_")
     private String degreeCategory;
     
@@ -141,6 +141,7 @@ public class Student implements Serializable
     /**
      * 学位类型
      */
+    @Code2Text(transformer = "X_XWLX")
     @Column(name = "DEGREE_TYPE_")
     private String degreeType;
     
