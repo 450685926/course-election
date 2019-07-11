@@ -2,30 +2,16 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.common.PageCondition;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElcCourseLimitDto;
-import com.server.edu.election.dto.LoserStuElcCourse;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
-import com.server.edu.election.dto.RebuildCourseDto;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentRePaymentDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
@@ -74,7 +60,7 @@ public interface ElcCourseTakeDao
     /** 查询教学班时间地点*/
     
     List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
-    
+
     /** 查询教学安排*/
     List<ClassTeacherDto> findClassTimeAndRoomStr(Long list);
     
@@ -178,7 +164,18 @@ public interface ElcCourseTakeDao
 	 * @return
 	 */
 	Page<NoSelectCourseStdsDto> findAgentElcStudentList(NoSelectCourseStdsDto noSelectCourseStds);
-    
-    
 
+    Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
+
+    Page<ElcStudentVo> findAddCourseList(List<String> list);
+
+    Page<ElcStudentVo> findRemovedCourseList(String studentId);
+
+    List<ElcStudentVo> findCourseInfo(List<Long> list);
+
+    Integer saveCourseTask(List<ElcCourseTake> list);
+
+    Integer deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
+
+    List<String> findSelectedCourseCode(String studentId);
 }
