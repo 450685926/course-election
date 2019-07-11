@@ -275,9 +275,9 @@ public class ElecController
 
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
-    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, "1910019");
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
     	
-    	Map<String,Object> restResult3 = elecService.getElectResultCount("1910019",roundId,restResult.getData());
+    	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
     	
 		return RestResult.successData(restResult3);
 	}
