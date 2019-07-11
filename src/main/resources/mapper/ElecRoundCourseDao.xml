@@ -96,7 +96,7 @@
 		t1.TRAINING_LEVEL_,
 		t1.FACULTY_,
 		t4.CAMPUS_ campus,
-		t4.ID_
+		t4.ID_ teachingClassId
   	from course_open_t t1 
   		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
   		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
@@ -119,7 +119,7 @@
   			and t1.NATURE_ = #{query.nature}
   		</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  			and (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+  			and  (t4.CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
 	  		and t4.CAMPUS_ = #{query.campus}
@@ -193,7 +193,7 @@
 			t1.TRAINING_LEVEL_,
 			t1.FACULTY_,
 			t4.CAMPUS_ campus,
-			t4.ID_
+			t4.ID_ teachingClassId
 		from course_open_t t1 
 	  		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
 	  		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
@@ -203,15 +203,9 @@
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
 		  	and t1.PROJ_ID_ = #{query.projectId}
 		  	</if>
-		  	and t1.COURSE_CODE_ NOT IN (
-		  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
+		  	and t4.ID_ NOT IN (
+		  	 	select TEACHING_CLASS_ID_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
 		  	)
-			<if test="query.mode==2">
-				and t1.COURSE_CODE_ in 
-				<foreach collection="list" item="code" open="(" separator="," close=")" >
-					#{code}
-				</foreach>
-			</if>
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 	  			and t1.FACULTY_ = #{query.faculty}
 	  		</if>
@@ -225,7 +219,7 @@
 	  			and t4.CAMPUS_ = #{query.campus}
 	  		</if>
 	    	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-	  		 	and  (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+	  		 	and  (t4.CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
 	  		</if>
 	  	</where>
 	  		order by t4.CODE_
