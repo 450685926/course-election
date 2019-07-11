@@ -131,6 +131,8 @@ public class ElcResultQuery
     
     private Integer dimension;
     
+    private List<String> studentIds;
+    
     
     public Integer getActualAndUpper() {
 		return actualAndUpper;
@@ -392,6 +394,14 @@ public class ElcResultQuery
 
 	public void setDimension(Integer dimension) {
 		this.dimension = dimension;
+	}
+
+	public List<String> getStudentIds() {
+		return studentIds;
+	}
+
+	public void setStudentIds(List<String> studentIds) {
+		this.studentIds = studentIds;
 	}
 	
 	

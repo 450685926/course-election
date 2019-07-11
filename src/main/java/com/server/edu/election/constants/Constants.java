@@ -42,5 +42,7 @@ public interface Constants
     public static final int SECOND_TURN = 2;
     public static final int THIRD_TURN = 3;
     public static final int FOURTH_TURN = 4;
+    
+    public static final int HUNDRED = 100;
 
 }

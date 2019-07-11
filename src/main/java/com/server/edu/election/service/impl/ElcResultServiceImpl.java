@@ -13,13 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
+import com.server.edu.election.dao.ElcClassEditAuthorityDao;
 import com.server.edu.election.dao.ElcCourseSuggestSwitchDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
@@ -31,9 +35,11 @@ import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElcResultDto;
+import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.ElcAffinityCoursesStds;
+import com.server.edu.election.entity.ElcClassEditAuthority;
 import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
@@ -47,6 +53,9 @@ import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
+import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -86,6 +95,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElcResultCountDao elcResultCountDao;
+    
+    @Autowired
+    private ElcClassEditAuthorityDao elcClassEditAuthorityDao;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -200,12 +212,77 @@ public class ElcResultServiceImpl implements ElcResultService
     }
     
     @Override
-    public void adjustClassNumber(TeachingClass teachingClass)
+    public void adjustClassNumber(TeachingClassVo teachingClassVo)
+    {
+    	Session session = SessionUtils.getCurrentSession();
+    	Example example = new Example(ElcClassEditAuthority.class);
+    	Example.Criteria criteria = example.createCriteria();
+    	criteria.andEqualTo("calendarId", teachingClassVo.getCalendarId());
+    	criteria.andEqualTo("status", Constants.ZERO);
+    	ElcClassEditAuthority editAuthority =elcClassEditAuthorityDao.selectOneByExample(example);
+    	if(session.isAcdemicDean()&&editAuthority!=null) {
+    		throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority")); 
+    	}
+        TeachingClass record = new TeachingClass();
+        record.setId(teachingClassVo.getId());
+        record.setNumber(teachingClassVo.getNumber());
+        classDao.updateByPrimaryKeySelective(record);
+    }
+    
+    @Override
+    public void setReserveNum(TeachingClass teachingClass)
     {
         TeachingClass record = new TeachingClass();
         record.setId(teachingClass.getId());
-        record.setNumber(teachingClass.getNumber());
+        record.setReserveNumber(teachingClass.getReserveNumber());
         classDao.updateByPrimaryKeySelective(record);
+    }
+    
+    @Override
+	@Transactional
+    public void setReserveProportion(ReserveDto reserveDto)
+    {
+    	BigDecimal reserveProportion = new BigDecimal(reserveDto.getReserveProportion());
+    	Example example = new Example(TeachingClass.class);
+    	Example.Criteria criteria = example.createCriteria();
+    	criteria.andIn("id", reserveDto.getIds());
+    	List<TeachingClass> teachingClasses = classDao.selectByExample(example);
+    	if(CollectionUtil.isNotEmpty(teachingClasses)) {
+        	BigDecimal hundred = new BigDecimal(Constants.HUNDRED);
+        	for(TeachingClass temp:teachingClasses) {
+        		int reserveNumber = new BigDecimal(temp.getNumber()).multiply(reserveProportion).divide(hundred, BigDecimal.ROUND_UP).intValue();
+        		temp.setReserveNumber(reserveNumber);
+        	}
+        	classDao.updateReserveProportion(teachingClasses);
+    	}
+    }
+    @Override
+	@Transactional
+    public void batchSetReserveNum(ReserveDto reserveDto) {
+    	TeachingClass teachingClass = new TeachingClass();
+    	teachingClass.setReserveNumber(reserveDto.getReserveNumber());
+    	Example example = new Example(TeachingClass.class);
+    	Example.Criteria criteria = example.createCriteria();
+    	criteria.andIn("id", reserveDto.getIds());
+    	classDao.updateByExampleSelective(teachingClass, example);
+    }
+    @Override
+	@Transactional
+    public void release(ReserveDto reserveDto) {
+    	reserveDto.setReserveNumber(0);
+    	batchSetReserveNum(reserveDto);
+    }
+    
+    @Override
+	public void releaseAll(ElcResultQuery condition) {
+    	Page<TeachingClassVo> listPage = classDao.listPage(condition);
+    	List<TeachingClassVo> list = listPage.getResult();
+    	if(CollectionUtil.isNotEmpty(list)) {
+    		List<Long> ids = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+    		ReserveDto reserveDto = new ReserveDto();
+    		reserveDto.setIds(ids);
+    		release(reserveDto);
+    	}
     }
     
     String key(SuggestProfessionDto dto)

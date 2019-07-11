@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,6 +58,8 @@ public class ElecController
 {
 
 	private RestTemplate restTemplate = RestTemplateBuilder.create();
+	
+	Logger logger = LoggerFactory.getLogger(getClass());
 	
     @Autowired
     private StudentElecService elecService;
@@ -146,6 +150,11 @@ public class ElecController
     { 
         Session session = SessionUtils.getCurrentSession();
         String studentId = session.realUid();
+        logger.info("session.realType()===========================>"+session.realType());
+        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+        {
+            return RestResult.fail("elec.mustBeStu");
+        }
         List<ElcCourseResult> data = elecService.getOptionalCourses(roundId,studentId);
         return RestResult.successData(data);
     }
@@ -255,4 +264,22 @@ public class ElecController
     	restResult.setCode(ResultStatus.SUCCESS.code());
 		return restResult;
 	}
+    
+    @ApiOperation(value = "获取研究生个人培养计划信息")
+    @PostMapping("/culturePlanMsg/{roundId}")
+    public RestResult getCulturePlanMsg(
+            @PathVariable("roundId") @NotNull Long roundId
+    ) {
+    	Session session = SessionUtils.getCurrentSession();
+    	String uid = session.getUid();
+
+    	/** 调用培养：培养方案的课程分类学分 */
+    	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, "1910019");
+    	
+    	Map<String,Object> restResult3 = elecService.getElectResultCount("1910019",roundId,restResult.getData());
+    	
+		return RestResult.successData(restResult3);
+	}
+    
 }

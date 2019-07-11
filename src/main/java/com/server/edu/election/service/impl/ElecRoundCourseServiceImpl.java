@@ -133,7 +133,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 		    	list.add(electionRoundsCour);
         	}
         }
-        roundCourseDao.insertList(list);
+        roundCourseDao.batchInsert(list);
     }
     
     @Override
@@ -158,7 +158,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 	    	electionRoundsCour.setTeachingClassId(courseOpenDto.getTeachingClassId());
 	    	list.add(electionRoundsCour);
         }
-        roundCourseDao.insertList(list);
+        roundCourseDao.batchInsert(list);
     }
     
     @Override

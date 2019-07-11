@@ -281,5 +281,13 @@
       id_ = #{item.id} and ELC_NUMBER_ > 0
     </foreach>
    </update>
+   
+   <update id="updateReserveProportion" parameterType="java.util.List">
+    <foreach item="item" collection="list" index="index"
+      separator=",">
+      update teaching_class_t set RESERVE_NUMBER_ = #{item.reserveNumber} where 
+      ID_ = #{item.id} 
+    </foreach>
+   </update>
 
 </mapper>
