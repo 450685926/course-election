@@ -1,7 +1,11 @@
 package com.server.edu.election.service.impl;
 
+import java.awt.Color;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -9,12 +13,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -23,10 +32,25 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
@@ -61,6 +85,7 @@ import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.DateTimeUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -80,7 +105,9 @@ import freemarker.template.Template;
 @Service
 @Primary
 public class ReportManagementServiceImpl implements ReportManagementService {
-
+	private static Logger LOG =
+	        LoggerFactory.getLogger("com.server.edu.election.service.impl.ReportManagementServiceImpl");
+	
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
 
@@ -99,6 +126,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
+    
+    // 导出学生课表
+    private static final String[] setSchoolTimeTitle = {"节次/周次", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"};
+    private static final String[] setSchoolTimeCol = {"第一节课", "第二节课", "第三节课", "第四节课", "第五节课", "第六节课", "第七节课", "第八节课", "第九节课", "第十节课", "第十一节课", "第十二节课"};
+    private static final String[] setTimeListTitle = {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "教学安排","备注"};
     /**
     *@Description: 查询点名册
     *@Param:
@@ -1317,9 +1349,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                        Integer dayOfWeek = item.getDayOfWeek();
                        Integer timeStart = item.getTimeStart();
                        Integer timeEnd = item.getTimeEnd();
-                       List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
-                       Integer maxWeek = Collections.max(integerList);
-                       Integer minWeek = Collections.min(integerList);
+                       //List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                       List<String> asList = Arrays.asList(item.getWeekNumberStr().split(","));
+                       List<Integer> intList = new ArrayList<Integer>();
+                       for (String string : asList) {
+						   intList.add(Integer.parseInt(string));
+					   }
+                       Integer maxWeek = Collections.max(intList);
+                       Integer minWeek = Collections.min(intList);
                        Set<String> rooms = list.stream().map(ClassTeacherDto::getRoomID).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
                        String roomId = String.join(",", rooms);
                        String time=findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+minWeek+"-"+maxWeek+"] "+roomId;
@@ -1333,4 +1370,254 @@ public class ReportManagementServiceImpl implements ReportManagementService {
        return str.toString();
    }
 
+	@Override
+	public RestResult<String> exportStudentTimetabPdf(Long calendarId, String calendarName, String studentCode,
+			String studentName) throws Exception {
+		//检查目录是否存在
+		//cacheDirectory = "C://temp//pdf//cacheWord";
+        LOG.info("缓存目录："+cacheDirectory);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+		
+        /************************ PDF初始化操作 ******************************/
+        //所有使用中文处理
+        BaseFont bfChinese = BaseFont.createFont("STSongStd-Light","UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+        //粗体文字 title使用
+        Font titleChinese = new Font(bfChinese, 20, Font.BOLD);
+        //副标题
+        Font subtitleChinese = new Font(bfChinese, 13, Font.BOLD);
+        //正常文字
+        //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
+        Font name2 = new Font(bfChinese, 12, Font.NORMAL);
+          
+        String fileName = new StringBuffer("")
+                .append(cacheDirectory)
+                .append("//")
+                .append(System.currentTimeMillis())
+                .append("_")
+                .append(studentName)
+                .append(".pdf")
+                .toString();
+        Document document = new Document(PageSize.A4,24,24,16,16);
+        PdfWriter.getInstance(document, new FileOutputStream(fileName));
+		
+        /************************ PDF填充内容  ******************************/
+        document.open();
+        //---1 添加标题---
+        Paragraph title = new Paragraph("个人课程表", titleChinese);
+        //居中设置
+        title.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        title.setLeading(20);
+        title.setSpacingBefore(30);
+        document.add(title);
+        
+        //---2 副标题---
+        Paragraph subtitle = new Paragraph(calendarName, subtitleChinese);
+        subtitle.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        subtitle.setLeading(10);
+        //内容距离左边8个单位
+        subtitle.setFirstLineIndent(7);
+        subtitle.setIndentationRight(20);
+        //副标题与标题之间的距离
+        subtitle.setSpacingBefore(15);
+        document.add(subtitle);
+		
+        //----3 学生基本信息----
+        StudentSchoolTimetabVo studentTimetab = findSchoolTimetab(calendarId,studentCode);
+        
+        PdfPTable table1 = new PdfPTable(4);
+        //前间距
+        table1.setSpacingBefore(5);
+        
+        PdfPCell cell1 = createNoBorderCell("学号："+studentCode,name2,20f);
+        table1.addCell(cell1);
+       
+        PdfPCell cell2 = createNoBorderCell("学生姓名："+studentName, name2,20f);
+        table1.addCell(cell2);
+        
+        PdfPCell cell3 = createNoBorderCell("所属班级："+studentName, name2,20f);
+        table1.addCell(cell3);
+        
+        PdfPCell cell4 = createNoBorderCell("总学分："+studentTimetab.getTotalCredits(), name2,20f);
+        table1.addCell(cell4);
+        document.add(table1);
+        
+        // ----3 学生选课课表展示---- 
+        PdfPTable table2 = createStudentTable(studentTimetab.getTimeTables(),subtitleChinese,name2);
+        document.add(table2);
+        
+        // ----4 学生选课列表 -------
+        PdfPTable table3 = createStudentTimeList(studentTimetab.getList(),subtitleChinese,name2);
+        document.add(table3);
+        
+        document.close();
+        return RestResult.successData("导出成功。",fileName);
+	}
+	
+	
+	/**
+	 * @param 创建选课课表table
+	 */
+	public PdfPTable createStudentTable(List<TimeTable> tables,Font subtitleChinese,Font name2) throws DocumentException, IOException {
+		PdfPTable table = new PdfPTable(setSchoolTimeTitle.length);
+		table.setWidthPercentage(100);
+		table.setSpacingBefore(10);
+		
+		// 添加课表表头
+		for (int i = 0; i < setSchoolTimeTitle.length; i++) {
+			PdfPCell cell = createCell(setSchoolTimeTitle[i],1,1,subtitleChinese,30f);
+			table.addCell(cell);
+		}
+		
+		// 添加课表内容
+		//setTimeListCol
+		for (int i = 0; i < setSchoolTimeCol.length; i++) {        // 12行  节次
+			for (int j = 0; j < setSchoolTimeTitle.length; j++) {  // 8列    星期
+				PdfPCell cell = new PdfPCell(new Paragraph("",name2));
+				if (j == 0) {
+					cell = createCell(setSchoolTimeCol[i],1,1,name2,30f);
+					table.addCell(cell);
+				}else {
+					TimeTable time = hasCourseArrangment(j,i+1,tables);
+					if (time != null) {
+						if (time.getTimeStart() == i+1) {
+							cell = createCell(time.getValue(),1,time.getTimeEnd()-i,name2,30f);
+							table.addCell(cell);
+						}
+					}else {
+						cell = createCell("",1,1,name2,30f);
+						table.addCell(cell);
+					}
+				}
+			}
+		}
+		return table;
+	}
+	
+	/**
+	   *   查询：对应的星期对应的节次是否有课程安排
+	 * @param dayOfWeek  星期几
+	 * @param timeNo     第几节课
+	 * @param tables     课程安排list
+	 * @return
+	 */
+	public TimeTable hasCourseArrangment(int dayOfWeek,int timeNo,List<TimeTable> tables) {
+		TimeTable time = null;
+		for (TimeTable timeTable : tables) {
+			if (timeTable.getDayOfWeek() == dayOfWeek && timeTable.getTimeStart() <= timeNo && timeNo <= timeTable.getTimeEnd()) {
+				time = timeTable;
+				break;
+			}
+		}
+		return time;
+	}
+	
+	public TimeTable getTimeTable(int dayOfWeek,int timeStart,List<TimeTable> tables) {
+		TimeTable time = new TimeTable();
+		for (TimeTable timeTable : tables) {
+			if (timeTable.getDayOfWeek() == dayOfWeek && timeTable.getTimeStart() == timeStart+1) {
+				time = timeTable;
+			}
+		}
+		return time;
+	}
+	/**
+	   * 创建学生选课列表table
+	 * @throws IOException 
+	 */
+	public PdfPTable createStudentTimeList(List<StudentSchoolTimetab> list,Font subtitleChinese,Font name2) throws DocumentException, IOException {
+		PdfPTable table = new PdfPTable(setTimeListTitle.length);
+		table.setWidthPercentage(100);
+		table.setSpacingBefore(10);
+		
+		// 添加表头
+		for (int i = 0; i < setTimeListTitle.length; i++) {
+			PdfPCell cell = createCell(setTimeListTitle[i],1,1,subtitleChinese,null);
+			table.addCell(cell);
+		}
+		
+		// 添加表内容
+		for (int j = 0; j < list.size(); j++) {
+			List<String> timeTableList = getTimeTableList(list.get(j));
+			for (int i = 0; i < setTimeListTitle.length; i++) {
+				PdfPCell cell = new PdfPCell();
+				if (i == 0) {
+					cell = createCell(String.valueOf(j+1),1,1,name2,null);
+				}else {
+					cell = createCell(timeTableList.get(i-1),1,1,name2,null);
+				}
+				table.addCell(cell);
+			}
+		}
+		return table;
+	}
+	
+	public List<String> getTimeTableList(StudentSchoolTimetab timeTable){
+		List<String> list = new ArrayList<String>();
+		list.add(timeTable.getCourseCode());
+		list.add(timeTable.getCourseName());
+		list.add("2".equals(timeTable.getCourseType())?"是":"");
+		list.add(timeTable.getIsElective() == 1?"选修":"必修");
+		list.add(timeTable.getAssessmentMode());
+		list.add(String.valueOf(timeTable.getCredits()));
+		list.add(timeTable.getTeacherName());
+		list.add(timeTable.getTime()+timeTable.getRoom());
+		list.add(timeTable.getRemark());
+		return list;
+	}
+	
+    /**
+            *     生成一个有边框有跨行的小单元格
+     * @param content 内容
+     * @param rowSpan 跨行
+     * @param colSpan 跨列
+     * @param font 字体 传null视为默认黑色字体
+     * @param height 单元格高度  传null默认为自动填充
+     * @throws IOException
+     * @throws DocumentException
+     */
+    private PdfPCell createCell(String content,int rowSpan,int colSpan,Font font,Float height) throws IOException, DocumentException {
+        if (font == null) {
+            BaseFont bfChinese = BaseFont.createFont("STSongStd-Light","UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+            font = new Font(bfChinese,8,Font.NORMAL );
+        }
+        // 构建每个单元格
+        PdfPCell cell = new PdfPCell(new Paragraph(content,font));
+        // 设置内容水平居中显示
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        // 设置垂直居中
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        // 设置边框的颜色
+        cell.setBorderColor(new BaseColor(15, 110, 176));
+        // 设置单元格的行高
+        if (height != null) {
+        	cell.setFixedHeight(height);
+		}
+        cell.setColspan(rowSpan);
+        cell.setRowspan(colSpan);
+        return cell;
+    }
+    
+    /**
+             *   生成一个无边框无跨行的单元格
+     * @param content  内容
+     * @param font     字体 传null视为默认黑色字体
+     * @param width    单元格宽度
+     * @return
+     */
+    private PdfPCell createNoBorderCell(String content,Font font,Float width) {
+        PdfPCell cell = new PdfPCell(new Paragraph(content, font));
+        //无边框
+        cell.setBorder(Rectangle.NO_BORDER);
+        // 设置内容水平居左显示
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        // 设置内容垂直居左显示
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setBorderWidth(width);
+        return cell;
+    }
+	
 }
