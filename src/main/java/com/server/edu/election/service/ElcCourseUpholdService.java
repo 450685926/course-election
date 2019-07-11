@@ -9,9 +9,9 @@ import com.server.edu.election.vo.ElcStudentVo;
 public interface ElcCourseUpholdService {
     PageResult<ElcStudentVo> elcStudentInfo(PageCondition<ElcStudentDto> condition);
 
-    PageResult<ElcStudentVo> addCourseList(String studentId);
+    PageResult<ElcStudentVo> addCourseList(PageCondition<String> condition);
 
-    PageResult<ElcStudentVo> removedCourseList(String studentId);
+    PageResult<ElcStudentVo> removedCourseList(PageCondition<String> studentId);
 
     Integer addCourse(AddAndRemoveCourseDto courseDto);
 

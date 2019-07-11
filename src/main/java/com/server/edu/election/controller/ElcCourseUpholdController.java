@@ -33,10 +33,10 @@ public class ElcCourseUpholdController {
     }
 
     @ApiOperation(value = "查询学生加课列表")
-    @GetMapping("/addCourseList")
+    @PostMapping("/addCourseList")
     public RestResult<PageResult<ElcStudentVo>> addCourseList(
-            @RequestParam String studentId) {
-        PageResult<ElcStudentVo> page = elcCourseUpholdService.addCourseList(studentId);
+            @RequestBody PageCondition<String> condition) {
+        PageResult<ElcStudentVo> page = elcCourseUpholdService.addCourseList(condition);
         return RestResult.successData(page);
     }
 
@@ -58,10 +58,10 @@ public class ElcCourseUpholdController {
     }
 
     @ApiOperation(value = "查询学生退课列表")
-    @GetMapping("/removedCourseList")
+    @PostMapping("/removedCourseList")
     public RestResult<PageResult<ElcStudentVo>> removedCourseList(
-            @RequestParam String studentId) {
-        PageResult<ElcStudentVo> page = elcCourseUpholdService.removedCourseList(studentId);
+            @RequestBody PageCondition<String> condition) {
+        PageResult<ElcStudentVo> page = elcCourseUpholdService.removedCourseList(condition);
         return RestResult.successData(page);
     }
 
@@ -90,3 +90,5 @@ public class ElcCourseUpholdController {
     }
 
 }
+
+

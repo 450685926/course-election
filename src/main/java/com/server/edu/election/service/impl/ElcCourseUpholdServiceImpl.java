@@ -21,6 +21,7 @@ import com.server.edu.util.CollectionUtil;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -44,29 +45,29 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
     }
 
     @Override
-    public PageResult<ElcStudentVo> addCourseList(String studentId) {
+    public PageResult<ElcStudentVo> addCourseList(PageCondition<String> condition) {
         /**
          * 调用培养：个人培养计划完成情况接口
          * coursesLabelList (课程分类列表)
          * cultureCourseLabelRelationList(课程列表)
          */
-        String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByStudentIdForElection?id={id}&&isPass={isPass}");
-        RestResult<Map<String, Object>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
-        System.out.println(restResult);
-        List<Long> list = new ArrayList<>();
-
-
-        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(list, studentId);
+        String studentId = condition.getCondition();
+        String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
+        RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
+        List<String> allCourseCode = restResult.getData();
+        List<String> selectedCourseCode = courseTakeDao.findSelectedCourseCode(studentId);
+        List<String> collect = allCourseCode.stream().filter(item -> !selectedCourseCode.contains(item)).collect(Collectors.toList());
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(collect);
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }
 
     @Override
-    public PageResult<ElcStudentVo> removedCourseList(String studentId) {
-        List<Long> list = new ArrayList<>();
-        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findRemovedCourseList(studentId);
+    public PageResult<ElcStudentVo> removedCourseList(PageCondition<String> condition) {
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findRemovedCourseList(condition.getCondition());
         setCourseArrange(elcStudentVos);
-
         return new PageResult<>(elcStudentVos);
     }
 
@@ -84,6 +85,7 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
     }
 
     @Override
+    @Transactional
     public Integer addCourse(AddAndRemoveCourseDto courseDto) {
         List<Long> teachingClassId = courseDto.getTeachingClassId();
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassId);
@@ -91,7 +93,9 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
         List<ElcLog> elcLogs = new ArrayList<>();
         addToList(courseDto, elcStudentVos, elcCourseTakes, elcLogs);
         Integer count = courseTakeDao.saveCourseTask(elcCourseTakes);
-        elcLogDao.saveCourseLog(elcLogs);
+        if (count != 0) {
+            elcLogDao.saveCourseLog(elcLogs);
+        }
         return count;
     }
 
@@ -100,9 +104,12 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
         List<Long> teachingClassId = courseDto.getTeachingClassId();
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassId);
         Integer count = courseTakeDao.deleteCourseTask(teachingClassId, courseDto.getStudentId());
-        List<ElcLog> elcLogs = new ArrayList<>();
-        addToList(courseDto, elcStudentVos,elcLogs);
-        elcLogDao.saveCourseLog(elcLogs);
+        //防止重复请求的时候重复保存
+        if (count != 0) {
+            List<ElcLog> elcLogs = new ArrayList<>();
+            addToList(courseDto, elcStudentVos,elcLogs);
+            elcLogDao.saveCourseLog(elcLogs);
+        }
         return count;
     }
 
@@ -140,6 +147,9 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
             elcCourseTake.setMode(2);
             elcCourseTake.setChooseObj(chooseObj);
             elcCourseTake.setCreatedAt(new Date());
+            //默认为正常修读
+            elcCourseTake.setCourseTakeType(1);
+            elcCourseTake.setTurn(0);
             elcCourseTakes.add(elcCourseTake);
 
             ElcLog elcLog = new ElcLog();
@@ -213,4 +223,5 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
         }
         return week;
     }
+
 }

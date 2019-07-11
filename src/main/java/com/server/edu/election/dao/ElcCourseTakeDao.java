@@ -163,7 +163,7 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
 
-    Page<ElcStudentVo> findAddCourseList(@Param("list") List<Long> list, @Param("studentId") String studentId);
+    Page<ElcStudentVo> findAddCourseList(List<String> list);
 
     Page<ElcStudentVo> findRemovedCourseList(String studentId);
 
@@ -172,4 +172,6 @@ public interface ElcCourseTakeDao
     Integer saveCourseTask(List<ElcCourseTake> list);
 
     Integer deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
+
+    List<String> findSelectedCourseCode(String studentId);
 }

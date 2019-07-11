@@ -952,7 +952,7 @@
                 and t2.GRADE_ = #{grade}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
-                and t2.TRAINING_CATEGORY__ = #{trainingCategory}
+                and t2.TRAINING_CATEGORY_ = #{trainingCategory}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
                 and t2.TRAINING_LEVEL_ = #{trainingLevel}
@@ -985,7 +985,7 @@
                 and t3.NAME_ = #{courseName}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
-                t4.CODE_ = #{classCode}
+                and t4.CODE_ = #{classCode}
             </if>
         </where>
         order by t1.STUDENT_ID_
@@ -1005,10 +1005,8 @@
         join teaching_class_teacher_t e on e.TEACHING_CLASS_ID_ = d.ID_
         where a.COURSE_CODE_ in
             <foreach item="item" collection="list" separator="," open="(" close=")" >
-              #{item, jdbcType=INTEGER}
+              #{item}
             </foreach>
-              and a.COURSE_CODE_ not in(
-        select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId})
     </select>
 
     <select id="findCourseInfo" resultType="com.server.edu.election.vo.ElcStudentVo">
@@ -1024,9 +1022,9 @@
         </foreach>
     </select>
 
-    <insert id="saveCourseTask" parameterType="java.util.List">
-        insert into elc_course_takes_t
-            (STUDENT_ID_, CALENDAR_ID_,COURSE_CODE_,TEACHING_CLASS_ID_,MODE,CHOOSE_OBJ_,CREATED_AT_)
+    <insert id="saveCourseTask" parameterType="com.server.edu.election.entity.ElcCourseTake">
+        insert ignore into elc_course_takes_t
+            (STUDENT_ID_, CALENDAR_ID_,COURSE_CODE_,TEACHING_CLASS_ID_,COURSE_TAKE_TYPE_,MODE_,TURN_,CHOOSE_OBJ_,CREATED_AT_)
         values
             <foreach collection="list" item="item" index="index" separator=",">
                 (
@@ -1034,7 +1032,9 @@
                 #{item.calendarId},
                 #{item.courseCode},
                 #{item.teachingClassId},
+                #{item.courseTakeType},
                 #{item.mode},
+                #{item.turn},
                 #{item.chooseObj},
                 #{item.createdAt}
                 )
@@ -1060,9 +1060,14 @@
               elc_course_takes_t
         WHERE
               STUDENT_ID_ = #{studentId}
-        and   TEACHING_CLASS_ID_ in
+          and COURSE_TAKE_TYPE_ = 1
+          and TEACHING_CLASS_ID_ in
             <foreach item="item" collection="list" separator="," open="(" close=")" >
                 #{item, jdbcType=INTEGER}
             </foreach>
     </delete>
+
+    <select id="findSelectedCourseCode" resultType="java.lang.String">
+        select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
+    </select>
 </mapper>
