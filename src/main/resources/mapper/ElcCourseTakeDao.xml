@@ -446,11 +446,24 @@
     </select>
 
     <select id="findAllTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
-        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber FROM `elc_course_takes_t` el
+        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber
+        FROM `elc_course_takes_t` el
         LEFT JOIN  course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
         WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
         GROUP BY el.TEACHING_CLASS_ID_,el.CALENDAR_ID_
+    </select>
+
+    <select id="findTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT
+            el.CALENDAR_ID_ calendarId,cl.ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,
+            co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber
+        FROM `course_open_t` el
+        LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
+        LEFT JOIN teaching_task_t ts on ts.COURSE_OPEN_ID_=el.ID_
+        LEFT JOIN teaching_class_t cl on cl.TASK_ID_=ts.ID_
+        LEFT JOIN teaching_class_teacher_t tl on tl.TEACHING_CLASS_ID_ = cl.ID_
+        WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
     </select>
 
     <delete id="deleteStudentById" parameterType="java.util.List">
