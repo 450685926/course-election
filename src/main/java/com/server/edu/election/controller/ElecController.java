@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +44,7 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.AllCourseVo;
+import com.server.edu.election.vo.ElcResultCourseVo;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.session.util.SessionUtils;
@@ -149,8 +151,8 @@ public class ElecController
     }
     
     @ApiOperation(value = "获取可选课程列表")
-    @PostMapping("/getOptionalCourses")
-    public RestResult<List<ElcCourseResult>> getOptionalCourses(
+    @GetMapping("/getOptionalCourses")
+    public RestResult<ElcResultCourseVo> getOptionalCourses(
         @RequestParam("roundId") @NotNull Long roundId )
     { 
         Session session = SessionUtils.getCurrentSession();
@@ -160,7 +162,7 @@ public class ElecController
         {
             return RestResult.fail("elec.mustBeStu");
         }
-        List<ElcCourseResult> data = elecService.getOptionalCourses(roundId,studentId);
+    	ElcResultCourseVo data = elecService.getOptionalCourses(roundId,studentId);
         return RestResult.successData(data);
     }
     

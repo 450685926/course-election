@@ -5,11 +5,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.dao.CourseOpenDao;
+import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
@@ -19,6 +22,8 @@ import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
 
+import tk.mybatis.mapper.entity.Example;
+
 /**
  * 本科生培养计划课程查询
  * 
@@ -27,6 +32,9 @@ import com.server.edu.util.CollectionUtil;
 public class BKCoursePlanLoad extends DataProLoad
 {
     Logger log = LoggerFactory.getLogger(getClass());
+    
+    @Autowired
+    private CourseOpenDao courseDao;
     
     @Override
     public int getOrder()
@@ -57,6 +65,12 @@ public class BKCoursePlanLoad extends DataProLoad
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
                         PlanCourse pl=new PlanCourse();
+                        Example example = new Example(CourseOpen.class);
+                        example.createCriteria().andEqualTo("courseCode",planCourseTypeDto.getCourseCode());
+                        CourseOpen course = courseDao.selectOneByExample(example);
+                        if (course != null) {
+							pl.setFaculty(course.getFaculty());
+						}
                         pl.setSemester(planCourseTypeDto.getSemester());
                         pl.setWeekType(planCourseTypeDto.getWeekType());
                         pl.setCourseCode(planCourseTypeDto.getCourseCode());
