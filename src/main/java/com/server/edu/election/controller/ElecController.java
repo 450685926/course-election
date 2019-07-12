@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -15,6 +16,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,6 +74,9 @@ public class ElecController
     
     @Autowired
     private ElecRoundService electionRoundService;
+    
+    @Autowired
+    private RedisTemplate redisTemplate;
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -189,6 +194,21 @@ public class ElecController
         @RequestBody @Valid ElecRequest elecRequest)
     {
         Session session = SessionUtils.getCurrentSession();
+        
+        String method = Thread.currentThread().getStackTrace()[1].getMethodName();
+    	String ip = session.getIp();
+    	String key = method + "|" + ip;
+    	Object resp = redisTemplate.opsForValue().get(key);
+    	if (resp == null) {
+    		redisTemplate.opsForValue().set(key, 1, 1, TimeUnit.MINUTES);
+    	} else {
+    		if (Integer.parseInt(String.valueOf(resp)) < 20) {
+    			redisTemplate.opsForValue().increment(key, 1);
+    		} else {
+    			return RestResult.fail("common.frequentRequestError");
+    		}
+    	}
+        
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");
