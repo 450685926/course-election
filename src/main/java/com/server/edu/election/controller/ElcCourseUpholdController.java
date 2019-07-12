@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,9 @@ public class ElcCourseUpholdController {
     @Autowired
     private ElcCourseUpholdService elcCourseUpholdService;
 
+    private static Logger LOG =
+            LoggerFactory.getLogger(ExemptionController.class);
+
     @ApiOperation(value = "查询学生选课信息")
     @PostMapping("/elcStudentInfo")
     public RestResult<PageResult<ElcStudentVo>> elcStudentInfo(
@@ -32,6 +37,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(page);
     }
 
+    /**
+     * 返回的可加课程列表修读类型为正常修读
+     * @param condition
+     * @return
+     */
     @ApiOperation(value = "查询学生加课列表")
     @PostMapping("/addCourseList")
     public RestResult<PageResult<ElcStudentVo>> addCourseList(
@@ -40,6 +50,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(page);
     }
 
+    /**
+     * 默认修读类型为正常修读
+     * @param courseDto
+     * @return
+     */
     @ApiOperation(value = "加课")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(
@@ -57,6 +72,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(count);
     }
 
+    /**
+     * 返回的退课课程列表修读类型为正常修读
+     * @param condition
+     * @return
+     */
     @ApiOperation(value = "查询学生退课列表")
     @PostMapping("/removedCourseList")
     public RestResult<PageResult<ElcStudentVo>> removedCourseList(
@@ -65,6 +85,11 @@ public class ElcCourseUpholdController {
         return RestResult.successData(page);
     }
 
+    /**
+     * 默认修读类型为正常修读
+     * @param courseDto
+     * @return
+     */
     @ApiOperation(value = "退课")
     @PostMapping("/removedCourse")
     public RestResult<Integer> removedCourse(
@@ -80,6 +105,17 @@ public class ElcCourseUpholdController {
             count = elcCourseUpholdService.removedCourse(courseDto);
         }
         return RestResult.successData(count);
+    }
+
+    @ApiOperation(value = "导出学生选课信息")
+    @PostMapping("/exportElcStudentInfo")
+    public RestResult<String> exportElcStudentInfo(
+            @RequestBody PageCondition<ElcStudentDto> condition)
+            throws Exception
+    {
+        LOG.info("export.elcStudentInfo.start");
+        String export = elcCourseUpholdService.exportElcStudentInfo(condition);
+        return RestResult.successData(export);
     }
 
     private void setParam(Session session, AddAndRemoveCourseDto courseDto) {

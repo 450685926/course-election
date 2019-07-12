@@ -7,7 +7,6 @@ import com.server.edu.election.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
-import com.server.edu.common.PageCondition;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -85,7 +84,10 @@ public interface ElcCourseTakeDao
     
     /**查询某一学期所有教学班*/
     List<ClassTeacherDto> findAllTeachingClassId(Long calendarId);
-    
+
+    /**查询某一学期教师对应的教学班*/
+    List<ClassTeacherDto> findTeachingClassId(@Param("calendarId") Long calendarId, @Param("teacherCode") String teacherCode);
+
     /**通过学生删除课程*/
     
     void deleteStudentById(List<String> list);
@@ -178,4 +180,6 @@ public interface ElcCourseTakeDao
     Integer deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
 
     List<String> findSelectedCourseCode(String studentId);
+
+    Page<ElcStudentCourseDto> findElcStudentCourse(ElcStudentDto condition);
 }

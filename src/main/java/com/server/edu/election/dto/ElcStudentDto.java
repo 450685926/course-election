@@ -2,11 +2,11 @@ package com.server.edu.election.dto;
 
 public class ElcStudentDto {
     //学年学期
-    private  Long calendarId;
+    private Long calendarId;
     //年级
     private Integer grade;
     //培养类别
-    private String  trainingCategory;
+    private String trainingCategory;
     //培养层次
     private String trainingLevel;
     //学习形式
@@ -16,9 +16,9 @@ public class ElcStudentDto {
     //学院
     private String faculty;
     //专业
-    private String  profession;
+    private String profession;
     //方向
-    private String  researchDirection;
+    private String researchDirection;
     //开课学院
     private String courseFaculty;
     //课程性质

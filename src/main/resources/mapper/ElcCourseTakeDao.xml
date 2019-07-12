@@ -446,11 +446,24 @@
     </select>
 
     <select id="findAllTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
-        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber FROM `elc_course_takes_t` el
+        SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber
+        FROM `elc_course_takes_t` el
         LEFT JOIN  course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_class_t cl on cl.ID_=el.TEACHING_CLASS_ID_
         WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
         GROUP BY el.TEACHING_CLASS_ID_,el.CALENDAR_ID_
+    </select>
+
+    <select id="findTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT
+            el.CALENDAR_ID_ calendarId,cl.ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,
+            co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber
+        FROM `course_open_t` el
+        LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
+        LEFT JOIN teaching_task_t ts on ts.COURSE_OPEN_ID_=el.ID_
+        LEFT JOIN teaching_class_t cl on cl.TASK_ID_=ts.ID_
+        LEFT JOIN teaching_class_teacher_t tl on tl.TEACHING_CLASS_ID_ = cl.ID_
+        WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
     </select>
 
     <delete id="deleteStudentById" parameterType="java.util.List">
@@ -1068,7 +1081,7 @@
         join course_t b on b.CODE_ = a.COURSE_CODE_
         join teaching_class_t c on c.ID_ = a.TEACHING_CLASS_ID_
         join teaching_class_teacher_t d on d.TEACHING_CLASS_ID_ = c.ID_
-        where STUDENT_ID_ = #{studentId}
+        where STUDENT_ID_ = #{studentId} and COURSE_TAKE_TYPE_ = 1
     </select>
 
     <delete id="deleteCourseTask">
@@ -1086,4 +1099,67 @@
     <select id="findSelectedCourseCode" resultType="java.lang.String">
         select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
     </select>
+
+    <select id="findElcStudentCourse" parameterType="com.server.edu.election.dto.ElcStudentDto" resultType="com.server.edu.election.dto.ElcStudentCourseDto">
+        select
+            t1.STUDENT_ID_ studentCode,t1.COURSE_TAKE_TYPE_ courseTakeType,t1.CHOOSE_OBJ_ chooseObj,
+            t2.NAME_ studentName, t2.GRADE_ grade, t2.FACULTY_ faculty, t2.PROFESSION_ profession,
+            t2.TRAINING_LEVEL_ trainingLevel,t2.TRAINING_CATEGORY_ trainingCategory,t2.DEGREE_TYPE_ degreeType,
+            t2.FORM_LEARNING_ formLearning,t2.RESEARCH_DIRECTION_ researchDirection,
+            t3.CODE_ courseCode,t3.NAME_ courseName,t3.NATURE_ nature,t3.COLLEGE_ courseFaculty,
+            t4.CODE_ classCode,t4.NAME_ teachingClassName
+        from elc_course_takes_t t1
+        left join student_t t2 on t2.STUDENT_CODE_ = t1.STUDENT_ID_
+        left join course_t t3 on t3.CODE_ = t1.COURSE_CODE_
+        left join teaching_class_t t4 on t4.ID_ = t1.TEACHING_CLASS_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                 t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseTakeType)">
+                and t1.COURSE_TAKE_TYPE_ =#{courseTakeType}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and t2.GRADE_ = #{grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+                and t2.TRAINING_CATEGORY_ = #{trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and t2.TRAINING_LEVEL_ = #{trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
+                and t2.FORM_LEARNING_ = #{formLearning}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
+                and t2.DEGREE_TYPE_ = #{degreeType}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and t2.FACULTY_ = #{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                and t2.PROFESSION_ = #{profession}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(researchDirection)">
+                and t2.RESEARCH_DIRECTION_ = #{researchDirection}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseFaculty)">
+                and t3.COLLEGE_ = #{courseFaculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+                and t3.NATURE_ = #{nature}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+                and t3.CODE_ = #{courseCode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+                and t3.NAME_ = #{courseName}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
+                and t4.CODE_ = #{classCode}
+            </if>
+        </where>
+        order by t1.STUDENT_ID_
+    </select>
+
 </mapper>

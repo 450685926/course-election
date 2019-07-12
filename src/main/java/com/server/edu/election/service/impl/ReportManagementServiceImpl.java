@@ -338,6 +338,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                             }
                             String time=week+" "+strTime+" "+strWeek;
                             String name = courseTakeDao.findClassTeacherByTeacherCode(teacherCode);
+                            timetab.setTeacherName(name);
                             timetab.setTime(time);
                             timetab.setWeekNumberStr(strWeek);
                             timetab.setDayOfWeek(dayOfWeek);
@@ -345,7 +346,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                             timetab.setTimeEnd(timeEnd);
                             timetab.setRoom(roomID);
                             timetab.setTeacherCode(teacherCode);
-                            timetab.setTeacherName(name);
                             timetab.setRemark(classTeacherDto.getRemark());
                             timetab.setTeachingLanguage(classTeacherDto.getTeachingLanguage());
                             timetab.setClassCode(classTeacherDto.getClassCode());
@@ -405,14 +405,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         StudentSchoolTimetabVo vo=new StudentSchoolTimetabVo();
         List<ClassTeacherDto> list=new ArrayList<>();
         List<TimeTable> timeTables=new ArrayList<>();
-        List<ClassTeacherDto> classId = courseTakeDao.findAllTeachingClassId(calendarId);
+        List<ClassTeacherDto> classId = courseTakeDao.findTeachingClassId(calendarId, teacherCode);
         if(CollectionUtil.isNotEmpty(classId)){
             for (ClassTeacherDto classTeacherDto : classId) {
                 List<ClassTeacherDto> teacherTime = findStudentAndTeacherTime(classTeacherDto.getTeachingClassId());
                 if(CollectionUtil.isNotEmpty(teacherTime)){
-                    List<ClassTeacherDto> collect = teacherTime.stream().filter((ClassTeacherDto timrTab) -> timrTab.getTeacherCode().equals(teacherCode)).collect(Collectors.toList());
-                    if(CollectionUtil.isNotEmpty(collect)){
-                        for (ClassTeacherDto teacherDto : collect) {
+                        for (ClassTeacherDto teacherDto : teacherTime) {
                             TimeTable time=new TimeTable();
                             teacherDto.setCourseCode(classTeacherDto.getCourseCode());
                             teacherDto.setCourseName(classTeacherDto.getCourseName());
@@ -428,8 +426,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                             time.setValue(value);
                             timeTables.add(time);
                         }
-                    }
-                    list.addAll(collect);
+                    list.addAll(teacherTime);
                 }
             }
         }
@@ -696,7 +693,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
             }
             return new PageResult<>(rollBookList);
-
     }
 
     /**
@@ -721,8 +717,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
         pre.setStudentsList(student);
         pre.setSize(student.size());
-        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        pre.setCalendarName(schoolCalendarVo.getFullName());
+//        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+//        pre.setCalendarName(schoolCalendarVo.getFullName());
         //封装教学班信息拆解
         List<Long> ids=new ArrayList<>();
         ids.add(teachingClassId);
@@ -1142,9 +1138,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 String[] tcodes = teacherCode.split(",");
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
                 String teacherName="";
-                if(teachers != null) {
-                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
-                }
+//                if(teachers != null) {
+//                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
+//                }
 
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
                 String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
