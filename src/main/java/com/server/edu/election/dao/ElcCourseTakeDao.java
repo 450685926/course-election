@@ -178,4 +178,6 @@ public interface ElcCourseTakeDao
     Integer deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
 
     List<String> findSelectedCourseCode(String studentId);
+
+    Page<ElcStudentCourseDto> findElcStudentCourse(ElcStudentDto condition);
 }

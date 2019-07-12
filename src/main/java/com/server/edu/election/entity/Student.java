@@ -104,6 +104,7 @@ public class Student implements Serializable
     /**
      * 培养类别
      */
+    @Code2Text(transformer = "X_PYLB")
     @Column(name = "TRAINING_CATEGORY_")
     private String trainingCategory;
     

@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,9 @@ import org.springframework.web.bind.annotation.*;
 public class ElcCourseUpholdController {
     @Autowired
     private ElcCourseUpholdService elcCourseUpholdService;
+
+    private static Logger LOG =
+            LoggerFactory.getLogger(ExemptionController.class);
 
     @ApiOperation(value = "查询学生选课信息")
     @PostMapping("/elcStudentInfo")
@@ -100,6 +105,17 @@ public class ElcCourseUpholdController {
             count = elcCourseUpholdService.removedCourse(courseDto);
         }
         return RestResult.successData(count);
+    }
+
+    @ApiOperation(value = "导出学生选课信息")
+    @PostMapping("/exportElcStudentInfo")
+    public RestResult<String> exportElcStudentInfo(
+            @RequestBody PageCondition<ElcStudentDto> condition)
+            throws Exception
+    {
+        LOG.info("export.elcStudentInfo.start");
+        String export = elcCourseUpholdService.exportElcStudentInfo(condition);
+        return RestResult.successData(export);
     }
 
     private void setParam(Session session, AddAndRemoveCourseDto courseDto) {

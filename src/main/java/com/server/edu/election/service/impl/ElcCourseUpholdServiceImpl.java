@@ -4,26 +4,31 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dto.AddAndRemoveCourseDto;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElcStudentDto;
-import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.service.ElcCourseUpholdService;
 import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +40,13 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
 
     @Autowired
     private ElcLogDao elcLogDao;
+
+    @Value("${cache.directory}")
+    private String cacheDirectory;
+
+
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @Override
     public PageResult<ElcStudentVo> elcStudentInfo(PageCondition<ElcStudentDto> condition) {
@@ -57,7 +69,7 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
         List<String> allCourseCode = restResult.getData();
         List<String> selectedCourseCode = courseTakeDao.findSelectedCourseCode(studentId);
         List<String> collect = allCourseCode.stream().filter(item -> !selectedCourseCode.contains(item)).collect(Collectors.toList());
-        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(collect);
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
@@ -65,7 +77,7 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
 
     @Override
     public PageResult<ElcStudentVo> removedCourseList(PageCondition<String> condition) {
-        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ElcStudentVo> elcStudentVos = courseTakeDao.findRemovedCourseList(condition.getCondition());
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
@@ -107,7 +119,7 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
         //防止重复请求的时候重复保存
         if (count != 0) {
             List<ElcLog> elcLogs = new ArrayList<>();
-            addToList(courseDto, elcStudentVos,elcLogs);
+            addToList(courseDto, elcStudentVos, elcLogs);
             elcLogDao.saveCourseLog(elcLogs);
         }
         return count;
@@ -131,6 +143,103 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
             elcLog.setCreatedAt(new Date());
             elcLogs.add(elcLog);
         }
+    }
+
+    /*
+     * 导出学生选课信息
+     */
+    @Override
+    public String exportElcStudentInfo(PageCondition<ElcStudentDto> condition) throws Exception {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<ElcStudentCourseDto> studentCourses = courseTakeDao.findElcStudentCourse(condition.getCondition());
+        if (studentCourses != null) {
+            GeneralExcelDesigner design = getDesignElcStudent();
+            design.setDatas(studentCourses);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "elcStudentInfo.xls";
+//            String path = "D:\\" + fileName;
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
+    }
+
+    private GeneralExcelDesigner getDesignElcStudent() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.teachingClassName"), "teachingClassName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
+        //        String lang = SessionUtils.getLang();
+        String lang = "cn";
+        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_PYCC", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("noElection.trainingCategory"), "trainingCategory").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_PYLB", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("noElection.degreeType"), "degreeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_XWLX", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("noElection.formLearning"), "formLearning").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_XXXS", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("G_ZY", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("rollBookManage.direction"), "researchDirection").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YJFX", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.courseFaculty"), "courseFaculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.nature"), "nature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_KCXZ", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "classCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.revisionategory"), "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    String resp = "";
+                    switch (value) {
+                        case "1":
+                            resp = "正常修读";
+                            break;
+                        case "2":
+                            resp = "重修";
+                            break;
+                        case "3":
+                            resp = "免修不免考";
+                            break;
+                        case "4":
+                            resp = "免修";
+                            break;
+                    }
+                    return resp;
+                });
+        ;
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.chooseObj"), "chooseObj").setValueHandler(
+                (value, rawData, cell) -> {
+                    return "1".equals(value) ? "自选" : "代选";
+                });
+        return design;
     }
 
     private void addToList(AddAndRemoveCourseDto courseDto, List<ElcStudentVo> elcStudentVos, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {

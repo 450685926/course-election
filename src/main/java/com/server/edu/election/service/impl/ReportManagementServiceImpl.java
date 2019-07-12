@@ -664,7 +664,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
             }
             return new PageResult<>(rollBookList);
-
     }
 
     /**
@@ -689,8 +688,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
         pre.setStudentsList(student);
         pre.setSize(student.size());
-        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        pre.setCalendarName(schoolCalendarVo.getFullName());
+//        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+//        pre.setCalendarName(schoolCalendarVo.getFullName());
         //封装教学班信息拆解
         List<Long> ids=new ArrayList<>();
         ids.add(teachingClassId);
@@ -1110,9 +1109,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 String[] tcodes = teacherCode.split(",");
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
                 String teacherName="";
-                if(teachers != null) {
-                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
-                }
+//                if(teachers != null) {
+//                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
+//                }
 
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
                 String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;

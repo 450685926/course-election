@@ -16,4 +16,7 @@ public interface ElcCourseUpholdService {
     Integer addCourse(AddAndRemoveCourseDto courseDto);
 
     Integer removedCourse(AddAndRemoveCourseDto courseDto);
+
+    /**导出学生选课信息*/
+    String exportElcStudentInfo(PageCondition<ElcStudentDto> condition) throws Exception;
 }
