@@ -315,7 +315,7 @@
 
     <select id="findSchoolTimetab" resultType="com.server.edu.election.dto.StudentSchoolTimetab">
         SELECT el.CALENDAR_ID_ calendarId,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
-        te.CAMPUS_ campus,te.REMARK_ remark,te.CODE_ classCode ,te.NAME_ className FROM `elc_course_takes_t` el
+        te.CAMPUS_ campus,te.REMARK_ remark,te.CODE_ classCode ,te.NAME_ className,co.IS_ELECTIVE_ isElective FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
         LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_

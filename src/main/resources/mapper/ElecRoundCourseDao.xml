@@ -96,7 +96,8 @@
 		t1.TRAINING_LEVEL_,
 		t1.FACULTY_,
 		t4.CAMPUS_ campus,
-		t4.ID_ teachingClassId
+		t4.ID_ teachingClassId,
+		t4.CODE_ teachingClassCode
   	from course_open_t t1 
   		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
   		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
@@ -193,7 +194,8 @@
 			t1.TRAINING_LEVEL_,
 			t1.FACULTY_,
 			t4.CAMPUS_ campus,
-			t4.ID_ teachingClassId
+			t4.ID_ teachingClassId,
+			t4.CODE_ teachingClassCode
 		from course_open_t t1 
 	  		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
 	  		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_

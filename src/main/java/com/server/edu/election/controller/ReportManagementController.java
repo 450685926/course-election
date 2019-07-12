@@ -1,6 +1,8 @@
 package com.server.edu.election.controller;
 
 import java.io.File;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +27,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ExportPreCondition;
@@ -505,6 +510,40 @@ public class ReportManagementController
         LOG.info("exportPreRollBookList.start");
         String fileName = managementService.exportPreRollBookList(condition);
         return RestResult.successData(fileName);
+    }
+    
+    @GetMapping(value = "/exportStudentTimetabPdf")
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "导出学生课表pdf--研究生")})
+    public ResponseEntity<Resource> exportStudentTimetabPdf(
+    		@RequestParam("calendarId") Long calendarId,
+    		@RequestParam("calendarName") String calendarName,
+    		@RequestParam("studentCode") String studentCode, 
+    		@RequestParam("studentName") String studentName) throws Exception{
+    	LOG.info("exportStudentTimetabPdf.start");
+    	
+    	StringBuffer name = new StringBuffer();
+    	RestResult<String> restResult = managementService.exportStudentTimetabPdf(calendarId, calendarName, studentCode,studentName);
+    	
+    	if (ResultStatus.SUCCESS.code() == restResult.getCode()
+                && !"".equals(restResult.getData()))
+            {
+                Resource resource = new FileSystemResource(
+                    URLDecoder.decode(restResult.getData(), "utf-8"));// 绝对路径
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE,
+                        "application/pdf; charset=utf-8")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename="
+                            + String.valueOf(
+                                URLEncoder.encode(name.toString(), "UTF-8"))
+                            + ".pdf")
+                    .body(resource);
+            }
+            else
+            {
+                return null;
+            }
     }
 
 }

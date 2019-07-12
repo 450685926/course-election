@@ -26,6 +26,7 @@
     <result column="MAN_ARRANGE_FLAG_" jdbcType="INTEGER" property="manArrangeFlag" />
     <result column="DEPLOY_FLAG_" jdbcType="INTEGER" property="deployFlag" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="RESERVE_NUMBER_" jdbcType="INTEGER" property="reserveNumber" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="NAME_" jdbcType="VARCHAR" property="name" />

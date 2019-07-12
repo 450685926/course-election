@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ExportPreCondition;
@@ -94,5 +95,15 @@ public interface ReportManagementService {
 
     /**研究生导出未选课学生名单*/
 	String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception;
+
+	/**
+	 * 导出学生课表pdf--研究生
+	 * @param calendarId
+	 * @param calendarName
+	 * @param studentCode
+	 * @param studentName
+	 * @return
+	 */
+	RestResult<String> exportStudentTimetabPdf(Long calendarId, String calendarName, String studentCode,String studentName) throws Exception;
 
 }

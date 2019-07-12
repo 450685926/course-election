@@ -269,7 +269,6 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
 	@Transactional
     public void release(ReserveDto reserveDto) {
-    	reserveDto.setReserveNumber(0);
     	batchSetReserveNum(reserveDto);
     }
     
