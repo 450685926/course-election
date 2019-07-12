@@ -79,6 +79,18 @@ public class ExemptionApplyManage implements Serializable {
     @Column(name = "MATERIAL_IP_")
     private String materialIp;
 
+    /**
+     * 入学季节
+     */
+    @Column(name = "ENROL_SEASON_")
+    private String enrolSeason;
+    
+    /**
+     * 用户管理部门
+     */
+    @Column(name = "MANAGER_DEPT_ID_")
+    private String managerDeptId;
+    
     private static final long serialVersionUID = 1L;
 
     /**
@@ -189,7 +201,23 @@ public class ExemptionApplyManage implements Serializable {
         this.calendarId = calendarId;
     }
 
-    /**
+    public String getEnrolSeason() {
+		return enrolSeason;
+	}
+
+	public void setEnrolSeason(String enrolSeason) {
+		this.enrolSeason = enrolSeason;
+	}
+
+	public String getManagerDeptId() {
+		return managerDeptId;
+	}
+
+	public void setManagerDeptId(String managerDeptId) {
+		this.managerDeptId = managerDeptId;
+	}
+
+	/**
      * 获取申请类别
      *
      * @return APPLY_TYPE_ - 申请类别
