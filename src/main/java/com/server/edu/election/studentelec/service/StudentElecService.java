@@ -15,6 +15,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.vo.AllCourseVo;
+import com.server.edu.election.vo.ElcResultCourseVo;
 
 /**
  * 选课请求的主入口
@@ -61,7 +62,7 @@ public interface StudentElecService
 	
     /** 选取学生本轮次可选课程 
      * @param elecContext */
-    List<ElcCourseResult> getOptionalCourses(Long roundId, String studentId);
+    ElcResultCourseVo getOptionalCourses(Long roundId, String studentId);
     
     /**
      * <ul>获取全部课程
@@ -86,4 +87,5 @@ public interface StudentElecService
      * @return
      */
 	Map<String, Object> getElectResultCount(String uid, Long roundId, Map<String, Object> map);
+
 }
