@@ -125,7 +125,7 @@ public class ElecController
         {
             return RestResult.fail("elec.mustBeStu");
         }
-        return elecService.loading(roundId, session.getUid());
+        return elecService.loading(roundId, session.realUid());
     }
     
     @ApiOperation(value = "获取学生选课数据")
@@ -145,7 +145,7 @@ public class ElecController
             return RestResult.error("elec.roundNotExistTip");
         }
         ElecContext c =
-            new ElecContext(session.getUid(), round.getCalendarId());
+            new ElecContext(session.realUid(), round.getCalendarId());
         
         return RestResult.successData(c);
     }
