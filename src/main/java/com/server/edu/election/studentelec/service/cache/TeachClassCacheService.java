@@ -74,7 +74,7 @@ public class TeachClassCacheService extends AbstractCacheService
         return ops;
     }
     
-    public void cacheAllTeachClass(Long calendarId)
+    public void cacheAllTeachClass(Long calendarId,String manageDptId)
     {
         PageInfo<CourseOpenDto> page = new PageInfo<>();
         page.setNextPage(1);
@@ -82,8 +82,12 @@ public class TeachClassCacheService extends AbstractCacheService
         while (page.isHasNextPage())
         {
             PageHelper.startPage(page.getNextPage(), 300);
-            List<CourseOpenDto> lessons =
-                roundCourseDao.selectTeachingClassByCalendarId(calendarId);
+            List<CourseOpenDto> lessons = new ArrayList<CourseOpenDto>();
+            if (org.apache.commons.lang.StringUtils.equals(manageDptId, "1")) {
+            	lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
+			}else {
+				lessons = roundCourseDao.selectTeachingClassGraduteByCalendarId(calendarId);
+			}
             this.cacheTeachClass(100, lessons);
             
             page = new PageInfo<>(lessons);
