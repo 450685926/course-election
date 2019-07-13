@@ -178,7 +178,7 @@ public class ElcCourseTakeController
         return RestResult.success(msg);
     }   
     
-    @ApiOperation(value = "个人培养计划中有该课程且又没有选课的学生名")
+    @ApiOperation(value = "个人培养计划中有该课程且又没有选课的学生名单")
     @PutMapping("/studentList")
     public RestResult<PageResult<Student4Elc>> getGraduateStudentForCulturePlan(
     		@RequestBody PageCondition<ElcResultQuery> condition)
