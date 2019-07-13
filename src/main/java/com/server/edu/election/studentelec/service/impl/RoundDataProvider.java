@@ -29,6 +29,7 @@ import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -105,10 +106,11 @@ public class RoundDataProvider
             {
                 this.roundCacheService.deleteRounds(keys.toArray());
             }
+            String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
             // 缓存所有教学班
             for (Long calendarId : calendarIds)
             {
-                classCacheService.cacheAllTeachClass(calendarId);
+                classCacheService.cacheAllTeachClass(calendarId,manageDptId);
             }
             
         }

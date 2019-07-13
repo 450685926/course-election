@@ -36,7 +36,6 @@ import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -50,6 +49,7 @@ import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.rules.bk.LimitCountCheckerRule;
@@ -62,6 +62,7 @@ import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.ElcResultCourseVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
@@ -425,7 +426,7 @@ public class StudentElecServiceImpl implements StudentElecService
 
     /** 获取学生可选课程 */
    	@Override
-   	public List<ElcCourseResult> getOptionalCourses(Long roundId,
+   	public ElcResultCourseVo getOptionalCourses(Long roundId,
    			String studentId) {
    		
    		RoundDataProvider dataProvider =
@@ -435,10 +436,12 @@ public class StudentElecServiceImpl implements StudentElecService
 		
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
 		
-		//获取学生本轮次已经选取的课程
+		//获取学生培养计划中的课程
+		Set<PlanCourse> planCourses = elecContextUtil.getSet("PlanCourses", PlanCourse.class);
+		
+		//获取学生本学期已经选取的课程
 		Set<SelectedCourse> selectedCourseSet = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
-		//获取学生未完成的课程
-		Set<CompletedCourse> inCompletedCourseSet = elecContextUtil.getSet("failedCourse", CompletedCourse.class);
+		
 		//从缓存中拿到本轮次排课信息
 		HashOperations<String, String, String> ops = strTemplate.opsForHash();
 		String key = Keys.getRoundCourseKey(roundId);
@@ -449,39 +452,42 @@ public class StudentElecServiceImpl implements StudentElecService
 			 String courseCode = entry.getKey();
 			 roundsCoursesIdsList.add(courseCode);
 		}
-		List<CompletedCourse> centerCourse = new ArrayList<>();
-   		//两个结果取交集 拿到学生可选课程
+		
+		//培养计划与排课信息的交集（中间变量）
+		List<PlanCourse> centerCourse = new ArrayList<>();
+   		//两个结果取交集 拿到学生培养计划与排课信息的交集
    		for (String courseOpenCode : roundsCoursesIdsList) {
-   			for (CompletedCourse inCompletedCourse :inCompletedCourseSet) {
-   				if(courseOpenCode.equals(inCompletedCourse.getCourseCode())){
-   					if (inCompletedCourse.getIsPass() == null) {
-   						centerCourse.add(inCompletedCourse);
-   					}
+   			for (PlanCourse planCourse :planCourses) {
+   				if(courseOpenCode.equals(planCourse.getCourseCode())){
+					centerCourse.add(planCourse);
    				}
    			}
    		}
-		List<CompletedCourse> OptionalGraduateCoursesList = new ArrayList<>();
-   		for (CompletedCourse completedCourseModel : OptionalGraduateCoursesList) {
+   		
+   		//从中间变量中剔除本学期已经选过的课，得到可选课程
+		List<PlanCourse> OptionalGraduateCoursesList = new ArrayList<>();
+   		for (PlanCourse centerCourseModel : centerCourse) {
    			Boolean flag = true;
    			for (SelectedCourse selectedCourseModel :selectedCourseSet) {
-   				if(selectedCourseModel.getCourseCode().equals(completedCourseModel.getCourseCode())){
+   				if(selectedCourseModel.getCourseCode().equals(centerCourseModel.getCourseCode())){
    						flag = false;
    						break;
    				}
    			}
    			if (flag) {
-   				OptionalGraduateCoursesList.add(completedCourseModel);
+   				OptionalGraduateCoursesList.add(centerCourseModel);
 			}
    		}
-   		List<ElcCourseResult> result = new ArrayList<>();
-   		for (CompletedCourse completedCourse : OptionalGraduateCoursesList) {
+   		
+   		List<ElcCourseResult> completedCourses = new ArrayList<>();
+   		for (PlanCourse completedCourse : OptionalGraduateCoursesList) {
    			
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
    			elcCourseResult.setNatrue(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
-   			elcCourseResult.setFaculty(null);
+   			elcCourseResult.setFaculty(completedCourse.getFaculty());
    			List<TeachingClassCache> teachClasss =
    		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
 	        if (CollectionUtil.isNotEmpty(teachClasss))
@@ -491,18 +497,55 @@ public class StudentElecServiceImpl implements StudentElecService
 	                Long teachClassId = teachClass.getTeachClassId();
 	                Integer elecNumber = dataProvider.getElecNumber(teachClassId);
 	                teachClass.setCurrentNumber(elecNumber);
+	                elcCourseResult.setFaculty(teachClass.getFaculty());
 	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
 	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
 	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	       			elcCourseResult.setTeacherName(teachClass.getTeacherName());
 	                elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
 	                elcCourseResult.setNumber(teachClass.getMaxNumber());
-	                result.add(elcCourseResult);
+	                completedCourses.add(elcCourseResult);
 	            }
 	        }
    			
 		}
-   		return result;
+   		
+   		List<ElcCourseResult> selectedCourses = new ArrayList<>();
+   		for (SelectedCourse completedCourse : selectedCourseSet) {
+   			
+   			ElcCourseResult elcCourseResult = new ElcCourseResult();
+   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
+   			elcCourseResult.setCourseName(completedCourse.getCourseName());
+   			elcCourseResult.setCredits(completedCourse.getCredits());
+   			elcCourseResult.setFaculty(completedCourse.getFaculty());
+   			List<TeachingClassCache> teachClasss =
+   		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+	        if (CollectionUtil.isNotEmpty(teachClasss))
+	        {
+	            for (TeachingClassCache teachClass : teachClasss)
+	            {
+	                Long teachClassId = teachClass.getTeachClassId();
+	                if(teachClassId == completedCourse.getTeachClassId()){
+	                	
+	                	Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+	                	teachClass.setCurrentNumber(elecNumber);
+	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
+	                	elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
+	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
+	                	elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
+	                	elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                	selectedCourses.add(elcCourseResult);
+	                }
+	            }
+	        }
+   			
+		}
+   		
+   		ElcResultCourseVo elcResultCourseVo = new ElcResultCourseVo(completedCourses,selectedCourses);
+   		
+   		return elcResultCourseVo;
    	}
 
 	@Override
@@ -527,11 +570,11 @@ public class StudentElecServiceImpl implements StudentElecService
 		RoundDataProvider dataProvider =
    				SpringUtils.getBean(RoundDataProvider.class);
 		//获取当前选课轮次
-//		ElectionRounds round = dataProvider.getRound(roundId);
+		ElectionRounds round = dataProvider.getRound(roundId);
 		//获取学生已选课程
-		List<ElcCourseTakeVo> eleCourse = courseTakeDao.findAllByStudentId4Course(studentId);
-//		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
-		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,107l);
+//		List<ElcCourseTakeVo> eleCourse = courseTakeDao.findAllByStudentId4Course(studentId);
+		
+		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
 		//获取当前已经完成的课程
 		Set<CompletedCourse> completedCourses = elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
 		
@@ -540,8 +583,7 @@ public class StudentElecServiceImpl implements StudentElecService
 		Set<SelectedCourse> thisSelectedCourses = new TreeSet<>();
 		for (SelectedCourse selectedCourse : selectedCourses) {
 			//获取本次选课信息
-//			if (selectedCourse.getTurn().intValue() == round.getTurn()) {
-			if (selectedCourse.getTurn().intValue() == 10) {
+			if (selectedCourse.getTurn().intValue() == round.getTurn()) {
 				//已完成课程数
 				thisSelectedCourses.add(selectedCourse);
 				
@@ -578,4 +620,5 @@ public class StudentElecServiceImpl implements StudentElecService
 		
 		return result;
 	}
+
 }

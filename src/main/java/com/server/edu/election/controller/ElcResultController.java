@@ -215,15 +215,15 @@ public class ElcResultController
         List<ElcResultDto> datas = new ArrayList<>();
     	ElcResultCountVo result = elcResultService.elcResultCountByStudent(condition);
     	if(condition.getCondition().getDimension().intValue() == Constants.ONE){
-    		PageResult<ElcResultDto> res = result.getElceResultByStudent();
-    		while (datas.size() < res.getTotal_())
+    		List<ElcResultDto> res = result.getList();
+    		while (datas.size() < result.getTotal_())
     	       {
 //    	       	List<Student4Elc> list = SpringUtils.convert(res.getList());
-    	           datas.addAll(res.getList());
+    	           datas.addAll(res);
     	           condition.setPageNum_(condition.getPageNum_() + 1);
-    	           if (datas.size() < res.getTotal_())
+    	           if (datas.size() < result.getTotal_())
     	           {
-    	               res = elcResultService.elcResultCountByStudent(condition).getElceResultByStudent();
+    	               res = elcResultService.elcResultCountByStudent(condition).getList();
     	           }
     	       }
     		GeneralExcelDesigner design = new GeneralExcelDesigner();
@@ -256,20 +256,20 @@ public class ElcResultController
             design.addCell("已选人数", "numberOfelectedPersons");
             design.addCell("未选人数", "numberOfNonCandidates");
             design.addCell("已选人数百分比（%）", "numberOfelectedPersonsPoint");
-            design.setDatas(res.getList());
+            design.setDatas(res);
             ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
             
             return ExportUtil
                 .exportExcel(excelUtil, cacheDirectory, "yanJiuShengXuanKeJieGuoTongJi(xuesheng).xls");
     	}else{
-    		PageResult<ElcResultDto> res = result.getElceResultByFaculty();
-    		while (datas.size() < res.getTotal_())
+    		List<ElcResultDto> res = result.getList();
+    		while (datas.size() < result.getTotal_())
  	       {
- 	           datas.addAll(res.getList());
+ 	           datas.addAll(res);
  	           condition.setPageNum_(condition.getPageNum_() + 1);
- 	           if (datas.size() < res.getTotal_())
+ 	           if (datas.size() < result.getTotal_())
  	           {
- 	               res = elcResultService.elcResultCountByStudent(condition).getElceResultByFaculty();
+ 	               res = elcResultService.elcResultCountByStudent(condition).getList();
  	           }
  	       }
     		GeneralExcelDesigner design = new GeneralExcelDesigner();
@@ -290,7 +290,7 @@ public class ElcResultController
             design.addCell("已选人数", "nNumberOfelectedPersons");
             design.addCell("未选人数", "numberOfNonCandidates");
             design.addCell("已选人数百分比（%）", "numberOfelectedPersonsPoint");
-            design.setDatas(res.getList());
+            design.setDatas(res);
             ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
             
             return ExportUtil
