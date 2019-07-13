@@ -466,7 +466,11 @@ public class ElcResultServiceImpl implements ElcResultService
 			Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
 			Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
 			elcResultCountVo.setElcNumberByStudent(elcNumber);
-			elcResultCountVo.setElceResultByStudent(new PageResult<>(elcResultList));
+			PageResult<ElcResultDto> elceResultByStudent = new PageResult<>(elcResultList);
+			elcResultCountVo.setPageNum_(elceResultByStudent.getPageNum_());
+			elcResultCountVo.setPageSize_(elceResultByStudent.getPageSize_());
+			elcResultCountVo.setTotal_(elceResultByStudent.getTotal_());
+			elcResultCountVo.setList(elceResultByStudent.getList());
 			elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
 			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
 		}else{
@@ -500,8 +504,12 @@ public class ElcResultServiceImpl implements ElcResultService
 			}
 			Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
 			Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
-			elcResultCountVo.setElceResultByFaculty(new PageResult<>(eleResultByFacultyList));
 			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
+			PageResult<ElcResultDto> elceResultByFaculty = new PageResult<>(eleResultByFacultyList);
+			elcResultCountVo.setPageNum_(elceResultByFaculty.getPageNum_());
+			elcResultCountVo.setPageSize_(elceResultByFaculty.getPageSize_());
+			elcResultCountVo.setTotal_(elceResultByFaculty.getTotal_());
+			elcResultCountVo.setList(elceResultByFaculty.getList());
 			elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
 			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
 		}
