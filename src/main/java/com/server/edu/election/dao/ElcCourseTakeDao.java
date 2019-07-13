@@ -78,7 +78,10 @@ public interface ElcCourseTakeDao
     
     /**查询教师名称*/
     String findClassTeacherByTeacherCode(String teacherCode);
-    
+
+    /**查询教师名称*/
+    List<String> findTeacherNameByTeacherCode(@Param("teacherCodes") String[] teacherCodes);
+
     /**查询教师对应教学班*/
     Page<ClassCodeToTeacher> findAllClassTeacher(ClassCodeToTeacher condition);
     
@@ -115,6 +118,8 @@ public interface ElcCourseTakeDao
 
 
     List<RollBookList> findTeacherName(List<Long> list);
+
+    List<String> findTeacherNameById(Long teachingClassId);
 
     /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);

@@ -20,6 +20,8 @@ public class ClassTeacherDto {
     private String courseCode;
     private String courseName;
     private String label;
+    @Code2Text(transformer = "X_KCXZ")
+    private String nature;
     private String time;
     private String room;
     private  Double credits;
@@ -35,6 +37,14 @@ public class ClassTeacherDto {
 
     public void setCampus(String campus) {
         this.campus = campus;
+    }
+
+    public String getNature() {
+        return nature;
+    }
+
+    public void setNature(String nature) {
+        this.nature = nature;
     }
 
     private String className;

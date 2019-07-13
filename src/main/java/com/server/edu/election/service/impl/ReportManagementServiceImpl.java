@@ -1,9 +1,6 @@
 package com.server.edu.election.service.impl;
 
-import java.awt.Color;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -13,14 +10,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +37,7 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
@@ -85,7 +77,6 @@ import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.DateTimeUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -207,7 +198,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     for (ClassTeacherDto classTeacherDto : studentAndTeacherTime) {
                         TimeTable timeTable=new TimeTable();
                         String value=classTeacherDto.getTeacherName()+" "+studentSchoolTimetab.getCourseName()+"("+
-                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+classTeacherDto.getRoom()+")";
+                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+classTeacherDto.getRoom()+")" + classTeacherDto.getCampus();
                         timeTable.setValue(value);
                         timeTable.setDayOfWeek(classTeacherDto.getDayOfWeek());
                         timeTable.setTimeStart(classTeacherDto.getTimeStart());
@@ -311,6 +302,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                             ClassTeacherDto timetab=new ClassTeacherDto();
                             ClassTeacherDto classTeacherDto = dtos.get(0);
                             String teacherCode = classTeacherDto.getTeacherCode();
+                            String[] teacherCodes = teacherCode.split(",");
+
                             Integer dayOfWeek = classTeacherDto.getDayOfWeek();
                             String week = findWeek(dayOfWeek);
                             Integer timeStart = classTeacherDto.getTimeStart();
@@ -337,8 +330,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                                 }
                             }
                             String time=week+" "+strTime+" "+strWeek;
-                            String name = courseTakeDao.findClassTeacherByTeacherCode(teacherCode);
-                            timetab.setTeacherName(name);
+                            List<String> names = courseTakeDao.findTeacherNameByTeacherCode(teacherCodes);
+                            timetab.setCampus(classTeacherDto.getCampus());
+                            timetab.setTeacherName(String.join(",",names));
                             timetab.setTime(time);
                             timetab.setWeekNumberStr(strWeek);
                             timetab.setDayOfWeek(dayOfWeek);
@@ -405,33 +399,42 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         StudentSchoolTimetabVo vo=new StudentSchoolTimetabVo();
         List<ClassTeacherDto> list=new ArrayList<>();
         List<TimeTable> timeTables=new ArrayList<>();
-        List<ClassTeacherDto> classId = courseTakeDao.findTeachingClassId(calendarId, teacherCode);
-        if(CollectionUtil.isNotEmpty(classId)){
-            for (ClassTeacherDto classTeacherDto : classId) {
-                List<ClassTeacherDto> teacherTime = findStudentAndTeacherTime(classTeacherDto.getTeachingClassId());
-                if(CollectionUtil.isNotEmpty(teacherTime)){
-                        for (ClassTeacherDto teacherDto : teacherTime) {
-                            TimeTable time=new TimeTable();
-                            teacherDto.setCourseCode(classTeacherDto.getCourseCode());
-                            teacherDto.setCourseName(classTeacherDto.getCourseName());
-                            teacherDto.setLabel(classTeacherDto.getLabel());
-                            teacherDto.setWeekHour(classTeacherDto.getWeekHour());
-                            teacherDto.setCredits(classTeacherDto.getCredits());
-                            teacherDto.setSelectCourseNumber(classTeacherDto.getSelectCourseNumber());
-                            time.setDayOfWeek(teacherDto.getDayOfWeek());
-                            time.setTimeStart(teacherDto.getTimeStart());
-                            time.setTimeEnd(teacherDto.getTimeEnd());
-                            String value=teacherDto.getClassCode()+classTeacherDto.getCourseName()
-                                    +"("+teacherDto.getWeekNumberStr()+teacherDto.getRoom()+")";
-                            time.setValue(value);
-                            timeTables.add(time);
-                        }
-                    list.addAll(teacherTime);
-                }
+        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassId(calendarId, teacherCode);
+        List<Long> ids = new ArrayList<>();
+        Map<Long, String> map = new HashMap<>();
+        for (ClassTeacherDto classTeacher : classTeachers) {
+            Long teachingClassId = classTeacher.getTeachingClassId();
+            ids.add(teachingClassId);
+            map.put(teachingClassId, classTeacher.getCourseName());
+        }
+
+        List<TimeTableMessage> tableMessages = getTimeByTeachingClassId(ids);
+        List<TimeTableMessage> tables = new ArrayList<>();
+        for (TimeTableMessage tableMessage : tableMessages) {
+            TimeTable time=new TimeTable();
+            time.setDayOfWeek(tableMessage.getDayOfWeek());
+            time.setTimeStart(tableMessage.getTimeStart());
+            time.setTimeEnd(tableMessage.getTimeEnd());
+            Long teachingClassId = tableMessage.getTeachingClassId();
+            String value=tableMessage.getTeacherName()+" "+ map.get(teachingClassId)
+                    +"("+tableMessage.getWeekNum()+", "+tableMessage.getRoomId()+")" + " " + tableMessage.getCampus();
+            time.setValue(value);
+            timeTables.add(time);
+            TimeTableMessage table = new TimeTableMessage();
+            table.setTeachingClassId(teachingClassId);
+            table.setTimeAndRoom(tableMessage.getTimeAndRoom());
+            tables.add(table);
+        }
+        if (CollectionUtil.isNotEmpty(tables)) {
+            Map<Long,List<TimeTableMessage>> collect = tables.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+            for (ClassTeacherDto classTeacher : classTeachers) {
+                List<TimeTableMessage> timeTableMessages = collect.get(classTeacher.getTeachingClassId());
+                List<String> times = tableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                classTeacher.setTime(String.join(",",times));
             }
         }
-        vo.setTeacherDtos(list);
         vo.setTimeTables(timeTables);
+        vo.setTeacherDtos(classTeachers);
         return vo;
     }
 
@@ -1161,6 +1164,42 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 time.setCourseName(classTeacherDto.getCourseName());
                 time.setClassName(classTeacherDto.getClassName());
                 time.setTeachingClassId(classTeacherDto.getTeachingClassId());
+                list.add(time);
+            }
+        }
+        return list;
+    }
+
+    private List<TimeTableMessage>  getTimeByTeachingClassId(List<Long> teachingClassIds){
+        List<TimeTableMessage> list=new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassIds);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                Long teachingClassId = classTeacherDto.getTeachingClassId();
+                List<String> names = courseTakeDao.findTeacherNameById(teachingClassId);
+                TimeTableMessage time = new TimeTableMessage();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                String[] str = weekNumber.split(",");
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = findWeek(dayOfWeek);//星期
+
+
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+roomID;
+                time.setRoomId(roomID);
+                time.setDayOfWeek(classTeacherDto.getDayOfWeek());
+                time.setTimeStart(classTeacherDto.getTimeStart());
+                time.setTimeEnd(classTeacherDto.getTimeEnd());
+                time.setCampus(classTeacherDto.getCampus());
+                time.setTeachingClassId(teachingClassId);
+                time.setTimeAndRoom(timeStr);
+                time.setWeekNum(weekNumStr);
+                time.setTeacherName(String.join(",", names));
                 list.add(time);
             }
         }
