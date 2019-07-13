@@ -497,6 +497,7 @@ public class StudentElecServiceImpl implements StudentElecService
 	                Long teachClassId = teachClass.getTeachClassId();
 	                Integer elecNumber = dataProvider.getElecNumber(teachClassId);
 	                teachClass.setCurrentNumber(elecNumber);
+	                elcCourseResult.setFaculty(teachClass.getFaculty());
 	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
 	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
 	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());

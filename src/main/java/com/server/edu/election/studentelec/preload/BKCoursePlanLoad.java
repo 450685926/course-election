@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.CourseOpenDao;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -32,9 +34,6 @@ import tk.mybatis.mapper.entity.Example;
 public class BKCoursePlanLoad extends DataProLoad
 {
     Logger log = LoggerFactory.getLogger(getClass());
-    
-    @Autowired
-    private CourseOpenDao courseDao;
     
     @Override
     public int getOrder()
@@ -65,12 +64,6 @@ public class BKCoursePlanLoad extends DataProLoad
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
                         PlanCourse pl=new PlanCourse();
-                        Example example = new Example(CourseOpen.class);
-                        example.createCriteria().andEqualTo("courseCode",planCourseTypeDto.getCourseCode());
-                        CourseOpen course = courseDao.selectOneByExample(example);
-                        if (course != null) {
-							pl.setFaculty(course.getFaculty());
-						}
                         pl.setSemester(planCourseTypeDto.getSemester());
                         pl.setWeekType(planCourseTypeDto.getWeekType());
                         pl.setCourseCode(planCourseTypeDto.getCourseCode());
