@@ -5,16 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -182,15 +177,26 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     totalCredits+=studentSchoolTimetab.getCredits();
                 }
                 List<ClassTeacherDto> studentAndTeacherTime = findStudentAndTeacherTime(studentSchoolTimetab.getTeachingClassId());
+                //取value的值
+                Multimap<Long, String> multimap = ArrayListMultimap.create();
                 if(CollectionUtil.isNotEmpty(studentAndTeacherTime)){
                     for (ClassTeacherDto classTeacherDto : studentAndTeacherTime) {
-                        TimeTable timeTable=new TimeTable();
+                        //列表展示教学安排
+                        Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                        Integer timeStart = classTeacherDto.getTimeStart();
+                        Integer timeEnd = classTeacherDto.getTimeEnd();
+                        String roomID = classTeacherDto.getRoomID();
+                        String weekstr = findWeek(dayOfWeek);//星期
+                        String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+classTeacherDto.getWeekNumberStr()+roomID;
+                        multimap.put(classTeacherDto.getTeachingClassId(),timeStr);
+
                         String value=classTeacherDto.getTeacherName()+" "+studentSchoolTimetab.getCourseName()+"("+
                                 studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+classTeacherDto.getRoom()+")" + classTeacherDto.getCampus();
+                        TimeTable timeTable=new TimeTable();
                         timeTable.setValue(value);
-                        timeTable.setDayOfWeek(classTeacherDto.getDayOfWeek());
-                        timeTable.setTimeStart(classTeacherDto.getTimeStart());
-                        timeTable.setTimeEnd(classTeacherDto.getTimeEnd());
+                        timeTable.setDayOfWeek(dayOfWeek);
+                        timeTable.setTimeStart(timeStart);
+                        timeTable.setTimeEnd(timeEnd);
                         list.add(timeTable);
                     }
                 }
@@ -198,22 +204,26 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 if(CollectionUtil.isNotEmpty(names)){
                     studentSchoolTimetab.setTeacherName(String.join(",",names));
                 }
-                String s = findClassroomAndTime(studentSchoolTimetab.getTeachingClassId());
-                String[] strings = s.split("/");
-                List<String> timelist=new ArrayList<>();
-                Set<String> roomList=new HashSet<>();
-                for (String string : strings) {
-                    int i = string.indexOf("]");
-                    String time = string.substring(0,i+1);
-                    timelist.add(time);
-                    String[] rooms= string.substring(i + 1).replaceAll(" ","").split(",");
-                    List<String> stringList = Arrays.asList(rooms);
-                    roomList.addAll(stringList);
+//                String s = findClassroomAndTime(studentSchoolTimetab.getTeachingClassId());
+//                String[] strings = s.split("/");
+//                List<String> timelist=new ArrayList<>();
+//                Set<String> roomList=new HashSet<>();
+//                for (String string : strings) {
+//                    int i = string.indexOf("]");
+//                    String time = string.substring(0,i+1);
+//                    timelist.add(time);
+//                    String[] rooms= string.substring(i + 1).replaceAll(" ","").split(",");
+//                    List<String> stringList = Arrays.asList(rooms);
+//                    roomList.addAll(stringList);
+//                }
+//                String time = String.join(",", timelist);
+//                String room = String.join(",", roomList);
+                Collection<String> collection = multimap.get(studentSchoolTimetab.getTeachingClassId());
+                if (!collection.isEmpty()){
+                    String times = collection.toString();
+                    studentSchoolTimetab.setTime(times.substring(1,times.length()-1));
                 }
-                String time = String.join(",", timelist);
-                String room = String.join(",", roomList);
-                studentSchoolTimetab.setTime(time);
-                studentSchoolTimetab.setRoom(room);
+//                studentSchoolTimetab.setRoom(room);
             }
 
         }
@@ -326,6 +336,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                             timetab.setDayOfWeek(dayOfWeek);
                             timetab.setTimeStart(timeStart);
                             timetab.setTimeEnd(timeEnd);
+                            timetab.setRoomID(roomID);
                             timetab.setRoom(roomID);
                             timetab.setTeacherCode(teacherCode);
                             timetab.setRemark(classTeacherDto.getRemark());
@@ -397,7 +408,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
 
         List<TimeTableMessage> tableMessages = getTimeByTeachingClassId(ids);
-        List<TimeTableMessage> tables = new ArrayList<>();
+//        List<TimeTableMessage> tables = new ArrayList<>();
+        Multimap<Long, String> multimap = ArrayListMultimap.create();
         for (TimeTableMessage tableMessage : tableMessages) {
             TimeTable time=new TimeTable();
             time.setDayOfWeek(tableMessage.getDayOfWeek());
@@ -408,18 +420,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     +"("+tableMessage.getWeekNum()+", "+tableMessage.getRoomId()+")" + " " + tableMessage.getCampus();
             time.setValue(value);
             timeTables.add(time);
-            TimeTableMessage table = new TimeTableMessage();
-            table.setTeachingClassId(teachingClassId);
-            table.setTimeAndRoom(tableMessage.getTimeAndRoom());
-            tables.add(table);
+            multimap.put(teachingClassId, tableMessage.getTimeAndRoom());
         }
-        if (CollectionUtil.isNotEmpty(tables)) {
-            Map<Long,List<TimeTableMessage>> collect = tables.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (ClassTeacherDto classTeacher : classTeachers) {
-                List<TimeTableMessage> timeTableMessages = collect.get(classTeacher.getTeachingClassId());
-                List<String> times = tableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                classTeacher.setTime(String.join(",",times));
-            }
+                Collection<String> collection = multimap.get(classTeacher.getTeachingClassId());
+                if (!collection.isEmpty()) {
+                    String times = collection.toString();
+                    classTeacher.setTime(times.substring(1,times.length()-1));
+                }
         }
         vo.setTimeTables(timeTables);
         vo.setTeacherDtos(classTeachers);
@@ -1623,5 +1631,5 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         cell.setBorderWidth(width);
         return cell;
     }
-	
+
 }
