@@ -431,12 +431,19 @@ public class ReportManagementController
 
     @ApiOperation(value = "导出研究生点名册")
     @PostMapping("/exportGraduteRollBookList")
-    public RestResult<ExcelResult> exportGraduteRollBookList(
-            @RequestBody RollBookConditionDto condition)
+    public RestResult<String> exportGraduteRollBookList(
+            @RequestBody PageCondition<RollBookConditionDto> condition)
             throws Exception
     {
         LOG.info("export.start");
-        ExcelResult export = managementService.exportGraduteRollBookList(condition);
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+       if (session.isAcdemicDean()) {
+            rollBookConditionDto.setFaculty(session.getFaculty());
+        }else if (session.isTeacher()) {
+            rollBookConditionDto.setTeacherCode(session.realUid());
+        }
+        String export = managementService.exportGraduteRollBookList(condition);
         return RestResult.successData(export);
     }
     

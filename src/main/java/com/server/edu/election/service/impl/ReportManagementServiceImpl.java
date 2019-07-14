@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,19 +52,6 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
-import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -599,64 +587,45 @@ public class ReportManagementServiceImpl implements ReportManagementService {
      *@date: 2019/7/4
      */
     @Override
-    public ExcelResult exportGraduteRollBookList(RollBookConditionDto condition) throws Exception{
-        ExcelResult excelResult = ExportExcelUtils.submitTask("rollBookList", new ExcelExecuter() {
-            @Override
-            public GeneralExcelDesigner getExcelDesigner() {
-                ExcelResult result = this.getResult();
-                PageCondition<RollBookConditionDto> pageCondition = new PageCondition<RollBookConditionDto>();
-                pageCondition.setCondition(condition);
-                pageCondition.setPageSize_(100);
-                int pageNum = 0;
-                pageCondition.setPageNum_(pageNum);
-                List<RollBookList> list = new ArrayList<>();
-                while (true)
-                {
-                    pageNum++;
-                    pageCondition.setPageNum_(pageNum);
-                    PageResult<RollBookList> rollBookList = findRollBookList(pageCondition);
-                    list.addAll(rollBookList.getList());
-
-                    result.setTotal((int)rollBookList.getTotal_());
-                    Double count = list.size() / 1.5;
-                    result.setDoneCount(count.intValue());
-                    this.updateResult(result);
-
-                    if (rollBookList.getTotal_() <= list.size())
-                    {
-                        break;
-                    }
-                }
-                //组装excel
-                GeneralExcelDesigner design = getDesignGradute();
-                //将数据放入excel对象中
-                design.setDatas(list);
-                result.setDoneCount(list.size());
-                return design;
-            }
-        });
-        return excelResult;
+    public String exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception{
+        PageResult<RollBookList> rollBookList = findRollBookList(condition);
+        if (rollBookList != null) {
+            GeneralExcelDesigner design = getDesignTeacherRollBook();
+            design.setDatas(rollBookList.getList());
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "TeacherRollBooks.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
     }
 
-    private GeneralExcelDesigner getDesignGradute() {
+    private GeneralExcelDesigner getDesignTeacherRollBook() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "classCode");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "classCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"), "className");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseNature"), "courseNature");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "className");
+        String lang = SessionUtils.getLang();
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.nature"), "courseNature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_KCXZ", value, lang);
+                });
         design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"), "selectCourseNumber");
         design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"), "numberLimit");
-
-        design.addCell(I18nUtil.getMsg("rollBookManage.courseOpenFaculty"), "faculty").setValueHandler(
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.courseFaculty"), "faculty").setValueHandler(
                 (value, rawData, cell) -> {
-                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                    return dictionaryService.query("X_YX", value, lang);
                 });
-
         design.addCell(I18nUtil.getMsg("rollBookManage.teacher"), "teacherName");
         return design;
     }
+
+
 
     /**
     *@Description: 查询点名册
