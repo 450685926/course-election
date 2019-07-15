@@ -63,7 +63,7 @@ public class RoundDataProvider
     {
     }
     
-    @Scheduled(cron = "0 0/5 * * * *")
+    @Scheduled(cron = "0 0/1 * * * *")
     public void load()
     {
         /*
@@ -168,7 +168,7 @@ public class RoundDataProvider
         	cachePreSemester(round, timeout);
 		}
         // 缓存课程
-        roundCacheService.cacheCourse(timeout, roundId, calendarId);
+        roundCacheService.cacheCourse(timeout, roundId, calendarId,manageDptId);
     }
     
     /**
