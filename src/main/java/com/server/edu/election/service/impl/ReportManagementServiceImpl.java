@@ -187,11 +187,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         Integer timeEnd = classTeacherDto.getTimeEnd();
                         String roomID = classTeacherDto.getRoomID();
                         String weekstr = findWeek(dayOfWeek);//星期
-                        String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+classTeacherDto.getWeekNumberStr()+roomID;
+                        String roomName = ClassroomCacheUtil.getRoomName(roomID);
+                        String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+classTeacherDto.getWeekNumberStr()+ roomName;
                         multimap.put(classTeacherDto.getTeachingClassId(),timeStr);
 
                         String value=classTeacherDto.getTeacherName()+" "+studentSchoolTimetab.getCourseName()+"("+
-                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+classTeacherDto.getRoom()+")" + classTeacherDto.getCampus();
+                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+roomName+")" + dictionaryService.query("X_XQ", classTeacherDto.getCampus());
                         TimeTable timeTable=new TimeTable();
                         timeTable.setValue(value);
                         timeTable.setDayOfWeek(dayOfWeek);
@@ -408,8 +409,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
 
         List<TimeTableMessage> tableMessages = getTimeByTeachingClassId(ids);
-//        List<TimeTableMessage> tables = new ArrayList<>();
         Multimap<Long, String> multimap = ArrayListMultimap.create();
+        String lang = SessionUtils.getLang();
         for (TimeTableMessage tableMessage : tableMessages) {
             TimeTable time=new TimeTable();
             time.setDayOfWeek(tableMessage.getDayOfWeek());
@@ -417,7 +418,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             time.setTimeEnd(tableMessage.getTimeEnd());
             Long teachingClassId = tableMessage.getTeachingClassId();
             String value=tableMessage.getTeacherName()+" "+ map.get(teachingClassId)
-                    +"("+tableMessage.getWeekNum()+", "+tableMessage.getRoomId()+")" + " " + tableMessage.getCampus();
+                    +"("+tableMessage.getWeekNum() + ClassroomCacheUtil.getRoomName(tableMessage.getRoomId()) + ")"
+                    + " " + dictionaryService.query("X_XQ",tableMessage.getCampus(), lang);
             time.setValue(value);
             timeTables.add(time);
             multimap.put(teachingClassId, tableMessage.getTimeAndRoom());
@@ -1167,7 +1169,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 String weekstr = findWeek(dayOfWeek);//星期
 
 
-                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+roomID;
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 time.setRoomId(roomID);
                 time.setDayOfWeek(classTeacherDto.getDayOfWeek());
                 time.setTimeStart(classTeacherDto.getTimeStart());
