@@ -168,7 +168,7 @@ public class RoundDataProvider
         	cachePreSemester(round, timeout);
 		}
         // 缓存课程
-        roundCacheService.cacheCourse(timeout, roundId, calendarId);
+        roundCacheService.cacheCourse(timeout, roundId, calendarId,manageDptId);
     }
     
     /**
