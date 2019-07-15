@@ -310,5 +310,4 @@ public class RebuildCourseController
             service.findStuRePayment(studentRePaymentDto);
         return RestResult.successData(list);
     }
-    
 }
