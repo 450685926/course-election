@@ -295,6 +295,7 @@
             #{id}
         </foreach>
         GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
+        order by ti.DAY_OF_WEEK_,ti.TIME_START_
     </select>
     
     <select id="findClassTimeAndRoomStr" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -369,7 +370,11 @@
     </select>
 
     <select id="findStudentAndTeacherTime" resultType="com.server.edu.election.dto.ClassTeacherDto">
-        SELECT cl.ID_ teachingClassId,cl.REMARK_ remark,cl.CODE_ classCode,cl.TEACHING_LANGUAGE_ teachingLanguage,te.ID_ timeId,te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart,te.TIME_END_ timeEnd,ro.WEEK_NUMBER_ weekNumber,ro.ROOM_ID_ roomID,ro.TEACHER_CODE_ teacherCode
+        SELECT
+            cl.ID_ teachingClassId,cl.REMARK_ remark,cl.CODE_ classCode,
+            cl.TEACHING_LANGUAGE_ teachingLanguage,cl.CAMPUS_ campus,
+            te.ID_ timeId,te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart,te.TIME_END_ timeEnd,
+            ro.WEEK_NUMBER_ weekNumber,ro.ROOM_ID_ roomID,ro.TEACHER_CODE_ teacherCode
         from teaching_class_t cl
         LEFT JOIN `teaching_class_arrange_time_t` te on cl.ID_=te.TEACHING_CLASS_ID_
         LEFT JOIN teaching_class_arrange_room_t ro on te.ID_ =ro.ARRANGE_TIME_ID_
@@ -419,6 +424,15 @@
         SELECT TEACHER_NAME_ FROM `teaching_class_teacher_t` where TEACHER_CODE_=#{teacherCode,jdbcType=VARCHAR} GROUP BY TEACHER_CODE_
     </select>
 
+    <select id="findTeacherNameByTeacherCode" resultType="java.lang.String">
+        SELECT distinct TEACHER_NAME_
+        FROM `teaching_class_teacher_t`
+        where TEACHER_CODE_ in
+        <foreach collection="teacherCodes" item="code" index="index" open="(" close=")" separator=",">
+            #{code}
+        </foreach>
+    </select>
+
     <select id="findAllClassTeacher" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ classCode,co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.COLLEGE_ faculty,tch.TEACHER_CODE_ teacherCode,tch.TEACHER_NAME_ teacherName,tch.SEX_ sex FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
@@ -456,7 +470,9 @@
 
     <select id="findTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
         SELECT
-            el.CALENDAR_ID_ calendarId,cl.ID_ teachingClassId,co.CODE_ courseCode,co.NAME_ courseName,
+            el.CALENDAR_ID_ calendarId,cl.ID_ teachingClassId,cl.CODE_ classCode,
+            cl.ELC_NUMBER_ selectCourseNumber,cl.REMARK_ remark,
+            co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.TEACHING_LANGUAGE_ teachingLanguage,
             co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber
         FROM `course_open_t` el
         LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
@@ -624,6 +640,11 @@
                 #{id}
             </foreach>
         </where>
+    </select>
+
+    <select id="findTeacherNameById" resultType="String">
+        select TEACHER_NAME_ teacherName from teaching_class_teacher_t
+        where TEACHING_CLASS_ID_ = #{teachingClassId}
     </select>
 
     <select id="findClassByTeacherCode" parameterType="com.server.edu.election.dto.RollBookConditionDto" resultType="com.server.edu.election.vo.RollBookList">
@@ -1036,6 +1057,7 @@
             <foreach item="item" collection="list" separator="," open="(" close=")" >
               #{item}
             </foreach>
+            and a.IS_OPEN_ = 1
     </select>
 
     <select id="findCourseInfo" resultType="com.server.edu.election.vo.ElcStudentVo">

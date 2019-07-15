@@ -15,6 +15,7 @@ import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.service.ElcCourseUpholdService;
 import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.FileUtil;
@@ -159,7 +160,6 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
             generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
             FileUtil.mkdirs(cacheDirectory);
             String fileName = "elcStudentInfo.xls";
-//            String path = "D:\\" + fileName;
             String path = cacheDirectory + fileName;
             generalExcelHandle.writeExcel(new FileOutputStream(path));
             return fileName;
@@ -174,8 +174,7 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
         design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
         design.addCell(I18nUtil.getMsg("elcCourseUphold.teachingClassName"), "teachingClassName");
         design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
-        //        String lang = SessionUtils.getLang();
-        String lang = "cn";
+        String lang = SessionUtils.getLang();
         design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("X_PYCC", value, lang);
