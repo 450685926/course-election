@@ -160,7 +160,6 @@ public class TeachClassCacheService extends AbstractCacheService
         opsTeachClass().putAll(key, map);
         
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
-        
     }
     
     /**
