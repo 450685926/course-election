@@ -1057,6 +1057,7 @@
             <foreach item="item" collection="list" separator="," open="(" close=")" >
               #{item}
             </foreach>
+            and a.IS_OPEN_ = 1
     </select>
 
     <select id="findCourseInfo" resultType="com.server.edu.election.vo.ElcStudentVo">
