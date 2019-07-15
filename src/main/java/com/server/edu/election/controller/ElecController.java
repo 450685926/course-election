@@ -98,7 +98,7 @@ public class ElecController
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime())
                 && dataProvider.containsStu(roundId, studentId)
-                && dataProvider.containsStuCondition(roundId, studentId))
+                && dataProvider.containsStuCondition(roundId, studentId, projectId))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
