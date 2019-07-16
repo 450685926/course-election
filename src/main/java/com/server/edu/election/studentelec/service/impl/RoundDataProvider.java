@@ -113,7 +113,7 @@ public class RoundDataProvider
 //          String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
             String manageDptId = "2";
             // 缓存所有教学班
-            logger.info("rrrrrrrr chche teachingClass data");
+            logger.info("444444444444444444444444444444444444");
             for (Long calendarId : calendarIds)
             {
                 classCacheService.cacheAllTeachClass(calendarId,manageDptId);
