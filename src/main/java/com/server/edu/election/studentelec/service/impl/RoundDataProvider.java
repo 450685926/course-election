@@ -63,7 +63,7 @@ public class RoundDataProvider
     {
     }
     
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void load()
     {
         /*
@@ -111,7 +111,8 @@ public class RoundDataProvider
                 this.roundCacheService.deleteRounds(keys.toArray());
             }
             logger.info("session"+String.valueOf(SessionUtils.getCurrentSession()));
-            String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+//          String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            String manageDptId = "2";
             // 缓存所有教学班
             logger.info("rrrrrrrr chche teachingClass data");
             for (Long calendarId : calendarIds)
@@ -174,7 +175,8 @@ public class RoundDataProvider
         roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
         logger.info("session"+String.valueOf(SessionUtils.getCurrentSession()));
-        String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+//        String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        String manageDptId = "2";
         if (StringUtils.equals(manageDptId, "1")) {
         	cachePreSemester(round, timeout);
 		}
