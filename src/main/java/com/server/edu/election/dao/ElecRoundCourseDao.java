@@ -89,7 +89,7 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
     void deleteByRoundId(@Param("roundId") Long roundId);
     
     /**
-     * 查询轮次所有可选课程
+     * 查询轮次所有可选课程(本科生)
      * 
      * @param roundId
      * @return
@@ -122,6 +122,14 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
     int batchInsert(List<ElectionRoundsCour> list);
     
     List<CourseOpenDto> getAddedCourseByRoundIds(List<Long> list);
+
+	/**
+	 *  查询轮次所有可选课程(研究生)
+	 * @param roundId
+	 * @param calendarId
+	 * @return
+	 */
+	List<CourseOpenDto> selectCorseRefTeachClassGraduteByRoundId(@Param("roundId") Long roundId, @Param("calendarId") Long calendarId);
 
     
     

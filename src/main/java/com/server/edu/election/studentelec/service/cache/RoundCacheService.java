@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.service.cache;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -245,11 +246,15 @@ public class RoundCacheService extends AbstractCacheService
      * @param timeout 缓存结束时间分钟
      * @param roundId 轮次ID
      */
-    public void cacheCourse(long timeout, Long roundId, Long calendarId)
+    public void cacheCourse(long timeout, Long roundId, Long calendarId,String manageDptId)
     {
         // 加载所有教学班与课程数据到缓存中
-        List<CourseOpenDto> lessons = roundCourseDao
-            .selectCorseRefTeachClassByRoundId(roundId, calendarId);
+    	List<CourseOpenDto> lessons = new ArrayList<CourseOpenDto>();
+    	if (org.apache.commons.lang.StringUtils.equals(manageDptId, "1")) {
+    		lessons = roundCourseDao.selectCorseRefTeachClassByRoundId(roundId, calendarId);
+		}else {
+			lessons = roundCourseDao.selectCorseRefTeachClassGraduteByRoundId(roundId, calendarId);
+		}
         
         Map<String, Set<Long>> courseClassMap = new HashMap<>();
         for (CourseOpenDto teachClasss : lessons)
