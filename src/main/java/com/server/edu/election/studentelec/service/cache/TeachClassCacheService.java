@@ -160,10 +160,13 @@ public class TeachClassCacheService extends AbstractCacheService
         
         // 缓存教学班信息
         String key = Keys.getClassKey();
+        
         opsTeachClass().putAll(key, map);
+        logger.info("7777777777777777777777777777777777777777777   key: "+ key);
+        logger.info("8888888888888888888888888888888888888888888   end"+ map.size());
         
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
-        logger.info("7777777777777777777777777777777777777777777   end");
+        logger.info("9999999999999999999999999999999999999999999   end");
     }
     
     /**
