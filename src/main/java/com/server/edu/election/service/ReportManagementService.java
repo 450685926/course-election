@@ -1,7 +1,9 @@
 package com.server.edu.election.service;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.itextpdf.text.DocumentException;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -105,5 +107,16 @@ public interface ReportManagementService {
 	 * @return
 	 */
 	RestResult<String> exportStudentTimetabPdf(Long calendarId, String calendarName, String studentCode,String studentName) throws Exception;
+
+	/**
+	 * 导出教师课表pdf--研究生
+	 * @param calendarId
+	 * @param calendarName
+	 * @param teacherCode
+	 * @param teacherName
+	 * @return
+	 */
+	RestResult<String> exportTeacherTimetabPdf(Long calendarId, String calendarName, String teacherCode,
+			String teacherName) throws DocumentException, IOException;
 
 }

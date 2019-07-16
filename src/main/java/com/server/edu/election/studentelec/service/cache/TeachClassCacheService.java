@@ -87,6 +87,7 @@ public class TeachClassCacheService extends AbstractCacheService
             	lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
 			}else {
 				lessons = roundCourseDao.selectTeachingClassGraduteByCalendarId(calendarId);
+				logger.info("555555555555555555555555555555555555555555555555555"+ lessons.size());
 			}
             this.cacheTeachClass(100, lessons);
             
@@ -111,6 +112,7 @@ public class TeachClassCacheService extends AbstractCacheService
      */
     public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss)
     {
+    	logger.info("6666666666666666666666666666666666666666666666666");
         if (CollectionUtil.isEmpty(teachClasss))
         {
             return;
@@ -121,6 +123,7 @@ public class TeachClassCacheService extends AbstractCacheService
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
+        logger.info("6666666666666666666666666666666666666666666666666   classIds" + classIds.size());
         
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -160,7 +163,7 @@ public class TeachClassCacheService extends AbstractCacheService
         opsTeachClass().putAll(key, map);
         
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
-        
+        logger.info("7777777777777777777777777777777777777777777   end");
     }
     
     /**

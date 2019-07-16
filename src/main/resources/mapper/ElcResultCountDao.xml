@@ -12,7 +12,7 @@
 	    <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
 	    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
 	    <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
-	    <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeType" />
+	    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
 	    <result column="STUDENTNUM" jdbcType="INTEGER" property="studentNum" />
 	</resultMap>
     
@@ -21,7 +21,7 @@
 			t1.GRADE_,
 			t1.TRAINING_LEVEL_,
 			t1.TRAINING_CATEGORY_,
-			t1.DEGREE_CATEGORY_,
+			t1.DEGREE_TYPE_,
 			t1.FORM_LEARNING_,
 			COUNT(*) STUDENTNUM
 		FROM
