@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -162,6 +164,11 @@ public class TeachClassCacheService extends AbstractCacheService
         String key = Keys.getClassKey();
         
         opsTeachClass().putAll(key, map);
+        Set<Entry<String,TeachingClassCache>> set = map.entrySet();
+        for (Entry<String, TeachingClassCache> entry : set) {
+        	logger.info(entry.getKey()+"----->" + entry.getValue());
+		}
+        
         logger.info("7777777777777777777777777777777777777777777   key: "+ key);
         logger.info("8888888888888888888888888888888888888888888   end"+ map.size());
         
