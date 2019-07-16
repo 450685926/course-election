@@ -207,7 +207,6 @@ public class ElcResultController
     				throws Exception
     {
     	ExcelResult result = elcResultService.elcResultCountByStudentExport(condition);
-    	ExportExcelUtils.getResultByKey(result.getKey());
         return RestResult.successData(result);
     	
     }
@@ -242,7 +241,6 @@ public class ElcResultController
     				throws Exception
     {
         ExcelResult result = elcResultService.export(condition);
-        ExportExcelUtils.getResultByKey(result.getKey());
         return RestResult.successData(result);
     }
     
