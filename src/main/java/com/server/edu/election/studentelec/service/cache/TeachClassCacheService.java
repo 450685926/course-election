@@ -5,7 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -87,6 +89,7 @@ public class TeachClassCacheService extends AbstractCacheService
             	lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
 			}else {
 				lessons = roundCourseDao.selectTeachingClassGraduteByCalendarId(calendarId);
+				logger.info("555555555555555555555555555555555555555555555555555"+ lessons.size());
 			}
             this.cacheTeachClass(100, lessons);
             
@@ -111,6 +114,7 @@ public class TeachClassCacheService extends AbstractCacheService
      */
     public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss)
     {
+    	logger.info("6666666666666666666666666666666666666666666666666");
         if (CollectionUtil.isEmpty(teachClasss))
         {
             return;
@@ -121,6 +125,7 @@ public class TeachClassCacheService extends AbstractCacheService
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
+        logger.info("6666666666666666666666666666666666666666666666666   classIds" + classIds.size());
         
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -157,9 +162,18 @@ public class TeachClassCacheService extends AbstractCacheService
         
         // 缓存教学班信息
         String key = Keys.getClassKey();
+        
         opsTeachClass().putAll(key, map);
+        Set<Entry<String,TeachingClassCache>> set = map.entrySet();
+        for (Entry<String, TeachingClassCache> entry : set) {
+        	logger.info(entry.getKey()+"----->" + entry.getValue());
+		}
+        
+        logger.info("7777777777777777777777777777777777777777777   key: "+ key);
+        logger.info("8888888888888888888888888888888888888888888   end"+ map.size());
         
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
+        logger.info("9999999999999999999999999999999999999999999   end");
     }
     
     /**
