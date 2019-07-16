@@ -105,6 +105,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     private static final String[] setSchoolTimeTitle = {"节次/周次", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"};
     private static final String[] setSchoolTimeCol = {"第一节课", "第二节课", "第三节课", "第四节课", "第五节课", "第六节课", "第七节课", "第八节课", "第九节课", "第十节课", "第十一节课", "第十二节课"};
     private static final String[] setTimeListTitle = {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "教学安排","备注"};
+    private static final String[] setTimeListTeacherTitle = {"序号", "课程序号", "课程名称", "课程性质", "周学时", "学分", "授课语言", "教学安排","上课人数", "备注"};
     /**
     *@Description: 查询点名册
     *@Param:
@@ -1633,5 +1634,133 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         cell.setBorderWidth(width);
         return cell;
     }
+
+	@Override
+	public RestResult<String> exportTeacherTimetabPdf(Long calendarId, String calendarName, String teacherCode,
+			String teacherName) throws DocumentException, IOException {
+		//检查目录是否存在
+		cacheDirectory = "C://temp//pdf//cacheWord";
+        LOG.info("缓存目录："+cacheDirectory);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+		
+        /************************ PDF初始化操作 ******************************/
+        //所有使用中文处理
+        BaseFont bfChinese = BaseFont.createFont("STSongStd-Light","UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+        //粗体文字 title使用
+        Font titleChinese = new Font(bfChinese, 20, Font.BOLD);
+        //副标题
+        Font subtitleChinese = new Font(bfChinese, 13, Font.BOLD);
+        //正常文字
+        //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
+        Font name2 = new Font(bfChinese, 12, Font.NORMAL);
+          
+        String fileName = new StringBuffer("")
+                .append(cacheDirectory)
+                .append("//")
+                .append(System.currentTimeMillis())
+                .append("_")
+                .append(teacherName)
+                .append(".pdf")
+                .toString();
+        Document document = new Document(PageSize.A4,24,24,16,16);
+        PdfWriter.getInstance(document, new FileOutputStream(fileName));
+		
+        /************************ PDF填充内容  ******************************/
+        document.open();
+        //---1 添加标题---
+        Paragraph title = new Paragraph("教师课程表", titleChinese);
+        //居中设置
+        title.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        title.setLeading(20);
+        title.setSpacingBefore(30);
+        document.add(title);
+        
+        //---2 副标题---
+        Paragraph subtitle = new Paragraph(calendarName, subtitleChinese);
+        subtitle.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        subtitle.setLeading(10);
+        //内容距离左边8个单位
+        subtitle.setFirstLineIndent(7);
+        subtitle.setIndentationRight(20);
+        //副标题与标题之间的距离
+        subtitle.setSpacingBefore(15);
+        document.add(subtitle);
+		
+        //----3 教师基本信息----
+        StudentSchoolTimetabVo teacherTimetab = findTeacherTimetable2(calendarId,teacherCode);
+        
+        PdfPTable table1 = new PdfPTable(4);
+        //前间距
+        table1.setSpacingBefore(5);
+        
+        PdfPCell cell1 = createNoBorderCell("工号："+teacherCode,name2,20f);
+        table1.addCell(cell1);
+       
+        PdfPCell cell2 = createNoBorderCell("姓名："+teacherName, name2,20f);
+        table1.addCell(cell2);
+        
+        PdfPCell cell3 = createNoBorderCell("学院："+teacherTimetab.getFaculty(), name2,20f);
+        table1.addCell(cell3);
+        
+        PdfPCell cell4 = createNoBorderCell("", name2,20f);
+        table1.addCell(cell4);
+        document.add(table1);
+        
+        // ----3 教师选课课表展示---- 
+        PdfPTable table2 = createStudentTable(teacherTimetab.getTimeTables(),subtitleChinese,name2);
+        document.add(table2);
+        
+        // ----4 学生选课列表 -------
+        PdfPTable table3 = createTeacherTimeList(teacherTimetab.getTeacherDtos(),subtitleChinese,name2);
+        document.add(table3);
+        
+        document.close();
+        return RestResult.successData("导出成功。",fileName);
+	}
+	
+	public PdfPTable createTeacherTimeList(List<ClassTeacherDto> list,Font subtitleChinese,Font name2) throws IOException, DocumentException {
+		PdfPTable table = new PdfPTable(setTimeListTeacherTitle.length);
+		table.setWidthPercentage(100);
+		table.setSpacingBefore(10);
+		
+		// 添加表头
+		for (int i = 0; i < setTimeListTeacherTitle.length; i++) {
+			PdfPCell cell = createCell(setTimeListTeacherTitle[i],1,1,subtitleChinese,null);
+			table.addCell(cell);
+		}
+		
+		// 添加表内容
+		for (int j = 0; j < list.size(); j++) {
+			List<String> timeTableList = getTimeTableTeacherList(list.get(j));
+			for (int i = 0; i < setTimeListTeacherTitle.length; i++) {
+				PdfPCell cell = new PdfPCell();
+				if (i == 0) {
+					cell = createCell(String.valueOf(j+1),1,1,name2,null);
+				}else {
+					cell = createCell(timeTableList.get(i-1),1,1,name2,null);
+				}
+				table.addCell(cell);
+			}
+		}
+		return table;
+	}
+
+	private List<String> getTimeTableTeacherList(ClassTeacherDto classTeacherDto) {
+		List<String> list = new ArrayList<String>();
+		list.add(classTeacherDto.getClassCode());
+		list.add(classTeacherDto.getCourseName());
+		list.add(classTeacherDto.getNature());
+		list.add(String.valueOf(classTeacherDto.getWeekHour()));
+		list.add(String.valueOf(classTeacherDto.getCredits()));
+		list.add(classTeacherDto.getTeachingLanguage());
+		list.add(classTeacherDto.getTime());
+		list.add(String.valueOf(classTeacherDto.getSelectCourseNumber()));
+		list.add(classTeacherDto.getRemark());
+		return list;
+	}
 
 }

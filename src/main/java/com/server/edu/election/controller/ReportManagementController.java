@@ -552,5 +552,39 @@ public class ReportManagementController
                 return null;
             }
     }
+    
+    @GetMapping(value = "/exportTeacherTimetabPdf")
+    @ApiResponses({
+    	@ApiResponse(code = 200, response = File.class, message = "导出教师课表pdf--研究生")})
+    public ResponseEntity<Resource> exportTeacherTimetabPdf(
+    		@RequestParam("calendarId") Long calendarId,
+    		@RequestParam("calendarName") String calendarName,
+    		@RequestParam("teacherCode") String teacherCode, 
+    		@RequestParam("teacherName") String teacherName) throws Exception{
+    	LOG.info("exportTeacherTimetabPdf.start");
+    	
+    	StringBuffer name = new StringBuffer();
+    	RestResult<String> restResult = managementService.exportTeacherTimetabPdf(calendarId, calendarName, teacherCode,teacherName);
+    	
+    	if (ResultStatus.SUCCESS.code() == restResult.getCode()
+    			&& !"".equals(restResult.getData()))
+    	{
+    		Resource resource = new FileSystemResource(
+    				URLDecoder.decode(restResult.getData(), "utf-8"));// 绝对路径
+    		return ResponseEntity.ok()
+    				.header(HttpHeaders.CONTENT_TYPE,
+    						"application/pdf; charset=utf-8")
+    				.header(HttpHeaders.CONTENT_DISPOSITION,
+    						"attachment;filename="
+    								+ String.valueOf(
+    										URLEncoder.encode(name.toString(), "UTF-8"))
+    								+ ".pdf")
+    				.body(resource);
+    	}
+    	else
+    	{
+    		return null;
+    	}
+    }
 
 }

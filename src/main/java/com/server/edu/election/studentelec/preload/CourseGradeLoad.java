@@ -410,7 +410,7 @@ public class CourseGradeLoad extends DataProLoad
                 String tName = names.get(i);
                 // 老师名称(老师编号)
                 sb.append(String.format("%s(%s) ", tName, tCode));
-            }
+            }        
         }
         return sb.toString();
     }
