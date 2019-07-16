@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.dao.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,13 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.CourseOpenDao;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionApplyDao;
+import com.server.edu.election.dao.ExemptionApplyDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionRounds;
@@ -395,20 +401,16 @@ public class CourseGradeLoad extends DataProLoad
             return "";
         }
         StringBuilder sb = new StringBuilder();
-        
         String[] codes = teacherCode.split(",");
         List<String> names = TeacherCacheUtil.getNames(codes);
-        names.add("罗小利");
-        names.add("李强");
-        for (int i = 0; i < codes.length; i++)
-        {
-//            String tCode = codes[i];
-//            String tName = names.get(i);
-        	// 测试代码（罗小利）
-          String tCode = codes[i];
-          String tName = names.get(0);
-            // 老师名称(老师编号)
-            sb.append(String.format("%s(%s) ", tName, tCode));
+        if(CollectionUtil.isNotEmpty(names)) {
+            for (int i = 0; i < codes.length; i++)
+            {
+                String tCode = codes[i];
+                String tName = names.get(i);
+                // 老师名称(老师编号)
+                sb.append(String.format("%s(%s) ", tName, tCode));
+            }        
         }
         return sb.toString();
     }
