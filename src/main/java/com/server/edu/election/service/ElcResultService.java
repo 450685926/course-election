@@ -11,6 +11,7 @@ import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
+import com.server.edu.util.excel.export.ExcelResult;
 
 public interface ElcResultService
 {
@@ -90,5 +91,14 @@ public interface ElcResultService
 	 * @return
 	 */
 	PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page);
+
+	/**
+	 * 导出研究生未选课学生名单
+	 * @param condition
+	 * @return
+	 */
+	ExcelResult export(ElcResultQuery condition);
+
+	ExcelResult elcResultCountByStudentExport(ElcResultQuery condition);
 
 }
