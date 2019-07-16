@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -20,13 +21,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -91,7 +86,7 @@ public class ElcCourseTakeController
 	private RestTemplate restTemplate = RestTemplateBuilder.create();
     
     /**
-     * 上课名单列表
+     * 上课名单列表(研究生课程维护模块学生选课列表)
      * 
      * @param condition
      * @return
@@ -110,7 +105,55 @@ public class ElcCourseTakeController
         
         return RestResult.successData(list);
     }
-    
+
+    /**
+     * 学生个人全部选课信息
+     *
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "学生个人全部选课信息")
+    @PostMapping("/allSelectedCourse")
+    public RestResult<PageResult<ElcCourseTakeVo>> allSelectedCourse(
+            @RequestBody PageCondition<String> condition)
+            throws Exception
+    {
+        if (StringUtils.isBlank(condition.getCondition()))
+        {
+            throw new ParameterValidateException("studentId not be empty");
+        }
+        PageResult<ElcCourseTakeVo> list =
+                courseTakeService.allSelectedCourse(condition);
+
+        return RestResult.successData(list);
+    }
+
+    /**
+     * 返回研究生可以选的课程
+     * @param condition
+     * @return
+     */
+    @ApiOperation(value = "课程维护模块查询研究生可选课程")
+    @PostMapping("/addCourseList")
+    public RestResult<PageResult<ElcStudentVo>> addCourseList(
+            @RequestBody PageCondition<String> condition) {
+        PageResult<ElcStudentVo> page = courseTakeService.addCourseList(condition);
+        return RestResult.successData(page);
+    }
+
+    /**
+     * 课程维护模块研究生加课
+     * @param teachingClassIds
+     * @return
+     */
+    @ApiOperation(value = "课程维护模块研究生加课")
+    @GetMapping("/addCourse")
+    public RestResult<String> addCourseList(@RequestParam("teachingClassIds") List<Long> teachingClassIds) {
+        String msg = courseTakeService.addCourse(teachingClassIds);
+        return RestResult.successData(msg);
+    }
+
     /**
      * 研究生上课名单列表
      * 

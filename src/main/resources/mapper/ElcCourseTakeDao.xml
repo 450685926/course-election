@@ -48,20 +48,35 @@
   	<result column="LABEL_" jdbcType="VARCHAR" property="label" />
   </resultMap>
 
-  
+    <select id="allSelectedCourse" resultMap="VoResultMap">
+    select
+    t1.*,
+    t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_ faculty,
+    t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
+    t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
+    t4.CAMPUS_
+    from elc_course_takes_t t1
+    left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+    left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+    join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+    where t1.STUDENT_ID_ = #{studentId}
+  </select>
+
   <select id="listPage" resultMap="VoResultMap">
-  	select
+      select
       t1.*,
-      t2.NAME_,t2.PROFESSION_,
-      t3.NAME_ as courseName, t3.CREDITS_,
-      t4.CODE_ as teachingClassCode,
+      t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_ faculty,
+      t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
+      t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
       t4.CAMPUS_
       from elc_course_takes_t t1
       left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
       left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
       join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
-  	 t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
+      t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+     </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
   	 and t1.STUDENT_ID_ = #{query.studentId}
   	 </if>
@@ -77,6 +92,12 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
   	 and t2.GRADE_ = #{query.grade}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+         and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+     </if>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+          and t2.TRAINING_CATEGORY_ = #{query.trainingLevel}
+     </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
   	 and (t2.STUDENT_CODE_ like concat('%',#{studentCode},'%') or t2.NAME_ like concat('%',#{studentCode},'%'))
   	 </if>
@@ -86,24 +107,30 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
   	 and t2.PROFESSION_ = #{query.profession}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.researchDirection)">
+     and t2.RESEARCH_DIRECTION_ = #{query.researchDirection}
+     </if>
 	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
      and t2.DEGREE_CATEGORY_= #{elcResult.degreeType} 
      </if>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
      and t2.FORM_LEARNING_= #{elcResult.formLearning} 
      </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
-     and t2.TRAINING_LEVEL_= #{elcResult.trainingLevel} 
-     </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
-     and t2.TRAINING_CATEGORY_= #{elcResult.trainingCategory} 
-     </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
   	 and t3.CODE_ = #{query.courseCode}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
+      and t3.COLLEGE_ = #{courseFaculty}
+     </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
   	  and t3.NAME_ = #{query.courseName}
   	 </if>
+  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+      and t3.NATURE_ = #{query.nature}
+     </if>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+      and t3.CODE_ = #{query.courseCode}
+     </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
   	  and t3.LABEL_ = #{query.label}
   	 </if>
@@ -116,11 +143,11 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
   	 and t4.CODE_ = #{query.teachingClassCode}
   	 </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
+     <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
      and t1.MODE_ = #{query.mode}
-     </if>
+     </if>-->
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-	 AND (t1.STUDENT_ID_ like CONCAT(#{query.keyword}, '%') OR t2.NAME_ like CONCAT(#{query.keyword}, '%'))
+	 AND (t1.STUDENT_ID_ like CONCAT('%',#{query.keyword}, '%') OR t2.NAME_ like CONCAT('%',#{query.keyword}, '%'))
 	 </if>
   	</where>
   	order by CREATED_AT_ DESC, t1.STUDENT_ID_
@@ -1043,8 +1070,8 @@
 
     <select id="findAddCourseList" resultType="com.server.edu.election.vo.ElcStudentVo">
        select
-            a.NATURE_ nature,a.FACULTY_ courseFaculty,
-            b.NAME_ courseName,
+            a.FACULTY_ courseFaculty,
+            b.NAME_ courseName,b.NATURE_ nature,
             d.ID_ teachingClassId,d.CODE_ classCode,
             d.NAME_ teachingClassName,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number,
             e.TEACHER_NAME_ teacherName
@@ -1119,7 +1146,18 @@
     </delete>
 
     <select id="findSelectedCourseCode" resultType="java.lang.String">
-        select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
+        select distinct COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
+    </select>
+
+    <select id="findCourseCode" resultType="java.lang.String">
+        select distinct COURSE_CODE_ from elc_course_takes_t where TEACHING_CLASS_ID_ in
+        <foreach item="item" collection="list" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="findSelectedTeachingClassId" resultType="java.lang.String">
+        select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
     </select>
 
     <select id="findElcStudentCourse" parameterType="com.server.edu.election.dto.ElcStudentDto" resultType="com.server.edu.election.dto.ElcStudentCourseDto">

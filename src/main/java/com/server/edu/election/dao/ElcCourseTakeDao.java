@@ -186,5 +186,11 @@ public interface ElcCourseTakeDao
 
     List<String> findSelectedCourseCode(String studentId);
 
+    List<String> findCourseCode(@Param("list") List<String> teachingClassIds);
+
+    List<String> findSelectedTeachingClassId(String studentId);
+
     Page<ElcStudentCourseDto> findElcStudentCourse(ElcStudentDto condition);
+
+    Page<ElcCourseTakeVo> allSelectedCourse(String condition);
 }

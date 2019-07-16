@@ -10,7 +10,15 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.CalUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +36,6 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
-import com.server.edu.election.dao.CourseDao;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.ElectionConstantsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.dto.ElcCourseTakeAddDto;
-import com.server.edu.election.dto.ElcCourseTakeDto;
-import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -56,6 +55,7 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
+import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
@@ -63,6 +63,8 @@ import tk.mybatis.mapper.entity.Example.Criteria;
 public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 {
     Logger logger = LoggerFactory.getLogger(getClass());
+
+    private RestTemplate restTemplate = RestTemplateBuilder.create();
     
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
@@ -87,7 +89,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private ElecResultSwitchService elecResultSwitchService;
-    
+
+    @Autowired
+    private DictionaryService dictionaryService;
+
+    @Autowired
+    private ScoreStudentScoreDao scoreStudentScoreDao;
+
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page)
@@ -115,11 +123,90 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         cond.setIncludeCourseCodes(includeCodes);
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
-        
+        setTeachingArrange(listPage);
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
     }
-    
+
+    @Override
+    public PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(condition.getCondition());
+        setTeachingArrange(listPage);
+        return new PageResult<>(listPage);
+    }
+
+    private void setTeachingArrange(Page<ElcCourseTakeVo> elcCourseTakeVos) {
+        if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+            List<Long> ids = elcCourseTakeVos.stream().map(ElcCourseTakeVo::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> tableMessages = getTimeById(ids);
+            Map<Long, List<TimeTableMessage>> listMap = tableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+            for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                List<TimeTableMessage> timeTableMessages = listMap.get(elcCourseTakeVo.getTeachingClassId());
+                if (CollectionUtil.isNotEmpty(timeTableMessages)) {
+                    List<String> timeAndRooms = timeTableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    elcCourseTakeVo.setCourseArrange(String.join(",", timeAndRooms));
+                }
+            }
+        }
+    }
+
+    private List<TimeTableMessage> getTimeById(List<Long> teachingClassId) {
+        List<TimeTableMessage> list = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(teachingClassId)) {
+            List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
+            if (CollectionUtil.isNotEmpty(classTimeAndRoom)) {
+                for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                    Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                    Integer timeStart = classTeacherDto.getTimeStart();
+                    Integer timeEnd = classTeacherDto.getTimeEnd();
+                    String weekNumber = classTeacherDto.getWeekNumberStr();
+                    String[] str = weekNumber.split(",");
+
+                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                    List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
+                    String weekNumStr = weekNums.toString();//周次
+                    String weekstr = findWeek(dayOfWeek);//星期
+                    String timeStr = weekstr + " " + timeStart + "-" + timeEnd + "节" + weekNumStr + dictionaryService.query("X_XQ",classTeacherDto.getCampus());
+                    TimeTableMessage time = new TimeTableMessage();
+                    time.setTeachingClassId(classTeacherDto.getTeachingClassId());
+                    time.setTimeAndRoom(timeStr);
+                    list.add(time);
+                }
+            }
+        }
+        return list;
+    }
+
+    public String findWeek(Integer number) {
+        String week = "";
+        switch (number) {
+            case 1:
+                week = "星期一";
+                break;
+            case 2:
+                week = "星期二";
+                break;
+            case 3:
+                week = "星期三";
+                break;
+            case 4:
+                week = "星期四";
+                break;
+            case 5:
+                week = "星期五";
+                break;
+            case 6:
+                week = "星期六";
+                break;
+            case 7:
+                week = "星期日";
+                break;
+        }
+        return week;
+    }
+
     @Transactional
     @Override
     public String add(ElcCourseTakeAddDto add)
@@ -517,4 +604,43 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		return result;
 	}
 
+    @Override
+    public PageResult<ElcStudentVo> addCourseList(PageCondition<String> condition) {
+        String studentId = condition.getCondition();
+        //查询未通过的教学班和已选择的教学班
+        List<String> failedTeachingClassIds = scoreStudentScoreDao.findFailedTeachingClassId(studentId);
+        List<String> selectedTeachingClassIds = courseTakeDao.findSelectedTeachingClassId(studentId);
+        //剔除已选择的教学班中未通过的教学班
+        List<String> collect = selectedTeachingClassIds.stream().filter(item -> !failedTeachingClassIds.contains(item)).collect(Collectors.toList());
+        //查询已选择的课程代码
+        List<String> courseCodes = courseTakeDao.findCourseCode(collect);
+        //通过研究生培养计划获取学生需要修的课程
+        String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
+        RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
+        List<String> allCourseCode = restResult.getData();
+        Page<ElcStudentVo> elcStudentVos = new Page<ElcStudentVo>();
+        if (CollectionUtil.isNotEmpty(allCourseCode)){
+            //获取学生还需要修的课程即为可选课程
+            List<String> elcCourses = allCourseCode.stream().filter(item -> !courseCodes.contains(item)).collect(Collectors.toList());
+            PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses);
+            setCourseArrange(elcStudentVos);
+        }
+        return new PageResult<>(elcStudentVos);
+    }
+
+    private void setCourseArrange(Page<ElcStudentVo> elcStudentVos) {
+        if (CollectionUtil.isNotEmpty(elcStudentVos)) {
+            List<Long> ids = elcStudentVos.stream().map(ElcStudentVo::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> tableMessages = getTimeById(ids);
+            Map<Long, List<TimeTableMessage>> listMap = tableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+            for (ElcStudentVo elcCourseTakeVo : elcStudentVos) {
+                List<TimeTableMessage> timeTableMessages = listMap.get(elcCourseTakeVo.getTeachingClassId());
+                if (CollectionUtil.isNotEmpty(timeTableMessages)) {
+                    List<String> timeAndRooms = timeTableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    elcCourseTakeVo.setCourseArrange(String.join(",", timeAndRooms));
+                }
+            }
+        }
+    }
 }

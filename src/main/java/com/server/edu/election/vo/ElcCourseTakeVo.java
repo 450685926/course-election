@@ -27,7 +27,15 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /**专业*/
     @Code2Text(DictTypeEnum.G_ZY)
     private String profession;
-    
+
+    private String grade;
+
+    /**校区*/
+    @Code2Text(transformer = "X_KCXZ")
+    private String nature;
+
+    private String courseArrange;
+
     /**教学班编号*/
     private String teachingClassCode;
     /**教学班名称*/
@@ -48,6 +56,31 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
     @Code2Text(transformer="X_KCFL")
     private String label;
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public String getNature() {
+        return nature;
+    }
+
+    public void setNature(String nature) {
+        this.nature = nature;
+    }
+
+    public String getCourseArrange() {
+        return courseArrange;
+    }
+
+    public void setCourseArrange(String courseArrange) {
+        this.courseArrange = courseArrange;
+    }
+
     public String getTeachingCode() {
 		return teachingCode;
 	}

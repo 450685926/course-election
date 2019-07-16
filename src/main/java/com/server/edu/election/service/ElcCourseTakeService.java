@@ -13,6 +13,7 @@ import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcStudentVo;
 
 /**
  * 已选课名单
@@ -107,5 +108,19 @@ public interface ElcCourseTakeService
 	 */
 	PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> condition);
 
+    /**
+     * 查询学生个人全部选课信息
+     * @param condition
+     * @return
+     */
+    PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition);
 
+    /**
+     * 查询研究生可以添加的课程
+     * @param condition
+     * @return
+     */
+    PageResult<ElcStudentVo> addCourseList(PageCondition<String> condition);
+
+    String addCourse(List<Long> teachingClassIds);
 }

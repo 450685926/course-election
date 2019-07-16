@@ -92,7 +92,7 @@ public class ElcCourseUpholdServiceImpl implements ElcCourseUpholdService {
             listMap = tableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (ElcStudentVo elcStudentVo : elcStudentVos) {
                 List<TimeTableMessage> timeTableMessages = listMap.get(elcStudentVo.getTeachingClassId());
-                elcStudentVo.setCourseArrange(timeTableMessages);
+//                elcStudentVo.setCourseArrange(timeTableMessages);
             }
         }
     }
