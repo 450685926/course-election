@@ -49,6 +49,9 @@ public class ElcCourseResult{
 	//private List<TimeTableMessage> timeTableList;
 	private List<TimeAndRoom> timeTableList;
 	
+    /** 上课时间按教学周拆分集合 */
+    private List<ClassTimeUnit> times;
+	
 	/** 是否冲突（0-不冲突；1-冲突） */
 	private Integer isConflict;
 
@@ -163,5 +166,14 @@ public class ElcCourseResult{
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
+
+	public List<ClassTimeUnit> getTimes() {
+		return times;
+	}
+
+	public void setTimes(List<ClassTimeUnit> times) {
+		this.times = times;
+	}
+	
 	
 }

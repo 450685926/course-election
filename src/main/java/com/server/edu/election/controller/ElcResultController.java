@@ -1,31 +1,31 @@
 package com.server.edu.election.controller;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.validation.Valid;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.AutoRemoveDto;
-import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.TeachingClass;
@@ -35,11 +35,8 @@ import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.ExportUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelCell;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -203,99 +200,15 @@ public class ElcResultController
     	return RestResult.successData(result);
     }
     
-    @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "学生选课结果统计导出")})
-    @PostMapping("/elcResultCountByStudentExport")
-    public ResponseEntity<Resource> elcResultCountByStudentExport(
-    		@RequestBody PageCondition<ElcResultQuery> condition)
-    		throws Exception
+    @ApiOperation(value = "选课学生统计导出")
+    @GetMapping("/elcResultCountByStudentExport")
+    public RestResult<?> elcResultCountByStudentExport(
+    		@ModelAttribute ElcResultQuery condition)
+    				throws Exception
     {
-    	condition.setPageNum_(1);
-    	condition.setPageSize_(1000);
-        List<ElcResultDto> datas = new ArrayList<>();
-    	ElcResultCountVo result = elcResultService.elcResultCountByStudent(condition);
-    	if(condition.getCondition().getDimension().intValue() == Constants.ONE){
-    		List<ElcResultDto> res = result.getList();
-    		while (datas.size() < result.getTotal_())
-    	       {
-//    	       	List<Student4Elc> list = SpringUtils.convert(res.getList());
-    	           datas.addAll(res);
-    	           condition.setPageNum_(condition.getPageNum_() + 1);
-    	           if (datas.size() < result.getTotal_())
-    	           {
-    	               res = elcResultService.elcResultCountByStudent(condition).getList();
-    	           }
-    	       }
-    		GeneralExcelDesigner design = new GeneralExcelDesigner();
-            design.addCell("年级", "grade");
-            design.addCell("培养层次", "trainingLevel").setValueHandler(
-                    (String value, Object rawData, GeneralExcelCell cell) -> {
-                        String dict = dictionaryService
-                            .query(DictTypeEnum.X_PYCC.getType(), value);
-                        return dict;
-                    });
-            design.addCell("培养类别", "trainingCategory").setValueHandler(
-                    (String value, Object rawData, GeneralExcelCell cell) -> {
-                        String dict = dictionaryService
-                            .query(DictTypeEnum.X_PYLB.getType(), value);
-                        return dict;
-                    });
-            design.addCell("学位类型", "degreeType").setValueHandler(
-                    (String value, Object rawData, GeneralExcelCell cell) -> {
-                        String dict = dictionaryService
-                            .query(DictTypeEnum.X_XWLX.getType(), value);
-                        return dict;
-                    });
-            design.addCell("学习形式", "formLearning").setValueHandler(
-                    (String value, Object rawData, GeneralExcelCell cell) -> {
-                        String dict = dictionaryService
-                            .query(DictTypeEnum.X_XXXS.getType(), value);
-                        return dict;
-                    });
-            design.addCell("人数", "studentNum");
-            design.addCell("已选人数", "numberOfelectedPersons");
-            design.addCell("未选人数", "numberOfNonCandidates");
-            design.addCell("已选人数百分比（%）", "numberOfelectedPersonsPoint");
-            design.setDatas(res);
-            ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-            
-            return ExportUtil
-                .exportExcel(excelUtil, cacheDirectory, "yanJiuShengXuanKeJieGuoTongJi(xuesheng).xls");
-    	}else{
-    		List<ElcResultDto> res = result.getList();
-    		while (datas.size() < result.getTotal_())
- 	       {
- 	           datas.addAll(res);
- 	           condition.setPageNum_(condition.getPageNum_() + 1);
- 	           if (datas.size() < result.getTotal_())
- 	           {
- 	               res = elcResultService.elcResultCountByStudent(condition).getList();
- 	           }
- 	       }
-    		GeneralExcelDesigner design = new GeneralExcelDesigner();
-            design.addCell("年级", "grade");
-            design.addCell("学院", "faculty").setValueHandler(
-                    (String value, Object rawData, GeneralExcelCell cell) -> {
-                        String dict = dictionaryService
-                            .query(DictTypeEnum.X_YX.getType(), value);
-                        return dict;
-                    });
-            design.addCell("专业", "profession").setValueHandler(
-                    (String value, Object rawData, GeneralExcelCell cell) -> {
-                        String dict = dictionaryService
-                            .query(DictTypeEnum.G_ZY.getType(), value);
-                        return dict;
-                    });
-            design.addCell("人数", "studentNum");
-            design.addCell("已选人数", "nNumberOfelectedPersons");
-            design.addCell("未选人数", "numberOfNonCandidates");
-            design.addCell("已选人数百分比（%）", "numberOfelectedPersonsPoint");
-            design.setDatas(res);
-            ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-            
-            return ExportUtil
-                .exportExcel(excelUtil, cacheDirectory, "yanJiuShengXuanKeJieGuoTongJi(xueyuan) .xls");
-    	}
+    	ExcelResult result = elcResultService.elcResultCountByStudentExport(condition);
+    	ExportExcelUtils.getResultByKey(result.getKey());
+        return RestResult.successData(result);
     	
     }
     
@@ -317,81 +230,41 @@ public class ElcResultController
     	return RestResult.successData(result);
     }
     
+    /**
+     * 研究生未选课学生名单
+     * @param condition
+     * @return
+     * @throws Exception
+     */
+    @GetMapping(value = "/export")
+    public RestResult<?> export(
+    		@ModelAttribute ElcResultQuery condition)
+    				throws Exception
+    {
+        ExcelResult result = elcResultService.export(condition);
+        ExportExcelUtils.getResultByKey(result.getKey());
+        return RestResult.successData(result);
+    }
+    
+    /**
+     * @Description: 根据key循环去redis取数据
+     */
+    @GetMapping("result/{key}")
+    public RestResult<?> getResultByKey(
+        @PathVariable("key") @NotBlank String key)
+    {
+        ExcelResult excelResult = ExportExcelUtils.getResultByKey(key);
+        return RestResult.successData(excelResult);
+    }
+    
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
     @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "导出")})
-    @PostMapping(value = "/export")
-    public ResponseEntity<Resource> export(
-        @RequestBody ElcResultQuery condition)
+        @ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("path") String path)
         throws Exception
     {
-        ValidatorUtil.validateAndThrow(condition);
-        PageCondition<ElcResultQuery> page = new PageCondition<>();
-        page.setCondition(condition);
-        page.setPageNum_(1);
-        page.setPageSize_(1000);
-        
-        List<Student4Elc> datas = new ArrayList<>();
-        PageResult<Student4Elc>  res = elcResultService.getStudentPage(page);
-        while (datas.size() < res.getTotal_())
-	       {
-	           datas.addAll(res.getList());
-	           page.setPageNum_(page.getPageNum_() + 1);
-	           if (datas.size() < res.getTotal_())
-	           {
-	        	   res = elcResultService.getStudentPage(page);
-	           }
-	       }
-        
-        GeneralExcelDesigner design = new GeneralExcelDesigner();
-        design.addCell("学号", "studentId");
-        design.addCell("姓名", "name");
-        design.addCell("培养层次", "trainingLevel").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_PYCC.getType(), value);
-                    return dict;
-                });
-        design.addCell("培养类别", "degreeCategory").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_PYLB.getType(), value);
-                    return dict;
-                });
-        design.addCell("学位类型", "degreeType").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_XWLX.getType(), value);
-                    return dict;
-                });
-        design.addCell("学习形式", "formLearning").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_XXXS.getType(), value);
-                    return dict;
-                });
-        design.addCell("学院", "faculty").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_YX.getType(), value);
-                    return dict;
-                });
-        design.addCell("专业", "profession").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.G_ZY.getType(), value);
-                    return dict;
-                });
-        design.addCell("入学季节", "enrolSeason").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_RXJJ.getType(), value);
-                    return dict;
-                });
-        design.setDatas(res.getList());
-        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        
-        return ExportUtil
-            .exportExcel(excelUtil, cacheDirectory, "yanJiuShengWeiXuanKeMingDan.xls");
+        return ExportExcelUtils.export(path);
     }
     
 }
