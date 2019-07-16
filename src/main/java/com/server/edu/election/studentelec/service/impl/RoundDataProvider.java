@@ -110,7 +110,6 @@ public class RoundDataProvider
             {
                 this.roundCacheService.deleteRounds(keys.toArray());
             }
-            logger.info("session"+String.valueOf(SessionUtils.getCurrentSession()));
 //          String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
             String manageDptId = "2";
             // 缓存所有教学班
@@ -174,7 +173,6 @@ public class RoundDataProvider
         //缓存轮次学生
         roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
-        logger.info("session"+String.valueOf(SessionUtils.getCurrentSession()));
 //        String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         String manageDptId = "2";
         if (StringUtils.equals(manageDptId, "1")) {
