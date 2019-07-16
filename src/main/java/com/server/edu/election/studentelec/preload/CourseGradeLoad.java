@@ -398,10 +398,15 @@ public class CourseGradeLoad extends DataProLoad
         
         String[] codes = teacherCode.split(",");
         List<String> names = TeacherCacheUtil.getNames(codes);
+        names.add("罗小利");
+        names.add("李强");
         for (int i = 0; i < codes.length; i++)
         {
-            String tCode = codes[i];
-            String tName = names.get(i);
+//            String tCode = codes[i];
+//            String tName = names.get(i);
+        	// 测试代码（罗小利）
+          String tCode = codes[i];
+          String tName = names.get(0);
             // 老师名称(老师编号)
             sb.append(String.format("%s(%s) ", tName, tCode));
         }
