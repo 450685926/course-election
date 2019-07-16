@@ -82,9 +82,11 @@ public class RoundDataProvider
         
         try
         {
+        	logger.info("缓存所有选课规则");
             // 缓存所有选课规则
             ruleCacheService.cacheAllRule();
             
+            logger.info("一小时后即将开始的选课参数");
             /** 一小时后即将开始的选课参数 */
             List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
             
@@ -100,6 +102,7 @@ public class RoundDataProvider
                     keys.remove(id);
                 }
                 calendarIds.add(round.getCalendarId());
+                logger.info("缓存轮次信息");
                 this.cacheData(round, now);
             }
             
@@ -109,6 +112,7 @@ public class RoundDataProvider
             }
             String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
             // 缓存所有教学班
+            logger.info("缓存教学班");
             for (Long calendarId : calendarIds)
             {
                 classCacheService.cacheAllTeachClass(calendarId,manageDptId);
@@ -154,12 +158,17 @@ public class RoundDataProvider
         long timeout =
             TimeUnit.MILLISECONDS.toMinutes(endTime.getTime() - now.getTime())
                 + 3;
+        logger.info("缓存轮次数据");
         // 缓存轮次数据
         roundCacheService.cacheRound(round, timeout);
+        
+        logger.info("缓存轮次规则数据");
         // 缓存轮次规则数据
         ruleCacheService.cacheRoundRule(roundId, timeout);
+        logger.info("缓存轮次条件");
         //缓存轮次条件
         roundCacheService.cacheRoundCondition(roundId, timeout);
+        logger.info("缓存轮次学生");
         //缓存轮次学生
         roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
