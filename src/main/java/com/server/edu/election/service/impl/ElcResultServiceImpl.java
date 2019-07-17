@@ -2,7 +2,6 @@ package com.server.edu.election.service.impl;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,10 +62,8 @@ import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.FileUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
@@ -538,12 +535,18 @@ public class ElcResultServiceImpl implements ElcResultService
 	 * 未选课学生名单
 	 * 
 	 */
+	@SuppressWarnings("resource")
 	@Override
 	public PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page ) {
 		//查询该条件下未选课学生名单
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		page.getCondition().setManagerDeptId(Constants.ONE+"");
-		Page<Student4Elc> result = studentDao.getAllNonSelectedCourseStudent(page.getCondition());
+		Page<Student4Elc> result = new Page<Student4Elc>();
+		if(page.getCondition().getDimension().intValue() == Constants.ONE){
+			result = studentDao.getAllNonSelectedCourseStudent(page.getCondition());
+		}else{
+			result = studentDao.getAllNonSelectedCourseStudent1(page.getCondition());
+		}
 		return new PageResult<>(result);
 	}
 

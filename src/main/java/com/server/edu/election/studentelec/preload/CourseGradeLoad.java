@@ -67,7 +67,8 @@ public class CourseGradeLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-    	return "1,2,4";
+//    	return "1,2,4";
+    	return "1";
     }
     
     @Autowired

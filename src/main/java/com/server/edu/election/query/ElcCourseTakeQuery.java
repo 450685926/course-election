@@ -45,7 +45,7 @@ public class ElcCourseTakeQuery
      * */
     private Integer mode;
     
-    private String keyword;
+    private String keyWord;
     
     /** 课程类型 1体育课，2英语课*/
     private Integer courseType;
@@ -177,14 +177,14 @@ public class ElcCourseTakeQuery
         this.profession = profession;
     }
     
-    public String getKeyword()
+    public String getKeyWord()
     {
-        return keyword;
+        return keyWord;
     }
     
-    public void setKeyword(String keyword)
+    public void setKeyWord(String keyWord)
     {
-        this.keyword = keyword;
+        this.keyWord = keyWord;
     }
     
     public Integer getCourseType()
