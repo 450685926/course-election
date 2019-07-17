@@ -56,5 +56,17 @@ public interface ExemptionCourseService {
 
     /**编辑申请规则*/
     String editExemptionCourseRule(ExemptionCourseRuleVo courseRuleVo);
+	/**
+	 * 研究生添加免修免考申请审核开关
+	 * @param applyAuditSwitch
+	 */
+	void addExemptionAuditSwitch(ExemptionApplyAuditSwitch applyAuditSwitch);
+	
+	/**
+	 * 研究生查询免修免考申请审核开关
+	 * @param condition
+	 * @return 
+	 */
+	PageResult<ExemptionApplyAuditSwitch> queryExemptionAuditSwitch(PageCondition<ExemptionApplyAuditSwitch> condition);
 }
 
