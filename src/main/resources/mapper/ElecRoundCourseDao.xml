@@ -291,7 +291,7 @@
 		 and op.CALENDAR_ID_ = #{calendarId}
 		 order by cl.CODE_
   </select>
-  <!-- 本科生查询教学班信息 -->
+  <!--教学班信息 -->
   <select id="selectTeachingClassByCalendarId" resultMap="CourseOpenDtoMap">
   	  select 
   	  	op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,
@@ -301,7 +301,25 @@
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
 	  where
 		 op.CALENDAR_ID_ = #{calendarId}
-		 order by cl.CODE_
+	  union
+	 SELECT
+		op1.*, cl1.ID_ AS teachingClassId,
+		cl1.CODE_ AS teachingClassCode,
+		cl1.CAMPUS_ AS campus,
+		cl1.CLASS_TYPE_ AS teachClassType,
+		cl1.NUMBER_ AS maxNumber,
+		cl1.ELC_NUMBER_ AS currentNumber
+	FROM
+		course_open_t op1
+	JOIN teaching_task_t ta ON op1.ID_ = ta.COURSE_OPEN_ID_
+	JOIN teaching_class_t cl1 ON cl1.TASK_ID_ = ta.ID_
+	JOIN teaching_class_arrange_time_t time ON cl1.ID_ = time.TEACHING_CLASS_ID_
+	WHERE
+		time.TYPE_ = '2'
+	AND op1.PROJ_ID_ = '2'
+	AND op1.CALENDAR_ID_ = #{calendarId}
+	ORDER BY
+		teachingClassCode
   </select>
   <!-- 研究生查询教学班信息 -->
   <select id="selectTeachingClassGraduteByCalendarId" resultMap="CourseOpenDtoMap">
