@@ -171,18 +171,17 @@ public class ElcCourseTakeController
     @ApiOperation(value = "课程维护模块退课")
     @PostMapping("/removedCourse")
     public RestResult<Integer> removedCourse(@RequestBody AddAndRemoveCourseDto courseDto) {
-//        Session session = SessionUtils.getCurrentSession();
-//        setParam(session, courseDto);
-//        Integer count = null;
-//        if (session.isAdmin()) {
-//            courseDto.setChooseObj(3);
-//            count = courseTakeService.removedCourse(courseDto);
-//        } else if (session.isAcdemicDean()) {
-//            courseDto.setChooseObj(2);
-//            count = courseTakeService.removedCourse(courseDto);
-//        }
-//        return RestResult.successData(count);
-        return RestResult.successData(courseTakeService.removedCourse(courseDto));
+        Session session = SessionUtils.getCurrentSession();
+        setParam(session, courseDto);
+        Integer count = null;
+        if (session.isAdmin()) {
+            courseDto.setChooseObj(3);
+            count = courseTakeService.removedCourse(courseDto);
+        } else if (session.isAcdemicDean()) {
+            courseDto.setChooseObj(2);
+            count = courseTakeService.removedCourse(courseDto);
+        }
+        return RestResult.successData(count);
     }
 
     private void setParam(Session session, AddAndRemoveCourseDto courseDto) {
