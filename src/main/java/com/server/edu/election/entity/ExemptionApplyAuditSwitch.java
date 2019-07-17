@@ -11,6 +11,7 @@ import javax.persistence.Table;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.annotation.Code2Text.DataType;
 
 @CodeI18n
 @Table(name = "exemption_apply_audit_switch_t")
@@ -40,28 +41,28 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     /**
      * 培养层次(逗号分隔，字典表X_PYCC)
      */
-    @Code2Text(transformer = "X_PYCC")
+    @Code2Text(transformer = "X_PYCC",dataType = DataType.SPLIT)
     @Column(name = "TRAINING_LEVELS_")
     private String trainingLevels;
 	
     /**
      * 学习形式(逗号分隔，字典表X_XXXS)
      */
-    @Code2Text(transformer = "X_XXXS")
+    @Code2Text(transformer = "X_XXXS",dataType = DataType.SPLIT)
     @Column(name = "FORM_LEARNINGS_")
     private String formLearnings;
     
     /**
      * 培养类别(逗号分隔，字典表X_PYLB)
      */
-    @Code2Text(transformer = "X_PYLB")
+    @Code2Text(transformer = "X_PYLB",dataType = DataType.SPLIT)
     @Column(name = "TRAINING_CATEGORYS_")
     private String trainingCategorys;
     
     /**
      * 学位类别(逗号分隔，字典表X_XWLX)
      */
-    @Code2Text(transformer = "X_XWLX")
+    @Code2Text(transformer = "X_XWLX",dataType = DataType.SPLIT)
     @Column(name = "DEGREE_CATEGORYS_")
     private String degreeCategorys;
     
@@ -72,13 +73,13 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     private String enrolSeason;
     
     /**
-     * 是否申请开放(1-是，2-否)
+     * 是否申请开放(1-是，0-否)
      */
     @Column(name = "APPLY_OPEN_")
     private Integer applyOpen;
     
     /**
-     * 是否审核开放(1-是，2-否)
+     * 是否审核开放(1-是，0-否)
      */
     @Column(name = "AUDIT_OPEN_")
     private Integer auditOpen;
@@ -90,10 +91,10 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     private Date createdAt;
     
     /**
-     * 创建时间
+     * 管理部门ID
      */
-    @Column(name = "CREATE_BY_")
-    private Date createBy;
+    @Column(name = "PROJ_ID_")
+    private String projId;
 
 	public Long getId() {
 		return id;
@@ -183,12 +184,12 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 		this.createdAt = createdAt;
 	}
 
-	public Date getCreateBy() {
-		return createBy;
+	public String getProjId() {
+		return projId;
 	}
 
-	public void setCreateBy(Date createBy) {
-		this.createBy = createBy;
+	public void setProjId(String projId) {
+		this.projId = projId;
 	}
     
 }

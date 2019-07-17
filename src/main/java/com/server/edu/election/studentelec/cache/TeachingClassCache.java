@@ -193,5 +193,13 @@ public class TeachingClassCache extends ElecCourse
         }
         return false;
     }
+
+	@Override
+	public String toString() {
+		return "TeachingClassCache [teachClassId=" + teachClassId + ", teachClassCode=" + teachClassCode
+				+ ", teachClassType=" + teachClassType + ", practice=" + practice + ", retraining=" + retraining
+				+ ", maxNumber=" + maxNumber + ", currentNumber=" + currentNumber + ", times=" + times
+				+ ", teacherCode=" + teacherCode + ", teacherName=" + teacherName + ", faculty=" + faculty + "]";
+	}
     
 }

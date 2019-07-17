@@ -99,5 +99,12 @@ public class ClassTimeUnit
     {
         this.teacherCode = teacherCode;
     }
+
+	@Override
+	public String toString() {
+		return "ClassTimeUnit [teachClassId=" + teachClassId + ", arrangeTimeId=" + arrangeTimeId + ", timeStart="
+				+ timeStart + ", timeEnd=" + timeEnd + ", dayOfWeek=" + dayOfWeek + ", weeks=" + weeks + ", value="
+				+ value + ", teacherCode=" + teacherCode + "]";
+	}
     
 }
