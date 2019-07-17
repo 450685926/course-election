@@ -16,6 +16,9 @@ public class SelectedCourse extends TeachingClassCache
     /** 教学班Id */
     private Long teachClassId;
     
+    /** 教学班 */
+    private Long teachClassMsg;
+    
     /**
      * 选课对象(1学生，2教务员，3管理员)
      */
@@ -47,6 +50,15 @@ public class SelectedCourse extends TeachingClassCache
 		this.isApply = isApply;
 	}
 
+	
+	public Long getTeachClassMsg() {
+		return teachClassMsg;
+	}
+
+	public void setTeachClassMsg(Long teachClassMsg) {
+		this.teachClassMsg = teachClassMsg;
+	}
+
 	public SelectedCourse()
     {
         
@@ -63,6 +75,7 @@ public class SelectedCourse extends TeachingClassCache
     
     public SelectedCourse(TeachingClassCache course)
     {
+    	this.setNature(course.getNature());
         this.setCampus(course.getCampus());
         this.setCourseCode(course.getCourseCode());
         this.setCourseName(course.getCourseName());
@@ -70,6 +83,7 @@ public class SelectedCourse extends TeachingClassCache
         this.setNameEn(course.getNameEn());
         this.setPublicElec(course.isPublicElec());
         this.setTeachClassId(course.getTeachClassId());
+        this.setTeachClassMsg(course.getTeachClassId());
         this.setTeachClassCode(course.getTeachClassCode());
         this.setTeachClassType(course.getTeachClassType());
         this.setPractice(course.getPractice());

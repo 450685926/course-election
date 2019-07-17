@@ -35,6 +35,7 @@ import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 
@@ -207,7 +208,6 @@ public class ElcResultController
     				throws Exception
     {
     	ExcelResult result = elcResultService.elcResultCountByStudentExport(condition);
-    	ExportExcelUtils.getResultByKey(result.getKey());
         return RestResult.successData(result);
     	
     }
@@ -242,7 +242,6 @@ public class ElcResultController
     				throws Exception
     {
         ExcelResult result = elcResultService.export(condition);
-        ExportExcelUtils.getResultByKey(result.getKey());
         return RestResult.successData(result);
     }
     

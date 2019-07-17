@@ -1,6 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
 import java.util.List;
+
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
 /**
@@ -10,6 +13,7 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 @CodeI18n
 public class ElcCourseResult{
 	/** 课程类别（课程性质） */
+	@Code2Text(DictTypeEnum.X_KCXZ)
 	private String natrue;
 	
 	/** 教学班主键ID */
@@ -34,6 +38,7 @@ public class ElcCourseResult{
     private String teacherName;
     
 	/** 开课学院 */
+    @Code2Text(DictTypeEnum.X_YX)
 	private String faculty;
 	
 	/** 实际选课人数 */
