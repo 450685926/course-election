@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
@@ -31,7 +31,6 @@ import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -250,12 +249,11 @@ public class RoundCacheService extends AbstractCacheService
     {
         // 加载所有教学班与课程数据到缓存中
     	List<CourseOpenDto> lessons = new ArrayList<CourseOpenDto>();
-    	if (org.apache.commons.lang.StringUtils.equals(manageDptId, "1")) {
+    	if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE)) {
     		lessons = roundCourseDao.selectCorseRefTeachClassByRoundId(roundId, calendarId);
 		}else {
 			lessons = roundCourseDao.selectCorseRefTeachClassGraduteByRoundId(roundId, calendarId);
 		}
-        
         Map<String, Set<Long>> courseClassMap = new HashMap<>();
         for (CourseOpenDto teachClasss : lessons)
         {
@@ -272,12 +270,9 @@ public class RoundCacheService extends AbstractCacheService
                 courseClassMap.put(courseCode, ids);
             }
         }
-        
         HashOperations<String, String, String> ops = strTemplate.opsForHash();
         String key = Keys.getRoundCourseKey(roundId);
-        
         Set<String> existKeys = ops.keys(key);
-        
         for (Entry<String, Set<Long>> entry : courseClassMap.entrySet())
         {
             String courseCode = entry.getKey();
@@ -288,7 +283,6 @@ public class RoundCacheService extends AbstractCacheService
             // 移除存在的
             existKeys.remove(courseCode);
         }
-        
         if (null != existKeys && !existKeys.isEmpty())
         {
             // 删除掉没有关联的课程
