@@ -174,7 +174,7 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
 
-    Page<ElcStudentVo> findAddCourseList(List<String> list);
+    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId);
 
     Page<ElcStudentVo> findRemovedCourseList(String studentId);
 
@@ -182,7 +182,7 @@ public interface ElcCourseTakeDao
 
     Integer saveCourseTask(List<ElcCourseTake> list);
 
-    Integer deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
+    int deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
 
     List<String> findSelectedCourseCode(String studentId);
 
@@ -190,7 +190,15 @@ public interface ElcCourseTakeDao
 
     List<String> findSelectedTeachingClassId(String studentId);
 
-    Page<ElcStudentCourseDto> findElcStudentCourse(ElcStudentDto condition);
+    Page<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
 
     Page<ElcCourseTakeVo> allSelectedCourse(String condition);
+
+    int courseCount(@Param("courseCode") String courseCode, @Param("studentId") String studentId);
+
+    List<String> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
+
+    List<TimeTableMessage> findCourseArrange(@Param("teachingClassIds") List<String> ids);
+
+    List<TimeTableMessage> findCourseArrangeByTeachingClassId();
 }

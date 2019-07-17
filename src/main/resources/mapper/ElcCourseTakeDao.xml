@@ -317,7 +317,7 @@
         join teaching_class_arrange_time_t ti on te.ID_=ti.TEACHING_CLASS_ID_
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        te.ID_ in 
+        te.ID_ in
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
@@ -1081,10 +1081,10 @@
         join teaching_class_t d on d.TASK_ID_ = c.ID_
         join teaching_class_teacher_t e on e.TEACHING_CLASS_ID_ = d.ID_
         where a.COURSE_CODE_ in
-            <foreach item="item" collection="list" separator="," open="(" close=")" >
-              #{item}
+            <foreach item="courseCode" collection="courseCodes" separator="," open="(" close=")" >
+              #{courseCode}
             </foreach>
-            and a.IS_OPEN_ = 1
+            and a.CALENDAR_ID_ = #{calendarId}
     </select>
 
     <select id="findCourseInfo" resultType="com.server.edu.election.vo.ElcStudentVo">
@@ -1160,7 +1160,7 @@
         select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
     </select>
 
-    <select id="findElcStudentCourse" parameterType="com.server.edu.election.dto.ElcStudentDto" resultType="com.server.edu.election.dto.ElcStudentCourseDto">
+    <select id="findElcStudentCourse" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultType="com.server.edu.election.dto.ElcStudentCourseDto">
         select
             t1.STUDENT_ID_ studentCode,t1.COURSE_TAKE_TYPE_ courseTakeType,t1.CHOOSE_OBJ_ chooseObj,
             t2.NAME_ studentName, t2.GRADE_ grade, t2.FACULTY_ faculty, t2.PROFESSION_ profession,
@@ -1215,11 +1215,48 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
                 and t3.NAME_ = #{courseName}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
-                and t4.CODE_ = #{classCode}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+                and t4.CODE_ = #{teachingClassCode}
             </if>
         </where>
         order by t1.STUDENT_ID_
+    </select>
+
+    <select id="courseCount" resultType="int">
+        select count(ID_) from elc_course_takes_t where COURSE_CODE_ = #{courseCode} and STUDENT_ID_ = #{studentId}
+    </select>
+
+    <select id="findTeachingClassIdByStudentId" resultType="java.lang.String">
+        select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId}
+    </select>
+
+    <select id="findCourseArrange" resultType="com.server.edu.election.dto.TimeTableMessage">
+        select
+            t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
+            GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNumber
+        from teaching_class_arrange_time_t t1
+        join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
+        where t1.TEACHING_CLASS_ID_ in
+        <foreach item="item" collection="teachingClassIds" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+        group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
+        order by t1.DAY_OF_WEEK_,t1.TIME_START_
+    </select>
+
+    <select id="findCourseArrangeByTeachingClassId" resultType="com.server.edu.election.dto.TimeTableMessage">
+        select
+            co.COURSE_NAME_ courseName, te.DAY_OF_WEEK_ dayOfWeek, te.TIME_START_ timeStart, te.TIME_END_ timeEnd,
+            GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumber
+        from teaching_class_t tc
+        join teaching_task_t tk on tk.ID_ = tc.TASK_ID_
+        join course_open_t co on co.ID_ = tk.COURSE_OPEN_ID_
+        join teaching_class_arrange_time_t te on te.TEACHING_CLASS_ID_ = tc.ID_
+        join teaching_class_arrange_room_t ro ON te.ID_ = ro.ARRANGE_TIME_ID_
+        WHERE
+        tc.ID_ = #{teachingClassId}
+        GROUP BY ro.ARRANGE_TIME_ID_
+        order by te.DAY_OF_WEEK_,te.TIME_START_
     </select>
 
 </mapper>

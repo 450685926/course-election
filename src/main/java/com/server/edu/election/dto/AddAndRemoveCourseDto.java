@@ -6,11 +6,20 @@ import java.util.List;
  * 加课退课参数
  */
 public class AddAndRemoveCourseDto {
+    private Long calendarId;
     private String studentId;
     private List<Long> teachingClassId;
     private Integer chooseObj;
     private String id;
     private String name;
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
 
     public String getName() {
         return name;

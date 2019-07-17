@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dto.AddAndRemoveCourseDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.Student4Elc;
@@ -14,6 +15,7 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
+import io.swagger.models.auth.In;
 
 /**
  * 已选课名单
@@ -109,18 +111,35 @@ public interface ElcCourseTakeService
 	PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> condition);
 
     /**
-     * 查询学生个人全部选课信息
+     * 课程维护研究生加课查询学生个人全部选课信息
      * @param condition
      * @return
      */
     PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition);
 
     /**
-     * 查询研究生可以添加的课程
+     * 课程维护研究生加课查询研究生可以添加的课程
      * @param condition
      * @return
      */
-    PageResult<ElcStudentVo> addCourseList(PageCondition<String> condition);
+    PageResult<ElcStudentVo> addCourseList(PageCondition<ElcStudentVo> condition);
 
-    String addCourse(List<Long> teachingClassIds);
+    /**
+     * 课程维护研究生加课
+     * @param courseDto
+     * @return
+     */
+    Integer addCourse(AddAndRemoveCourseDto courseDto);
+
+    /**
+     * 课程维护研究生退课
+     * @param courseDto
+     * @return
+     */
+    Integer removedCourse(AddAndRemoveCourseDto courseDto);
+
+    PageResult<ElcStudentVo> removedCourseList(PageCondition<String> studentId);
+
+    /**课程维护导出学生选课信息*/
+    String exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
 }
