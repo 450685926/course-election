@@ -149,18 +149,17 @@ public class ElcCourseTakeController
     @ApiOperation(value = "课程维护模块研究生加课")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(@RequestBody AddAndRemoveCourseDto courseDto) {
-//        Session session = SessionUtils.getCurrentSession();
-//        setParam(session, courseDto);
-//        String msg = "";
-//        if (session.isAdmin()) {
-//            courseDto.setChooseObj(3);
-//            msg = courseTakeService.addCourse(courseDto);
-//        } else if (session.isAcdemicDean()) {
-//            courseDto.setChooseObj(2);
-//            msg = courseTakeService.addCourse(courseDto);
-//        }
-//        return RestResult.successData(msg);
-        return RestResult.successData(courseTakeService.addCourse(courseDto));
+        Session session = SessionUtils.getCurrentSession();
+        setParam(session, courseDto);
+        Integer count = null;
+        if (session.isAdmin()) {
+            courseDto.setChooseObj(3);
+            count = courseTakeService.addCourse(courseDto);
+        } else if (session.isAcdemicDean()) {
+            courseDto.setChooseObj(2);
+            count = courseTakeService.addCourse(courseDto);
+        }
+        return RestResult.successData(count);
     }
 
     /**
