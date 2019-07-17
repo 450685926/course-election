@@ -70,8 +70,6 @@ public class ElcCourseTakeQuery
     private String label;
     
     private String courseName;
-    
-    private String grade;
 
     private String degreeType;
 
@@ -298,13 +296,5 @@ public class ElcCourseTakeQuery
     {
         this.includeCourseCodes = includeCourseCodes;
     }
-
-	public String getGrade() {
-		return grade;
-	}
-
-	public void setGrade(String grade) {
-		this.grade = grade;
-	}
     
 }
