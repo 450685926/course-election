@@ -76,7 +76,7 @@ public class TeachClassCacheService extends AbstractCacheService
         return ops;
     }
     
-    public void cacheAllTeachClass(Long calendarId,String manageDptId)
+    public void cacheAllTeachClass(Long calendarId)
     {
         PageInfo<CourseOpenDto> page = new PageInfo<>();
         page.setNextPage(1);
@@ -84,15 +84,8 @@ public class TeachClassCacheService extends AbstractCacheService
         while (page.isHasNextPage())
         {
             PageHelper.startPage(page.getNextPage(), 300);
-            List<CourseOpenDto> lessons = new ArrayList<CourseOpenDto>();
-            if (org.apache.commons.lang.StringUtils.equals(manageDptId, "1")) {
-            	lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
-			}else {
-				lessons = roundCourseDao.selectTeachingClassGraduteByCalendarId(calendarId);
-				logger.info("555555555555555555555555555555555555555555555555555"+ lessons.size());
-			}
+            List<CourseOpenDto> lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
             this.cacheTeachClass(100, lessons);
-            
             page = new PageInfo<>(lessons);
         }
     }
@@ -126,14 +119,12 @@ public class TeachClassCacheService extends AbstractCacheService
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
         logger.info("6666666666666666666666666666666666666666666666666   classIds" + classIds.size());
-        
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
             TeachingClassCache tc = new TeachingClassCache();
-            
             tc.setCourseCode(lesson.getCourseCode());
             tc.setCourseName(lesson.getCourseName());
             tc.setCredits(lesson.getCredits());
@@ -149,29 +140,19 @@ public class TeachClassCacheService extends AbstractCacheService
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
-            
             numMap.put(teachingClassId.toString(),
                 tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);
         }
         // 缓存选课人数
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
-        
         strTemplate
             .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);
-        
         // 缓存教学班信息
         String key = Keys.getClassKey();
-        
         opsTeachClass().putAll(key, map);
         Set<Entry<String,TeachingClassCache>> set = map.entrySet();
-        for (Entry<String, TeachingClassCache> entry : set) {
-        	logger.info(entry.getKey()+"----->" + entry.getValue());
-		}
-        
-        logger.info("7777777777777777777777777777777777777777777   key: "+ key);
-        logger.info("8888888888888888888888888888888888888888888   end"+ map.size());
-        
+        logger.info("8888888888888888888888888888888888888888888   end"+ map.size()+"7777777777777777777777777777777777777777777   key: "+ key);
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
         logger.info("9999999999999999999999999999999999999999999   end");
     }

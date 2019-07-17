@@ -30,7 +30,6 @@ import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElectionRuleVo;
-import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -70,7 +69,6 @@ public class RoundDataProvider
          * roundId -> lessonId -> json
          */
         ValueOperations<String, String> ops = strTemplate.opsForValue();
-        
         String dataLoadKey =
             String.format(Keys.STD_STATUS_LOCK, "dataLoad", "");
         Boolean setIfAbsent = ops.setIfAbsent(dataLoadKey,
@@ -79,19 +77,14 @@ public class RoundDataProvider
         {
             return;
         }
-        
         try
         {
-        	logger.info("qqqqqq chche round param data");
             // 缓存所有选课规则
             ruleCacheService.cacheAllRule();
-            
             logger.info("wwwwwww one hour election  param");
             /** 一小时后即将开始的选课参数 */
             List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
-            
             Set<String> keys = this.roundCacheService.getRoundKeys();
-            
             Date now = new Date();
             Set<Long> calendarIds = new HashSet<>();
             for (ElectionRounds round : selectBeStart)
@@ -102,7 +95,6 @@ public class RoundDataProvider
                     keys.remove(id);
                 }
                 calendarIds.add(round.getCalendarId());
-                logger.info("eeeeeee chche round param data");
                 this.cacheData(round, now);
             }
             
@@ -110,13 +102,10 @@ public class RoundDataProvider
             {
                 this.roundCacheService.deleteRounds(keys.toArray());
             }
-//          String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-            String manageDptId = "2";
             // 缓存所有教学班
-            logger.info("444444444444444444444444444444444444");
             for (Long calendarId : calendarIds)
             {
-                classCacheService.cacheAllTeachClass(calendarId,manageDptId);
+                classCacheService.cacheAllTeachClass(calendarId);
             }
             
         }
@@ -149,12 +138,10 @@ public class RoundDataProvider
             this.roundCacheService.deleteRound(roundId);
         }
     }
-    
     private void cacheData(ElectionRounds round, Date now)
     {
         Long roundId = round.getId();
         Long calendarId = round.getCalendarId();
-        
         Date endTime = round.getEndTime();
         long timeout =
             TimeUnit.MILLISECONDS.toMinutes(endTime.getTime() - now.getTime())
@@ -173,9 +160,8 @@ public class RoundDataProvider
         //缓存轮次学生
         roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
-//        String manageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        String manageDptId = "2";
-        if (StringUtils.equals(manageDptId, "1")) {
+        String manageDptId = round.getProjectId();
+        if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE)) {
         	cachePreSemester(round, timeout);
 		}
         // 缓存课程

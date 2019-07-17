@@ -50,13 +50,10 @@
   	select RULE_ID_ from election_rounds_ref_rule_t where ROUNDS_ID_ = #{roundId}
   </select>
   
-<!--   <select id="selectWillBeStart" resultMap="BaseResultMap">
-  	select * from election_rounds_t where DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_ and OPEN_FLAG_ = 1
-  </select> -->
   <select id="selectWillBeStart" resultMap="BaseResultMap">
-  	select * from election_rounds_t where DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_ and OPEN_FLAG_ = 1 and MANAGER_DEPT_ID_ = '2'
+  	select * from election_rounds_t where DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_ and OPEN_FLAG_ = 1
   </select>
-
+  
     <select id="findElectCourseList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.dto.StudentSelectCourseList">
         select tt.CALENDAR_ID_ calendarId,tt.STUDENT_ID_ studentCode,tt.NAME_ name,tt.GRADE_ grade,tt.TRAINING_LEVEL_ trainingLevel,tt.CAMPUS_ campus,tt.FACULTY_ faculty,tt.PROFESSION_ profession,tt.REGISTRATION_STATUS_ registrationStatus,
         yy.COURSE_CODE_ courseCode,yy.COURSE_NAME courseName,yy.CLASS_CODE_ classCode,yy.COURSE_TAKE_TYPE_ isRebuildCourse,yy.NATURE_ nature from (SELECT CALENDAR_ID_, st.STUDENT_ID_,t1.NAME_,t1.GRADE_,t1.TRAINING_LEVEL_,t1.CAMPUS_,t1.FACULTY_,t1.PROFESSION_,t1.REGISTRATION_STATUS_ FROM `election_rounds_t` ro
