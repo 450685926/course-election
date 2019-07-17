@@ -35,6 +35,7 @@ public class ElcCourseTakeAddDto
      */
     @NotEmpty(groups = {AddGroup.class})
     private List<Long> teachingClassIds;
+
     /**
      * 教学班ID
      */

@@ -71,7 +71,7 @@ public interface ReportManagementService {
     ExcelResult exportRollBookList(RollBookConditionDto condition) throws Exception;
 
     /**导出研究生点名册*/
-    String exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception;
+    ExcelResult exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception;
 
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 

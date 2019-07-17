@@ -206,26 +206,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 if(CollectionUtil.isNotEmpty(names)){
                     studentSchoolTimetab.setTeacherName(String.join(",",names));
                 }
-//                String s = findClassroomAndTime(studentSchoolTimetab.getTeachingClassId());
-//                String[] strings = s.split("/");
-//                List<String> timelist=new ArrayList<>();
-//                Set<String> roomList=new HashSet<>();
-//                for (String string : strings) {
-//                    int i = string.indexOf("]");
-//                    String time = string.substring(0,i+1);
-//                    timelist.add(time);
-//                    String[] rooms= string.substring(i + 1).replaceAll(" ","").split(",");
-//                    List<String> stringList = Arrays.asList(rooms);
-//                    roomList.addAll(stringList);
-//                }
-//                String time = String.join(",", timelist);
-//                String room = String.join(",", roomList);
                 Collection<String> collection = multimap.get(studentSchoolTimetab.getTeachingClassId());
                 if (!collection.isEmpty()){
                     String times = collection.toString();
                     studentSchoolTimetab.setTime(times.substring(1,times.length()-1));
                 }
-//                studentSchoolTimetab.setRoom(room);
             }
 
         }
@@ -598,20 +583,37 @@ public class ReportManagementServiceImpl implements ReportManagementService {
      *@date: 2019/7/4
      */
     @Override
-    public String exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception{
-        PageResult<RollBookList> rollBookList = findRollBookList(condition);
-        if (rollBookList != null) {
-            GeneralExcelDesigner design = getDesignTeacherRollBook();
-            design.setDatas(rollBookList.getList());
-            ExcelWriterUtil generalExcelHandle;
-            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
-            FileUtil.mkdirs(cacheDirectory);
-            String fileName = "TeacherRollBooks.xls";
-            String path = cacheDirectory + fileName;
-            generalExcelHandle.writeExcel(new FileOutputStream(path));
-            return fileName;
-        }
-        return "";
+    public ExcelResult exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception{
+//        PageResult<RollBookList> rollBookList = findRollBookList(condition);
+//        if (rollBookList != null) {
+//            GeneralExcelDesigner design = getDesignTeacherRollBook();
+//            design.setDatas(rollBookList.getList());
+//            ExcelWriterUtil generalExcelHandle;
+//            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+//            FileUtil.mkdirs(cacheDirectory);
+//            String fileName = "TeacherRollBooks.xls";
+//            String path = cacheDirectory + fileName;
+//            generalExcelHandle.writeExcel(new FileOutputStream(path));
+//            return fileName;
+//        }
+//        return "";
+        ExcelResult excelResult = ExportExcelUtils.submitTask("GraduteRollBookList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageResult<RollBookList> rollBookList = findRollBookList(condition);
+                List<RollBookList> list = rollBookList.getList();
+                //组装excel
+                GeneralExcelDesigner design = getDesignTeacherRollBook();
+                if (CollectionUtil.isNotEmpty(list)) {
+                    design.setDatas(list);
+                    result.setDoneCount(list.size());
+                }
+                //将数据放入excel对象中
+                return design;
+            }
+        });
+        return excelResult;
     }
 
     private GeneralExcelDesigner getDesignTeacherRollBook() {

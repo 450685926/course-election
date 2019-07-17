@@ -7,6 +7,8 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -20,13 +22,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,10 +34,6 @@ import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.election.dto.CourseOpenDto;
-import com.server.edu.election.dto.ElcCourseTakeAddDto;
-import com.server.edu.election.dto.ElcCourseTakeDto;
-import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -89,9 +81,11 @@ public class ElcCourseTakeController
     private String cacheDirectory;
     
 	private RestTemplate restTemplate = RestTemplateBuilder.create();
+
+    private static Logger LOG = LoggerFactory.getLogger(ExemptionController.class);
     
     /**
-     * 上课名单列表
+     * 上课名单列表(研究生课程维护模块学生选课列表)
      * 
      * @param condition
      * @return
@@ -110,7 +104,116 @@ public class ElcCourseTakeController
         
         return RestResult.successData(list);
     }
-    
+
+    /**
+     * 学生个人全部选课信息
+     *
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "课程维护模块学生个人全部选课信息")
+    @PostMapping("/allSelectedCourse")
+    public RestResult<PageResult<ElcCourseTakeVo>> allSelectedCourse(
+            @RequestBody PageCondition<String> condition)
+            throws Exception
+    {
+        if (StringUtils.isBlank(condition.getCondition()))
+        {
+            throw new ParameterValidateException("studentId not be empty");
+        }
+        PageResult<ElcCourseTakeVo> list =
+                courseTakeService.allSelectedCourse(condition);
+
+        return RestResult.successData(list);
+    }
+
+    /**
+     * 返回研究生可以选的课程
+     * @param condition
+     * @return
+     */
+    @ApiOperation(value = "课程维护模块查询研究生可选课程")
+    @PostMapping("/addCourseList")
+    public RestResult<PageResult<ElcStudentVo>> addCourseList(
+            @RequestBody PageCondition<ElcStudentVo> condition) {
+        PageResult<ElcStudentVo> page = courseTakeService.addCourseList(condition);
+        return RestResult.successData(page);
+    }
+
+    /**
+     * 课程维护模块研究生加课
+     * @param courseDto
+     * @return
+     */
+    @ApiOperation(value = "课程维护模块研究生加课")
+    @PostMapping("/addCourse")
+    public RestResult<Integer> addCourse(@RequestBody AddAndRemoveCourseDto courseDto) {
+        Session session = SessionUtils.getCurrentSession();
+        setParam(session, courseDto);
+        Integer count = null;
+        if (session.isAdmin()) {
+            courseDto.setChooseObj(3);
+            count = courseTakeService.addCourse(courseDto);
+        } else if (session.isAcdemicDean()) {
+            courseDto.setChooseObj(2);
+            count = courseTakeService.addCourse(courseDto);
+        }
+        return RestResult.successData(count);
+    }
+
+    /**
+     * 课程维护模块研究生加课
+     * @param courseDto
+     * @return
+     */
+    @ApiOperation(value = "课程维护模块退课")
+    @PostMapping("/removedCourse")
+    public RestResult<Integer> removedCourse(@RequestBody AddAndRemoveCourseDto courseDto) {
+        Session session = SessionUtils.getCurrentSession();
+        setParam(session, courseDto);
+        Integer count = null;
+        if (session.isAdmin()) {
+            courseDto.setChooseObj(3);
+            count = courseTakeService.removedCourse(courseDto);
+        } else if (session.isAcdemicDean()) {
+            courseDto.setChooseObj(2);
+            count = courseTakeService.removedCourse(courseDto);
+        }
+        return RestResult.successData(count);
+    }
+
+    private void setParam(Session session, AddAndRemoveCourseDto courseDto) {
+        String uid = session.getUid();
+        String name = session.getName();
+        courseDto.setId(uid);
+        courseDto.setName(name);
+    }
+
+    /**
+     * 返回的退课课程列表修读类型为正常修读
+     * @param condition
+     * @return
+     */
+    @ApiOperation(value = "查询学生退课列表")
+    @PostMapping("/removedCourseList")
+    public RestResult<PageResult<ElcStudentVo>> removedCourseList(
+            @RequestBody PageCondition<String> condition) {
+        PageResult<ElcStudentVo> page = courseTakeService.removedCourseList(condition);
+        return RestResult.successData(page);
+    }
+
+    @ApiOperation(value = "课程维护模块导出学生选课信息")
+    @PostMapping("/exportElcStudentInfo")
+    public RestResult<String> exportElcStudentInfo(
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+            throws Exception
+    {
+        LOG.info("export.elcStudentInfo.start");
+        String export = courseTakeService.exportElcStudentInfo(condition);
+        return RestResult.successData(export);
+    }
+
     /**
      * 研究生上课名单列表
      * 
@@ -174,7 +277,6 @@ public class ElcCourseTakeController
         Session session = SessionUtils.getCurrentSession();
     	
         String msg = courseTakeService.graduateAdd(value,session.realType());
-        
         return RestResult.success(msg);
     }   
     
