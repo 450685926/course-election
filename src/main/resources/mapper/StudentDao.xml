@@ -240,8 +240,10 @@
 	         left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
 		where 
 		     course.CALENDAR_ID_ = #{calendarId} and
-             course.TRAINING_LEVEL_ = #{trainingLevel} and 
-             class.CAMPUS_ = #{campu}
+             course.TRAINING_LEVEL_ = #{trainingLevel}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campu)">
+            and class.CAMPUS_ =#{campu,jdbcType=VARCHAR}
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
             and course.COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
         </if>
@@ -256,7 +258,7 @@
         </if>
    </select>
    
-    <select id="getNature" parameterType="com.server.edu.election.vo.AllCourseVo" resultType="com.server.edu.election.studentelec.context.ElcCourseResult">
+    <select id="getNature" parameterType="com.server.edu.election.vo.AllCourseVo" resultType="java.lang.String">
        select distinct(course.NATURE_) natrue
 		from course_open_t course
    			 left join teaching_task_t task on course.ID_ = task.COURSE_OPEN_ID_

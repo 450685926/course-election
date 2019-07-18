@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -524,21 +525,20 @@ public class StudentElecServiceImpl implements StudentElecService
 	    Map<String,List<ElcCourseResult>> map = new HashMap<String, List<ElcCourseResult>>();
 	    // 课程list
 	    List<ElcCourseResult> list = new ArrayList<ElcCourseResult>();
+	    
 	    // natrue集合
 		List<String> natrueList = new ArrayList<String>();
-		
-		if (org.apache.commons.lang.StringUtils.isBlank(allCourseVo.getNatrue())) {
-			natrueList = stuDao.getNature(allCourseVo);
-			for (String natrue : natrueList) {
-				allCourseVo.setNatrue(natrue);
-				list = stuDao.getAllCourse(allCourseVo);
-				List<ElcCourseResult> timeList = getTimeList(list);
-				map.put(natrue, timeList);
-			}
+		if (StringUtils.isNotBlank(allCourseVo.getNatrue())) {
+			natrueList.add(allCourseVo.getNatrue());
 		}else {
+			natrueList = stuDao.getNature(allCourseVo);
+		}
+		
+		for (String natrue : natrueList) {
+			allCourseVo.setNatrue(natrue);
 			list = stuDao.getAllCourse(allCourseVo);
 			List<ElcCourseResult> timeList = getTimeList(list);
-			map.put(allCourseVo.getNatrue(), timeList);
+			map.put(natrue, timeList);
 		}
 		return RestResult.successData(map);
 	}
