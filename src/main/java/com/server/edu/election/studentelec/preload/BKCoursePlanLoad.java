@@ -12,7 +12,6 @@ import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.dao.CourseDao;
-import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;

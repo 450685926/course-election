@@ -202,9 +202,9 @@ public class ElcResultController
     }
     
     @ApiOperation(value = "选课学生统计导出")
-    @GetMapping("/elcResultCountByStudentExport")
+    @PostMapping("/elcResultCountByStudentExport")
     public RestResult<?> elcResultCountByStudentExport(
-    		@ModelAttribute ElcResultQuery condition)
+    		@RequestBody ElcResultQuery condition)
     				throws Exception
     {
     	ExcelResult result = elcResultService.elcResultCountByStudentExport(condition);
@@ -236,9 +236,9 @@ public class ElcResultController
      * @return
      * @throws Exception
      */
-    @GetMapping(value = "/export")
+    @PostMapping(value = "/export")
     public RestResult<?> export(
-    		@ModelAttribute ElcResultQuery condition)
+    		@RequestBody ElcResultQuery condition)
     				throws Exception
     {
         ExcelResult result = elcResultService.export(condition);

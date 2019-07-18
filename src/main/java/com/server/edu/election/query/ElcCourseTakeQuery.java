@@ -19,6 +19,7 @@ public class ElcCourseTakeQuery
     
     /**学生学院*/
     private String faculty;
+    
 
     /**年级*/
     private String grade;
@@ -58,7 +59,7 @@ public class ElcCourseTakeQuery
      * */
     private Integer mode;
     
-    private String keyWord;
+    private String keyword;
     
     /** 课程类型 1体育课，2英语课*/
     private Integer courseType;
@@ -70,7 +71,7 @@ public class ElcCourseTakeQuery
     private String label;
     
     private String courseName;
-
+    
     private String degreeType;
 
     private String formLearning;
@@ -257,14 +258,14 @@ public class ElcCourseTakeQuery
         this.profession = profession;
     }
     
-    public String getKeyWord()
+    public String getKeyword()
     {
-        return keyWord;
+        return keyword;
     }
     
-    public void setKeyWord(String keyWord)
+    public void setKeyword(String keyword)
     {
-        this.keyWord = keyWord;
+        this.keyword = keyword;
     }
     
     public Integer getCourseType()

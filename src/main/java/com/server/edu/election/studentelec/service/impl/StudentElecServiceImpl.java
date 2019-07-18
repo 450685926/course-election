@@ -61,7 +61,6 @@ import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.AllCourseVo;
-import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElcResultCourseVo;
 import com.server.edu.session.util.SessionUtils;
@@ -124,6 +123,198 @@ public class StudentElecServiceImpl implements StudentElecService
         
         return RestResult.successData(response);
     }
+    
+    @Override
+	public ElecContext setData(ElecContext c,Long roundId) {
+		
+		//每门课上课信息集合
+		List<List<ClassTimeUnit>> classTimeLists = new ArrayList<>();
+		
+		//获取学生培养计划中的课程
+		Set<PlanCourse> planCourses = c.getPlanCourses();
+		
+		//获取学生本学期已经选取的课程
+		Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
+		
+		List<ElcCourseResult> selectedCourses = new ArrayList<>();
+   		for (SelectedCourse completedCourse : selectedCourseSet) {
+   			
+   			ElcCourseResult elcCourseResult = new ElcCourseResult();
+   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
+   			elcCourseResult.setCourseName(completedCourse.getCourseName());
+   			elcCourseResult.setCredits(completedCourse.getCredits());
+   			elcCourseResult.setFaculty(completedCourse.getFaculty());
+   			List<TeachingClassCache> teachClasss =
+   		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+	        if (CollectionUtil.isNotEmpty(teachClasss))
+	        {
+	            for (TeachingClassCache teachClass : teachClasss)
+	            {
+	                Long teachClassId = teachClass.getTeachClassId();
+	                if(teachClassId.longValue() == completedCourse.getTeachClassMsg().longValue()){
+	                	
+	                	Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+	                	teachClass.setCurrentNumber(elecNumber);
+	                	elcCourseResult.setFaculty(teachClass.getFaculty());
+	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
+	                	elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
+	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
+	                	elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
+	                	elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                	elcCourseResult.setTimes(teachClass.getTimes());
+	                	elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
+	                	classTimeLists.add( teachClass.getTimes());
+	                	selectedCourses.add(elcCourseResult);
+	                }
+	            }
+	        }
+		}
+		//获取学生已完成的课程
+		Set<CompletedCourse> completedCourses1 = c.getCompletedCourses();
+		
+		//从缓存中拿到本轮次排课信息
+		HashOperations<String, String, String> ops = strTemplate.opsForHash();
+		String key = Keys.getRoundCourseKey(roundId);
+		Map<String, String> roundsCoursesMap =  ops.entries(key);
+		
+		List<String> roundsCoursesIdsList = new ArrayList<>();
+		for (Entry<String, String> entry : roundsCoursesMap.entrySet()) {
+			 String courseCode = entry.getKey();
+			 roundsCoursesIdsList.add(courseCode);
+		}
+		
+		//培养计划与排课信息的交集（中间变量）
+		List<PlanCourse> centerCourse = new ArrayList<>();
+   		//两个结果取交集 拿到学生培养计划与排课信息的交集
+   		for (String courseOpenCode : roundsCoursesIdsList) {
+   			for (PlanCourse planCourse :planCourses) {
+   				if(courseOpenCode.equals(planCourse.getCourseCode())){
+					centerCourse.add(planCourse);
+   				}
+   			}
+   		}
+   		
+   		//从中间变量中剔除本学期已经选过的课
+		List<PlanCourse> optionalGraduateCoursesList = new ArrayList<>();
+   		for (PlanCourse centerCourseModel : centerCourse) {
+   			Boolean flag = true;
+   			for (SelectedCourse selectedCourseModel :selectedCourseSet) {
+   				if(selectedCourseModel.getCourseCode().equals(centerCourseModel.getCourseCode())){
+   						flag = false;
+   						break;
+   				}
+   			}
+   			if (flag) {
+   				optionalGraduateCoursesList.add(centerCourseModel);
+			}
+   		}
+   		//从中间变量中剔除已完成的课，得到可选课程
+   		List<PlanCourse> optionalGraduateCourses = new ArrayList<>();
+   		for (PlanCourse centerCourses : optionalGraduateCoursesList) {
+   			Boolean flag = true;
+   			for (CompletedCourse selectedCourseModel :completedCourses1) {
+   				if(selectedCourseModel.getCourseCode().equals(centerCourses.getCourseCode())){
+   					flag = false;
+   					break;
+   				}
+   			}
+   			if (flag) {
+   				optionalGraduateCourses.add(centerCourses);
+   			}
+   		}
+   		
+   		List<ElcCourseResult> completedCourses = new ArrayList<>();
+   		for (PlanCourse completedCourse : optionalGraduateCourses) {
+   			ElcCourseResult elcCourseResult = new ElcCourseResult();
+   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
+   			elcCourseResult.setCourseName(completedCourse.getCourseName());
+   			elcCourseResult.setCredits(completedCourse.getCredits());
+   			List<TeachingClassCache> teachClasss =
+   		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+	        if (CollectionUtil.isNotEmpty(teachClasss))
+	        {
+	            for (TeachingClassCache teachClass : teachClasss)
+	            {
+	                Long teachClassId = teachClass.getTeachClassId();
+	                Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+	                teachClass.setCurrentNumber(elecNumber);
+	                elcCourseResult.setFaculty(teachClass.getFaculty());
+	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
+	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
+	       			elcCourseResult.setTeacherName(teachClass.getTeacherName());
+	                elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
+	                elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
+	                elcCourseResult.setTimes(teachClass.getTimes());
+	                Boolean flag = true;
+	                //上课时间是否冲突
+					for (List<ClassTimeUnit> classTimeList: classTimeLists) 
+					{
+						//已选课程上课时间
+						for (ClassTimeUnit classTimeUnit : classTimeList) 
+						{
+							//本次选课课程时间
+							for (ClassTimeUnit thisClassTimeUnit : teachClass.getTimes()) 
+							{
+								//先判断上课周是有重复的，没有则不冲突
+								List<Integer> thisWeeks = thisClassTimeUnit.getWeeks();
+								List<Integer> weeks = thisClassTimeUnit.getWeeks();
+								thisWeeks.retainAll(weeks);
+								if (CollectionUtil.isNotEmpty(weeks)) 
+								{
+									flag = true;
+								}else{
+									//判断上课周内时间
+									if (thisClassTimeUnit.getDayOfWeek() == classTimeUnit.getDayOfWeek()) 
+									{
+										//判断上课时间
+										if((thisClassTimeUnit.getTimeStart() <= classTimeUnit.getTimeStart()
+												&& thisClassTimeUnit.getTimeEnd() >= thisClassTimeUnit.getTimeEnd())
+												|| (classTimeUnit.getTimeStart() <= thisClassTimeUnit.getTimeStart()
+												&& classTimeUnit.getTimeEnd() >= classTimeUnit.getTimeEnd())
+												|| (classTimeUnit.getTimeStart() <= thisClassTimeUnit.getTimeStart()
+												&& classTimeUnit.getTimeStart() >= thisClassTimeUnit.getTimeEnd())
+												|| (classTimeUnit.getTimeEnd() <= thisClassTimeUnit.getTimeStart()
+												&& classTimeUnit.getTimeEnd() >= thisClassTimeUnit.getTimeEnd())
+												|| (thisClassTimeUnit.getTimeStart() <= classTimeUnit.getTimeStart()
+												&& thisClassTimeUnit.getTimeStart() >= classTimeUnit.getTimeEnd())
+												|| (thisClassTimeUnit.getTimeEnd() <= classTimeUnit.getTimeStart()
+												&& thisClassTimeUnit.getTimeEnd() >= classTimeUnit.getTimeEnd())){
+											flag = false;
+											break;
+										}else{
+											flag = true;
+										}
+									}else{
+										flag = true;
+									}
+								}
+							}
+							if (!flag) {
+								break;
+							}
+						}
+						if (!flag) {
+							break;
+						}
+					}
+					if (flag) {
+						elcCourseResult.setIsConflict(Constants.ZERO);
+					}else{
+						elcCourseResult.setIsConflict(-Constants.ONE);
+					}
+					completedCourses.add(elcCourseResult);
+				}
+	        }
+		}
+   		c.setOptionalCourses(completedCourses);
+   		return c;
+	}
+
     
     @Override
     public RestResult<ElecRespose> elect(ElecRequest elecRequest)
