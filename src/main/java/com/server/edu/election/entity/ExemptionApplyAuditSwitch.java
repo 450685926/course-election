@@ -52,7 +52,7 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     private String trainingCategorys;
     
     /**
-     * 学位类别(逗号分隔，字典表X_XWLX)
+     * 学位类别(逗号分隔，字典表X_XWLB)
      */
     @Column(name = "DEGREE_CATEGORYS_")
     private String degreeCategorys;
