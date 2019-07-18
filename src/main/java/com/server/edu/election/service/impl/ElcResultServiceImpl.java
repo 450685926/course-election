@@ -61,7 +61,6 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
@@ -556,9 +555,6 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Override
 	public ExcelResult export(ElcResultQuery condition) {
         logger.info("缓存目录："+cacheDirectory);
-        FileUtil.mkdirs(cacheDirectory);
-        //删除超过30天的文件
-        FileUtil.deleteFile(cacheDirectory, 30);
 		condition.setManagerDeptId(Constants.ONE+"");
 		ExcelResult excelResult = ExportExcelUtils.submitTask("YanJiuShengWeiXuanKeMingDan", new ExcelExecuter() {
             @Override
@@ -595,6 +591,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 return design;
             }
         });
+		logger.info(excelResult.getKey()+"++++++++++++++++++++++++++++++++++++++"+excelResult.getPath());
         return excelResult;
 	}
 
@@ -651,10 +648,6 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	@Override
 	public ExcelResult elcResultCountByStudentExport(ElcResultQuery condition) {
-        logger.info("缓存目录："+cacheDirectory);
-        FileUtil.mkdirs(cacheDirectory);
-        //删除超过30天的文件
-        FileUtil.deleteFile(cacheDirectory, 30);
 		ExcelResult excelResult = ExportExcelUtils.submitTask("YanJiuShengXuanKeJieGuoTongJi", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
@@ -690,6 +683,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 return design;
             }
         });
+		logger.info(excelResult.getKey()+"++++++++++++++++++++++++++++++++++++++"+excelResult.getPath());
         return excelResult;
 	}
 	

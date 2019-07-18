@@ -88,4 +88,12 @@ public interface StudentElecService
      */
 	Map<String, Object> getElectResultCount(String uid, Long roundId, Map<String, Object> map);
 
+	/**
+	 * 向上下文中添加可选课程信息
+	 * @param c
+	 * @param roundId 
+	 * @return
+	 */
+	ElecContext setData(ElecContext c, Long roundId);
+
 }
