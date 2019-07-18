@@ -384,21 +384,5 @@ public class ExemptionController {
         return exemptionCourseService.filterCourseCode(courseRuleVo,applyType);
     }
     
-    @ApiOperation(value = "研究生添加免修免考申请审核开关")
-    @PostMapping("/addExemptionAuditSwitch")
-    public RestResult<?> addExemptionAuditSwitch(@RequestBody ExemptionApplyAuditSwitch applyAuditSwitch){
-    	logger.info("addExemptionAuditSwitch start");
-    	exemptionCourseService.addExemptionAuditSwitch(applyAuditSwitch);
-    	return RestResult.success();
-    }
-
-    @ApiOperation(value = "研究生查询免修免考申请审核开关")
-    @PostMapping("/queryExemptionAuditSwitch")
-    public RestResult<PageResult<ExemptionApplyAuditSwitch>> queryExemptionAuditSwitch(@RequestBody PageCondition<ExemptionApplyAuditSwitch> condition){
-    	logger.info("queryExemptionAuditSwitch start");
-    	PageResult<ExemptionApplyAuditSwitch> page = exemptionCourseService.queryExemptionAuditSwitch(condition);
-    	return RestResult.successData(page);
-    }
-    
     
 }
