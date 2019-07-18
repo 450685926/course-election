@@ -135,7 +135,7 @@ public class ElecController
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
-
+        
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");
@@ -147,6 +147,9 @@ public class ElecController
         }
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
+        if (session.getCurrentManageDptId().equals(Constants.ONE) ) {
+        	c = elecService.setData(c,roundId);
+		}
         
         return RestResult.successData(c);
     }
