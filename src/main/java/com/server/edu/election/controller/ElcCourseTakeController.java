@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import com.server.edu.election.dto.*;
 import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.excel.export.ExcelResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -136,7 +137,7 @@ public class ElcCourseTakeController
     @ApiOperation(value = "课程维护模块查询研究生可选课程")
     @PostMapping("/addCourseList")
     public RestResult<PageResult<ElcStudentVo>> addCourseList(
-            @RequestBody PageCondition<ElcStudentVo> condition) {
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition) {
         PageResult<ElcStudentVo> page = courseTakeService.addCourseList(condition);
         return RestResult.successData(page);
     }
@@ -149,17 +150,18 @@ public class ElcCourseTakeController
     @ApiOperation(value = "课程维护模块研究生加课")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(@RequestBody AddAndRemoveCourseDto courseDto) {
-        Session session = SessionUtils.getCurrentSession();
-        setParam(session, courseDto);
-        Integer count = null;
-        if (session.isAdmin()) {
-            courseDto.setChooseObj(3);
-            count = courseTakeService.addCourse(courseDto);
-        } else if (session.isAcdemicDean()) {
-            courseDto.setChooseObj(2);
-            count = courseTakeService.addCourse(courseDto);
-        }
-        return RestResult.successData(count);
+//        Session session = SessionUtils.getCurrentSession();
+//        setParam(session, courseDto);
+//        Integer count = null;
+//        if (session.isAdmin()) {
+//            courseDto.setChooseObj(3);
+//            count = courseTakeService.addCourse(courseDto);
+//        } else if (session.isAcdemicDean()) {
+//            courseDto.setChooseObj(2);
+//            count = courseTakeService.addCourse(courseDto);
+//        }
+//        return RestResult.successData(count);
+        return RestResult.successData(courseTakeService.addCourse(courseDto));
     }
 
     /**
@@ -198,19 +200,19 @@ public class ElcCourseTakeController
     @ApiOperation(value = "查询学生退课列表")
     @PostMapping("/removedCourseList")
     public RestResult<PageResult<ElcStudentVo>> removedCourseList(
-            @RequestBody PageCondition<String> condition) {
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition) {
         PageResult<ElcStudentVo> page = courseTakeService.removedCourseList(condition);
         return RestResult.successData(page);
     }
 
     @ApiOperation(value = "课程维护模块导出学生选课信息")
     @PostMapping("/exportElcStudentInfo")
-    public RestResult<String> exportElcStudentInfo(
+    public RestResult<ExcelResult> exportElcStudentInfo(
             @RequestBody PageCondition<ElcCourseTakeQuery> condition)
             throws Exception
     {
-        LOG.info("export.elcStudentInfo.start");
-        String export = courseTakeService.exportElcStudentInfo(condition);
+        LOG.info("export.start");
+        ExcelResult export = courseTakeService.exportElcStudentInfo(condition);
         return RestResult.successData(export);
     }
 
