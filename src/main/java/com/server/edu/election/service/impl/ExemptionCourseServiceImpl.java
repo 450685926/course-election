@@ -16,7 +16,6 @@ import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.vo.*;
-import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -24,9 +23,6 @@ import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
-
-import tk.mybatis.mapper.entity.Example;
-
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,10 +66,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     private StudentDao studentDao;
 
     @Autowired
-    private DictionaryService dictionaryService;
-   
-    @Autowired
-    private ExemptionAuditSwitchDao exemptionAuditSwitchDao;
+    private DictionaryService dictionaryService;  
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -671,41 +664,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     }
 
 
-	@Override
-	public void addExemptionAuditSwitch(ExemptionApplyAuditSwitch applyAuditSwitch) {
-		Example example = new Example(ExemptionApplyAuditSwitch.class);
-    	example.createCriteria()
-    		.andEqualTo("grades", applyAuditSwitch.getGrades())
-    		.andEqualTo("trainingLevels", applyAuditSwitch.getTrainingLevels())
-    		.andEqualTo("formLearnings", applyAuditSwitch.getFormLearnings())
-    		.andEqualTo("trainingCategorys", applyAuditSwitch.getTrainingCategorys())
-    	    .andEqualTo("degreeCategorys", applyAuditSwitch.getDegreeCategorys())
-    		.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason())
-    		.andEqualTo("excellentScore", applyAuditSwitch.getExcellentScore());
-    	
-	    int count = exemptionAuditSwitchDao.selectCountByExample(example);
-	    if (count > 0)
-	    {
-	        throw new ParameterValidateException(
-	            I18nUtil.getMsg("exemptionApply.auditSwitch"));
-	    }
-		
-	    Date date = new Date();
-	    applyAuditSwitch.setCreatedAt(date);
-	    exemptionAuditSwitchDao.insertSelective(applyAuditSwitch);
-	}
 
-
-	@Override
-	public PageResult<ExemptionApplyAuditSwitch> queryExemptionAuditSwitch(
-			PageCondition<ExemptionApplyAuditSwitch> condition) {
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		
-		ExemptionApplyAuditSwitch applyAuditSwitch = condition.getCondition();
-		Page<ExemptionApplyAuditSwitch> page = exemptionAuditSwitchDao.listPage(applyAuditSwitch);
-		
-		PageResult<ExemptionApplyAuditSwitch> result = new PageResult<>(page);
-		return result;
-	}
 
 }

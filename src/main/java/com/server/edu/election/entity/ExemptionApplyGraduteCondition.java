@@ -9,32 +9,34 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table(name = "exemption_apply_audit_switch_t")
-public class ExemptionApplyAuditSwitch implements Serializable{
+import org.springframework.data.annotation.Transient;
+
+@Table(name = "exemption_apply_graduate_condition_t")
+public class ExemptionApplyGraduteCondition  implements Serializable{
 	private static final long serialVersionUID = 1L;
-	
-    /**
-     * 主键（自增）
+
+	/**
+	 * 主键（自增）
      */
     @Id
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    /**
+            * 课程code
+     */
+    @Column(name = "COURSE_CODE_")
+    private String courseCode;
     
     /**
-     * 年级(逗号分隔)
+     * 课程名称
      */
-    @Column(name = "GRADES_")
-    private String grades;
-	
+    @Column(name = "COURSE_NAME_")
+    private String courseName;
+    
     /**
-     * 入学成绩优秀线
-     */
-    @Column(name = "EXCELLENT_SCORE_")
-    private Double excellentScore;
-	
-    /**
-     * 培养层次(逗号分隔，字典表X_PYCC)
+     *培养层次(逗号分隔，字典表X_PYCC)
      */
     @Column(name = "TRAINING_LEVELS_")
     private String trainingLevels;
@@ -44,7 +46,7 @@ public class ExemptionApplyAuditSwitch implements Serializable{
      */
     @Column(name = "FORM_LEARNINGS_")
     private String formLearnings;
-    
+	
     /**
      * 培养类别(逗号分隔，字典表X_PYLB)
      */
@@ -58,22 +60,16 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     private String degreeCategorys;
     
     /**
-     * 入学季节
+     * 条件内容
      */
-    @Column(name = "ENROL_SEASON_")
-    private String enrolSeason;
+    @Column(name = "CONDITIONS_")
+    private String conditions;
     
     /**
-     * 是否申请开放(1-是，0-否)
+     * 创建人（老系统USER_ID_）
      */
-    @Column(name = "APPLY_OPEN_")
-    private Integer applyOpen;
-    
-    /**
-     * 是否审核开放(1-是，0-否)
-     */
-    @Column(name = "AUDIT_OPEN_")
-    private Integer auditOpen;
+    @Column(name = "CREATE_BY_")
+    private String createBy;
     
     /**
      * 创建时间
@@ -82,10 +78,18 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     private Date createdAt;
     
     /**
-     * 管理部门ID
+     * 更新时间
      */
-    @Column(name = "PROJ_ID_")
+    @Column(name = "UPDATED_AT_")
+    private Date updatedAt;
+    
+    /**
+     * 管理部门id（字典取值）
+     */
+    @Column(name = "MANAGER_DEPT_ID_")
     private String projId;
+    
+
 
 	public Long getId() {
 		return id;
@@ -95,20 +99,20 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 		this.id = id;
 	}
 
-	public String getGrades() {
-		return grades;
+	public String getCourseCode() {
+		return courseCode;
 	}
 
-	public void setGrades(String grades) {
-		this.grades = grades;
+	public void setCourseCode(String courseCode) {
+		this.courseCode = courseCode;
 	}
 
-	public Double getExcellentScore() {
-		return excellentScore;
+	public String getCourseName() {
+		return courseName;
 	}
 
-	public void setExcellentScore(Double excellentScore) {
-		this.excellentScore = excellentScore;
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
 	}
 
 	public String getTrainingLevels() {
@@ -143,28 +147,20 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 		this.degreeCategorys = degreeCategorys;
 	}
 
-	public String getEnrolSeason() {
-		return enrolSeason;
+	public String getConditions() {
+		return conditions;
 	}
 
-	public void setEnrolSeason(String enrolSeason) {
-		this.enrolSeason = enrolSeason;
+	public void setConditions(String conditions) {
+		this.conditions = conditions;
 	}
 
-	public Integer getApplyOpen() {
-		return applyOpen;
+	public String getCreateBy() {
+		return createBy;
 	}
 
-	public void setApplyOpen(Integer applyOpen) {
-		this.applyOpen = applyOpen;
-	}
-
-	public Integer getAuditOpen() {
-		return auditOpen;
-	}
-
-	public void setAuditOpen(Integer auditOpen) {
-		this.auditOpen = auditOpen;
+	public void setCreateBy(String createBy) {
+		this.createBy = createBy;
 	}
 
 	public Date getCreatedAt() {
@@ -175,6 +171,14 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 		this.createdAt = createdAt;
 	}
 
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
 	public String getProjId() {
 		return projId;
 	}
@@ -182,5 +186,5 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 	public void setProjId(String projId) {
 		this.projId = projId;
 	}
-    
+
 }
