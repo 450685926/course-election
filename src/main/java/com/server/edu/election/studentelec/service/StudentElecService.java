@@ -70,7 +70,7 @@ public interface StudentElecService
      * @param AllCourseVo allCourseVo
      * @return
      */
-    RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(AllCourseVo allCourseVo);
+    List<ElcCourseResult> arrangementCourses(AllCourseVo allCourseVo);
 
 	/**
 	   *     获取被代理选课的学生列表

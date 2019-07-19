@@ -247,8 +247,9 @@ public class ElecController
      */
     @ApiOperation(value = "查询全部课程")
     @PostMapping("/round/arrangementCourses")
-    public RestResult<?> getAllCourse(
-    		@RequestBody @Valid AllCourseVo allCourseVo){
+    public RestResult<List<ElcCourseResult>> arrangementCourses(@RequestBody @Valid AllCourseVo allCourseVo){
+    	logger.info("election getAllCourse start !!!");
+
     	Session session = SessionUtils.getCurrentSession();
     	String uid = "";
     	if (session.realType() == UserTypeEnum.STUDENT.getValue())
@@ -257,8 +258,6 @@ public class ElecController
         }else {
         	uid = session.getUid();
 		}
-    	logger.info("election getAllCourse start !!!");
-    	logger.info("uid = " + uid);
     	
     	RestResult<Student> studentMessage = exemptionCourseServiceImpl.findStudentMessage(uid);
     	Student student = studentMessage.getData();
@@ -268,14 +267,15 @@ public class ElecController
     	ElectionRoundsDto roundsDto = electionRoundService.get(allCourseVo.getRoundId());
     	allCourseVo.setCalendarId(roundsDto.getCalendarId());
     	
-    	RestResult<Map<String,List<ElcCourseResult>>> restResult = elecService.getAllCourse(allCourseVo);
-    	restResult.setCode(ResultStatus.SUCCESS.code());
-    	return restResult;
+    	List<ElcCourseResult> restResult = elecService.arrangementCourses(allCourseVo);
+    	return RestResult.successData(restResult);
     }
     
     @ApiOperation(value = "获取个人培养计划完成情况")
     @PostMapping("/culturePlanData")
     public RestResult<?> getCulturePlanData() {
+    	logger.info("election getCulturePlanData start !!!");
+
     	Session session = SessionUtils.getCurrentSession();
     	String uid = "";
     	if (session.realType() == UserTypeEnum.STUDENT.getValue())
@@ -284,8 +284,6 @@ public class ElecController
         }else {
         	uid = session.getUid();
 		}
-    	logger.info("election getCulturePlanData start !!!");
-    	logger.info("uid = " + uid);
 
     	/**
     	 * 调用培养：个人培养计划完成情况接口

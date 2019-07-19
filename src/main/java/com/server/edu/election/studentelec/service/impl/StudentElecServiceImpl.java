@@ -11,8 +11,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.antlr.v4.tool.AttributeDict.DictType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,7 +142,7 @@ public class StudentElecServiceImpl implements StudentElecService
    		for (SelectedCourse completedCourse : selectedCourseSet) {
    			
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -162,7 +160,7 @@ public class StudentElecServiceImpl implements StudentElecService
 	                	teachClass.setCurrentNumber(elecNumber);
 	                	elcCourseResult.setFaculty(teachClass.getFaculty());
 	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                	elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                	elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
 	                	elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
@@ -232,7 +230,7 @@ public class StudentElecServiceImpl implements StudentElecService
    		List<ElcCourseResult> completedCourses = new ArrayList<>();
    		for (PlanCourse completedCourse : optionalGraduateCourses) {
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -247,7 +245,7 @@ public class StudentElecServiceImpl implements StudentElecService
 	                teachClass.setCurrentNumber(elecNumber);
 	                elcCourseResult.setFaculty(teachClass.getFaculty());
 	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	       			elcCourseResult.setTeacherName(teachClass.getTeacherName());
 	                elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
@@ -524,28 +522,9 @@ public class StudentElecServiceImpl implements StudentElecService
     }
 
 	@Override
-	public RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(AllCourseVo allCourseVo) {
-	    Map<String,List<ElcCourseResult>> map = new HashMap<String, List<ElcCourseResult>>();
-	    // 课程list
-	    List<ElcCourseResult> list = new ArrayList<ElcCourseResult>();
-	    
-	    // natrue集合
-		List<String> natrueList = new ArrayList<String>();
-		if (StringUtils.isNotBlank(allCourseVo.getNatrue())) {
-			natrueList.add(allCourseVo.getNatrue());
-		}else {
-			natrueList = stuDao.getNature(allCourseVo);
-		}
-		
-		for (String natrue : natrueList) {
-			allCourseVo.setNatrue(natrue);
-			list = stuDao.getAllCourse(allCourseVo);
-			List<ElcCourseResult> timeList = getTimeList(list);
-			if (CollectionUtils.isNotEmpty(timeList)) {
-				map.put(natrue, timeList);
-			}
-		}
-		return RestResult.successData(map);
+	public List<ElcCourseResult> arrangementCourses(AllCourseVo allCourseVo) {
+	     List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
+	     return getTimeList(list);
 	}
 	
 	private List<ElcCourseResult>  getTimeList(List<ElcCourseResult> list){
@@ -646,7 +625,7 @@ public class StudentElecServiceImpl implements StudentElecService
    		for (SelectedCourse completedCourse : selectedCourseSet) {
    			
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -664,7 +643,7 @@ public class StudentElecServiceImpl implements StudentElecService
 	                	teachClass.setCurrentNumber(elecNumber);
 	                	elcCourseResult.setFaculty(teachClass.getFaculty());
 	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                	elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                	elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
 	                	elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
@@ -734,7 +713,7 @@ public class StudentElecServiceImpl implements StudentElecService
    		List<ElcCourseResult> completedCourses = new ArrayList<>();
    		for (PlanCourse completedCourse : optionalGraduateCourses) {
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -749,7 +728,7 @@ public class StudentElecServiceImpl implements StudentElecService
 	                teachClass.setCurrentNumber(elecNumber);
 	                elcCourseResult.setFaculty(teachClass.getFaculty());
 	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	       			elcCourseResult.setTeacherName(teachClass.getTeacherName());
 	                elcCourseResult.setElcNumber(teachClass.getCurrentNumber());

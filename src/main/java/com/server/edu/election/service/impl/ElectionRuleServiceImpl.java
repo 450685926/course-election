@@ -62,7 +62,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         }
         if (StringUtils.isNotBlank(electionRuleDto.getName()))
         {
-            criteria.andLike("name", electionRuleDto.getName());
+            criteria.andLike("name", "%"+electionRuleDto.getName()+"%");
         }
         List<ElectionRule> list = electionRuleDao.selectByExample(example);
         return list;
