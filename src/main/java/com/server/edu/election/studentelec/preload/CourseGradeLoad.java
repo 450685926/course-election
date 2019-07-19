@@ -433,8 +433,10 @@ public class CourseGradeLoad extends DataProLoad
             Integer timeEnd = timeTableMessage.getTimeEnd();
             String weekNumber = timeTableMessage.getWeekNum();
             String[] str = weekNumber.split(",");
+            List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+            List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
             String weekstr = findWeek(dayOfWeek);//星期
-            String timeStr=weekstr+" "+timeStart+"-"+timeEnd+ str.toString()+ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
+            String timeStr=weekstr+" "+timeStart+"-"+timeEnd+ weekNums.toString()+ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
             timeTableMessage.setTimeAndRoom(timeStr);
         }
 

@@ -1230,7 +1230,7 @@
 
     <select id="findCourseArrange" resultType="com.server.edu.election.dto.TimeTableMessage">
         select
-            t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
+            t1.TEACHING_CLASS_ID_ teachingClassId,t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
             t2.ROOM_ID_ roomId,GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
         from teaching_class_arrange_time_t t1
         join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
