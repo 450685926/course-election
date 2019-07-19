@@ -15,6 +15,7 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcStudentLimitDao;
 import com.server.edu.election.dao.StudentDao;
@@ -110,6 +111,7 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(elcStudentLimitDto);
 		if(CollectionUtil.isNotEmpty(list)) {
 			elcStudentLimitVo = list.get(0);
+			elcStudentLimitVo.setCalendarName(SchoolCalendarCacheUtil.getName(id));
 		}
 		return elcStudentLimitVo;
 	}
