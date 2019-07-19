@@ -106,56 +106,56 @@ public class CourseGradeLoad extends DataProLoad
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
-//        List<StudentScoreVo> stuScoreBest =
-//            ScoreServiceInvoker.findStuScoreBest(studentId);
-//        
-//        BeanUtils.copyProperties(stu, studentInfo);
-//        
-//        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-//        Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
-//        if (CollectionUtil.isNotEmpty(stuScoreBest))
-//        {
-//            List<Long> teachClassIds = stuScoreBest.stream()
-//                    .map(temp -> temp.getTeachingClassId())
-//                    .collect(Collectors.toList());
-//            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-//
-//            for (StudentScoreVo studentScore : stuScoreBest)
-//            {
-//                CompletedCourse lesson = new CompletedCourse();
-//                String courseCode = studentScore.getCourseCode();
-//                lesson.setCourseCode(courseCode);
-//                lesson.setCourseName(studentScore.getCourseName());
-//                lesson.setScore(studentScore.getTotalMarkScore());
-//                lesson.setCredits(studentScore.getCredit());
-//                lesson.setExcellent(studentScore.isBestScore());
-//                lesson.setCalendarId(studentScore.getCalendarId());
-//                lesson.setIsPass(studentScore.getIsPass());
-//                lesson.setNature(studentScore.getCourseNature());
-//                lesson.setCourseLabelId(studentScore.getCourseLabelId());
-//                lesson.setCheat(
-//                    StringUtils.isBlank(studentScore.getTotalMarkScore()));
-//
-//                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
-//                lesson.setTimes(times);
-//                String faculty = courseOpenDao.selectFaculty(courseCode);
-//                if (faculty != null) {
-//                    lesson.setFaculty(faculty);
-//                }
-//
-//                if (studentScore.getIsPass() != null
-//                    && studentScore.getIsPass().intValue() == Constants.ONE)
-//                {//已經完成課程
-//                    completedCourses.add(lesson);
-//                }
-//                else
-//                {
-//                    
-//                    failedCourse.add(lesson);
-//                }
-//                
-//            }
-//        }
+        List<StudentScoreVo> stuScoreBest =
+            ScoreServiceInvoker.findStuScoreBest(studentId);
+        
+        BeanUtils.copyProperties(stu, studentInfo);
+        
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
+        if (CollectionUtil.isNotEmpty(stuScoreBest))
+        {
+            List<Long> teachClassIds = stuScoreBest.stream()
+                    .map(temp -> temp.getTeachingClassId())
+                    .collect(Collectors.toList());
+            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
+
+            for (StudentScoreVo studentScore : stuScoreBest)
+            {
+                CompletedCourse lesson = new CompletedCourse();
+                String courseCode = studentScore.getCourseCode();
+                lesson.setCourseCode(courseCode);
+                lesson.setCourseName(studentScore.getCourseName());
+                lesson.setScore(studentScore.getTotalMarkScore());
+                lesson.setCredits(studentScore.getCredit());
+                lesson.setExcellent(studentScore.isBestScore());
+                lesson.setCalendarId(studentScore.getCalendarId());
+                lesson.setIsPass(studentScore.getIsPass());
+                lesson.setNature(studentScore.getCourseNature());
+                lesson.setCourseLabelId(studentScore.getCourseLabelId());
+                lesson.setCheat(
+                    StringUtils.isBlank(studentScore.getTotalMarkScore()));
+
+                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
+                lesson.setTimes(times);
+                String faculty = courseOpenDao.selectFaculty(courseCode);
+                if (faculty != null) {
+                    lesson.setFaculty(faculty);
+                }
+
+                if (studentScore.getIsPass() != null
+                    && studentScore.getIsPass().intValue() == Constants.ONE)
+                {//已經完成課程
+                    completedCourses.add(lesson);
+                }
+                else
+                {
+                    
+                    failedCourse.add(lesson);
+                }
+                
+            }
+        }
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
