@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -40,9 +41,31 @@ public class SelectedCourse extends TeachingClassCache
     private Integer turn;
     
     private Integer isApply;
-    
 
-	public Integer getIsApply() {
+    /**
+     * 研究生课程教学安排
+     */
+    private List<String> teachingArrange;
+
+    @Override
+    public Long getTeachClassId() {
+        return teachClassId;
+    }
+
+    @Override
+    public void setTeachClassId(Long teachClassId) {
+        this.teachClassId = teachClassId;
+    }
+
+    public List<String> getTeachingArrange() {
+        return teachingArrange;
+    }
+
+    public void setTeachingArrange(List<String> teachingArrange) {
+        this.teachingArrange = teachingArrange;
+    }
+
+    public Integer getIsApply() {
 		return isApply;
 	}
 

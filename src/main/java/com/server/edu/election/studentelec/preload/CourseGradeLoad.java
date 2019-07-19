@@ -1,15 +1,10 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dto.TimeTableMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +85,10 @@ public class CourseGradeLoad extends DataProLoad
 
     @Autowired
     private CourseOpenDao courseOpenDao;
-    
+
+    @Autowired
+    private ElcCourseTakeDao courseTakeDao;
+
     @Override
     public void load(ElecContext context)
     {
@@ -115,11 +113,9 @@ public class CourseGradeLoad extends DataProLoad
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
-            List<Long> teachClassIds = stuScoreBest.stream()
-                    .map(temp -> temp.getTeachingClassId())
-                    .collect(Collectors.toList());
-            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-
+            List<Long> teachingClassIds = stuScoreBest.stream().map(StudentScoreVo::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachingClassIds);
+            Map<Long, List<TimeTableMessage>> collect = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -135,14 +131,16 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
-
-                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
-                lesson.setTimes(times);
-                String faculty = courseOpenDao.selectFaculty(courseCode);
+                lesson.setRemark(studentScore.getRemark());
+                List<TimeTableMessage> tables = collect.get(studentScore.getTeachingClassId());
+                if (CollectionUtil.isNotEmpty(tables)) {
+                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    lesson.setTeachingArrange(teachingArrange);
+                }
+                String faculty = courseOpenDao.selectFaculty(courseCode, studentScore.getCalendarId());
                 if (faculty != null) {
                     lesson.setFaculty(faculty);
                 }
-
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -150,7 +148,6 @@ public class CourseGradeLoad extends DataProLoad
                 }
                 else
                 {
-                    
                     failedCourse.add(lesson);
                 }
                 
@@ -209,6 +206,8 @@ public class CourseGradeLoad extends DataProLoad
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
+            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachClassIds);
+            Map<Long, List<TimeTableMessage>> timeTables = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
@@ -223,15 +222,20 @@ public class CourseGradeLoad extends DataProLoad
                 course.setCredits(c.getCredits());
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
-                course.setTeachClassId(c.getTeachingClassId());
+                Long teachingClassId = c.getTeachingClassId();
+                course.setTeachClassId(teachingClassId);
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
                 course.setFaculty(c.getFaculty());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
-                
+                List<TimeTableMessage> tables = timeTables.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(tables)) {
+                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    course.setTeachingArrange(teachingArrange);
+                }
+
                 selectedCourses.add(course);
-                
             }
         }
     }
@@ -415,5 +419,55 @@ public class CourseGradeLoad extends DataProLoad
         }
         return sb.toString();
     }
-    
+
+    /**
+     * 研究生教学安排信息获取
+     * @param teachingClassIds
+     * @return
+     */
+    private List<TimeTableMessage> setTeachingArrange(List<Long> teachingClassIds) {
+        List<TimeTableMessage> timeTableMessages = courseTakeDao.findCourseArrange(teachingClassIds);
+        for (TimeTableMessage timeTableMessage : timeTableMessages) {
+            Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+            Integer timeStart = timeTableMessage.getTimeStart();
+            Integer timeEnd = timeTableMessage.getTimeEnd();
+            String weekNumber = timeTableMessage.getWeekNum();
+            String[] str = weekNumber.split(",");
+            List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+            List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
+            String weekstr = findWeek(dayOfWeek);//星期
+            String timeStr=weekstr+" "+timeStart+"-"+timeEnd+ weekNums.toString()+ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
+            timeTableMessage.setTimeAndRoom(timeStr);
+        }
+
+        return timeTableMessages;
+    }
+
+    public String findWeek(Integer number){
+        String week="";
+        switch(number){
+            case 1:
+                week="星期一";
+                break;
+            case 2:
+                week="星期二";
+                break;
+            case 3:
+                week="星期三";
+                break;
+            case 4:
+                week="星期四";
+                break;
+            case 5:
+                week="星期五";
+                break;
+            case 6:
+                week="星期六";
+                break;
+            case 7:
+                week="星期日";
+                break;
+        }
+        return week;
+    }
 }

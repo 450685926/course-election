@@ -1124,10 +1124,12 @@
                 c.NAME_ teachingClassName,c.ELC_NUMBER_ elcNumber,c.NUMBER_ number,
                 d.TEACHER_NAME_ teacherName
         from elc_course_takes_t a
+        join course_open_t e on e.COURSE_CODE_ = a.COURSE_CODE_
         join course_t b on b.CODE_ = a.COURSE_CODE_
         join teaching_class_t c on c.ID_ = a.TEACHING_CLASS_ID_
         join teaching_class_teacher_t d on d.TEACHING_CLASS_ID_ = c.ID_
-        where STUDENT_ID_ = #{studentId} and COURSE_TAKE_TYPE_ = 1
+        where a.CALENDAR_ID_ = #{calendarId} and a.STUDENT_ID_ = #{studentId} and e.IS_OPEN_ = 0
+        group by c.ID_
     </select>
 
     <delete id="deleteCourseTask">
@@ -1135,7 +1137,6 @@
               elc_course_takes_t
         WHERE
               STUDENT_ID_ = #{studentId}
-          and COURSE_TAKE_TYPE_ = 1
           and TEACHING_CLASS_ID_ in
             <foreach item="item" collection="list" separator="," open="(" close=")" >
                 #{item, jdbcType=INTEGER}
@@ -1223,14 +1224,14 @@
         select count(ID_) from elc_course_takes_t where COURSE_CODE_ = #{courseCode} and STUDENT_ID_ = #{studentId}
     </select>
 
-    <select id="findTeachingClassIdByStudentId" resultType="java.lang.String">
+    <select id="findTeachingClassIdByStudentId" resultType="java.lang.Long">
         select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId}
     </select>
 
     <select id="findCourseArrange" resultType="com.server.edu.election.dto.TimeTableMessage">
         select
-            t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
-            GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNumber
+            t1.TEACHING_CLASS_ID_ teachingClassId,t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
+            t2.ROOM_ID_ roomId,GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
         from teaching_class_arrange_time_t t1
         join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
         where t1.TEACHING_CLASS_ID_ in
@@ -1243,8 +1244,9 @@
 
     <select id="findCourseArrangeByTeachingClassId" resultType="com.server.edu.election.dto.TimeTableMessage">
         select
-            co.COURSE_NAME_ courseName, te.DAY_OF_WEEK_ dayOfWeek, te.TIME_START_ timeStart, te.TIME_END_ timeEnd,
-            GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumber
+            co.COURSE_NAME_ courseName, te.DAY_OF_WEEK_ dayOfWeek,
+            te.TIME_START_ timeStart, te.TIME_END_ timeEnd,ro.ROOM_ID_ roomId,
+            GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNum
         from teaching_class_t tc
         join teaching_task_t tk on tk.ID_ = tc.TASK_ID_
         join course_open_t co on co.ID_ = tk.COURSE_OPEN_ID_

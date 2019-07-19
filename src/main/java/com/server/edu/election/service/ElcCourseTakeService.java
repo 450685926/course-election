@@ -15,6 +15,7 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.excel.export.ExcelResult;
 import io.swagger.models.auth.In;
 
 /**
@@ -122,7 +123,7 @@ public interface ElcCourseTakeService
      * @param condition
      * @return
      */
-    PageResult<ElcStudentVo> addCourseList(PageCondition<ElcStudentVo> condition);
+    PageResult<ElcStudentVo> addCourseList(PageCondition<ElcCourseTakeQuery> condition);
 
     /**
      * 课程维护研究生加课
@@ -138,8 +139,8 @@ public interface ElcCourseTakeService
      */
     Integer removedCourse(AddAndRemoveCourseDto courseDto);
 
-    PageResult<ElcStudentVo> removedCourseList(PageCondition<String> studentId);
+    PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
 
     /**课程维护导出学生选课信息*/
-    String exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
+    ExcelResult exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
 }
