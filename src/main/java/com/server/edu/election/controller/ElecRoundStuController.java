@@ -238,9 +238,9 @@ public class ElecRoundStuController
     
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "导出")})
-    @GetMapping(value = "/export")
+    @PostMapping(value = "/export")
     public ResponseEntity<Resource> export(
-        @ModelAttribute ElecRoundStuQuery query)
+        @RequestBody ElecRoundStuQuery query)
         throws Exception
     {
         ValidatorUtil.validateAndThrow(query);

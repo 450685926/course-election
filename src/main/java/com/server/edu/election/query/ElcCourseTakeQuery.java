@@ -19,6 +19,7 @@ public class ElcCourseTakeQuery
     
     /**学生学院*/
     private String faculty;
+    
 
     /**年级*/
     private String grade;
@@ -70,7 +71,7 @@ public class ElcCourseTakeQuery
     private String label;
     
     private String courseName;
-
+    
     private String degreeType;
 
     private String formLearning;

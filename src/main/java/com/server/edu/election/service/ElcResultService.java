@@ -92,13 +92,4 @@ public interface ElcResultService
 	 */
 	PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page);
 
-	/**
-	 * 导出研究生未选课学生名单
-	 * @param condition
-	 * @return
-	 */
-	ExcelResult export(ElcResultQuery condition);
-
-	ExcelResult elcResultCountByStudentExport(ElcResultQuery condition);
-
 }

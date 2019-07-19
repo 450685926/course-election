@@ -204,6 +204,7 @@ public class CourseGradeLoad extends DataProLoad
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
+                course.setTeachClassMsg(c.getTeachingClassId());
                 course.setApply(c.getApply());
                 course.setLabel(c.getLabel());
                 course.setCampus(c.getCampus());

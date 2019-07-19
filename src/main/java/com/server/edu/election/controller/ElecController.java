@@ -134,7 +134,7 @@ public class ElecController
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
-
+        
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");
@@ -146,6 +146,7 @@ public class ElecController
         }
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
+        	c = elecService.setData(c,roundId);
         
         return RestResult.successData(c);
     }
@@ -245,11 +246,20 @@ public class ElecController
      * 全部课程指：在本次选课学期，学生学籍所在校区对应的培养层次所有的排课信息
      */
     @ApiOperation(value = "查询全部课程")
-    @PostMapping("/{roundId}/allCourse")
-    public RestResult getAllCourse(
+    @PostMapping("/round/arrangementCourses")
+    public RestResult<?> getAllCourse(
     		@RequestBody @Valid AllCourseVo allCourseVo){
     	Session session = SessionUtils.getCurrentSession();
-    	String uid = session.getUid();
+    	String uid = "";
+    	if (session.realType() == UserTypeEnum.STUDENT.getValue())
+        {
+    		uid = session.getMockUid();
+        }else {
+        	uid = session.getUid();
+		}
+    	logger.info("election getAllCourse start !!!");
+    	logger.info("uid = " + uid);
+    	
     	RestResult<Student> studentMessage = exemptionCourseServiceImpl.findStudentMessage(uid);
     	Student student = studentMessage.getData();
     	allCourseVo.setTrainingLevel(student.getTrainingLevel());
@@ -265,9 +275,17 @@ public class ElecController
     
     @ApiOperation(value = "获取个人培养计划完成情况")
     @PostMapping("/culturePlanData")
-    public RestResult getCulturePlanData() {
+    public RestResult<?> getCulturePlanData() {
     	Session session = SessionUtils.getCurrentSession();
-    	String uid = session.getUid();
+    	String uid = "";
+    	if (session.realType() == UserTypeEnum.STUDENT.getValue())
+        {
+    		uid = session.getMockUid();
+        }else {
+        	uid = session.getUid();
+		}
+    	logger.info("election getCulturePlanData start !!!");
+    	logger.info("uid = " + uid);
 
     	/**
     	 * 调用培养：个人培养计划完成情况接口
@@ -275,16 +293,20 @@ public class ElecController
     	 * cultureCourseLabelRelationList(课程列表)
     	 */
     	String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByStudentIdForElection?id={id}&&isPass={isPass}");
-    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(path,RestResult.class, uid, 0);
+    	RestResult<Map<String, Object>> restResult1 = restTemplate.getForObject(path,RestResult.class, uid, 0);
     	
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureCredit?studentId={id}");
     	RestResult<Map<String, Object>> restResult2 = restTemplate.getForObject(culturePath,RestResult.class, uid);
+
+    	Map<String, Object> data1 = restResult1.getData();
+    	Map<String, Object> data2 = restResult2.getData();
     	
-    	Map<String, Object> data = restResult2.getData();
-    	restResult.setData(data);
-    	restResult.setCode(ResultStatus.SUCCESS.code());
-		return restResult;
+    	ArrayList<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(2);
+    	resultList.add(data1);
+    	resultList.add(data2);
+    	
+    	return RestResult.successData(resultList);
 	}
     
     @ApiOperation(value = "获取研究生个人培养计划信息")
@@ -293,7 +315,7 @@ public class ElecController
             @PathVariable("roundId") @NotNull Long roundId
     ) {
     	Session session = SessionUtils.getCurrentSession();
-    	String uid = session.getUid();
+    	String uid = session.realUid();
 
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");

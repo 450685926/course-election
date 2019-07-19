@@ -44,5 +44,11 @@ public interface Constants
     public static final int FOURTH_TURN = 4;
     
     public static final int HUNDRED = 100;
+    
+    public static final double NEW_LIMIT_CREDITS = 48;
+    
+    public static final double TOTAL_LIMIT_CREDITS = 48;
+    
+    public static final int REBUILD_LIMIT_NUMBER = 6;
 
 }

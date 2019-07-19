@@ -436,7 +436,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
 
         Page<NoSelectCourseStdsDto> electCourseList;
-        if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && "1".equals(deptId)) {
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && Constants.PROJ_UNGRADUATE.equals(deptId)) {
         	electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
 		}else {
 			electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
