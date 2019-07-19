@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 
 /**
  * 教学班缓存对象
@@ -36,6 +37,9 @@ public class TeachingClassCache extends ElecCourse
     
     /** 上课时间按教学周拆分集合 */
     private List<ClassTimeUnit> times;
+	
+	/** 上课时间地点 */
+	private List<TimeAndRoom> timeTableList;
     
     private String teacherCode;
     
@@ -177,7 +181,15 @@ public class TeachingClassCache extends ElecCourse
         return Objects.hash(this.teachClassId, this.teachClassCode);
     }
     
-    @Override
+    public List<TimeAndRoom> getTimeTableList() {
+		return timeTableList;
+	}
+
+	public void setTimeTableList(List<TimeAndRoom> timeTableList) {
+		this.timeTableList = timeTableList;
+	}
+
+	@Override
     public boolean equals(Object obj)
     {
         if (this == obj)
@@ -193,5 +205,13 @@ public class TeachingClassCache extends ElecCourse
         }
         return false;
     }
+
+	@Override
+	public String toString() {
+		return "TeachingClassCache [teachClassId=" + teachClassId + ", teachClassCode=" + teachClassCode
+				+ ", teachClassType=" + teachClassType + ", practice=" + practice + ", retraining=" + retraining
+				+ ", maxNumber=" + maxNumber + ", currentNumber=" + currentNumber + ", times=" + times
+				+ ", teacherCode=" + teacherCode + ", teacherName=" + teacherName + ", faculty=" + faculty + "]";
+	}
     
 }

@@ -431,7 +431,7 @@ public class ReportManagementController
 
     @ApiOperation(value = "导出研究生点名册")
     @PostMapping("/exportGraduteRollBookList")
-    public RestResult<String> exportGraduteRollBookList(
+    public RestResult<ExcelResult> exportGraduteRollBookList(
             @RequestBody PageCondition<RollBookConditionDto> condition)
             throws Exception
     {
@@ -443,7 +443,7 @@ public class ReportManagementController
         }else if (session.isTeacher()) {
             rollBookConditionDto.setTeacherCode(session.realUid());
         }
-        String export = managementService.exportGraduteRollBookList(condition);
+        ExcelResult export = managementService.exportGraduteRollBookList(condition);
         return RestResult.successData(export);
     }
     

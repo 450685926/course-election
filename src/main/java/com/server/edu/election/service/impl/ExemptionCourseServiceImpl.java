@@ -66,7 +66,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     private StudentDao studentDao;
 
     @Autowired
-    private DictionaryService dictionaryService;
+    private DictionaryService dictionaryService;  
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -662,6 +662,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         design.addCell(I18nUtil.getMsg("exemptionApply.examineAuditor"), "auditor");
         return design;
     }
+
 
 
 

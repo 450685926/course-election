@@ -26,12 +26,22 @@ public class ElcStudentVo {
     private String courseName;
     private String teachingClassName;
     private Long teachingClassId;
+    @Code2Text(transformer="X_KCXZ")
     private String nature;
     private Double credits;
+    @Code2Text(transformer="X_XDLX")
     private String courseTakeType;
     private Integer elcNumber;
     private Integer number;
-    private List<TimeTableMessage> courseArrange;
+    private String courseArrange;
+
+    public String getCourseArrange() {
+        return courseArrange;
+    }
+
+    public void setCourseArrange(String courseArrange) {
+        this.courseArrange = courseArrange;
+    }
 
     public Long getCalendarId() {
         return calendarId;
@@ -159,14 +169,6 @@ public class ElcStudentVo {
 
     public void setTeachingClassId(Long teachingClassId) {
         this.teachingClassId = teachingClassId;
-    }
-
-    public List<TimeTableMessage> getCourseArrange() {
-        return courseArrange;
-    }
-
-    public void setCourseArrange(List<TimeTableMessage> courseArrange) {
-        this.courseArrange = courseArrange;
     }
 
     public Double getCredits() {
