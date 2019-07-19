@@ -15,9 +15,9 @@ public class NoSelectCourseStdsDto{
 	
 	/** 年级 */
     private Integer grade;
-    @Code2Text(transformer = "X_YX")
     
     /** 学院 */
+    @Code2Text(transformer = "X_YX")
     private String faculty;
     
     /** 专业 */
@@ -42,7 +42,7 @@ public class NoSelectCourseStdsDto{
     /** 用户管理部门ID(MANAGER_DEPT_ID) */
     private String deptId;
     
-    /** 学生姓名 */
+    /** 学生姓名或者学号 */
     private String keyword;
     
     /** 培养层次 */

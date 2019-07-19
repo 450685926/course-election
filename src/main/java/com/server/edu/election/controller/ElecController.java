@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
-import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
@@ -147,9 +146,7 @@ public class ElecController
         }
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
-        if (session.getCurrentManageDptId().equals(Constants.ONE) ) {
         	c = elecService.setData(c,roundId);
-		}
         
         return RestResult.successData(c);
     }
@@ -318,7 +315,7 @@ public class ElecController
             @PathVariable("roundId") @NotNull Long roundId
     ) {
     	Session session = SessionUtils.getCurrentSession();
-    	String uid = session.getUid();
+    	String uid = session.realUid();
 
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");

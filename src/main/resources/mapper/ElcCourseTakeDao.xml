@@ -99,10 +99,7 @@
           and t2.TRAINING_CATEGORY_ = #{query.trainingLevel}
      </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  	 and (t2.STUDENT_CODE_ like concat('%',#{studentCode},'%') or t2.NAME_ like concat('%',#{studentCode},'%'))
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-  	 and t2.FACULTY_ = #{query.faculty}
+  	 and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
   	 and t2.PROFESSION_ = #{query.profession}
@@ -899,12 +896,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
                 and PROFESSION_ =#{major}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
+           <!--  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
                 and STUDENT_CODE_ like concat('%',#{studentCode},'%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
                 and NAME_ like concat('%',#{studentName},'%')
-            </if>
+            </if> -->
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
                and TRAINING_LEVEL_ =#{trainingLevel}
             </if>
@@ -920,9 +917,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
                and MANAGER_DEPT_ID_ =#{deptId}
             </if>
-          	<!--   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+          	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
                 and (STUDENT_CODE_ like concat('%',#{keyword},'%') or NAME_ like concat('%',#{keyword},'%') )
-            </if> -->
+            </if>
         </where>
     </select>
 

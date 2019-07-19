@@ -204,10 +204,10 @@ public class ElcResultController
     		throws Exception
     {
     	ValidatorUtil.validateAndThrow(condition.getCondition());
-//    	Session session = SessionUtils.getCurrentSession();
-//    	if (!session.isAdmin()) {
-//    		return RestResult.fail("elec.mustBeAdmin");
-//        }
+    	Session session = SessionUtils.getCurrentSession();
+    	if (!session.isAdmin()) {
+    		return RestResult.fail("elec.mustBeAdmin");
+        }
     	ElcResultCountVo result = elcResultService.elcResultCountByStudent(condition);
     	return RestResult.successData(result);
     }
