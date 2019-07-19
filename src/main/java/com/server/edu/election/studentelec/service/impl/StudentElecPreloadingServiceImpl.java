@@ -62,7 +62,7 @@ public class StudentElecPreloadingServiceImpl
                     context = new ElecContext(studentId, round.getCalendarId());
                     context.setRequest(preloadRequest);
                     String projectId = round.getProjectId();
-                    
+
                     Map<String, DataProLoad> beansOfType =
                         applicationContext.getBeansOfType(DataProLoad.class);
                     
@@ -71,7 +71,7 @@ public class StudentElecPreloadingServiceImpl
                         beansOfType.values().stream().filter(load -> {
                             return load.getProjectIds().contains(projectId);
                         }).collect(Collectors.toList());
-                    
+
                     //排序
                     Collections.sort(values);
                     
