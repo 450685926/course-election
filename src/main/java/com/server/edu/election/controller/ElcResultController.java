@@ -290,6 +290,7 @@ public class ElcResultController
 	        design.addCell("未选人数", "numberOfNonCandidates");
 	        design.addCell("已选人数百分比（%）", "numberOfelectedPersonsPoint");
         }
+        design.setDatas(datas);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         
         return ExportUtil
@@ -394,6 +395,7 @@ public class ElcResultController
                         .query(DictTypeEnum.X_RXJJ.getType(), value);
                     return dict;
                 });
+        design.setDatas(datas);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         
         return ExportUtil
