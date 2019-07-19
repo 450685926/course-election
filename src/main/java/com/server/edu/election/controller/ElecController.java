@@ -247,7 +247,7 @@ public class ElecController
      */
     @ApiOperation(value = "查询全部课程")
     @PostMapping("/round/arrangementCourses")
-    public RestResult<List<ElcCourseResult>> arrangementCourses(@RequestBody @Valid AllCourseVo allCourseVo){
+    public RestResult<List<TeachingClassCache>> arrangementCourses(@RequestBody @Valid AllCourseVo allCourseVo){
     	logger.info("election getAllCourse start !!!");
 
     	Session session = SessionUtils.getCurrentSession();
@@ -258,7 +258,6 @@ public class ElecController
         }else {
         	uid = session.getUid();
 		}
-    	
     	RestResult<Student> studentMessage = exemptionCourseServiceImpl.findStudentMessage(uid);
     	Student student = studentMessage.getData();
     	allCourseVo.setTrainingLevel(student.getTrainingLevel());
@@ -267,7 +266,7 @@ public class ElecController
     	ElectionRoundsDto roundsDto = electionRoundService.get(allCourseVo.getRoundId());
     	allCourseVo.setCalendarId(roundsDto.getCalendarId());
     	
-    	List<ElcCourseResult> restResult = elecService.arrangementCourses(allCourseVo);
+    	List<TeachingClassCache> restResult = elecService.arrangementCourses(allCourseVo);
     	return RestResult.successData(restResult);
     }
     

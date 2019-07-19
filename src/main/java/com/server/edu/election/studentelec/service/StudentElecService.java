@@ -70,7 +70,7 @@ public interface StudentElecService
      * @param AllCourseVo allCourseVo
      * @return
      */
-    List<ElcCourseResult> arrangementCourses(AllCourseVo allCourseVo);
+    List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo);
 
 	/**
 	   *     获取被代理选课的学生列表

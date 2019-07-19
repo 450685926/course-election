@@ -6,16 +6,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.antlr.v4.tool.AttributeDict.DictType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,6 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
@@ -58,6 +58,7 @@ import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.rules.bk.LimitCountCheckerRule;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
+import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.Keys;
@@ -71,7 +72,7 @@ import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
 @Service
-public class StudentElecServiceImpl implements StudentElecService
+public class StudentElecServiceImpl extends AbstractCacheService implements StudentElecService
 {
     Logger LOG = LoggerFactory.getLogger(getClass());
     
@@ -522,10 +523,32 @@ public class StudentElecServiceImpl implements StudentElecService
     }
 
 	@Override
-	public List<ElcCourseResult> arrangementCourses(AllCourseVo allCourseVo) {
-	     List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
-	     return getTimeList(list);
+	public List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo) {
+	    List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
+	    List<TeachingClassCache> lessons = new ArrayList<TeachingClassCache>(list.size());
+	     
+	    //从缓存中拿到本轮次排课信息
+        //List<String> keys = list.stream().map(String::valueOf).collect(Collectors.toList());
+        ArrayList<String> list2 = new ArrayList<String>(list.size());
+        for (ElcCourseResult elcCourseResult : list) {
+        	list2.add(elcCourseResult.getTeachClassId()+"");
+		}
+        
+        HashOperations<String, String, TeachingClassCache> hash = opsTeachClass();
+        lessons = hash.multiGet(Keys.getClassKey(), list2);
+        // 过滤null
+        lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        return lessons;
 	}
+	
+    public HashOperations<String, String, TeachingClassCache> opsTeachClass()
+    {
+        RedisTemplate<String, TeachingClassCache> redisTemplate =
+            redisTemplate(TeachingClassCache.class);
+        HashOperations<String, String, TeachingClassCache> ops =
+            redisTemplate.opsForHash();
+        return ops;
+    }
 	
 	private List<ElcCourseResult>  getTimeList(List<ElcCourseResult> list){
 		if(CollectionUtil.isNotEmpty(list)){
