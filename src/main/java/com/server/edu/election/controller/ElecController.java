@@ -253,7 +253,16 @@ public class ElecController
     public RestResult<?> getAllCourse(
     		@RequestBody @Valid AllCourseVo allCourseVo){
     	Session session = SessionUtils.getCurrentSession();
-    	String uid = session.getUid();
+    	String uid = "";
+    	if (session.realType() == UserTypeEnum.STUDENT.getValue())
+        {
+    		uid = session.getMockUid();
+        }else {
+        	uid = session.getUid();
+		}
+    	logger.info("election getAllCourse start !!!");
+    	logger.info("uid = " + uid);
+    	
     	RestResult<Student> studentMessage = exemptionCourseServiceImpl.findStudentMessage(uid);
     	Student student = studentMessage.getData();
     	allCourseVo.setTrainingLevel(student.getTrainingLevel());
@@ -271,7 +280,15 @@ public class ElecController
     @PostMapping("/culturePlanData")
     public RestResult<?> getCulturePlanData() {
     	Session session = SessionUtils.getCurrentSession();
-    	String uid = session.getUid();
+    	String uid = "";
+    	if (session.realType() == UserTypeEnum.STUDENT.getValue())
+        {
+    		uid = session.getMockUid();
+        }else {
+        	uid = session.getUid();
+		}
+    	logger.info("election getCulturePlanData start !!!");
+    	logger.info("uid = " + uid);
 
     	/**
     	 * 调用培养：个人培养计划完成情况接口
