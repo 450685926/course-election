@@ -244,11 +244,11 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campu)">
             and class.CAMPUS_ =#{campu,jdbcType=VARCHAR}
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-            and course.COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+            and course.COURSE_NAME_ like concat('%',#{courseName},'%')
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-            and teacher.TEACHER_CODE_ =#{teacherCode,jdbcType=VARCHAR}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherName)">
+            and teacher.TEACHER_NAME_ like concat('%',#{teacherName},'%')
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
             and course.FACULTY_ =#{faculty,jdbcType=VARCHAR}
