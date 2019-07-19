@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.TimeTableMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -114,6 +113,9 @@ public class CourseGradeLoad extends DataProLoad
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
+            List<Long> teachingClassIds = stuScoreBest.stream().map(StudentScoreVo::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachingClassIds);
+            Map<Long, List<TimeTableMessage>> collect = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -130,8 +132,11 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 lesson.setRemark(studentScore.getRemark());
-                List<String> teachingArrange = getTeachingArrange(studentScore.getTeachingClassId());
-                lesson.setTeachingArrange(teachingArrange);
+                List<TimeTableMessage> tables = collect.get(studentScore.getTeachingClassId());
+                if (CollectionUtil.isNotEmpty(tables)) {
+                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    lesson.setTeachingArrange(teachingArrange);
+                }
                 String faculty = courseOpenDao.selectFaculty(courseCode, studentScore.getCalendarId());
                 if (faculty != null) {
                     lesson.setFaculty(faculty);
@@ -201,6 +206,8 @@ public class CourseGradeLoad extends DataProLoad
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
+            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachClassIds);
+            Map<Long, List<TimeTableMessage>> timeTables = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
@@ -215,14 +222,19 @@ public class CourseGradeLoad extends DataProLoad
                 course.setCredits(c.getCredits());
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
-                course.setTeachClassId(c.getTeachingClassId());
+                Long teachingClassId = c.getTeachingClassId();
+                course.setTeachClassId(teachingClassId);
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
                 course.setFaculty(c.getFaculty());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
-                List<String> teachingArrange = getTeachingArrange(c.getTeachingClassId());
-                course.setTeachingArrange(teachingArrange);
+                List<TimeTableMessage> tables = timeTables.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(tables)) {
+                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    course.setTeachingArrange(teachingArrange);
+                }
+
                 selectedCourses.add(course);
             }
         }
@@ -408,10 +420,13 @@ public class CourseGradeLoad extends DataProLoad
         return sb.toString();
     }
 
-
-    private List<String> getTeachingArrange(Long teachingClassId) {
-        List<TimeTableMessage> timeTableMessages = courseTakeDao.findCourseArrangeByTeachingClassId(teachingClassId);
-        List<String> list = new ArrayList<>();
+    /**
+     * 研究生教学安排信息获取
+     * @param teachingClassIds
+     * @return
+     */
+    private List<TimeTableMessage> setTeachingArrange(List<Long> teachingClassIds) {
+        List<TimeTableMessage> timeTableMessages = courseTakeDao.findCourseArrange(teachingClassIds);
         for (TimeTableMessage timeTableMessage : timeTableMessages) {
             Integer dayOfWeek = timeTableMessage.getDayOfWeek();
             Integer timeStart = timeTableMessage.getTimeStart();
@@ -420,9 +435,10 @@ public class CourseGradeLoad extends DataProLoad
             String[] str = weekNumber.split(",");
             String weekstr = findWeek(dayOfWeek);//星期
             String timeStr=weekstr+" "+timeStart+"-"+timeEnd+ str.toString()+ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
-            list.add(timeStr);
+            timeTableMessage.setTimeAndRoom(timeStr);
         }
-        return list;
+
+        return timeTableMessages;
     }
 
     public String findWeek(Integer number){

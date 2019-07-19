@@ -196,9 +196,9 @@ public interface ElcCourseTakeDao
 
     int courseCount(@Param("courseCode") String courseCode, @Param("studentId") String studentId);
 
-    List<String> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
+    List<Long> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
-    List<TimeTableMessage> findCourseArrange(@Param("teachingClassIds") List<String> ids);
+    List<TimeTableMessage> findCourseArrange(@Param("teachingClassIds") List<Long> ids);
 
     List<TimeTableMessage> findCourseArrangeByTeachingClassId(Long teachingClassId);
 }

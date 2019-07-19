@@ -1224,14 +1224,14 @@
         select count(ID_) from elc_course_takes_t where COURSE_CODE_ = #{courseCode} and STUDENT_ID_ = #{studentId}
     </select>
 
-    <select id="findTeachingClassIdByStudentId" resultType="java.lang.String">
+    <select id="findTeachingClassIdByStudentId" resultType="java.lang.Long">
         select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId}
     </select>
 
     <select id="findCourseArrange" resultType="com.server.edu.election.dto.TimeTableMessage">
         select
             t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
-            GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
+            t2.ROOM_ID_ roomId,GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
         from teaching_class_arrange_time_t t1
         join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
         where t1.TEACHING_CLASS_ID_ in
