@@ -10,7 +10,16 @@ public class StudentDto extends Student {
     @NotNull
     private Long  courseId;
     
+    private Long calendarId; 
     
+    
+    
+	public Long getCalendarId() {
+		return calendarId;
+	}
+	public void setCalendarId(Long calendarId) {
+		this.calendarId = calendarId;
+	}
 	public Long getCourseId() {
 		return courseId;
 	}

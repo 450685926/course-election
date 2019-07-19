@@ -5,7 +5,6 @@
     <!--
       WARNING - @mbg.generated
     -->
-
     <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentCode" />
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
     <result column="SEX_" jdbcType="INTEGER" property="sex" />
@@ -318,5 +317,25 @@
 		        and (t4.TRAINING_CATEGORY_ = "" or t4.TRAINING_CATEGORY_ is null)
 		    </if>
 		</where>
+   </select>
+   
+   <select id="getUnLimitStudents" parameterType="com.server.edu.election.dto.StudentDto" resultMap="BaseResultMap">
+		SELECT
+			t1.STUDENT_CODE_,
+			t1.NAME_,
+			t1.GRADE_,
+			t1.FACULTY_,
+			t1.PROFESSION_
+		FROM
+			student_t t1
+		WHERE
+			t1.STUDENT_CODE_ NOT IN (
+				SELECT
+					STUDENT_ID_
+				FROM
+					elc_student_limit_t
+				WHERE
+					CALENDAR_ID_ = #{calendarId}
+			)
    </select>
 </mapper>
