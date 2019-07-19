@@ -107,7 +107,7 @@
   </select>
   
   <select id="grduateListPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
-    select t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
+    select distinct t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
     	   t2.CAMPUS_,
     	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,t3.NUMBER_ classNumber,
     	   t4.TEACHER_CODE_,t4.TEACHER_NAME_
@@ -135,7 +135,7 @@
         and t3.PROJ_ID_ = #{projectId}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-  		and (t1.CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%') OR t3.COURSE_CODE_ like CONCAT(#{keyword}, '%'))
+  		and (t1.CODE_ like CONCAT('%', #{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT('%', #{keyword}, '%') OR t3.COURSE_CODE_ like CONCAT('%', #{keyword}, '%'))
   	  </if>
   	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
   	    and t4.TEACHER_CODE_ = #{teacherCode}
