@@ -140,11 +140,11 @@ public class StudentElecServiceImpl implements StudentElecService
 		//获取学生本学期已经选取的课程
 		Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
 		
-		List<ElcCourseResult> selectedCourses = new ArrayList<>();
+		List<SelectedCourse> selectedCourses = new ArrayList<>();
    		for (SelectedCourse completedCourse : selectedCourseSet) {
    			
-   			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			SelectedCourse elcCourseResult = new SelectedCourse();
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -162,11 +162,11 @@ public class StudentElecServiceImpl implements StudentElecService
 	                	teachClass.setCurrentNumber(elecNumber);
 	                	elcCourseResult.setFaculty(teachClass.getFaculty());
 	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                	elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                	elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
-	                	elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
-	                	elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                	elcCourseResult.setCurrentNumber(teachClass.getCurrentNumber());
+	                	elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
 	                	elcCourseResult.setTimes(teachClass.getTimes());
 	                	elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
 	                	classTimeLists.add( teachClass.getTimes());
@@ -175,6 +175,8 @@ public class StudentElecServiceImpl implements StudentElecService
 	            }
 	        }
 		}
+   		selectedCourseSet.clear();
+   		selectedCourseSet.addAll(selectedCourses);
 		//获取学生已完成的课程
 		Set<CompletedCourse> completedCourses1 = c.getCompletedCourses();
 		
@@ -315,6 +317,7 @@ public class StudentElecServiceImpl implements StudentElecService
 				}
 	        }
 		}
+   		c.setSelectedCourses(selectedCourseSet);
    		c.setOptionalCourses(completedCourses);
    		return c;
 	}
@@ -908,17 +911,17 @@ public class StudentElecServiceImpl implements StudentElecService
 				thisTimeSumMcreditsMap.put("professionalCourses", map.get("thisTimeSumMcredits"));
 				sumMcreditsMap.put("professionalCourses", map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("非学位课")){
-				minNumMap.put("nonDegreeCourse",map.get("minNum"));
-				courseNumMap.put("nonDegreeCourse", map.get("courseNum"));
-				creditsMap.put("nonDegreeCourse", map.get("credits"));
-				thisTimeSumMcreditsMap.put("nonDegreeCourse", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("nonDegreeCourse", map.get("sumMcredits"));
+				minNumMap.put("nonDegreeCourses",map.get("minNum"));
+				courseNumMap.put("nonDegreeCourses", map.get("courseNum"));
+				creditsMap.put("nonDegreeCourses", map.get("credits"));
+				thisTimeSumMcreditsMap.put("nonDegreeCourses", map.get("thisTimeSumMcredits"));
+				sumMcreditsMap.put("nonDegreeCourses", map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("必修环节")){
-				minNumMap.put("requiredCourse",map.get("minNum"));
-				courseNumMap.put("requiredCourse", map.get("courseNum"));
-				creditsMap.put("requiredCourse", map.get("credits"));
-				thisTimeSumMcreditsMap.put("requiredCourse", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("requiredCourse", map.get("sumMcredits"));
+				minNumMap.put("requiredCourses",map.get("minNum"));
+				courseNumMap.put("requiredCourses", map.get("courseNum"));
+				creditsMap.put("requiredCourses", map.get("credits"));
+				thisTimeSumMcreditsMap.put("requiredCourses", map.get("thisTimeSumMcredits"));
+				sumMcreditsMap.put("requiredCourses", map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("跨院系或跨门类")){
 				minNumMap.put("interFaculty",map.get("minNum"));
 				courseNumMap.put("interFaculty", map.get("courseNum"));
@@ -927,11 +930,11 @@ public class StudentElecServiceImpl implements StudentElecService
 				sumMcreditsMap.put("interFaculty", map.get("sumMcredits"));
 			}
 		}
-		resultMap.put("minNum", minNumMap);
-		resultMap.put("courseNum", courseNumMap);
-		resultMap.put("credits", creditsMap);
-		resultMap.put("thisTimeSumMcredits", thisTimeSumMcreditsMap);
-		resultMap.put("sumMcredits", sumMcreditsMap);
+		resultMap.put("minCourse", minNumMap);
+		resultMap.put("selectedCourse", courseNumMap);
+		resultMap.put("minCredits", creditsMap);
+		resultMap.put("currentElecCredits", thisTimeSumMcreditsMap);
+		resultMap.put("selectedCredits", sumMcreditsMap);
 		return resultMap;
 	}
 

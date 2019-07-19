@@ -14,13 +14,13 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 public class ElcCourseResult{
 	/** 课程类别（课程性质） */
 	@Code2Text(DictTypeEnum.X_KCXZ)
-	private String natrue;
+	private String nature;
 	
 	/** 教学班主键ID */
 	private Long teachClassId;
 
 	/** 教学班编号（课程序号） */
-	private String  teachingClassCode;
+	private String  teachClassCode;
 	
 	/**课程代码*/
     private String courseCode;
@@ -61,11 +61,11 @@ public class ElcCourseResult{
 	private Integer isConflict;
 
 	public String getNatrue() {
-		return natrue;
+		return nature;
 	}
 
 	public void setNatrue(String natrue) {
-		this.natrue = natrue;
+		this.nature = natrue;
 	}
 
 	public String getTeacherCode() {
@@ -85,11 +85,11 @@ public class ElcCourseResult{
 	}
 
 	public String getTeachingClassCode() {
-		return teachingClassCode;
+		return teachClassCode;
 	}
 
 	public void setTeachingClassCode(String teachingClassCode) {
-		this.teachingClassCode = teachingClassCode;
+		this.teachClassCode = teachingClassCode;
 	}
 
 	public Long getTeachClassId() {
