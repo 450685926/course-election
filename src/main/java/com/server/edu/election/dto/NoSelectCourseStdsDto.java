@@ -14,10 +14,10 @@ public class NoSelectCourseStdsDto{
 	private Long calendarId;
 	
 	/** 年级 */
-	@Code2Text(transformer = "X_YX")
     private Integer grade;
     
     /** 学院 */
+    @Code2Text(transformer = "X_YX")
     private String faculty;
     
     /** 专业 */
