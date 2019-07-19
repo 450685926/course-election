@@ -4,6 +4,11 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
+@CodeI18n
 public class ElecCourse
 {
 	/**课程代码*/
@@ -19,6 +24,7 @@ public class ElecCourse
     private String nameEn;
     
     /**课程性质*/
+    @Code2Text(DictTypeEnum.X_KCXZ)
     private String nature;
     
     /**校区*/

@@ -42,10 +42,10 @@ public class ElcCourseResult{
 	private String faculty;
 	
 	/** 实际选课人数 */
-	private Integer elcNumber;
+	private Integer currentNumber;
 	
 	/** 开班人数 */
-	private Integer number;
+	private Integer maxNumber;
 
 	/** 教学班备注信息 */
 	private String remark;
@@ -60,12 +60,29 @@ public class ElcCourseResult{
 	/** 是否冲突（0-不冲突；1-冲突） */
 	private Integer isConflict;
 
+	
 	public String getNature() {
 		return nature;
 	}
 
 	public void setNature(String nature) {
 		this.nature = nature;
+	}
+
+	public Long getTeachClassId() {
+		return teachClassId;
+	}
+
+	public void setTeachClassId(Long teachClassId) {
+		this.teachClassId = teachClassId;
+	}
+
+	public String getTeachClassCode() {
+		return teachClassCode;
+	}
+
+	public void setTeachClassCode(String teachClassCode) {
+		this.teachClassCode = teachClassCode;
 	}
 
 	public String getTeacherCode() {
@@ -84,36 +101,20 @@ public class ElcCourseResult{
 		this.teacherName = teacherName;
 	}
 
-	public String getTeachClassCode() {
-		return teachClassCode;
+	public Integer getCurrentNumber() {
+		return currentNumber;
 	}
 
-	public void setTeachClassCode(String teachClassCode) {
-		this.teachClassCode = teachClassCode;
+	public void setCurrentNumber(Integer currentNumber) {
+		this.currentNumber = currentNumber;
 	}
 
-	public Long getTeachClassId() {
-		return teachClassId;
+	public Integer getMaxNumber() {
+		return maxNumber;
 	}
 
-	public void setTeachClassId(Long teachClassId) {
-		this.teachClassId = teachClassId;
-	}
-
-	public Integer getElcNumber() {
-		return elcNumber;
-	}
-
-	public void setElcNumber(Integer elcNumber) {
-		this.elcNumber = elcNumber;
-	}
-
-	public Integer getNumber() {
-		return number;
-	}
-
-	public void setNumber(Integer number) {
-		this.number = number;
+	public void setMaxNumber(Integer maxNumber) {
+		this.maxNumber = maxNumber;
 	}
 
 	public String getRemark() {

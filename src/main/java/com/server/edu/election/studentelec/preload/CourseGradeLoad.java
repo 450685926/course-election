@@ -212,6 +212,7 @@ public class CourseGradeLoad extends DataProLoad
             {
                 SelectedCourse course = new SelectedCourse();
                 course.setTeachClassMsg(c.getTeachingClassId());
+                course.setNature(c.getNature());
                 course.setApply(c.getApply());
                 course.setLabel(c.getLabel());
                 course.setCampus(c.getCampus());
