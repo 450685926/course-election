@@ -249,7 +249,7 @@ public class ElecController
      * 全部课程指：在本次选课学期，学生学籍所在校区对应的培养层次所有的排课信息
      */
     @ApiOperation(value = "查询全部课程")
-    @PostMapping("/{roundId}/allCourse")
+    @PostMapping("/round/arrangementCourses")
     public RestResult<?> getAllCourse(
     		@RequestBody @Valid AllCourseVo allCourseVo){
     	Session session = SessionUtils.getCurrentSession();
