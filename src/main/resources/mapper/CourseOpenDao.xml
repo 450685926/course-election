@@ -116,6 +116,6 @@
 		</where>
   </select>
 	<select id="selectFaculty" resultType="java.lang.String">
-		SELECT FACULTY_ FROM course_open_t where COURSE_CODE_ = #{courseCode}
+		SELECT FACULTY_ FROM course_open_t where COURSE_CODE_ = #{courseCode} and CALENDAR_ID_ = #{calendarId}
 	</select>
 </mapper>
