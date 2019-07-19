@@ -56,4 +56,8 @@
         where
             ID_ = #{id}
     </update>
+
+    <delete id="deleteRetakeCourseCount">
+         delete from elc_retake_course_count where ID_ = #{retakeCourseCountId}
+    </delete>
 </mapper>

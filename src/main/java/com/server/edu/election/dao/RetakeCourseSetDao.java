@@ -5,7 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 public interface RetakeCourseSetDao {
 
-    int saveRetakeCourseSet(@Param("retakeSet") ElcRetakeSetVo elcRetakeSetVo);
+    int insertRetakeCourseSet(ElcRetakeSetVo elcRetakeSetVo);
+
+    int updateRetakeCourseSet(ElcRetakeSetVo elcRetakeSetVo);
 
     Long findRetakeSetId(Long calendarId);
 

@@ -9,4 +9,6 @@ public interface RetakeCourseCountDao {
     int saveRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo);
 
     int updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo);
+
+    int deleteRetakeCourseCount(Long retakeCourseCountId);
 }

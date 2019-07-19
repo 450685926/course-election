@@ -33,13 +33,6 @@ public class RetakeCourseController {
         return RestResult.success();
     }
 
-    @ApiOperation(value = "重置重修选课的时间和规则")
-    @DeleteMapping("/deleteRetakeRules")
-    public RestResult deleteRetakeRules(@RequestParam("calendarId") Long calendarId) {
-        retakeCourseService.deleteRetakeRules(calendarId);
-        return RestResult.success();
-    }
-
     @ApiOperation(value = "查询重修选课门数上限列表")
     @PostMapping("/findRetakeCourseCountList")
     public RestResult<PageResult<RetakeCourseCountVo>> findRetakeCourseCountList(
@@ -49,12 +42,21 @@ public class RetakeCourseController {
         return RestResult.successData(result);
     }
 
-    @ApiOperation(value = "添加修改")
+    @ApiOperation(value = "添加修改选课门数上限")
     @PostMapping("/updateRetakeCourseCount")
     public RestResult updateRetakeCourseCount(@RequestBody RetakeCourseCountVo retakeCourseCountVo)
     {
         retakeCourseService.updateRetakeCourseCount(retakeCourseCountVo);
         return RestResult.success();
     }
+
+    @ApiOperation(value = "删除选课门数上限")
+    @DeleteMapping("/deleteRetakeCourseCount")
+    public RestResult deleteRetakeCourseCount(@RequestParam("retakeCourseCountId") Long retakeCourseCountId)
+    {
+        retakeCourseService.deleteRetakeCourseCount(retakeCourseCountId);
+        return RestResult.success();
+    }
+
 
 }

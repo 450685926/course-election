@@ -8,9 +8,9 @@ import com.server.edu.election.vo.RetakeCourseCountVo;
 public interface RetakeCourseService {
     void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo);
 
-    void deleteRetakeRules(Long calendarId);
-
     PageResult<RetakeCourseCountVo> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition);
 
     void updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo);
+
+    void deleteRetakeCourseCount(Long retakeCourseCountId);
 }

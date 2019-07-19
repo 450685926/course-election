@@ -31,20 +31,17 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     @Transactional
     public void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo) {
-        retakeCourseSetDao.saveRetakeCourseSet(elcRetakeSetVo);
+        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId());
+        if (retakeSetId == null) {
+            retakeCourseSetDao.insertRetakeCourseSet(elcRetakeSetVo);
+        } else {
+            retakeCourseSetDao.updateRetakeCourseSet(elcRetakeSetVo);
+            retakeSetRefRuleDao.deleteByRetakeSetId(retakeSetId);
+        }
         List<Long> ruleIds = elcRetakeSetVo.getRuleIds();
         if (CollectionUtil.isNotEmpty(ruleIds)) {
-            Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId());
             retakeSetRefRuleDao.saveRetakeSetRefRule(retakeSetId, ruleIds);
         }
-    }
-
-    @Override
-    @Transactional
-    public void deleteRetakeRules(Long calendarId) {
-        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(calendarId);
-        retakeCourseSetDao.deleteByCalendarId(calendarId);
-        retakeSetRefRuleDao.deleteByRetakeSetId(retakeSetId);
     }
 
     @Override
@@ -62,6 +59,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         } else {
             retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountVo);
         }
+    }
+
+    @Override
+    public void deleteRetakeCourseCount(Long retakeCourseCountId) {
+        retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountId);
     }
 
 
