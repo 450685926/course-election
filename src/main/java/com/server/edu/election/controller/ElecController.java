@@ -254,8 +254,7 @@ public class ElecController
 
     	Session session = SessionUtils.getCurrentSession();
     	String uid = "";
-    	if (session.realType() == UserTypeEnum.STUDENT.getValue())
-        {
+    	if (session.getMock().booleanValue()){
     		uid = session.getMockUid();
         }else {
         	uid = session.getUid();
@@ -279,8 +278,7 @@ public class ElecController
 
     	Session session = SessionUtils.getCurrentSession();
     	String uid = "";
-    	if (session.realType() == UserTypeEnum.STUDENT.getValue())
-        {
+    	if (session.getMock().booleanValue()){
     		uid = session.getMockUid();
         }else {
         	uid = session.getUid();
