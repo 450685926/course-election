@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.server.edu.common.ServicePathEnum;
@@ -308,9 +309,11 @@ public class ElecController
     
     @ApiOperation(value = "获取研究生个人培养计划信息")
     @GetMapping("/culturePlanMsg/{roundId}")
-    public RestResult getCulturePlanMsg(
+    @ResponseBody
+    public RestResult<?> getCulturePlanMsg(
             @PathVariable("roundId") @NotNull Long roundId
     ) {
+    	logger.info("into----------------------------->");
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.realUid();
     	logger.info("studentId----------------------------->"+uid);
@@ -318,8 +321,9 @@ public class ElecController
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
     	
+    	logger.info("culturePath select success");
     	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
-    	ArrayList<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(1);
+    	List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(1);
     	
     	resultList.add(restResult3);
     	return RestResult.successData(resultList);

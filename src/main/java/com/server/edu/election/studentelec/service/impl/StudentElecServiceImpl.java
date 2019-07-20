@@ -6,10 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -847,6 +846,8 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	@Override
 	public Map<String, Object> getElectResultCount(String studentId, Long roundId,Map<String,Object> result) {
 
+		LOG.info("++++++++++++++++++++++++++++++++++++++getElectResultCount into");
+	
 		RoundDataProvider dataProvider =
    				SpringUtils.getBean(RoundDataProvider.class);
 		//获取当前选课轮次
@@ -875,6 +876,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 				
 			}
 		}
+		LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG");
 		Map<String,Object>minNumMap = new HashMap<String,Object>();
 		Map<String,Object>courseNumMap = new HashMap<String,Object>();
 		Map<String,Object>creditsMap = new HashMap<String,Object>();
