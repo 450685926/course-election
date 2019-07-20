@@ -532,14 +532,14 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	    List<TeachingClassCache> lessons = new ArrayList<TeachingClassCache>(list.size());
 	     
 	    //从缓存中拿到本轮次排课信息
-        //List<String> keys = list.stream().map(String::valueOf).collect(Collectors.toList());
-        ArrayList<String> list2 = new ArrayList<String>(list.size());
+        //List<Long> teachClassIds = list.stream().map(ElcCourseResult::getTeachClassId).collect(Collectors.toList());
+        List<String> teachClassIds = new ArrayList<String>(list.size());
         for (ElcCourseResult elcCourseResult : list) {
-        	list2.add(elcCourseResult.getTeachClassId()+"");
+        	teachClassIds.add(elcCourseResult.getTeachClassId()+"");
 		}
         
         HashOperations<String, String, TeachingClassCache> hash = opsTeachClass();
-        lessons = hash.multiGet(Keys.getClassKey(), list2);
+        lessons = hash.multiGet(Keys.getClassKey(), teachClassIds);
         // 过滤null
         lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
         return lessons;
