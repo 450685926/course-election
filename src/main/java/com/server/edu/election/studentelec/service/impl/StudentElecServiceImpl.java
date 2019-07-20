@@ -898,7 +898,8 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 		Map<String,Object>resultMap= new HashMap<String,Object>();
 		for(Entry<String, Object> entry : result.entrySet()){
 			Map<String,Object> map = (Map<String,Object>)entry.getValue();
-			
+			String key = entry.getKey();
+			LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG"+key);
 			//已完成课程数
 			Integer courseNum = 0;
 			//已完成学分
@@ -909,7 +910,8 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 						completedCourse.setCourseLabelId(course.getLabel());
 					}
 				}
-				if (completedCourse.getCourseLabelId() == Long.parseLong(entry.getKey())) {
+				
+				if (completedCourse.getCourseLabelId() == Long.parseLong(key)) {
 					courseNum ++;
 					sumMcredits += completedCourse.getCredits();
 				}
@@ -919,7 +921,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			//统计本次选课学分
 			Double thisTimeSumMcredits = 0.0;
 			for (SelectedCourse thisSelected : thisSelectedCourses) {
-				String key = entry.getKey();
+				
 				if (thisSelected.getLabel().equals(key)) {
 					thisTimecourseNum ++;
 					thisTimeSumMcredits += thisSelected.getCredits();
