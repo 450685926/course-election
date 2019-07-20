@@ -321,8 +321,9 @@ public class ElecController
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
     	
     	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
-    	
-		return RestResult.successData(restResult3);
+    	ArrayList<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(1);
+    	resultList.add(restResult3);
+    	return RestResult.successData(resultList);
 	}
 
 }
