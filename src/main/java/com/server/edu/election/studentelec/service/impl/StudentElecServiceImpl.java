@@ -35,9 +35,11 @@ import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -102,6 +104,9 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     
     @Autowired
     private StringRedisTemplate strTemplate;
+    
+    @Autowired
+    private ElecRoundsDao roundsDao;
     
     @Override
     public RestResult<ElecRespose> loading(Long roundId, String studentId)
@@ -852,8 +857,16 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
    				SpringUtils.getBean(RoundDataProvider.class);
 		//获取当前选课轮次
 		ElectionRounds round = dataProvider.getRound(roundId);
+		ElectionRoundsDto round2 = roundsDao.getOne(roundId);
+		
+		LOG.info("-----------------round--start---------------"+ round);
+		LOG.info("-----------------round2--start---------------"+ round2);
 		
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
+		
+		LOG.info("-----------------round---end--------------"+ round.getCalendarId());
+		LOG.info("-----------------round2---end--------------"+ round2.getCalendarId());
+		
 		//获取当前已经完成的课程
 		Set<PlanCourse> planCourse = elecContextUtil.getSet("PlanCourses", PlanCourse.class);
 		Set<CompletedCourse> completedCourses = elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
