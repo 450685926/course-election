@@ -851,21 +851,13 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	@Override
 	public Map<String, Object> getElectResultCount(String studentId, Long roundId,Map<String,Object> result) {
 
-		LOG.info("++++++++++++++++++++++++++++++++++++++getElectResultCount into");
 	
 		RoundDataProvider dataProvider =
    				SpringUtils.getBean(RoundDataProvider.class);
 		//获取当前选课轮次
 		ElectionRounds round = dataProvider.getRound(roundId);
-		ElectionRoundsDto round2 = roundsDao.getOne(roundId);
-		
-		LOG.info("-----------------round--start---------------"+ round);
-		LOG.info("-----------------round2--start---------------"+ round2);
 		
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
-		
-		LOG.info("-----------------round---end--------------"+ round.getCalendarId());
-		LOG.info("-----------------round2---end--------------"+ round2.getCalendarId());
 		
 		//获取当前已经完成的课程
 		Set<PlanCourse> planCourse = elecContextUtil.getSet("PlanCourses", PlanCourse.class);
@@ -893,9 +885,39 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 		Map<String,Object>minNumMap = new HashMap<String,Object>();
 		Map<String,Object>courseNumMap = new HashMap<String,Object>();
 		Map<String,Object>creditsMap = new HashMap<String,Object>();
-		Map<String,Object>thisTimeSumMcreditsMap = new HashMap<String,Object>();
-		Map<String,Object>sumMcreditsMap = new HashMap<String,Object>();
+		Map<String,Object>thisTimesumCreditsMap = new HashMap<String,Object>();
+		Map<String,Object>sumCreditsMap = new HashMap<String,Object>();
 		Map<String,Object>resultMap= new HashMap<String,Object>();
+		
+		minNumMap.put("publicLessons",0);
+		courseNumMap.put("publicLessons", 0);
+		creditsMap.put("publicLessons", 0);
+		thisTimesumCreditsMap.put("publicLessons", 0);
+		sumCreditsMap.put("publicLessons", 0);
+		
+		minNumMap.put("professionalCourses",0);
+		courseNumMap.put("professionalCourses", 0);
+		creditsMap.put("professionalCourses", 0);
+		thisTimesumCreditsMap.put("professionalCourses", 0);
+		sumCreditsMap.put("professionalCourses", 0);
+		
+		minNumMap.put("nonDegreeCourses",0);
+		courseNumMap.put("nonDegreeCourses", 0);
+		creditsMap.put("nonDegreeCourses", 0);
+		thisTimesumCreditsMap.put("nonDegreeCourses", 0);
+		sumCreditsMap.put("nonDegreeCourses", 0);
+		
+		minNumMap.put("requiredCourses",0);
+		courseNumMap.put("requiredCourses", 0);
+		creditsMap.put("requiredCourses", 0);
+		thisTimesumCreditsMap.put("requiredCourses", 0);
+		sumCreditsMap.put("requiredCourses", 0);
+		
+		minNumMap.put("interFaculty",0);
+		courseNumMap.put("interFaculty", 0);
+		creditsMap.put("interFaculty", 0);
+		thisTimesumCreditsMap.put("interFaculty", 0);
+		sumCreditsMap.put("interFaculty", 0);
 		for(Entry<String, Object> entry : result.entrySet()){
 			Map<String,Object> map = (Map<String,Object>)entry.getValue();
 			String key = entry.getKey();
@@ -920,56 +942,56 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			//统计本次选课门数
 			Integer thisTimecourseNum = 0;
 			//统计本次选课学分
-			Double thisTimeSumMcredits = 0.0;
+			Double thisTimeSumCredits = 0.0;
 			for (SelectedCourse thisSelected : thisSelectedCourses) {
 				
 				if (thisSelected.getLabel().equals(key)) {
 					thisTimecourseNum ++;
-					thisTimeSumMcredits += thisSelected.getCredits();
+					thisTimeSumCredits += thisSelected.getCredits();
 				}
 			}
 			map.put("courseNum", courseNum+thisTimecourseNum);
-			map.put("sumMcredits", sumMcredits+thisTimeSumMcredits);
-			map.put("thisTimeSumMcredits", thisTimeSumMcredits.doubleValue());
-			result.put(entry.getKey(), map);
+			map.put("sumMcredits", sumMcredits+thisTimeSumCredits);
+			map.put("thisTimeSumCredits", thisTimeSumCredits.doubleValue());
+			
 			if(map.get("labelName").equals("公共学位课")){
-				minNumMap.put("publicLessons",map.get("minNum"));
-				courseNumMap.put("publicLessons", map.get("courseNum"));
-				creditsMap.put("publicLessons", map.get("credits"));
-				thisTimeSumMcreditsMap.put("publicLessons", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("publicLessons", map.get("sumMcredits"));
+				minNumMap.put("publicLessons",map.get("minNum") == null ? 0 : map.get("minNum"));
+				courseNumMap.put("publicLessons", map.get("courseNum") == null ? 0 : map.get("courseNum"));
+				creditsMap.put("publicLessons", map.get("credits") == null ? 0 : map.get("credits"));
+				thisTimesumCreditsMap.put("publicLessons", map.get("thisTimeSumCredits") == null ? 0 : map.get("thisTimeSumCredits"));
+				sumCreditsMap.put("publicLessons", map.get("sumMcredits") == null ? 0 : map.get("sumMcredits"));
 				
 			}else if(map.get("labelName").equals("专业学位课")){
-				minNumMap.put("professionalCourses",map.get("minNum"));
-				courseNumMap.put("professionalCourses", map.get("courseNum"));
-				creditsMap.put("professionalCourses", map.get("credits"));
-				thisTimeSumMcreditsMap.put("professionalCourses", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("professionalCourses", map.get("sumMcredits"));
+				minNumMap.put("professionalCourses",map.get("minNum") == null ? 0 : map.get("minNum"));
+				courseNumMap.put("professionalCourses", map.get("courseNum") == null ? 0 : map.get("courseNum"));
+				creditsMap.put("professionalCourses", map.get("credits") == null ? 0 : map.get("credits"));
+				thisTimesumCreditsMap.put("professionalCourses", map.get("thisTimeSumCredits") == null ? 0 : map.get("thisTimeSumCredits"));
+				sumCreditsMap.put("professionalCourses", map.get("sumMcredits") == null ? 0 : map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("非学位课")){
-				minNumMap.put("nonDegreeCourses",map.get("minNum"));
-				courseNumMap.put("nonDegreeCourses", map.get("courseNum"));
-				creditsMap.put("nonDegreeCourses", map.get("credits"));
-				thisTimeSumMcreditsMap.put("nonDegreeCourses", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("nonDegreeCourses", map.get("sumMcredits"));
+				minNumMap.put("nonDegreeCourses",map.get("minNum") == null ? 0 : map.get("minNum"));
+				courseNumMap.put("nonDegreeCourses", map.get("courseNum") == null ? 0 : map.get("courseNum"));
+				creditsMap.put("nonDegreeCourses", map.get("credits") == null ? 0 : map.get("credits"));
+				thisTimesumCreditsMap.put("nonDegreeCourses", map.get("thisTimeSumCredits") == null ? 0 : map.get("thisTimeSumCredits"));
+				sumCreditsMap.put("nonDegreeCourses", map.get("sumMcredits") == null ? 0 : map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("必修环节")){
-				minNumMap.put("requiredCourses",map.get("minNum"));
-				courseNumMap.put("requiredCourses", map.get("courseNum"));
-				creditsMap.put("requiredCourses", map.get("credits"));
-				thisTimeSumMcreditsMap.put("requiredCourses", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("requiredCourses", map.get("sumMcredits"));
+				minNumMap.put("requiredCourses",map.get("minNum") == null ? 0 : map.get("minNum"));
+				courseNumMap.put("requiredCourses", map.get("courseNum") == null ? 0 : map.get("courseNum"));
+				creditsMap.put("requiredCourses", map.get("credits") == null ? 0 : map.get("credits"));
+				thisTimesumCreditsMap.put("requiredCourses", map.get("thisTimeSumCredits") == null ? 0 : map.get("thisTimeSumCredits"));
+				sumCreditsMap.put("requiredCourses", map.get("sumMcredits") == null ? 0 : map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("跨院系或跨门类")){
-				minNumMap.put("interFaculty",map.get("minNum"));
-				courseNumMap.put("interFaculty", map.get("courseNum"));
-				creditsMap.put("interFaculty", map.get("credits"));
-				thisTimeSumMcreditsMap.put("interFaculty", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("interFaculty", map.get("sumMcredits"));
+				minNumMap.put("interFaculty",map.get("minNum") == null ? 0 : map.get("minNum"));
+				courseNumMap.put("interFaculty", map.get("courseNum") == null ? 0 : map.get("courseNum"));
+				creditsMap.put("interFaculty", map.get("credits") == null ? 0 : map.get("credits"));
+				thisTimesumCreditsMap.put("interFaculty", map.get("thisTimeSumCredits") == null ? 0 : map.get("thisTimeSumCredits"));
+				sumCreditsMap.put("interFaculty", map.get("sumMcredits") == null ? 0 : map.get("sumMcredits"));
 			}
 		}
 		resultMap.put("minCourse", minNumMap);
 		resultMap.put("selectedCourse", courseNumMap);
 		resultMap.put("minCredits", creditsMap);
-		resultMap.put("currentElecCredits", thisTimeSumMcreditsMap);
-		resultMap.put("selectedCredits", sumMcreditsMap);
+		resultMap.put("currentElecCredits", thisTimesumCreditsMap);
+		resultMap.put("selectedCredits", sumCreditsMap);
 		return resultMap;
 	}
 
