@@ -259,6 +259,7 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
             and course.NATURE_ =#{nature,jdbcType=VARCHAR}
         </if>
+        order by nature
    </select>
    
     <select id="getAllNonSelectedCourseStudent" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
