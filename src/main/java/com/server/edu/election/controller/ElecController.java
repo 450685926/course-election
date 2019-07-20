@@ -320,6 +320,7 @@ public class ElecController
     	
     	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
     	ArrayList<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(1);
+    	
     	resultList.add(restResult3);
     	return RestResult.successData(resultList);
 	}
