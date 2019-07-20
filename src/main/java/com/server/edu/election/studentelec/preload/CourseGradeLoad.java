@@ -90,9 +90,6 @@ public class CourseGradeLoad extends DataProLoad
     private ElectionApplyDao electionApplyDao;
 
     @Autowired
-    private ElcCourseTakeDao courseTakeDao;
-
-    @Autowired
     private RedisTemplate redisTemplate;
 
     @Override
@@ -130,8 +127,8 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setExcellent(studentScore.isBestScore());
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                lesson.setCalendarName(schoolCalendar.getFullName());
+//                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+//                lesson.setCalendarName(schoolCalendar.getFullName());
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
@@ -141,9 +138,11 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setRemark(studentScore.getRemark());
                 Long teachingClassId = studentScore.getTeachingClassId();
                 TeachingClassCache teachingClassCache = ops.get(Keys.getClassKey(), teachingClassId);
-                lesson.setTeachingClassCache(teachingClassCache);
-                lesson.setFaculty(teachingClassCache.getFaculty());
-                lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
+                if (teachingClassCache != null) {
+                    lesson.setTeachingClassCache(teachingClassCache);
+                    lesson.setFaculty(teachingClassCache.getFaculty());
+                    lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
+                }
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
