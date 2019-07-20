@@ -146,9 +146,9 @@ public class ElecController
         }
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
-//        if (session.getCurrentManageDptId() == Constants.PROJ_GRADUATE) {
+        if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE) {
         	c = elecService.setData(c,roundId);
-//		}
+		}
         
         return RestResult.successData(c);
     }
@@ -311,14 +311,16 @@ public class ElecController
     @ApiOperation(value = "获取研究生个人培养计划信息")
     @GetMapping("/culturePlanMsg/{roundId}")
     public RestResult getCulturePlanMsg(
-            @PathVariable("roundId") @NotNull Long roundId,
-            @RequestParam("studentId") @NotBlank String studentId
+            @PathVariable("roundId") @NotNull Long roundId
     ) {
+    	Session session = SessionUtils.getCurrentSession();
+    	String uid = session.realUid();
+    	logger.info("studentId----------------------------->"+uid);
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
-    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, studentId);
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
     	
-    	Map<String,Object> restResult3 = elecService.getElectResultCount(studentId,roundId,restResult.getData());
+    	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
     	
 		return RestResult.successData(restResult3);
 	}

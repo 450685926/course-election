@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -853,16 +854,24 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 		
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
 		//获取当前已经完成的课程
+		Set<PlanCourse> planCourse = elecContextUtil.getSet("PlanCourses", PlanCourse.class);
 		Set<CompletedCourse> completedCourses = elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
 		
 		//获取本学期已选课程
 		Set<SelectedCourse> selectedCourses = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
-		Set<SelectedCourse> thisSelectedCourses = new TreeSet<>();
+		List<SelectedCourse> thisSelectedCourses = new ArrayList<>();
 		for (SelectedCourse selectedCourse : selectedCourses) {
 			//获取本次选课信息
 			if (selectedCourse.getTurn().intValue() == round.getTurn()) {
 				//已完成课程数
 				thisSelectedCourses.add(selectedCourse);
+				if (StringUtils.isEmpty(selectedCourse.getLabel())) {
+					for (PlanCourse course : planCourse) {
+						if (course.getCourseCode().equals(selectedCourse.getCourseCode())) {
+							selectedCourse.setLabel(course.getLabel()+"");
+						}
+					}
+				}
 				
 			}
 		}
@@ -890,7 +899,8 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			//统计本次选课学分
 			Double thisTimeSumMcredits = 0.0;
 			for (SelectedCourse thisSelected : thisSelectedCourses) {
-				if (thisSelected.getLabel().equals(entry.getKey())) {
+				String key = entry.getKey();
+				if (thisSelected.getLabel().equals(key)) {
 					thisTimecourseNum ++;
 					thisTimeSumMcredits += thisSelected.getCredits();
 				}
