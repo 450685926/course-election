@@ -38,13 +38,6 @@ public interface StudentDao extends Mapper<Student> {
     List<ElcCourseResult> getAllCourse(AllCourseVo allCourseVo);
     
     /**
-            *    获取课程类别
-     * @param allCourseVo
-     * @return
-     */
-    List<String> getNature(AllCourseVo allCourseVo);
-    
-    /**
      * 查询未选课学生名单
      * @param condition
      * @return

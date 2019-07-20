@@ -7,11 +7,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 
 /**
  * 已选择课程
  */
+@CodeI18n
 public class SelectedCourse extends TeachingClassCache
 {
     /** 教学班Id */
@@ -32,7 +34,7 @@ public class SelectedCourse extends TeachingClassCache
     private Integer courseTakeType;
     
 
-    @Code2Text(transformer="X_KCFL")
+    @Code2Text(DictTypeEnum.X_KCFL)
     private String label;
 
     @Code2Text(transformer=" X_KSLX")

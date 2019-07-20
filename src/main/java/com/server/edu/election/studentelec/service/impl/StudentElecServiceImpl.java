@@ -6,18 +6,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.antlr.v4.tool.AttributeDict.DictType;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,6 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
@@ -60,6 +59,7 @@ import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.rules.bk.LimitCountCheckerRule;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
+import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.Keys;
@@ -73,7 +73,7 @@ import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
 @Service
-public class StudentElecServiceImpl implements StudentElecService
+public class StudentElecServiceImpl extends AbstractCacheService implements StudentElecService
 {
     Logger LOG = LoggerFactory.getLogger(getClass());
     
@@ -140,11 +140,11 @@ public class StudentElecServiceImpl implements StudentElecService
 		//获取学生本学期已经选取的课程
 		Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
 		
-		List<ElcCourseResult> selectedCourses = new ArrayList<>();
+		List<SelectedCourse> selectedCourses = new ArrayList<>();
    		for (SelectedCourse completedCourse : selectedCourseSet) {
    			
-   			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			SelectedCourse elcCourseResult = new SelectedCourse();
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -162,11 +162,11 @@ public class StudentElecServiceImpl implements StudentElecService
 	                	teachClass.setCurrentNumber(elecNumber);
 	                	elcCourseResult.setFaculty(teachClass.getFaculty());
 	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                	elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                	elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
-	                	elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
-	                	elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                	elcCourseResult.setCurrentNumber(teachClass.getCurrentNumber());
+	                	elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
 	                	elcCourseResult.setTimes(teachClass.getTimes());
 	                	elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
 	                	classTimeLists.add( teachClass.getTimes());
@@ -175,6 +175,8 @@ public class StudentElecServiceImpl implements StudentElecService
 	            }
 	        }
 		}
+   		selectedCourseSet.clear();
+   		selectedCourseSet.addAll(selectedCourses);
 		//获取学生已完成的课程
 		Set<CompletedCourse> completedCourses1 = c.getCompletedCourses();
 		
@@ -232,7 +234,7 @@ public class StudentElecServiceImpl implements StudentElecService
    		List<ElcCourseResult> completedCourses = new ArrayList<>();
    		for (PlanCourse completedCourse : optionalGraduateCourses) {
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -247,11 +249,11 @@ public class StudentElecServiceImpl implements StudentElecService
 	                teachClass.setCurrentNumber(elecNumber);
 	                elcCourseResult.setFaculty(teachClass.getFaculty());
 	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	       			elcCourseResult.setTeacherName(teachClass.getTeacherName());
-	                elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
-	                elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                elcCourseResult.setCurrentNumber(teachClass.getCurrentNumber());
+	                elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
 	                elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
 	                elcCourseResult.setTimes(teachClass.getTimes());
 	                Boolean flag = true;
@@ -315,6 +317,7 @@ public class StudentElecServiceImpl implements StudentElecService
 				}
 	        }
 		}
+   		c.setSelectedCourses(selectedCourseSet);
    		c.setOptionalCourses(completedCourses);
    		return c;
 	}
@@ -524,29 +527,32 @@ public class StudentElecServiceImpl implements StudentElecService
     }
 
 	@Override
-	public RestResult<Map<String,List<ElcCourseResult>>> getAllCourse(AllCourseVo allCourseVo) {
-	    Map<String,List<ElcCourseResult>> map = new HashMap<String, List<ElcCourseResult>>();
-	    // 课程list
-	    List<ElcCourseResult> list = new ArrayList<ElcCourseResult>();
-	    
-	    // natrue集合
-		List<String> natrueList = new ArrayList<String>();
-		if (StringUtils.isNotBlank(allCourseVo.getNatrue())) {
-			natrueList.add(allCourseVo.getNatrue());
-		}else {
-			natrueList = stuDao.getNature(allCourseVo);
+	public List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo) {
+	    List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
+	    List<TeachingClassCache> lessons = new ArrayList<TeachingClassCache>(list.size());
+	     
+	    //从缓存中拿到本轮次排课信息
+        //List<String> keys = list.stream().map(String::valueOf).collect(Collectors.toList());
+        ArrayList<String> list2 = new ArrayList<String>(list.size());
+        for (ElcCourseResult elcCourseResult : list) {
+        	list2.add(elcCourseResult.getTeachClassId()+"");
 		}
-		
-		for (String natrue : natrueList) {
-			allCourseVo.setNatrue(natrue);
-			list = stuDao.getAllCourse(allCourseVo);
-			List<ElcCourseResult> timeList = getTimeList(list);
-			if (CollectionUtils.isNotEmpty(timeList)) {
-				map.put(natrue, timeList);
-			}
-		}
-		return RestResult.successData(map);
+        
+        HashOperations<String, String, TeachingClassCache> hash = opsTeachClass();
+        lessons = hash.multiGet(Keys.getClassKey(), list2);
+        // 过滤null
+        lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        return lessons;
 	}
+	
+    public HashOperations<String, String, TeachingClassCache> opsTeachClass()
+    {
+        RedisTemplate<String, TeachingClassCache> redisTemplate =
+            redisTemplate(TeachingClassCache.class);
+        HashOperations<String, String, TeachingClassCache> ops =
+            redisTemplate.opsForHash();
+        return ops;
+    }
 	
 	private List<ElcCourseResult>  getTimeList(List<ElcCourseResult> list){
 		if(CollectionUtil.isNotEmpty(list)){
@@ -646,7 +652,7 @@ public class StudentElecServiceImpl implements StudentElecService
    		for (SelectedCourse completedCourse : selectedCourseSet) {
    			
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -664,11 +670,11 @@ public class StudentElecServiceImpl implements StudentElecService
 	                	teachClass.setCurrentNumber(elecNumber);
 	                	elcCourseResult.setFaculty(teachClass.getFaculty());
 	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                	elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                	elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
-	                	elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
-	                	elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                	elcCourseResult.setCurrentNumber(teachClass.getCurrentNumber());
+	                	elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
 	                	elcCourseResult.setTimes(teachClass.getTimes());
 	                	elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
 	                	classTimeLists.add( teachClass.getTimes());
@@ -734,7 +740,7 @@ public class StudentElecServiceImpl implements StudentElecService
    		List<ElcCourseResult> completedCourses = new ArrayList<>();
    		for (PlanCourse completedCourse : optionalGraduateCourses) {
    			ElcCourseResult elcCourseResult = new ElcCourseResult();
-   			elcCourseResult.setNatrue(completedCourse.getNature());
+   			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
@@ -749,11 +755,11 @@ public class StudentElecServiceImpl implements StudentElecService
 	                teachClass.setCurrentNumber(elecNumber);
 	                elcCourseResult.setFaculty(teachClass.getFaculty());
 	                elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                elcCourseResult.setTeachingClassCode(teachClass.getTeachClassCode());
+	                elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
 	       			elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
 	       			elcCourseResult.setTeacherName(teachClass.getTeacherName());
-	                elcCourseResult.setElcNumber(teachClass.getCurrentNumber());
-	                elcCourseResult.setNumber(teachClass.getMaxNumber());
+	                elcCourseResult.setCurrentNumber(teachClass.getCurrentNumber());
+	                elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
 	                elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
 	                elcCourseResult.setTimes(teachClass.getTimes());
 	                Boolean flag = true;
@@ -848,16 +854,24 @@ public class StudentElecServiceImpl implements StudentElecService
 		
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
 		//获取当前已经完成的课程
+		Set<PlanCourse> planCourse = elecContextUtil.getSet("PlanCourses", PlanCourse.class);
 		Set<CompletedCourse> completedCourses = elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
 		
 		//获取本学期已选课程
 		Set<SelectedCourse> selectedCourses = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
-		Set<SelectedCourse> thisSelectedCourses = new TreeSet<>();
+		List<SelectedCourse> thisSelectedCourses = new ArrayList<>();
 		for (SelectedCourse selectedCourse : selectedCourses) {
 			//获取本次选课信息
 			if (selectedCourse.getTurn().intValue() == round.getTurn()) {
 				//已完成课程数
 				thisSelectedCourses.add(selectedCourse);
+				if (StringUtils.isEmpty(selectedCourse.getLabel())) {
+					for (PlanCourse course : planCourse) {
+						if (course.getCourseCode().equals(selectedCourse.getCourseCode())) {
+							selectedCourse.setLabel(course.getLabel()+"");
+						}
+					}
+				}
 				
 			}
 		}
@@ -885,7 +899,8 @@ public class StudentElecServiceImpl implements StudentElecService
 			//统计本次选课学分
 			Double thisTimeSumMcredits = 0.0;
 			for (SelectedCourse thisSelected : thisSelectedCourses) {
-				if (thisSelected.getLabel().equals(entry.getKey())) {
+				String key = entry.getKey();
+				if (thisSelected.getLabel().equals(key)) {
 					thisTimecourseNum ++;
 					thisTimeSumMcredits += thisSelected.getCredits();
 				}
@@ -908,17 +923,17 @@ public class StudentElecServiceImpl implements StudentElecService
 				thisTimeSumMcreditsMap.put("professionalCourses", map.get("thisTimeSumMcredits"));
 				sumMcreditsMap.put("professionalCourses", map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("非学位课")){
-				minNumMap.put("nonDegreeCourse",map.get("minNum"));
-				courseNumMap.put("nonDegreeCourse", map.get("courseNum"));
-				creditsMap.put("nonDegreeCourse", map.get("credits"));
-				thisTimeSumMcreditsMap.put("nonDegreeCourse", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("nonDegreeCourse", map.get("sumMcredits"));
+				minNumMap.put("nonDegreeCourses",map.get("minNum"));
+				courseNumMap.put("nonDegreeCourses", map.get("courseNum"));
+				creditsMap.put("nonDegreeCourses", map.get("credits"));
+				thisTimeSumMcreditsMap.put("nonDegreeCourses", map.get("thisTimeSumMcredits"));
+				sumMcreditsMap.put("nonDegreeCourses", map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("必修环节")){
-				minNumMap.put("requiredCourse",map.get("minNum"));
-				courseNumMap.put("requiredCourse", map.get("courseNum"));
-				creditsMap.put("requiredCourse", map.get("credits"));
-				thisTimeSumMcreditsMap.put("requiredCourse", map.get("thisTimeSumMcredits"));
-				sumMcreditsMap.put("requiredCourse", map.get("sumMcredits"));
+				minNumMap.put("requiredCourses",map.get("minNum"));
+				courseNumMap.put("requiredCourses", map.get("courseNum"));
+				creditsMap.put("requiredCourses", map.get("credits"));
+				thisTimeSumMcreditsMap.put("requiredCourses", map.get("thisTimeSumMcredits"));
+				sumMcreditsMap.put("requiredCourses", map.get("sumMcredits"));
 			}else if(map.get("labelName").equals("跨院系或跨门类")){
 				minNumMap.put("interFaculty",map.get("minNum"));
 				courseNumMap.put("interFaculty", map.get("courseNum"));
@@ -927,11 +942,11 @@ public class StudentElecServiceImpl implements StudentElecService
 				sumMcreditsMap.put("interFaculty", map.get("sumMcredits"));
 			}
 		}
-		resultMap.put("minNum", minNumMap);
-		resultMap.put("courseNum", courseNumMap);
-		resultMap.put("credits", creditsMap);
-		resultMap.put("thisTimeSumMcredits", thisTimeSumMcreditsMap);
-		resultMap.put("sumMcredits", sumMcreditsMap);
+		resultMap.put("minCourse", minNumMap);
+		resultMap.put("selectedCourse", courseNumMap);
+		resultMap.put("minCredits", creditsMap);
+		resultMap.put("currentElecCredits", thisTimeSumMcreditsMap);
+		resultMap.put("selectedCredits", sumMcreditsMap);
 		return resultMap;
 	}
 
