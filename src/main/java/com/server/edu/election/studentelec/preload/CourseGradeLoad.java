@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,9 +87,6 @@ public class CourseGradeLoad extends DataProLoad
     private ElectionApplyDao electionApplyDao;
 
     @Autowired
-    private CourseOpenDao courseOpenDao;
-
-    @Autowired
     private ElcCourseTakeDao courseTakeDao;
 
     @Override
@@ -116,8 +114,12 @@ public class CourseGradeLoad extends DataProLoad
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
             List<Long> teachingClassIds = stuScoreBest.stream().map(StudentScoreVo::getTeachingClassId).collect(Collectors.toList());
+            //查询研究生教学安排
             List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachingClassIds);
             Map<Long, List<TimeTableMessage>> collect = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+            //查询学院及班级序号
+            List<ElcStudentVo> classCodeAndFaculty = classDao.findClassCodeAndFaculty(teachingClassIds);
+            Map<Long, List<ElcStudentVo>> map = classCodeAndFaculty.stream().collect(Collectors.groupingBy(ElcStudentVo::getTeachingClassId));
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -138,14 +140,17 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 lesson.setRemark(studentScore.getRemark());
-                List<TimeTableMessage> tables = collect.get(studentScore.getTeachingClassId());
+                Long teachingClassId = studentScore.getTeachingClassId();
+                List<TimeTableMessage> tables = collect.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(tables)) {
                     List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
                     lesson.setTeachingArrange(teachingArrange);
                 }
-                String faculty = courseOpenDao.selectFaculty(courseCode, studentScore.getCalendarId());
-                if (faculty != null) {
-                    lesson.setFaculty(faculty);
+                List<ElcStudentVo> elcStudentVos = map.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(elcStudentVos)) {
+                    ElcStudentVo elcStudentVo = elcStudentVos.get(0);
+                    lesson.setFaculty(elcStudentVo.getFaculty());
+                    lesson.setTeachClassCode(elcStudentVo.getClassCode());
                 }
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
