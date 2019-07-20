@@ -133,6 +133,9 @@
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
   	  and t3.LABEL_ = #{query.label}
   	 </if>
+	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
+  	  and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
+  	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
   	 and t3.CODE_ IN
   	 	<foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">

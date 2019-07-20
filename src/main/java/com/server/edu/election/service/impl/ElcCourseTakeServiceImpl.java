@@ -593,6 +593,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
 	@Override
 	public PageResult<ElcCourseTakeNameListVo> courseTakeNameListPage(PageCondition<ElcCourseTakeQuery> condition) {
+		if (StringUtils.isNotEmpty(condition.getCondition().getIncludeCourseCode())) {
+			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
+		}
 		PageResult<ElcCourseTakeVo> list = listPage(condition);
 		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
     	for (ElcCourseTakeVo elcCourseTakeVo : list.getList()) {
