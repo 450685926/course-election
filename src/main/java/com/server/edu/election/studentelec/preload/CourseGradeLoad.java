@@ -7,10 +7,13 @@ import java.util.stream.Collectors;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.Teacher;
@@ -89,6 +92,9 @@ public class CourseGradeLoad extends DataProLoad
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Override
     public void load(ElecContext context)
     {
@@ -106,20 +112,13 @@ public class CourseGradeLoad extends DataProLoad
         }
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
-        
+        HashOperations<String, String, TeachingClassCache> ops = redisTemplate.opsForHash();
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
-            List<Long> teachingClassIds = stuScoreBest.stream().map(StudentScoreVo::getTeachingClassId).collect(Collectors.toList());
-            //查询研究生教学安排
-            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachingClassIds);
-            Map<Long, List<TimeTableMessage>> collect = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-            //查询学院及班级序号
-            List<ElcStudentVo> classCodeAndFaculty = classDao.findClassCodeAndFaculty(teachingClassIds);
-            Map<Long, List<ElcStudentVo>> map = classCodeAndFaculty.stream().collect(Collectors.groupingBy(ElcStudentVo::getTeachingClassId));
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -141,17 +140,10 @@ public class CourseGradeLoad extends DataProLoad
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 lesson.setRemark(studentScore.getRemark());
                 Long teachingClassId = studentScore.getTeachingClassId();
-                List<TimeTableMessage> tables = collect.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(tables)) {
-                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                    lesson.setTeachingArrange(teachingArrange);
-                }
-                List<ElcStudentVo> elcStudentVos = map.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(elcStudentVos)) {
-                    ElcStudentVo elcStudentVo = elcStudentVos.get(0);
-                    lesson.setFaculty(elcStudentVo.getFaculty());
-                    lesson.setTeachClassCode(elcStudentVo.getClassCode());
-                }
+                TeachingClassCache teachingClassCache = ops.get(Keys.getClassKey(), teachingClassId);
+                lesson.setTeachingClassCache(teachingClassCache);
+                lesson.setFaculty(teachingClassCache.getFaculty());
+                lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -216,8 +208,6 @@ public class CourseGradeLoad extends DataProLoad
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachClassIds);
-            Map<Long, List<TimeTableMessage>> timeTables = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
@@ -241,12 +231,9 @@ public class CourseGradeLoad extends DataProLoad
                 course.setFaculty(c.getFaculty());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
-                List<TimeTableMessage> tables = timeTables.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(tables)) {
-                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                    course.setTeachingArrange(teachingArrange);
-                }
-
+                HashOperations<String, String, TeachingClassCache> ops = redisTemplate.opsForHash();
+                TeachingClassCache teachingClassCache = ops.get(Keys.getClassKey(), teachingClassId);
+                course.setTeachingClassCache(teachingClassCache);
                 selectedCourses.add(course);
             }
         }
