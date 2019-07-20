@@ -7,10 +7,13 @@ import java.util.stream.Collectors;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.Teacher;
@@ -87,7 +90,7 @@ public class CourseGradeLoad extends DataProLoad
     private ElectionApplyDao electionApplyDao;
 
     @Autowired
-    private ElcCourseTakeDao courseTakeDao;
+    private RedisTemplate redisTemplate;
 
     @Override
     public void load(ElecContext context)
@@ -106,20 +109,13 @@ public class CourseGradeLoad extends DataProLoad
         }
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
-        
+        HashOperations<String, String, TeachingClassCache> ops = redisTemplate.opsForHash();
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
-            List<Long> teachingClassIds = stuScoreBest.stream().map(StudentScoreVo::getTeachingClassId).collect(Collectors.toList());
-            //查询研究生教学安排
-            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachingClassIds);
-            Map<Long, List<TimeTableMessage>> collect = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-            //查询学院及班级序号
-            List<ElcStudentVo> classCodeAndFaculty = classDao.findClassCodeAndFaculty(teachingClassIds);
-            Map<Long, List<ElcStudentVo>> map = classCodeAndFaculty.stream().collect(Collectors.groupingBy(ElcStudentVo::getTeachingClassId));
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -131,8 +127,8 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setExcellent(studentScore.isBestScore());
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                lesson.setCalendarName(schoolCalendar.getFullName());
+//                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+//                lesson.setCalendarName(schoolCalendar.getFullName());
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
@@ -141,16 +137,11 @@ public class CourseGradeLoad extends DataProLoad
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 lesson.setRemark(studentScore.getRemark());
                 Long teachingClassId = studentScore.getTeachingClassId();
-                List<TimeTableMessage> tables = collect.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(tables)) {
-                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                    lesson.setTeachingArrange(teachingArrange);
-                }
-                List<ElcStudentVo> elcStudentVos = map.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(elcStudentVos)) {
-                    ElcStudentVo elcStudentVo = elcStudentVos.get(0);
-                    lesson.setFaculty(elcStudentVo.getFaculty());
-                    lesson.setTeachClassCode(elcStudentVo.getClassCode());
+                TeachingClassCache teachingClassCache = ops.get(Keys.getClassKey(), teachingClassId);
+                if (teachingClassCache != null) {
+                    lesson.setTeachingClassCache(teachingClassCache);
+                    lesson.setFaculty(teachingClassCache.getFaculty());
+                    lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
                 }
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
@@ -216,8 +207,6 @@ public class CourseGradeLoad extends DataProLoad
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-            List<TimeTableMessage> timeTableMessages = setTeachingArrange(teachClassIds);
-            Map<Long, List<TimeTableMessage>> timeTables = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
@@ -241,12 +230,9 @@ public class CourseGradeLoad extends DataProLoad
                 course.setFaculty(c.getFaculty());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
-                List<TimeTableMessage> tables = timeTables.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(tables)) {
-                    List<String> teachingArrange = tables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                    course.setTeachingArrange(teachingArrange);
-                }
-
+                HashOperations<String, String, TeachingClassCache> ops = redisTemplate.opsForHash();
+                TeachingClassCache teachingClassCache = ops.get(Keys.getClassKey(), teachingClassId);
+                course.setTeachingClassCache(teachingClassCache);
                 selectedCourses.add(course);
             }
         }
@@ -430,56 +416,5 @@ public class CourseGradeLoad extends DataProLoad
             }        
         }
         return sb.toString();
-    }
-
-    /**
-     * 研究生教学安排信息获取
-     * @param teachingClassIds
-     * @return
-     */
-    private List<TimeTableMessage> setTeachingArrange(List<Long> teachingClassIds) {
-        List<TimeTableMessage> timeTableMessages = courseTakeDao.findCourseArrange(teachingClassIds);
-        for (TimeTableMessage timeTableMessage : timeTableMessages) {
-            Integer dayOfWeek = timeTableMessage.getDayOfWeek();
-            Integer timeStart = timeTableMessage.getTimeStart();
-            Integer timeEnd = timeTableMessage.getTimeEnd();
-            String weekNumber = timeTableMessage.getWeekNum();
-            String[] str = weekNumber.split(",");
-            List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
-            List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
-            String weekstr = findWeek(dayOfWeek);//星期
-            String timeStr=weekstr+" "+timeStart+"-"+timeEnd+ weekNums.toString()+ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
-            timeTableMessage.setTimeAndRoom(timeStr);
-        }
-
-        return timeTableMessages;
-    }
-
-    public String findWeek(Integer number){
-        String week="";
-        switch(number){
-            case 1:
-                week="星期一";
-                break;
-            case 2:
-                week="星期二";
-                break;
-            case 3:
-                week="星期三";
-                break;
-            case 4:
-                week="星期四";
-                break;
-            case 5:
-                week="星期五";
-                break;
-            case 6:
-                week="星期六";
-                break;
-            case 7:
-                week="星期日";
-                break;
-        }
-        return week;
     }
 }

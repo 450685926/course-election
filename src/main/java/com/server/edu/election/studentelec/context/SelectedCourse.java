@@ -48,9 +48,9 @@ public class SelectedCourse extends TeachingClassCache
     private Integer isApply;
 
     /**
-     * 研究生课程教学安排
+     * 课程教学安排
      */
-    private List<String> teachingArrange;
+    private TeachingClassCache teachingClassCache;
 
     public String getAssessmentMode() {
         return assessmentMode;
@@ -70,12 +70,12 @@ public class SelectedCourse extends TeachingClassCache
         this.teachClassId = teachClassId;
     }
 
-    public List<String> getTeachingArrange() {
-        return teachingArrange;
+    public TeachingClassCache getTeachingClassCache() {
+        return teachingClassCache;
     }
 
-    public void setTeachingArrange(List<String> teachingArrange) {
-        this.teachingArrange = teachingArrange;
+    public void setTeachingClassCache(TeachingClassCache teachingClassCache) {
+        this.teachingClassCache = teachingClassCache;
     }
 
     public Integer getIsApply() {

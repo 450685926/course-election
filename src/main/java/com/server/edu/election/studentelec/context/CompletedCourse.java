@@ -48,16 +48,16 @@ public class CompletedCourse extends TeachingClassCache {
     private String remark;
 
     /**
-     * 研究生课程教学安排
+     * 课程教学安排
      */
-    private List<String> teachingArrange;
+    private TeachingClassCache teachingClassCache;
 
-    public List<String> getTeachingArrange() {
-        return teachingArrange;
+    public TeachingClassCache getTeachingClassCache() {
+        return teachingClassCache;
     }
 
-    public void setTeachingArrange(List<String> teachingArrange) {
-        this.teachingArrange = teachingArrange;
+    public void setTeachingClassCache(TeachingClassCache teachingClassCache) {
+        this.teachingClassCache = teachingClassCache;
     }
 
     public String getRemark() {
