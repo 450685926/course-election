@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -120,5 +121,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     int batchDecrElcNumber(List<TeachingClassVo> list);
     
     int updateReserveProportion(List<TeachingClass> list);
+
+    List<ElcStudentVo> findClassCodeAndFaculty(@Param("teachingClassIds") List<Long> ids);
 
 }

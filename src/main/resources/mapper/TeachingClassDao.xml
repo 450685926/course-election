@@ -293,4 +293,16 @@
     </foreach>
    </update>
 
+    <select id="findClassCodeAndFaculty" resultType="com.server.edu.election.vo.ElcStudentVo">
+        select
+        t1.ID_ teachingClassId,t1.CODE_ classCode,co.FACULTY_ faculty
+        from teaching_class_t t1
+        join teaching_task_t t2 on t2.ID_=t1.TASK_ID_
+        left join course_open_t co on co.ID_ = t2.COURSE_OPEN_ID_
+        where t1.ID_ in
+        <foreach item="item" collection="teachingClassIds" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+    </select>
+
 </mapper>

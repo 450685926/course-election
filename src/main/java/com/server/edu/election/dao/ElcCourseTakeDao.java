@@ -201,4 +201,5 @@ public interface ElcCourseTakeDao
     List<TimeTableMessage> findCourseArrange(@Param("teachingClassIds") List<Long> ids);
 
     List<TimeTableMessage> findCourseArrangeByTeachingClassId(Long teachingClassId);
+
 }
