@@ -129,8 +129,8 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setExcellent(studentScore.isBestScore());
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
-//                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-//                lesson.setCalendarName(schoolCalendar.getFullName());
+                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                lesson.setCalendarName(schoolCalendar.getFullName());
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
