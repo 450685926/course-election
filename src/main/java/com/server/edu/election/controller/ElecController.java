@@ -308,15 +308,15 @@ public class ElecController
 	}
     
     @ApiOperation(value = "获取研究生个人培养计划信息")
-    @GetMapping("/culturePlanMsg/{roundId}")
-    @ResponseBody
+    @GetMapping("/culturePlanMsg1/{roundId}")
     public RestResult<?> getCulturePlanMsg(
-            @PathVariable("roundId") @NotNull Long roundId
+            @PathVariable("roundId") Long roundId
     ) {
-    	logger.info("into----------------------------->");
+    	logger.info("into---------------111111111111111-------------->");
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.realUid();
-    	logger.info("studentId----------------------------->"+uid);
+//    	String uid = "1910019";
+    	logger.info("studentId-----------1111111111111111------------------>"+uid);
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
@@ -328,5 +328,69 @@ public class ElecController
     	resultList.add(restResult3);
     	return RestResult.successData(resultList);
 	}
+    
+    @ApiOperation(value = "获取研究生个人培养计划信息")
+    @PostMapping("/culturePlanMsg2/{roundId}")
+    public RestResult<?> getCulturePlanMsg1(
+    		@PathVariable("roundId") Long roundId
+    		) {
+    	logger.info("into-----------2222222222222------------------>");
+    	Session session = SessionUtils.getCurrentSession();
+    	String uid = session.realUid();
+//    	String uid = "1910019";
+    	logger.info("studentId-----------222222222------------------>"+uid);
+    	/** 调用培养：培养方案的课程分类学分 */
+    	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
+    	
+    	logger.info("culturePath select success");
+    	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
+    	List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(1);
+    	
+    	resultList.add(restResult3);
+    	return RestResult.successData(resultList);
+    }
+    
+    @ApiOperation(value = "获取研究生个人培养计划信息")
+    @PostMapping("/culturePlanMsg3")
+    public RestResult<?> getCulturePlanMsg2(
+    		@RequestParam("roundId") Long roundId
+    		) {
+    	logger.info("into---------------333333333333333-------------->");
+    	Session session = SessionUtils.getCurrentSession();
+    	String uid = session.realUid();
+//    	String uid = "1910019";
+    	logger.info("studentId--------------333333333333333333--------------->"+uid);
+    	/** 调用培养：培养方案的课程分类学分 */
+    	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
+    	
+    	logger.info("culturePath select success");
+    	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
+    	List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(1);
+    	
+    	resultList.add(restResult3);
+    	return RestResult.successData(resultList);
+    }
+    
+    @ApiOperation(value = "获取研究生个人培养计划信息")
+    @PostMapping("/culturePlanMsg4")
+    public RestResult<?> getCulturePlanMsg3(
+    		@RequestParam("roundId") Long roundId
+    		) {
+    	logger.info("into-------44444444444444---------------------->");
+    	Session session = SessionUtils.getCurrentSession();
+    	String uid = session.realUid();
+//    	String uid = "1910019";
+    	logger.info("studentId----------4444444444444444444------------------->"+uid);
+    	/** 调用培养：培养方案的课程分类学分 */
+    	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
+    	
+    	logger.info("culturePath select success");
+    	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
+    	
+    	return RestResult.successData(restResult3);
+    }
 
 }
