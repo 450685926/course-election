@@ -313,10 +313,13 @@ public class ElecController
             @PathVariable("roundId") Long roundId
     ) {
     	logger.info("into---------------111111111111111-------------->");
+    	logger.info("into------111111111111111---------roundId-------------->"+roundId);
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.realUid();
+    	String mockUid = session.getMockUid();
 //    	String uid = "1910019";
-    	logger.info("studentId-----------1111111111111111------------------>"+uid);
+    	logger.info("studentId-----------1111111111111111---------uid--------->"+uid);
+    	logger.info("studentId-----------1111111111111111-------mockUid----------->"+mockUid);
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
@@ -335,10 +338,13 @@ public class ElecController
     		@PathVariable("roundId") Long roundId
     		) {
     	logger.info("into-----------2222222222222------------------>");
+    	logger.info("into-------2222222222222--------roundId-------------->"+roundId);
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.realUid();
+    	String mockUid = session.getMockUid();
 //    	String uid = "1910019";
-    	logger.info("studentId-----------222222222------------------>"+uid);
+    	logger.info("studentId-----------222222222----------uid-------->"+uid);
+    	logger.info("studentId-----------222222222--------mockUid---------->"+mockUid);
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
@@ -357,10 +363,13 @@ public class ElecController
     		@RequestParam("roundId") Long roundId
     		) {
     	logger.info("into---------------333333333333333-------------->");
+    	logger.info("into---------333333333333333------roundId-------------->"+roundId);
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.realUid();
+    	String mockUid = session.getMockUid();
 //    	String uid = "1910019";
-    	logger.info("studentId--------------333333333333333333--------------->"+uid);
+    	logger.info("studentId--------------333333333333333333--------uid------->"+uid);
+    	logger.info("studentId--------------333333333333333333-----mockUid---------->"+mockUid);
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
@@ -379,10 +388,13 @@ public class ElecController
     		@RequestParam("roundId") Long roundId
     		) {
     	logger.info("into-------44444444444444---------------------->");
+    	logger.info("into--------44444444444444-------roundId-------------->"+roundId);
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.realUid();
+    	String mockUid = session.getMockUid();
 //    	String uid = "1910019";
-    	logger.info("studentId----------4444444444444444444------------------->"+uid);
+    	logger.info("studentId----------4444444444444444444-----------uid-------->"+uid);
+    	logger.info("studentId----------4444444444444444444-----------mockUid------->"+mockUid);
     	/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
