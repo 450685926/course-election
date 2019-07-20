@@ -46,6 +46,7 @@
   	<result column="electionApplyId" jdbcType="BIGINT" property="electionApplyId" />
   	<result column="APPLY_" jdbcType="INTEGER" property="apply" />
   	<result column="LABEL_" jdbcType="VARCHAR" property="label" />
+  	<result column="NATURE" jdbcType="VARCHAR" property="nature" />
   </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
@@ -565,14 +566,14 @@
     </insert>
     <select id="findSelectedCourses" resultMap="VoResultMap">
       select
-	      t1.*,
-	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, op.LABEL_, t4.PERIOD_, 
+	      t1.*,t3.NATURE_ NATURE,
+	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, t3.LABEL_, t4.PERIOD_, 
 	      t4.CODE_ as teachingClassCode,
 	      t4.NAME_ as teachingClassName,
           op.IS_ELECTIVE_ as isPublicCourse
 	      from elc_course_takes_t t1
           join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
-	      /*join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_*/
+	      join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
 	      join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
   	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
