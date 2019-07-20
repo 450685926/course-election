@@ -40,6 +40,7 @@
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   	<result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
   	<result column="PERIOD_" jdbcType="DOUBLE" property="period" />
+  	<result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
   	<result column="teachingClassName" jdbcType="VARCHAR" property="teachingClassName" />
   	<result column="isPublicCourse" jdbcType="INTEGER" property="isPublicCourse" />
@@ -566,13 +567,15 @@
     <select id="findSelectedCourses" resultMap="VoResultMap">
       select
 	      t1.*,
-	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, op.LABEL_, t4.PERIOD_, 
+	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, op.LABEL_,
+	      t3.ASSESSMENT_MODE_,
+	      t4.PERIOD_,
 	      t4.CODE_ as teachingClassCode,
 	      t4.NAME_ as teachingClassName,
           op.IS_ELECTIVE_ as isPublicCourse
 	      from elc_course_takes_t t1
           join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
-	      /*join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_*/
+	      join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
 	      join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
   	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
