@@ -905,15 +905,16 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			//已完成学分
 			Double sumMcredits = 0.0;
 			for (CompletedCourse completedCourse : completedCourses) {
-				for (PlanCourse course : planCourse) {
-					if (course.getCourseCode().equals(completedCourse.getCourseCode())) {
-						completedCourse.setCourseLabelId(course.getLabel());
+				if (completedCourse != null) {
+					for (PlanCourse course : planCourse) {
+						if (course.getCourseCode().equals(completedCourse.getCourseCode())) {
+							completedCourse.setCourseLabelId(course.getLabel());
+						}
 					}
-				}
-				
-				if (completedCourse.getCourseLabelId() == Long.parseLong(key)) {
-					courseNum ++;
-					sumMcredits += completedCourse.getCredits();
+					if (completedCourse.getCourseLabelId() != null && completedCourse.getCourseLabelId() == Long.parseLong(key.trim())) {
+						courseNum ++;
+						sumMcredits += completedCourse.getCredits();
+					}
 				}
 			}
 			//统计本次选课门数
