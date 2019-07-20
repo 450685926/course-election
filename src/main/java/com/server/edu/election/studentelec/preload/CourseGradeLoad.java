@@ -4,7 +4,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,10 +127,14 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
-                lesson.setCalendarId(studentScore.getCalendarId());
+                Long calendarId = studentScore.getCalendarId();
+                lesson.setCalendarId(calendarId);
+                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                lesson.setCalendarName(schoolCalendar.getFullName());
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
+                lesson.setTeacherName(studentScore.getTeacherName());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 lesson.setRemark(studentScore.getRemark());
@@ -184,7 +190,6 @@ public class CourseGradeLoad extends DataProLoad
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
-        
     }
     
     /**
@@ -221,6 +226,7 @@ public class CourseGradeLoad extends DataProLoad
                 course.setCourseName(c.getCourseName());
                 course.setCourseTakeType(c.getCourseTakeType());
                 course.setCredits(c.getCredits());
+                course.setAssessmentMode(c.getAssessmentMode());
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
                 Long teachingClassId = c.getTeachingClassId();

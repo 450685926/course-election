@@ -36,6 +36,9 @@ public class SelectedCourse extends TeachingClassCache
 
     @Code2Text(DictTypeEnum.X_KCFL)
     private String label;
+
+    @Code2Text(transformer=" X_KSLX")
+    private String assessmentMode;
     
     /**
      * 第几轮
@@ -48,6 +51,14 @@ public class SelectedCourse extends TeachingClassCache
      * 研究生课程教学安排
      */
     private List<String> teachingArrange;
+
+    public String getAssessmentMode() {
+        return assessmentMode;
+    }
+
+    public void setAssessmentMode(String assessmentMode) {
+        this.assessmentMode = assessmentMode;
+    }
 
     @Override
     public Long getTeachClassId() {
