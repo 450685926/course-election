@@ -6,10 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,9 +35,11 @@ import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -103,6 +104,9 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     
     @Autowired
     private StringRedisTemplate strTemplate;
+    
+    @Autowired
+    private ElecRoundsDao roundsDao;
     
     @Override
     public RestResult<ElecRespose> loading(Long roundId, String studentId)
@@ -532,14 +536,14 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	    List<TeachingClassCache> lessons = new ArrayList<TeachingClassCache>(list.size());
 	     
 	    //从缓存中拿到本轮次排课信息
-        //List<String> keys = list.stream().map(String::valueOf).collect(Collectors.toList());
-        ArrayList<String> list2 = new ArrayList<String>(list.size());
+        //List<Long> teachClassIds = list.stream().map(ElcCourseResult::getTeachClassId).collect(Collectors.toList());
+        List<String> teachClassIds = new ArrayList<String>(list.size());
         for (ElcCourseResult elcCourseResult : list) {
-        	list2.add(elcCourseResult.getTeachClassId()+"");
+        	teachClassIds.add(elcCourseResult.getTeachClassId()+"");
 		}
         
         HashOperations<String, String, TeachingClassCache> hash = opsTeachClass();
-        lessons = hash.multiGet(Keys.getClassKey(), list2);
+        lessons = hash.multiGet(Keys.getClassKey(), teachClassIds);
         // 过滤null
         lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
         return lessons;
@@ -847,12 +851,22 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	@Override
 	public Map<String, Object> getElectResultCount(String studentId, Long roundId,Map<String,Object> result) {
 
+		LOG.info("++++++++++++++++++++++++++++++++++++++getElectResultCount into");
+	
 		RoundDataProvider dataProvider =
    				SpringUtils.getBean(RoundDataProvider.class);
 		//获取当前选课轮次
 		ElectionRounds round = dataProvider.getRound(roundId);
+		ElectionRoundsDto round2 = roundsDao.getOne(roundId);
+		
+		LOG.info("-----------------round--start---------------"+ round);
+		LOG.info("-----------------round2--start---------------"+ round2);
 		
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(studentId,round.getCalendarId());
+		
+		LOG.info("-----------------round---end--------------"+ round.getCalendarId());
+		LOG.info("-----------------round2---end--------------"+ round2.getCalendarId());
+		
 		//获取当前已经完成的课程
 		Set<PlanCourse> planCourse = elecContextUtil.getSet("PlanCourses", PlanCourse.class);
 		Set<CompletedCourse> completedCourses = elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
@@ -875,6 +889,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 				
 			}
 		}
+		LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG");
 		Map<String,Object>minNumMap = new HashMap<String,Object>();
 		Map<String,Object>courseNumMap = new HashMap<String,Object>();
 		Map<String,Object>creditsMap = new HashMap<String,Object>();
@@ -883,13 +898,20 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 		Map<String,Object>resultMap= new HashMap<String,Object>();
 		for(Entry<String, Object> entry : result.entrySet()){
 			Map<String,Object> map = (Map<String,Object>)entry.getValue();
-			
+			String key = entry.getKey();
+			LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG"+key);
 			//已完成课程数
 			Integer courseNum = 0;
 			//已完成学分
 			Double sumMcredits = 0.0;
 			for (CompletedCourse completedCourse : completedCourses) {
-				if (completedCourse.getCourseLabelId() == Long.parseLong(entry.getKey())) {
+				for (PlanCourse course : planCourse) {
+					if (course.getCourseCode().equals(completedCourse.getCourseCode())) {
+						completedCourse.setCourseLabelId(course.getLabel());
+					}
+				}
+				
+				if (completedCourse.getCourseLabelId() == Long.parseLong(key)) {
 					courseNum ++;
 					sumMcredits += completedCourse.getCredits();
 				}
@@ -899,7 +921,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			//统计本次选课学分
 			Double thisTimeSumMcredits = 0.0;
 			for (SelectedCourse thisSelected : thisSelectedCourses) {
-				String key = entry.getKey();
+				
 				if (thisSelected.getLabel().equals(key)) {
 					thisTimecourseNum ++;
 					thisTimeSumMcredits += thisSelected.getCredits();
