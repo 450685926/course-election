@@ -11,6 +11,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,16 +145,22 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 		
 		//获取学生本学期已经选取的课程
 		Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
-		
+
+        RedisTemplate<String, TeachingClassCache> redisTemplate = redisTemplate(TeachingClassCache.class);
+        HashOperations<String, String, TeachingClassCache> hash = redisTemplate.opsForHash();
+
 		List<SelectedCourse> selectedCourses = new ArrayList<>();
    		for (SelectedCourse completedCourse : selectedCourseSet) {
-   			
+
    			SelectedCourse elcCourseResult = new SelectedCourse();
    			elcCourseResult.setNature(completedCourse.getNature());
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
    			elcCourseResult.setFaculty(completedCourse.getFaculty());
+            elcCourseResult.setCourseTakeType(completedCourse.getCourseTakeType());
+            elcCourseResult.setAssessmentMode(completedCourse.getAssessmentMode());
+            elcCourseResult.setPublicElec(completedCourse.isPublicElec());
    			List<TeachingClassCache> teachClasss =
    		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
 	        if (CollectionUtil.isNotEmpty(teachClasss))
@@ -164,15 +172,16 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	                	
 	                	Integer elecNumber = dataProvider.getElecNumber(teachClassId);
 	                	teachClass.setCurrentNumber(elecNumber);
-	                	elcCourseResult.setFaculty(teachClass.getFaculty());
-	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
-	                	elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
-	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
-	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
-	                	elcCourseResult.setCurrentNumber(teachClass.getCurrentNumber());
-	                	elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
-	                	elcCourseResult.setTimes(teachClass.getTimes());
-	                	elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
+//	                	elcCourseResult.setFaculty(teachClass.getFaculty());
+//	                	elcCourseResult.setTeachClassId(teachClass.getTeachClassId());
+//	                	elcCourseResult.setTeachClassCode(teachClass.getTeachClassCode());
+//	                	elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
+//	                	elcCourseResult.setTeacherName(teachClass.getTeacherName());
+//	                	elcCourseResult.setCurrentNumber(teachClass.getCurrentNumber());
+//	                	elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
+//	                	elcCourseResult.setTimes(teachClass.getTimes());
+//	                	elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
+                        setClassCache(elcCourseResult, teachClass);
 	                	classTimeLists.add( teachClass.getTimes());
 	                	selectedCourses.add(elcCourseResult);
 	                }
@@ -183,6 +192,15 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
    		selectedCourseSet.addAll(selectedCourses);
 		//获取学生已完成的课程
 		Set<CompletedCourse> completedCourses1 = c.getCompletedCourses();
+
+		//未通过课程教学班信息返回
+		Set<CompletedCourse> failedCourses = c.getFailedCourse();
+        for (CompletedCourse failedCourse : failedCourses) {
+            TeachingClassCache teachClass = hash.get(Keys.getClassKey(), failedCourse.getTeachClassId());
+            if (teachClass != null) {
+                setClassCache(failedCourse, teachClass);
+            }
+        }
 		
 		//从缓存中拿到本轮次排课信息
 		HashOperations<String, String, String> ops = strTemplate.opsForHash();
@@ -225,6 +243,11 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
    		for (PlanCourse centerCourses : optionalGraduateCoursesList) {
    			Boolean flag = true;
    			for (CompletedCourse selectedCourseModel :completedCourses1) {
+                TeachingClassCache teachingClassCache = hash.get(Keys.getClassKey(), selectedCourseModel.getTeachClassId());
+                // 已完成课程教学安排添加
+   			    if (teachingClassCache != null) {
+                    setClassCache(selectedCourseModel, teachingClassCache);
+                }
    				if(selectedCourseModel.getCourseCode().equals(centerCourses.getCourseCode())){
    					flag = false;
    					break;
@@ -260,6 +283,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	                elcCourseResult.setMaxNumber(teachClass.getMaxNumber());
 	                elcCourseResult.setTimeTableList(teachClass.getTimeTableList());
 	                elcCourseResult.setTimes(teachClass.getTimes());
+
 	                Boolean flag = true;
 	                //上课时间是否冲突
 					for (List<ClassTimeUnit> classTimeList: classTimeLists) 
@@ -326,6 +350,21 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
    		return c;
 	}
 
+	private void setClassCache(TeachingClassCache newClassCache, TeachingClassCache oldClassCache){
+//        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(oldClassCache.getCalendarId());
+//        newClassCache.setCalendarName(schoolCalendar.getFullName());
+        newClassCache.setFaculty(oldClassCache.getFaculty());
+        newClassCache.setTeachClassId(oldClassCache.getTeachClassId());
+        newClassCache.setTeachClassCode(oldClassCache.getTeachClassCode());
+        newClassCache.setTeacherCode(oldClassCache.getTeacherCode());
+        newClassCache.setTeacherName(oldClassCache.getTeacherName());
+        newClassCache.setCurrentNumber(oldClassCache.getCurrentNumber());
+        newClassCache.setMaxNumber(oldClassCache.getMaxNumber());
+        newClassCache.setTimes(oldClassCache.getTimes());
+        newClassCache.setTimeTableList(oldClassCache.getTimeTableList());
+
+    }
+
     
     @Override
     public RestResult<ElecRespose> elect(ElecRequest elecRequest)
@@ -384,7 +423,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         }
         
         ElecRespose response =
-            ElecContextUtil.getElecRespose(studentId, round.getCalendarId());
+            ElecContextUtil.getElecRespose(studentId, 108L);
         ElecStatus status = ElecContextUtil.getElecStatus(roundId, studentId);
         if (response == null)
         {

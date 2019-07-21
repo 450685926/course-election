@@ -47,11 +47,6 @@ public class SelectedCourse extends TeachingClassCache
     
     private Integer isApply;
 
-    /**
-     * 课程教学安排
-     */
-    private TeachingClassCache teachingClassCache;
-
     public String getAssessmentMode() {
         return assessmentMode;
     }
@@ -68,14 +63,6 @@ public class SelectedCourse extends TeachingClassCache
     @Override
     public void setTeachClassId(Long teachClassId) {
         this.teachClassId = teachClassId;
-    }
-
-    public TeachingClassCache getTeachingClassCache() {
-        return teachingClassCache;
-    }
-
-    public void setTeachingClassCache(TeachingClassCache teachingClassCache) {
-        this.teachingClassCache = teachingClassCache;
     }
 
     public Integer getIsApply() {
