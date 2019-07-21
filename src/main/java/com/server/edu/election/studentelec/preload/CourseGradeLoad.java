@@ -110,8 +110,8 @@ public class CourseGradeLoad extends DataProLoad
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
-                String courseCode = studentScore.getCourseCode();
-                lesson.setCourseCode(courseCode);
+                lesson.setTeachClassId(studentScore.getTeachingClassId());
+                lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
@@ -121,10 +121,8 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
-                lesson.setTeacherName(studentScore.getTeacherName());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
-                lesson.setRemark(studentScore.getRemark());
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -202,11 +200,11 @@ public class CourseGradeLoad extends DataProLoad
                 course.setCourseName(c.getCourseName());
                 course.setCourseTakeType(c.getCourseTakeType());
                 course.setCredits(c.getCredits());
+                course.setCalendarId(c.getCalendarId());
                 course.setAssessmentMode(c.getAssessmentMode());
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
-                Long teachingClassId = c.getTeachingClassId();
-                course.setTeachClassId(teachingClassId);
+                course.setTeachClassId(c.getTeachingClassId());
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
                 course.setFaculty(c.getFaculty());
