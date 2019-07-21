@@ -307,16 +307,12 @@ public class ElcCourseTakeController
     
     
     @ApiOperation(value = "研究生学生退课")
-    @DeleteMapping("/graduateWithdraw")
-    public RestResult<?> graduateWithdraw(
-		 @RequestPart(name = "calendarId") @NotNull Long calendarId,
-		 @RequestPart(name = "teachingClassId") @NotNull Long teachingClassId,
-		 @RequestPart(name = "courseCode") @NotNull String courseCode,
-	     @RequestPart(name = "students") @NotNull List<String> students)
+    @PostMapping("/graduateWithdraw")
+    public RestResult<?> graduateWithdraw(@RequestBody ElcCourseTakeAddDto value)
     {
     	Session session = SessionUtils.getCurrentSession();
         
-    	courseTakeService.graduateWithdraw(calendarId,teachingClassId,courseCode,students,session.realType());
+    	courseTakeService.graduateWithdraw(value,session.realType());
     	
     	return RestResult.success();
     }
