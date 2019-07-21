@@ -455,14 +455,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-	public void graduateWithdraw(Long calendarId, Long teachingClassId,String courseCode, List<String> students, int realType) {
+	public void graduateWithdraw(ElcCourseTakeAddDto value, int realType) {
     	
     	Date date = new Date();
     	//如果当前操作人是老师
         if (realType == UserTypeEnum.TEACHER.getValue())
         {
         	//判断选课结果开关状态
-    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(calendarId);
+    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId());
     		if (elcResultSwitch.getStatus() == Constants.ZERO) {
     			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
     		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
@@ -473,23 +473,23 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     		
     		Example example = new Example(Course.class);
     		Criteria createCriteria = example.createCriteria();
-    		createCriteria.andEqualTo("code",courseCode);
+    		createCriteria.andEqualTo("code",value.getCourseCode());
     		Course course = courseDao.selectOneByExample(example);
     		if(course.getIsElective().intValue() == Constants.ONE){
     			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noPower",I18nUtil.getMsg("elecResultSwitch.noPower")));
     		}
 
         }
-        List<ElcCourseTake> value = new ArrayList<ElcCourseTake>();
-        for (String studentId : students) {
+        List<ElcCourseTake> values = new ArrayList<ElcCourseTake>();
+        for (String studentId : value.getStudents()) {
         	ElcCourseTake elcCourseTake = new ElcCourseTake();
         	elcCourseTake.setStudentId(studentId);
-        	elcCourseTake.setCalendarId(calendarId);
-        	elcCourseTake.setCourseCode(courseCode);
-        	elcCourseTake.setTeachingClassId(teachingClassId);
-        	value.add(elcCourseTake);
+        	elcCourseTake.setCalendarId(value.getCalendarId());
+        	elcCourseTake.setCourseCode(value.getCourseCode());
+        	elcCourseTake.setTeachingClassId(value.getTeachingClassId());
+        	values.add(elcCourseTake);
 		}
-		this.withdraw(value);
+		this.withdraw(values);
 	}
     
 
