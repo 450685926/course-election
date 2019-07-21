@@ -33,16 +33,41 @@ public class ElecCourse
     /** 是否公选课 */
     private boolean publicElec;
 
+    /**
+     * 学期
+     */
+    private Long calendarId;
+
     /**学期周学时对应学期*/
     private String calendarName;
     
     /**选课申请ID*/
     private Long electionApplyId;
+
     /**选课申请状态*/    
     private Integer apply;
-    
-    
-    
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
+
     public Long getElectionApplyId() {
 		return electionApplyId;
 	}

@@ -4,16 +4,12 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.dto.TimeTableMessage;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.Teacher;
@@ -21,7 +17,6 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyDao;
@@ -89,9 +84,6 @@ public class CourseGradeLoad extends DataProLoad
     @Autowired
     private ElectionApplyDao electionApplyDao;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-
     @Override
     public void load(ElecContext context)
     {
@@ -109,7 +101,6 @@ public class CourseGradeLoad extends DataProLoad
         }
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
-        HashOperations<String, String, TeachingClassCache> ops = redisTemplate.opsForHash();
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
@@ -127,8 +118,6 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setExcellent(studentScore.isBestScore());
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
-//                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-//                lesson.setCalendarName(schoolCalendar.getFullName());
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
@@ -136,13 +125,6 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 lesson.setRemark(studentScore.getRemark());
-                Long teachingClassId = studentScore.getTeachingClassId();
-                TeachingClassCache teachingClassCache = ops.get(Keys.getClassKey(), teachingClassId);
-                if (teachingClassCache != null) {
-                    lesson.setTeachingClassCache(teachingClassCache);
-                    lesson.setFaculty(teachingClassCache.getFaculty());
-                    lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
-                }
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -230,9 +212,6 @@ public class CourseGradeLoad extends DataProLoad
                 course.setFaculty(c.getFaculty());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
-                HashOperations<String, String, TeachingClassCache> ops = redisTemplate.opsForHash();
-                TeachingClassCache teachingClassCache = ops.get(Keys.getClassKey(), teachingClassId);
-                course.setTeachingClassCache(teachingClassCache);
                 selectedCourses.add(course);
             }
         }

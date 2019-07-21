@@ -35,46 +35,7 @@ public class CompletedCourse extends TeachingClassCache {
      */
     private Long courseLabelId;
 
-    /**
-     * 学期
-     */
-    private Long calendarId;
-    
     private Integer isPass;
-
-    /**
-     * 备注
-     */
-    private String remark;
-
-    /**
-     * 课程教学安排
-     */
-    private TeachingClassCache teachingClassCache;
-
-    public TeachingClassCache getTeachingClassCache() {
-        return teachingClassCache;
-    }
-
-    public void setTeachingClassCache(TeachingClassCache teachingClassCache) {
-        this.teachingClassCache = teachingClassCache;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public Long getCalendarId() {
-        return calendarId;
-    }
-
-    public void setCalendarId(Long calendarId) {
-        this.calendarId = calendarId;
-    }
 
     public String getRank() {
         return rank;
@@ -126,7 +87,7 @@ public class CompletedCourse extends TeachingClassCache {
 
 	@Override
     public int hashCode() {
-        return Objects.hash(this.score, this.getCourseCode(), this.calendarId);
+        return Objects.hash(this.score, this.getCourseCode(), this.getCalendarId());
     }
 
     @Override
@@ -139,7 +100,7 @@ public class CompletedCourse extends TeachingClassCache {
             CompletedCourse o = (CompletedCourse) obj;
             return StringUtils.equals(this.score, o.score)
                     && StringUtils.equals(this.getCourseCode(), o.getCourseCode())
-                    && Objects.equals(this.calendarId,o.calendarId );
+                    && Objects.equals(this.getCalendarId(),o.getCalendarId());
         }
         return false;
     }
