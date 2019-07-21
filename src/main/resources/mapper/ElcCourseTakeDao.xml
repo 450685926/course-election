@@ -77,10 +77,10 @@
       join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
-      t2.MANAGER_DEPT_ID_ =#{query.projectId}
+      t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=BIGINT}
      </if>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
-      t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+      and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
      </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
   	 and t1.STUDENT_ID_ = #{query.studentId}
