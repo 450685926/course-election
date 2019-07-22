@@ -48,8 +48,6 @@ public class ElecRoundCourseQuery
     
     private String keyword;
     
-    private String campus;
-
     public String getLabel() {
 		return label;
 	}
