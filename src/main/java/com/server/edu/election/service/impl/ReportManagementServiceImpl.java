@@ -2,19 +2,18 @@ package com.server.edu.election.service.impl;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -23,10 +22,23 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
@@ -35,19 +47,6 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
-import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -80,7 +79,9 @@ import freemarker.template.Template;
 @Service
 @Primary
 public class ReportManagementServiceImpl implements ReportManagementService {
-
+	private static Logger LOG =
+	        LoggerFactory.getLogger("com.server.edu.election.service.impl.ReportManagementServiceImpl");
+	
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
 
@@ -99,6 +100,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
+    
+    // 导出学生课表
+    private static final String[] setSchoolTimeTitle = {"节次/周次", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"};
+    private static final String[] setSchoolTimeCol = {"第一节课", "第二节课", "第三节课", "第四节课", "第五节课", "第六节课", "第七节课", "第八节课", "第九节课", "第十节课", "第十一节课", "第十二节课"};
+    private static final String[] setTimeListTitle = {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "教学安排","备注"};
+    private static final String[] setTimeListTeacherTitle = {"序号", "课程序号", "课程名称", "课程性质", "周学时", "学分", "授课语言", "教学安排","上课人数", "备注"};
     /**
     *@Description: 查询点名册
     *@Param:
@@ -171,15 +178,27 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     totalCredits+=studentSchoolTimetab.getCredits();
                 }
                 List<ClassTeacherDto> studentAndTeacherTime = findStudentAndTeacherTime(studentSchoolTimetab.getTeachingClassId());
+                //取value的值
+                Multimap<Long, String> multimap = ArrayListMultimap.create();
                 if(CollectionUtil.isNotEmpty(studentAndTeacherTime)){
                     for (ClassTeacherDto classTeacherDto : studentAndTeacherTime) {
-                        TimeTable timeTable=new TimeTable();
+                        //列表展示教学安排
+                        Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                        Integer timeStart = classTeacherDto.getTimeStart();
+                        Integer timeEnd = classTeacherDto.getTimeEnd();
+                        String roomID = classTeacherDto.getRoomID();
+                        String weekstr = findWeek(dayOfWeek);//星期
+                        String roomName = ClassroomCacheUtil.getRoomName(roomID);
+                        String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+classTeacherDto.getWeekNumberStr()+ roomName;
+                        multimap.put(classTeacherDto.getTeachingClassId(),timeStr);
+
                         String value=classTeacherDto.getTeacherName()+" "+studentSchoolTimetab.getCourseName()+"("+
-                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+classTeacherDto.getRoom()+")";
+                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+roomName+")" + dictionaryService.query("X_XQ", classTeacherDto.getCampus());
+                        TimeTable timeTable=new TimeTable();
                         timeTable.setValue(value);
-                        timeTable.setDayOfWeek(classTeacherDto.getDayOfWeek());
-                        timeTable.setTimeStart(classTeacherDto.getTimeStart());
-                        timeTable.setTimeEnd(classTeacherDto.getTimeEnd());
+                        timeTable.setDayOfWeek(dayOfWeek);
+                        timeTable.setTimeStart(timeStart);
+                        timeTable.setTimeEnd(timeEnd);
                         list.add(timeTable);
                     }
                 }
@@ -187,22 +206,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 if(CollectionUtil.isNotEmpty(names)){
                     studentSchoolTimetab.setTeacherName(String.join(",",names));
                 }
-                String s = findClassroomAndTime(studentSchoolTimetab.getTeachingClassId());
-                String[] strings = s.split("/");
-                List<String> timelist=new ArrayList<>();
-                Set<String> roomList=new HashSet<>();
-                for (String string : strings) {
-                    int i = string.indexOf("]");
-                    String time = string.substring(0,i+1);
-                    timelist.add(time);
-                    String[] rooms= string.substring(i + 1).replaceAll(" ","").split(",");
-                    List<String> stringList = Arrays.asList(rooms);
-                    roomList.addAll(stringList);
+                Collection<String> collection = multimap.get(studentSchoolTimetab.getTeachingClassId());
+                if (!collection.isEmpty()){
+                    String times = collection.toString();
+                    studentSchoolTimetab.setTime(times.substring(1,times.length()-1));
                 }
-                String time = String.join(",", timelist);
-                String room = String.join(",", roomList);
-                studentSchoolTimetab.setTime(time);
-                studentSchoolTimetab.setRoom(room);
             }
 
         }
@@ -235,9 +243,31 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     * @Description: 根据用户角色查询学生课表
+     * @Param:
+     * @return:
+     * @Author:
+     * @date: 2019/7/4
+     */
+    @Override
+    public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(condition.getCondition());
+        if (!schoolTimetab.isEmpty()) {
+            List<StudentVo> result = schoolTimetab.getResult();
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+            for (StudentVo studentVo : result) {
+                studentVo.setCalendarName(schoolCalendar.getFullName());
+            }
+
+        }
+        return new PageResult<>(schoolTimetab);
+    }
+
+    /**
     *@Description: 教师上课时间地点详情
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/2/16 10:18
     */
@@ -257,6 +287,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                             ClassTeacherDto timetab=new ClassTeacherDto();
                             ClassTeacherDto classTeacherDto = dtos.get(0);
                             String teacherCode = classTeacherDto.getTeacherCode();
+                            String[] teacherCodes = teacherCode.split(",");
+
                             Integer dayOfWeek = classTeacherDto.getDayOfWeek();
                             String week = findWeek(dayOfWeek);
                             Integer timeStart = classTeacherDto.getTimeStart();
@@ -283,15 +315,17 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                                 }
                             }
                             String time=week+" "+strTime+" "+strWeek;
-                            String name = courseTakeDao.findClassTeacherByTeacherCode(teacherCode);
+                            List<String> names = courseTakeDao.findTeacherNameByTeacherCode(teacherCodes);
+                            timetab.setCampus(classTeacherDto.getCampus());
+                            timetab.setTeacherName(String.join(",",names));
                             timetab.setTime(time);
                             timetab.setWeekNumberStr(strWeek);
                             timetab.setDayOfWeek(dayOfWeek);
                             timetab.setTimeStart(timeStart);
                             timetab.setTimeEnd(timeEnd);
+                            timetab.setRoomID(roomID);
                             timetab.setRoom(roomID);
                             timetab.setTeacherCode(teacherCode);
-                            timetab.setTeacherName(name);
                             timetab.setRemark(classTeacherDto.getRemark());
                             timetab.setTeachingLanguage(classTeacherDto.getTeachingLanguage());
                             timetab.setClassCode(classTeacherDto.getClassCode());
@@ -351,52 +385,62 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         StudentSchoolTimetabVo vo=new StudentSchoolTimetabVo();
         List<ClassTeacherDto> list=new ArrayList<>();
         List<TimeTable> timeTables=new ArrayList<>();
-        List<ClassTeacherDto> classId = courseTakeDao.findAllTeachingClassId(calendarId);
-        if(CollectionUtil.isNotEmpty(classId)){
-            for (ClassTeacherDto classTeacherDto : classId) {
-                List<ClassTeacherDto> teacherTime = findStudentAndTeacherTime(classTeacherDto.getTeachingClassId());
-                if(CollectionUtil.isNotEmpty(teacherTime)){
-                    List<ClassTeacherDto> collect = teacherTime.stream().filter((ClassTeacherDto timrTab) -> timrTab.getTeacherCode().equals(teacherCode)).collect(Collectors.toList());
-                    if(CollectionUtil.isNotEmpty(collect)){
-                        for (ClassTeacherDto teacherDto : collect) {
-                            TimeTable time=new TimeTable();
-                            teacherDto.setCourseCode(classTeacherDto.getCourseCode());
-                            teacherDto.setCourseName(classTeacherDto.getCourseName());
-                            teacherDto.setLabel(classTeacherDto.getLabel());
-                            teacherDto.setWeekHour(classTeacherDto.getWeekHour());
-                            teacherDto.setCredits(classTeacherDto.getCredits());
-                            teacherDto.setSelectCourseNumber(classTeacherDto.getSelectCourseNumber());
-                            time.setDayOfWeek(teacherDto.getDayOfWeek());
-                            time.setTimeStart(teacherDto.getTimeStart());
-                            time.setTimeEnd(teacherDto.getTimeEnd());
-                            String value=teacherDto.getClassCode()+classTeacherDto.getCourseName()
-                                    +"("+teacherDto.getWeekNumberStr()+teacherDto.getRoom()+")";
-                            time.setValue(value);
-                            timeTables.add(time);
-                        }
-                    }
-                    list.addAll(collect);
-                }
-            }
+        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassId(calendarId, teacherCode);
+        List<Long> ids = new ArrayList<>();
+        Map<Long, String> map = new HashMap<>();
+        for (ClassTeacherDto classTeacher : classTeachers) {
+            Long teachingClassId = classTeacher.getTeachingClassId();
+            ids.add(teachingClassId);
+            map.put(teachingClassId, classTeacher.getCourseName());
         }
-        vo.setTeacherDtos(list);
+
+        List<TimeTableMessage> tableMessages = getTimeByTeachingClassId(ids);
+        Multimap<Long, String> multimap = ArrayListMultimap.create();
+        String lang = SessionUtils.getLang();
+        for (TimeTableMessage tableMessage : tableMessages) {
+            TimeTable time=new TimeTable();
+            time.setDayOfWeek(tableMessage.getDayOfWeek());
+            time.setTimeStart(tableMessage.getTimeStart());
+            time.setTimeEnd(tableMessage.getTimeEnd());
+            Long teachingClassId = tableMessage.getTeachingClassId();
+            String value=tableMessage.getTeacherName()+" "+ map.get(teachingClassId)
+                    +"("+tableMessage.getWeekNum() + ClassroomCacheUtil.getRoomName(tableMessage.getRoomId()) + ")"
+                    + " " + dictionaryService.query("X_XQ",tableMessage.getCampus(), lang);
+            time.setValue(value);
+            timeTables.add(time);
+            multimap.put(teachingClassId, tableMessage.getTimeAndRoom());
+        }
+            for (ClassTeacherDto classTeacher : classTeachers) {
+                Collection<String> collection = multimap.get(classTeacher.getTeachingClassId());
+                if (!collection.isEmpty()) {
+                    String times = collection.toString();
+                    classTeacher.setTime(times.substring(1,times.length()-1));
+                }
+        }
         vo.setTimeTables(timeTables);
+        vo.setTeacherDtos(classTeachers);
         return vo;
     }
 
     /**
     *@Description: 查询学生未选课名单
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/2/19 15:42
     */
     @Override
     public PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition) {
         String deptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        condition.getCondition().setDeptId(deptId);
+    	condition.getCondition().setDeptId(deptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<NoSelectCourseStdsDto> electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
+
+        Page<NoSelectCourseStdsDto> electCourseList;
+        if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && Constants.PROJ_UNGRADUATE.equals(deptId)) {
+        	electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
+		}else {
+			electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
+		}
         return new PageResult<>(electCourseList);
     }
 
@@ -425,7 +469,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-    *@Description: 导出未选课学生名单
+    *@Description: 本科生导出未选课学生名单
     *@Param:
     *@return:
     *@Author: bear
@@ -449,6 +493,34 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
             FileUtil.mkdirs(cacheDirectory);
             String fileName = "studentNoSelectCourseList.xls";
+            String path = cacheDirectory + fileName;
+            generalExcelHandle.writeExcel(new FileOutputStream(path));
+            return fileName;
+        }
+        return "";
+    }
+
+    /*
+     * 研究生导出未选课学生名单
+     */
+    @Override
+    public String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception {
+    	PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
+        pageCondition.setCondition(condition);
+        pageCondition.setPageSize_(Constants.ZERO);
+        pageCondition.setPageNum_(Constants.ZERO);
+        PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
+        if(electCourseList!=null){
+            List<NoSelectCourseStdsDto> list = electCourseList.getList();
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            GeneralExcelDesigner design = getDesignGraduteStudent();
+            design.setDatas(list);
+            ExcelWriterUtil generalExcelHandle;
+            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+            FileUtil.mkdirs(cacheDirectory);
+            String fileName = "studentNoSelectCourseListGradute.xls";
             String path = cacheDirectory + fileName;
             generalExcelHandle.writeExcel(new FileOutputStream(path));
             return fileName;
@@ -504,9 +576,74 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     *@Description: 导出研究生点名册
+     *@Param:
+     *@return:
+     *@Author:
+     *@date: 2019/7/4
+     */
+    @Override
+    public ExcelResult exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception{
+//        PageResult<RollBookList> rollBookList = findRollBookList(condition);
+//        if (rollBookList != null) {
+//            GeneralExcelDesigner design = getDesignTeacherRollBook();
+//            design.setDatas(rollBookList.getList());
+//            ExcelWriterUtil generalExcelHandle;
+//            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
+//            FileUtil.mkdirs(cacheDirectory);
+//            String fileName = "TeacherRollBooks.xls";
+//            String path = cacheDirectory + fileName;
+//            generalExcelHandle.writeExcel(new FileOutputStream(path));
+//            return fileName;
+//        }
+//        return "";
+        ExcelResult excelResult = ExportExcelUtils.submitTask("GraduteRollBookList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageResult<RollBookList> rollBookList = findRollBookList(condition);
+                List<RollBookList> list = rollBookList.getList();
+                //组装excel
+                GeneralExcelDesigner design = getDesignTeacherRollBook();
+                if (CollectionUtil.isNotEmpty(list)) {
+                    design.setDatas(list);
+                    result.setDoneCount(list.size());
+                }
+                //将数据放入excel对象中
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    private GeneralExcelDesigner getDesignTeacherRollBook() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "classCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "className");
+        String lang = SessionUtils.getLang();
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.nature"), "courseNature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_KCXZ", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"), "selectCourseNumber");
+        design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"), "numberLimit");
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.courseFaculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("rollBookManage.teacher"), "teacherName");
+        return design;
+    }
+
+
+
+    /**
     *@Description: 查询点名册
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/4/28 16:26
     */
@@ -526,13 +663,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
                     }
                     if (map.size() != 0) {
-                        for (RollBookList bookList : result) {
-                            List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
-                            if (CollectionUtil.isNotEmpty(rollBookLists)) {
-                                Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
-                                String teacherName = String.join(",", collect);
-                                bookList.setTeacherName(teacherName);
-                            }
+                                for (RollBookList bookList : result) {
+                                    List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
+                                    if (CollectionUtil.isNotEmpty(rollBookLists)) {
+                                        Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
+                                        String teacherName = String.join(",", collect);
+                                        bookList.setTeacherName(teacherName);
+                                    }
 
                         }
                     }
@@ -541,7 +678,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
             }
             return new PageResult<>(rollBookList);
-
     }
 
     /**
@@ -566,8 +702,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         }
         pre.setStudentsList(student);
         pre.setSize(student.size());
-        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        pre.setCalendarName(schoolCalendarVo.getFullName());
+//        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+//        pre.setCalendarName(schoolCalendarVo.getFullName());
         //封装教学班信息拆解
         List<Long> ids=new ArrayList<>();
         ids.add(teachingClassId);
@@ -601,7 +737,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     /**
     *@Description: 查询学生个人课表
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/4/30 11:58
     */
@@ -650,8 +786,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 查询所有教师课表
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/4/30 17:39
     */
@@ -672,9 +808,32 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     * @Description: 查询所有教师课表
+     * @Param:
+     * @return:
+     * @Author: bear
+     * @date: 2019/4/30 17:39
+     */
+    @Override
+    public PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(condition.getCondition());
+        if (CollectionUtil.isNotEmpty(teacherTimeTable)) {
+            List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
+            if (CollectionUtil.isNotEmpty(result)) {
+                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+                for (ClassCodeToTeacher toTeacher : result) {
+                    toTeacher.setCalendarName(schoolCalendar.getFullName());
+                }
+            }
+        }
+        return new PageResult<>(teacherTimeTable);
+    }
+
+    /**
     *@Description: 学生课表其他服务调用
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/5/5 9:34
     */
@@ -713,7 +872,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     /**
     *@Description: 查询教师课表
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/5/5 14:13
     */
@@ -779,7 +938,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 teacherList = tableMessages.stream().filter(vo -> {
                   return Arrays.asList(vo.getTeacherCode().split(",")).contains(teacherCode) && vo.getWeeks().contains(week);
                 }).collect(Collectors.toList());
-                
+
                 if(CollectionUtil.isNotEmpty(teacherList)) {
                     for (TimeTableMessage tm : teacherList) {
                         TimeTable tt=new TimeTable();
@@ -808,8 +967,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 导出未选课名单
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/5/8 16:13
     */
@@ -855,8 +1014,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     /**
     *@Description: 导出所有教师课表
-    *@Param: 
-    *@return: 
+    *@Param:
+    *@return:
     *@Author: bear
     *@date: 2019/5/8 16:13
     */
@@ -903,7 +1062,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     /**
     *@Description: 导出预览点名册
     *@Param:
-    *@return: 
+    *@return:
     *@Author: bear
     *@date: 2019/5/8 16:14
     */
@@ -955,19 +1114,19 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 String teacherCode = classTeacherDto.getTeacherCode();
                 String weekNumber = classTeacherDto.getWeekNumberStr();
                 String[] str = weekNumber.split(",");
-                
+
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
                 String weekstr = findWeek(dayOfWeek);//星期
-                
+
                 String[] tcodes = teacherCode.split(",");
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
                 String teacherName="";
-                if(teachers != null) {
-                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
-                }
-                
+//                if(teachers != null) {
+//                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
+//                }
+
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
                 String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
                 time.setDayOfWeek(dayOfWeek);
@@ -987,6 +1146,42 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 time.setCourseName(classTeacherDto.getCourseName());
                 time.setClassName(classTeacherDto.getClassName());
                 time.setTeachingClassId(classTeacherDto.getTeachingClassId());
+                list.add(time);
+            }
+        }
+        return list;
+    }
+
+    private List<TimeTableMessage>  getTimeByTeachingClassId(List<Long> teachingClassIds){
+        List<TimeTableMessage> list=new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassIds);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                Long teachingClassId = classTeacherDto.getTeachingClassId();
+                List<String> names = courseTakeDao.findTeacherNameById(teachingClassId);
+                TimeTableMessage time = new TimeTableMessage();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                String[] str = weekNumber.split(",");
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = findWeek(dayOfWeek);//星期
+
+
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
+                time.setRoomId(roomID);
+                time.setDayOfWeek(classTeacherDto.getDayOfWeek());
+                time.setTimeStart(classTeacherDto.getTimeStart());
+                time.setTimeEnd(classTeacherDto.getTimeEnd());
+                time.setCampus(classTeacherDto.getCampus());
+                time.setTeachingClassId(teachingClassId);
+                time.setTimeAndRoom(timeStr);
+                time.setWeekNum(weekNumStr);
+                time.setTeacherName(String.join(",", names));
                 list.add(time);
             }
         }
@@ -1031,6 +1226,40 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
         design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
         return design;
+    }
+
+    private GeneralExcelDesigner getDesignGraduteStudent() {
+    	GeneralExcelDesigner design = new GeneralExcelDesigner();
+    	design.setNullCellValue("");
+    	design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+    	design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
+    	design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
+    	design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("exemptionApply.major"), "major").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_PYCC", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("noElection.trainingCategory"), "trainingCategory").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_PYLB", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("noElection.degreeType"), "degreeType").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_XWLX", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("noElection.formLearning"), "formLearning").setValueHandler(
+    			(value, rawData, cell) -> {
+    				return dictionaryService.query("X_XXXS", value, SessionUtils.getLang());
+    			});
+    	design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
+    	return design;
     }
 
     private GeneralExcelDesigner getDesignTeacher() {
@@ -1137,9 +1366,14 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                        Integer dayOfWeek = item.getDayOfWeek();
                        Integer timeStart = item.getTimeStart();
                        Integer timeEnd = item.getTimeEnd();
-                       List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
-                       Integer maxWeek = Collections.max(integerList);
-                       Integer minWeek = Collections.min(integerList);
+                       //List<Integer> integerList = list.stream().map(ClassTeacherDto::getWeekNumber).collect(Collectors.toList());
+                       List<String> asList = Arrays.asList(item.getWeekNumberStr().split(","));
+                       List<Integer> intList = new ArrayList<Integer>();
+                       for (String string : asList) {
+						   intList.add(Integer.parseInt(string));
+					   }
+                       Integer maxWeek = Collections.max(intList);
+                       Integer minWeek = Collections.min(intList);
                        Set<String> rooms = list.stream().map(ClassTeacherDto::getRoomID).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
                        String roomId = String.join(",", rooms);
                        String time=findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+minWeek+"-"+maxWeek+"] "+roomId;
@@ -1152,4 +1386,383 @@ public class ReportManagementServiceImpl implements ReportManagementService {
        }
        return str.toString();
    }
+
+	@Override
+	public RestResult<String> exportStudentTimetabPdf(Long calendarId, String calendarName, String studentCode,
+			String studentName) throws Exception {
+		//检查目录是否存在
+		//cacheDirectory = "C://temp//pdf//cacheWord";
+        LOG.info("缓存目录："+cacheDirectory);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+		
+        /************************ PDF初始化操作 ******************************/
+        //所有使用中文处理
+        BaseFont bfChinese = BaseFont.createFont("STSongStd-Light","UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+        //粗体文字 title使用
+        Font titleChinese = new Font(bfChinese, 20, Font.BOLD);
+        //副标题
+        Font subtitleChinese = new Font(bfChinese, 13, Font.BOLD);
+        //正常文字
+        //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
+        Font name2 = new Font(bfChinese, 12, Font.NORMAL);
+          
+        String fileName = new StringBuffer("")
+                .append(cacheDirectory)
+                .append("//")
+                .append(System.currentTimeMillis())
+                .append("_")
+                .append(studentName)
+                .append(".pdf")
+                .toString();
+        Document document = new Document(PageSize.A4,24,24,16,16);
+        PdfWriter.getInstance(document, new FileOutputStream(fileName));
+		
+        /************************ PDF填充内容  ******************************/
+        document.open();
+        //---1 添加标题---
+        Paragraph title = new Paragraph("个人课程表", titleChinese);
+        //居中设置
+        title.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        title.setLeading(20);
+        title.setSpacingBefore(30);
+        document.add(title);
+        
+        //---2 副标题---
+        Paragraph subtitle = new Paragraph(calendarName, subtitleChinese);
+        subtitle.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        subtitle.setLeading(10);
+        //内容距离左边8个单位
+        subtitle.setFirstLineIndent(7);
+        subtitle.setIndentationRight(20);
+        //副标题与标题之间的距离
+        subtitle.setSpacingBefore(15);
+        document.add(subtitle);
+		
+        //----3 学生基本信息----
+        StudentSchoolTimetabVo studentTimetab = findSchoolTimetab(calendarId,studentCode);
+        
+        PdfPTable table1 = new PdfPTable(4);
+        //前间距
+        table1.setSpacingBefore(5);
+        
+        PdfPCell cell1 = createNoBorderCell("学号："+studentCode,name2,20f);
+        table1.addCell(cell1);
+       
+        PdfPCell cell2 = createNoBorderCell("学生姓名："+studentName, name2,20f);
+        table1.addCell(cell2);
+        
+        PdfPCell cell3 = createNoBorderCell("所属班级："+studentName, name2,20f);
+        table1.addCell(cell3);
+        
+        PdfPCell cell4 = createNoBorderCell("总学分："+studentTimetab.getTotalCredits(), name2,20f);
+        table1.addCell(cell4);
+        document.add(table1);
+        
+        // ----3 学生选课课表展示---- 
+        PdfPTable table2 = createStudentTable(studentTimetab.getTimeTables(),subtitleChinese,name2);
+        document.add(table2);
+        
+        // ----4 学生选课列表 -------
+        PdfPTable table3 = createStudentTimeList(studentTimetab.getList(),subtitleChinese,name2);
+        document.add(table3);
+        
+        document.close();
+        return RestResult.successData("导出成功。",fileName);
+	}
+	
+	
+	/**
+	 * @param 创建选课课表table
+	 */
+	public PdfPTable createStudentTable(List<TimeTable> tables,Font subtitleChinese,Font name2) throws DocumentException, IOException {
+		PdfPTable table = new PdfPTable(setSchoolTimeTitle.length);
+		table.setWidthPercentage(100);
+		table.setSpacingBefore(10);
+		
+		// 添加课表表头
+		for (int i = 0; i < setSchoolTimeTitle.length; i++) {
+			PdfPCell cell = createCell(setSchoolTimeTitle[i],1,1,subtitleChinese,30f);
+			table.addCell(cell);
+		}
+		
+		// 添加课表内容
+		//setTimeListCol
+		for (int i = 0; i < setSchoolTimeCol.length; i++) {        // 12行  节次
+			for (int j = 0; j < setSchoolTimeTitle.length; j++) {  // 8列    星期
+				PdfPCell cell = new PdfPCell(new Paragraph("",name2));
+				if (j == 0) {
+					cell = createCell(setSchoolTimeCol[i],1,1,name2,30f);
+					table.addCell(cell);
+				}else {
+					TimeTable time = hasCourseArrangment(j,i+1,tables);
+					if (time != null) {
+						if (time.getTimeStart() == i+1) {
+							cell = createCell(time.getValue(),1,time.getTimeEnd()-i,name2,30f);
+							table.addCell(cell);
+						}
+					}else {
+						cell = createCell("",1,1,name2,30f);
+						table.addCell(cell);
+					}
+				}
+			}
+		}
+		return table;
+	}
+	
+	/**
+	   *   查询：对应的星期对应的节次是否有课程安排
+	 * @param dayOfWeek  星期几
+	 * @param timeNo     第几节课
+	 * @param tables     课程安排list
+	 * @return
+	 */
+	public TimeTable hasCourseArrangment(int dayOfWeek,int timeNo,List<TimeTable> tables) {
+		TimeTable time = null;
+		for (TimeTable timeTable : tables) {
+			if (timeTable.getDayOfWeek() == dayOfWeek && timeTable.getTimeStart() <= timeNo && timeNo <= timeTable.getTimeEnd()) {
+				time = timeTable;
+				break;
+			}
+		}
+		return time;
+	}
+	
+	public TimeTable getTimeTable(int dayOfWeek,int timeStart,List<TimeTable> tables) {
+		TimeTable time = new TimeTable();
+		for (TimeTable timeTable : tables) {
+			if (timeTable.getDayOfWeek() == dayOfWeek && timeTable.getTimeStart() == timeStart+1) {
+				time = timeTable;
+			}
+		}
+		return time;
+	}
+	/**
+	   * 创建学生选课列表table
+	 * @throws IOException 
+	 */
+	public PdfPTable createStudentTimeList(List<StudentSchoolTimetab> list,Font subtitleChinese,Font name2) throws DocumentException, IOException {
+		PdfPTable table = new PdfPTable(setTimeListTitle.length);
+		table.setWidthPercentage(100);
+		table.setSpacingBefore(10);
+		
+		// 添加表头
+		for (int i = 0; i < setTimeListTitle.length; i++) {
+			PdfPCell cell = createCell(setTimeListTitle[i],1,1,subtitleChinese,null);
+			table.addCell(cell);
+		}
+		
+		// 添加表内容
+		for (int j = 0; j < list.size(); j++) {
+			List<String> timeTableList = getTimeTableList(list.get(j));
+			for (int i = 0; i < setTimeListTitle.length; i++) {
+				PdfPCell cell = new PdfPCell();
+				if (i == 0) {
+					cell = createCell(String.valueOf(j+1),1,1,name2,null);
+				}else {
+					cell = createCell(timeTableList.get(i-1),1,1,name2,null);
+				}
+				table.addCell(cell);
+			}
+		}
+		return table;
+	}
+	
+	public List<String> getTimeTableList(StudentSchoolTimetab timeTable){
+		List<String> list = new ArrayList<String>();
+		list.add(timeTable.getCourseCode());
+		list.add(timeTable.getCourseName());
+		list.add("2".equals(timeTable.getCourseType())?"是":"");
+		list.add(timeTable.getIsElective() == 1?"选修":"必修");
+		list.add(timeTable.getAssessmentMode());
+		list.add(String.valueOf(timeTable.getCredits()));
+		list.add(timeTable.getTeacherName());
+		list.add(timeTable.getTime()+timeTable.getRoom());
+		list.add(timeTable.getRemark());
+		return list;
+	}
+	
+    /**
+            *     生成一个有边框有跨行的小单元格
+     * @param content 内容
+     * @param rowSpan 跨行
+     * @param colSpan 跨列
+     * @param font 字体 传null视为默认黑色字体
+     * @param height 单元格高度  传null默认为自动填充
+     * @throws IOException
+     * @throws DocumentException
+     */
+    private PdfPCell createCell(String content,int rowSpan,int colSpan,Font font,Float height) throws IOException, DocumentException {
+        if (font == null) {
+            BaseFont bfChinese = BaseFont.createFont("STSongStd-Light","UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+            font = new Font(bfChinese,8,Font.NORMAL );
+        }
+        // 构建每个单元格
+        PdfPCell cell = new PdfPCell(new Paragraph(content,font));
+        // 设置内容水平居中显示
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        // 设置垂直居中
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        // 设置边框的颜色
+        cell.setBorderColor(new BaseColor(15, 110, 176));
+        // 设置单元格的行高
+        if (height != null) {
+        	cell.setFixedHeight(height);
+		}
+        cell.setColspan(rowSpan);
+        cell.setRowspan(colSpan);
+        return cell;
+    }
+    
+    /**
+             *   生成一个无边框无跨行的单元格
+     * @param content  内容
+     * @param font     字体 传null视为默认黑色字体
+     * @param width    单元格宽度
+     * @return
+     */
+    private PdfPCell createNoBorderCell(String content,Font font,Float width) {
+        PdfPCell cell = new PdfPCell(new Paragraph(content, font));
+        //无边框
+        cell.setBorder(Rectangle.NO_BORDER);
+        // 设置内容水平居左显示
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        // 设置内容垂直居左显示
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setBorderWidth(width);
+        return cell;
+    }
+
+	@Override
+	public RestResult<String> exportTeacherTimetabPdf(Long calendarId, String calendarName, String teacherCode,
+			String teacherName) throws DocumentException, IOException {
+		//检查目录是否存在
+		cacheDirectory = "C://temp//pdf//cacheWord";
+        LOG.info("缓存目录："+cacheDirectory);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+		
+        /************************ PDF初始化操作 ******************************/
+        //所有使用中文处理
+        BaseFont bfChinese = BaseFont.createFont("STSongStd-Light","UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+        //粗体文字 title使用
+        Font titleChinese = new Font(bfChinese, 20, Font.BOLD);
+        //副标题
+        Font subtitleChinese = new Font(bfChinese, 13, Font.BOLD);
+        //正常文字
+        //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
+        Font name2 = new Font(bfChinese, 12, Font.NORMAL);
+          
+        String fileName = new StringBuffer("")
+                .append(cacheDirectory)
+                .append("//")
+                .append(System.currentTimeMillis())
+                .append("_")
+                .append(teacherName)
+                .append(".pdf")
+                .toString();
+        Document document = new Document(PageSize.A4,24,24,16,16);
+        PdfWriter.getInstance(document, new FileOutputStream(fileName));
+		
+        /************************ PDF填充内容  ******************************/
+        document.open();
+        //---1 添加标题---
+        Paragraph title = new Paragraph("教师课程表", titleChinese);
+        //居中设置
+        title.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        title.setLeading(20);
+        title.setSpacingBefore(30);
+        document.add(title);
+        
+        //---2 副标题---
+        Paragraph subtitle = new Paragraph(calendarName, subtitleChinese);
+        subtitle.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        subtitle.setLeading(10);
+        //内容距离左边8个单位
+        subtitle.setFirstLineIndent(7);
+        subtitle.setIndentationRight(20);
+        //副标题与标题之间的距离
+        subtitle.setSpacingBefore(15);
+        document.add(subtitle);
+		
+        //----3 教师基本信息----
+        StudentSchoolTimetabVo teacherTimetab = findTeacherTimetable2(calendarId,teacherCode);
+        
+        PdfPTable table1 = new PdfPTable(4);
+        //前间距
+        table1.setSpacingBefore(5);
+        
+        PdfPCell cell1 = createNoBorderCell("工号："+teacherCode,name2,20f);
+        table1.addCell(cell1);
+       
+        PdfPCell cell2 = createNoBorderCell("姓名："+teacherName, name2,20f);
+        table1.addCell(cell2);
+        
+        PdfPCell cell3 = createNoBorderCell("学院："+teacherTimetab.getFaculty(), name2,20f);
+        table1.addCell(cell3);
+        
+        PdfPCell cell4 = createNoBorderCell("", name2,20f);
+        table1.addCell(cell4);
+        document.add(table1);
+        
+        // ----3 教师选课课表展示---- 
+        PdfPTable table2 = createStudentTable(teacherTimetab.getTimeTables(),subtitleChinese,name2);
+        document.add(table2);
+        
+        // ----4 学生选课列表 -------
+        PdfPTable table3 = createTeacherTimeList(teacherTimetab.getTeacherDtos(),subtitleChinese,name2);
+        document.add(table3);
+        
+        document.close();
+        return RestResult.successData("导出成功。",fileName);
+	}
+	
+	public PdfPTable createTeacherTimeList(List<ClassTeacherDto> list,Font subtitleChinese,Font name2) throws IOException, DocumentException {
+		PdfPTable table = new PdfPTable(setTimeListTeacherTitle.length);
+		table.setWidthPercentage(100);
+		table.setSpacingBefore(10);
+		
+		// 添加表头
+		for (int i = 0; i < setTimeListTeacherTitle.length; i++) {
+			PdfPCell cell = createCell(setTimeListTeacherTitle[i],1,1,subtitleChinese,null);
+			table.addCell(cell);
+		}
+		
+		// 添加表内容
+		for (int j = 0; j < list.size(); j++) {
+			List<String> timeTableList = getTimeTableTeacherList(list.get(j));
+			for (int i = 0; i < setTimeListTeacherTitle.length; i++) {
+				PdfPCell cell = new PdfPCell();
+				if (i == 0) {
+					cell = createCell(String.valueOf(j+1),1,1,name2,null);
+				}else {
+					cell = createCell(timeTableList.get(i-1),1,1,name2,null);
+				}
+				table.addCell(cell);
+			}
+		}
+		return table;
+	}
+
+	private List<String> getTimeTableTeacherList(ClassTeacherDto classTeacherDto) {
+		List<String> list = new ArrayList<String>();
+		list.add(classTeacherDto.getClassCode());
+		list.add(classTeacherDto.getCourseName());
+		list.add(classTeacherDto.getNature());
+		list.add(String.valueOf(classTeacherDto.getWeekHour()));
+		list.add(String.valueOf(classTeacherDto.getCredits()));
+		list.add(classTeacherDto.getTeachingLanguage());
+		list.add(classTeacherDto.getTime());
+		list.add(String.valueOf(classTeacherDto.getSelectCourseNumber()));
+		list.add(classTeacherDto.getRemark());
+		return list;
+	}
+
 }

@@ -4,12 +4,19 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dto.AddAndRemoveCourseDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.query.ElcResultQuery;
+import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.excel.export.ExcelResult;
 
 /**
  * 已选课名单
@@ -73,9 +80,67 @@ public interface ElcCourseTakeService
     
     int editStudyType(ElcCourseTakeDto elcCourseTakeDto);
 
+    /** 研究生选课名单 */
+	PageResult<ElcCourseTakeNameListVo> courseTakeNameListPage(PageCondition<ElcCourseTakeQuery> condition);
+    
+
     /***查询学生选课列表
      * @return*/
 	List<String> findAllByStudentId(String studentId);
 
+	/**
+     * 为指定学研究生退课
+     * 
+     * @param teachingClassIds
+     * @param studentId
+     */
+	void graduateWithdraw(ElcCourseTakeWithDrawDto value, int realType);
 
+	/**
+     * 为指定学研究生加退课
+	 * @param teachingClassIds
+     * @param studentId
+     */
+	String graduateAdd(ElcCourseTakeAddDto value, int realType);
+
+	/**
+	 * 个人培养计划中有该课程且又没有选课的学生名单
+	 * @param data
+	 * @param condition 
+	 * @return
+	 */
+	PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> condition);
+
+    /**
+     * 课程维护研究生加课查询学生个人全部选课信息
+     * @param condition
+     * @return
+     */
+    PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition);
+
+    /**
+     * 课程维护研究生加课查询研究生可以添加的课程
+     * @param condition
+     * @return
+     */
+    PageResult<ElcStudentVo> addCourseList(PageCondition<ElcCourseTakeQuery> condition);
+
+    /**
+     * 课程维护研究生加课
+     * @param courseDto
+     * @return
+     */
+    Integer addCourse(AddAndRemoveCourseDto courseDto);
+
+    /**
+     * 课程维护研究生退课
+     * @param courseDto
+     * @return
+     */
+    Integer removedCourse(AddAndRemoveCourseDto courseDto);
+
+    PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
+
+    /**课程维护导出学生选课信息*/
+    ExcelResult exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
 }

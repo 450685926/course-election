@@ -1,6 +1,9 @@
 package com.server.edu.election.studentelec.context;
 
 import java.util.List;
+
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
 /**
@@ -10,13 +13,14 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 @CodeI18n
 public class ElcCourseResult{
 	/** 课程类别（课程性质） */
-	private String natrue;
+	@Code2Text(DictTypeEnum.X_KCXZ)
+	private String nature;
 	
 	/** 教学班主键ID */
 	private Long teachClassId;
 
 	/** 教学班编号（课程序号） */
-	private String  teachingClassCode;
+	private String  teachClassCode;
 	
 	/**课程代码*/
     private String courseCode;
@@ -34,13 +38,14 @@ public class ElcCourseResult{
     private String teacherName;
     
 	/** 开课学院 */
+    @Code2Text(DictTypeEnum.X_YX)
 	private String faculty;
 	
 	/** 实际选课人数 */
-	private Integer elcNumber;
+	private Integer currentNumber;
 	
 	/** 开班人数 */
-	private Integer number;
+	private Integer maxNumber;
 
 	/** 教学班备注信息 */
 	private String remark;
@@ -49,15 +54,35 @@ public class ElcCourseResult{
 	//private List<TimeTableMessage> timeTableList;
 	private List<TimeAndRoom> timeTableList;
 	
+    /** 上课时间按教学周拆分集合 */
+    private List<ClassTimeUnit> times;
+	
 	/** 是否冲突（0-不冲突；1-冲突） */
 	private Integer isConflict;
 
-	public String getNatrue() {
-		return natrue;
+	
+	public String getNature() {
+		return nature;
 	}
 
-	public void setNatrue(String natrue) {
-		this.natrue = natrue;
+	public void setNature(String nature) {
+		this.nature = nature;
+	}
+
+	public Long getTeachClassId() {
+		return teachClassId;
+	}
+
+	public void setTeachClassId(Long teachClassId) {
+		this.teachClassId = teachClassId;
+	}
+
+	public String getTeachClassCode() {
+		return teachClassCode;
+	}
+
+	public void setTeachClassCode(String teachClassCode) {
+		this.teachClassCode = teachClassCode;
 	}
 
 	public String getTeacherCode() {
@@ -76,36 +101,20 @@ public class ElcCourseResult{
 		this.teacherName = teacherName;
 	}
 
-	public String getTeachingClassCode() {
-		return teachingClassCode;
+	public Integer getCurrentNumber() {
+		return currentNumber;
 	}
 
-	public void setTeachingClassCode(String teachingClassCode) {
-		this.teachingClassCode = teachingClassCode;
+	public void setCurrentNumber(Integer currentNumber) {
+		this.currentNumber = currentNumber;
 	}
 
-	public Long getTeachClassId() {
-		return teachClassId;
+	public Integer getMaxNumber() {
+		return maxNumber;
 	}
 
-	public void setTeachClassId(Long teachClassId) {
-		this.teachClassId = teachClassId;
-	}
-
-	public Integer getElcNumber() {
-		return elcNumber;
-	}
-
-	public void setElcNumber(Integer elcNumber) {
-		this.elcNumber = elcNumber;
-	}
-
-	public Integer getNumber() {
-		return number;
-	}
-
-	public void setNumber(Integer number) {
-		this.number = number;
+	public void setMaxNumber(Integer maxNumber) {
+		this.maxNumber = maxNumber;
 	}
 
 	public String getRemark() {
@@ -163,5 +172,14 @@ public class ElcCourseResult{
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
+
+	public List<ClassTimeUnit> getTimes() {
+		return times;
+	}
+
+	public void setTimes(List<ClassTimeUnit> times) {
+		this.times = times;
+	}
+	
 	
 }

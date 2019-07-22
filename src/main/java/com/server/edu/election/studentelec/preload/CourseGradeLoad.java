@@ -20,6 +20,7 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyDao;
@@ -39,6 +40,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -66,7 +68,7 @@ public class CourseGradeLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-        return "1";
+    	return "1,2,4";
     }
     
     @Autowired
@@ -86,6 +88,12 @@ public class CourseGradeLoad extends DataProLoad
     
     @Autowired
     private ElectionApplyDao electionApplyDao;
+
+    @Autowired
+    private CourseOpenDao courseOpenDao;
+    
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
     
     @Override
     public void load(ElecContext context)
@@ -93,7 +101,7 @@ public class CourseGradeLoad extends DataProLoad
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
         // 1. 查询学生课程成绩(包括已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
-        
+        ElecRequest request = context.getRequest();
         String studentId = studentInfo.getStudentId();
         Student stu = studentDao.findStudentByCode(studentId);
         if (null == stu)
@@ -104,24 +112,38 @@ public class CourseGradeLoad extends DataProLoad
         }
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
-        
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
+            List<Long> teachClassIds = stuScoreBest.stream()
+                    .map(temp -> temp.getTeachingClassId())
+                    .collect(Collectors.toList());
+            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
+                lesson.setTeachClassId(studentScore.getTeachingClassId());
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
-                lesson.setCalendarId(studentScore.getCalendarId());
+                Long calendarId = studentScore.getCalendarId();
+                lesson.setCalendarId(calendarId);
+                lesson.setIsPass(studentScore.getIsPass());
+                lesson.setNature(studentScore.getCourseNature());
+                lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
+                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
+                lesson.setTimes(times);
+            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),studentScore.getCourseCode(),studentScore.getTeachingClassId());
+            	if(teachingClassCache!=null) {
+                    lesson.setFaculty(teachingClassCache.getFaculty());
+            	}
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -129,7 +151,6 @@ public class CourseGradeLoad extends DataProLoad
                 }
                 else
                 {
-                    
                     failedCourse.add(lesson);
                 }
                 
@@ -138,7 +159,6 @@ public class CourseGradeLoad extends DataProLoad
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        ElecRequest request = context.getRequest();
         //得到校历id
         ElectionRounds electionRounds =
             elecRoundsDao.selectByPrimaryKey(request.getRoundId());
@@ -166,7 +186,6 @@ public class CourseGradeLoad extends DataProLoad
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
-        
     }
     
     /**
@@ -191,23 +210,28 @@ public class CourseGradeLoad extends DataProLoad
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
+                course.setTeachClassMsg(c.getTeachingClassId());
+                course.setNature(c.getNature());
                 course.setApply(c.getApply());
+                course.setLabel(c.getLabel());
                 course.setCampus(c.getCampus());
                 course.setChooseObj(c.getChooseObj());
                 course.setCourseCode(c.getCourseCode());
                 course.setCourseName(c.getCourseName());
                 course.setCourseTakeType(c.getCourseTakeType());
                 course.setCredits(c.getCredits());
+                course.setCalendarId(c.getCalendarId());
+                course.setAssessmentMode(c.getAssessmentMode());
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
                 course.setTeachClassId(c.getTeachingClassId());
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
+                course.setFaculty(c.getFaculty());
+                course.setTerm(c.getTerm());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
-                
                 selectedCourses.add(course);
-                
             }
         }
     }
@@ -321,7 +345,7 @@ public class CourseGradeLoad extends DataProLoad
             
             String teacherName = this.getTeacherName(times);
             c.setTeacherName(teacherName);
-            
+
             return times;
         }
         
@@ -378,17 +402,17 @@ public class CourseGradeLoad extends DataProLoad
             return "";
         }
         StringBuilder sb = new StringBuilder();
-        
         String[] codes = teacherCode.split(",");
         List<String> names = TeacherCacheUtil.getNames(codes);
-        for (int i = 0; i < codes.length; i++)
-        {
-            String tCode = codes[i];
-            String tName = names.get(i);
-            // 老师名称(老师编号)
-            sb.append(String.format("%s(%s) ", tName, tCode));
+        if(CollectionUtil.isNotEmpty(names)) {
+            for (int i = 0; i < codes.length; i++)
+            {
+                String tCode = codes[i];
+                String tName = names.get(i);
+                // 老师名称(老师编号)
+                sb.append(String.format("%s(%s) ", tName, tCode));
+            }        
         }
         return sb.toString();
     }
-    
 }

@@ -6,9 +6,18 @@ import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.vo.CourseOpenVo;
 
+import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 
 public interface CourseOpenDao extends Mapper<CourseOpen> {
-	List<CourseOpen> selectCourseList(CourseOpen courseOpen);
+	List<CourseOpenVo> selectCourseList(CourseOpen courseOpen);
 	List<CourseOpenVo> selectCourseSuggestSwitch(CourseOpenDto dto);
+
+
+	/**
+	 * 根据课程编号查询名称和培养层次
+	 * @param courseCode
+	 * @return
+	 */
+	CourseOpen queryNameAndTrainingLevelByCode(String courseCode);
 }

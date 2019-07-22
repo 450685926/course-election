@@ -383,5 +383,6 @@ public class ExemptionController {
         }
         return exemptionCourseService.filterCourseCode(courseRuleVo,applyType);
     }
-
+    
+    
 }

@@ -10,6 +10,8 @@ import com.server.edu.election.vo.ElcLogVo;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
+import java.util.List;
+
 /**
  * 选课日志
  * 
@@ -17,5 +19,7 @@ import tk.mybatis.mapper.common.MySqlMapper;
 public interface ElcLogDao extends Mapper<ElcLog>, MySqlMapper<ElcLog>
 {
     Page<ElcLogVo> listPage(@Param("query") ElcLogQuery elcLog);
-    
+
+    Integer saveCourseLog(@Param("list") List<ElcLog> list);
+
 }

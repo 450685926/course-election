@@ -1,20 +1,26 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 
 /**
  * 已选择课程
  */
+@CodeI18n
 public class SelectedCourse extends TeachingClassCache
 {
     /** 教学班Id */
     private Long teachClassId;
+    
+    /** 教学班 */
+    private Long teachClassMsg;
     
     /**
      * 选课对象(1学生，2教务员，3管理员)
@@ -27,20 +33,53 @@ public class SelectedCourse extends TeachingClassCache
     @Code2Text(DictTypeEnum.X_XDLX)
     private Integer courseTakeType;
     
+
+    @Code2Text(DictTypeEnum.X_KCFL)
+    private String label;
+
+    @Code2Text(transformer=" X_KSLX")
+    private String assessmentMode;
+    
     /**
      * 第几轮
      */
     private Integer turn;
     
     private Integer isApply;
-    
 
-	public Integer getIsApply() {
+    public String getAssessmentMode() {
+        return assessmentMode;
+    }
+
+    public void setAssessmentMode(String assessmentMode) {
+        this.assessmentMode = assessmentMode;
+    }
+
+    @Override
+    public Long getTeachClassId() {
+        return teachClassId;
+    }
+
+    @Override
+    public void setTeachClassId(Long teachClassId) {
+        this.teachClassId = teachClassId;
+    }
+
+    public Integer getIsApply() {
 		return isApply;
 	}
 
 	public void setIsApply(Integer isApply) {
 		this.isApply = isApply;
+	}
+
+	
+	public Long getTeachClassMsg() {
+		return teachClassMsg;
+	}
+
+	public void setTeachClassMsg(Long teachClassMsg) {
+		this.teachClassMsg = teachClassMsg;
 	}
 
 	public SelectedCourse()
@@ -59,6 +98,7 @@ public class SelectedCourse extends TeachingClassCache
     
     public SelectedCourse(TeachingClassCache course)
     {
+    	this.setNature(course.getNature());
         this.setCampus(course.getCampus());
         this.setCourseCode(course.getCourseCode());
         this.setCourseName(course.getCourseName());
@@ -66,6 +106,7 @@ public class SelectedCourse extends TeachingClassCache
         this.setNameEn(course.getNameEn());
         this.setPublicElec(course.isPublicElec());
         this.setTeachClassId(course.getTeachClassId());
+        this.setTeachClassMsg(course.getTeachClassId());
         this.setTeachClassCode(course.getTeachClassCode());
         this.setTeachClassType(course.getTeachClassType());
         this.setPractice(course.getPractice());
@@ -106,7 +147,14 @@ public class SelectedCourse extends TeachingClassCache
         this.turn = turn;
     }
     
-    
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
 	@Override
     public int hashCode()
     {

@@ -2,15 +2,15 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-
 import org.hibernate.validator.constraints.NotBlank;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 
 @Table(name = "election_rounds_t")
 public class ElectionRounds implements Serializable {
@@ -101,8 +101,22 @@ public class ElectionRounds implements Serializable {
     private Date updatedAt;
 
     private static final long serialVersionUID = 1L;
-
+    
     /**
+            * 学年学期名称
+     */
+    @Transient
+    private String calendarName;
+
+    public String getCalendarName() {
+		return calendarName;
+	}
+
+	public void setCalendarName(String calendarName) {
+		this.calendarName = calendarName;
+	}
+
+	/**
      * 获取主键（自增）
      *
      * @return ID_ - 主键（自增）
@@ -136,6 +150,9 @@ public class ElectionRounds implements Serializable {
      */
     public void setCalendarId(Long calendarId) {
         this.calendarId = calendarId;
+        if (calendarId != null) {
+			setCalendarName(SchoolCalendarCacheUtil.getName(calendarId));
+		}
     }
 
     /**

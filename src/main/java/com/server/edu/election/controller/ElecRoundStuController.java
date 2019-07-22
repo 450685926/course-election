@@ -15,12 +15,14 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,9 +35,16 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
+import com.server.edu.util.ExportUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelCell;
+import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
@@ -56,6 +65,12 @@ public class ElecRoundStuController
     
     @Autowired
     private ElecRoundStuService elecRoundStuService;
+    
+    @Autowired
+    private DictionaryService dictionaryService;
+    
+    @Value("${cache.directory}")
+    private String cacheDirectory;
     
     /**
      * 分页查询
@@ -205,6 +220,94 @@ public class ElecRoundStuController
             .header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment;filename=" + "keXuanKeMingDan.xls")
             .body(resource);
+    }
+    
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "下载模版（研究生）")})
+    @GetMapping(value = "/graduateDownload")
+    public ResponseEntity<Resource> graduateDownload()
+    {
+        Resource resource = new ClassPathResource("/excel/yanJiuShengKeXuanKeMingDan.xls");
+        
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
+            .header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment;filename=" + "yanJiuShengKeXuanKeMingDan.xls")
+            .body(resource);
+    }
+    
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "导出")})
+    @PostMapping(value = "/export")
+    public ResponseEntity<Resource> export(
+        @RequestBody ElecRoundStuQuery query)
+        throws Exception
+    {
+        ValidatorUtil.validateAndThrow(query);
+        
+        PageCondition<ElecRoundStuQuery> page = new PageCondition<>();
+        page.setCondition(query);
+        page.setPageNum_(1);
+        page.setPageSize_(1000);
+        
+        List<Student4Elc> datas = new ArrayList<>();
+        
+        PageResult<Student4Elc> res = elecRoundStuService.listPage(page);
+        while (datas.size() < res.getTotal_())
+        {
+//        	List<Student4Elc> list = SpringUtils.convert(res.getList());
+            datas.addAll(res.getList());
+            page.setPageNum_(page.getPageNum_() + 1);
+            if (datas.size() < res.getTotal_())
+            {
+                res = elecRoundStuService.listPage(page);
+            }
+        }
+        
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.addCell("学号", "studentId");
+        design.addCell("姓名", "name");
+        design.addCell("培养层次", "trainingLevel").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_PYCC.getType(), value);
+                    return dict;
+                });
+        design.addCell("培养类别", "degreeCategory").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_PYLB.getType(), value);
+                    return dict;
+                });
+        design.addCell("学位类型", "degreeType").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_XWLX.getType(), value);
+                    return dict;
+                });
+        design.addCell("学习形式", "formLearning").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_XXXS.getType(), value);
+                    return dict;
+                });
+        design.addCell("学院", "faculty").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.X_YX.getType(), value);
+                    return dict;
+                });
+        design.addCell("专业", "profession").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                        .query(DictTypeEnum.G_ZY.getType(), value);
+                    return dict;
+                });
+        design.setDatas(datas);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        
+        return ExportUtil
+            .exportExcel(excelUtil, cacheDirectory, "yanJiuShengKeXuanKeMingDanDaoChu.xls");
     }
     
 }

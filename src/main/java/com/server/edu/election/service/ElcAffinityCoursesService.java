@@ -8,6 +8,7 @@ import com.server.edu.election.dto.ElcAffinityCoursesDto;
 import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
 
 public interface ElcAffinityCoursesService
@@ -15,11 +16,11 @@ public interface ElcAffinityCoursesService
     PageInfo<ElcAffinityCoursesVo> list(
         PageCondition<ElcAffinityCoursesDto> condition);
     
-    int delete(List<String> courseCodes);
+    int delete(List<Long> courseIds);
     
-    PageInfo<CourseOpen> courseList(PageCondition<CourseOpen> condition);
+    PageInfo<CourseOpenVo> courseList(PageCondition<CourseOpen> condition);
     
-    int addCourse(List<String> ids);
+    int addCourse(List<Long> ids);
     
     PageInfo<Student> studentList(PageCondition<StudentDto> condition);
     
@@ -27,9 +28,9 @@ public interface ElcAffinityCoursesService
     
     int addStudent(ElcAffinityCoursesVo elcAffinityCoursesVo);
     
-    int batchAddStudent(String courseCode);
+    int batchAddStudent(StudentDto studentDto);
     
     int deleteStudent(ElcAffinityCoursesVo elcAffinityCoursesVo);
     
-    int batchDeleteStudent(String courseCode);
+    int batchDeleteStudent(Long courseId);
 }

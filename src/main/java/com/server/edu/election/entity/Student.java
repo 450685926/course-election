@@ -36,7 +36,7 @@ public class Student implements Serializable
     /**
      * 学习形式(全日制,非全日制,其他)
      */
-    @Code2Text(transformer = "X_XXXS")
+    @Code2Text(transformer = "G_XXXS")
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
     
@@ -104,13 +104,14 @@ public class Student implements Serializable
     /**
      * 培养类别
      */
+    @Code2Text(transformer = "X_PYLB")
     @Column(name = "TRAINING_CATEGORY_")
     private String trainingCategory;
     
     /**
      * 学位类别
      */
-    @Code2Text(transformer = "X_XWLX")
+    @Code2Text(transformer = "X_XWLB")
     @Column(name = "DEGREE_CATEGORY_")
     private String degreeCategory;
     
@@ -141,6 +142,7 @@ public class Student implements Serializable
     /**
      * 学位类型
      */
+    @Code2Text(transformer = "X_XWLX")
     @Column(name = "DEGREE_TYPE_")
     private String degreeType;
     

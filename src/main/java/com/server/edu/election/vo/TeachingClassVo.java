@@ -1,8 +1,15 @@
 package com.server.edu.election.vo;
 
-import com.server.edu.election.entity.TeachingClass;
+import java.util.List;
 
-public class TeachingClassVo extends TeachingClass
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
+
+@CodeI18n
+public class TeachingClassVo extends TeachingClass 
 {
     private String courseCode;
     private String courseName;
@@ -10,7 +17,43 @@ public class TeachingClassVo extends TeachingClass
     
     private String teacherName;
     
+    private int withdrawNum;
+    /**
+     * 课程性质
+     */
+    @Code2Text(DictTypeEnum.X_KCXZ)
+    private String nature;
     
+    /**
+     * 开课学院
+     */
+    @Code2Text(DictTypeEnum.X_YX)
+    private String faculty;
+    
+    /**
+     * 校区
+     */
+    @Code2Text(DictTypeEnum.X_XQ)
+    private String campus; 
+    
+    /**
+     * 教室容量
+     */
+    private Integer classNumber;
+    
+    /**
+     * 教学安排（上课时间地点）
+     */
+    private List<TimeAndRoom> timeTableList;
+    
+    private Long calendarId;
+    
+	public int getWithdrawNum() {
+		return withdrawNum;
+	}
+	public void setWithdrawNum(int withdrawNum) {
+		this.withdrawNum = withdrawNum;
+	}
 	public String getTeacherName() {
 		return teacherName;
 	}
@@ -41,5 +84,46 @@ public class TeachingClassVo extends TeachingClass
     {
         this.credits = credits;
     }
+	public String getNature() {
+		return nature;
+	}
+	public void setNature(String nature) {
+		this.nature = nature;
+	}
+	public String getFaculty() {
+		return faculty;
+	}
+	public void setFaculty(String faculty) {
+		this.faculty = faculty;
+	}
+	@Override
+	public String getCampus() {
+		return campus;
+	}
+	@Override
+	public void setCampus(String campus) {
+		this.campus = campus;
+	}
+	
+	public Integer getClassNumber() {
+		return classNumber;
+	}
+	public void setClassNumber(Integer classNumber) {
+		this.classNumber = classNumber;
+	}
+	public List<TimeAndRoom> getTimeTableList() {
+		return timeTableList;
+	}
+	public void setTimeTableList(List<TimeAndRoom> timeTableList) {
+		this.timeTableList = timeTableList;
+	}
+	public Long getCalendarId() {
+		return calendarId;
+	}
+	public void setCalendarId(Long calendarId) {
+		this.calendarId = calendarId;
+	}
+	
+	
     
 }

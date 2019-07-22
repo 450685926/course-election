@@ -3,8 +3,11 @@ package com.server.edu.election.studentelec.service;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
@@ -12,6 +15,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.vo.AllCourseVo;
+import com.server.edu.election.vo.ElcResultCourseVo;
 
 /**
  * 选课请求的主入口
@@ -55,6 +59,10 @@ public interface StudentElecService
     
     /**根据轮次查询学生信息*/
     Student findStuRound(Long roundId, String studentId);
+	
+    /** 选取学生本轮次可选课程 
+     * @param elecContext */
+    ElcResultCourseVo getOptionalCourses(Long roundId, String studentId);
     
     /**
      * <ul>获取全部课程
@@ -62,5 +70,30 @@ public interface StudentElecService
      * @param AllCourseVo allCourseVo
      * @return
      */
-    Map<String,List<ElcCourseResult>> getAllCourse(AllCourseVo allCourseVo);
+    List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo);
+
+	/**
+	   *     获取被代理选课的学生列表
+	 * @param condition
+	 * @return
+	 */
+    PageResult<NoSelectCourseStdsDto> findAgentElcStudentList(PageCondition<NoSelectCourseStdsDto> condition);
+
+    /**
+     * 统计研究生选课信息与本轮次选课情况
+     * @param uid
+     * @param roundId
+     * @param map 
+     * @return
+     */
+	Map<String, Object> getElectResultCount(String uid, Long roundId, Map<String, Object> map);
+
+	/**
+	 * 向上下文中添加可选课程信息
+	 * @param c
+	 * @param roundId 
+	 * @return
+	 */
+	ElecContext setData(ElecContext c, Long roundId);
+
 }

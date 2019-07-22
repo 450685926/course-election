@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ExemptionApplyConditionDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ExemptionApplyGraduteCondition">
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+    <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
+    <result column="TRAINING_LEVELS_" jdbcType="VARCHAR" property="trainingLevels" />
+    <result column="FORM_LEARNINGS_" jdbcType="VARCHAR" property="formLearnings" />
+    <result column="TRAINING_CATEGORYS_" jdbcType="VARCHAR" property="trainingCategorys" />
+    <result column="DEGREE_CATEGORYS_" jdbcType="VARCHAR" property="degreeCategorys" />
+    <result column="CONDITIONS_" jdbcType="VARCHAR" property="conditions" />
+    <result column="CREATE_BY_" jdbcType="VARCHAR" property="createBy" />
+    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="projId" />
+  </resultMap>
+  
+  <resultMap id="DtoBaseResultMap" type="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" extends="BaseResultMap"></resultMap>
+  
+  <select id="listPage" parameterType="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" resultMap="BaseResultMap">
+  	select * from exemption_apply_graduate_condition_t 
+  	<where>
+  		MANAGER_DEPT_ID_ = '2'
+   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingLevels)">
+  			and TRAINING_LEVELS_ like concat('%',#{condition.trainingLevels},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.formLearnings)">
+  			and FORM_LEARNINGS_ like concat('%',#{condition.formLearnings},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingCategorys)">
+  			and TRAINING_CATEGORYS_ like concat('%',#{condition.trainingCategorys},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.degreeCategorys)">
+  			and DEGREE_CATEGORYS_ like concat('%',#{condition.degreeCategorys},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.keyWord)">
+  			and (COURSE_CODE_ like concat('%',#{condition.keyWord},'%') or COURSE_NAME_ like concat('%',#{condition.keyWord},'%'))
+  		</if>
+  	</where>
+  </select>
+  
+</mapper>

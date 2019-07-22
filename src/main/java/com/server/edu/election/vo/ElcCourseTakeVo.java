@@ -27,7 +27,15 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /**专业*/
     @Code2Text(DictTypeEnum.G_ZY)
     private String profession;
-    
+
+    private String grade;
+
+    /**校区*/
+    @Code2Text(transformer = "X_KCXZ")
+    private String nature;
+
+    private String courseArrange;
+
     /**教学班编号*/
     private String teachingClassCode;
     /**教学班名称*/
@@ -43,9 +51,57 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String teachingCode;
     
     private String teachingName;
-    
-    
-    
+    @Code2Text(transformer="X_YX")
+    private String faculty;
+
+    @Code2Text(transformer="X_KCFL")
+    private String label;
+
+    /**考试方式*/
+    private String assessmentMode;
+
+    private String term;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
+    public String getAssessmentMode() {
+        return assessmentMode;
+    }
+
+    public void setAssessmentMode(String assessmentMode) {
+        this.assessmentMode = assessmentMode;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public String getNature() {
+        return nature;
+    }
+
+    public void setNature(String nature) {
+        this.nature = nature;
+    }
+
+    public String getCourseArrange() {
+        return courseArrange;
+    }
+
+    public void setCourseArrange(String courseArrange) {
+        this.courseArrange = courseArrange;
+    }
+
     public String getTeachingCode() {
 		return teachingCode;
 	}
@@ -70,7 +126,15 @@ public class ElcCourseTakeVo extends ElcCourseTake
 		this.apply = apply;
 	}
 
-	public Long getElectionApplyId() {
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
+
+    public Long getElectionApplyId() {
 		return electionApplyId;
 	}
 
@@ -160,6 +224,14 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
 	public void setTeachingClassName(String teachingClassName) {
 		this.teachingClassName = teachingClassName;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 	
 	

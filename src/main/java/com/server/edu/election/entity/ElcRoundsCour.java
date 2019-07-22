@@ -13,11 +13,11 @@ public class ElcRoundsCour implements Serializable {
     private Long roundsId;
 
     /**
-     * 课程代码
+     * 教学班ID
      */
     @Id
-    @Column(name = "COURSE_CODE_")
-    private String courseCode;
+    @Column(name = "TEACHING_CLASS_ID_")
+    private Long teachingClassId;
 
     private static final long serialVersionUID = 1L;
 
@@ -40,21 +40,21 @@ public class ElcRoundsCour implements Serializable {
     }
 
     /**
-     * 获取课程代码
+     * 获取教学班ID
      *
-     * @return COURSE_CODE_ - 课程代码
+     * @return TEACHING_CLASS_ID_ - 教学班ID
      */
-    public String getCourseCode() {
-        return courseCode;
+    public Long getTeachingClassId() {
+        return teachingClassId;
     }
 
     /**
-     * 设置课程代码
+     * 设置教学班ID
      *
-     * @param courseCode 课程代码
+     * @param teachingClassId 教学班ID
      */
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode == null ? null : courseCode.trim();
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ElcRoundsCour implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", roundsId=").append(roundsId);
-        sb.append(", courseCode=").append(courseCode);
+        sb.append(", teachingClassId=").append(teachingClassId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

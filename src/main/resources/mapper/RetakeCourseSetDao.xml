@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.RetakeCourseSetDao">
+
+    <insert id="insertRetakeCourseSet" >
+        insert into
+            elc_retake_set (CALENDAR_ID_,OPEN_FLAG_,BEGIN_AT_,END_AT_)
+        VALUES
+            (#{calendarId}, #{openFlag}, #{start}, #{end})
+    </insert>
+
+    <update id="updateRetakeCourseSet">
+        update
+              elc_retake_set
+        set
+              OPEN_FLAG_ = #{openFlag},
+              BEGIN_AT_ = #{start},
+              END_AT_ = #{end}
+        where
+              CALENDAR_ID_ = #{calendarId}
+    </update>
+
+    <select id="findRetakeSetId" resultType="java.lang.Long">
+        select ID_ from elc_retake_set where CALENDAR_ID_ = #{calendarId}
+    </select>
+
+    <delete id="deleteByCalendarId">
+        delete from elc_retake_set where CALENDAR_ID_ = #{calendarId}
+    </delete>
+</mapper>

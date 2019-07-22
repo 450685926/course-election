@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.service.cache;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
@@ -177,7 +179,7 @@ public class RoundCacheService extends AbstractCacheService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public boolean containsStuCondition(Long roundId, String studentId)
+    public boolean containsStuCondition(Long roundId, String studentId,String projectId)
     {
         if (null == roundId || StringUtils.isBlank(studentId))
         {
@@ -202,22 +204,28 @@ public class RoundCacheService extends AbstractCacheService
         {
             student = JSON.parseObject(text, Student.class);
         }
-        
         ElcRoundCondition con = getRoundCondition(roundId);
         if (con != null)
         {
-            if (contains(con.getCampus(), student.getCampus())
-                && contains(con.getFacultys(), student.getFaculty())
-                && contains(con.getGrades(), student.getGrade().toString())
-                && contains(con.getMajors(), student.getProfession())
-                && contains(con.getTrainingLevels(),student.getTrainingLevel())
-                && contains(con.getTrainingCategorys(), student.getTrainingCategory())
-                && contains(con.getDegreeTypes(), student.getDegreeCategory())
-            	&& contains(con.getTrainingCategorys(), student.getTrainingCategory()))
-            {
-                return true;
-            }
-            return false;
+        	boolean matchConditionFlag = contains(con.getCampus(), student.getCampus())
+        			&& contains(con.getFacultys(), student.getFaculty())
+        			&& contains(con.getGrades(), student.getGrade().toString())
+        			&& contains(con.getMajors(), student.getProfession())
+        			&& contains(con.getTrainingLevels(),student.getTrainingLevel());
+            
+        	if("1".equals(projectId)) {
+        		if (!matchConditionFlag) {
+					return false;
+				}
+        	}else {
+        		boolean matchConditionGraduteFlag = contains(con.getTrainingCategorys(), student.getTrainingCategory())
+        				&& contains(con.getDegreeTypes(), student.getDegreeType())
+        				&& contains(con.getFormLearnings(), student.getFormLearning());
+        		if (!matchConditionFlag || !matchConditionGraduteFlag) {
+					return false;
+				}
+			}
+        	return true;
         }
         return true;
     }
@@ -237,12 +245,15 @@ public class RoundCacheService extends AbstractCacheService
      * @param timeout 缓存结束时间分钟
      * @param roundId 轮次ID
      */
-    public void cacheCourse(long timeout, Long roundId, Long calendarId)
+    public void cacheCourse(long timeout, Long roundId, Long calendarId,String manageDptId)
     {
         // 加载所有教学班与课程数据到缓存中
-        List<CourseOpenDto> lessons = roundCourseDao
-            .selectCorseRefTeachClassByRoundId(roundId, calendarId);
-        
+    	List<CourseOpenDto> lessons = new ArrayList<CourseOpenDto>();
+    	if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE)) {
+    		lessons = roundCourseDao.selectCorseRefTeachClassByRoundId(roundId, calendarId);
+		}else {
+			lessons = roundCourseDao.selectCorseRefTeachClassGraduteByRoundId(roundId, calendarId);
+		}
         Map<String, Set<Long>> courseClassMap = new HashMap<>();
         for (CourseOpenDto teachClasss : lessons)
         {
@@ -259,12 +270,9 @@ public class RoundCacheService extends AbstractCacheService
                 courseClassMap.put(courseCode, ids);
             }
         }
-        
         HashOperations<String, String, String> ops = strTemplate.opsForHash();
         String key = Keys.getRoundCourseKey(roundId);
-        
         Set<String> existKeys = ops.keys(key);
-        
         for (Entry<String, Set<Long>> entry : courseClassMap.entrySet())
         {
             String courseCode = entry.getKey();
@@ -275,7 +283,6 @@ public class RoundCacheService extends AbstractCacheService
             // 移除存在的
             existKeys.remove(courseCode);
         }
-        
         if (null != existKeys && !existKeys.isEmpty())
         {
             // 删除掉没有关联的课程

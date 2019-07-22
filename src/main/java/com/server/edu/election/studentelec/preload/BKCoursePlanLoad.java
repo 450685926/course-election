@@ -5,11 +5,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.dao.CourseDao;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
@@ -18,6 +21,8 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 本科生培养计划课程查询
@@ -28,6 +33,10 @@ public class BKCoursePlanLoad extends DataProLoad
 {
     Logger log = LoggerFactory.getLogger(getClass());
     
+
+    @Autowired
+    private CourseDao courseDao;
+    
     @Override
     public int getOrder()
     {
@@ -37,7 +46,7 @@ public class BKCoursePlanLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-        return "1";
+        return "1,2,4";
     }
 
     @Override
@@ -57,6 +66,12 @@ public class BKCoursePlanLoad extends DataProLoad
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
                         PlanCourse pl=new PlanCourse();
+                        Example example = new Example(Course.class);
+                        example.createCriteria().andEqualTo("code",planCourseTypeDto.getCourseCode());
+                        Course course = courseDao.selectOneByExample(example);
+                        if (course != null) {
+                        	pl.setNature(course.getNature());
+						}
                         pl.setSemester(planCourseTypeDto.getSemester());
                         pl.setWeekType(planCourseTypeDto.getWeekType());
                         pl.setCourseCode(planCourseTypeDto.getCourseCode());
