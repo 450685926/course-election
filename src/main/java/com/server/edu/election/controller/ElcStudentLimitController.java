@@ -107,7 +107,7 @@ public class ElcStudentLimitController {
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "修改限制")
-    @PostMapping("/getElcStudentLimit")
+    @GetMapping("/getElcStudentLimit")
     public RestResult<ElcStudentLimitVo> getElcStudentLimit(
     		@RequestParam("id") Long id)
         throws Exception

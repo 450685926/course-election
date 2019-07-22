@@ -40,6 +40,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -91,13 +92,16 @@ public class CourseGradeLoad extends DataProLoad
     @Autowired
     private CourseOpenDao courseOpenDao;
     
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+    
     @Override
     public void load(ElecContext context)
     {
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
         // 1. 查询学生课程成绩(包括已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
-        
+        ElecRequest request = context.getRequest();
         String studentId = studentInfo.getStudentId();
         Student stu = studentDao.findStudentByCode(studentId);
         if (null == stu)
@@ -119,7 +123,6 @@ public class CourseGradeLoad extends DataProLoad
                     .map(temp -> temp.getTeachingClassId())
                     .collect(Collectors.toList());
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -138,11 +141,10 @@ public class CourseGradeLoad extends DataProLoad
 
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
-                String faculty = courseOpenDao.selectFaculty(courseCode);
-                if (faculty != null) {
-                    lesson.setFaculty(faculty);
-                }
-
+            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),courseCode,studentScore.getTeachingClassId());
+            	if(teachingClassCache!=null) {
+                    lesson.setFaculty(teachingClassCache.getFaculty());
+            	}
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -159,7 +161,6 @@ public class CourseGradeLoad extends DataProLoad
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        ElecRequest request = context.getRequest();
         //得到校历id
         ElectionRounds electionRounds =
             elecRoundsDao.selectByPrimaryKey(request.getRoundId());
