@@ -23,13 +23,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.ElectionRoundsDto;
@@ -38,7 +36,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -80,7 +77,7 @@ public class ElecController
     
     @Autowired
     private RedisTemplate redisTemplate;
-    
+
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
     public RestResult<List<ElectionRoundsVo>> getRounds(
@@ -214,7 +211,6 @@ public class ElecController
     			return RestResult.fail("common.frequentRequestError");
     		}
     	}
-        
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");
@@ -252,7 +248,6 @@ public class ElecController
     @PostMapping("/round/arrangementCourses")
     public RestResult<List<TeachingClassCache>> arrangementCourses(@RequestBody @Valid AllCourseVo allCourseVo){
     	logger.info("election getAllCourse start !!!");
-
     	Session session = SessionUtils.getCurrentSession();
     	String uid = "";
     	if (session.getMock().booleanValue()){
