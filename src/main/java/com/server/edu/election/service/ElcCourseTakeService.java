@@ -94,7 +94,7 @@ public interface ElcCourseTakeService
      * @param teachingClassIds
      * @param studentId
      */
-	void graduateWithdraw(Long calendarId, Long teachingClassId,String courseCode, List<String> students, int realType);
+	void graduateWithdraw(ElcCourseTakeAddDto value, int realType);
 
 	/**
      * 为指定学研究生加退课
