@@ -4,6 +4,11 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
+@CodeI18n
 public class ElecCourse
 {
 	/**课程代码*/
@@ -19,6 +24,7 @@ public class ElecCourse
     private String nameEn;
     
     /**课程性质*/
+    @Code2Text(DictTypeEnum.X_KCXZ)
     private String nature;
     
     /**校区*/
@@ -29,11 +35,17 @@ public class ElecCourse
     /** 是否公选课 */
     private boolean publicElec;
 
+    /**
+     * 学期
+     */
+    private Long calendarId;
+
     /**学期周学时对应学期*/
     private String calendarName;
     
     /**选课申请ID*/
     private Long electionApplyId;
+
     /**选课申请状态*/    
     private Integer apply;
     
@@ -45,7 +57,28 @@ public class ElecCourse
 		this.faculty = faculty;
 	}
 
-	public Long getElectionApplyId() {
+    /**
+     * 备注
+     */
+    private String remark;
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
+
+    public Long getElectionApplyId() {
 		return electionApplyId;
 	}
 

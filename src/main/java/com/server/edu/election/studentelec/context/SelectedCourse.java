@@ -1,16 +1,19 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 
 /**
  * 已选择课程
  */
+@CodeI18n
 public class SelectedCourse extends TeachingClassCache
 {
     /** 教学班Id */
@@ -31,8 +34,11 @@ public class SelectedCourse extends TeachingClassCache
     private Integer courseTakeType;
     
 
-    @Code2Text(transformer="X_KCFL")
+    @Code2Text(DictTypeEnum.X_KCFL)
     private String label;
+
+    @Code2Text(transformer=" X_KSLX")
+    private String assessmentMode;
     
     /**
      * 第几轮
@@ -40,9 +46,26 @@ public class SelectedCourse extends TeachingClassCache
     private Integer turn;
     
     private Integer isApply;
-    
 
-	public Integer getIsApply() {
+    public String getAssessmentMode() {
+        return assessmentMode;
+    }
+
+    public void setAssessmentMode(String assessmentMode) {
+        this.assessmentMode = assessmentMode;
+    }
+
+    @Override
+    public Long getTeachClassId() {
+        return teachClassId;
+    }
+
+    @Override
+    public void setTeachClassId(Long teachClassId) {
+        this.teachClassId = teachClassId;
+    }
+
+    public Integer getIsApply() {
 		return isApply;
 	}
 

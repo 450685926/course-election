@@ -3,7 +3,10 @@ package com.server.edu.election.studentelec.cache;
 import java.util.List;
 import java.util.Objects;
 
+import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,6 +18,7 @@ import com.server.edu.election.studentelec.context.TimeAndRoom;
  * 教学班缓存对象
  * 
  */
+@CodeI18n
 public class TeachingClassCache extends ElecCourse
 {
     private Long teachClassId;
@@ -45,8 +49,19 @@ public class TeachingClassCache extends ElecCourse
     
     private String teacherName;
 
-    @Code2Text(transformer="X_YX")
+    @Code2Text(DictTypeEnum.X_YX)
     private String faculty;
+
+    @Code2Text(transformer="X_KKXQ")
+    private String term;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
 
     public TeachingClassCache(){}
 

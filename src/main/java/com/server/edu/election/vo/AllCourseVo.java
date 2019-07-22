@@ -23,7 +23,7 @@ public class AllCourseVo {
 	private String faculty;
 	
 	/** 课程类别（课程性质） */
-	private String natrue;
+	private String nature;
 	
 	/** 培养层次 */
 	private String trainingLevel;
@@ -55,12 +55,12 @@ public class AllCourseVo {
 		this.teacherCode = teacherCode;
 	}
 
-	public String getNatrue() {
-		return natrue;
+	public String getNature() {
+		return nature;
 	}
 
-	public void setNatrue(String natrue) {
-		this.natrue = natrue;
+	public void setNature(String nature) {
+		this.nature = nature;
 	}
 
 	public String getTrainingLevel() {

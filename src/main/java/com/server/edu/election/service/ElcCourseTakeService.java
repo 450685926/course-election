@@ -7,6 +7,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.AddAndRemoveCourseDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
@@ -15,7 +16,7 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
-import io.swagger.models.auth.In;
+import com.server.edu.util.excel.export.ExcelResult;
 
 /**
  * 已选课名单
@@ -93,7 +94,7 @@ public interface ElcCourseTakeService
      * @param teachingClassIds
      * @param studentId
      */
-	void graduateWithdraw(Long calendarId, Long teachingClassId,String courseCode, List<String> students, int realType);
+	void graduateWithdraw(ElcCourseTakeWithDrawDto value, int realType);
 
 	/**
      * 为指定学研究生加退课
@@ -122,7 +123,7 @@ public interface ElcCourseTakeService
      * @param condition
      * @return
      */
-    PageResult<ElcStudentVo> addCourseList(PageCondition<ElcStudentVo> condition);
+    PageResult<ElcStudentVo> addCourseList(PageCondition<ElcCourseTakeQuery> condition);
 
     /**
      * 课程维护研究生加课
@@ -138,8 +139,8 @@ public interface ElcCourseTakeService
      */
     Integer removedCourse(AddAndRemoveCourseDto courseDto);
 
-    PageResult<ElcStudentVo> removedCourseList(PageCondition<String> studentId);
+    PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
 
     /**课程维护导出学生选课信息*/
-    String exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
+    ExcelResult exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
 }

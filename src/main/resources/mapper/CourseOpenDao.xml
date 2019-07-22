@@ -115,9 +115,7 @@
 		    </if>
 		</where>
   </select>
-	<select id="selectFaculty" resultType="java.lang.String">
-		SELECT FACULTY_ FROM course_open_t where COURSE_CODE_ = #{courseCode}
-	</select>
+
 	<select id="queryNameAndTrainingLevelByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
 		SELECT COURSE_CODE_,COURSE_NAME_,COURSE_NAME_EN_,TRAINING_LEVEL_ FROM course_open_t where COURSE_CODE_ = #{courseCode}
 	</select>

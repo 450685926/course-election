@@ -7,8 +7,6 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.server.edu.election.dto.*;
-import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -22,7 +20,13 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +38,12 @@ import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.dto.AddAndRemoveCourseDto;
+import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -43,6 +53,7 @@ import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecRoundCourseService;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -52,6 +63,7 @@ import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
 
@@ -136,7 +148,7 @@ public class ElcCourseTakeController
     @ApiOperation(value = "课程维护模块查询研究生可选课程")
     @PostMapping("/addCourseList")
     public RestResult<PageResult<ElcStudentVo>> addCourseList(
-            @RequestBody PageCondition<ElcStudentVo> condition) {
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition) {
         PageResult<ElcStudentVo> page = courseTakeService.addCourseList(condition);
         return RestResult.successData(page);
     }
@@ -198,19 +210,19 @@ public class ElcCourseTakeController
     @ApiOperation(value = "查询学生退课列表")
     @PostMapping("/removedCourseList")
     public RestResult<PageResult<ElcStudentVo>> removedCourseList(
-            @RequestBody PageCondition<String> condition) {
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition) {
         PageResult<ElcStudentVo> page = courseTakeService.removedCourseList(condition);
         return RestResult.successData(page);
     }
 
     @ApiOperation(value = "课程维护模块导出学生选课信息")
     @PostMapping("/exportElcStudentInfo")
-    public RestResult<String> exportElcStudentInfo(
+    public RestResult<ExcelResult> exportElcStudentInfo(
             @RequestBody PageCondition<ElcCourseTakeQuery> condition)
             throws Exception
     {
-        LOG.info("export.elcStudentInfo.start");
-        String export = courseTakeService.exportElcStudentInfo(condition);
+        LOG.info("export.start");
+        ExcelResult export = courseTakeService.exportElcStudentInfo(condition);
         return RestResult.successData(export);
     }
 
@@ -306,16 +318,12 @@ public class ElcCourseTakeController
     
     
     @ApiOperation(value = "研究生学生退课")
-    @DeleteMapping("/graduateWithdraw")
-    public RestResult<?> graduateWithdraw(
-		 @RequestPart(name = "calendarId") @NotNull Long calendarId,
-		 @RequestPart(name = "teachingClassId") @NotNull Long teachingClassId,
-		 @RequestPart(name = "courseCode") @NotNull String courseCode,
-	     @RequestPart(name = "students") @NotNull List<String> students)
+    @PostMapping("/graduateWithdraw")
+    public RestResult<?> graduateWithdraw(@RequestBody ElcCourseTakeWithDrawDto value)
     {
     	Session session = SessionUtils.getCurrentSession();
         
-    	courseTakeService.graduateWithdraw(calendarId,teachingClassId,courseCode,students,session.realType());
+    	courseTakeService.graduateWithdraw(value,session.realType());
     	
     	return RestResult.success();
     }

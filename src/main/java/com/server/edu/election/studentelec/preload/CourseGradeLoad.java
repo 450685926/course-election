@@ -112,7 +112,6 @@ public class CourseGradeLoad extends DataProLoad
         }
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
-        
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
@@ -126,22 +125,22 @@ public class CourseGradeLoad extends DataProLoad
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
-                String courseCode = studentScore.getCourseCode();
-                lesson.setCourseCode(courseCode);
+                lesson.setTeachClassId(studentScore.getTeachingClassId());
+                lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setExcellent(studentScore.isBestScore());
-                lesson.setCalendarId(studentScore.getCalendarId());
+                Long calendarId = studentScore.getCalendarId();
+                lesson.setCalendarId(calendarId);
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
-
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
-            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),courseCode,studentScore.getTeachingClassId());
+            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),studentScore.getCourseCode(),studentScore.getTeachingClassId());
             	if(teachingClassCache!=null) {
                     lesson.setFaculty(teachingClassCache.getFaculty());
             	}
@@ -152,7 +151,6 @@ public class CourseGradeLoad extends DataProLoad
                 }
                 else
                 {
-                    
                     failedCourse.add(lesson);
                 }
                 
@@ -188,7 +186,6 @@ public class CourseGradeLoad extends DataProLoad
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
-        
     }
     
     /**
@@ -214,6 +211,7 @@ public class CourseGradeLoad extends DataProLoad
             {
                 SelectedCourse course = new SelectedCourse();
                 course.setTeachClassMsg(c.getTeachingClassId());
+                course.setNature(c.getNature());
                 course.setApply(c.getApply());
                 course.setLabel(c.getLabel());
                 course.setCampus(c.getCampus());
@@ -222,17 +220,18 @@ public class CourseGradeLoad extends DataProLoad
                 course.setCourseName(c.getCourseName());
                 course.setCourseTakeType(c.getCourseTakeType());
                 course.setCredits(c.getCredits());
+                course.setCalendarId(c.getCalendarId());
+                course.setAssessmentMode(c.getAssessmentMode());
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
                 course.setTeachClassId(c.getTeachingClassId());
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
                 course.setFaculty(c.getFaculty());
+                course.setTerm(c.getTerm());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
-                
                 selectedCourses.add(course);
-                
             }
         }
     }
@@ -416,5 +415,4 @@ public class CourseGradeLoad extends DataProLoad
         }
         return sb.toString();
     }
-    
 }

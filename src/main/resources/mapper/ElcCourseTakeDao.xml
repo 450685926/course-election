@@ -40,12 +40,14 @@
   	<result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   	<result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
   	<result column="PERIOD_" jdbcType="DOUBLE" property="period" />
+  	<result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode" />
   	<result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
   	<result column="teachingClassName" jdbcType="VARCHAR" property="teachingClassName" />
   	<result column="isPublicCourse" jdbcType="INTEGER" property="isPublicCourse" />
   	<result column="electionApplyId" jdbcType="BIGINT" property="electionApplyId" />
   	<result column="APPLY_" jdbcType="INTEGER" property="apply" />
   	<result column="LABEL_" jdbcType="VARCHAR" property="label" />
+  	<result column="NATURE" jdbcType="VARCHAR" property="nature" />
   </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
@@ -74,8 +76,11 @@
       left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
       join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
+      t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=BIGINT}
+     </if>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
-      t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+      and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
      </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
   	 and t1.STUDENT_ID_ = #{query.studentId}
@@ -130,6 +135,9 @@
      </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
   	  and t3.LABEL_ = #{query.label}
+  	 </if>
+	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
+  	  and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
   	 and t3.CODE_ IN
@@ -565,14 +573,15 @@
     </insert>
     <select id="findSelectedCourses" resultMap="VoResultMap">
       select
-	      t1.*,
-	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, op.LABEL_, t4.PERIOD_, 
+	      t1.*,t3.NATURE_ NATURE,
+	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, t3.LABEL_, t4.PERIOD_,
+          t3.ASSESSMENT_MODE_,t3.TERM_ term,
 	      t4.CODE_ as teachingClassCode,
 	      t4.NAME_ as teachingClassName,
           op.IS_ELECTIVE_ as isPublicCourse
 	      from elc_course_takes_t t1
           join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
-	      /*join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_*/
+	      join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
 	      join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
   	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
@@ -1124,10 +1133,12 @@
                 c.NAME_ teachingClassName,c.ELC_NUMBER_ elcNumber,c.NUMBER_ number,
                 d.TEACHER_NAME_ teacherName
         from elc_course_takes_t a
+        join course_open_t e on e.COURSE_CODE_ = a.COURSE_CODE_
         join course_t b on b.CODE_ = a.COURSE_CODE_
         join teaching_class_t c on c.ID_ = a.TEACHING_CLASS_ID_
         join teaching_class_teacher_t d on d.TEACHING_CLASS_ID_ = c.ID_
-        where STUDENT_ID_ = #{studentId} and COURSE_TAKE_TYPE_ = 1
+        where a.CALENDAR_ID_ = #{calendarId} and a.STUDENT_ID_ = #{studentId} and e.IS_OPEN_ = 0
+        group by c.ID_
     </select>
 
     <delete id="deleteCourseTask">
@@ -1135,7 +1146,6 @@
               elc_course_takes_t
         WHERE
               STUDENT_ID_ = #{studentId}
-          and COURSE_TAKE_TYPE_ = 1
           and TEACHING_CLASS_ID_ in
             <foreach item="item" collection="list" separator="," open="(" close=")" >
                 #{item, jdbcType=INTEGER}
@@ -1223,14 +1233,14 @@
         select count(ID_) from elc_course_takes_t where COURSE_CODE_ = #{courseCode} and STUDENT_ID_ = #{studentId}
     </select>
 
-    <select id="findTeachingClassIdByStudentId" resultType="java.lang.String">
+    <select id="findTeachingClassIdByStudentId" resultType="java.lang.Long">
         select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId}
     </select>
 
     <select id="findCourseArrange" resultType="com.server.edu.election.dto.TimeTableMessage">
         select
-            t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
-            GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNumber
+            t1.TEACHING_CLASS_ID_ teachingClassId,t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
+            t2.ROOM_ID_ roomId,GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
         from teaching_class_arrange_time_t t1
         join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
         where t1.TEACHING_CLASS_ID_ in
@@ -1243,8 +1253,9 @@
 
     <select id="findCourseArrangeByTeachingClassId" resultType="com.server.edu.election.dto.TimeTableMessage">
         select
-            co.COURSE_NAME_ courseName, te.DAY_OF_WEEK_ dayOfWeek, te.TIME_START_ timeStart, te.TIME_END_ timeEnd,
-            GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumber
+            co.COURSE_NAME_ courseName, te.DAY_OF_WEEK_ dayOfWeek,
+            te.TIME_START_ timeStart, te.TIME_END_ timeEnd,ro.ROOM_ID_ roomId,
+            GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNum
         from teaching_class_t tc
         join teaching_task_t tk on tk.ID_ = tc.TASK_ID_
         join course_open_t co on co.ID_ = tk.COURSE_OPEN_ID_

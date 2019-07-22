@@ -57,6 +57,27 @@ public class ElcCourseTakeVo extends ElcCourseTake
     @Code2Text(transformer="X_KCFL")
     private String label;
 
+    /**考试方式*/
+    private String assessmentMode;
+
+    private String term;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
+    public String getAssessmentMode() {
+        return assessmentMode;
+    }
+
+    public void setAssessmentMode(String assessmentMode) {
+        this.assessmentMode = assessmentMode;
+    }
+
     public String getGrade() {
         return grade;
     }

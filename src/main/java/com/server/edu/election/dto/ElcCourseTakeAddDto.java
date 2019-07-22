@@ -35,7 +35,7 @@ public class ElcCourseTakeAddDto
      */
     @NotEmpty(groups = {AddGroup.class})
     private List<Long> teachingClassIds;
-
+    
     /**
      * 教学班ID
      */
@@ -116,5 +116,5 @@ public class ElcCourseTakeAddDto
 	public void setCourseCode(String courseCode) {
 		this.courseCode = courseCode;
 	}
-    
+
 }

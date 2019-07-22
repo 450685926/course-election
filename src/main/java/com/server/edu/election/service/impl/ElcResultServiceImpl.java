@@ -120,7 +120,7 @@ public class ElcResultServiceImpl implements ElcResultService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
-        if (StringUtils.equals(condition.getProjectId(), "1")) {
+        if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	listPage = classDao.listPage(page.getCondition());
 		}else {
 			listPage = classDao.grduateListPage(page.getCondition());

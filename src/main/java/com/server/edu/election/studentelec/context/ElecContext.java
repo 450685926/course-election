@@ -205,6 +205,10 @@ public class ElecContext
 	public void setOptionalCourses(List<ElcCourseResult> optionalCourses) {
 		this.optionalCourses = optionalCourses;
 	}
+	
+	public void setSelectedCourses(Set<SelectedCourse> selectedCourses) {
+		this.selectedCourses = selectedCourses;
+	}
 
 	public Set<String> getApplyCourse()
     {
