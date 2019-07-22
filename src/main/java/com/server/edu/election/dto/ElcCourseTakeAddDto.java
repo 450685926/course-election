@@ -51,6 +51,7 @@ public class ElcCourseTakeAddDto
     
     private String teachingClassCode;
     
+    
     public Long getCalendarId()
     {
         return calendarId;
