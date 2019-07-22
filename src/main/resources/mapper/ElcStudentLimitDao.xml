@@ -35,12 +35,12 @@
 			t4.STUDENT_CATEGORY_ studentCategory,
 			t4.RESEARCH_DIRECTION_ researchDirection,
 			CASE WHEN t2.COURSE_TAKE_TYPE_ = 1 THEN
-			sum(t2.ID_) END selectedCredits,
+			sum(t3.CREDITS_) END selectedCredits,
 		  CASE WHEN t2.COURSE_TAKE_TYPE_ = 2 THEN
-			sum(t2.ID_) END selectedRebuild
+			sum(t3.CREDITS_) END selectedRebuild
 		FROM
 			elc_student_limit_t t1
-		INNER JOIN elc_course_takes_t_5 t2 ON (
+		INNER JOIN elc_course_takes_t t2 ON (
 			t1.STUDENT_ID_ = t2.STUDENT_ID_
 			AND t1.CALENDAR_ID_ = t2.CALENDAR_ID_
 		)
