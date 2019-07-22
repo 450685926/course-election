@@ -52,6 +52,17 @@ public class TeachingClassCache extends ElecCourse
     @Code2Text(DictTypeEnum.X_YX)
     private String faculty;
 
+    @Code2Text(transformer="X_KKXQ")
+    private String term;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
     public TeachingClassCache(){}
 
     public TeachingClassCache(ElecCourse course)

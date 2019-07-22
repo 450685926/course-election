@@ -208,6 +208,7 @@ public class CourseGradeLoad extends DataProLoad
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
                 course.setFaculty(c.getFaculty());
+                course.setTerm(c.getTerm());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
                 selectedCourses.add(course);

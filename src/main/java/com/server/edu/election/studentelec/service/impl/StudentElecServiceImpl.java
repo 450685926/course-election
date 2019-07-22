@@ -345,8 +345,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	}
 
 	private void setClassCache(TeachingClassCache newClassCache, TeachingClassCache oldClassCache){
-        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(oldClassCache.getCalendarId());
-        newClassCache.setCalendarName(schoolCalendar.getFullName());
+        newClassCache.setTerm(oldClassCache.getTerm());
         newClassCache.setFaculty(oldClassCache.getFaculty());
         newClassCache.setTeachClassId(oldClassCache.getTeachClassId());
         newClassCache.setTeachClassCode(oldClassCache.getTeachClassCode());
