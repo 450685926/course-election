@@ -17,6 +17,8 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.query.ElcLogQuery;
 import com.server.edu.election.service.ElcLogService;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 import io.swagger.annotations.ApiOperation;
@@ -44,7 +46,10 @@ public class ElcLogController
         @RequestBody @Valid PageCondition<ElcLogQuery> condition)
         throws Exception
     {
+    	Session session = SessionUtils.getCurrentSession();
+    	String projId = session.getCurrentManageDptId();
         ElcLogQuery condition2 = condition.getCondition();
+        condition2.setDeptId(projId);
         if (null != condition2
             && CollectionUtil.isNotEmpty(condition2.getStudentIds()))
         {

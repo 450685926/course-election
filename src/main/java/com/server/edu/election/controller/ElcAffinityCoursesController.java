@@ -3,9 +3,9 @@ package com.server.edu.election.controller;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +23,7 @@ import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcAffinityCoursesService;
+import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
 
 import io.swagger.annotations.ApiOperation;
@@ -68,11 +69,11 @@ public class ElcAffinityCoursesController
      */
     @ApiOperation(value = "删除")
     @PostMapping("/delete")
-    public RestResult<Integer> delete(@RequestBody @NotEmpty List<String> courseCodes)
+    public RestResult<Integer> delete(@RequestBody @NotEmpty List<Long> courseIds)
         throws Exception
     {
         LOG.info("delete.start");
-        int result = elcAffinityCoursesService.delete(courseCodes);
+        int result = elcAffinityCoursesService.delete(courseIds);
         return RestResult.successData(result);
     }
     
@@ -85,12 +86,12 @@ public class ElcAffinityCoursesController
     */
     @ApiOperation(value = "优先课程列表")
     @PostMapping("/courseList")
-    public RestResult<PageInfo<CourseOpen>> courseList(
+    public RestResult<PageInfo<CourseOpenVo>> courseList(
         @RequestBody PageCondition<CourseOpen> condition)
         throws Exception
     {
         LOG.info("courseList.start");
-        PageInfo<CourseOpen> list =
+        PageInfo<CourseOpenVo> list =
             elcAffinityCoursesService.courseList(condition);
         return RestResult.successData(list);
     }
@@ -105,11 +106,11 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "添加课程")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(
-        @RequestBody @NotEmpty List<String> ids)
+        @RequestBody @NotEmpty List<Long> courseIds)
         throws Exception
     {
         LOG.info("addCourse.start");
-        int result = elcAffinityCoursesService.addCourse(ids);
+        int result = elcAffinityCoursesService.addCourse(courseIds);
         return RestResult.successData(result);
     }
     
@@ -179,11 +180,11 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "批量添加学生")
     @PostMapping("/batchAddStudent")
     public RestResult<Integer> batchAddStudent(
-    		@RequestParam("courseCode")  @NotBlank String courseCode)
+    		@RequestBody  @Valid StudentDto studentDto)
         throws Exception
     {
         LOG.info("batchAddStudent.start");
-        int result = elcAffinityCoursesService.batchAddStudent(courseCode);
+        int result = elcAffinityCoursesService.batchAddStudent(studentDto);
         return RestResult.successData(result);
     }
     
@@ -216,11 +217,11 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "移除所有学生")
     @PostMapping("/batchDeleteStudent")
     public RestResult<Integer> batchDeleteStudent(
-    		@RequestParam("courseCode")  @NotBlank String courseCode)
+    		@RequestParam("courseId")  @NotNull Long courseId)
         throws Exception
     {
         LOG.info("batchDeleteStudent.start");
-        int result = elcAffinityCoursesService.batchDeleteStudent(courseCode);
+        int result = elcAffinityCoursesService.batchDeleteStudent(courseId);
         return RestResult.successData(result);
     }
     

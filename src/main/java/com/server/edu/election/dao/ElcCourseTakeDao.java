@@ -2,29 +2,15 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.dto.*;
+import com.server.edu.election.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElcCourseLimitDto;
-import com.server.edu.election.dto.LoserStuElcCourse;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
-import com.server.edu.election.dto.RebuildCourseDto;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentRePaymentDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
@@ -73,7 +59,7 @@ public interface ElcCourseTakeDao
     /** 查询教学班时间地点*/
     
     List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
-    
+
     /** 查询教学安排*/
     List<ClassTeacherDto> findClassTimeAndRoomStr(Long list);
     
@@ -84,19 +70,27 @@ public interface ElcCourseTakeDao
     
     /**查询所有学生课表*/
     Page<StudentVo> findAllSchoolTimetab(ReportManagementCondition condition);
-    
+
+    Page<StudentVo> findSchoolTimetabByRole(ReportManagementCondition condition);
+
     /**教师上课时间地点详情*/
     List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId);
     
     /**查询教师名称*/
     String findClassTeacherByTeacherCode(String teacherCode);
-    
+
+    /**查询教师名称*/
+    List<String> findTeacherNameByTeacherCode(@Param("teacherCodes") String[] teacherCodes);
+
     /**查询教师对应教学班*/
     Page<ClassCodeToTeacher> findAllClassTeacher(ClassCodeToTeacher condition);
     
     /**查询某一学期所有教学班*/
     List<ClassTeacherDto> findAllTeachingClassId(Long calendarId);
-    
+
+    /**查询某一学期教师对应的教学班*/
+    List<ClassTeacherDto> findTeachingClassId(@Param("calendarId") Long calendarId, @Param("teacherCode") String teacherCode);
+
     /**通过学生删除课程*/
     
     void deleteStudentById(List<String> list);
@@ -125,6 +119,8 @@ public interface ElcCourseTakeDao
 
     List<RollBookList> findTeacherName(List<Long> list);
 
+    List<String> findTeacherNameById(Long teachingClassId);
+
     /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
 
@@ -132,6 +128,8 @@ public interface ElcCourseTakeDao
     List<StudnetTimeTable> findStudentTable(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
+
+    Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
     
@@ -144,10 +142,15 @@ public interface ElcCourseTakeDao
     List<LoserStuElcCourse> findStudentElcCourse(@Param("calendarId")Long calendarId, @Param("studentId") String studentId);
 
     /**
-     * 查询未选课学生
+     * 查询未选课学生（本科生）
      */
     Page<NoSelectCourseStdsDto> findNoSelectCourseStds(NoSelectCourseStdsDto stdsDto);
 
+    /**
+     * 查询未选课学生(研究生)
+     */
+    Page<NoSelectCourseStdsDto> findNoSelectCourseGraduteStds(NoSelectCourseStdsDto condition);
+    
     /**查询学生未缴费明细*/
     List<ElcCourseTakeVo> findStuRebuildCourse(StudentRePaymentDto studentRePaymentDto);
 
@@ -157,5 +160,46 @@ public interface ElcCourseTakeDao
     /**查询学生选课列表
      * @return*/
     List<String> findAllByStudentId(@Param("studentId")String studentId);
+    
+    /**查询学生选课列表
+     * @return*/
+    List<ElcCourseTakeVo> findAllByStudentId4Course(@Param("studentId")String studentId);
+
+	/**
+	 * 获取教务员/管理员代选课的学生名单
+	 * @param noSelectCourseStds
+	 * @return
+	 */
+	Page<NoSelectCourseStdsDto> findAgentElcStudentList(NoSelectCourseStdsDto noSelectCourseStds);
+
+    Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
+
+    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId);
+
+    Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
+
+    List<ElcStudentVo> findCourseInfo(List<Long> list);
+
+    Integer saveCourseTask(List<ElcCourseTake> list);
+
+    int deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
+
+    List<String> findSelectedCourseCode(String studentId);
+
+    List<String> findCourseCode(@Param("list") List<String> teachingClassIds);
+
+    List<String> findSelectedTeachingClassId(String studentId);
+
+    Page<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
+
+    Page<ElcCourseTakeVo> allSelectedCourse(String condition);
+
+    int courseCount(@Param("courseCode") String courseCode, @Param("studentId") String studentId);
+
+    List<Long> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
+
+    List<TimeTableMessage> findCourseArrange(@Param("teachingClassIds") List<Long> ids);
+
+    List<TimeTableMessage> findCourseArrangeByTeachingClassId(Long teachingClassId);
 
 }

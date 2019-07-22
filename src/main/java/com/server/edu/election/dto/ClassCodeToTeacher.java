@@ -21,6 +21,7 @@ public class ClassCodeToTeacher {
     private String faculty;
     @Code2Text(transformer = "G_XBIE")
     private Integer sex;
+    @Code2Text(transformer = "X_KCXZ")
     private String nature;
     private Long teachingClassId;
     private String keyWord;//查询条件

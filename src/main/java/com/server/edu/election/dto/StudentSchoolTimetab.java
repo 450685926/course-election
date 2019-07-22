@@ -2,6 +2,8 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.annotation.Code2Text.DataType;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
 
 /**
  * @description: 学生课表
@@ -16,17 +18,39 @@ public class StudentSchoolTimetab  {
     private Double credits;
     private String teacherName;
     private String time;
+    
+    @Code2Text(translator = ClassRoomTranslator.class, dataType = DataType.SPLIT)
     private String room;
     private String calendarName;
-    private String courseType;//选修类型（重修）
+    
+
+    /**
+             * 修读类别(1正常修读,2重修,3免修不免考,4免修)
+     */
+    @Code2Text(transformer = "X_XDLX")
+    private String courseType;
+    
+    /**
+              * 考核方式（从字典取值 X_KSLX）
+     */
+    @Code2Text(transformer = "X_KSLX")
     private String  assessmentMode;
+    
     private String remark;
+    
     @Code2Text(transformer = "X_XQ")
     private String campus;
     private Long teachingClassId;
     private String classCode;
+    
+    private String classRoom;
     private String className;
     private String teacherCode;
+    
+    /**
+             *   是否为公共选修课(开课课程属性冗余 1:是，0：否)
+     */
+    private Integer isElective;
 
     public String getTeacherCode() {
         return teacherCode;
@@ -155,6 +179,14 @@ public class StudentSchoolTimetab  {
     public void setRemark(String remark) {
         this.remark = remark;
     }
+
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
 
 
 }

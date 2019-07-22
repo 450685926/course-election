@@ -20,6 +20,20 @@ public class ElcCourseTakeQuery
     /**学生学院*/
     private String faculty;
     
+
+    /**年级*/
+    private String grade;
+
+    private String trainingCategory;
+
+    private String trainingLevel;
+
+    /**方向*/
+    private String researchDirection;
+
+    /**开课学院*/
+    private String courseFaculty;
+
     /**学生专业*/
     private String profession;
     
@@ -54,10 +68,82 @@ public class ElcCourseTakeQuery
     
     private List<String> includeCourseCodes;
     
+    private String includeCourseCode;
+    
     private String label;
     
     private String courseName;
     
+    private String degreeType;
+
+    private String formLearning;
+
+    private String nature;
+
+    public String getNature() {
+        return nature;
+    }
+
+    public void setNature(String nature) {
+        this.nature = nature;
+    }
+
+    public String getFormLearning() {
+        return formLearning;
+    }
+
+    public void setFormLearning(String formLearning) {
+        this.formLearning = formLearning;
+    }
+
+    public String getDegreeType() {
+        return degreeType;
+    }
+
+    public void setDegreeType(String degreeType) {
+        this.degreeType = degreeType;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public String getTrainingCategory() {
+        return trainingCategory;
+    }
+
+    public void setTrainingCategory(String trainingCategory) {
+        this.trainingCategory = trainingCategory;
+    }
+
+    public String getTrainingLevel() {
+        return trainingLevel;
+    }
+
+    public void setTrainingLevel(String trainingLevel) {
+        this.trainingLevel = trainingLevel;
+    }
+
+    public String getResearchDirection() {
+        return researchDirection;
+    }
+
+    public void setResearchDirection(String researchDirection) {
+        this.researchDirection = researchDirection;
+    }
+
+    public String getCourseFaculty() {
+        return courseFaculty;
+    }
+
+    public void setCourseFaculty(String courseFaculty) {
+        this.courseFaculty = courseFaculty;
+    }
+
     public String getLabel() {
 		return label;
 	}
@@ -213,5 +299,14 @@ public class ElcCourseTakeQuery
     {
         this.includeCourseCodes = includeCourseCodes;
     }
+
+	public String getIncludeCourseCode() {
+		return includeCourseCode;
+	}
+
+	public void setIncludeCourseCode(String includeCourseCode) {
+		this.includeCourseCode = includeCourseCode;
+	}
+    
     
 }

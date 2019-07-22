@@ -1,5 +1,6 @@
 package com.server.edu.election.vo;
 
+import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
@@ -22,6 +23,19 @@ public class RollBookList {
     private Integer numberLimit;
     private String calendarName;
     private String classCodeAndcourseName;
+    @Code2Text(transformer="X_KCXZ")
+    private String courseNature;
+    @Code2Text(DictTypeEnum.X_YX)
+    private String faculty;
+    private String teacherName;
+
+    public String getCourseNature() {
+        return courseNature;
+    }
+
+    public void setCourseNature(String courseNature) {
+        this.courseNature = courseNature;
+    }
 
     public String getClassCodeAndcourseName() {
         return classCodeAndcourseName;
@@ -38,10 +52,6 @@ public class RollBookList {
     public void setCalendarName(String calendarName) {
         this.calendarName = calendarName;
     }
-
-    @Code2Text(transformer="X_YX")
-    private String faculty;
-    private String teacherName;
 
     public String getClassName() {
         return className;

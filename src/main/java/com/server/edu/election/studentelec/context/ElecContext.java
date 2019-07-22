@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.context;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.server.edu.election.entity.ElectionApply;
@@ -45,6 +46,9 @@ public class ElecContext
     
     /**选课申请课程*/
     private Set<ElectionApply> elecApplyCourses;
+    
+    /**研究生可选课程*/
+    private List<ElcCourseResult> optionalCourses;
     
     private ElecRequest request;
     
@@ -193,7 +197,20 @@ public class ElecContext
         this.respose = respose;
     }
     
-    public Set<String> getApplyCourse()
+    
+    public List<ElcCourseResult> getOptionalCourses() {
+		return optionalCourses;
+	}
+
+	public void setOptionalCourses(List<ElcCourseResult> optionalCourses) {
+		this.optionalCourses = optionalCourses;
+	}
+	
+	public void setSelectedCourses(Set<SelectedCourse> selectedCourses) {
+		this.selectedCourses = selectedCourses;
+	}
+
+	public Set<String> getApplyCourse()
     {
         
         if (applyCourse == null)

@@ -176,6 +176,12 @@ public class TeachingClass extends BaseEntity
     private String remark;
     
     /**
+     * 教学班预留人数
+     */
+    @Column(name = "RESERVE_NUMBER_")
+    private Integer reserveNumber;
+
+    /**
      * 创建时间
      */
     @Column(name = "CREATED_AT_")
@@ -584,7 +590,15 @@ public class TeachingClass extends BaseEntity
         this.remark = remark == null ? null : remark.trim();
     }
     
-    /**
+    public Integer getReserveNumber() {
+		return reserveNumber;
+	}
+
+	public void setReserveNumber(Integer reserveNumber) {
+		this.reserveNumber = reserveNumber;
+	}
+
+	/**
      * 获取创建时间
      *
      * @return CREATED_AT_ - 创建时间
@@ -647,6 +661,7 @@ public class TeachingClass extends BaseEntity
         this.endWeek = teachingClass.getEndWeek();
         this.totalWeek = teachingClass.getTotalWeek();
         this.roomType = teachingClass.getRoomType();
+        this.reserveNumber = teachingClass.getReserveNumber();
     }
     
     public Integer getTotalWeek()

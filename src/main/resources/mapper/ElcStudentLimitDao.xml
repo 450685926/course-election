@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ElcStudentLimitDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElcStudentLimit">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="PROJECT_ID_" jdbcType="VARCHAR" property="projectId" />
+    <result column="NEW_LIMIT_CREDITS_" jdbcType="DOUBLE" property="newLimitCredits" />
+    <result column="TOTAL_LIMIT_CREDITS_" jdbcType="DOUBLE" property="totalLimitCredits" />
+    <result column="REBUILD_LIMIT_NUMBER_" jdbcType="INTEGER" property="rebuildLimitNumber" />
+    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <select id="getLimitStudents" parameterType="com.server.edu.election.dto.ElcStudentLimitDto" resultType="com.server.edu.election.vo.ElcStudentLimitVo">
+		SELECT *  from(
+		SELECT
+		    t1.ID_ id,
+			t1.STUDENT_ID_ studentId,
+			t1.CALENDAR_ID_ calendarId,
+			t1.PROJECT_ID_ projectId,
+			t1.NEW_LIMIT_CREDITS_ newLimitCredits,
+			t1.TOTAL_LIMIT_CREDITS_ totalLimitCredits,
+			t1.REBUILD_LIMIT_NUMBER_ rebuildLimitNumber,
+			t2.COURSE_CODE_ courseCode,
+			t2.TEACHING_CLASS_ID_ teachingClassId,
+			t4.NAME_ name,
+			t4.GRADE_ grade,
+			t4.FACULTY_ faculty,
+			t4.PROFESSION_ profession,
+			t4.TRAINING_LEVEL_ trainingLevel,
+			t4.STUDENT_CATEGORY_ studentCategory,
+			t4.RESEARCH_DIRECTION_ researchDirection,
+			CASE WHEN t2.COURSE_TAKE_TYPE_ = 1 THEN
+			sum(t2.ID_) END selectedCredits,
+		  CASE WHEN t2.COURSE_TAKE_TYPE_ = 2 THEN
+			sum(t2.ID_) END selectedRebuild
+		FROM
+			elc_student_limit_t t1
+		INNER JOIN elc_course_takes_t_5 t2 ON (
+			t1.STUDENT_ID_ = t2.STUDENT_ID_
+			AND t1.CALENDAR_ID_ = t2.CALENDAR_ID_
+		)
+		JOIN course_t t3 ON t3.CODE_ = t2.COURSE_CODE_
+    JOIN student_t t4 ON t1.STUDENT_ID_ = t4.STUDENT_CODE_
+		<where>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(id)">
+		        t1.ID_ = #{id}
+		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+		        t1.CALENDAR_ID_ = #{calendarId}
+		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_ID_ = #{studentId}
+		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+		        and t4.NAME_ = #{name}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+		        and t4.PROFESSION_ = #{profession}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+		        and t4.FACULTY_ = #{faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+		        and t4.GRADE_ = #{grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minLimitCredits)">
+		        and t1.TOTAL_LIMIT_CREDITS_ &gt; #{minLimitCredits}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minLimitCredits)">
+		        and t1.TOTAL_LIMIT_CREDITS_ &lt; #{minLimitCredits}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(rebuildLimitNumber)">
+		        and t1.REBUILD_LIMIT_NUMBER_ &gt; #{rebuildLimitNumber}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(rebuildLimitNumber)">
+		        and t1.REBUILD_LIMIT_NUMBER_ &lt; #{rebuildLimitNumber}
+		    </if>
+		    </where>
+		GROUP BY
+			t1.STUDENT_ID_,
+			t2.COURSE_TAKE_TYPE_
+		) t5 
+		<where>
+		 	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minSelectedCredits)">
+		        and t5.selectedCredits &gt; #{minSelectedCredits}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(maxSelectedCredits)">
+		        and t5.selectedCredits &lt; #{maxSelectedCredits}
+		    </if>
+		 	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minSelectedRebuild)">
+		        and t5.selectedRebuild &gt; #{minSelectedRebuild}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(maxSelectedRebuild)">
+		        and t5.selectedRebuild &lt; #{maxSelectedRebuild}
+		    </if>		    
+		</where>
+  </select>
+</mapper>

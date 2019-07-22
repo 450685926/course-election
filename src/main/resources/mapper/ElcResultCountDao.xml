@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.ElcResultCountDao">
+	<resultMap id="BaseResultMap" type="com.server.edu.election.dto.ElcResultDto">
+	    <!--
+	      WARNING - @mbg.generated
+	    -->
+	
+	    <result column="GRADE_" jdbcType="VARCHAR" property="grade" />
+	    <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+	    <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+	    <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+	    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+	    <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
+	    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
+	    <result column="STUDENTNUM" jdbcType="INTEGER" property="studentNum" />
+	</resultMap>
+    
+    <select id="getElcResult" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="BaseResultMap">
+		SELECT 
+			t1.GRADE_,
+			t1.TRAINING_LEVEL_,
+			t1.TRAINING_CATEGORY_,
+			t1.DEGREE_TYPE_,
+			t1.FORM_LEARNING_,
+			COUNT(*) STUDENTNUM
+		FROM
+			student_t t1 
+		<where>
+			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId})
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.faculty)">
+		        and t1.FACULTY_ = #{elcResult.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.grade)">
+		        and t1.GRADE_= #{elcResult.grade} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.enrolSeason)">
+		        and t1.ENROL_SEASON_= #{elcResult.enrolSeason} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.degreeType)">
+		        and t1.DEGREE_CATEGORY_= #{elcResult.degreeType} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.formLearning)">
+		        and t1.FORM_LEARNING_= #{elcResult.formLearning} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.trainingLevel)">
+		        and t1.TRAINING_LEVEL_= #{elcResult.trainingLevel} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.trainingCategory)">
+		        and t1.TRAINING_CATEGORY_= #{elcResult.trainingCategory} 
+		    </if>
+		</where>
+		GROUP BY  t1.TRAINING_LEVEL_,t1.TRAINING_CATEGORY_, t1.DEGREE_CATEGORY_, t1.FORM_LEARNING_ 
+    </select>
+    
+    <select id="getElcResultByFacult" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="BaseResultMap">
+		SELECT 
+			t1.GRADE_,
+			t1.TRAINING_LEVEL_,
+			t1.TRAINING_CATEGORY_,
+			t1.DEGREE_TYPE_,
+			t1.FORM_LEARNING_,
+			t1.FACULTY_,
+			t1.PROFESSION_,
+			COUNT(*) STUDENTNUM
+		FROM
+			student_t t1 
+		<where>
+			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId})
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.faculty)">
+		        and t1.FACULTY_ = #{elcResult.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.grade)">
+		        and t1.GRADE_= #{elcResult.grade} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.enrolSeason)">
+		        and t1.ENROL_SEASON_= #{elcResult.enrolSeason} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.degreeType)">
+		        and t1.DEGREE_CATEGORY_= #{elcResult.degreeType} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.formLearning)">
+		        and t1.FORM_LEARNING_= #{elcResult.formLearning} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.trainingLevel)">
+		        and t1.TRAINING_LEVEL_= #{elcResult.trainingLevel} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.trainingCategory)">
+		        and t1.TRAINING_CATEGORY_= #{elcResult.trainingCategory} 
+		    </if>
+		</where>
+		GROUP BY  t1.FACULTY_,t1.PROFESSION_
+    </select>
+    
+    <select id="getNumberOfelectedPersons" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+		SELECT  
+			COUNT(*)
+		FROM
+	  		student_t t1 
+	  	RIGHT JOIN 
+	  		(SELECT 
+	  			STUDENT_ID_
+			FROM 
+				elc_course_takes_t t2 
+			WHERE 
+				CALENDAR_ID_ = #{query.calendarId} 
+				GROUP BY t2.STUDENT_ID_) t3
+			ON 
+				t1.STUDENT_CODE_ = t3.STUDENT_ID_
+		<where>
+			t1.MANAGER_DEPT_ID_ NOT IN(#{query.managerDeptId})
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t1.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t1.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t1.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t1.DEGREE_CATEGORY_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t1.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t1.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+	        <if test="@com.server.edu.util.MybatisUtil@isEmpty(query.degreeType)">
+		        and (t1.DEGREE_CATEGORY_ = "" or t1.DEGREE_CATEGORY_ is null)
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isEmpty(query.formLearning)">
+		        and (t1.FORM_LEARNING_ = ""  or t1.FORM_LEARNING_ is null)
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isEmpty(query.trainingLevel)">
+		        and (t1.TRAINING_LEVEL_ = ""  or t1.TRAINING_LEVEL_ is null)
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isEmpty(query.trainingCategory)">
+		        and (t1.TRAINING_CATEGORY_ = "" or t1.TRAINING_CATEGORY_ is null)
+		    </if>
+		</where>
+    </select>
+    
+    <select id="getNumberOfelectedPersonsByFaculty" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+		SELECT  
+			COUNT(*)
+		FROM
+	  		student_t t1 
+	  	RIGHT JOIN 
+	  		(SELECT 
+	  			STUDENT_ID_
+			FROM 
+				elc_course_takes_t t2 
+			WHERE 
+				CALENDAR_ID_ = #{query.calendarId} 
+				GROUP BY t2.STUDENT_ID_) t3
+			ON 
+				t1.STUDENT_CODE_ = t3.STUDENT_ID_
+		<where>
+			t1.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t1.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t1.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t1.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t1.DEGREE_CATEGORY_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t1.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t1.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
+		        and t1.PROFESSION_ = #{query.profession}
+		    </if>
+		</where>
+    </select>
+    <select id="getElcGateMumber" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+	 	SELECT COUNT(*) 
+	 		FROM (
+				SELECT 
+					t1.*
+		  		FROM 
+		  			elc_course_takes_t t1
+		  		LEFT JOIN  student_t t2
+		 		ON 
+		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
+		<where>
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t2.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t2.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t2.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+		</where>
+		 GROUP BY t1.COURSE_CODE_
+	  ) temp
+    </select>
+    <select id="getElcPersonTime" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+	 	SELECT COUNT(*) 
+	 		FROM (
+				SELECT 
+					t1.*
+		  		FROM 
+		  			elc_course_takes_t t1
+		  		LEFT JOIN  student_t t2
+		 		ON 
+		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
+		<where>
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t2.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t2.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t2.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+		</where>
+	  ) temp
+    </select>
+    <select id="getElcGateMumberByFaculty" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+	 	SELECT COUNT(*) 
+	 		FROM (
+				SELECT 
+					t1.*
+		  		FROM 
+		  			elc_course_takes_t t1
+		  		LEFT JOIN  student_t t2
+		 		ON 
+		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
+		<where>
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t2.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t2.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t2.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+		</where>
+		 GROUP BY t1.COURSE_CODE_
+	  ) temp
+    </select>
+    <select id="getElcPersonTimeByFaculty" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+	 	SELECT COUNT(*) 
+	 		FROM (
+				SELECT 
+					t1.*
+		  		FROM 
+		  			elc_course_takes_t t1
+		  		LEFT JOIN  student_t t2
+		 		ON 
+		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
+		<where>
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t2.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t2.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t2.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+		</where>
+	  ) temp
+    </select>
+</mapper>

@@ -1,13 +1,15 @@
 package com.server.edu.election.studentelec.context;
 
+import java.util.List;
 import java.util.Objects;
 
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * 已完成课程
  */
-public class CompletedCourse extends ElecCourse {
+public class CompletedCourse extends TeachingClassCache {
     /**
      * 成绩
      */
@@ -27,19 +29,13 @@ public class CompletedCourse extends ElecCourse {
      * 是否为优级
      */
     private boolean excellent;
-
+    
     /**
-     * 学期
+     * 课程分类
      */
-    private Long calendarId;
+    private Long courseLabelId;
 
-    public Long getCalendarId() {
-        return calendarId;
-    }
-
-    public void setCalendarId(Long calendarId) {
-        this.calendarId = calendarId;
-    }
+    private Integer isPass;
 
     public String getRank() {
         return rank;
@@ -73,9 +69,25 @@ public class CompletedCourse extends ElecCourse {
         this.excellent = excellent;
     }
 
-    @Override
+    public Integer getIsPass() {
+		return isPass;
+	}
+
+	public void setIsPass(Integer isPass) {
+		this.isPass = isPass;
+	}
+
+	public Long getCourseLabelId() {
+		return courseLabelId;
+	}
+
+	public void setCourseLabelId(Long courseLabelId) {
+		this.courseLabelId = courseLabelId;
+	}
+
+	@Override
     public int hashCode() {
-        return Objects.hash(this.score, this.getCourseCode(), this.calendarId);
+        return Objects.hash(this.score, this.getCourseCode(), this.getCalendarId());
     }
 
     @Override
@@ -88,7 +100,7 @@ public class CompletedCourse extends ElecCourse {
             CompletedCourse o = (CompletedCourse) obj;
             return StringUtils.equals(this.score, o.score)
                     && StringUtils.equals(this.getCourseCode(), o.getCourseCode())
-                    && Objects.equals(this.calendarId,o.calendarId );
+                    && Objects.equals(this.getCalendarId(),o.getCalendarId());
         }
         return false;
     }

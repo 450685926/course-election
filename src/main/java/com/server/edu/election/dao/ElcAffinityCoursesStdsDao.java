@@ -10,12 +10,4 @@ public interface ElcAffinityCoursesStdsDao
     extends Mapper<ElcAffinityCoursesStds>
 {
     int batchInsert(List<ElcAffinityCoursesStds> list);
-    
-    /**
-     * 查询所有优先课程与优先学生
-     * 
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
-    List<ElcAffinityCoursesStds> selectStuAndCourse();
 }
