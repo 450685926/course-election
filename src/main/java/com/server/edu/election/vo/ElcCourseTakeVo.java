@@ -60,6 +60,16 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /**考试方式*/
     private String assessmentMode;
 
+    private String term;
+
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
     public String getAssessmentMode() {
         return assessmentMode;
     }
