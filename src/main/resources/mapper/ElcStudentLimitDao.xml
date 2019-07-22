@@ -68,10 +68,10 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t4.GRADE_ = #{grade}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minLimitCredits)">
+		    <if test="minLimitCredits !=null and minLimitCredits !=0">
 		        and t1.TOTAL_LIMIT_CREDITS_ &gt; #{minLimitCredits}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minLimitCredits)">
+		    <if test="maxLimitCredits !=null and minLimitCredits !=0">
 		        and t1.TOTAL_LIMIT_CREDITS_ &lt; #{minLimitCredits}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(rebuildLimitNumber)">
@@ -86,16 +86,16 @@
 			t2.COURSE_TAKE_TYPE_
 		) t5 
 		<where>
-		 	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minSelectedCredits)">
+		 	<if test="minSelectedCredits != null and minSelectedCredits !=0">
 		        and t5.selectedCredits &gt; #{minSelectedCredits}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(maxSelectedCredits)">
+		    <if test="maxSelectedCredits !=null and maxSelectedCredits !=0">
 		        and t5.selectedCredits &lt; #{maxSelectedCredits}
 		    </if>
-		 	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(minSelectedRebuild)">
+		 	<if test="minSelectedRebuild !=null and minSelectedRebuild !=0">
 		        and t5.selectedRebuild &gt; #{minSelectedRebuild}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(maxSelectedRebuild)">
+		    <if test="maxSelectedRebuild !=null and maxSelectedRebuild !=0">
 		        and t5.selectedRebuild &lt; #{maxSelectedRebuild}
 		    </if>		    
 		</where>
