@@ -159,6 +159,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
             elcCourseResult.setAssessmentMode(completedCourse.getAssessmentMode());
             elcCourseResult.setPublicElec(completedCourse.isPublicElec());
             elcCourseResult.setCalendarId(completedCourse.getCalendarId());
+            elcCourseResult.setTerm(completedCourse.getTerm());
    			List<TeachingClassCache> teachClasss =
    		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
 	        if (CollectionUtil.isNotEmpty(teachClasss))
@@ -345,7 +346,6 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	}
 
 	private void setClassCache(TeachingClassCache newClassCache, TeachingClassCache oldClassCache){
-        newClassCache.setTerm(oldClassCache.getTerm());
         newClassCache.setFaculty(oldClassCache.getFaculty());
         newClassCache.setTeachClassId(oldClassCache.getTeachClassId());
         newClassCache.setTeachClassCode(oldClassCache.getTeachClassCode());
