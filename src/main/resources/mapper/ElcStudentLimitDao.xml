@@ -52,7 +52,7 @@
 		        t1.ID_ = #{id}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-		        t1.CALENDAR_ID_ = #{calendarId}
+		        t1.CALENDAR_ID_ = #{calendarId} AND t2.CALENDAR_ID_ = #{calendarId}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ = #{studentId}
