@@ -49,10 +49,10 @@
     JOIN student_t t4 ON t1.STUDENT_ID_ = t4.STUDENT_CODE_
 		<where>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(id)">
-		        t1.ID_ = #{id}
+		        and t1.ID_ = #{id}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-		        t1.CALENDAR_ID_ = #{calendarId} AND t2.CALENDAR_ID_ = #{calendarId}
+		        and (t1.CALENDAR_ID_ = #{calendarId} AND t2.CALENDAR_ID_ = #{calendarId})
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ = #{studentId}
