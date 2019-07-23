@@ -144,14 +144,14 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	@Override
 	public ExcelResult export(ElcStudentLimitDto elcStudentLimitDto) throws Exception{
 		// 使用使用ExportExcelUtils默认缓存地址
-		ExcelResult excelResult = ExportExcelUtils.submitTask("courseSummary", new ExcelExecuter() {
+		ExcelResult excelResult = ExportExcelUtils.submitTask("elcStudentLimit", new ExcelExecuter() {
 			@Override
 			public GeneralExcelDesigner getExcelDesigner() {
 				ExcelResult result = this.getResult();
 				// 需要生产excel的数据
 				PageCondition<ElcStudentLimitDto> pageCondition = new PageCondition<ElcStudentLimitDto>();
 				pageCondition.setCondition(elcStudentLimitDto);
-				pageCondition.setPageSize_(300);
+				pageCondition.setPageSize_(100);
 				int pageNum = Constants.ZERO;
 				List<ElcStudentLimitVo> resultList = new ArrayList<>();
 				while(true) {
