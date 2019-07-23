@@ -236,6 +236,9 @@ public class RoundCacheService extends AbstractCacheService
         {
             return true;
         }
+        if (StringUtils.isBlank(taget)) {
+			return false;
+		}
         return source.contains(taget);
     }
     
