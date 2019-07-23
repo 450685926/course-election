@@ -104,8 +104,9 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	}
 	
 	@Override
-	public ElcStudentLimitVo getElcStudentLimit(Long id) {
+	public ElcStudentLimitVo getElcStudentLimit(Long calendarId,Long id) {
 		ElcStudentLimitDto elcStudentLimitDto = new ElcStudentLimitDto();
+		elcStudentLimitDto.setCalendarId(calendarId);
 		elcStudentLimitDto.setId(id);
 		ElcStudentLimitVo elcStudentLimitVo = new ElcStudentLimitVo();
 		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(elcStudentLimitDto);
