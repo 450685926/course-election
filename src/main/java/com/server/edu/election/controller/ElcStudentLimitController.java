@@ -128,7 +128,7 @@ public class ElcStudentLimitController {
     @ApiOperation(value = "修改限制")
     @PostMapping("/update")
     public RestResult<Integer> update(
-    		@RequestBody @Valid ElcStudentLimitDto elcStudentLimitDto)
+    		@RequestBody ElcStudentLimitDto elcStudentLimitDto)
         throws Exception
     {
         LOG.info("update.start");

@@ -89,7 +89,7 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	@Override
 	public int update(ElcStudentLimitDto elcStudentLimitDto) {
 		ElcStudentLimit elcStudentLimit = new ElcStudentLimit();
-		if(elcStudentLimitDto.getTotalLimitCredits()<elcStudentLimitDto.getNewLimitCredits() 
+		if(elcStudentLimitDto.getId()==null||elcStudentLimitDto.getTotalLimitCredits()<elcStudentLimitDto.getNewLimitCredits() 
 		   ||elcStudentLimitDto.getTotalLimitCredits()<elcStudentLimitDto.getSelectedCredits()
 		   ||elcStudentLimitDto.getNewLimitCredits()<elcStudentLimitDto.getSelectedCredits()
 		   ||elcStudentLimitDto.getRebuildLimitNumber()<elcStudentLimitDto.getSelectedRebuild()) {
