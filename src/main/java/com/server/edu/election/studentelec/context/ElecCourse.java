@@ -30,6 +30,8 @@ public class ElecCourse
     /**校区*/
     private String campus;
     
+    private String faculty;
+    
     /** 是否公选课 */
     private boolean publicElec;
 
@@ -46,6 +48,14 @@ public class ElecCourse
 
     /**选课申请状态*/    
     private Integer apply;
+    
+    public String getFaculty() {
+		return faculty;
+	}
+
+	public void setFaculty(String faculty) {
+		this.faculty = faculty;
+	}
 
     /**
      * 备注

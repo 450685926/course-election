@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.server.edu.dictionary.annotation.CodeI18n;
+@CodeI18n
 @Table(name = "elc_student_limit_t")
 public class ElcStudentLimit implements Serializable {
     /**

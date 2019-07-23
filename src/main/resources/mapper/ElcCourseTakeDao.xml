@@ -575,7 +575,7 @@
       select
 	      t1.*,t3.NATURE_ NATURE,
 	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, t3.LABEL_, t4.PERIOD_,
-          t3.ASSESSMENT_MODE_,
+          t3.ASSESSMENT_MODE_,t3.TERM_ term,
 	      t4.CODE_ as teachingClassCode,
 	      t4.NAME_ as teachingClassName,
           op.IS_ELECTIVE_ as isPublicCourse

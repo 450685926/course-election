@@ -308,6 +308,7 @@
    
    <select id="getUnLimitStudents" parameterType="com.server.edu.election.dto.StudentDto" resultMap="BaseResultMap">
 		SELECT
+		    distinct
 			t1.STUDENT_CODE_,
 			t1.NAME_,
 			t1.GRADE_,
