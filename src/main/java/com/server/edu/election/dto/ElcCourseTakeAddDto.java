@@ -30,16 +30,12 @@ public class ElcCourseTakeAddDto
     @NotNull(groups = {AddGroup.class})
     private List<String> studentIds;
     
-    private List<String> students;
-    
     /**
      * 教学班ID
      */
     @NotEmpty(groups = {AddGroup.class})
     private List<Long> teachingClassIds;
     
-    private Long teachingClassId;
-
     /**
      * 教学班ID
      */
@@ -54,6 +50,7 @@ public class ElcCourseTakeAddDto
     private String studentId;
     
     private String teachingClassCode;
+    
     
     public Long getCalendarId()
     {
@@ -121,21 +118,4 @@ public class ElcCourseTakeAddDto
 		this.courseCode = courseCode;
 	}
 
-	public List<String> getStudents() {
-		return students;
-	}
-
-	public void setStudents(List<String> students) {
-		this.students = students;
-	}
-
-	public Long getTeachingClassId() {
-		return teachingClassId;
-	}
-
-	public void setTeachingClassId(Long teachingClassId) {
-		this.teachingClassId = teachingClassId;
-	}
-
-	
 }

@@ -51,6 +51,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+        and t1.IS_ELECTIVE_ = #{isElective}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
         and t1.COURSE_LABEL_ID_ = #{courseLabelId}
       </if>

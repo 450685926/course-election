@@ -133,8 +133,18 @@ public class ElcResultQuery
     
     private List<String> studentIds;
     
+    private Integer isElective;
     
-    public Integer getActualAndUpper() {
+    
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
+
+	public Integer getActualAndUpper() {
 		return actualAndUpper;
 	}
 

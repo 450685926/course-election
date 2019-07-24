@@ -1,15 +1,18 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
-import com.server.edu.election.studentelec.utils.Keys;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.Teacher;
@@ -17,6 +20,7 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyDao;
@@ -36,6 +40,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -84,13 +89,19 @@ public class CourseGradeLoad extends DataProLoad
     @Autowired
     private ElectionApplyDao electionApplyDao;
 
+    @Autowired
+    private CourseOpenDao courseOpenDao;
+    
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+    
     @Override
     public void load(ElecContext context)
     {
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
         // 1. 查询学生课程成绩(包括已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
-        
+        ElecRequest request = context.getRequest();
         String studentId = studentInfo.getStudentId();
         Student stu = studentDao.findStudentByCode(studentId);
         if (null == stu)
@@ -107,6 +118,10 @@ public class CourseGradeLoad extends DataProLoad
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
         {
+            List<Long> teachClassIds = stuScoreBest.stream()
+                    .map(temp -> temp.getTeachingClassId())
+                    .collect(Collectors.toList());
+            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -123,6 +138,12 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
+                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
+                lesson.setTimes(times);
+            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),studentScore.getCourseCode(),studentScore.getTeachingClassId());
+            	if(teachingClassCache!=null) {
+                    lesson.setFaculty(teachingClassCache.getFaculty());
+            	}
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -138,7 +159,6 @@ public class CourseGradeLoad extends DataProLoad
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        ElecRequest request = context.getRequest();
         //得到校历id
         ElectionRounds electionRounds =
             elecRoundsDao.selectByPrimaryKey(request.getRoundId());

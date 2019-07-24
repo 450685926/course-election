@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -107,13 +108,13 @@ public class ElcStudentLimitController {
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "修改限制")
-    @PostMapping("/getElcStudentLimit")
+    @GetMapping("/getElcStudentLimit")
     public RestResult<ElcStudentLimitVo> getElcStudentLimit(
-    		@RequestParam("id") Long id)
+    		@RequestParam("calendarId") @NotNull Long calendarId,@RequestParam("id") @NotNull Long id)
         throws Exception
     {
         LOG.info("getElcStudentLimit.start");
-        ElcStudentLimitVo elcStudentLimitVo =elcStudentLimitService.getElcStudentLimit(id);
+        ElcStudentLimitVo elcStudentLimitVo =elcStudentLimitService.getElcStudentLimit(calendarId,id);
         return RestResult.successData(elcStudentLimitVo);
     }
     
@@ -127,7 +128,7 @@ public class ElcStudentLimitController {
     @ApiOperation(value = "修改限制")
     @PostMapping("/update")
     public RestResult<Integer> update(
-    		@RequestBody @Valid ElcStudentLimitDto elcStudentLimitDto)
+    		@RequestBody ElcStudentLimitDto elcStudentLimitDto)
         throws Exception
     {
         LOG.info("update.start");

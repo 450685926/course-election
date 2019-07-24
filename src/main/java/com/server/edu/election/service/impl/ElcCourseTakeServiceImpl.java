@@ -1,24 +1,17 @@
 package com.server.edu.election.service.impl;
 
-import java.io.FileOutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.ServicePathEnum;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.vo.ElcStudentVo;
-import com.server.edu.util.CalUtil;
-import com.server.edu.util.FileUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.util.excel.export.ExcelExecuter;
-import com.server.edu.util.excel.export.ExcelResult;
-import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
@@ -28,17 +21,36 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.StudentScoreVo;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.dao.CourseDao;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.dao.ScoreStudentScoreDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dto.AddAndRemoveCourseDto;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.ElcStudentCourseDto;
+import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -53,12 +65,17 @@ import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 
-import org.springframework.web.client.RestTemplate;
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
@@ -452,7 +469,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-	public void graduateWithdraw(ElcCourseTakeAddDto value, int realType) {
+	public void graduateWithdraw(ElcCourseTakeWithDrawDto value, int realType) {
     	
     	Date date = new Date();
     	//如果当前操作人是老师

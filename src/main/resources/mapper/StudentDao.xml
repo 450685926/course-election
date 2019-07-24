@@ -23,6 +23,8 @@
     <result column="RESEARCH_DIRECTION_" jdbcType="VARCHAR" property="researchDirection" />
     <result column="STUDENT_CATEGORY_" jdbcType="VARCHAR" property="studentCategory" />
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
+    <result column="LEAVE_SCHOOL_" jdbcType="VARCHAR" property="leaveSchool" />
+    <result column="IS_MEMBERSHIP_" jdbcType="VARCHAR" property="isMembership" />
   </resultMap>
   <resultMap id="ResultMap" type="com.server.edu.election.dto.Student4Elc">
     <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentId" />
@@ -308,6 +310,7 @@
    
    <select id="getUnLimitStudents" parameterType="com.server.edu.election.dto.StudentDto" resultMap="BaseResultMap">
 		SELECT
+		    distinct
 			t1.STUDENT_CODE_,
 			t1.NAME_,
 			t1.GRADE_,

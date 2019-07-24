@@ -7,6 +7,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.AddAndRemoveCourseDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
@@ -16,7 +17,6 @@ import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.util.excel.export.ExcelResult;
-import io.swagger.models.auth.In;
 
 /**
  * 已选课名单
@@ -94,7 +94,7 @@ public interface ElcCourseTakeService
      * @param teachingClassIds
      * @param studentId
      */
-	void graduateWithdraw(ElcCourseTakeAddDto value, int realType);
+	void graduateWithdraw(ElcCourseTakeWithDrawDto value, int realType);
 
 	/**
      * 为指定学研究生加退课
