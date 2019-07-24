@@ -1,6 +1,7 @@
 package com.server.edu.election.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import com.server.edu.election.dto.*;
 import com.server.edu.election.vo.*;
@@ -174,7 +175,7 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
 
-    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId);
+    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") Set<String> set, @Param("calendarId") Long calendarId);
 
     Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
@@ -184,11 +185,9 @@ public interface ElcCourseTakeDao
 
     int deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
 
-    List<String> findSelectedCourseCode(String studentId);
+    List<String> findSelectedCourseCode(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
     List<String> findCourseCode(@Param("list") List<String> teachingClassIds);
-
-    List<String> findSelectedTeachingClassId(String studentId);
 
     Page<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
 

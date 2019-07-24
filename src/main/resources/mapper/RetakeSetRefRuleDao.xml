@@ -6,8 +6,8 @@
         insert into
             retake_set_ref_rule_t (RETAKE_SET_ID_,RULE_ID_)
         VALUES
-        <foreach item="ruleId" collection="#{ruleIds}" index="index" separator=",">
-            (#{retakeSetId},#{ruleId})
+        <foreach item="ruleId" collection="retakeSet.ruleIds" index="index" separator=",">
+            (#{retakeSet.retakeSetId},#{ruleId})
         </foreach>
     </insert>
 

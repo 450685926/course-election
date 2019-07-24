@@ -1153,7 +1153,7 @@
     </delete>
 
     <select id="findSelectedCourseCode" resultType="java.lang.String">
-        select distinct COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
+        select distinct COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ =#{calendarId}
     </select>
 
     <select id="findCourseCode" resultType="java.lang.String">
@@ -1161,10 +1161,6 @@
         <foreach item="item" collection="list" separator="," open="(" close=")" >
             #{item}
         </foreach>
-    </select>
-
-    <select id="findSelectedTeachingClassId" resultType="java.lang.String">
-        select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId}
     </select>
 
     <select id="findElcStudentCourse" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultType="com.server.edu.election.dto.ElcStudentCourseDto">
