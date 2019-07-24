@@ -40,7 +40,6 @@ import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
-import com.server.edu.election.dao.ScoreStudentScoreDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.AddAndRemoveCourseDto;
