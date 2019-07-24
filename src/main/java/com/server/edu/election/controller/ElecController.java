@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -23,13 +22,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.ElectionRoundsDto;
@@ -38,7 +35,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -161,7 +157,6 @@ public class ElecController
     { 
         Session session = SessionUtils.getCurrentSession();
         String studentId = session.realUid();
-        logger.info("session.realType()===========================>"+session.realType());
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");
@@ -200,20 +195,6 @@ public class ElecController
         @RequestBody @Valid ElecRequest elecRequest)
     {
         Session session = SessionUtils.getCurrentSession();
-        
-        String method = Thread.currentThread().getStackTrace()[1].getMethodName();
-    	String ip = session.getIp();
-    	String key = method + "|" + ip;
-    	Object resp = redisTemplate.opsForValue().get(key);
-    	if (resp == null) {
-    		redisTemplate.opsForValue().set(key, 1, 1, TimeUnit.MINUTES);
-    	} else {
-    		if (Integer.parseInt(String.valueOf(resp)) < 20) {
-    			redisTemplate.opsForValue().increment(key, 1);
-    		} else {
-    			return RestResult.fail("common.frequentRequestError");
-    		}
-    	}
         
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {

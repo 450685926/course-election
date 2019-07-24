@@ -9,7 +9,9 @@ public interface RetakeCourseSetDao {
 
     int updateRetakeCourseSet(ElcRetakeSetVo elcRetakeSetVo);
 
-    Long findRetakeSetId(Long calendarId);
+    Long findRetakeSetId(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
 
     int deleteByCalendarId(Long calendarId);
+
+    ElcRetakeSetVo findRetakeSet(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
 }
