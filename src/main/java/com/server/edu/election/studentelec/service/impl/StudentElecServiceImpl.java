@@ -11,8 +11,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +34,9 @@ import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.ElecRoundCourseDao;
-import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -99,16 +94,10 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     private StudentDao stuDao;
     
     @Autowired
-    private ElecRoundCourseDao roundCourseDao;
-    
-    @Autowired
     private ElectionApplyService electionApplyService;
     
     @Autowired
     private StringRedisTemplate strTemplate;
-    
-    @Autowired
-    private ElecRoundsDao roundsDao;
     
     @Override
     public RestResult<ElecRespose> loading(Long roundId, String studentId)
