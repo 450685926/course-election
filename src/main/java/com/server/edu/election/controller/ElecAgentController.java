@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,7 +48,9 @@ import io.swagger.annotations.SwaggerDefinition;
 @RequestMapping("agentElc")
 public class ElecAgentController
 {
-    @Autowired
+	Logger LOG = LoggerFactory.getLogger(ElecAgentController.class);
+    
+	@Autowired
     private StudentElecService elecService;
     
     @Autowired
@@ -185,9 +189,12 @@ public class ElecAgentController
     public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
     		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
     {
+    	LOG.info("=================findAgentElcStudentList============start===");
+    	LOG.info("=================findAgentElcStudentList============start===" + condition.getCondition());
     	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
     	
     	PageResult<NoSelectCourseStdsDto> list = elecService.findAgentElcStudentList(condition);
+    	LOG.info("=================findAgentElcStudentList============end===");
     	return RestResult.successData(list);
     }
     
