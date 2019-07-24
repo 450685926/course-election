@@ -83,7 +83,7 @@ public interface ElcResultService
      * @param condition
      * @return
      */
-	ElcResultCountVo elcResultCountByStudent(PageCondition<ElcResultQuery> condition);
+	ElcResultCountVo elcResultCount(PageCondition<ElcResultQuery> condition);
 
 	/**
 	 * 未选课学生名单
@@ -91,5 +91,19 @@ public interface ElcResultService
 	 * @return
 	 */
 	PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page);
+
+	/**
+	 * 
+	 * @param condition
+	 * @return
+	 */
+	ExcelResult elcResultCountExport(ElcResultQuery condition);
+
+	/**
+	 * 未选课学生名单导出
+	 * @param page
+	 * @return
+	 */
+	ExcelResult export(ElcResultQuery condition);
 
 }
