@@ -27,7 +27,7 @@
 		FROM
 			student_t t1 
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId})
+			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.faculty)">
 		        and t1.FACULTY_ = #{elcResult.faculty}
 		    </if>
@@ -66,7 +66,7 @@
 		FROM
 			student_t t1 
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId})
+			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.faculty)">
 		        and t1.FACULTY_ = #{elcResult.faculty}
 		    </if>
@@ -108,7 +108,7 @@
 			ON 
 				t1.STUDENT_CODE_ = t3.STUDENT_ID_
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN(#{query.managerDeptId})
+			t1.MANAGER_DEPT_ID_ NOT IN(#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t1.FACULTY_ = #{query.faculty}
 		    </if>
@@ -161,7 +161,7 @@
 			ON 
 				t1.STUDENT_CODE_ = t3.STUDENT_ID_
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+			t1.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t1.FACULTY_ = #{query.faculty}
 		    </if>
@@ -199,7 +199,7 @@
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>
@@ -236,7 +236,7 @@
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>
@@ -272,7 +272,7 @@
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>
@@ -309,7 +309,7 @@
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>
