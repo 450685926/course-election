@@ -75,10 +75,9 @@ public class RetakeCourseController {
     @GetMapping("/failedCourseList")
     public RestResult<List<FailedCourseVo>> failedCourseList(@RequestParam("calendarId") Long calendarId)
     {
-//        Session currentSession = SessionUtils.getCurrentSession();
-//        String uid = currentSession.getUid();
-//        List<FailedCourseVo> list = retakeCourseService.findRetakeCourseList(uid, calendarId);
-        List<FailedCourseVo> list = retakeCourseService.failedCourseList("000104", calendarId);
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
+        List<FailedCourseVo> list = retakeCourseService.failedCourseList(uid, calendarId);
         return RestResult.successData(list);
     }
 
