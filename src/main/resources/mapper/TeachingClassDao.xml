@@ -48,7 +48,8 @@
   	<result column="NUMBER_MALE_" jdbcType="INTEGER" property="NUMBER_MALE_" />
   	<result column="NUMBER_FEMALE_" jdbcType="INTEGER" property="NUMBER_FEMALE_" /> 	   	
   	<result column="limitGrade" jdbcType="INTEGER" property="limitGrade" />
-  	<result column="limitProfession" jdbcType="INTEGER" property="limitProfession" />   	 	   	
+  	<result column="limitProfession" jdbcType="VARCHAR" property="limitProfession" />
+  	<result column="limitDirectionCode" jdbcType="VARCHAR" property="limitDirectionCode" />   	 	   	
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_
@@ -57,7 +58,7 @@
 	    t5.TRAINING_CATEGORY_ limitTrainingCategory,t5.SPCIAL_PLAN_ limitSpcialPlan,
 	    t5.IS_OVERSEAS_ limitIsOverseas,t5.IS_DIVSEX_ limitIsDivsex,
 	    t5.NUMBER_MALE_,t5.NUMBER_FEMALE_,t6.GRADE_ limitGrade,
-	    t6.PROFESSION_ limitProfession 
+	    t6.PROFESSION_ limitProfession,t6.DIRECTION_CODE_ limitDirectionCode 
     </if>
     from 
 	teaching_class_t t1 

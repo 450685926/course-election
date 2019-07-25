@@ -28,6 +28,7 @@ public class ElecCourse
     private String nature;
     
     /**校区*/
+    @Code2Text(DictTypeEnum.X_XQ)
     private String campus;
     
     private String faculty;

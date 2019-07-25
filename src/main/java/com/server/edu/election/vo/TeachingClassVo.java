@@ -48,6 +48,56 @@ public class TeachingClassVo extends TeachingClass
     
     private Long calendarId;
     
+    private String limitFaculty;
+    
+    private String limitTrainingLevel;
+    
+    private String limitTrainingCategory;
+    
+    private String limitSpcialPlan;
+    
+    private Integer limitIsOverseas;
+    
+    private Integer limitIsDivsex;
+    
+    
+    
+	public String getLimitFaculty() {
+		return limitFaculty;
+	}
+	public void setLimitFaculty(String limitFaculty) {
+		this.limitFaculty = limitFaculty;
+	}
+	public String getLimitTrainingLevel() {
+		return limitTrainingLevel;
+	}
+	public void setLimitTrainingLevel(String limitTrainingLevel) {
+		this.limitTrainingLevel = limitTrainingLevel;
+	}
+	public String getLimitTrainingCategory() {
+		return limitTrainingCategory;
+	}
+	public void setLimitTrainingCategory(String limitTrainingCategory) {
+		this.limitTrainingCategory = limitTrainingCategory;
+	}
+	public String getLimitSpcialPlan() {
+		return limitSpcialPlan;
+	}
+	public void setLimitSpcialPlan(String limitSpcialPlan) {
+		this.limitSpcialPlan = limitSpcialPlan;
+	}
+	public Integer getLimitIsOverseas() {
+		return limitIsOverseas;
+	}
+	public void setLimitIsOverseas(Integer limitIsOverseas) {
+		this.limitIsOverseas = limitIsOverseas;
+	}
+	public Integer getLimitIsDivsex() {
+		return limitIsDivsex;
+	}
+	public void setLimitIsDivsex(Integer limitIsDivsex) {
+		this.limitIsDivsex = limitIsDivsex;
+	}
 	public int getWithdrawNum() {
 		return withdrawNum;
 	}
