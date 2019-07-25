@@ -196,16 +196,10 @@ public class ElecAgentController
 		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {// 教务员
 			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);			
 		    noSelectCourseStds.setFaculty(session.getFaculty());
-		    LOG.info("jiao wu yuan yuan xi" + session.getFaculty()); 
-		    LOG.info("jiao wu yuan yuan xi" + session.getFacultyName());
 		}
-
-		LOG.info("=================findAgentElcStudentList============start===");
-    	LOG.info("=================findAgentElcStudentList============start===" + condition.getCondition());
     	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
     	
     	PageResult<NoSelectCourseStdsDto> list = elecService.findAgentElcStudentList(condition);
-    	LOG.info("=================findAgentElcStudentList============end===");
     	return RestResult.successData(list);
     }
     
