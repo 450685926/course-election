@@ -1,11 +1,15 @@
 package com.server.edu.election.controller;
 
+import java.io.File;
+
 import javax.validation.Valid;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +31,8 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
@@ -181,17 +187,18 @@ public class ElcResultController
     }
     
 
-    @ApiOperation(value = "选课学生统计导出")
-    @PostMapping("/elcResultCountByStudentExport")
-    public String elcResultCountByStudentExport(
-    		@RequestBody ElcResultQuery condition)
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "选课学生统计导出")})
+    @GetMapping("/elcResultCountByStudentExport")
+    public File elcResultCountByStudentExport(
+    		@ModelAttribute ElcResultQuery condition)
     {
     	try {
             RestResult<String> restResult = elcResultService.elcResultCountsExport(condition);
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
             {
-                return restResult.getData();
+            	return new File(restResult.getData());
             }
             else
             {
@@ -222,17 +229,18 @@ public class ElcResultController
     }
     
     
-    @ApiOperation(value = "未选课学生名单导出")
-    @PostMapping("/export")
-    public String export(
-    		@RequestBody ElcResultQuery condition)
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "未选课学生名单导出")})
+    @GetMapping("/export")
+    public File export(
+    		@ModelAttribute ElcResultQuery condition)
     {
     	try {
             RestResult<String> restResult = elcResultService.exportOfNonSelectedCourse(condition);
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
             {
-                return restResult.getData();
+                return new File(restResult.getData());
             }
             else
             {
