@@ -22,6 +22,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
@@ -189,7 +190,17 @@ public class ElecAgentController
     public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
     		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
     {
-    	LOG.info("=================findAgentElcStudentList============start===");
+    	Session session = SessionUtils.getCurrentSession();
+		NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
+		
+		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {// 教务员
+			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);			
+		    noSelectCourseStds.setFaculty(session.getFaculty());
+		    LOG.info("jiao wu yuan yuan xi" + session.getFaculty()); 
+		    LOG.info("jiao wu yuan yuan xi" + session.getFacultyName());
+		}
+
+		LOG.info("=================findAgentElcStudentList============start===");
     	LOG.info("=================findAgentElcStudentList============start===" + condition.getCondition());
     	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
     	
