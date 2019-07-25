@@ -405,7 +405,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         }
         
         ElecRespose response =
-            ElecContextUtil.getElecRespose(studentId, 108L);
+            ElecContextUtil.getElecRespose(studentId, round.getCalendarId());
         ElecStatus status = ElecContextUtil.getElecStatus(roundId, studentId);
         if (response == null)
         {
