@@ -858,9 +858,12 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 		Session session = SessionUtils.getCurrentSession();
 		NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
 
-		if (session.isAcdemicDean()) {// 教务员
+		if (session.getMock().booleanValue() && session.isAcdemicDean()) {// 教务员
 			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
-		    noSelectCourseStds.setuId(session.getUid());
+		    noSelectCourseStds.setuId(session.getMockUid());
+		    noSelectCourseStds.setFaculty(session.getFaculty());
+		    LOG.info("jiao wu yuan yuan xi" + session.getFaculty()); 
+		    LOG.info("jiao wu yuan yuan xi" + session.getFacultyName()); 
 		} 
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         
