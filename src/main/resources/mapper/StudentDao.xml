@@ -268,7 +268,7 @@
        SELECT t4.* FROM student_t t4 
         <where>
         	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
-        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
+        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t4.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t4.FACULTY_ = #{query.faculty}
 		    </if>
