@@ -188,9 +188,10 @@ public class ElcResultController
     }
     
 
-    @ApiOperation(value = "选课学生统计导出")
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "选课学生统计导出")})
     @PostMapping("/elcResultCountByStudentExport")
-    public String elcResultCountByStudentExport(
+    public File elcResultCountByStudentExport(
     		@RequestBody ElcResultQuery condition)
     {
     	try {
@@ -198,7 +199,7 @@ public class ElcResultController
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
             {
-                return restResult.getData();
+            	return new File(restResult.getData());
             }
             else
             {
@@ -229,9 +230,10 @@ public class ElcResultController
     }
     
     
-    @ApiOperation(value = "未选课学生名单导出")
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "未选课学生名单导出")})
     @PostMapping("/export")
-    public String export(
+    public File export(
     		@RequestBody ElcResultQuery condition)
     {
     	try {
@@ -239,7 +241,7 @@ public class ElcResultController
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
             {
-                return restResult.getData();
+                return new File(restResult.getData());
             }
             else
             {
