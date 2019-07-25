@@ -54,6 +54,23 @@ public class ElectionRuleController
         List<ElectionRule> ruleList = service.list(electionRuleDto);
         return RestResult.successData(ruleList);
     }
+
+    /**
+     * 研究生重修选课规则
+     *
+     * @param managerDeptId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "重修选课规则")
+    @GetMapping("/retakeRuleList")
+    public RestResult<List<ElectionRuleVo>> retakeRuleList(@RequestParam("managerDeptId") String managerDeptId)
+            throws Exception
+    {
+        LOG.info("retakeRuleList.start");
+        List<ElectionRuleVo> ruleList = service.retakeRuleList(managerDeptId);
+        return RestResult.successData(ruleList);
+    }
     
 	 /**
      * 分页查询规则

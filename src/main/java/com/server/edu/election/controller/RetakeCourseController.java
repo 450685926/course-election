@@ -81,16 +81,34 @@ public class RetakeCourseController {
         return RestResult.successData(list);
     }
 
-    @ApiOperation(value = "可重修课程列表")
+    /**
+     * 研究生重修可选课程列表
+     * @param calendarId
+     * @param keyWord
+     * @return
+     */
+    @ApiOperation(value = "重修课程列表")
     @GetMapping("/findRebuildCourseList")
     public RestResult<List<RebuildCourseVo>> findRebuildCourseList(@RequestParam("calendarId") Long calendarId, @RequestParam("keyWord") String keyWord)
     {
         Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
-        String currentManageDptId = currentSession.getCurrentManageDptId();
-        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList("000104", calendarId, keyWord, currentManageDptId);
+        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList(currentSession, calendarId, keyWord);
         return RestResult.successData(list);
     }
 
+    /**
+     * 研究生重修选课、退课
+     * @param rebuildCourseVo
+     * @return
+     */
+    @ApiOperation(value = "研究生重修选课、退课")
+    @PostMapping("/updateRebuildCourse")
+    public RestResult updateRebuildCourse(@RequestBody RebuildCourseVo rebuildCourseVo)
+    {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
+        retakeCourseService.updateRebuildCourse(uid, rebuildCourseVo);
+        return RestResult.success();
+    }
 
 }

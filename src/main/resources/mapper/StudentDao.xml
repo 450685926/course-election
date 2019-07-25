@@ -359,4 +359,8 @@
 		    </if>
 		</where>
    </select>
+
+	<select id="findCampus" resultType="java.lang.String">
+		select CAMPUS_ from student_t where STUDENT_CODE_=#{studentCode}
+	</select>
 </mapper>
