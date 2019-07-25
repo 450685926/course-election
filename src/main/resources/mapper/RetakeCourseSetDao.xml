@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.server.edu.election.dao.RetakeCourseSetDao">
+    <resultMap id="BaseResultMap" type="com.server.edu.election.vo.ElcRetakeSetVo">
+        <id column="ID_" property="retakeSetId" />
+        <result column="CALENDAR_ID_" property="calendarId" />
+        <result column="OPEN_FLAG_" property="openFlag" />
+        <result column="BEGIN_AT_" property="start" />
+        <result column="END_AT_" property="end" />
+        <result column="PROJ_ID_" property="projectId" />
+    </resultMap>
 
-    <insert id="insertRetakeCourseSet" >
+
+    <insert id="insertRetakeCourseSet" parameterType="com.server.edu.election.vo.ElcRetakeSetVo"
+            useGeneratedKeys="true" keyProperty="retakeSetId">
         insert into
-            elc_retake_set (CALENDAR_ID_,OPEN_FLAG_,BEGIN_AT_,END_AT_)
+            elc_retake_set (CALENDAR_ID_,OPEN_FLAG_,BEGIN_AT_,END_AT_,CREATED_AT_,PROJ_ID_)
         VALUES
-            (#{calendarId}, #{openFlag}, #{start}, #{end})
+            (#{calendarId}, #{openFlag}, #{start}, #{end}, #{createAt}, #{projectId})
     </insert>
 
     <update id="updateRetakeCourseSet">
@@ -21,10 +31,14 @@
     </update>
 
     <select id="findRetakeSetId" resultType="java.lang.Long">
-        select ID_ from elc_retake_set where CALENDAR_ID_ = #{calendarId}
+        select ID_ from elc_retake_set where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projectId}
     </select>
 
     <delete id="deleteByCalendarId">
         delete from elc_retake_set where CALENDAR_ID_ = #{calendarId}
     </delete>
+
+    <select id="findRetakeSet" resultMap="BaseResultMap">
+        select * from elc_retake_set where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projectId}
+    </select>
 </mapper>

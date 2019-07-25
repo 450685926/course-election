@@ -52,7 +52,7 @@
             DEGREE_TYPE_ = #{degreeType},
             FORM_LEARNING_ = #{formLearning},
             RETAKE_COUNT_ = #{retakeCount},
-            MANAGER_DEPT_ID_ = #{managerDeptId})
+            MANAGER_DEPT_ID_ = #{managerDeptId}
         where
             ID_ = #{id}
     </update>

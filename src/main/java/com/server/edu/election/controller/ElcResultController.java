@@ -208,14 +208,25 @@ public class ElcResultController
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
-    	ElcResultCountVo result = elcResultService.elcResultCountByStudent(condition);
+    	ElcResultCountVo result = elcResultService.elcResultCount(condition);
     	return RestResult.successData(result);
+    }
+    
+    @ApiOperation(value = "选课学生统计导出")
+    @PostMapping("/elcResultCountByStudentExport")
+    public RestResult<?> elcResultCountByStudentExport(
+    		@RequestBody ElcResultQuery condition)
+    				throws Exception
+    {
+    	ExcelResult result = elcResultService.elcResultCountExport(condition);
+        return RestResult.successData(result);
+    	
     }
     
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "统计导出")})
-    @PostMapping(value = "/elcResultCountByStudentExport")
-    public ResponseEntity<Resource> elcResultCountByStudentExport(
+    @PostMapping(value = "/elcResultCountByStudentExport1")
+    public ResponseEntity<Resource> elcResultCountByStudentExport1(
     		@RequestBody ElcResultQuery condition)
     				throws Exception
     {
@@ -228,14 +239,14 @@ public class ElcResultController
         
         List<ElcResultDto> datas = new ArrayList<>();
         
-        ElcResultCountVo res = elcResultService.elcResultCountByStudent(page);
+        ElcResultCountVo res = elcResultService.elcResultCount(page);
         while (datas.size() < res.getTotal_())
         {
             datas.addAll(res.getList());
             page.setPageNum_(page.getPageNum_() + 1);
             if (datas.size() < res.getTotal_())
             {
-                res = elcResultService.elcResultCountByStudent(page);
+                res = elcResultService.elcResultCount(page);
             }
         }
         
@@ -324,8 +335,8 @@ public class ElcResultController
      */
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "未选课导出")})
-    @PostMapping(value = "/export")
-    public ResponseEntity<Resource> export(
+    @PostMapping(value = "/export1")
+    public ResponseEntity<Resource> export1(
     		@RequestBody ElcResultQuery condition)
     				throws Exception
     {
@@ -400,6 +411,22 @@ public class ElcResultController
         
         return ExportUtil
             .exportExcel(excelUtil, cacheDirectory, "YanJiuShengWeiXuanKeMingDanExport.xls");
+    }
+    
+    /**
+     * 研究生未选课学生名单
+     * @param condition
+     * @return
+     * @throws Exception
+     */
+    @PostMapping(value = "/export")
+    public RestResult<?> export(
+    		@RequestBody ElcResultQuery condition)
+    				throws Exception
+    {
+        ExcelResult result = elcResultService.export(condition);
+        ExportExcelUtils.getResultByKey(result.getKey());
+        return RestResult.successData(result);
     }
     
     /**

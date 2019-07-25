@@ -865,7 +865,8 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         
         Page<NoSelectCourseStdsDto> agentElcStudentList = courseTakeDao.findAgentElcStudentList(noSelectCourseStds);
-
+        long total = agentElcStudentList.getTotal();
+        LOG.info("============findAgentElcStudentList===========:" + total);
         return new PageResult<>(agentElcStudentList);
 	}
 

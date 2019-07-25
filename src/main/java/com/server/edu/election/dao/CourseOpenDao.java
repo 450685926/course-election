@@ -6,6 +6,7 @@ import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.vo.CourseOpenVo;
 
+import com.server.edu.election.vo.FailedCourseVo;
 import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 
@@ -20,4 +21,7 @@ public interface CourseOpenDao extends Mapper<CourseOpen> {
 	 * @return
 	 */
 	CourseOpen queryNameAndTrainingLevelByCode(String courseCode);
+
+	List<FailedCourseVo> findFailedCourseInfo(@Param("courseCodes") List<String> failedCourseCodes, @Param("calendarId") Long calendarId);
+
 }

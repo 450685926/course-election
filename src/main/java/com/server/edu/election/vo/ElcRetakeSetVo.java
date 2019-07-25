@@ -1,5 +1,7 @@
 package com.server.edu.election.vo;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
@@ -7,6 +9,8 @@ import java.util.List;
 public class ElcRetakeSetVo {
     @NotNull
     private Long calendarId;
+
+    private Long retakeSetId;
 
     @NotNull
     private Integer openFlag;
@@ -17,7 +21,36 @@ public class ElcRetakeSetVo {
     /**结束时间*/
     private Date end;
 
+    @NotBlank
+    private String projectId;
+
+    private Date createAt;
+
     private List<Long> ruleIds;
+
+    public Long getRetakeSetId() {
+        return retakeSetId;
+    }
+
+    public void setRetakeSetId(Long retakeSetId) {
+        this.retakeSetId = retakeSetId;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public Date getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
 
     public List<Long> getRuleIds() {
         return ruleIds;
