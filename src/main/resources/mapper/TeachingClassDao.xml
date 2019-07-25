@@ -39,12 +39,34 @@
   	<result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
   	<result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
   	<result column="classNumber" jdbcType="INTEGER" property="classNumber" />
+  	<result column="limitFaculty" jdbcType="VARCHAR" property="limitFaculty" />
+  	<result column="limitTrainingLevel" jdbcType="VARCHAR" property="limitTrainingLevel" />
+  	<result column="limitTrainingCategory" jdbcType="VARCHAR" property="limitTrainingCategory" />
+  	<result column="limitSpcialPlan" jdbcType="VARCHAR" property="limitSpcialPlan" />
+  	<result column="limitIsOverseas" jdbcType="INTEGER" property="limitIsOverseas" />
+  	<result column="limitIsDivsex" jdbcType="INTEGER" property="limitIsDivsex" />
+  	<result column="NUMBER_MALE_" jdbcType="INTEGER" property="NUMBER_MALE_" />
+  	<result column="NUMBER_FEMALE_" jdbcType="INTEGER" property="NUMBER_FEMALE_" /> 	   	
+  	<result column="limitGrade" jdbcType="INTEGER" property="limitGrade" />
+  	<result column="limitProfession" jdbcType="INTEGER" property="limitProfession" />   	 	   	
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
-    select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_ from 
+    select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_
+    <if test="isHaveLimit !=null and isHaveLimit ==1">
+	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,
+	    t5.TRAINING_CATEGORY_ limitTrainingCategory,t5.SPCIAL_PLAN_ limitSpcialPlan,
+	    t5.IS_OVERSEAS_ limitIsOverseas,t5.IS_DIVSEX_ limitIsDivsex,
+	    t5.NUMBER_MALE_,t5.NUMBER_FEMALE_,t6.GRADE_ limitGrade,
+	    t6.PROFESSION_ limitProfession 
+    </if>
+    from 
 	teaching_class_t t1 
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
 	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
+    <if test="isHaveLimit !=null and isHaveLimit ==1">
+    left join teaching_class_elective_restrict_attr_t t5 on t5.TEACHING_CLASS_ID_ = t1.ID_
+	left join teaching_class_elective_restrict_profession_t t6 on t6.TEACHING_CLASS_ID_ =t1.ID_
+    </if>	
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
