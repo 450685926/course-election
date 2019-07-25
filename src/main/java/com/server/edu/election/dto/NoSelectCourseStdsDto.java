@@ -202,5 +202,15 @@ public class NoSelectCourseStdsDto{
 	public void setuId(String uId) {
 		this.uId = uId;
 	}
+
+	@Override
+	public String toString() {
+		return "NoSelectCourseStdsDto [calendarId=" + calendarId + ", grade=" + grade + ", faculty=" + faculty
+				+ ", major=" + major + ", studentCategory=" + studentCategory + ", studentCode=" + studentCode
+				+ ", studentName=" + studentName + ", stdStatusChanges=" + stdStatusChanges + ", noSelectReason="
+				+ noSelectReason + ", deptId=" + deptId + ", keyword=" + keyword + ", trainingLevel=" + trainingLevel
+				+ ", trainingCategory=" + trainingCategory + ", degreeType=" + degreeType + ", formLearning="
+				+ formLearning + ", role=" + role + ", uId=" + uId + "]";
+	}
     
 }

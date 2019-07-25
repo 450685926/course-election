@@ -22,8 +22,9 @@ import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcClassEditAuthorityDao;
@@ -54,6 +55,7 @@ import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -61,11 +63,7 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.excel.GeneralExcelCell;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.export.ExcelExecuter;
-import com.server.edu.util.excel.export.ExcelResult;
-import com.server.edu.util.excel.export.ExportExcelUtils;
+import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -109,6 +107,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private DictionaryService dictionaryService;
+    
+    @Autowired
+    private ExcelStoreConfig excelStoreConfig;
     // 文件缓存目录
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -444,10 +445,9 @@ public class ElcResultServiceImpl implements ElcResultService
      * 选课结果统计
      */
 	@Override
-	public ElcResultCountVo elcResultCountByStudent(PageCondition<ElcResultQuery> page) {
+	public ElcResultCountVo elcResultCount(PageCondition<ElcResultQuery> page) {
 		//从学生维度查询
 		//根据条件查出满足条件的学生分类（年级、培养层次、培养类别、学位类型、学习形式）
-		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		ElcResultQuery condition = page.getCondition();
 		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
 		if(condition.getDimension().intValue() == Constants.ONE){
@@ -538,7 +538,6 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Override
 	public PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page ) {
 		//查询该条件下未选课学生名单
-		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		page.getCondition().setManagerDeptId(Constants.ONE+"");
 		Page<Student4Elc> result = new Page<Student4Elc>();
 		if(page.getCondition().getDimension().intValue() == Constants.ONE){
@@ -549,5 +548,87 @@ public class ElcResultServiceImpl implements ElcResultService
 		return new PageResult<>(result);
 	}
 
+	
+
+
+	@Override
+	public RestResult<String> elcResultCountsExport(ElcResultQuery condition) {
+		String path="";
+        try {
+        	 PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
+             pageCondition.setCondition(condition);
+             pageCondition.setPageSize_(100);
+             int pageNum = 0;
+             pageCondition.setPageNum_(pageNum);
+             List<ElcResultDto> list = new ArrayList<>();
+             while (true)
+             {
+                 pageNum++;
+                 pageCondition.setPageNum_(pageNum);
+                 ElcResultCountVo elcResultCountVo = elcResultCount(pageCondition);
+                 
+                 list.addAll(elcResultCountVo.getList());
+
+                 if (elcResultCountVo.getTotal_() <= list.size())
+                 {
+                     break;
+                 }
+             }
+             list = SpringUtils.convert(list);
+            if (condition.getDimension().intValue() == Constants.ONE) {
+            	@SuppressWarnings("unchecked")
+				ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
+            			excelStoreConfig.getElcResultCountExportByStudentKey(),
+            			excelStoreConfig.getElcResultCountExportByStudentTitle(),
+            			cacheDirectory);
+            	path = excelExport.exportExcelToCacheDirectory("研究生选课统计");
+			}else{
+				@SuppressWarnings("unchecked")
+				ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
+						excelStoreConfig.getElcResultCountExportByFacultyKey(),
+						excelStoreConfig.getElcResultCountExportByFacultyTitle(),
+						cacheDirectory);
+				path = excelExport.exportExcelToCacheDirectory("研究生选课统计");
+			}
+        }catch (Exception e){
+            return RestResult.failData("minor.export.fail");
+        }
+        return RestResult.successData("minor.export.success",path);
+	}
+
+	@Override
+	public RestResult<String> exportOfNonSelectedCourse(ElcResultQuery condition) {
+		String path="";
+        try {
+        	 PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
+             pageCondition.setCondition(condition);
+             pageCondition.setPageSize_(100);
+             int pageNum = 0;
+             pageCondition.setPageNum_(pageNum);
+             List<Student4Elc> list = new ArrayList<>();
+             while (true)
+             {
+                 pageNum++;
+                 pageCondition.setPageNum_(pageNum);
+                 PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
+                 
+                 list.addAll(studentList.getList());
+
+                 if (studentList.getTotal_() <= list.size())
+                 {
+                     break;
+                 }
+             }
+             list = SpringUtils.convert(list);
+        	ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
+        			excelStoreConfig.getAllNonSelectedCourseStudentKey(),
+        			excelStoreConfig.getAllNonSelectedCourseStudentTitle(),
+        			cacheDirectory);
+        	path = excelExport.exportExcelToCacheDirectory("研究生为选课学生名单");
+        }catch (Exception e){
+            return RestResult.failData("minor.export.fail");
+        }
+        return RestResult.successData("minor.export.success",path);
+	}
 	
 }

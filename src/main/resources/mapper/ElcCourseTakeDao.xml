@@ -1009,7 +1009,7 @@
                 and FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(role)">
-                and FACULTY_ = (select FACULTY_ from student_t where STUDENT_CODE_ = #{uId})
+                and FACULTY_ = #{faculty,jdbcType=VARCHAR}
             </if>
         </where>
     </select>

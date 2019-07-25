@@ -44,8 +44,8 @@
 		t1.FACULTY_,
 		t1.CREDITS_,
 		t1.PERIOD_,
-		t3.ID_,
-		t3.CODE_,
+		t3.ID_ teachingClassId,
+		t3.CODE_ teachingClassCode,
 		t3.COURSE_LABEL_ID_,
 		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
 	FROM
@@ -135,8 +135,8 @@
 		t1.FACULTY_,
 		t1.CREDITS_,
 		t1.PERIOD_,
-		t4.ID_,
-		t4.CODE_,
+		t4.ID_ teachingClassId,
+		t4.CODE_ teachingClassCode,
 		t4.COURSE_LABEL_ID_,
 		GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
 		FROM
