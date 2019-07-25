@@ -65,8 +65,6 @@ import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElcResultCourseVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -502,7 +500,11 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
             if(round.getTurn()!=Constants.THIRD_TURN&&round.getTurn()!=Constants.FOURTH_TURN) {
-                classDao.decrElcNumber(teachClassId);
+                int count = classDao.decrElcNumber(teachClassId);
+                if (count > 0)
+                {
+                    dataProvider.decrElcNumber(teachClassId);
+                }
             }
         }
         
