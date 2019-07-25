@@ -855,21 +855,10 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 
 	@Override
 	public PageResult<NoSelectCourseStdsDto> findAgentElcStudentList(PageCondition<NoSelectCourseStdsDto> condition) {
-		Session session = SessionUtils.getCurrentSession();
-		NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
-
-		if (session.getMock().booleanValue() && session.isAcdemicDean()) {// 教务员
-			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
-		    noSelectCourseStds.setuId(session.getMockUid());
-		    noSelectCourseStds.setFaculty(session.getFaculty());
-		    LOG.info("jiao wu yuan yuan xi" + session.getFaculty()); 
-		    LOG.info("jiao wu yuan yuan xi" + session.getFacultyName()); 
-		} 
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         
+        NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
         Page<NoSelectCourseStdsDto> agentElcStudentList = courseTakeDao.findAgentElcStudentList(noSelectCourseStds);
-        long total = agentElcStudentList.getTotal();
-        LOG.info("============findAgentElcStudentList===========:" + total);
         return new PageResult<>(agentElcStudentList);
 	}
 

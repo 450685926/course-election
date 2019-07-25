@@ -983,7 +983,8 @@
 			DEGREE_TYPE_ degreeType,FORM_LEARNING_ formLearning,FACULTY_ faculty,PROFESSION_ major
         from student_t
         <where>
-            MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
+            MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR} and
+            LEAVE_SCHOOL_ = '1'
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
                 and STUDENT_CODE_ like concat('%',#{studentCode,jdbcType=VARCHAR},'%')
             </if>
