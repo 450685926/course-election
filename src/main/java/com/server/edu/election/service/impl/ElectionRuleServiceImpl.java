@@ -67,6 +67,40 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         List<ElectionRule> list = electionRuleDao.selectByExample(example);
         return list;
     }
+
+    @Override
+    public List<ElectionRuleVo> retakeRuleList(String managerDeptId)
+    {
+        Example example = new Example(ElectionRule.class);
+        Example.Criteria criteria = example.createCriteria();
+        // 重修选课规则不会变，写死
+        List<String> list = new ArrayList<>();
+        list.add("按培养计划选课");
+        list.add("免修申请期间不能选课");
+        list.add("英语小课门数限制");
+        list.add("按教学班选课");
+        list.add("不允许时间冲突");
+        list.add("不能跨校区选课");
+        list.add("不能超出人数上限");
+        criteria.andIn("name", list);
+        if (StringUtils.isNotBlank(managerDeptId)) {
+            criteria.andEqualTo("managerDeptId",
+                    managerDeptId);
+        }
+        List<ElectionRule> electionRules = electionRuleDao.selectByExample(example);
+        List<ElectionRuleVo> ruleVos = new ArrayList<>(electionRules.size());
+        for (ElectionRule electionRule : electionRules) {
+            ElectionRuleVo electionRuleVo = new ElectionRuleVo();
+            Long ruleId = electionRule.getId();
+            electionRuleVo.setId(ruleId);
+            electionRuleVo.setRemark(electionRule.getRemark());
+            electionRuleVo.setName(electionRule.getName());
+            List<ElectionParameter> electionParameters = electionParameterDao.selectElectionParameter(ruleId);
+            electionRuleVo.setList(electionParameters);
+            ruleVos.add(electionRuleVo);
+        }
+        return ruleVos;
+    }
     
     @Override
 	public PageInfo<ElectionRule> page(PageCondition<ElectionRuleDto> condition){

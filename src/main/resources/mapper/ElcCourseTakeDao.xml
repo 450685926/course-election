@@ -1263,4 +1263,8 @@
         order by te.DAY_OF_WEEK_,te.TIME_START_
     </select>
 
+    <select id="findCount" resultType="int">
+        select count(id) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId} and TEACHING_CLASS_ID_ = #{teachingClassId}
+    </select>
+
 </mapper>

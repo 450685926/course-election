@@ -13,4 +13,8 @@
     <result column="STATUS_" jdbcType="INTEGER" property="value" />
     <result column="RULE_ID_" jdbcType="BIGINT" property="ruleId" />
   </resultMap>
+
+  <select id="selectElectionParameter" resultMap="BaseResultMap">
+    select * from election_rule_param_t where RULE_ID_ = #{ruleId}
+  </select>
 </mapper>
