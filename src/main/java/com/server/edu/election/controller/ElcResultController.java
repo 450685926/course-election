@@ -183,15 +183,14 @@ public class ElcResultController
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
-    	PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
     	ElcResultCountVo result = elcResultService.elcResultCount(condition);
     	return RestResult.successData(result);
     }
     
-    @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "选课学生统计导出")})
+
+    @ApiOperation(value = "选课学生统计导出")
     @PostMapping("/elcResultCountByStudentExport")
-    public File elcResultCountByStudentExport(
+    public String elcResultCountByStudentExport(
     		@RequestBody ElcResultQuery condition)
     {
     	try {
@@ -199,7 +198,7 @@ public class ElcResultController
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
             {
-                return new File(restResult.getData());
+                return restResult.getData();
             }
             else
             {
@@ -225,16 +224,14 @@ public class ElcResultController
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
-    	PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         PageResult<Student4Elc> result = elcResultService.getStudentPage(condition);
     	return RestResult.successData(result);
     }
     
     
-    @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "未选课学生名单")})
+    @ApiOperation(value = "未选课学生名单导出")
     @PostMapping("/export")
-    public File export(
+    public String export(
     		@RequestBody ElcResultQuery condition)
     {
     	try {
@@ -242,7 +239,7 @@ public class ElcResultController
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
             {
-                return new File(restResult.getData());
+                return restResult.getData();
             }
             else
             {
