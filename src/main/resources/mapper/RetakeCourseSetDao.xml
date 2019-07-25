@@ -41,4 +41,10 @@
     <select id="findRetakeSet" resultMap="BaseResultMap">
         select * from elc_retake_set where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projectId}
     </select>
+
+    <select id="findRuleIds" resultType="java.lang.Long">
+        select a.RULE_ID_ from retake_set_ref_rule_t a
+        left join elc_retake_set b on b.ID_ = a.RETAKE_SET_ID_
+        where b.CALENDAR_ID_ = #{calendarId} and b.PROJ_ID_ = #{projectId}
+    </select>
 </mapper>

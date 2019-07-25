@@ -175,7 +175,7 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
 
-    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") Set<String> set, @Param("calendarId") Long calendarId);
+    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId);
 
     Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
@@ -201,4 +201,5 @@ public interface ElcCourseTakeDao
 
     List<TimeTableMessage> findCourseArrangeByTeachingClassId(Long teachingClassId);
 
+    int findCount(@Param("studentId")String studentId,  @Param("calendarId") Long calendarId,  @Param("teachingClassId") Long teachingClassId);
 }

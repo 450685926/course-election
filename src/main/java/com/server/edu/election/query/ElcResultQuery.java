@@ -135,7 +135,16 @@ public class ElcResultQuery
     
     private Integer isElective;
     
+    private Integer isHaveLimit;
     
+	public Integer getIsHaveLimit() {
+		return isHaveLimit;
+	}
+
+	public void setIsHaveLimit(Integer isHaveLimit) {
+		this.isHaveLimit = isHaveLimit;
+	}
+
 	public Integer getIsElective() {
 		return isElective;
 	}

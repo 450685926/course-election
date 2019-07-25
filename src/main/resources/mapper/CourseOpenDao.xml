@@ -134,7 +134,7 @@
 		and a.CALENDAR_ID_ = #{calendarId}
 	</select>
 
-	<select id="findRetakeCourses" resultType="com.server.edu.election.vo.FailedCourseVo">
+	<select id="findRebuildCourses" resultType="com.server.edu.election.vo.RebuildCourseVo">
 		select
 			a.COURSE_NAME_ courseName,a.FACULTY_ faculty,a.CREDITS_ credits,
 			c.ID_ teachingClassId,c.CODE_ classCode,c.CAMPUS_ campus,c.REMARK_ remark,

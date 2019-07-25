@@ -53,6 +53,9 @@ public interface StudentDao extends Mapper<Student> {
 	Page<Student4Elc> getStudent4CulturePlan(@Param("query")ElcResultQuery cond);
 	
 	List<Student> getUnLimitStudents(StudentDto studentDto);
+
+    String findCampus(String studentCode);
+
 }
 
 
