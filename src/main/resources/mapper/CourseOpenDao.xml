@@ -136,7 +136,7 @@
 
 	<select id="findRebuildCourses" resultType="com.server.edu.election.vo.RebuildCourseVo">
 		select
-			a.COURSE_NAME_ courseName,a.FACULTY_ faculty,a.CREDITS_ credits,
+			a.COURSE_CODE_ courseCode,a.COURSE_NAME_ courseName,a.FACULTY_ faculty,a.CREDITS_ credits,
 			c.ID_ teachingClassId,c.CODE_ classCode,c.CAMPUS_ campus,c.REMARK_ remark,
 			c.ELC_NUMBER_ selectNumber,c.NUMBER_ number,d.TEACHER_NAME_ teacherName
 		from course_open_t a
