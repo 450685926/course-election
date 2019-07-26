@@ -45,8 +45,8 @@
   	<result column="limitSpcialPlan" jdbcType="VARCHAR" property="limitSpcialPlan" />
   	<result column="limitIsOverseas" jdbcType="INTEGER" property="limitIsOverseas" />
   	<result column="limitIsDivsex" jdbcType="INTEGER" property="limitIsDivsex" />
-  	<result column="NUMBER_MALE_" jdbcType="INTEGER" property="NUMBER_MALE_" />
-  	<result column="NUMBER_FEMALE_" jdbcType="INTEGER" property="NUMBER_FEMALE_" /> 	   	
+  	<result column="NUMBER_MALE_" jdbcType="INTEGER" property="numberMale" />
+  	<result column="NUMBER_FEMALE_" jdbcType="INTEGER" property="numberFemale" /> 	   	
   	<result column="limitGrade" jdbcType="INTEGER" property="limitGrade" />
   	<result column="limitProfession" jdbcType="VARCHAR" property="limitProfession" />
   	<result column="limitDirectionCode" jdbcType="VARCHAR" property="limitDirectionCode" />   	 	   	

@@ -60,8 +60,47 @@ public class TeachingClassVo extends TeachingClass
     
     private Integer limitIsDivsex;
     
+    private Integer numberMale;
+    
+    private Integer numberFemale;
+    
+    private Integer limitGrade;
+    
+    private Integer limitProfession;
+    
+    private Integer limitDirectionCode;
     
     
+	public Integer getNumberMale() {
+		return numberMale;
+	}
+	public void setNumberMale(Integer numberMale) {
+		this.numberMale = numberMale;
+	}
+	public Integer getNumberFemale() {
+		return numberFemale;
+	}
+	public void setNumberFemale(Integer numberFemale) {
+		this.numberFemale = numberFemale;
+	}
+	public Integer getLimitGrade() {
+		return limitGrade;
+	}
+	public void setLimitGrade(Integer limitGrade) {
+		this.limitGrade = limitGrade;
+	}
+	public Integer getLimitProfession() {
+		return limitProfession;
+	}
+	public void setLimitProfession(Integer limitProfession) {
+		this.limitProfession = limitProfession;
+	}
+	public Integer getLimitDirectionCode() {
+		return limitDirectionCode;
+	}
+	public void setLimitDirectionCode(Integer limitDirectionCode) {
+		this.limitDirectionCode = limitDirectionCode;
+	}
 	public String getLimitFaculty() {
 		return limitFaculty;
 	}
