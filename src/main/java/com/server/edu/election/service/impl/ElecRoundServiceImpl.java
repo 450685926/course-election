@@ -12,6 +12,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElecRoundsDao;
@@ -83,7 +84,8 @@ public class ElecRoundServiceImpl implements ElecRoundService
         		.andEqualTo("turn", dto.getTurn())
         		.andEqualTo("mode", dto.getMode())
         		.andEqualTo("electionObj", dto.getElectionObj())
-        	    .andEqualTo("projectId",dto.getProjectId());
+        	    .andEqualTo("projectId",dto.getProjectId())
+        	    .andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE));
         	
         int count = roundsDao.selectCountByExample(example);
         if (count > 0)
@@ -94,6 +96,7 @@ public class ElecRoundServiceImpl implements ElecRoundService
         Date date = new Date();
         dto.setCreatedAt(date);
         dto.setUpdatedAt(date);
+        dto.setDeleteStatus(Constants.DELETE_FALSE);
         roundsDao.insertSelective(dto);
         ElcRoundCondition roundCondition = dto.getRoundCondition();
         if (null != roundCondition)
@@ -124,6 +127,7 @@ public class ElecRoundServiceImpl implements ElecRoundService
             .andEqualTo("mode", dto.getMode())
             .andEqualTo("electionObj", dto.getElectionObj())
             .andEqualTo("projectId",dto.getProjectId())
+            .andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE))
             .andNotEqualTo("id", dto.getId());
         int count = roundsDao.selectCountByExample(example);
         if (count > 0)
@@ -170,7 +174,12 @@ public class ElecRoundServiceImpl implements ElecRoundService
     {
         for (Long id : ids)
         {
-            roundsDao.deleteByPrimaryKey(id);//删除轮次
+            //roundsDao.deleteByPrimaryKey(id);//删除轮次
+        	ElectionRoundsDto dto = new ElectionRoundsDto();
+        	dto.setId(id);
+        	dto.setDeleteStatus(Constants.DELETE_TRUE);
+        	roundsDao.updateByPrimaryKeySelective(dto);
+        	
             roundsDao.deleteAllRefRule(id);//删除关联规则
             elecRoundStuDao.deleteByRoundId(id);//删除可选课名单
             
