@@ -127,6 +127,7 @@ public class RoundDataProvider
         ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
         if (round != null
             && Objects.equals(Constants.IS_OPEN, round.getOpenFlag())
+            && Objects.equals(Constants.DELETE_FALSE, round.getDeleteStatus())
             && now.after(round.getBeginTime())
             && now.before(round.getEndTime()))
         {
