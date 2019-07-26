@@ -67,7 +67,7 @@
   <select id="listPage" resultMap="VoResultMap">
       select
       t1.*,
-      t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_ faculty,
+      t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_,
       t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
       t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
       t4.CAMPUS_
@@ -118,6 +118,9 @@
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
      and t2.FORM_LEARNING_= #{elcResult.formLearning} 
      </if>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+      and t2.FACULTY_ = #{query.faculty}
+     </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
   	 and t3.CODE_ = #{query.courseCode}
   	 </if>
@@ -135,9 +138,6 @@
      </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
   	  and t3.LABEL_ = #{query.label}
-  	 </if>
-	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
-  	  and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
   	 and t3.CODE_ IN

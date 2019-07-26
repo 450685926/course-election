@@ -141,7 +141,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
-   			elcCourseResult.setFaculty(completedCourse.getFaculty());
+   			elcCourseResult.setCalendarName(completedCourse.getCalendarName());
             elcCourseResult.setCourseTakeType(completedCourse.getCourseTakeType());
             elcCourseResult.setAssessmentMode(completedCourse.getAssessmentMode());
             elcCourseResult.setPublicElec(completedCourse.isPublicElec());
@@ -325,7 +325,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         newClassCache.setMaxNumber(oldClassCache.getMaxNumber());
         newClassCache.setTimes(oldClassCache.getTimes());
         newClassCache.setTimeTableList(oldClassCache.getTimeTableList());
-
+        newClassCache.setRemark(oldClassCache.getRemark());
     }
 
     

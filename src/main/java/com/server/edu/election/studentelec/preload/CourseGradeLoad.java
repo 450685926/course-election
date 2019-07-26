@@ -1,15 +1,13 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.studentelec.context.*;
+import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +32,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ClassTimeUnit;
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.ElecRequest;
-import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
@@ -121,11 +113,15 @@ public class CourseGradeLoad extends DataProLoad
             List<Long> teachClassIds = stuScoreBest.stream()
                     .map(temp -> temp.getTeachingClassId())
                     .collect(Collectors.toList());
+            // 获取学院，教师名称
+            List<TeachingClassCache> classInfo = courseOpenDao.findClassInfo(teachClassIds);
+            Map<Long, List<TeachingClassCache>> classMap = classInfo.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (StudentScoreVo studentScore : stuScoreBest)
             {
                 CompletedCourse lesson = new CompletedCourse();
-                lesson.setTeachClassId(studentScore.getTeachingClassId());
+                Long teachingClassId = studentScore.getTeachingClassId();
+                lesson.setTeachClassId(teachingClassId);
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
@@ -138,12 +134,49 @@ public class CourseGradeLoad extends DataProLoad
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
-                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
-                lesson.setTimes(times);
-            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),studentScore.getCourseCode(),studentScore.getTeachingClassId());
-            	if(teachingClassCache!=null) {
-                    lesson.setFaculty(teachingClassCache.getFaculty());
-            	}
+                //本科生研究生课程安排查询
+                if ("1".equals(studentScore.getManagerDeptId())) {
+                    List<ClassTimeUnit> times = this.concatTime(collect, lesson);
+                    lesson.setTimes(times);
+                    TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),studentScore.getCourseCode(),studentScore.getTeachingClassId());
+                    if(teachingClassCache!=null) {
+                        lesson.setFaculty(teachingClassCache.getFaculty());
+                    }
+                } else {
+                    SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                    // 根据校历id设置学年
+                    lesson.setCalendarName(schoolCalendar.getYear()+"");
+                    List<ClassTimeUnit> classTimeUnits = collect.get(teachingClassId);
+                    if (CollectionUtil.isNotEmpty(classTimeUnits)) {
+                        List<TimeAndRoom> list = new ArrayList<>();
+                        for (ClassTimeUnit classTimeUnit : classTimeUnits) {
+                            TimeAndRoom time=new TimeAndRoom();
+                            Integer dayOfWeek = classTimeUnit.getDayOfWeek();
+                            Integer timeStart = classTimeUnit.getTimeStart();
+                            Integer timeEnd = classTimeUnit.getTimeEnd();
+                            String roomID = classTimeUnit.getRoomId();
+                            List<Integer> weeks = classTimeUnit.getWeeks();
+                            List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                            String weekNumStr = weekNums.toString();//周次
+                            String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                            String timeStr=weekstr+timeStart+"-"+timeEnd+weekNumStr+" ";
+                            time.setTimeAndRoom(timeStr);
+                            time.setRoomId(roomID);
+                            list.add(time);
+                        }
+                        lesson.setTimeTableList(list);
+                    }
+                    List<TeachingClassCache> teachingClassCaches = classMap.get(teachingClassId);
+                    if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                        TeachingClassCache classCache = teachingClassCaches.get(0);
+                        lesson.setTeachClassCode(classCache.getTeachClassCode());
+                        lesson.setRemark(classCache.getRemark());
+                        lesson.setFaculty(classCache.getFaculty());
+                        List<String> names = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toList());
+                        lesson.setTeacherName(String.valueOf(names));
+                    }
+                }
+
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -201,6 +234,9 @@ public class CourseGradeLoad extends DataProLoad
     {
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
+        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        // 获取学历年
+        String year = schoolCalendar.getYear() + "";
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
             List<Long> teachClassIds = courseTakes.stream()
@@ -210,6 +246,7 @@ public class CourseGradeLoad extends DataProLoad
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
+                course.setCalendarName(year);
                 course.setTeachClassMsg(c.getTeachingClassId());
                 course.setNature(c.getNature());
                 course.setApply(c.getApply());
@@ -286,6 +323,7 @@ public class CourseGradeLoad extends DataProLoad
                 un.setTimeEnd(room.getTimeEnd());
                 un.setTimeStart(room.getTimeStart());
                 un.setTeacherCode(room.getTeacherCode());
+                un.setRoomId(room.getRoomId());
                 // 所有周
                 List<Integer> weeks = rooms.stream()
                     .map(TeacherClassTimeRoom::getWeekNumber)
