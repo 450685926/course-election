@@ -106,9 +106,6 @@ public class ElcResultServiceImpl implements ElcResultService
     private ElcClassEditAuthorityDao elcClassEditAuthorityDao;
     
     @Autowired
-    private DictionaryService dictionaryService;
-    
-    @Autowired
     private ExcelStoreConfig excelStoreConfig;
     // 文件缓存目录
     @Value("${task.cache.directory}")
@@ -450,6 +447,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		//根据条件查出满足条件的学生分类（年级、培养层次、培养类别、学位类型、学习形式）
 		ElcResultQuery condition = page.getCondition();
 		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
 			condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
 			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
@@ -537,6 +535,7 @@ public class ElcResultServiceImpl implements ElcResultService
 	@SuppressWarnings("resource")
 	@Override
 	public PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page ) {
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		//查询该条件下未选课学生名单
 		page.getCondition().setManagerDeptId(Constants.ONE+"");
 		Page<Student4Elc> result = new Page<Student4Elc>();

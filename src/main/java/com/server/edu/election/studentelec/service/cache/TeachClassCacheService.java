@@ -330,4 +330,16 @@ public class TeachClassCacheService extends AbstractCacheService
             .increment(Keys.getClassElecNumberKey(), teachClassId.toString(), 1)
             .intValue();
     }
+    
+    public int decrElecNumber(Long teachClassId)
+    {
+        if (teachClassId == null)
+        {
+            return 0;
+        }
+        HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+        return opsClassNum
+            .increment(Keys.getClassElecNumberKey(), teachClassId.toString(), -1)
+            .intValue();
+    }
 }
