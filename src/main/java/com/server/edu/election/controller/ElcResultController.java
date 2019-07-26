@@ -8,18 +8,17 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
@@ -183,23 +182,23 @@ public class ElcResultController
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
-    	PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
     	ElcResultCountVo result = elcResultService.elcResultCount(condition);
     	return RestResult.successData(result);
     }
     
+
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "选课学生统计导出")})
-    @PostMapping("/elcResultCountByStudentExport")
+    @GetMapping("/elcResultCountByStudentExport")
     public File elcResultCountByStudentExport(
-    		@RequestBody ElcResultQuery condition)
+    		@ModelAttribute ElcResultQuery condition)
     {
     	try {
             RestResult<String> restResult = elcResultService.elcResultCountsExport(condition);
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
             {
-                return new File(restResult.getData());
+            	return new File(restResult.getData());
             }
             else
             {
@@ -225,17 +224,16 @@ public class ElcResultController
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
-    	PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         PageResult<Student4Elc> result = elcResultService.getStudentPage(condition);
     	return RestResult.successData(result);
     }
     
     
     @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "未选课学生名单")})
-    @PostMapping("/export")
+        @ApiResponse(code = 200, response = File.class, message = "未选课学生名单导出")})
+    @GetMapping("/export")
     public File export(
-    		@RequestBody ElcResultQuery condition)
+    		@ModelAttribute ElcResultQuery condition)
     {
     	try {
             RestResult<String> restResult = elcResultService.exportOfNonSelectedCourse(condition);

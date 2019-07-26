@@ -634,38 +634,22 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String studentId = courseTakeQuerytudentVo.getStudentId();
         Long calendarId = courseTakeQuerytudentVo.getCalendarId();
         // 获取学生所有已修课程成绩
-        List<StudentScoreVo> stuScoreBest =
-                ScoreServiceInvoker.findStuScoreBest(studentId);
-        Map<String, List<StudentScoreVo>> map = stuScoreBest.stream().collect(Collectors.groupingBy(StudentScoreVo::getCourseCode));
-        Set<String> CourseCodes = map.keySet();
-        // 创建学生还需要修读的课程集合
-        Set<String> courseCodes = new HashSet<>();
-        //学生通过课程代码集合
-        List<String> passedCourseCodes = new ArrayList<>(map.size());
-        loop:for (String courseCode : CourseCodes) {
-            List<StudentScoreVo> studentScoreVos = map.get(courseCode);
-            for (StudentScoreVo scoreVo : studentScoreVos) {
-                // 如果学生任意一次考试通过，说明该课程已通过
-                if (scoreVo.getIsPass().intValue() == 1) {
-                    passedCourseCodes.add(courseCode);
-                    continue loop;
-                }
-            }
-            // 循环完毕，说明该学生未通过这门课程,该学生需要修读这门课程
-            // 保险起见，将该课程添加到学生可选课程里面，防止培养计划没有这门课程
-            courseCodes.add(courseCode);
-        }
-        //通过研究生培养计划获取学生需要修的课程
+        List<StudentScoreVo> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentId);
+        // 获取学生通过课程集合
+        List<StudentScoreVo> collect = stuScoreBest.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
+        List<String> passedCourseCodes = collect.stream().map(StudentScoreVo::getCourseCode).collect(Collectors.toList());
+        //通过研究生培养计划获取学生所有需要修读的课程
         String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
         RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
         List<String> allCourseCode = restResult.getData();
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
-        List<String> elcCourses = allCourseCode.stream().filter(item -> !passedCourseCodes.contains(item)).collect(Collectors.toList());
-        courseCodes.addAll(elcCourses);
+        List<String> elcCourses = allCourseCode.stream()
+                .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
+                .collect(Collectors.toList());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(courseCodes, calendarId);
+        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId);
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }

@@ -983,7 +983,8 @@
 			DEGREE_TYPE_ degreeType,FORM_LEARNING_ formLearning,FACULTY_ faculty,PROFESSION_ major
         from student_t
         <where>
-            MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
+            MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR} and
+            LEAVE_SCHOOL_ = '1'
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
                 and STUDENT_CODE_ like concat('%',#{studentCode,jdbcType=VARCHAR},'%')
             </if>
@@ -1261,6 +1262,14 @@
         tc.ID_ = #{teachingClassId}
         GROUP BY ro.ARRANGE_TIME_ID_
         order by te.DAY_OF_WEEK_,te.TIME_START_
+    </select>
+
+    <select id="findCount" resultType="int">
+        select count(ID_) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId} and TEACHING_CLASS_ID_ = #{teachingClassId}
+    </select>
+
+    <select id="findRetakeCount" resultType="java.lang.String">
+        select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and COURSE_TAKE_TYPE_ = 2
     </select>
 
 </mapper>

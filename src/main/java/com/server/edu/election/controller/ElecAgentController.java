@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
@@ -189,12 +191,21 @@ public class ElecAgentController
     public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
     		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
     {
-    	LOG.info("=================findAgentElcStudentList============start===");
-    	LOG.info("=================findAgentElcStudentList============start===" + condition.getCondition());
     	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
+
+    	Session session = SessionUtils.getCurrentSession();
+    	
+    	if (!StringUtils.equals(session.getCurrentRole(), "1")) {
+    		throw new ParameterValidateException(I18nUtil.getMsg("agentElc.role.err"));
+		}
+    	
+		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {// 教务员
+			NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
+			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);			
+		    noSelectCourseStds.setFaculty(session.getFaculty());
+		}
     	
     	PageResult<NoSelectCourseStdsDto> list = elecService.findAgentElcStudentList(condition);
-    	LOG.info("=================findAgentElcStudentList============end===");
     	return RestResult.successData(list);
     }
     

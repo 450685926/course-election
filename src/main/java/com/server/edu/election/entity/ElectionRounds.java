@@ -107,7 +107,13 @@ public class ElectionRounds implements Serializable {
      */
     @Transient
     private String calendarName;
-
+    
+    /**
+     * 是否删除（1-已删除；0-未删除）
+     */
+    @Column(name = "DELETE_STATUS_")
+    private Integer deleteStatus;
+    
     public String getCalendarName() {
 		return calendarName;
 	}
@@ -349,27 +355,12 @@ public class ElectionRounds implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", calendarId=").append(calendarId);
-        sb.append(", turn=").append(turn);
-        sb.append(", electionObj=").append(electionObj);
-        sb.append(", mode=").append(mode);
-        sb.append(", projectId=").append(projectId);
-        sb.append(", name=").append(name);
-        sb.append(", openFlag=").append(openFlag);
-        sb.append(", beginTime=").append(beginTime);
-        sb.append(", endTime=").append(endTime);
-        sb.append(", remark=").append(remark);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
-    }
+	public Integer getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(Integer deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+    
 }

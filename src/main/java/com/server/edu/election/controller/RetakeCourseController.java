@@ -49,48 +49,61 @@ public class RetakeCourseController {
     @ApiOperation(value = "查询重修选课门数上限列表")
     @PostMapping("/findRetakeCourseCountList")
     public RestResult<PageResult<RetakeCourseCountVo>> findRetakeCourseCountList(
-            @RequestBody PageCondition<RetakeCourseCountVo> condition)
-    {
+            @RequestBody PageCondition<RetakeCourseCountVo> condition) {
         PageResult<RetakeCourseCountVo> result = retakeCourseService.findRetakeCourseCountList(condition);
         return RestResult.successData(result);
     }
 
     @ApiOperation(value = "添加修改选课门数上限")
     @PostMapping("/updateRetakeCourseCount")
-    public RestResult updateRetakeCourseCount(@RequestBody RetakeCourseCountVo retakeCourseCountVo)
-    {
+    public RestResult updateRetakeCourseCount(@RequestBody RetakeCourseCountVo retakeCourseCountVo) {
         retakeCourseService.updateRetakeCourseCount(retakeCourseCountVo);
         return RestResult.success();
     }
 
     @ApiOperation(value = "删除选课门数上限")
     @DeleteMapping("/deleteRetakeCourseCount")
-    public RestResult deleteRetakeCourseCount(@RequestParam("retakeCourseCountId") Long retakeCourseCountId)
-    {
+    public RestResult deleteRetakeCourseCount(@RequestParam("retakeCourseCountId") Long retakeCourseCountId) {
         retakeCourseService.deleteRetakeCourseCount(retakeCourseCountId);
         return RestResult.success();
     }
 
     @ApiOperation(value = "学生个人不及格课程列表")
     @GetMapping("/failedCourseList")
-    public RestResult<List<FailedCourseVo>> failedCourseList(@RequestParam("calendarId") Long calendarId)
-    {
+    public RestResult<List<FailedCourseVo>> failedCourseList(@RequestParam("calendarId") Long calendarId) {
         Session currentSession = SessionUtils.getCurrentSession();
         String uid = currentSession.getUid();
         List<FailedCourseVo> list = retakeCourseService.failedCourseList(uid, calendarId);
         return RestResult.successData(list);
     }
 
-    @ApiOperation(value = "可重修课程列表")
+    /**
+     * 研究生重修可选课程列表
+     *
+     * @param calendarId
+     * @param keyWord
+     * @return
+     */
+    @ApiOperation(value = "重修课程列表")
     @GetMapping("/findRebuildCourseList")
-    public RestResult<List<RebuildCourseVo>> findRebuildCourseList(@RequestParam("calendarId") Long calendarId, @RequestParam("keyWord") String keyWord)
-    {
-        Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
-        String currentManageDptId = currentSession.getCurrentManageDptId();
-        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList("000104", calendarId, keyWord, currentManageDptId);
+    public RestResult<List<RebuildCourseVo>> findRebuildCourseList(@RequestParam("calendarId") Long calendarId, @RequestParam("keyWord") String keyWord) {
+        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList(calendarId, keyWord);
         return RestResult.successData(list);
     }
 
+    /**
+     * 研究生重修选课、退课
+     *
+     * @param rebuildCourseVo
+     * @return
+     */
+    @ApiOperation(value = "研究生重修选课、退课")
+    @PostMapping("/updateRebuildCourse")
+    public RestResult updateRebuildCourse(@RequestBody RebuildCourseVo rebuildCourseVo) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
+        retakeCourseService.updateRebuildCourse(uid, rebuildCourseVo);
+        return RestResult.success();
+    }
 
 }

@@ -1,9 +1,17 @@
 package com.server.edu.election.vo;
 
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 
+import java.util.List;
+
+@CodeI18n
 public class RebuildCourseVo {
+    private Long calendarId;
+
     private Long teachingClassId;
+
+    private String courseCode;
 
     private String classCode;
 
@@ -20,7 +28,7 @@ public class RebuildCourseVo {
     @Code2Text(transformer = "X_XQ")
     private String campus;
 
-    private String courseArrange;
+    private List<String> courseArrange;
 
     private int selectNumber;
 
@@ -30,6 +38,22 @@ public class RebuildCourseVo {
 
     /**null为不能操作，0选课，1退课*/
     private Integer status;
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
 
     public Long getTeachingClassId() {
         return teachingClassId;
@@ -87,11 +111,11 @@ public class RebuildCourseVo {
         this.campus = campus;
     }
 
-    public String getCourseArrange() {
+    public List<String> getCourseArrange() {
         return courseArrange;
     }
 
-    public void setCourseArrange(String courseArrange) {
+    public void setCourseArrange(List<String> courseArrange) {
         this.courseArrange = courseArrange;
     }
 
