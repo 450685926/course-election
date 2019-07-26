@@ -20,6 +20,7 @@
     <result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
     <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
     <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
     <result column="RESEARCH_DIRECTION_" jdbcType="VARCHAR" property="researchDirection" />
     <result column="STUDENT_CATEGORY_" jdbcType="VARCHAR" property="studentCategory" />
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
@@ -47,7 +48,7 @@
     <sql id="Base_Column_List">
         STUDENT_CODE_, NAME_, SEX_, FORM_LEARNING_, IS_OVERSEAS_, TRAINING_LEVEL_, FACULTY_,
         PROFESSION_, GRADE_, SPCIAL_PLAN_, REGISTRATION_STATUS_, ENROL_SEASON_, CAMPUS_,
-        TRAINING_CATEGORY_, DEGREE_CATEGORY_,RESEARCH_DIRECTION_,STUDENT_CATEGORY_,MANAGER_DEPT_ID_
+        TRAINING_CATEGORY_, DEGREE_CATEGORY_,DEGREE_TYPE_,RESEARCH_DIRECTION_,STUDENT_CATEGORY_,MANAGER_DEPT_ID_
     </sql>
     <select id="findStudentByCode" resultMap="BaseResultMap">
         select

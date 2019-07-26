@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
@@ -15,11 +16,13 @@ import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRule;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.vo.*;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
@@ -54,6 +57,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private ElcLogDao elcLogDao;
 
     @Override
     @Transactional
@@ -121,53 +127,71 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
+    @Transactional
     public void updateRebuildCourse(String studentId, RebuildCourseVo rebuildCourseVo) {
-
+        String courseCode = rebuildCourseVo.getCourseCode();
+        Long teachingClassId = rebuildCourseVo.getTeachingClassId();
+        String courseName = rebuildCourseVo.getCourseName();
+        String teachingClassCode = rebuildCourseVo.getClassCode();
+        Long calendarId = rebuildCourseVo.getCalendarId();
+        Date date = new Date();
+        ElcLog log = new ElcLog();
+        log.setStudentId(studentId);
+        log.setCalendarId(calendarId);
+        log.setCourseCode(courseCode);
+        log.setCourseName(courseName);
+        log.setTeachingClassCode(teachingClassCode);
+        log.setMode(ElcLogVo.MODE_1);
+        log.setTurn(0);
+        log.setCreateBy(studentId);
+        log.setCreatedAt(date);
         if (rebuildCourseVo.getStatus() == 0) {
-            String courseCode = rebuildCourseVo.getCourseCode();
-            Long teachingClassId = rebuildCourseVo.getTeachingClassId();
-            String courseName = rebuildCourseVo.getCourseName();
-            String teachingClassCode = rebuildCourseVo.getClassCode();
-            Long calendarId = rebuildCourseVo.getCalendarId();
-            Date date = new Date();
+            Student student = studentDao.findStudentByCode(studentId);
+            Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
+            if (maxCount == null) {
+                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            }
+            Set<String> set =courseTakeDao.findRetakeCount(studentId);
+            if (set.size() >= maxCount.intValue()) {
+                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            }
             ElcCourseTake take = new ElcCourseTake();
+            take.setStudentId(studentId);
             take.setCalendarId(calendarId);
-            take.setChooseObj(1);
+            take.setTeachingClassId(teachingClassId);
             take.setCourseCode(courseCode);
             take.setCourseTakeType(CourseTakeType.RETAKE.type());
+            take.setChooseObj(1);
             take.setCreatedAt(date);
-            take.setStudentId(studentId);
-            take.setTeachingClassId(teachingClassId);
-            take.setMode(ElcLogVo.MODE_1);
             take.setTurn(0);
+            take.setMode(1);
+            // 重修缴费未设置，后面加
             courseTakeDao.insertSelective(take);
-            // 添加选课日志
-            ElcLog log = new ElcLog();
-            log.setCalendarId(calendarId);
-            log.setCourseCode(courseCode);
-            log.setCourseName(courseName);
-            Session currentSession = SessionUtils.getCurrentSession();
-            log.setCreateBy(currentSession.getUid());
-            log.setCreatedAt(date);
-            log.setCreateIp(currentSession.getIp());
-            log.setMode(ElcLogVo.MODE_1);
-            log.setStudentId(studentId);
-            log.setTeachingClassCode(teachingClassCode);
-            log.setTurn(0);
             log.setType(ElcLogVo.TYPE_1);
+            // 添加选课日志
+            elcLogDao.insertSelective(log);
+        }
+        if (rebuildCourseVo.getStatus() == 1) {
+            Long id = rebuildCourseVo.getTeachingClassId();
+            List<Long> list = new ArrayList<>(1);
+            list.add(id);
+            courseTakeDao.deleteCourseTask(list, studentId);
+            // 添加选课日志
+            log.setType(ElcLogVo.TYPE_2);
+            elcLogDao.insertSelective(log);
         }
     }
 
 
     @Override
-    public List<RebuildCourseVo> findRebuildCourseList(
-            Session session, Long calendarId, String keyWord) {
+    public List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord) {
+        Session session = SessionUtils.getCurrentSession();
         String studentId = session.getUid();
         String currentManageDptId = session.getCurrentManageDptId();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
             // 通过重修的课程代码获取当前学期可重修的课程
-            List<RebuildCourseVo> list = courseOpenDao.findRebuildCourses(failedCourseCodes);
+            List<RebuildCourseVo> list = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, keyWord);
             if (list.isEmpty()) {
                 return new ArrayList<>();
             }
@@ -239,7 +263,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     }
                 }
             } else if (courseRole.size() == 2) {
-                if (list.contains(1) && list.contains(2)) {
+                if (courseRole.contains(1) && courseRole.contains(2)) {
                     String campus = studentDao.findCampus(studentId);
                     for (RebuildCourseVo rebuildCourseVo : list) {
                         setCourseArrange(map, rebuildCourseVo);
@@ -256,7 +280,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                             rebuildCourseVo.setStatus(1);
                         }
                     }
-                } else if (list.contains(1) && list.contains(3)) {
+                } else if (courseRole.contains(1) && courseRole.contains(3)) {
                     String campus = studentDao.findCampus(studentId);
                     for (RebuildCourseVo rebuildCourseVo : list) {
                         setCourseArrange(map, rebuildCourseVo);
@@ -274,7 +298,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                             rebuildCourseVo.setStatus(1);
                         }
                     }
-                } else if (list.contains(2) && list.contains(3)) {
+                } else if (courseRole.contains(2) && courseRole.contains(3)) {
                     for (RebuildCourseVo rebuildCourseVo : list) {
                         setCourseArrange(map, rebuildCourseVo);
                         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
@@ -348,8 +372,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             return true;
         }
         //获取要添加课程的上课周
-        String[] week = addTimeTables.get(0).getWeekNum().split(",");
-        if (week.length == 0) {
+        List<Integer> addWeeks = addTimeTables.get(0).getWeeks();
+        if (CollectionUtil.isEmpty(addWeeks)) {
             //说明上课时间未安排，暂时不冲突，可以添加
             return true;
         }
@@ -359,11 +383,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             if (split.length == 0) {
                 return true;
             }
-            Set<String> set = new HashSet<>();
-            set.addAll(Arrays.asList(week));
-            set.addAll(Arrays.asList(split));
+            List<Integer> selectWeeks = Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
+            Set<Integer> set = new HashSet<>();
+            set.addAll(addWeeks);
+            set.addAll(selectWeeks);
             // 数组长度之和大于set集合长度，说明上课周重复
-            if (week.length + split.length > set.size()) {
+            if (addWeeks.size() + selectWeeks.size() > set.size()) {
                 int dayOfWeek = timeTableMessage.getDayOfWeek().intValue();
                 int timeStart = timeTableMessage.getTimeStart().intValue();
                 int timeEnd = timeTableMessage.getTimeEnd().intValue();

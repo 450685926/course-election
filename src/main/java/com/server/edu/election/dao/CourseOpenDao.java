@@ -25,5 +25,6 @@ public interface CourseOpenDao extends Mapper<CourseOpen> {
 
 	List<FailedCourseVo> findFailedCourseInfo(@Param("courseCodes") List<String> failedCourseCodes, @Param("calendarId") Long calendarId);
 
-	List<RebuildCourseVo> findRebuildCourses(List<String> failedCourseCodes);
+	List<RebuildCourseVo> findRebuildCourses(
+			@Param("courseCodes") List<String> failedCourseCodes, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
 }

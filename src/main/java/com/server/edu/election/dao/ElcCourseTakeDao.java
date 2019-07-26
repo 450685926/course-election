@@ -201,5 +201,9 @@ public interface ElcCourseTakeDao
 
     List<TimeTableMessage> findCourseArrangeByTeachingClassId(Long teachingClassId);
 
+    /**根据教学班id查询学生是否选课*/
     int findCount(@Param("studentId")String studentId,  @Param("calendarId") Long calendarId,  @Param("teachingClassId") Long teachingClassId);
+
+    /**根据学生id查询学生已重修的门数*/
+    Set<String> findRetakeCount(String studentId);
 }

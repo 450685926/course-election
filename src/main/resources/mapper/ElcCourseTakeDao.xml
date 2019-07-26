@@ -1265,7 +1265,11 @@
     </select>
 
     <select id="findCount" resultType="int">
-        select count(id) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId} and TEACHING_CLASS_ID_ = #{teachingClassId}
+        select count(ID_) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId} and TEACHING_CLASS_ID_ = #{teachingClassId}
+    </select>
+
+    <select id="findRetakeCount" resultType="java.lang.String">
+        select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and COURSE_TAKE_TYPE_ = 2
     </select>
 
 </mapper>

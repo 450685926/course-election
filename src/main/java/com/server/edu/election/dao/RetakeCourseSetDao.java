@@ -17,5 +17,5 @@ public interface RetakeCourseSetDao {
 
     ElcRetakeSetVo findRetakeSet(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
 
-    List<Long> findRuleIds(Long calendarId, String manageDptId);
+    List<Long> findRuleIds(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
 }

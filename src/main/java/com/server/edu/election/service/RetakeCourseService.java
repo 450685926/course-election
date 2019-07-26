@@ -23,7 +23,7 @@ public interface RetakeCourseService {
 
     List<FailedCourseVo> failedCourseList(String studentId, Long calendarId);
 
-    List<RebuildCourseVo> findRebuildCourseList(Session session, Long calendarId, String keyWord);
+    List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord);
 
     void updateRebuildCourse(String studentId, RebuildCourseVo rebuildCourseVo);
 }
