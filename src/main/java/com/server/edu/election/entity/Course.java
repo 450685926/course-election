@@ -161,7 +161,7 @@ public class Course implements Serializable
      * 状态(1待提交，2待审核，3通过，0禁用)
      */
     @Column(name = "STATUS_")
-    private Integer status;
+    private String status;
     
     /**
      * 更新时间
@@ -652,7 +652,7 @@ public class Course implements Serializable
      *
      * @return STATUS_ - 状态(1待提交，2待审核，3通过，0禁用)
      */
-    public Integer getStatus()
+    public String getStatus()
     {
         return status;
     }
@@ -662,7 +662,7 @@ public class Course implements Serializable
      *
      * @param status 状态(1待提交，2待审核，3通过，0禁用)
      */
-    public void setStatus(Integer status)
+    public void setStatus(String status)
     {
         this.status = status;
     }
