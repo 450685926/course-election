@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
@@ -190,22 +191,21 @@ public class ElecAgentController
     public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
     		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
     {
+    	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
+
     	Session session = SessionUtils.getCurrentSession();
-		NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
-		
+    	
+    	if (!StringUtils.equals(session.getCurrentRole(), "1")) {
+    		throw new ParameterValidateException(I18nUtil.getMsg("agentElc.role.err"));
+		}
+    	
 		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {// 教务员
+			NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
 			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);			
 		    noSelectCourseStds.setFaculty(session.getFaculty());
-		    LOG.info("jiao wu yuan yuan xi" + session.getFaculty()); 
-		    LOG.info("jiao wu yuan yuan xi" + session.getFacultyName());
 		}
-
-		LOG.info("=================findAgentElcStudentList============start===");
-    	LOG.info("=================findAgentElcStudentList============start===" + condition.getCondition());
-    	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
     	
     	PageResult<NoSelectCourseStdsDto> list = elecService.findAgentElcStudentList(condition);
-    	LOG.info("=================findAgentElcStudentList============end===");
     	return RestResult.successData(list);
     }
     

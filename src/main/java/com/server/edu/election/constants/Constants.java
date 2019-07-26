@@ -50,5 +50,9 @@ public interface Constants
     public static final double TOTAL_LIMIT_CREDITS = 48;
     
     public static final int REBUILD_LIMIT_NUMBER = 6;
+    
+    /** 数据库逻辑删除标识  1-已删除;0-未删除 */
+    public static final Integer DELETE_TRUE = 1;
+    public static final Integer DELETE_FALSE = 0;
 
 }
