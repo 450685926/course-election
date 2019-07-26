@@ -170,8 +170,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
             elcLogDao.insertSelective(log);
-        }
-        if (rebuildCourseVo.getStatus() == 1) {
+        } else if (rebuildCourseVo.getStatus() == 1) {
             Long id = rebuildCourseVo.getTeachingClassId();
             List<Long> list = new ArrayList<>(1);
             list.add(id);
@@ -179,6 +178,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             // 添加选课日志
             log.setType(ElcLogVo.TYPE_2);
             elcLogDao.insertSelective(log);
+        } else {
+            throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.statusError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
     }
 

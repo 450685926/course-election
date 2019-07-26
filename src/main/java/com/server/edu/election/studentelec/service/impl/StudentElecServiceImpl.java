@@ -172,28 +172,11 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         HashOperations<String, String, TeachingClassCache> hash = redisTemplate.opsForHash();
         //获取学生已完成的课程
         Set<CompletedCourse> completedCourses1 = c.getCompletedCourses();
-        for (CompletedCourse completedCourse : completedCourses1) {
-            // 已完成课程教学安排添加
-            TeachingClassCache teachClass = hash.get(Keys.getClassKey(), String.valueOf(completedCourse.getTeachClassId()));
-            if (teachClass != null) {
-                setClassCache(completedCourse, teachClass);
-            }
-        }
 
-		//未通过课程教学班信息返回
-		Set<CompletedCourse> failedCourses = c.getFailedCourse();
-        for (CompletedCourse failedCourse : failedCourses) {
-            TeachingClassCache teachClass = hash.get(Keys.getClassKey(), String.valueOf(failedCourse.getTeachClassId()));
-            if (teachClass != null) {
-                setClassCache(failedCourse, teachClass);
-            }
-        }
-		
 		//从缓存中拿到本轮次排课信息
 		HashOperations<String, String, String> ops = strTemplate.opsForHash();
 		String key = Keys.getRoundCourseKey(roundId);
 		Map<String, String> roundsCoursesMap =  ops.entries(key);
-		
 		List<String> roundsCoursesIdsList = new ArrayList<>();
 		for (Entry<String, String> entry : roundsCoursesMap.entrySet()) {
 			 String courseCode = entry.getKey();
