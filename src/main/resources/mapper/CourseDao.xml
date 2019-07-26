@@ -23,7 +23,7 @@
     <result column="LABEL_" jdbcType="VARCHAR" property="label" />
     <result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode" />
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
-    <result column="STATUS_" jdbcType="INTEGER" property="status" />
+    <result column="STATUS_" jdbcType="VARCHAR" property="status" />
     <result column="REMARK_" jdbcType="LONGVARCHAR" property="remark" />
     <result column="TEACH_MODE_" jdbcType="LONGVARCHAR" property="teachMode" />
   </resultMap>
