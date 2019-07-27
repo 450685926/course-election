@@ -280,6 +280,19 @@ public class RoundDataProvider
     }
     
     /**
+     * 
+     * 通过学年学期与课程代码获取教学班信息
+     * @param calendarId
+     * @param courseCode
+     * @return
+     */
+    public List<TeachingClassCache> getTeachClasssbyCalendarId(Long calendarId,
+    		String courseCode)
+    {
+    	return classCacheService.getTeachClasssBycalendarId(calendarId, courseCode);
+    }
+    
+    /**
      * 获取指定教学班信息
      * 
      * @param calendarId 校历

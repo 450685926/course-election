@@ -39,6 +39,9 @@ public class ElecRequest
     
     private String requestIp;
     
+    /** 学年学期 */
+    private Long calendarId;
+    
     public String getStudentId()
     {
         return studentId;
@@ -108,5 +111,13 @@ public class ElecRequest
     {
         this.requestIp = requestIp;
     }
+
+	public Long getCalendarId() {
+		return calendarId;
+	}
+
+	public void setCalendarId(Long calendarId) {
+		this.calendarId = calendarId;
+	}
     
 }

@@ -63,7 +63,11 @@ public class ElecContext
         this.request = elecRequest;
     }
     
-    public ElecContext(String studentId, Long calendarId)
+    public ElecContext() {
+		super();
+	}
+
+	public ElecContext(String studentId, Long calendarId)
     {
         this.calendarId = calendarId;
         this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);

@@ -113,27 +113,46 @@ public class ElecAgentController
     public RestResult<ElecRespose> studentLoading(
         @RequestBody ElecRequest elecRequest)
     {
-        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
-        
+        //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
-        return elecService.loading(elecRequest.getRoundId(), studentId);
+        Long calendarId = elecRequest.getCalendarId();
+        if (chooseObj.intValue() != Constants.THREE) {
+        	return elecService.loading(elecRequest.getRoundId(), studentId);
+		}else {
+			return elecService.loadingAdmin(chooseObj,calendarId, studentId);
+		}
     }
     
     @ApiOperation(value = "获取学生选课数据")
     @PostMapping("/getData")
     public RestResult<ElecContext> getData(@RequestBody ElecRequest elecRequest)
     {
-        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         
+        Session session = SessionUtils.getCurrentSession();
         String studentId = elecRequest.getStudentId();
         
-        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
-        if (round == null)
-        {
-            return RestResult.error("elec.roundNotExistTip");
-        }
-        ElecContext c = new ElecContext(studentId, round.getCalendarId());
+        ElectionRounds round = new ElectionRounds();
+        ElecContext c = new ElecContext();
+        if (elecRequest.getRoundId() != null) { // 教务员
+        	round = dataProvider.getRound(elecRequest.getRoundId());
+        	if (round == null)
+        	{
+        		return RestResult.error("elec.roundNotExistTip");
+        	}
+        	c = new ElecContext(studentId, round.getCalendarId());
+		}else {    // 管理员
+			c = new ElecContext(studentId, elecRequest.getCalendarId());
+		}
         
+        if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE) {
+        	if (elecRequest.getChooseObj() == Constants.TOW) { // 教务员
+        		c = elecService.setData(c,elecRequest.getRoundId(),null);
+			}else if (elecRequest.getChooseObj() == Constants.THREE) { // 管理员
+				c = elecService.setData(c,null,elecRequest.getCalendarId());
+			}
+		}
         return RestResult.successData(c);
     }
     

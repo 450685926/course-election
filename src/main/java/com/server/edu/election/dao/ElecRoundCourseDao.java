@@ -130,8 +130,12 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
 	 * @return
 	 */
 	List<CourseOpenDto> selectCorseRefTeachClassGraduteByRoundId(@Param("roundId") Long roundId, @Param("calendarId") Long calendarId);
-
     
-    
+	/**
+	 * 查询学年学期所有可选课程(研究生)
+	 * @param calendarId
+	 * @return
+	 */
+	List<CourseOpenDto> selectCorseGraduteByCalendarId(@Param("calendarId") Long calendarId);
 
 }

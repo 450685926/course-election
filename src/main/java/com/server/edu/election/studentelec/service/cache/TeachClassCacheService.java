@@ -145,6 +145,7 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
             tc.setFaculty(lesson.getFaculty());
+            tc.setCalendarId(lesson.getCalendarId());
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
@@ -257,6 +258,42 @@ public class TeachClassCacheService extends AbstractCacheService
             lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
         }
         return lessons;
+    }
+    
+    /**
+     * 
+     * 通过学年学期与课程代码获取教学班信息
+     * @param calendarId
+     * @param courseCode
+     * @return
+     */
+    public List<TeachingClassCache> getTeachClasssBycalendarId(Long calendarId,
+    		String courseCode)
+    {
+    	List<TeachingClassCache> lessons = new ArrayList<>();
+    	
+    	List<Long> teachClassIds =
+    			this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
+    	if (CollectionUtil.isEmpty(teachClassIds))
+    	{
+    		return lessons;
+    	}
+    	
+    	if (CollectionUtil.isNotEmpty(teachClassIds))
+    	{
+    		Collections.sort(teachClassIds);
+    		
+    		List<String> keys = teachClassIds.stream()
+    				.map(String::valueOf)
+    				.collect(Collectors.toList());
+    		
+    		HashOperations<String, String, TeachingClassCache> hash =
+    				opsTeachClass();
+    		lessons = hash.multiGet(Keys.getClassKey(), keys);
+    		// 过滤null
+    		lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    	}
+    	return lessons;
     }
     
     /**

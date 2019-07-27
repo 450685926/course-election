@@ -321,6 +321,34 @@ public class RoundCacheService extends AbstractCacheService
         return teachClassIds;
     }
     
+    /**
+     * 得到学年学期课程所对应的教学班ID
+     * 
+     * @param calendarId
+     * @param courseCode
+     * @param ops
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public List<Long> getTeachClassIdsByCalendarId(Long calendarId, String courseCode)
+    {
+    	HashOperations<String, String, String> ops = strTemplate.opsForHash();
+    	
+    	String key = Keys.getCalendarCourseKey(calendarId);
+    	
+    	String text = ops.get(key, courseCode);
+    	List<Long> teachClassIds = null;
+    	if (StringUtils.isEmpty(text))
+    	{
+    		return teachClassIds;
+    	}
+    	teachClassIds = JSON.parseArray(text, Long.class);
+    	
+    	Collections.sort(teachClassIds);
+    	
+    	return teachClassIds;
+    }
+    
     @Autowired
     private ElecRoundStuDao roundStuDao;
     
