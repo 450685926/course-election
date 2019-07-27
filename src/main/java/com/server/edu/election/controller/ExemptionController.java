@@ -1,20 +1,12 @@
 package com.server.edu.election.controller;
 
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.log.LogRecord;
-import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.dmskafka.entity.AuditType;
-import com.server.edu.election.dto.ExemptionApplyCondition;
-import com.server.edu.election.dto.ExemptionCourseScoreDto;
-import com.server.edu.election.entity.*;
-import com.server.edu.election.service.ExemptionCourseService;
-import com.server.edu.election.vo.*;
-import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.util.excel.parse.ExcelParseConfig;
-import com.server.edu.util.excel.parse.ExcelParseDesigner;
-import io.swagger.annotations.*;
+import java.io.File;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -27,14 +19,49 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.log.LogRecord;
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
+import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.dmskafka.entity.AuditType;
+import com.server.edu.election.dto.ExemptionApplyCondition;
+import com.server.edu.election.dto.ExemptionCourseScoreDto;
+import com.server.edu.election.entity.ExemptionApplyManage;
+import com.server.edu.election.entity.ExemptionCourse;
+import com.server.edu.election.entity.ExemptionCourseScore;
+import com.server.edu.election.entity.Student;
+import com.server.edu.election.query.ExemptionQuery;
+import com.server.edu.election.service.ExemptionCourseService;
+import com.server.edu.election.vo.ExemptionApplyManageVo;
+import com.server.edu.election.vo.ExemptionCourseMaterialVo;
+import com.server.edu.election.vo.ExemptionCourseRuleVo;
+import com.server.edu.election.vo.ExemptionCourseScoreVo;
+import com.server.edu.election.vo.ExemptionCourseVo;
+import com.server.edu.election.vo.ExemptionStudentCountVo;
+import com.server.edu.election.vo.StudentAndCourseVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.parse.ExcelParseConfig;
+import com.server.edu.util.excel.parse.ExcelParseDesigner;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.SwaggerDefinition;
 
 /**
  * @description: 免修免考管理
@@ -154,6 +181,8 @@ public class ExemptionController {
     @ApiOperation(value = "新增免修免考申请管理")
     @PostMapping("/addExemptionApply")
     public RestResult<String> addExemptionApply(@RequestBody ExemptionApplyManage applyManage){
+    	Session session = SessionUtils.getCurrentSession();
+    	applyManage.setManagerDeptId(session.getCurrentManageDptId());
         String s = exemptionCourseService.addExemptionApply(applyManage);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
@@ -382,6 +411,155 @@ public class ExemptionController {
             return RestResult.fail("common.parameterError");
         }
         return exemptionCourseService.filterCourseCode(courseRuleVo,applyType);
+    }
+    
+    /**
+     * 免修免考统计
+     */
+    @ApiOperation(value = "免修免考统计")
+    @PostMapping("/exemptionCount")
+    public RestResult<PageResult<ExemptionStudentCountVo>> exemptionCount(@RequestBody PageCondition<ExemptionQuery> page){
+    	ValidatorUtil.validateAndThrow(page.getCondition());
+    	Session session = SessionUtils.getCurrentSession();
+        if (!session.isAdmin()) {
+        	return RestResult.fail("elec.mustBeAdmin");
+		}
+    	
+        PageResult<ExemptionStudentCountVo> countResult = exemptionCourseService.exemptionCount(page); 
+        return RestResult.successData(countResult);
+    }
+    
+    /**
+     * @throws Exception 
+     * 免修免考
+     */
+    @LogRecord(title="研究生审批免修免考申请",type = AuditType.UPDATE)
+    @ApiOperation(value = "研究生审批免修免考申请")
+    @PostMapping("/approvalGraduteExemptionApply")
+    public RestResult<String> approvalGraduateExemptionApply(@RequestBody List<Long>  ids,@RequestParam Integer status,@RequestParam String auditor){
+        String s= exemptionCourseService.approvalGraduateExemptionApply(ids,status,auditor);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+    
+    /**
+    *@Description: 查询免修免考审批列表
+    *@Param:
+    *@return:
+    *@Author: bear
+    *@date: 2019/1/31 9:29
+    */
+    @ApiOperation(value = "查询免修免考审批列表")
+    @PostMapping("/findGraduateExemptionApply")
+    public RestResult<PageResult<ExemptionApplyManageVo>> findGraduateExemptionApply(@RequestBody PageCondition<ExemptionQuery> condition) {
+        PageResult<ExemptionApplyManageVo> exemptionCourse = exemptionCourseService.findGraduateExemptionApply(condition);
+        return RestResult.successData(exemptionCourse);
+    }
+    
+    @ApiOperation(value = "研究生免修免考统计导出")
+    @GetMapping("/exemptionCountExport")
+    public File exemptionCountExport(
+    		@ModelAttribute ExemptionQuery page)
+    {
+    	try {
+    		ValidatorUtil.validateAndThrow(page);
+    		LOG.info("export.start");
+    		RestResult<String> restResult = exemptionCourseService.exemptionCountExport(page);
+    		
+    		if (restResult.getCode() == ResultStatus.SUCCESS.code()
+    				&& !"".equals(restResult.getData()))
+    		{
+    			return new File(restResult.getData());
+    		}
+    		else
+    		{
+    			return null;
+    		}
+    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    	return null;
+    	
+    }
+    
+    @ApiOperation(value = "研究生审批免修免考导出")
+    @PostMapping("/findGraduateExemptionApplyExport")
+    public File findGraduateExemptionApplyExport(
+    		@RequestBody ExemptionQuery page)
+    {
+    	try {
+    		ValidatorUtil.validateAndThrow(page);
+        	LOG.info("export.start");
+        	RestResult<String> restResult = exemptionCourseService.findGraduateExemptionApplyExport(page);
+
+            if (restResult.getCode() == ResultStatus.SUCCESS.code()
+                    && !"".equals(restResult.getData()))
+            {
+            	return new File(restResult.getData());
+            }
+            else
+            {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+       return null;
+    	
+    }
+    /**
+     * 根据学生Id与课程编码找出学生课程
+     */
+    @ApiOperation(value = "管理员免修免考添加下拉")
+    @GetMapping("/findCourseAdd")
+    public RestResult<StudentAndCourseVo> findCourseCodeAdd(
+    		@RequestParam  String studentId,
+    		@RequestParam  String courseCode,
+    		@RequestParam  Long calendarId){
+    	StudentAndCourseVo result = exemptionCourseService.findCourseCode(studentId,courseCode,calendarId);
+        return RestResult.successData(result);
+    }
+    
+    /**
+     * 根据学生Id与课程编码找出学生课程
+     */
+    @ApiOperation(value = "管理员添加免修免考")
+    @GetMapping("/adminAddApply")
+    public RestResult<String> adminAddApply(
+    		@RequestBody ExemptionApplyManage applyManage){
+    	Session session = SessionUtils.getCurrentSession();
+    	applyManage.setManagerDeptId(session.getCurrentManageDptId());
+    	String s = exemptionCourseService.adminAddApply(applyManage);
+        return RestResult.success(I18nUtil.getMsg(s,""));
+    }
+    
+    /**
+     * 研究生免修免考列表
+     */
+    @ApiOperation(value = "研究生免修免考列表")
+    @GetMapping("/findStudentCourse")
+    public RestResult<StudentAndCourseVo> findStudentCourse(@RequestParam Long calendarId){
+    	
+    	Session session = SessionUtils.getCurrentSession();
+    	if (!session.isStudent()) {
+    		return RestResult.fail("elec.mustBeStu");
+		}
+    	String studentId = session.realUid();
+    	
+    	StudentAndCourseVo result = exemptionCourseService.findStudentApplyCourse(studentId,calendarId);
+    	return RestResult.successData(result);
+    } 
+    
+    @LogRecord(title="新增研究生免修免考申请",type = AuditType.INSERT)
+    @ApiOperation(value = "新增免修免考申请管理")
+    @PostMapping("/addGraduteExemptionApply")
+    public RestResult<String> addGraduteExemptionApply(@RequestBody ExemptionApplyManage applyManage){
+    	Session session = SessionUtils.getCurrentSession();
+    	applyManage.setManagerDeptId(session.getCurrentManageDptId());
+    	applyManage.setStudentCode(session.realUid());
+        String s = exemptionCourseService.addExemptionApply(applyManage);
+        return RestResult.success(I18nUtil.getMsg(s,""));
     }
     
     

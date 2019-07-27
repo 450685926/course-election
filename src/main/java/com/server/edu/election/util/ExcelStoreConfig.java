@@ -28,6 +28,14 @@ public class ExcelStoreConfig
     
     private List<String> allNonSelectedCourseStudentKey;
     
+    private List<String> exemptionCountExportTitle;
+    
+    private List<String> exemptionCountExportKey;
+    
+    private List<String> graduateExemptionApplyExportTitle;
+    
+    private List<String> graduateExemptionApplyExportKey;
+    
 	public List<String> getElcResultCountExportByStudentTitle() {
 		return elcResultCountExportByStudentTitle;
 	}
@@ -74,6 +82,38 @@ public class ExcelStoreConfig
 
 	public void setAllNonSelectedCourseStudentKey(List<String> allNonSelectedCourseStudentKey) {
 		this.allNonSelectedCourseStudentKey = allNonSelectedCourseStudentKey;
+	}
+
+	public List<String> getExemptionCountExportTitle() {
+		return exemptionCountExportTitle;
+	}
+
+	public void setExemptionCountExportTitle(List<String> exemptionCountExportTitle) {
+		this.exemptionCountExportTitle = exemptionCountExportTitle;
+	}
+
+	public List<String> getExemptionCountExportKey() {
+		return exemptionCountExportKey;
+	}
+
+	public void setExemptionCountExportKey(List<String> exemptionCountExportKey) {
+		this.exemptionCountExportKey = exemptionCountExportKey;
+	}
+
+	public List<String> getGraduateExemptionApplyExportTitle() {
+		return graduateExemptionApplyExportTitle;
+	}
+
+	public void setGraduateExemptionApplyExportTitle(List<String> graduateExemptionApplyExportTitle) {
+		this.graduateExemptionApplyExportTitle = graduateExemptionApplyExportTitle;
+	}
+
+	public List<String> getGraduateExemptionApplyExportKey() {
+		return graduateExemptionApplyExportKey;
+	}
+
+	public void setGraduateExemptionApplyExportKey(List<String> graduateExemptionApplyExportKey) {
+		this.graduateExemptionApplyExportKey = graduateExemptionApplyExportKey;
 	}
 
 }

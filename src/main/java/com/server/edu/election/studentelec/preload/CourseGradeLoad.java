@@ -180,6 +180,10 @@ public class CourseGradeLoad extends DataProLoad
                     }
                 }
 
+            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),studentScore.getCourseCode(),studentScore.getTeachingClassId());
+            	if(teachingClassCache!=null) {
+                    lesson.setFaculty(teachingClassCache.getFaculty());
+            	}
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
