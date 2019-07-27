@@ -151,8 +151,8 @@
 		  	and t1.PROJ_ID_ = #{query.projectId}
 		  	</if>
 			and t4.DEPLOY_FLAG_ &gt; 0
-		  	and t1.COURSE_CODE_ NOT IN (
-		  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
+		  	and t4.ID_ NOT IN (
+		  	 select t.TEACHING_CLASS_ID_ from election_rounds_cour_t t where t.ROUNDS_ID_ = #{query.roundId}
 		  	)
 			<if test="query.mode==2">
 				and t1.COURSE_CODE_ in 
