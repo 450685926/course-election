@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -187,7 +188,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         Integer timeStart = classTeacherDto.getTimeStart();
                         Integer timeEnd = classTeacherDto.getTimeEnd();
                         String roomID = classTeacherDto.getRoomID();
-                        String weekstr = findWeek(dayOfWeek);//星期
+                        String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                         String roomName = ClassroomCacheUtil.getRoomName(roomID);
                         String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+classTeacherDto.getWeekNumberStr()+ roomName;
                         multimap.put(classTeacherDto.getTeachingClassId(),timeStr);
@@ -273,8 +274,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId) {
-        List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
         List<ClassTeacherDto> list=new ArrayList<>();
+        if (teachingClassId == null) {
+            return list;
+        }
+        List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
         if(CollectionUtil.isNotEmpty(classTeacherDtos)){
             Map<String, List<ClassTeacherDto>> listMap = classTeacherDtos.stream().filter((ClassTeacherDto dto)->dto.getTeacherCode()!=null).collect(Collectors.groupingBy(ClassTeacherDto::getTeacherCode));
             for (List<ClassTeacherDto> teacherDtoList : listMap.values()) {
@@ -290,7 +294,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                             String[] teacherCodes = teacherCode.split(",");
 
                             Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                            String week = findWeek(dayOfWeek);
+                            String week = WeekUtil.findWeek(dayOfWeek);
                             Integer timeStart = classTeacherDto.getTimeStart();
                             Integer timeEnd = classTeacherDto.getTimeEnd();
                             String roomID = classTeacherDto.getRoomID();
@@ -1118,7 +1122,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
-                String weekstr = findWeek(dayOfWeek);//星期
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
 
                 String[] tcodes = teacherCode.split(",");
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
@@ -1169,7 +1173,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
-                String weekstr = findWeek(dayOfWeek);//星期
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
 
 
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
@@ -1287,42 +1291,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     //导出待做todo
 
    /**
-   *@Description: 星期
-   *@Param:
-   *@return:
-   *@Author: bear
-   *@date: 2019/2/15 13:59
-   */
-
-   public String findWeek(Integer number){
-       String week="";
-       switch(number){
-           case 1:
-               week="星期一";
-               break;
-           case 2:
-               week="星期二";
-               break;
-           case 3:
-               week="星期三";
-               break;
-           case 4:
-               week="星期四";
-               break;
-           case 5:
-               week="星期五";
-               break;
-           case 6:
-               week="星期六";
-               break;
-           case 7:
-               week="星期日";
-               break;
-       }
-       return week;
-   }
-
-   /**
    *@Description: 通过teachingClassId查询教师
    *@Param:
    *@return:
@@ -1376,7 +1344,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                        Integer minWeek = Collections.min(intList);
                        Set<String> rooms = list.stream().map(ClassTeacherDto::getRoomID).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
                        String roomId = String.join(",", rooms);
-                       String time=findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+minWeek+"-"+maxWeek+"] "+roomId;
+                       String time=WeekUtil.findWeek(dayOfWeek)+" "+timeStart+"-"+timeEnd+"["+minWeek+"-"+maxWeek+"] "+roomId;
                        str.append(time);
                        str.append("/");
                    }

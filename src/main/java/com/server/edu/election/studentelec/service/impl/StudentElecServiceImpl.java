@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,7 +166,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
-   			elcCourseResult.setFaculty(completedCourse.getFaculty());
+   			elcCourseResult.setCalendarName(completedCourse.getCalendarName());
             elcCourseResult.setCourseTakeType(completedCourse.getCourseTakeType());
             elcCourseResult.setAssessmentMode(completedCourse.getAssessmentMode());
             elcCourseResult.setPublicElec(completedCourse.isPublicElec());
@@ -189,11 +190,11 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 	                	teachClass.setCurrentNumber(elecNumber);
                         setClassCache(elcCourseResult, teachClass);
 	                	classTimeLists.add( teachClass.getTimes());
-	                	selectedCourses.add(elcCourseResult);
 	                }
 	            }
 	        }
-		}
+            selectedCourses.add(elcCourseResult);
+        }
    		selectedCourseSet.clear();
    		selectedCourseSet.addAll(selectedCourses);
 
@@ -201,23 +202,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         HashOperations<String, String, TeachingClassCache> hash = redisTemplate.opsForHash();
         //获取学生已完成的课程
         Set<CompletedCourse> completedCourses1 = c.getCompletedCourses();
-        for (CompletedCourse completedCourse : completedCourses1) {
-            // 已完成课程教学安排添加
-            TeachingClassCache teachClass = hash.get(Keys.getClassKey(), String.valueOf(completedCourse.getTeachClassId()));
-            if (teachClass != null) {
-                setClassCache(completedCourse, teachClass);
-            }
-        }
 
-		//未通过课程教学班信息返回
-		Set<CompletedCourse> failedCourses = c.getFailedCourse();
-        for (CompletedCourse failedCourse : failedCourses) {
-            TeachingClassCache teachClass = hash.get(Keys.getClassKey(), String.valueOf(failedCourse.getTeachClassId()));
-            if (teachClass != null) {
-                setClassCache(failedCourse, teachClass);
-            }
-        }
-		
 		//从缓存中拿到本轮次排课信息
 		HashOperations<String, String, String> ops = strTemplate.opsForHash();
 		String key = "";
@@ -227,7 +212,6 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			key = Keys.getCalendarCourseKey(calendarId);  // 管理员代理选课
 		}
 		Map<String, String> roundsCoursesMap =  ops.entries(key);
-		
 		List<String> roundsCoursesIdsList = new ArrayList<>();
 		for (Entry<String, String> entry : roundsCoursesMap.entrySet()) {
 			 String courseCode = entry.getKey();
@@ -381,7 +365,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         newClassCache.setMaxNumber(oldClassCache.getMaxNumber());
         newClassCache.setTimes(oldClassCache.getTimes());
         newClassCache.setTimeTableList(oldClassCache.getTimeTableList());
-
+        newClassCache.setRemark(oldClassCache.getRemark());
     }
 
     
@@ -680,7 +664,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
-                String weekstr = findWeek(dayOfWeek);//星期
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
                 time.setTimeId(timeId);
                 time.setTimeAndRoom(timeStr);
@@ -691,41 +675,6 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         return list;
     }
 	
-   /**
-   *@Description: 星期
-   *@Param:
-   *@return:
-   *@Author: bear
-   *@date: 2019/2/15 13:59
-   */
-	private String findWeek(Integer number){
-       String week="";
-       switch(number){
-           case 1:
-               week="星期一";
-               break;
-           case 2:
-               week="星期二";
-               break;
-           case 3:
-               week="星期三";
-               break;
-           case 4:
-               week="星期四";
-               break;
-           case 5:
-               week="星期五";
-               break;
-           case 6:
-               week="星期六";
-               break;
-           case 7:
-               week="星期日";
-               break;
-       }
-       return week;
-   }
-
     /** 获取学生可选课程 */
    	@Override
    	public ElcResultCourseVo getOptionalCourses(Long roundId,

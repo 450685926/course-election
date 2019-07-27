@@ -633,6 +633,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         ElcCourseTakeQuery courseTakeQuerytudentVo = condition.getCondition();
         String studentId = courseTakeQuerytudentVo.getStudentId();
         Long calendarId = courseTakeQuerytudentVo.getCalendarId();
+        String keyword = courseTakeQuerytudentVo.getKeyword();
         // 获取学生所有已修课程成绩
         List<StudentScoreVo> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentId);
         // 获取学生通过课程集合
@@ -642,6 +643,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
         RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
         List<String> allCourseCode = restResult.getData();
+        if (allCourseCode == null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.planCultureError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
@@ -649,7 +653,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
                 .collect(Collectors.toList());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId);
+        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }

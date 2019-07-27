@@ -48,13 +48,15 @@
   	<result column="APPLY_" jdbcType="INTEGER" property="apply" />
   	<result column="LABEL_" jdbcType="VARCHAR" property="label" />
   	<result column="NATURE" jdbcType="VARCHAR" property="nature" />
+  	<result column="TERM_" jdbcType="VARCHAR" property="term" />
+  	<result column="GRADE_" jdbcType="VARCHAR" property="grade" />
   </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
     select
     t1.*,
-    t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_ faculty,
-    t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
+    t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_ faculty,
+    t3.NAME_ as courseName, t3.NATURE_ NATURE,t3.CREDITS_,
     t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
     t4.CAMPUS_
     from elc_course_takes_t t1
@@ -67,7 +69,7 @@
   <select id="listPage" resultMap="VoResultMap">
       select
       t1.*,
-      t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_ faculty,
+      t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_,
       t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
       t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
       t4.CAMPUS_
@@ -118,6 +120,9 @@
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
      and t2.FORM_LEARNING_= #{elcResult.formLearning} 
      </if>
+     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+      and t2.FACULTY_ = #{query.faculty}
+     </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
   	 and t3.CODE_ = #{query.courseCode}
   	 </if>
@@ -135,9 +140,6 @@
      </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
   	  and t3.LABEL_ = #{query.label}
-  	 </if>
-	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
-  	  and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
   	 </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
   	 and t3.CODE_ IN
@@ -573,9 +575,10 @@
     </insert>
     <select id="findSelectedCourses" resultMap="VoResultMap">
       select
-	      t1.*,t3.NATURE_ NATURE,
-	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_, t3.LABEL_, t4.PERIOD_,
-          t3.ASSESSMENT_MODE_,t3.TERM_ term,
+	      t1.*,op.NATURE_ NATURE,
+	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,op.TERM_,
+	      t3.LABEL_, t4.PERIOD_,
+          t3.ASSESSMENT_MODE_,
 	      t4.CODE_ as teachingClassCode,
 	      t4.NAME_ as teachingClassName,
           op.IS_ELECTIVE_ as isPublicCourse
@@ -1077,13 +1080,11 @@
 
     <select id="findAddCourseList" resultType="com.server.edu.election.vo.ElcStudentVo">
        select
-            a.FACULTY_ courseFaculty,
-            b.NAME_ courseName,b.NATURE_ nature,
+            a.FACULTY_ courseFaculty,a.COURSE_NAME_ courseName,a.NATURE_ nature,
             d.ID_ teachingClassId,d.CODE_ classCode,
             d.NAME_ teachingClassName,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number,
             e.TEACHER_NAME_ teacherName
         from course_open_t a
-        join course_t b on b.CODE_ = a.COURSE_CODE_
         join teaching_task_t c on c.COURSE_OPEN_ID_ = a.ID_
         join teaching_class_t d on d.TASK_ID_ = c.ID_
         join teaching_class_teacher_t e on e.TEACHING_CLASS_ID_ = d.ID_
@@ -1091,7 +1092,10 @@
             <foreach item="courseCode" collection="courseCodes" separator="," open="(" close=")" >
               #{courseCode}
             </foreach>
-            and a.CALENDAR_ID_ = #{calendarId}
+        and a.CALENDAR_ID_ = #{calendarId}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+            and (a.COURSE_CODE_ like concat('%',#{keyWord},'%') or a.COURSE_NAME_ like concat('%',#{keyWord},'%'))
+        </if>
     </select>
 
     <select id="findCourseInfo" resultType="com.server.edu.election.vo.ElcStudentVo">
@@ -1154,7 +1158,7 @@
     </delete>
 
     <select id="findSelectedCourseCode" resultType="java.lang.String">
-        select distinct COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ =#{calendarId}
+        select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ =#{calendarId}
     </select>
 
     <select id="findCourseCode" resultType="java.lang.String">

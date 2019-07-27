@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,6 +142,7 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setTeachClassType(lesson.getTeachClassType());
             tc.setMaxNumber(lesson.getMaxNumber());
             tc.setCurrentNumber(lesson.getCurrentNumber());
+            tc.setRemark(lesson.getRemark());
             tc.setTimeTableList(getTimeById(teachingClassId));
             tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
@@ -179,7 +181,7 @@ public class TeachClassCacheService extends AbstractCacheService
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
-                String weekstr = findWeek(dayOfWeek);//星期
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
                 time.setTimeId(timeId);
                 time.setTimeAndRoom(timeStr);
@@ -189,41 +191,7 @@ public class TeachClassCacheService extends AbstractCacheService
         }
         return list;
     }
-    /**
-     *@Description: 星期
-     *@Param:
-     *@return:
-     *@Author: bear
-     *@date: 2019/2/15 13:59
-     */
-  	private String findWeek(Integer number){
-         String week="";
-         switch(number){
-             case 1:
-                 week="星期一";
-                 break;
-             case 2:
-                 week="星期二";
-                 break;
-             case 3:
-                 week="星期三";
-                 break;
-             case 4:
-                 week="星期四";
-                 break;
-             case 5:
-                 week="星期五";
-                 break;
-             case 6:
-                 week="星期六";
-                 break;
-             case 7:
-                 week="星期日";
-                 break;
-         }
-         return week;
-     }
-    
+
     /**
      * 
      * 通过轮次与课程代码获取教学班信息

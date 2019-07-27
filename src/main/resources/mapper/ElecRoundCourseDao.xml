@@ -309,7 +309,7 @@
   <select id="selectTeachingClassByCalendarId" resultMap="CourseOpenDtoMap">
   	  select 
   	  	op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,
-  	  	cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber
+  	  	cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber,cl.REMARK_ AS remark
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
@@ -322,7 +322,8 @@
 		cl1.CAMPUS_ AS campus,
 		cl1.CLASS_TYPE_ AS teachClassType,
 		cl1.NUMBER_ AS maxNumber,
-		cl1.ELC_NUMBER_ AS currentNumber
+		cl1.ELC_NUMBER_ AS currentNumber,
+		cl1.REMARK_ AS remark
 	FROM
 		course_open_t op1
 	JOIN teaching_task_t ta ON op1.ID_ = ta.COURSE_OPEN_ID_
