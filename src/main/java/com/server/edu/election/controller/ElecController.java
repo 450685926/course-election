@@ -150,21 +150,6 @@ public class ElecController
         return RestResult.successData(c);
     }
     
-    @ApiOperation(value = "获取可选课程列表")
-    @GetMapping("/getOptionalCourses")
-    public RestResult<ElcResultCourseVo> getOptionalCourses(
-        @RequestParam("roundId") @NotNull Long roundId )
-    { 
-        Session session = SessionUtils.getCurrentSession();
-        String studentId = session.realUid();
-        if (session.realType() != UserTypeEnum.STUDENT.getValue())
-        {
-            return RestResult.fail("elec.mustBeStu");
-        }
-    	ElcResultCourseVo data = elecService.getOptionalCourses(roundId,studentId);
-        return RestResult.successData(data);
-    }
-    
     @ApiOperation(value = "获取课程对应的教学班数据")
     @PostMapping("/getTeachClass")
     public RestResult<List<TeachingClassCache>> getTeachClass(
