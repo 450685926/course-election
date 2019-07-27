@@ -356,6 +356,7 @@ public class ElecContextUtil
     	{
     		timeout = 10;
     	}
+    	logger.info("444444444444444444---calendarId:" + calendarId);
     	getRedisTemplate().opsForValue()
     	.set(String.format(STD_ADIMN_STATUS, calendarId, studentId),
     			status.toString(),
