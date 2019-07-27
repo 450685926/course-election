@@ -172,8 +172,11 @@ public class CourseGradeLoad extends DataProLoad
                         lesson.setTeachClassCode(classCache.getTeachClassCode());
                         lesson.setRemark(classCache.getRemark());
                         lesson.setFaculty(classCache.getFaculty());
+                        lesson.setTerm(classCache.getTerm());
                         List<String> names = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toList());
-                        lesson.setTeacherName(String.valueOf(names));
+                        if (CollectionUtil.isNotEmpty(names)) {
+                            lesson.setTeacherName(String.join(",",names));
+                        }
                     }
                 }
 

@@ -175,7 +175,8 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
 
-    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId);
+    Page<ElcStudentVo> findAddCourseList(
+            @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
 
     Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 

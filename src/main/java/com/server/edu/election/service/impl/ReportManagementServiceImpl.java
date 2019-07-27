@@ -273,8 +273,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public List<ClassTeacherDto> findStudentAndTeacherTime(Long teachingClassId) {
-        List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
         List<ClassTeacherDto> list=new ArrayList<>();
+        if (teachingClassId == null) {
+            return list;
+        }
+        List<ClassTeacherDto> classTeacherDtos = courseTakeDao.findStudentAndTeacherTime(teachingClassId);
         if(CollectionUtil.isNotEmpty(classTeacherDtos)){
             Map<String, List<ClassTeacherDto>> listMap = classTeacherDtos.stream().filter((ClassTeacherDto dto)->dto.getTeacherCode()!=null).collect(Collectors.groupingBy(ClassTeacherDto::getTeacherCode));
             for (List<ClassTeacherDto> teacherDtoList : listMap.values()) {
