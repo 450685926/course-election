@@ -117,6 +117,7 @@ public class ElecAgentController
         Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
         Long calendarId = elecRequest.getCalendarId();
+        LOG.info("111111111111---calendarId:" + calendarId);
         if (chooseObj.intValue() != Constants.THREE) {
         	return elecService.loading(elecRequest.getRoundId(), studentId);
 		}else {
@@ -227,7 +228,7 @@ public class ElecAgentController
     public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
     		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
     {
-    	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
+    	//ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
 
     	Session session = SessionUtils.getCurrentSession();
     	
