@@ -113,12 +113,12 @@ public class ElecAgentController
     @ApiOperation(value = "数据加载")
     @PostMapping("/loading")
     public RestResult<ElecRespose> studentLoading(
-        ElecRequest elecRequest, @RequestParam("calendarId") Long calendarId)
+    	@RequestBody(required=false) ElecRequest elecRequest)
     {
         //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
-        //Long calendarId = elecRequest.getCalendarId();
+        Long calendarId = elecRequest.getCalendarId();
         
         LOG.info("111111111111---calendarId:" + calendarId);
         if (chooseObj.intValue() != Constants.THREE) {
@@ -130,7 +130,7 @@ public class ElecAgentController
     
     @ApiOperation(value = "获取学生选课数据")
     @PostMapping("/getData")
-    public RestResult<ElecContext> getData(@RequestBody ElecRequest elecRequest,@RequestParam("calendarId") Long calendarId)
+    public RestResult<ElecContext> getData(@RequestBody(required=false) ElecRequest elecRequest)
     {
         //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         
@@ -147,16 +147,16 @@ public class ElecAgentController
         	}
         	c = new ElecContext(studentId, round.getCalendarId());
 		}else {    // 管理员
-			//c = new ElecContext(studentId, elecRequest.getCalendarId());
-			c = new ElecContext(studentId, calendarId);
+			c = new ElecContext(studentId, elecRequest.getCalendarId());
+			//c = new ElecContext(studentId, calendarId);
 		}
         
         if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE) {
         	if (elecRequest.getChooseObj() == Constants.TOW) { // 教务员
         		c = elecService.setData(c,elecRequest.getRoundId(),null);
 			}else if (elecRequest.getChooseObj() == Constants.THREE) { // 管理员
-				//c = elecService.setData(c,null,elecRequest.getCalendarId());
-				c = elecService.setData(c,null,calendarId);
+				c = elecService.setData(c,null,elecRequest.getCalendarId());
+				//c = elecService.setData(c,null,calendarId);
 			}
 		}
         return RestResult.successData(c);
