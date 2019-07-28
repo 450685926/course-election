@@ -24,6 +24,17 @@ public class RetakeCourseCountVo {
     @Code2Text(transformer = "X_GLBM")
     private String managerDeptId;
 
+    /**删除状态，0未删除，1删除*/
+    private Integer status;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     public Long getId() {
         return id;
     }

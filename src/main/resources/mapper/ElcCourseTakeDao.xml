@@ -69,7 +69,7 @@
   <select id="listPage" resultMap="VoResultMap">
       select
       t1.*,
-      t2.NAME_,t2.PROFESSION_,t2.GRADE_ grade, t2.FACULTY_,
+      t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
       t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
       t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
       t4.CAMPUS_
@@ -103,7 +103,7 @@
          and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
      </if>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
-          and t2.TRAINING_CATEGORY_ = #{query.trainingLevel}
+          and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
      </if>
   	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
   	 and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
@@ -115,7 +115,7 @@
      and t2.RESEARCH_DIRECTION_ = #{query.researchDirection}
      </if>
 	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-     and t2.DEGREE_CATEGORY_= #{elcResult.degreeType} 
+     and t2.DEGREE_TYPE_= #{elcResult.degreeType}
      </if>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
      and t2.FORM_LEARNING_= #{elcResult.formLearning} 
@@ -1100,11 +1100,10 @@
 
     <select id="findCourseInfo" resultType="com.server.edu.election.vo.ElcStudentVo">
         select a.ID_ teachingClassId,a.CODE_ classCode,
-        d.TERM_ calendarId,d.CODE_ courseCode,d.NAME_ courseName
+        c.CALENDAR_ID_ calendarId,c.COURSE_CODE_ courseCode,c.COURSE_NAME_ courseName
         from teaching_class_t a
         join teaching_task_t b on  b.ID_ = a.TASK_ID_
         join course_open_t c on c.ID_ = b.COURSE_OPEN_ID_
-        join course_t d on d.CODE_ = c.COURSE_CODE_
         where a.ID_ in
         <foreach item="item" collection="list" separator="," open="(" close=")" >
             #{item, jdbcType=INTEGER}
@@ -1155,6 +1154,15 @@
             <foreach item="item" collection="list" separator="," open="(" close=")" >
                 #{item, jdbcType=INTEGER}
             </foreach>
+    </delete>
+
+    <delete id="deleteByCourseTask">
+        DELETE FROM
+        elc_course_takes_t
+        WHERE (STUDENT_ID_,TEACHING_CLASS_ID_) in
+        <foreach item="item" collection="list" separator="," open="(" close=")" >
+            (#{item.studentId},#{item.teachingClassId})
+        </foreach>
     </delete>
 
     <select id="findSelectedCourseCode" resultType="java.lang.String">
@@ -1245,7 +1253,7 @@
         from teaching_class_arrange_time_t t1
         join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
         where t1.TEACHING_CLASS_ID_ in
-        <foreach item="item" collection="teachingClassIds" separator="," open="(" close=")" >
+        <foreach item="item" collection="#{list}" separator="," open="(" close=")" >
             #{item}
         </foreach>
         group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_

@@ -7,6 +7,10 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -38,12 +42,6 @@ import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.election.dto.AddAndRemoveCourseDto;
-import com.server.edu.election.dto.CourseOpenDto;
-import com.server.edu.election.dto.ElcCourseTakeAddDto;
-import com.server.edu.election.dto.ElcCourseTakeDto;
-import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
-import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -160,50 +158,29 @@ public class ElcCourseTakeController
      */
     @ApiOperation(value = "课程维护模块研究生加课")
     @PostMapping("/addCourse")
-    public RestResult<Integer> addCourse(@RequestBody AddAndRemoveCourseDto courseDto) {
-        Session session = SessionUtils.getCurrentSession();
-        setParam(session, courseDto);
-        Integer count = null;
-        if (session.isAdmin()) {
-            courseDto.setChooseObj(3);
-            count = courseTakeService.addCourse(courseDto);
-        } else if (session.isAcdemicDean()) {
-            courseDto.setChooseObj(2);
-            count = courseTakeService.addCourse(courseDto);
-        }
+    public RestResult<Integer> addCourse(@RequestBody AddCourseDto courseDto) {
+        Integer count = courseTakeService.addCourse(courseDto);
         return RestResult.successData(count);
     }
 
     /**
      * 课程维护模块研究生加课
-     * @param courseDto
+     * @param jsonObject
      * @return
      */
     @ApiOperation(value = "课程维护模块退课")
     @PostMapping("/removedCourse")
-    public RestResult<Integer> removedCourse(@RequestBody AddAndRemoveCourseDto courseDto) {
-        Session session = SessionUtils.getCurrentSession();
-        setParam(session, courseDto);
-        Integer count = null;
-        if (session.isAdmin()) {
-            courseDto.setChooseObj(3);
-            count = courseTakeService.removedCourse(courseDto);
-        } else if (session.isAcdemicDean()) {
-            courseDto.setChooseObj(2);
-            count = courseTakeService.removedCourse(courseDto);
+    public RestResult<Integer> removedCourse(@RequestBody JSONObject jsonObject) {
+        JSONArray array = jsonObject.getJSONArray("list");
+        if (CollectionUtil.isEmpty(array)) {
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
         }
-        return RestResult.successData(count);
-    }
-
-    private void setParam(Session session, AddAndRemoveCourseDto courseDto) {
-        String uid = session.getUid();
-        String name = session.getName();
-        courseDto.setId(uid);
-        courseDto.setName(name);
+        List<RemovedCourseDto> list = array.toJavaList(RemovedCourseDto.class);
+        return RestResult.successData(courseTakeService.removedCourse(list));
     }
 
     /**
-     * 返回的退课课程列表修读类型为正常修读
+     * 返回的退课课程列表修读类型为正常修读,废弃
      * @param condition
      * @return
      */
