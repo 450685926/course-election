@@ -62,7 +62,7 @@
     t4.CAMPUS_
     from elc_course_takes_t t1
     left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-    left join course_open_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+    left join course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_
     join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
     where t1.STUDENT_ID_ = #{studentId}
   </select>
