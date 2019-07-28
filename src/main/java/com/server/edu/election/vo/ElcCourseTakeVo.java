@@ -52,6 +52,16 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     private String teachingName;
 
+    private String calendarName;
+
+    public String getCalendarName() {
+        return calendarName;
+    }
+
+    public void setCalendarName(String calendarName) {
+        this.calendarName = calendarName;
+    }
+
     @Code2Text(transformer="X_YX")
     private String faculty;
 

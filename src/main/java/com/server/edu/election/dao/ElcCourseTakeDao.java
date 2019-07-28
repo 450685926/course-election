@@ -180,11 +180,13 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
-    List<ElcStudentVo> findCourseInfo(List<Long> list);
+    List<ElcStudentVo> findCourseInfo(@Param("list") List<Long> list);
 
     Integer saveCourseTask(List<ElcCourseTake> list);
 
     int deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
+
+    int deleteByCourseTask(@Param("list") List<RemovedCourseDto> list);
 
     List<String> findSelectedCourseCode(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
@@ -198,7 +200,7 @@ public interface ElcCourseTakeDao
 
     List<Long> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
-    List<TimeTableMessage> findCourseArrange(@Param("teachingClassIds") List<Long> ids);
+    List<TimeTableMessage> findCourseArrange(@Param("list") List<Long> list);
 
     List<TimeTableMessage> findCourseArrangeByTeachingClassId(Long teachingClassId);
 

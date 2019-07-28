@@ -6,9 +6,8 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.election.constants.ChooseObj;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ClassTeacherDto;
@@ -20,7 +19,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.RetakeCourseService;
-import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -89,6 +88,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     public void updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo) {
         Long id = retakeCourseCountVo.getId();
+        retakeCourseCountVo.setStatus(Constants.DELETE_FALSE);
         if (id == null) {
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountVo);
         } else {
@@ -462,7 +462,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                     List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
                     String weekNumStr = weekNums.toString();//周次
-                    String weekstr = findWeek(dayOfWeek);//星期
+                    String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                     String timeStr = weekstr + timeStart + "-" + timeEnd + "节"
                             + weekNumStr + ClassroomCacheUtil.getRoomName(classTeacherDto.getRoomID());
                     TimeTableMessage time = new TimeTableMessage();
@@ -479,31 +479,4 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         return list;
     }
 
-    public String findWeek(Integer number) {
-        String week = "";
-        switch (number) {
-            case 1:
-                week = "星期一";
-                break;
-            case 2:
-                week = "星期二";
-                break;
-            case 3:
-                week = "星期三";
-                break;
-            case 4:
-                week = "星期四";
-                break;
-            case 5:
-                week = "星期五";
-                break;
-            case 6:
-                week = "星期六";
-                break;
-            case 7:
-                week = "星期日";
-                break;
-        }
-        return week;
-    }
 }
