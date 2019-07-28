@@ -54,6 +54,17 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
     private String calendarName;
 
+    @Code2Text(DictTypeEnum.X_PYCC)
+    private String trainingLevel;
+
+    public String getTrainingLevel() {
+        return trainingLevel;
+    }
+
+    public void setTrainingLevel(String trainingLevel) {
+        this.trainingLevel = trainingLevel;
+    }
+
     public String getCalendarName() {
         return calendarName;
     }
