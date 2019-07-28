@@ -76,10 +76,6 @@ public interface StudentElecService
     /**根据轮次查询学生信息*/
     Student findStuRound(Long roundId, String studentId);
 	
-    /** 选取学生本轮次可选课程 
-     * @param elecContext */
-    ElcResultCourseVo getOptionalCourses(Long roundId, String studentId);
-    
     /**
      * <ul>获取全部课程
      *   <li>全部课程指:在本次选课学期，学生学籍所在校区对应的培养层次所有的排课信息
@@ -102,7 +98,7 @@ public interface StudentElecService
      * @param map 
      * @return
      */
-	Map<String, Object> getElectResultCount(String uid, Long roundId, Map<String, Object> map);
+	Map<String, Object> getElectResultCount(String uid, Long roundId);
 
 	/**
 	 * 向上下文中添加可选课程信息
@@ -111,7 +107,14 @@ public interface StudentElecService
 	 * @param calendarId 
 	 * @return
 	 */
-	ElecContext setData(ElecContext c, Long roundId, Long calendarId);
+	ElecContext setData(String studentId,ElecContext c, Long roundId, Long calendarId);
+
+	/**
+	 * 管理员选课
+	 * @param elecRequest
+	 * @return
+	 */
+	RestResult<ElecRespose> adminElect(ElecRequest elecRequest);
 
 
 }
