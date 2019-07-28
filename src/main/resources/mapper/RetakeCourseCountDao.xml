@@ -18,8 +18,9 @@
         from
             elc_retake_course_count
         <where>
+            DELETE_STATUS_ = 0
         <if test="trainingLevel != null and trainingLevel != ''">
-            TRAINING_LEVEL_ = #{trainingLevel}
+            and TRAINING_LEVEL_ = #{trainingLevel}
         </if>
         <if test="trainingCategory != null and trainingCategory != ''">
             and TRAINING_CATEGORY_ = #{trainingCategory}
@@ -38,9 +39,9 @@
 
     <insert id = "saveRetakeCourseCount">
         insert into elc_retake_course_count
-              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,MANAGER_DEPT_ID_)
+              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,MANAGER_DEPT_ID_,DELETE_STATUS_)
         values
-              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{managerDeptId})
+              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{managerDeptId},#{status})
     </insert>
 
     <update id="updateRetakeCourseCount">
@@ -52,18 +53,25 @@
             DEGREE_TYPE_ = #{degreeType},
             FORM_LEARNING_ = #{formLearning},
             RETAKE_COUNT_ = #{retakeCount},
-            MANAGER_DEPT_ID_ = #{managerDeptId}
+            MANAGER_DEPT_ID_ = #{managerDeptId},
+            DELETE_STATUS_ = #{status}
         where
             ID_ = #{id}
     </update>
 
     <delete id="deleteRetakeCourseCount">
-         delete from elc_retake_course_count where ID_ = #{retakeCourseCountId}
+        update
+          elc_retake_course_count
+        set
+          DELETE_STATUS_ = 1
+        where ID_ = #{retakeCourseCountId}
     </delete>
 
     <select id="findRetakeCount" parameterType="com.server.edu.election.entity.Student" resultType="java.lang.Integer">
          select RETAKE_COUNT_ from elc_retake_course_count
-         where TRAINING_LEVEL_ = #{trainingLevel}
+         where
+            DELETE_STATUS_ = 0
+         and TRAINING_LEVEL_ = #{trainingLevel}
          and TRAINING_CATEGORY_ = #{trainingCategory}
          and DEGREE_TYPE_ = #{degreeType}
          and FORM_LEARNING_ = #{formLearning}

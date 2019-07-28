@@ -4,11 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dto.AddAndRemoveCourseDto;
-import com.server.edu.election.dto.ElcCourseTakeAddDto;
-import com.server.edu.election.dto.ElcCourseTakeDto;
-import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
-import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -130,14 +126,14 @@ public interface ElcCourseTakeService
      * @param courseDto
      * @return
      */
-    Integer addCourse(AddAndRemoveCourseDto courseDto);
+    Integer addCourse(AddCourseDto courseDto);
 
     /**
      * 课程维护研究生退课
-     * @param courseDto
+     * @param list
      * @return
      */
-    Integer removedCourse(AddAndRemoveCourseDto courseDto);
+    Integer removedCourse(List<RemovedCourseDto> list);
 
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
 
