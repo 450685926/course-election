@@ -113,8 +113,7 @@ public class ElecAgentController
     @ApiOperation(value = "数据加载")
     @PostMapping("/loading")
     public RestResult<ElecRespose> studentLoading(
-    	@RequestBody(required=false) ElecRequest elecRequest)
-    {
+        @RequestBody(required=false) ElecRequest elecRequest){
         //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
@@ -153,9 +152,9 @@ public class ElecAgentController
         
         if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE) {
         	if (elecRequest.getChooseObj() == Constants.TOW) { // 教务员
-        		c = elecService.setData(c,elecRequest.getRoundId(),null);
+        		c = elecService.setData(studentId,c,elecRequest.getRoundId(),null);
 			}else if (elecRequest.getChooseObj() == Constants.THREE) { // 管理员
-				c = elecService.setData(c,null,elecRequest.getCalendarId());
+				c = elecService.setData(studentId,c,null,elecRequest.getCalendarId());
 				//c = elecService.setData(c,null,calendarId);
 			}
 		}
