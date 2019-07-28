@@ -180,6 +180,10 @@ public class CourseGradeLoad extends DataProLoad
                     }
                 }
 
+            	TeachingClassCache teachingClassCache =teachClassCacheService.getTeachClass(request.getRoundId(),studentScore.getCourseCode(),studentScore.getTeachingClassId());
+            	if(teachingClassCache!=null) {
+                    lesson.setFaculty(teachingClassCache.getFaculty());
+            	}
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
@@ -196,15 +200,21 @@ public class CourseGradeLoad extends DataProLoad
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         //得到校历id
-        ElectionRounds electionRounds =
-            elecRoundsDao.selectByPrimaryKey(request.getRoundId());
-        if (electionRounds == null)
-        {
-            String msg = String.format("electionRounds not find roundId=%s",
-                request.getRoundId());
-            throw new RuntimeException(msg);
-        }
-        Long calendarId = electionRounds.getCalendarId();
+        Long calendarId = 0L;
+        if (request.getRoundId() != null) {
+        	ElectionRounds electionRounds =
+        			elecRoundsDao.selectByPrimaryKey(request.getRoundId());
+        	if (electionRounds == null)
+        	{
+        		String msg = String.format("electionRounds not find roundId=%s",
+        				request.getRoundId());
+        		throw new RuntimeException(msg);
+        	}
+        	calendarId = electionRounds.getCalendarId();
+		}else {
+			calendarId = request.getCalendarId();
+		}
+        
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         //3.学生免修课程

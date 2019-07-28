@@ -127,6 +127,7 @@ public class RoundDataProvider
         ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
         if (round != null
             && Objects.equals(Constants.IS_OPEN, round.getOpenFlag())
+            && Objects.equals(Constants.DELETE_FALSE, round.getDeleteStatus())
             && now.after(round.getBeginTime())
             && now.before(round.getEndTime()))
         {
@@ -276,6 +277,19 @@ public class RoundDataProvider
         String courseCode)
     {
         return classCacheService.getTeachClasss(roundId, courseCode);
+    }
+    
+    /**
+     * 
+     * 通过学年学期与课程代码获取教学班信息
+     * @param calendarId
+     * @param courseCode
+     * @return
+     */
+    public List<TeachingClassCache> getTeachClasssbyCalendarId(Long calendarId,
+    		String courseCode)
+    {
+    	return classCacheService.getTeachClasssBycalendarId(calendarId, courseCode);
     }
     
     /**

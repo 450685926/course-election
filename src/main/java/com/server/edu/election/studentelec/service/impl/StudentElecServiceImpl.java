@@ -123,7 +123,33 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     }
     
     @Override
-	public ElecContext setData(ElecContext c,Long roundId) {
+    public RestResult<ElecRespose> loadingAdmin(Integer chooseObj,Long calendarId, String studentId)
+    {
+    	LOG.info("222222222222222---calendarId:" + calendarId);
+    	ElecStatus currentStatus =
+    			ElecContextUtil.getElecAdminStatus(calendarId, studentId);
+    	// 如果当前是Init状态，进行初始化
+    	if (ElecStatus.Init.equals(currentStatus))
+    	{
+    		// 加入队列
+    		currentStatus = ElecStatus.Loading;
+    		LOG.info("3333333333333333---calendarId:" + calendarId);
+    		ElecContextUtil.setElecAdminStatus(calendarId, studentId, currentStatus);
+    		if (!addLoadingAdminToQueue(chooseObj,calendarId, studentId))
+    		{
+    			currentStatus = ElecStatus.Init;
+    			ElecContextUtil
+    			.setElecAdminStatus(calendarId, studentId, currentStatus);
+    			return RestResult.fail("请稍后再试");
+    		}
+    	}
+    	ElecRespose response = this.getElectResultAdmin(calendarId, studentId);
+    	
+    	return RestResult.successData(response);
+    }
+    
+    @Override
+	public ElecContext setData(ElecContext c,Long roundId, Long calendarId) {
 		
 		//每门课上课信息集合
 		List<List<ClassTimeUnit>> classTimeLists = new ArrayList<>();
@@ -148,8 +174,13 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
             elcCourseResult.setPublicElec(completedCourse.isPublicElec());
             elcCourseResult.setCalendarId(completedCourse.getCalendarId());
             elcCourseResult.setTerm(completedCourse.getTerm());
-   			List<TeachingClassCache> teachClasss =
-   		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+            List<TeachingClassCache> teachClasss = new ArrayList<TeachingClassCache>();
+            if (roundId != null) { // 教务员
+            	teachClasss = dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+			}else {                // 管理员
+				teachClasss = dataProvider.getTeachClasssbyCalendarId(calendarId, completedCourse.getCourseCode());
+			}
+            
 	        if (CollectionUtil.isNotEmpty(teachClasss))
 	        {
 	            for (TeachingClassCache teachClass : teachClasss)
@@ -176,7 +207,12 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 
 		//从缓存中拿到本轮次排课信息
 		HashOperations<String, String, String> ops = strTemplate.opsForHash();
-		String key = Keys.getRoundCourseKey(roundId);
+		String key = "";
+		if (calendarId == null) {
+			key = Keys.getRoundCourseKey(roundId);  // 学生选课或者教务员代理选课
+		}else {
+			key = Keys.getCalendarCourseKey(calendarId);  // 管理员代理选课
+		}
 		Map<String, String> roundsCoursesMap =  ops.entries(key);
 		List<String> roundsCoursesIdsList = new ArrayList<>();
 		for (Entry<String, String> entry : roundsCoursesMap.entrySet()) {
@@ -231,8 +267,13 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
    			elcCourseResult.setCourseCode(completedCourse.getCourseCode());
    			elcCourseResult.setCourseName(completedCourse.getCourseName());
    			elcCourseResult.setCredits(completedCourse.getCredits());
-   			List<TeachingClassCache> teachClasss =
-   		            dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+   			List<TeachingClassCache> teachClasss = new ArrayList<TeachingClassCache>();
+   			if (roundId != null) { // 教务员
+            	teachClasss = dataProvider.getTeachClasss(roundId, completedCourse.getCourseCode());
+			}else {                // 管理员
+				teachClasss = dataProvider.getTeachClasssbyCalendarId(calendarId, completedCourse.getCourseCode());
+			}
+   			
 	        if (CollectionUtil.isNotEmpty(teachClasss))
 	        {
 	            for (TeachingClassCache teachClass : teachClasss)
@@ -400,12 +441,45 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         return response;
     }
     
+    @Override
+    public ElecRespose getElectResultAdmin(Long calendarId, String studentId)
+    {
+    	RoundDataProvider dataProvider =
+    			SpringUtils.getBean(RoundDataProvider.class);
+    	if (calendarId == null)
+    	{
+    		return new ElecRespose();
+    	}
+    	
+    	ElecRespose response =
+    			ElecContextUtil.getElecRespose(studentId, calendarId);
+    	ElecStatus status = ElecContextUtil.getElecAdminStatus(calendarId, studentId);
+    	if (response == null)
+    	{
+    		response = new ElecRespose(status);
+    	}
+    	else
+    	{
+    		response.setStatus(status);
+    	}
+    	return response;
+    }
+    
     private boolean addLoadingToQueue(Long roundId, String studentId)
     {
         ElecRequest loadingRequest = new ElecRequest();
         loadingRequest.setRoundId(roundId);
         loadingRequest.setStudentId(studentId);
         return queueService.add(QueueGroups.STUDENT_LOADING, loadingRequest);
+    }
+    
+    private boolean addLoadingAdminToQueue(Integer chooseObj, Long calendarId, String studentId)
+    {
+    	ElecRequest loadingRequest = new ElecRequest();
+    	loadingRequest.setChooseObj(chooseObj);
+    	loadingRequest.setCalendarId(calendarId);
+    	loadingRequest.setStudentId(studentId);
+    	return queueService.add(QueueGroups.ADMIN_LOADING, loadingRequest);
     }
     
     private boolean addElecToQueue(Long roundId, String studentId,

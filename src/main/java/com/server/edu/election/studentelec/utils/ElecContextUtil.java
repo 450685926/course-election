@@ -2,7 +2,8 @@ package com.server.edu.election.studentelec.utils;
 
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
-
+import static com.server.edu.election.studentelec.utils.Keys.STD_ADIMN_STATUS;
+import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_ADMIN_LOCK;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -284,6 +285,33 @@ public class ElecContextUtil
     }
     
     /**
+     * 获取学生指定轮次选课状态<br>
+     * ElecStatus 的四种状态的转换关系<br>
+     * Init->Loading->Ready->Processing->Ready<br>
+     * 修改状态应该加锁
+     * 
+     * @param roundId
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public static ElecStatus getElecAdminStatus(Long calendarId, String studentId)
+    {
+    	String value = getRedisTemplate().opsForValue()
+    			.get(String.format(STD_ADIMN_STATUS, calendarId, studentId));
+    	if (StringUtils.isBlank(value))
+    	{
+    		logger.warn(
+    				"----- elecAdminStatus not find use Init [calendarId:{}, studentId:{}] -----",
+    				calendarId,
+    				studentId);
+    		return ElecStatus.Init;
+    	}
+    	
+    	return ElecStatus.valueOf(value);
+    }
+    
+    /**
      * 设置学生指定轮次选课状态<br>
      * ElecStatus 的四种状态的转换关系<br>
      * Init->Loading->Ready->Processing->Ready<br>
@@ -307,6 +335,33 @@ public class ElecContextUtil
                 status.toString(),
                 timeout,
                 TimeUnit.HOURS);
+    }
+    
+    /**
+     * 设置学生指定轮次选课状态(管理员代选)<br>
+     * ElecStatus 的四种状态的转换关系<br>
+     * Init->Loading->Ready->Processing->Ready<br>
+     * 修改状态应该加锁, 最大给出1个小时的有效期，如果1个小时选课还没处理完说明有问题
+     * 
+     * @param roundId
+     * @param studentId
+     * @param status
+     * @see [类、类#方法、类#成员]
+     */
+    public static void setElecAdminStatus(Long calendarId, String studentId,
+    		ElecStatus status)
+    {
+    	int timeout = 1;
+    	if (status == ElecStatus.Ready)
+    	{
+    		timeout = 10;
+    	}
+    	logger.info("444444444444444444---calendarId:" + calendarId);
+    	getRedisTemplate().opsForValue()
+    	.set(String.format(STD_ADIMN_STATUS, calendarId, studentId),
+    			status.toString(),
+    			timeout,
+    			TimeUnit.HOURS);
     }
     
     /**
@@ -365,6 +420,31 @@ public class ElecContextUtil
     public static void unlock(Long roundId, String studentId)
     {
         String redisKey = String.format(STD_STATUS_LOCK, roundId, studentId);
+        getRedisTemplate().delete(redisKey);
+    }
+    
+    /**
+     * 给status 加锁，并返回key用于解锁(管理员代选)
+     * @return true 成功 false 失败
+     */
+    public static boolean tryLockAdmin(Long calendarId, String studentId)
+    {
+        long value = System.currentTimeMillis();
+        String redisKey = String.format(STD_STATUS_ADMIN_LOCK, calendarId, studentId);
+        if (getRedisTemplate().opsForValue()
+            .setIfAbsent(redisKey, String.valueOf(value)))
+        {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 解锁，只能解除在当前线程加的锁，否则什么也不会发生(管理员代选)
+     */
+    public static void unlockAdmin(Long calendarId, String studentId)
+    {
+        String redisKey = String.format(STD_STATUS_ADMIN_LOCK, calendarId, studentId);
         getRedisTemplate().delete(redisKey);
     }
     

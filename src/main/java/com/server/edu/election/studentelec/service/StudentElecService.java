@@ -29,6 +29,12 @@ public interface StudentElecService
     RestResult<ElecRespose> loading(Long roundId, String studentId);
     
     /**
+     * 加载学生数据(管理员)
+     * @return 当前状态
+     */
+    RestResult<ElecRespose> loadingAdmin(Integer chooseObj,Long calendarId, String studentId);
+    
+    /**
      * 选课数据提交
      * <li>每个请求需要加锁</li>
      * <li>上一次提交的请求没有处理完之前不能执行新请求</li>
@@ -46,6 +52,16 @@ public interface StudentElecService
      * @see [类、类#方法、类#成员]
      */
     ElecRespose getElectResult(Long roundId, String studentId);
+    
+    /**
+     * 获取学生选课结果(管理员代选)
+     * 
+     * @param calendarId
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    ElecRespose getElectResultAdmin(Long calendarId, String studentId);
     
     /**
      * 保存选课数据到数据库, 需要判断是否启动了LimitCountCheckerRule校验规则，如果启用了还需要判断选课人数是否超过
@@ -92,8 +108,10 @@ public interface StudentElecService
 	 * 向上下文中添加可选课程信息
 	 * @param c
 	 * @param roundId 
+	 * @param calendarId 
 	 * @return
 	 */
-	ElecContext setData(ElecContext c, Long roundId);
+	ElecContext setData(ElecContext c, Long roundId, Long calendarId);
+
 
 }
