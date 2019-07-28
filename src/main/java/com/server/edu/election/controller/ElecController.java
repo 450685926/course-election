@@ -144,7 +144,7 @@ public class ElecController
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
         if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE) {
-        	c = elecService.setData(c,roundId,null);
+        	c = elecService.setData(session.realUid(),c,roundId,null);
 		}
         
         return RestResult.successData(c);
