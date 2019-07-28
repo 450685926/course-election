@@ -120,7 +120,6 @@ public class ElecAgentController
         String studentId = elecRequest.getStudentId();
         Long calendarId = elecRequest.getCalendarId();
         
-        LOG.info("111111111111---calendarId:" + calendarId);
         if (chooseObj.intValue() != Constants.THREE) {
         	return elecService.loading(elecRequest.getRoundId(), studentId);
 		}else {

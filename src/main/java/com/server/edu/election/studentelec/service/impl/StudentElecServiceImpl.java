@@ -125,7 +125,6 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     @Override
     public RestResult<ElecRespose> loadingAdmin(Integer chooseObj,Long calendarId, String studentId)
     {
-    	LOG.info("222222222222222---calendarId:" + calendarId);
     	ElecStatus currentStatus =
     			ElecContextUtil.getElecAdminStatus(calendarId, studentId);
     	// 如果当前是Init状态，进行初始化
@@ -133,7 +132,6 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     	{
     		// 加入队列
     		currentStatus = ElecStatus.Loading;
-    		LOG.info("3333333333333333---calendarId:" + calendarId);
     		ElecContextUtil.setElecAdminStatus(calendarId, studentId, currentStatus);
     		if (!addLoadingAdminToQueue(chooseObj,calendarId, studentId))
     		{
