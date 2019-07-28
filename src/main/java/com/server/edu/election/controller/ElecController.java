@@ -280,12 +280,9 @@ public class ElecController
     		) {
     	Session session = SessionUtils.getCurrentSession();
     	String uid = session.realUid();
-    	/** 调用培养：培养方案的课程分类学分 */
-    	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
-    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, uid);
     	
     	logger.info("culturePath select success");
-    	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId,restResult.getData());
+    	Map<String,Object> restResult3 = elecService.getElectResultCount(uid,roundId);
     	List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>(1);
     	
     	resultList.add(restResult3);
