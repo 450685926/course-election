@@ -107,7 +107,7 @@ public interface StudentElecService
 	 * @param calendarId 
 	 * @return
 	 */
-	ElecContext setData(ElecContext c, Long roundId, Long calendarId);
+	ElecContext setData(String studentId,ElecContext c, Long roundId, Long calendarId);
 
 
 }

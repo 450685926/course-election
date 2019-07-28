@@ -153,14 +153,14 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     }
     
     @Override
-	public ElecContext setData(ElecContext c,Long roundId, Long calendarId) {
+	public ElecContext setData(String studentId,ElecContext c,Long roundId, Long calendarId) {
 		
     	
     	Map<String, Object> elecResult = new HashMap<>();
     	if (roundId != null) { // 教务员
-    		elecResult = getElectResultCount(c.getRequest().getStudentId(),roundId);
+    		elecResult = getElectResultCount(studentId,roundId);
 		}else {                // 管理员
-			elecResult = getAdminElectResultCount(c,calendarId);
+			elecResult = getAdminElectResultCount(studentId,c,calendarId);
 		}
 		//每门课上课信息集合
 		List<List<ClassTimeUnit>> classTimeLists = new ArrayList<>();
@@ -849,11 +849,11 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 		return resultMap;
 	}
 	
-	public Map<String, Object> getAdminElectResultCount(ElecContext c, Long calendarId) {
+	public Map<String, Object> getAdminElectResultCount(String studentId,ElecContext c, Long calendarId) {
 
 		/** 调用培养：培养方案的课程分类学分 */
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
-    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, c.getRequest().getStudentId());
+    	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, studentId);
 		
 		ElecContextUtil elecContextUtil = ElecContextUtil.create(c.getRequest().getStudentId(),calendarId);
 		
