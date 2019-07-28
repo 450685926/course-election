@@ -855,14 +855,12 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
     	String culturePath = ServicePathEnum.CULTURESERVICE.getPath("/studentCultureRel/getCultureMsg/{studentId}");
     	RestResult<Map<String, Object>> restResult = restTemplate.getForObject(culturePath,RestResult.class, studentId);
 		
-		ElecContextUtil elecContextUtil = ElecContextUtil.create(c.getRequest().getStudentId(),calendarId);
-		
 		//获取当前已经完成的课程
-		Set<PlanCourse> planCourse = elecContextUtil.getSet("PlanCourses", PlanCourse.class);
-		Set<CompletedCourse> completedCourses = elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
+		Set<PlanCourse> planCourse = c.getPlanCourses();
+		Set<CompletedCourse> completedCourses = c.getCompletedCourses();
 		
 		//获取本学期已选课程
-		Set<SelectedCourse> thisSelectedCourses = elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
+		Set<SelectedCourse> thisSelectedCourses = c.getSelectedCourses();
 		for (SelectedCourse selectedCourse : thisSelectedCourses) {
 			if (StringUtils.isEmpty(selectedCourse.getLabel())) {
 				for (PlanCourse course : planCourse) {
