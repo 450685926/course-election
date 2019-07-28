@@ -799,7 +799,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			Double thisTimeSumCredits = 0.0;
 			for (SelectedCourse thisSelected : thisSelectedCourses) {
 				
-				if (thisSelected.getLabel().equals(key)) {
+				if (StringUtils.equalsIgnoreCase(key,thisSelected.getLabel())) {
 					thisTimecourseNum ++;
 					thisTimeSumCredits += thisSelected.getCredits();
 				}
@@ -934,7 +934,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 			Double thisTimeSumCredits = 0.0;
 			for (SelectedCourse thisSelected : thisSelectedCourses) {
 				
-				if (thisSelected.getLabel().equals(key)) {
+				if (StringUtils.equalsIgnoreCase(key,thisSelected.getLabel())) {
 					thisTimecourseNum ++;
 					thisTimeSumCredits += thisSelected.getCredits();
 				}
