@@ -1,17 +1,17 @@
-APPLICATION_ID: myElecId
+APPLICATION_ID: ${application_id}
 service_description:
   name: electionservice
   description: 选课微服务
   version: 0.0.1
-  environment: development
+  #environment: ${dev_type}
 
   properties:
     allowCrossApp: false
 cse:
   service:
     registry:
-      #address: https://cse.cn-east-2.myhuaweicloud.com:443
-      address: http://127.0.0.1:30100
+      address: https://cse.cn-east-2.myhuaweicloud.com:443
+      #address: http://127.0.0.1:30100
       instance:
         watch: false
   config:
@@ -34,4 +34,4 @@ cse:
     accessKey: LTQXXD87GBYN1HCXUVR4
     secretKey: M0m6kbubYOLVfbzK2gXphUlZcgJojp4DSx2e9Ykj
     akskCustomCipher: default
-    project: cn-east-2
+    project: ${project_id}
