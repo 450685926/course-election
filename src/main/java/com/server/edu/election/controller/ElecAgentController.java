@@ -168,7 +168,7 @@ public class ElecAgentController
     @PostMapping("/elect")
     public RestResult<ElecRespose> elect(@RequestBody ElecRequest elecRequest)
     {
-        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+//        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         if (elecRequest.getChooseObj() == null)
         {
             throw new ParameterValidateException("chooseObj not be null");
