@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
@@ -111,12 +113,21 @@ public class ElecAgentController
     @ApiOperation(value = "数据加载")
     @PostMapping("/loading")
     public RestResult<ElecRespose> studentLoading(
-        @RequestBody ElecRequest elecRequest)
+        @RequestBody ElecRequest elecRequest, @RequestBody JSONObject json)
     {
         //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
         Long calendarId = elecRequest.getCalendarId();
+        
+        Integer chooseObj2 = json.getInteger("chooseObj");
+        String studentId2 = json.getString("studentId");
+        Long calendarId2 = json.getLong("calendarId");
+
+        LOG.info("json json json json json---chooseObj2:" + chooseObj2);
+        LOG.info("json json json json json---studentId2:" + studentId2);
+        LOG.info("json json json json json---calendarId2:" + calendarId2);
+        
         LOG.info("111111111111---calendarId:" + calendarId);
         if (chooseObj.intValue() != Constants.THREE) {
         	return elecService.loading(elecRequest.getRoundId(), studentId);
