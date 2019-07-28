@@ -109,5 +109,12 @@ public interface StudentElecService
 	 */
 	ElecContext setData(String studentId,ElecContext c, Long roundId, Long calendarId);
 
+	/**
+	 * 管理员选课
+	 * @param elecRequest
+	 * @return
+	 */
+	RestResult<ElecRespose> adminElect(ElecRequest elecRequest);
+
 
 }

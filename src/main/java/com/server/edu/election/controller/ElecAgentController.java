@@ -176,7 +176,12 @@ public class ElecAgentController
         Session session = SessionUtils.getCurrentSession();
         elecRequest.setCreateBy(session.getUid());
         elecRequest.setRequestIp(session.getIp());
-        return elecService.elect(elecRequest);
+        if (elecRequest.getChooseObj() == Constants.TOW) { // 教务员
+        	return elecService.elect(elecRequest);
+		}else if (elecRequest.getChooseObj() == Constants.THREE) { // 管理员
+			return elecService.adminElect(elecRequest);
+		}
+		return null;
     }
     
     /**
