@@ -427,6 +427,50 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         }
         return RestResult.successData(new ElecRespose(currentStatus));
     }
+    @Override
+    public RestResult<ElecRespose> adminElect(ElecRequest elecRequest)
+    {
+    	if (CollectionUtil.isEmpty(elecRequest.getElecClassList())
+    			&& CollectionUtil.isEmpty(elecRequest.getWithdrawClassList()))
+    	{
+    		return RestResult.fail("你没选择任何课程");
+    	}
+    	Long calendarId = elecRequest.getCalendarId();
+    	String studentId = elecRequest.getStudentId();
+    	
+    	ElecStatus currentStatus =
+    			ElecContextUtil.getElecAdminStatus(calendarId, studentId);
+    	if (ElecStatus.Ready.equals(currentStatus)
+    			&& ElecContextUtil.tryLock(calendarId, studentId))
+    	{
+    		try
+    		{
+    			// 加锁后二次检查
+    			currentStatus =
+    					ElecContextUtil.getElecAdminStatus(calendarId, studentId);
+    			if (ElecStatus.Ready.equals(currentStatus))
+    			{
+    				// 加入选课队列
+    				if (addAdminElecToQueue(calendarId, studentId, elecRequest))
+    				{
+    					ElecContextUtil.setElecAdminStatus(calendarId,
+    							studentId,
+    							ElecStatus.Processing);
+    					currentStatus = ElecStatus.Processing;
+    				}
+    				else
+    				{
+    					return RestResult.fail("请稍后再试");
+    				}
+    			}
+    		}
+    		finally
+    		{
+    			ElecContextUtil.unlock(calendarId, studentId);
+    		}
+    	}
+    	return RestResult.successData(new ElecRespose(currentStatus));
+    }
     
     @Override
     public ElecRespose getElectResult(Long roundId, String studentId)
@@ -500,6 +544,14 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         elecRequest.setRoundId(roundId);
         elecRequest.setStudentId(studentId);
         return queueService.add(QueueGroups.STUDENT_ELEC, elecRequest);
+    }
+    
+    private boolean addAdminElecToQueue(Long calendarId, String studentId,
+    		ElecRequest elecRequest)
+    {
+    	elecRequest.setCalendarId(calendarId);;
+    	elecRequest.setStudentId(studentId);
+    	return queueService.add(QueueGroups.ADMIN_ELEC, elecRequest);
     }
     
     @Transactional
