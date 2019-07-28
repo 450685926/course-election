@@ -113,12 +113,12 @@ public class ElecAgentController
     @ApiOperation(value = "数据加载")
     @PostMapping("/loading")
     public RestResult<ElecRespose> studentLoading(
-        @RequestBody ElecRequest elecRequest)
+        ElecRequest elecRequest, @RequestParam("calendarId") Long calendarId)
     {
         //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
-        Long calendarId = elecRequest.getCalendarId();
+        //Long calendarId = elecRequest.getCalendarId();
         
         LOG.info("111111111111---calendarId:" + calendarId);
         if (chooseObj.intValue() != Constants.THREE) {
@@ -128,31 +128,9 @@ public class ElecAgentController
 		}
     }
     
-    @ApiOperation(value = "数据加载")
-    @PostMapping("/loading2")
-    public RestResult<ElecRespose> studentLoading2(
-    		@RequestBody JSONObject json)
-    {
-    	Integer chooseObj = json.getInteger("chooseObj");
-    	String studentId = json.getString("studentId");
-    	Long calendarId = json.getLong("calendarId");
-    	
-    	LOG.info("json json json json json---chooseObj2:" + chooseObj);
-    	LOG.info("json json json json json---studentId2:" + studentId);
-    	LOG.info("json json json json json---calendarId2:" + calendarId);
-    	
-    	LOG.info("111111111111---calendarId:" + calendarId);
-    	//if (chooseObj.intValue() != Constants.THREE) {
-    		//return elecService.loading(elecRequest.getRoundId(), studentId);
-    	//}else {
-    		return elecService.loadingAdmin(chooseObj,calendarId, studentId);
-    	//}
-    	
-    }
-    
     @ApiOperation(value = "获取学生选课数据")
     @PostMapping("/getData")
-    public RestResult<ElecContext> getData(@RequestBody ElecRequest elecRequest)
+    public RestResult<ElecContext> getData(@RequestBody ElecRequest elecRequest,@RequestParam("calendarId") Long calendarId)
     {
         //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         
@@ -169,14 +147,16 @@ public class ElecAgentController
         	}
         	c = new ElecContext(studentId, round.getCalendarId());
 		}else {    // 管理员
-			c = new ElecContext(studentId, elecRequest.getCalendarId());
+			//c = new ElecContext(studentId, elecRequest.getCalendarId());
+			c = new ElecContext(studentId, calendarId);
 		}
         
         if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE) {
         	if (elecRequest.getChooseObj() == Constants.TOW) { // 教务员
         		c = elecService.setData(c,elecRequest.getRoundId(),null);
 			}else if (elecRequest.getChooseObj() == Constants.THREE) { // 管理员
-				c = elecService.setData(c,null,elecRequest.getCalendarId());
+				//c = elecService.setData(c,null,elecRequest.getCalendarId());
+				c = elecService.setData(c,null,calendarId);
 			}
 		}
         return RestResult.successData(c);
@@ -253,8 +233,6 @@ public class ElecAgentController
     public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
     		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
     {
-    	//ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
-
     	Session session = SessionUtils.getCurrentSession();
     	
     	if (!StringUtils.equals(session.getCurrentRole(), "1")) {
