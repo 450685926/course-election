@@ -688,10 +688,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Override
     @Transactional
-    public Integer removedCourse(List<RemovedCourseDto> list) {
-        int count = courseTakeDao.deleteByCourseTask(list);
-        if (count != 0) {
-            List<Long> teachingClassId = list.stream().map(RemovedCourseDto::getTeachingClassId).collect(Collectors.toList());
+    public Integer removedCourse(List<ElcCourseTake> value) {
+        int count = courseTakeDao.deleteByCourseTask(value);
+        int delSize = value.size();
+        if (delSize == count) {
+            List<Long> teachingClassId = value.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
             List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassId);
             Session session = SessionUtils.getCurrentSession();
             String id = session.getUid();
@@ -704,15 +705,19 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 chooseObj = 2;
             }
             List<ElcLog> elcLogs = new ArrayList<>();
-            for (int i = 0; i < elcStudentVos.size(); i++) {
+            int size = elcStudentVos.size();
+            if ( delSize != size) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dropCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            }
+            for (int i = 0; i < size; i++) {
                 ElcStudentVo elcStudentVo = elcStudentVos.get(i);
-                RemovedCourseDto removedCourseDto = list.get(i);
+                ElcCourseTake elcCourseTake = value.get(i);
                 ElcLog elcLog = new ElcLog();
-                elcLog.setStudentId(removedCourseDto.getStudentId());
+                elcLog.setStudentId(elcCourseTake.getStudentId());
                 elcLog.setCourseCode(elcStudentVo.getCourseCode());
                 elcLog.setCourseName(elcStudentVo.getCourseName());
                 elcLog.setTeachingClassCode(elcStudentVo.getClassCode());
-                elcLog.setCalendarId(removedCourseDto.getCalendarId());
+                elcLog.setCalendarId(elcCourseTake.getCalendarId());
                 elcLog.setType(2);
                 elcLog.setMode(2);
                 elcLog.setCreateBy(id);
@@ -750,6 +755,32 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 if (CollectionUtil.isNotEmpty(studentCourses)) {
                     design.setDatas(studentCourses);
                     result.setDoneCount(studentCourses.size());
+                }
+                //将数据放入excel对象中
+                return design;
+            }
+        });
+        return excelResult;
+    }
+
+    /*
+     * 导出学生选课信息
+     */
+    @Override
+    public ExcelResult exportElcPersonalInfo(PageCondition<String> condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("elcPersonalInfo", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+                Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(condition.getCondition());
+                setTeachingArrange(listPage);
+
+                //组装excel
+                GeneralExcelDesigner design = getDesignStudent();
+                if (CollectionUtil.isNotEmpty(listPage)) {
+                    design.setDatas(listPage);
+                    result.setDoneCount(listPage.size());
                 }
                 //将数据放入excel对象中
                 return design;
@@ -828,6 +859,49 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         design.addCell(I18nUtil.getMsg("elcCourseUphold.chooseObj"), "chooseObj").setValueHandler(
                 (value, rawData, cell) -> {
                     return "1".equals(value) ? "自选" : "代选";
+                });
+        return design;
+    }
+
+    private GeneralExcelDesigner getDesignStudent() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("elcStudentLimit.studentId"), "studentId");
+        design.addCell(I18nUtil.getMsg("elcStudentLimit.name"), "studentName");
+        String lang = SessionUtils.getLang();
+        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_PYCC", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "teachingClassCode");
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.nature"), "nature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_KCXZ", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.courseFaculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.credits"), "credits");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.revisionategory"), "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    String resp = "";
+                    switch (value) {
+                        case "1":
+                            resp = "正常修读";
+                            break;
+                        case "2":
+                            resp = "重修";
+                            break;
+                        case "3":
+                            resp = "免修不免考";
+                            break;
+                        case "4":
+                            resp = "免修";
+                            break;
+                    }
+                    return resp;
                 });
         return design;
     }

@@ -186,7 +186,7 @@ public interface ElcCourseTakeDao
 
     int deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
 
-    int deleteByCourseTask(@Param("list") List<RemovedCourseDto> list);
+    int deleteByCourseTask(@Param("list") List<ElcCourseTake> value);
 
     List<String> findSelectedCourseCode(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
