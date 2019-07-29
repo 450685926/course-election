@@ -105,7 +105,7 @@ public class ElecAgentController
     public RestResult<ElecRespose> studentLoading(
         @RequestBody(required = false) ElecRequest elecRequest)
     {
-        //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         return elecService.loading(elecRequest);
     }
     
@@ -114,7 +114,7 @@ public class ElecAgentController
     public RestResult<ElecContext> getData(
         @RequestBody(required = false) ElecRequest elecRequest)
     {
-        //ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         
         Session session = SessionUtils.getCurrentSession();
         String studentId = elecRequest.getStudentId();

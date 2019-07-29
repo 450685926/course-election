@@ -123,6 +123,7 @@ public class ElecController
         ElecRequest elecRequest = new ElecRequest();
         elecRequest.setRoundId(roundId);
         elecRequest.setStudentId(session.realUid());
+        elecRequest.setProjectId(session.getCurrentManageDptId());
         return elecService.loading(elecRequest);
     }
     
@@ -144,7 +145,7 @@ public class ElecController
         }
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
-        if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE)
+        if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
         {
             c = elecService.setData(session.realUid(), c, roundId, null);
         }
@@ -191,7 +192,7 @@ public class ElecController
         elecRequest.setStudentId(session.realUid());
         elecRequest.setCreateBy(session.getUid());
         elecRequest.setRequestIp(session.getIp());
-        
+        elecRequest.setProjectId(session.getCurrentManageDptId());
         return elecService.elect(elecRequest);
     }
     
