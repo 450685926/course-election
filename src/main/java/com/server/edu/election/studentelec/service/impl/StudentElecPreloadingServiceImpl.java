@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,8 @@ public class StudentElecPreloadingServiceImpl
         try
         {
             // 研究生的管理员代选是没有轮次和规则的
-            if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+            if (StringUtils.isNotBlank(projectId)
+                && !Constants.PROJ_UNGRADUATE.equals(projectId)
                 && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
             }

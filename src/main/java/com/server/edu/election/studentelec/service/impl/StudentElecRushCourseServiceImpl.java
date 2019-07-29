@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,8 @@ public class StudentElecRushCourseServiceImpl
             List<AbstractWithdrwRuleExceutor> cancelExceutors =
                 new ArrayList<>();
             // 研究生的管理员代选是没有轮次和规则的
-            if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+            if (StringUtils.isNotBlank(projectId)
+                && !Constants.PROJ_UNGRADUATE.equals(projectId)
                 && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
             }
@@ -175,7 +177,8 @@ public class StudentElecRushCourseServiceImpl
         finally
         {
             // 不管选课有没有成功，结束时表示可以进行下一个选课请求
-            ElecContextUtil.setElecStatus(calendarId, studentId, ElecStatus.Ready);
+            ElecContextUtil
+                .setElecStatus(calendarId, studentId, ElecStatus.Ready);
             if (null != context)
             {
                 // 数据保存到缓存

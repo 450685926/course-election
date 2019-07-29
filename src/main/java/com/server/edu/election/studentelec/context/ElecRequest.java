@@ -43,7 +43,6 @@ public class ElecRequest
     private Long calendarId;
     
     /**管理部门*/
-    @NotBlank(groups = {AgentElcGroup.class})
     private String projectId;
     
     public String getStudentId()
