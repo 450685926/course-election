@@ -29,6 +29,12 @@ public interface StudentElecService
     RestResult<ElecRespose> loading(Long roundId, String studentId);
     
     /**
+     * 加载学生数据(管理员)
+     * @return 当前状态
+     */
+    RestResult<ElecRespose> loadingAdmin(Integer chooseObj,Long calendarId, String studentId);
+    
+    /**
      * 选课数据提交
      * <li>每个请求需要加锁</li>
      * <li>上一次提交的请求没有处理完之前不能执行新请求</li>
@@ -48,6 +54,16 @@ public interface StudentElecService
     ElecRespose getElectResult(Long roundId, String studentId);
     
     /**
+     * 获取学生选课结果(管理员代选)
+     * 
+     * @param calendarId
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    ElecRespose getElectResultAdmin(Long calendarId, String studentId);
+    
+    /**
      * 保存选课数据到数据库, 需要判断是否启动了LimitCountCheckerRule校验规则，如果启用了还需要判断选课人数是否超过
      * 
      * @param context
@@ -60,10 +76,6 @@ public interface StudentElecService
     /**根据轮次查询学生信息*/
     Student findStuRound(Long roundId, String studentId);
 	
-    /** 选取学生本轮次可选课程 
-     * @param elecContext */
-    ElcResultCourseVo getOptionalCourses(Long roundId, String studentId);
-    
     /**
      * <ul>获取全部课程
      *   <li>全部课程指:在本次选课学期，学生学籍所在校区对应的培养层次所有的排课信息
@@ -86,14 +98,23 @@ public interface StudentElecService
      * @param map 
      * @return
      */
-	Map<String, Object> getElectResultCount(String uid, Long roundId, Map<String, Object> map);
+	Map<String, Object> getElectResultCount(String uid, Long roundId);
 
 	/**
 	 * 向上下文中添加可选课程信息
 	 * @param c
 	 * @param roundId 
+	 * @param calendarId 
 	 * @return
 	 */
-	ElecContext setData(ElecContext c, Long roundId);
+	ElecContext setData(String studentId,ElecContext c, Long roundId, Long calendarId);
+
+	/**
+	 * 管理员选课
+	 * @param elecRequest
+	 * @return
+	 */
+	RestResult<ElecRespose> adminElect(ElecRequest elecRequest);
+
 
 }

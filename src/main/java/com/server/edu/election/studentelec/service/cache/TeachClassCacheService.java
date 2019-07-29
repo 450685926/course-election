@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,10 +142,12 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setTeachClassType(lesson.getTeachClassType());
             tc.setMaxNumber(lesson.getMaxNumber());
             tc.setCurrentNumber(lesson.getCurrentNumber());
+            tc.setRemark(lesson.getRemark());
             tc.setTimeTableList(getTimeById(teachingClassId));
             tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
             tc.setFaculty(lesson.getFaculty());
+            tc.setCalendarId(lesson.getCalendarId());
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
@@ -178,7 +181,7 @@ public class TeachClassCacheService extends AbstractCacheService
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
-                String weekstr = findWeek(dayOfWeek);//星期
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
                 time.setTimeId(timeId);
                 time.setTimeAndRoom(timeStr);
@@ -188,41 +191,7 @@ public class TeachClassCacheService extends AbstractCacheService
         }
         return list;
     }
-    /**
-     *@Description: 星期
-     *@Param:
-     *@return:
-     *@Author: bear
-     *@date: 2019/2/15 13:59
-     */
-  	private String findWeek(Integer number){
-         String week="";
-         switch(number){
-             case 1:
-                 week="星期一";
-                 break;
-             case 2:
-                 week="星期二";
-                 break;
-             case 3:
-                 week="星期三";
-                 break;
-             case 4:
-                 week="星期四";
-                 break;
-             case 5:
-                 week="星期五";
-                 break;
-             case 6:
-                 week="星期六";
-                 break;
-             case 7:
-                 week="星期日";
-                 break;
-         }
-         return week;
-     }
-    
+
     /**
      * 
      * 通过轮次与课程代码获取教学班信息
@@ -257,6 +226,42 @@ public class TeachClassCacheService extends AbstractCacheService
             lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
         }
         return lessons;
+    }
+    
+    /**
+     * 
+     * 通过学年学期与课程代码获取教学班信息
+     * @param calendarId
+     * @param courseCode
+     * @return
+     */
+    public List<TeachingClassCache> getTeachClasssBycalendarId(Long calendarId,
+    		String courseCode)
+    {
+    	List<TeachingClassCache> lessons = new ArrayList<>();
+    	
+    	List<Long> teachClassIds =
+    			this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
+    	if (CollectionUtil.isEmpty(teachClassIds))
+    	{
+    		return lessons;
+    	}
+    	
+    	if (CollectionUtil.isNotEmpty(teachClassIds))
+    	{
+    		Collections.sort(teachClassIds);
+    		
+    		List<String> keys = teachClassIds.stream()
+    				.map(String::valueOf)
+    				.collect(Collectors.toList());
+    		
+    		HashOperations<String, String, TeachingClassCache> hash =
+    				opsTeachClass();
+    		lessons = hash.multiGet(Keys.getClassKey(), keys);
+    		// 过滤null
+    		lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    	}
+    	return lessons;
     }
     
     /**

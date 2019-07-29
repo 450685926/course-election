@@ -152,4 +152,24 @@
 			and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord}, '%') or st.NAME_ like CONCAT('%', #{keyWord}, '%'))
 		</if>
 	</select>
+
+	<select id="findClassInfo" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+		SELECT
+			t1.ID_ teachClassId,
+			t1.CODE_ teachClassCode,
+			t1.REMARK_ remark,
+			t3.FACULTY_ faculty,
+			t3.TERM_ term,
+			t4.TEACHER_NAME_ teacherName
+		FROM
+			teaching_class_t t1
+			LEFT JOIN teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+			LEFT JOIN course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
+			LEFT JOIN teaching_class_teacher_t t4 ON t4.TEACHING_CLASS_ID_ = t1.ID_
+		WHERE
+			t1.ID_ in
+		<foreach item="item" collection="teachClassIds" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+	</select>
 </mapper>

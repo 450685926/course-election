@@ -39,12 +39,12 @@ import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 
 @Service
-public class StudentElecRushCourseServiceImpl
+public class AdminAgentElecRushCourseServiceImpl
     extends AbstractElecQueueComsumerService<ElecRequest>
     implements StudentElecRushCourseService
 {
     private static final Logger LOG =
-        LoggerFactory.getLogger(StudentElecRushCourseServiceImpl.class);
+        LoggerFactory.getLogger(AdminAgentElecRushCourseServiceImpl.class);
     
     @Autowired
     private RoundDataProvider dataProvider;
@@ -62,96 +62,17 @@ public class StudentElecRushCourseServiceImpl
     private ElecRoundsDao elecRoundsDao;
     
     @Autowired
-    protected StudentElecRushCourseServiceImpl(
+    protected AdminAgentElecRushCourseServiceImpl(
         ElecQueueService<ElecRequest> queueService)
     {
-        super(QueueGroups.STUDENT_ELEC, queueService);
+        super(QueueGroups.ADMIN_ELEC, queueService);
     }
     
     @SuppressWarnings("rawtypes")
     @Override
     public void consume(ElecRequest request)
     {
-        LOG.info("");
-        Long roundId = request.getRoundId();
-        String studentId = request.getStudentId();
-        ElecContext context = null;
-        try
-        {
-            ElectionRounds round = dataProvider.getRound(roundId);
-            context =
-                new ElecContext(studentId, round.getCalendarId(), request);
-            
-            List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-            
-            // 获取执行规则
-            Map<String, AbstractRuleExceutor> map =
-                applicationContext.getBeansOfType(AbstractRuleExceutor.class);
-            
-            List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
-            List<AbstractWithdrwRuleExceutor> cancelExceutors =
-                new ArrayList<>();
-            
-            for (ElectionRuleVo ruleVo : rules)
-            {
-                AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
-                if (null != excetor)
-                {
-                    excetor.setProjectId(ruleVo.getManagerDeptId());
-                    ElectRuleType type =
-                        ElectRuleType.valueOf(ruleVo.getType());
-                    excetor.setType(type);
-                    excetor.setDescription(ruleVo.getName());
-                    if (ElectRuleType.WITHDRAW.equals(type))
-                    {
-                        cancelExceutors
-                            .add((AbstractWithdrwRuleExceutor)excetor);
-                    }
-                    else
-                    {
-                        elecExceutors.add((AbstractElecRuleExceutor)excetor);
-                    }
-                }
-            }
-            ElecRespose respose = context.getRespose();
-            respose.getSuccessCourses().clear();
-            respose.getFailedReasons().clear();
-            
-            // 退课
-            doWithdraw(context,
-                cancelExceutors,
-                request.getWithdrawClassList());
-            
-            // 选课
-            doElec(context, elecExceutors, request.getElecClassList(), round);
-        }
-        catch (Exception e)
-        {
-            LOG.error(e.getMessage(), e);
-            if (context != null)
-            {
-                context.getRespose()
-                    .getFailedReasons()
-                    .put("error", e.getMessage());
-            }
-        }
-        finally
-        {
-            // 不管选课有没有成功，结束时表示可以进行下一个选课请求
-            ElecContextUtil.setElecStatus(roundId, studentId, ElecStatus.Ready);
-            if (null != context)
-            {
-                // 数据保存到缓存
-                context.saveToCache();
-            }
-        }
-        
-    }
-    
-
-//	@Override
-	public void consumeAdmin(ElecRequest request) {
-		LOG.info("");
+    	LOG.info("");
         String studentId = request.getStudentId();
         Long calendarId = request.getCalendarId();
         
@@ -199,7 +120,9 @@ public class StudentElecRushCourseServiceImpl
                 context.saveToCache();
             }
         }
-	}
+        
+    }
+    
     
     /**选课*/
     private void doElec(ElecContext context,
