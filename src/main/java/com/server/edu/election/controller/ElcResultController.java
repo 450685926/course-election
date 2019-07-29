@@ -268,6 +268,6 @@ public class ElcResultController
         elcResultService.saveElcLimit(teachingClassVo);
         
         return RestResult.success();
-    } 
+    }
     
 }
