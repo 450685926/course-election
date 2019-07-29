@@ -109,12 +109,19 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Long roundId = elecRequest.getRoundId();
         Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
-        Long calendarId = elecRequest.getCalendarId();
+        String projectId = elecRequest.getProjectId();
+        Long calendarId = null;
         
         // 研究生
-        if (null == roundId && null != chooseObj)
+        if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+            && Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
         {
-            elecRequest.setProjectId(Constants.PROJ_GRADUATE);
+            calendarId = elecRequest.getCalendarId();
+        }
+        else
+        {
+            ElectionRounds round = dataProvider.getRound(roundId);
+            calendarId = round.getCalendarId();
         }
         
         ElecStatus currentStatus =
@@ -471,12 +478,15 @@ public class StudentElecServiceImpl extends AbstractCacheService
         }
         Long roundId = elecRequest.getRoundId();
         String studentId = elecRequest.getStudentId();
-        Long calendarId = elecRequest.getCalendarId();
+        String projectId = elecRequest.getProjectId();
+        Integer chooseObj = elecRequest.getChooseObj();
+        Long calendarId = null;
         
         // 研究生
-        if (null == roundId && null != calendarId)
+        if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+            && Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
         {
-            elecRequest.setProjectId(Constants.PROJ_GRADUATE);
+            calendarId = elecRequest.getCalendarId();
         }
         else
         {
@@ -522,7 +532,6 @@ public class StudentElecServiceImpl extends AbstractCacheService
         // 研究生
         if (null == roundId && null != calendarId)
         {
-            elecRequest.setProjectId(Constants.PROJ_GRADUATE);
         }
         else
         {
@@ -536,7 +545,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
         
         ElecRespose response =
             ElecContextUtil.getElecRespose(studentId, calendarId);
-        ElecStatus status = ElecContextUtil.getElecStatus(calendarId, studentId);
+        ElecStatus status =
+            ElecContextUtil.getElecStatus(calendarId, studentId);
         if (response == null)
         {
             response = new ElecRespose(status);

@@ -105,6 +105,10 @@ public class ElecAgentController
     public RestResult<ElecRespose> studentLoading(
         @RequestBody(required = false) ElecRequest elecRequest)
     {
+        if (elecRequest.getChooseObj() == null)
+        {
+            throw new ParameterValidateException("chooseObj not be null");
+        }
         ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         return elecService.loading(elecRequest);
     }
