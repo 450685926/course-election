@@ -79,10 +79,10 @@ public class ElecAgentController
             {
                 // 研究生(研究生只有教务员代理选课需要查询轮次信息)
                 if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)
-                    && dataProvider.containsStu(round.getId(), studentId)
-                    && dataProvider.containsStuCondition(round.getId(),
-                        studentId,
-                        projectId))
+                    && (!dataProvider.containsStu(round.getId(), studentId)
+                        || !dataProvider.containsStuCondition(round.getId(),
+                            studentId,
+                            projectId)))
                 {
                     continue;
                 }
