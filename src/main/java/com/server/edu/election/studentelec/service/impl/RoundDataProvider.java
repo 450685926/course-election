@@ -137,6 +137,7 @@ public class RoundDataProvider
             this.roundCacheService.deleteRound(roundId);
         }
     }
+    
     private void cacheData(ElectionRounds round, Date now)
     {
         Long roundId = round.getId();
@@ -156,11 +157,13 @@ public class RoundDataProvider
         roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
         String manageDptId = round.getProjectId();
-        if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE)) {
-        	cachePreSemester(round, timeout);
-		}
+        if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE))
+        {
+            cachePreSemester(round, timeout);
+        }
         // 缓存课程
-        roundCacheService.cacheCourse(timeout, roundId, calendarId,manageDptId);
+        roundCacheService
+            .cacheCourse(timeout, roundId, calendarId, manageDptId);
     }
     
     /**
@@ -181,6 +184,7 @@ public class RoundDataProvider
         String roundPreSemester = Keys.getRoundPresemesterKey(round.getId());
         ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
     }
+    
     /**
      *  获取轮次对应的上一个学期
      */
@@ -311,6 +315,17 @@ public class RoundDataProvider
     {
         return classCacheService.incrementElecNumber(teachClassId);
     }
+    /**
+     * 减少教学班人数
+     * 
+     * @param teachClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int decrElcNumber(Long teachClassId)
+    {
+        return classCacheService.decrElecNumber(teachClassId);
+    }
     
     /**
      * 判断学生是否在指定轮次中
@@ -334,9 +349,11 @@ public class RoundDataProvider
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public boolean containsStuCondition(Long roundId, String studentId, String projectId)
+    public boolean containsStuCondition(Long roundId, String studentId,
+        String projectId)
     {
-        return roundCacheService.containsStuCondition(roundId, studentId,projectId);
+        return roundCacheService
+            .containsStuCondition(roundId, studentId, projectId);
     }
     
 }

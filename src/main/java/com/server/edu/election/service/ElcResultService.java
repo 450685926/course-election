@@ -1,9 +1,8 @@
 package com.server.edu.election.service;
 
-import java.util.List;
-
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
@@ -11,7 +10,6 @@ import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
-import com.server.edu.util.excel.export.ExcelResult;
 
 public interface ElcResultService
 {
@@ -83,7 +81,7 @@ public interface ElcResultService
      * @param condition
      * @return
      */
-	ElcResultCountVo elcResultCountByStudent(PageCondition<ElcResultQuery> condition);
+	ElcResultCountVo elcResultCount(PageCondition<ElcResultQuery> condition);
 
 	/**
 	 * 未选课学生名单
@@ -91,5 +89,23 @@ public interface ElcResultService
 	 * @return
 	 */
 	PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page);
+
+	/**
+	 * 选课结果导出
+	 * @param condition
+	 * @return
+	 */
+	RestResult<String> elcResultCountsExport(ElcResultQuery condition);
+
+	/**
+	 * 未选课名单导出
+	 * @param condition
+	 * @return
+	 */
+	RestResult<String> exportOfNonSelectedCourse(ElcResultQuery condition);
+	
+	void saveElcLimit(TeachingClassVo teachingClassVo);
+	
+	
 
 }

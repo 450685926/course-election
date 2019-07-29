@@ -30,7 +30,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
     private String grade;
 
-    /**校区*/
+    /**课程性质*/
     @Code2Text(transformer = "X_KCXZ")
     private String nature;
 
@@ -51,6 +51,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String teachingCode;
     
     private String teachingName;
+
     @Code2Text(transformer="X_YX")
     private String faculty;
 

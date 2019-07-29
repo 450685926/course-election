@@ -14,6 +14,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
@@ -47,7 +48,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
         Page<CourseOpenDto> listPage;
-        if ("1".equals(query.getProjectId())) {
+        if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listPage(query);
         }else {
         	listPage = roundCourseDao.listPageGraduate(query);
@@ -69,7 +70,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         Page<CourseOpenDto> listPage;
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
-        if ("1".equals(query.getProjectId())) {
+        if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listUnAddPage(query,practicalCourse);
 		}else {
 			listPage = roundCourseDao.listUnAddPageGraduate(query);

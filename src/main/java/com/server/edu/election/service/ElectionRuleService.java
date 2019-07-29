@@ -11,7 +11,9 @@ import com.server.edu.election.vo.ElectionRuleVo;
 
 public interface ElectionRuleService{
     List<ElectionRule> list(ElectionRuleDto electionRuleDto);
-    
+
+    List<ElectionRuleVo> retakeRuleList(String managerDeptId);
+
     PageInfo<ElectionRule> page(PageCondition<ElectionRuleDto> condition);
 
     List<ElectionRuleVo> ruleParamers(ElectionRuleDto electionRuleDto);

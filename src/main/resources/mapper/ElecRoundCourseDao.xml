@@ -44,8 +44,8 @@
 		t1.FACULTY_,
 		t1.CREDITS_,
 		t1.PERIOD_,
-		t3.ID_,
-		t3.CODE_,
+		t3.ID_ teachingClassId,
+		t3.CODE_ teachingClassCode,
 		t3.COURSE_LABEL_ID_,
 		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
 	FROM
@@ -135,8 +135,8 @@
 		t1.FACULTY_,
 		t1.CREDITS_,
 		t1.PERIOD_,
-		t4.ID_,
-		t4.CODE_,
+		t4.ID_ teachingClassId,
+		t4.CODE_ teachingClassCode,
 		t4.COURSE_LABEL_ID_,
 		GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
 		FROM
@@ -151,8 +151,8 @@
 		  	and t1.PROJ_ID_ = #{query.projectId}
 		  	</if>
 			and t4.DEPLOY_FLAG_ &gt; 0
-		  	and t1.COURSE_CODE_ NOT IN (
-		  	 select COURSE_CODE_ from election_rounds_cour_t where ROUNDS_ID_ = #{query.roundId}
+		  	and t4.ID_ NOT IN (
+		  	 select t.TEACHING_CLASS_ID_ from election_rounds_cour_t t where t.ROUNDS_ID_ = #{query.roundId}
 		  	)
 			<if test="query.mode==2">
 				and t1.COURSE_CODE_ in 

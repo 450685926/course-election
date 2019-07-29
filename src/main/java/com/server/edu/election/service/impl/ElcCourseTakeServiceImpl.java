@@ -40,7 +40,6 @@ import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
-import com.server.edu.election.dao.ScoreStudentScoreDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.AddAndRemoveCourseDto;
@@ -112,9 +111,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private DictionaryService dictionaryService;
-
-    @Autowired
-    private ScoreStudentScoreDao scoreStudentScoreDao;
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -636,27 +632,24 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     public PageResult<ElcStudentVo> addCourseList(PageCondition<ElcCourseTakeQuery> condition) {
         ElcCourseTakeQuery courseTakeQuerytudentVo = condition.getCondition();
         String studentId = courseTakeQuerytudentVo.getStudentId();
-        //通过研究生培养计划获取学生需要修的课程
+        Long calendarId = courseTakeQuerytudentVo.getCalendarId();
+        // 获取学生所有已修课程成绩
+        List<StudentScoreVo> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentId);
+        // 获取学生通过课程集合
+        List<StudentScoreVo> collect = stuScoreBest.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
+        List<String> passedCourseCodes = collect.stream().map(StudentScoreVo::getCourseCode).collect(Collectors.toList());
+        //通过研究生培养计划获取学生所有需要修读的课程
         String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
         RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
         List<String> allCourseCode = restResult.getData();
-        List<String> elcCourses = new ArrayList<>();
-        //查询未通过的教学班和已选择的教学班
-        List<String> codes = scoreStudentScoreDao.findSuccessedCourseCode(studentId);
-        List<String> failedTeachingClassIds = scoreStudentScoreDao.findFailedTeachingClassId(codes, studentId);
-        List<String> selectedTeachingClassIds = courseTakeDao.findSelectedTeachingClassId(studentId);
-        if (CollectionUtil.isNotEmpty(selectedTeachingClassIds)) {
-            //剔除已选择的教学班中未通过的教学班
-            List<String> collect = selectedTeachingClassIds.stream().filter(item -> !failedTeachingClassIds.contains(item)).collect(Collectors.toList());
-            //查询已选择的课程代码
-            List<String> courseCodes = courseTakeDao.findCourseCode(collect);
-            if (CollectionUtil.isNotEmpty(allCourseCode)){
-                //获取学生还需要修的课程即为可选课程
-                elcCourses = allCourseCode.stream().filter(item -> !courseCodes.contains(item)).collect(Collectors.toList());
-            }
-        }
+        //获取学生本学期已选的课程
+        List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
+        //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
+        List<String> elcCourses = allCourseCode.stream()
+                .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
+                .collect(Collectors.toList());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, courseTakeQuerytudentVo.getCalendarId());
+        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId);
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }
@@ -929,4 +922,5 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
     }
+
 }
