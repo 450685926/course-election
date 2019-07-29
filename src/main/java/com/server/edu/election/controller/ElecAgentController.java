@@ -135,7 +135,7 @@ public class ElecAgentController
             c = new ElecContext(studentId, elecRequest.getCalendarId());
         }
         
-        if (session.getCurrentManageDptId() != Constants.PROJ_UNGRADUATE)
+        if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
         {
             if (elecRequest.getChooseObj() == Constants.TOW)
             { // 教务员
