@@ -111,31 +111,25 @@ public class StudentElecServiceImpl extends AbstractCacheService
         String studentId = elecRequest.getStudentId();
         Long calendarId = elecRequest.getCalendarId();
         
-        Long lockKey = null;
         // 研究生
         if (null == roundId && null != chooseObj)
         {
-            lockKey = calendarId;
             elecRequest.setProjectId(Constants.PROJ_GRADUATE);
-        }
-        else
-        {
-            lockKey = roundId;
         }
         
         ElecStatus currentStatus =
-            ElecContextUtil.getElecStatus(lockKey, studentId);
+            ElecContextUtil.getElecStatus(calendarId, studentId);
         // 如果当前是Init状态，进行初始化
         if (ElecStatus.Init.equals(currentStatus))
         {
             // 加入队列
             currentStatus = ElecStatus.Loading;
-            ElecContextUtil.setElecStatus(lockKey, studentId, currentStatus);
+            ElecContextUtil.setElecStatus(calendarId, studentId, currentStatus);
             if (!queueService.add(QueueGroups.STUDENT_LOADING, elecRequest))
             {
                 currentStatus = ElecStatus.Init;
                 ElecContextUtil
-                    .setElecStatus(lockKey, studentId, currentStatus);
+                    .setElecStatus(calendarId, studentId, currentStatus);
                 return RestResult.fail("请稍后再试");
             }
         }
@@ -479,29 +473,28 @@ public class StudentElecServiceImpl extends AbstractCacheService
         String studentId = elecRequest.getStudentId();
         Long calendarId = elecRequest.getCalendarId();
         
-        Long lockKey = null;
         // 研究生
         if (null == roundId && null != calendarId)
         {
-            lockKey = calendarId;
             elecRequest.setProjectId(Constants.PROJ_GRADUATE);
         }
         else
         {
-            lockKey = roundId;
+            ElectionRounds round = dataProvider.getRound(roundId);
+            calendarId = round.getCalendarId();
         }
         
         ElecStatus currentStatus =
-            ElecContextUtil.getElecStatus(lockKey, studentId);
+            ElecContextUtil.getElecStatus(calendarId, studentId);
         if (ElecStatus.Ready.equals(currentStatus)
-            && ElecContextUtil.tryLock(lockKey, studentId))
+            && ElecContextUtil.tryLock(calendarId, studentId))
         {
             try
             {
                 // 加入选课队列
                 if (queueService.add(QueueGroups.STUDENT_ELEC, elecRequest))
                 {
-                    ElecContextUtil.setElecStatus(lockKey,
+                    ElecContextUtil.setElecStatus(calendarId,
                         studentId,
                         ElecStatus.Processing);
                     currentStatus = ElecStatus.Processing;
@@ -513,7 +506,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
             finally
             {
-                ElecContextUtil.unlock(lockKey, studentId);
+                ElecContextUtil.unlock(calendarId, studentId);
             }
         }
         return RestResult.successData(new ElecRespose(currentStatus));
@@ -526,11 +519,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
         String studentId = elecRequest.getStudentId();
         Long calendarId = elecRequest.getCalendarId();
         
-        Long lockKey = null;
         // 研究生
         if (null == roundId && null != calendarId)
         {
-            lockKey = calendarId;
             elecRequest.setProjectId(Constants.PROJ_GRADUATE);
         }
         else
@@ -541,12 +532,11 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 return new ElecRespose();
             }
             calendarId = round.getCalendarId();
-            lockKey = roundId;
         }
         
         ElecRespose response =
             ElecContextUtil.getElecRespose(studentId, calendarId);
-        ElecStatus status = ElecContextUtil.getElecStatus(lockKey, studentId);
+        ElecStatus status = ElecContextUtil.getElecStatus(calendarId, studentId);
         if (response == null)
         {
             response = new ElecRespose(status);

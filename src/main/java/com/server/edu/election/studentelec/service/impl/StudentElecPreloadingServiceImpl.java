@@ -59,12 +59,10 @@ public class StudentElecPreloadingServiceImpl
         Integer chooseObj = preloadRequest.getChooseObj();
         try
         {
-            Long lockKey = roundId;
             // 研究生的管理员代选是没有轮次和规则的
             if (!Constants.PROJ_UNGRADUATE.equals(projectId)
                 && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
-                lockKey = calendarId;
             }
             else
             {
@@ -72,7 +70,7 @@ public class StudentElecPreloadingServiceImpl
                 calendarId = round.getCalendarId();
                 projectId = round.getProjectId();
             }
-            if (ElecContextUtil.tryLock(lockKey, studentId))
+            if (ElecContextUtil.tryLock(calendarId, studentId))
             {
                 ElecContext context = null;
                 try
@@ -103,7 +101,7 @@ public class StudentElecPreloadingServiceImpl
                     
                     //完成后设置当前状态为Ready
                     ElecContextUtil
-                        .setElecStatus(lockKey, studentId, ElecStatus.Ready);
+                        .setElecStatus(calendarId, studentId, ElecStatus.Ready);
                     context.getRespose().getFailedReasons().clear();
                     context.saveResponse();
                 }
@@ -119,11 +117,11 @@ public class StudentElecPreloadingServiceImpl
                     
                     LOG.error(e.getMessage(), e);
                     ElecContextUtil
-                        .setElecStatus(lockKey, studentId, ElecStatus.Init);
+                        .setElecStatus(calendarId, studentId, ElecStatus.Init);
                 }
                 finally
                 {
-                    ElecContextUtil.unlock(lockKey, studentId);
+                    ElecContextUtil.unlock(calendarId, studentId);
                 }
             }
             else
@@ -136,7 +134,7 @@ public class StudentElecPreloadingServiceImpl
                     calendarId,
                     roundId,
                     studentId,
-                    ElecContextUtil.getElecStatus(roundId, studentId));
+                    ElecContextUtil.getElecStatus(calendarId, studentId));
             }
         }
         catch (Exception e)

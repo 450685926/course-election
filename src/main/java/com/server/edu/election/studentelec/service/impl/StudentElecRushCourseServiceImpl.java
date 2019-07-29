@@ -82,7 +82,6 @@ public class StudentElecRushCourseServiceImpl
         String projectId = request.getProjectId();
         Integer chooseObj = request.getChooseObj();
         ElecContext context = null;
-        Long lockKey = roundId;
         try
         {
             List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
@@ -92,7 +91,6 @@ public class StudentElecRushCourseServiceImpl
             if (!Constants.PROJ_UNGRADUATE.equals(projectId)
                 && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
-                lockKey = calendarId;
             }
             else
             {
@@ -177,7 +175,7 @@ public class StudentElecRushCourseServiceImpl
         finally
         {
             // 不管选课有没有成功，结束时表示可以进行下一个选课请求
-            ElecContextUtil.setElecStatus(lockKey, studentId, ElecStatus.Ready);
+            ElecContextUtil.setElecStatus(calendarId, studentId, ElecStatus.Ready);
             if (null != context)
             {
                 // 数据保存到缓存

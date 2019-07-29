@@ -159,7 +159,7 @@ public class ElecAgentController
     @PostMapping("/elect")
     public RestResult<ElecRespose> elect(@RequestBody ElecRequest elecRequest)
     {
-        //        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
+        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         if (elecRequest.getChooseObj() == null)
         {
             throw new ParameterValidateException("chooseObj not be null");
@@ -209,7 +209,10 @@ public class ElecAgentController
     {
         ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         
-        ElecContextUtil.setElecStatus(elecRequest.getRoundId(),
+        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
+        Long calendarId = round.getCalendarId();
+        
+        ElecContextUtil.setElecStatus(calendarId,
             elecRequest.getStudentId(),
             ElecStatus.Init);
         
