@@ -20,9 +20,12 @@
     <result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
     <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
     <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
     <result column="RESEARCH_DIRECTION_" jdbcType="VARCHAR" property="researchDirection" />
     <result column="STUDENT_CATEGORY_" jdbcType="VARCHAR" property="studentCategory" />
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
+    <result column="LEAVE_SCHOOL_" jdbcType="VARCHAR" property="leaveSchool" />
+    <result column="IS_MEMBERSHIP_" jdbcType="VARCHAR" property="isMembership" />
   </resultMap>
   <resultMap id="ResultMap" type="com.server.edu.election.dto.Student4Elc">
     <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentId" />
@@ -45,7 +48,7 @@
     <sql id="Base_Column_List">
         STUDENT_CODE_, NAME_, SEX_, FORM_LEARNING_, IS_OVERSEAS_, TRAINING_LEVEL_, FACULTY_,
         PROFESSION_, GRADE_, SPCIAL_PLAN_, REGISTRATION_STATUS_, ENROL_SEASON_, CAMPUS_,
-        TRAINING_CATEGORY_, DEGREE_CATEGORY_,RESEARCH_DIRECTION_,STUDENT_CATEGORY_,MANAGER_DEPT_ID_
+        TRAINING_CATEGORY_, DEGREE_CATEGORY_,DEGREE_TYPE_,RESEARCH_DIRECTION_,STUDENT_CATEGORY_,MANAGER_DEPT_ID_
     </sql>
     <select id="findStudentByCode" resultMap="BaseResultMap">
         select
@@ -89,7 +92,7 @@
 			t1.PROFESSION_
 		FROM student_t t1
 		<where>
-			1=1 
+			t1.LEAVE_SCHOOL_ = 1
 			and t1.STUDENT_CODE_  IN  
 			<foreach item="studentId" collection="query.studentIds" index="index" open="(" separator="," close=")">
 		          #{studentId}
@@ -266,7 +269,7 @@
        SELECT t4.* FROM student_t t4 
         <where>
         	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
-        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t4.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t4.FACULTY_ = #{query.faculty}
 		    </if>
@@ -308,6 +311,7 @@
    
    <select id="getUnLimitStudents" parameterType="com.server.edu.election.dto.StudentDto" resultMap="BaseResultMap">
 		SELECT
+		    distinct
 			t1.STUDENT_CODE_,
 			t1.NAME_,
 			t1.GRADE_,
@@ -356,4 +360,8 @@
 		    </if>
 		</where>
    </select>
+
+	<select id="findCampus" resultType="java.lang.String">
+		select CAMPUS_ from student_t where STUDENT_CODE_=#{studentCode}
+	</select>
 </mapper>

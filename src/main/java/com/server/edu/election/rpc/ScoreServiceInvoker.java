@@ -1,6 +1,8 @@
 package com.server.edu.election.rpc;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
@@ -28,6 +30,20 @@ public class ScoreServiceInvoker {
                         studentCode);
 
         return restResult.getData();
+    }
+
+    public static List<String> findStuFailedCourseCodes(String studentCode)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<Set<String>> restResult =
+                ServicePathEnum.SCORESERVICE.getForObject(
+                        "/studentScoreCount/findStuFailedCourseCode?studentCode={studentCode}",
+                        RestResult.class,
+                        studentCode);
+        Set<String> set = restResult.getData();
+        List<String> list = new ArrayList<>(set.size());
+        list.addAll(set);
+        return list;
     }
 
     public static StudentScore findViolationStu(String studentCode,String courseCode,Long calendarId)

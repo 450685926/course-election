@@ -119,4 +119,37 @@
 	<select id="queryNameAndTrainingLevelByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
 		SELECT COURSE_CODE_,COURSE_NAME_,COURSE_NAME_EN_,TRAINING_LEVEL_ FROM course_open_t where COURSE_CODE_ = #{courseCode}
 	</select>
+
+	<select id="findFailedCourseInfo" resultType="com.server.edu.election.vo.FailedCourseVo">
+		select
+			a.CALENDAR_ID_ calendarId,a.IS_OPEN_ isOpen,a.COURSE_CODE_ courseCode,
+			a.COURSE_NAME_ courseName, a.TRAINING_LEVEL_ trainingLevel,a.CREDITS_ credits,
+			b.NATURE_ nature,b.ASSESSMENT_MODE_ assessmentMode
+		from course_open_t a
+		join course_t b on b.CODE_ = a.COURSE_CODE_
+		where a.COURSE_CODE_ in
+		<foreach item="item" collection="courseCodes" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+		and a.CALENDAR_ID_ = #{calendarId}
+	</select>
+
+	<select id="findRebuildCourses" resultType="com.server.edu.election.vo.RebuildCourseVo">
+		select
+			a.COURSE_CODE_ courseCode,a.COURSE_NAME_ courseName,a.FACULTY_ faculty,a.CREDITS_ credits,
+			c.ID_ teachingClassId,c.CODE_ classCode,c.CAMPUS_ campus,c.REMARK_ remark,
+			c.ELC_NUMBER_ selectNumber,c.NUMBER_ number,d.TEACHER_NAME_ teacherName
+		from course_open_t a
+		join teaching_task_t b on b.COURSE_OPEN_ID_ = a.ID_
+		join teaching_class_t c on c.TASK_ID_ = b.ID_
+		join teaching_class_teacher_t d on d.TEACHING_CLASS_ID_ = c.ID_
+		where a.COURSE_CODE_ in
+		<foreach item="item" collection="courseCodes" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+		and a.CALENDAR_ID_ = #{calendarId}
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+			and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord}, '%') or st.NAME_ like CONCAT('%', #{keyWord}, '%'))
+		</if>
+	</select>
 </mapper>

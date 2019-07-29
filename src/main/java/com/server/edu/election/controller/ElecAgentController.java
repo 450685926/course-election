@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
@@ -46,7 +50,9 @@ import io.swagger.annotations.SwaggerDefinition;
 @RequestMapping("agentElc")
 public class ElecAgentController
 {
-    @Autowired
+	Logger LOG = LoggerFactory.getLogger(ElecAgentController.class);
+    
+	@Autowired
     private StudentElecService elecService;
     
     @Autowired
@@ -186,6 +192,18 @@ public class ElecAgentController
     		@RequestBody PageCondition<NoSelectCourseStdsDto> condition)
     {
     	ValidatorUtil.validateAndThrow(condition, AgentElcGroup.class);
+
+    	Session session = SessionUtils.getCurrentSession();
+    	
+    	if (!StringUtils.equals(session.getCurrentRole(), "1")) {
+    		throw new ParameterValidateException(I18nUtil.getMsg("agentElc.role.err"));
+		}
+    	
+		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {// 教务员
+			NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
+			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);			
+		    noSelectCourseStds.setFaculty(session.getFaculty());
+		}
     	
     	PageResult<NoSelectCourseStdsDto> list = elecService.findAgentElcStudentList(condition);
     	return RestResult.successData(list);

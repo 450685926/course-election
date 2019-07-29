@@ -28,6 +28,7 @@ public class ElecCourse
     private String nature;
     
     /**校区*/
+    @Code2Text(DictTypeEnum.X_XQ)
     private String campus;
     
     private String faculty;
@@ -48,6 +49,17 @@ public class ElecCourse
 
     /**选课申请状态*/    
     private Integer apply;
+    
+    /**是否必修*/
+    private String compulsory;
+    
+    public String getCompulsory() {
+		return compulsory;
+	}
+
+	public void setCompulsory(String compulsory) {
+		this.compulsory = compulsory;
+	}
     
     public String getFaculty() {
 		return faculty;

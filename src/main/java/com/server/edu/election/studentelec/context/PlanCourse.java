@@ -16,8 +16,8 @@ public class PlanCourse extends ElecCourse
     private String semester;
     /**个人替代课程*/
     private String subCourseCode;
-    
-    public String getSubCourseCode() {
+
+	public String getSubCourseCode() {
 		return subCourseCode;
 	}
 
@@ -49,10 +49,12 @@ public class PlanCourse extends ElecCourse
         this.label = label;
     }
 
+	@Override
 	public String getFaculty() {
 		return faculty;
 	}
 
+	@Override
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}

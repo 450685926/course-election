@@ -133,8 +133,27 @@ public class ElcResultQuery
     
     private List<String> studentIds;
     
+    private Integer isElective;
     
-    public Integer getActualAndUpper() {
+    private Integer isHaveLimit;
+    
+	public Integer getIsHaveLimit() {
+		return isHaveLimit;
+	}
+
+	public void setIsHaveLimit(Integer isHaveLimit) {
+		this.isHaveLimit = isHaveLimit;
+	}
+
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
+
+	public Integer getActualAndUpper() {
 		return actualAndUpper;
 	}
 

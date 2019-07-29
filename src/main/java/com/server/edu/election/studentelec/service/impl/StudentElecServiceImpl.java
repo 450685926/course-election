@@ -65,8 +65,6 @@ import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElcResultCourseVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -405,7 +403,7 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
         }
         
         ElecRespose response =
-            ElecContextUtil.getElecRespose(studentId, 108L);
+            ElecContextUtil.getElecRespose(studentId, round.getCalendarId());
         ElecStatus status = ElecContextUtil.getElecStatus(roundId, studentId);
         if (response == null)
         {
@@ -502,7 +500,11 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
             if(round.getTurn()!=Constants.THIRD_TURN&&round.getTurn()!=Constants.FOURTH_TURN) {
-                classDao.decrElcNumber(teachClassId);
+                int count = classDao.decrElcNumber(teachClassId);
+                if (count > 0)
+                {
+                    dataProvider.decrElcNumber(teachClassId);
+                }
             }
         }
         
@@ -855,17 +857,10 @@ public class StudentElecServiceImpl extends AbstractCacheService implements Stud
 
 	@Override
 	public PageResult<NoSelectCourseStdsDto> findAgentElcStudentList(PageCondition<NoSelectCourseStdsDto> condition) {
-		Session session = SessionUtils.getCurrentSession();
-		NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
-
-		if (session.isAcdemicDean()) {// 教务员
-			noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
-		    noSelectCourseStds.setuId(session.getUid());
-		} 
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         
+        NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
         Page<NoSelectCourseStdsDto> agentElcStudentList = courseTakeDao.findAgentElcStudentList(noSelectCourseStds);
-
         return new PageResult<>(agentElcStudentList);
 	}
 
