@@ -42,6 +42,9 @@ public class ElecRequest
     /** 学年学期 */
     private Long calendarId;
     
+    /**管理部门*/
+    private String projectId;
+    
     public String getStudentId()
     {
         return studentId;
@@ -119,5 +122,15 @@ public class ElecRequest
 	public void setCalendarId(Long calendarId) {
 		this.calendarId = calendarId;
 	}
+
+    public String getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
+    }
     
 }

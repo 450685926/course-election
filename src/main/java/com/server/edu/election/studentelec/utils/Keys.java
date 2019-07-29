@@ -11,15 +11,11 @@ public class Keys
     
     /** 学生状态锁  format参数 roundid studentid*/
     public static final String STD_STATUS_LOCK = "elec-stdlock-%s_%s";
-    /** 学生状态锁(管理员代选)  format参数 calendarId studentid*/
-    public static final String STD_STATUS_ADMIN_LOCK = "elec-adminlock-%s_%s";
     
     public static final String STD_STATUS_LOCK_PATTERN = "elec-stdlock-*";
     
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
     public static final String STD_STATUS = "elec-stdstatus-%s_%s";
-    /** 学生选课状态(管理员代选),值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
-    public static final String STD_ADIMN_STATUS = "elec-adminStdstatus-%s_%s";
     
     /** 轮次信息 elec-rounData */
     private static final String ROUND_KEY = "elec-roundData1";

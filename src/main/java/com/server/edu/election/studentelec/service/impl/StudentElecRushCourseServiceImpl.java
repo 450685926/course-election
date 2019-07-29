@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElectionRounds;
@@ -75,12 +76,21 @@ public class StudentElecRushCourseServiceImpl
         LOG.info("");
         Long roundId = request.getRoundId();
         String studentId = request.getStudentId();
+        Long calendarId = request.getCalendarId();
+        String projectId = request.getProjectId();
         ElecContext context = null;
         try
         {
-            ElectionRounds round = dataProvider.getRound(roundId);
-            context =
-                new ElecContext(studentId, round.getCalendarId(), request);
+            // 研究生
+            if (!Constants.PROJ_UNGRADUATE.equals(projectId))
+            {
+            }
+            else
+            {
+                ElectionRounds round = dataProvider.getRound(roundId);
+                calendarId = round.getCalendarId();
+            }
+            context = new ElecContext(studentId, calendarId, request);
             
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
@@ -122,8 +132,29 @@ public class StudentElecRushCourseServiceImpl
                 cancelExceutors,
                 request.getWithdrawClassList());
             
-            // 选课
-            doElec(context, elecExceutors, request.getElecClassList(), round);
+            // 研究生
+            if (!Constants.PROJ_UNGRADUATE.equals(projectId))
+            {
+                // 选课
+                List<ElectionRounds> elecRounds =
+                    elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
+                for (ElectionRounds round : elecRounds)
+                {
+                    doElec(context,
+                        elecExceutors,
+                        request.getElecClassList(),
+                        round);
+                }
+            }
+            else
+            {
+                ElectionRounds round = dataProvider.getRound(roundId);
+                // 选课
+                doElec(context,
+                    elecExceutors,
+                    request.getElecClassList(),
+                    round);
+            }
         }
         catch (Exception e)
         {
@@ -147,59 +178,6 @@ public class StudentElecRushCourseServiceImpl
         }
         
     }
-    
-
-//	@Override
-	public void consumeAdmin(ElecRequest request) {
-		LOG.info("");
-        String studentId = request.getStudentId();
-        Long calendarId = request.getCalendarId();
-        
-        ElecContext context = null;
-        try
-        {
-            context = new ElecContext(studentId, calendarId, request);
-            
-            List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
-            List<AbstractWithdrwRuleExceutor> cancelExceutors =
-                new ArrayList<>();
-            
-            ElecRespose respose = context.getRespose();
-            respose.getSuccessCourses().clear();
-            respose.getFailedReasons().clear();
-            
-            // 退课
-            doWithdraw(context,
-                cancelExceutors,
-                request.getWithdrawClassList());
-            
-            // 选课
-            List<ElectionRounds> elecRounds = elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
-            for (ElectionRounds round : elecRounds) {
-            	doElec(context, elecExceutors, request.getElecClassList(), round);
-			}
-        }
-        catch (Exception e)
-        {
-            LOG.error(e.getMessage(), e);
-            if (context != null)
-            {
-                context.getRespose()
-                    .getFailedReasons()
-                    .put("error", e.getMessage());
-            }
-        }
-        finally
-        {
-            // 不管选课有没有成功，结束时表示可以进行下一个选课请求
-            ElecContextUtil.setElecAdminStatus(calendarId, studentId, ElecStatus.Ready);
-            if (null != context)
-            {
-                // 数据保存到缓存
-                context.saveToCache();
-            }
-        }
-	}
     
     /**选课*/
     private void doElec(ElecContext context,
@@ -339,5 +317,5 @@ public class StudentElecRushCourseServiceImpl
         }
         
     }
-
+    
 }
