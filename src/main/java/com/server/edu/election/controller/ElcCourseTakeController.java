@@ -200,13 +200,13 @@ public class ElcCourseTakeController
     }
 
     @ApiOperation(value = "课程维护模块导出学生个人全部选课信息")
-    @PostMapping("/exportStudentInfo")
-    public RestResult<ExcelResult> exportStudentInfo(
+    @PostMapping("/exportElcPersonalInfo")
+    public RestResult<ExcelResult> exportElcPersonalInfo(
             @RequestBody PageCondition<String> condition)
             throws Exception
     {
         LOG.info("exportStudentInfo.start");
-        ExcelResult export = courseTakeService.exportStudentInfo(condition);
+        ExcelResult export = courseTakeService.exportElcPersonalInfo(condition);
         return RestResult.successData(export);
     }
 

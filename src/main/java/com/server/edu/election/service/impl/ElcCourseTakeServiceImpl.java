@@ -767,8 +767,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
      * 导出学生选课信息
      */
     @Override
-    public ExcelResult exportStudentInfo(PageCondition<String> condition) {
-        ExcelResult excelResult = ExportExcelUtils.submitTask("elcStudentInfo", new ExcelExecuter() {
+    public ExcelResult exportElcPersonalInfo(PageCondition<String> condition) {
+        ExcelResult excelResult = ExportExcelUtils.submitTask("elcPersonalInfo", new ExcelExecuter() {
             @Override
             public GeneralExcelDesigner getExcelDesigner() {
                 ExcelResult result = this.getResult();
@@ -777,7 +777,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 setTeachingArrange(listPage);
 
                 //组装excel
-                GeneralExcelDesigner design = getDesignElcStudent();
+                GeneralExcelDesigner design = getDesignStudent();
                 if (CollectionUtil.isNotEmpty(listPage)) {
                     design.setDatas(listPage);
                     result.setDoneCount(listPage.size());
@@ -859,6 +859,49 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         design.addCell(I18nUtil.getMsg("elcCourseUphold.chooseObj"), "chooseObj").setValueHandler(
                 (value, rawData, cell) -> {
                     return "1".equals(value) ? "自选" : "代选";
+                });
+        return design;
+    }
+
+    private GeneralExcelDesigner getDesignStudent() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.calendarName"), "calendarName");
+        design.addCell(I18nUtil.getMsg("elcStudentLimit.studentId"), "studentId");
+        design.addCell(I18nUtil.getMsg("elcStudentLimit.name"), "studentName");
+        String lang = SessionUtils.getLang();
+        design.addCell(I18nUtil.getMsg("rebuildCourse.trainingLevel"), "trainingLevel").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_PYCC", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "teachingClassCode");
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.nature"), "nature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_KCXZ", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.courseFaculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, lang);
+                });
+        design.addCell(I18nUtil.getMsg("elcCourseUphold.credits"), "credits");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.revisionategory"), "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    String resp = "";
+                    switch (value) {
+                        case "1":
+                            resp = "正常修读";
+                            break;
+                        case "2":
+                            resp = "重修";
+                            break;
+                        case "3":
+                            resp = "免修不免考";
+                            break;
+                        case "4":
+                            resp = "免修";
+                            break;
+                    }
+                    return resp;
                 });
         return design;
     }
