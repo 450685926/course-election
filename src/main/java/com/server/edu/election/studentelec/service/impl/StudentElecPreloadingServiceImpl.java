@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Objects;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -54,11 +56,13 @@ public class StudentElecPreloadingServiceImpl
         String studentId = preloadRequest.getStudentId();
         Long calendarId = preloadRequest.getCalendarId();
         String projectId = preloadRequest.getProjectId();
+        Integer chooseObj = preloadRequest.getChooseObj();
         try
         {
             Long lockKey = roundId;
-            // 研究生
-            if (!Constants.PROJ_UNGRADUATE.equals(projectId))
+            // 研究生的管理员代选是没有轮次和规则的
+            if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+                && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
                 lockKey = calendarId;
             }

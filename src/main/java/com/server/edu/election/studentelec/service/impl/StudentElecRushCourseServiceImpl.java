@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Objects;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElecRoundsDao;
@@ -81,6 +82,7 @@ public class StudentElecRushCourseServiceImpl
         String projectId = request.getProjectId();
         Integer chooseObj = request.getChooseObj();
         ElecContext context = null;
+        Long lockKey = roundId;
         try
         {
             List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
@@ -88,8 +90,9 @@ public class StudentElecRushCourseServiceImpl
                 new ArrayList<>();
             // 研究生的管理员代选是没有轮次和规则的
             if (!Constants.PROJ_UNGRADUATE.equals(projectId)
-                && Objects.equal(3, chooseObj))
+                && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
+                lockKey = calendarId;
             }
             else
             {
@@ -136,8 +139,9 @@ public class StudentElecRushCourseServiceImpl
                 cancelExceutors,
                 request.getWithdrawClassList());
             
-            // 研究生
-            if (!Constants.PROJ_UNGRADUATE.equals(projectId))
+            // 研究生的管理员代选是没有轮次和规则的
+            if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+                && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
                 // 选课
                 List<ElectionRounds> elecRounds =
@@ -173,7 +177,7 @@ public class StudentElecRushCourseServiceImpl
         finally
         {
             // 不管选课有没有成功，结束时表示可以进行下一个选课请求
-            ElecContextUtil.setElecStatus(roundId, studentId, ElecStatus.Ready);
+            ElecContextUtil.setElecStatus(lockKey, studentId, ElecStatus.Ready);
             if (null != context)
             {
                 // 数据保存到缓存
