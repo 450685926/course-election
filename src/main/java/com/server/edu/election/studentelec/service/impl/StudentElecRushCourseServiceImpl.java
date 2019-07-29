@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Objects;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElecRoundsDao;
@@ -78,51 +79,54 @@ public class StudentElecRushCourseServiceImpl
         String studentId = request.getStudentId();
         Long calendarId = request.getCalendarId();
         String projectId = request.getProjectId();
+        Integer chooseObj = request.getChooseObj();
         ElecContext context = null;
         try
         {
-            // 研究生
-            if (!Constants.PROJ_UNGRADUATE.equals(projectId))
+            List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
+            List<AbstractWithdrwRuleExceutor> cancelExceutors =
+                new ArrayList<>();
+            // 研究生的管理员代选是没有轮次和规则的
+            if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+                && Objects.equal(3, chooseObj))
             {
             }
             else
             {
                 ElectionRounds round = dataProvider.getRound(roundId);
                 calendarId = round.getCalendarId();
-            }
-            context = new ElecContext(studentId, calendarId, request);
-            
-            List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-            
-            // 获取执行规则
-            Map<String, AbstractRuleExceutor> map =
-                applicationContext.getBeansOfType(AbstractRuleExceutor.class);
-            
-            List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
-            List<AbstractWithdrwRuleExceutor> cancelExceutors =
-                new ArrayList<>();
-            
-            for (ElectionRuleVo ruleVo : rules)
-            {
-                AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
-                if (null != excetor)
+                List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+                
+                // 获取执行规则
+                Map<String, AbstractRuleExceutor> map = applicationContext
+                    .getBeansOfType(AbstractRuleExceutor.class);
+                
+                for (ElectionRuleVo ruleVo : rules)
                 {
-                    excetor.setProjectId(ruleVo.getManagerDeptId());
-                    ElectRuleType type =
-                        ElectRuleType.valueOf(ruleVo.getType());
-                    excetor.setType(type);
-                    excetor.setDescription(ruleVo.getName());
-                    if (ElectRuleType.WITHDRAW.equals(type))
+                    AbstractRuleExceutor excetor =
+                        map.get(ruleVo.getServiceName());
+                    if (null != excetor)
                     {
-                        cancelExceutors
-                            .add((AbstractWithdrwRuleExceutor)excetor);
-                    }
-                    else
-                    {
-                        elecExceutors.add((AbstractElecRuleExceutor)excetor);
+                        excetor.setProjectId(ruleVo.getManagerDeptId());
+                        ElectRuleType type =
+                            ElectRuleType.valueOf(ruleVo.getType());
+                        excetor.setType(type);
+                        excetor.setDescription(ruleVo.getName());
+                        if (ElectRuleType.WITHDRAW.equals(type))
+                        {
+                            cancelExceutors
+                                .add((AbstractWithdrwRuleExceutor)excetor);
+                        }
+                        else
+                        {
+                            elecExceutors
+                                .add((AbstractElecRuleExceutor)excetor);
+                        }
                     }
                 }
             }
+            context = new ElecContext(studentId, calendarId, request);
+            
             ElecRespose respose = context.getRespose();
             respose.getSuccessCourses().clear();
             respose.getFailedReasons().clear();

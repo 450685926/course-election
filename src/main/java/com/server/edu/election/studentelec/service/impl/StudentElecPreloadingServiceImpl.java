@@ -127,7 +127,9 @@ public class StudentElecPreloadingServiceImpl
                 // 该方法的值均从队列中获取，此时只要接收请求的方法不出问题，应该不会出现其他状态
                 // 什么场景会出现预加载情况下并发修改了该值？？
                 LOG.error(
-                    "预加载状态异常 unexpected status,roundId:{},studentId:{}, status:{}",
+                    "预加载状态异常 unexpected status,projectId:{},calendarId:{},roundId:{},studentId:{}, status:{}",
+                    projectId,
+                    calendarId,
                     roundId,
                     studentId,
                     ElecContextUtil.getElecStatus(roundId, studentId));
