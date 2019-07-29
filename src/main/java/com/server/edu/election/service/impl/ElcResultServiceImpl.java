@@ -23,7 +23,6 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
@@ -628,6 +627,11 @@ public class ElcResultServiceImpl implements ElcResultService
             return RestResult.failData("minor.export.fail");
         }
         return RestResult.successData("minor.export.success",path);
+	}
+	
+	@Override
+	public void saveElcLimit(TeachingClassVo teachingClassVo) {
+		
 	}
 	
 }
