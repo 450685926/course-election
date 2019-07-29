@@ -116,6 +116,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         if (null == roundId && null != chooseObj)
         {
             lockKey = calendarId;
+            elecRequest.setProjectId(Constants.PROJ_GRADUATE);
         }
         else
         {
@@ -483,6 +484,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         if (null == roundId && null != calendarId)
         {
             lockKey = calendarId;
+            elecRequest.setProjectId(Constants.PROJ_GRADUATE);
         }
         else
         {
@@ -529,6 +531,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         if (null == roundId && null != calendarId)
         {
             lockKey = calendarId;
+            elecRequest.setProjectId(Constants.PROJ_GRADUATE);
         }
         else
         {
