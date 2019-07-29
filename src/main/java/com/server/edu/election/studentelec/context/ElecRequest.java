@@ -2,6 +2,9 @@ package com.server.edu.election.studentelec.context;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.groups.Default;
+
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.server.edu.election.studentelec.dto.ElecTeachClassDto;
@@ -15,7 +18,7 @@ import com.server.edu.election.validate.AgentElcGroup;
  */
 public class ElecRequest
 {
-//    @NotNull(groups = {AgentElcGroup.class, Default.class})
+    @NotNull(groups = {Default.class})
     private Long roundId;
     
     /**
