@@ -21,13 +21,19 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
     private Long teachingClassId;
 
     /**
+     * 年级(默认0，代表研究生专业)
+     */
+    @Column(name = "GRADE_")
+    private Integer grade;
+
+    /**
      * 培养层次X_PYCC(专科   本科   硕士   博士    其他    预科)
      */
     @Column(name = "TRAINING_LEVEL_")
     private String trainingLevel;
 
     /**
-     * 学习形式X_XXXS
+     * 学习形式X_XXXS（未使用，目前废弃）
      */
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
@@ -63,7 +69,7 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
     private String isOverseas;
 
     /**
-     * 是否男女生班 0：不区分  1：区分
+     * 是否男女生班 0：不区分  1：男生班 2：女生班
      */
     @Column(name = "IS_DIVSEX_")
     private String isDivsex;
@@ -97,6 +103,18 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
      */
     @Column(name = "UPDATED_AT_")
     private Date updatedAt;
+
+    /**
+     * 开课学院(开课课程属性冗余)
+     */
+    @Column(name = "FACULTY_")
+    private String faculty;
+
+    /**
+     * 专业（编码）
+     */
+    @Column(name = "PROFESSION_")
+    private String profession;
 
     private static final long serialVersionUID = 1L;
 
@@ -137,6 +155,24 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
     }
 
     /**
+     * 获取年级(默认0，代表研究生专业)
+     *
+     * @return GRADE_ - 年级(默认0，代表研究生专业)
+     */
+    public Integer getGrade() {
+        return grade;
+    }
+
+    /**
+     * 设置年级(默认0，代表研究生专业)
+     *
+     * @param grade 年级(默认0，代表研究生专业)
+     */
+    public void setGrade(Integer grade) {
+        this.grade = grade;
+    }
+
+    /**
      * 获取培养层次X_PYCC(专科   本科   硕士   博士    其他    预科)
      *
      * @return TRAINING_LEVEL_ - 培养层次X_PYCC(专科   本科   硕士   博士    其他    预科)
@@ -155,18 +191,18 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
     }
 
     /**
-     * 获取学习形式X_XXXS
+     * 获取学习形式X_XXXS（未使用，目前废弃）
      *
-     * @return FORM_LEARNING_ - 学习形式X_XXXS
+     * @return FORM_LEARNING_ - 学习形式X_XXXS（未使用，目前废弃）
      */
     public String getFormLearning() {
         return formLearning;
     }
 
     /**
-     * 设置学习形式X_XXXS
+     * 设置学习形式X_XXXS（未使用，目前废弃）
      *
-     * @param formLearning 学习形式X_XXXS
+     * @param formLearning 学习形式X_XXXS（未使用，目前废弃）
      */
     public void setFormLearning(String formLearning) {
         this.formLearning = formLearning == null ? null : formLearning.trim();
@@ -263,18 +299,18 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
     }
 
     /**
-     * 获取是否男女生班 0：不区分  1：区分
+     * 获取是否男女生班 0：不区分  1：男生班 2：女生班
      *
-     * @return IS_DIVSEX_ - 是否男女生班 0：不区分  1：区分
+     * @return IS_DIVSEX_ - 是否男女生班 0：不区分  1：男生班 2：女生班
      */
     public String getIsDivsex() {
         return isDivsex;
     }
 
     /**
-     * 设置是否男女生班 0：不区分  1：区分
+     * 设置是否男女生班 0：不区分  1：男生班 2：女生班
      *
-     * @param isDivsex 是否男女生班 0：不区分  1：区分
+     * @param isDivsex 是否男女生班 0：不区分  1：男生班 2：女生班
      */
     public void setIsDivsex(String isDivsex) {
         this.isDivsex = isDivsex == null ? null : isDivsex.trim();
@@ -370,6 +406,42 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     * 获取开课学院(开课课程属性冗余)
+     *
+     * @return FACULTY_ - 开课学院(开课课程属性冗余)
+     */
+    public String getFaculty() {
+        return faculty;
+    }
+
+    /**
+     * 设置开课学院(开课课程属性冗余)
+     *
+     * @param faculty 开课学院(开课课程属性冗余)
+     */
+    public void setFaculty(String faculty) {
+        this.faculty = faculty == null ? null : faculty.trim();
+    }
+
+    /**
+     * 获取专业（编码）
+     *
+     * @return PROFESSION_ - 专业（编码）
+     */
+    public String getProfession() {
+        return profession;
+    }
+
+    /**
+     * 设置专业（编码）
+     *
+     * @param profession 专业（编码）
+     */
+    public void setProfession(String profession) {
+        this.profession = profession == null ? null : profession.trim();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -378,6 +450,7 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", teachingClassId=").append(teachingClassId);
+        sb.append(", grade=").append(grade);
         sb.append(", trainingLevel=").append(trainingLevel);
         sb.append(", formLearning=").append(formLearning);
         sb.append(", degreeType=").append(degreeType);
@@ -391,6 +464,8 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
         sb.append(", remark=").append(remark);
         sb.append(", createdAt=").append(createdAt);
         sb.append(", updatedAt=").append(updatedAt);
+        sb.append(", faculty=").append(faculty);
+        sb.append(", profession=").append(profession);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

@@ -58,7 +58,7 @@ public class TeachingClassVo extends TeachingClass
     
     private Integer limitIsOverseas;
     
-    private Integer limitIsDivsex;
+    private String limitIsDivsex;
     
     private Integer numberMale;
     
@@ -66,9 +66,9 @@ public class TeachingClassVo extends TeachingClass
     
     private Integer limitGrade;
     
-    private Integer limitProfession;
+    private String limitProfession;
     
-    private Integer limitDirectionCode;
+    private String limitDirectionCode;
     
     
 	public Integer getNumberMale() {
@@ -89,16 +89,16 @@ public class TeachingClassVo extends TeachingClass
 	public void setLimitGrade(Integer limitGrade) {
 		this.limitGrade = limitGrade;
 	}
-	public Integer getLimitProfession() {
+	public String getLimitProfession() {
 		return limitProfession;
 	}
-	public void setLimitProfession(Integer limitProfession) {
+	public void setLimitProfession(String limitProfession) {
 		this.limitProfession = limitProfession;
 	}
-	public Integer getLimitDirectionCode() {
+	public String getLimitDirectionCode() {
 		return limitDirectionCode;
 	}
-	public void setLimitDirectionCode(Integer limitDirectionCode) {
+	public void setLimitDirectionCode(String limitDirectionCode) {
 		this.limitDirectionCode = limitDirectionCode;
 	}
 	public String getLimitFaculty() {
@@ -131,10 +131,10 @@ public class TeachingClassVo extends TeachingClass
 	public void setLimitIsOverseas(Integer limitIsOverseas) {
 		this.limitIsOverseas = limitIsOverseas;
 	}
-	public Integer getLimitIsDivsex() {
+	public String getLimitIsDivsex() {
 		return limitIsDivsex;
 	}
-	public void setLimitIsDivsex(Integer limitIsDivsex) {
+	public void setLimitIsDivsex(String limitIsDivsex) {
 		this.limitIsDivsex = limitIsDivsex;
 	}
 	public int getWithdrawNum() {
