@@ -130,13 +130,16 @@ public interface ElcCourseTakeService
 
     /**
      * 课程维护研究生退课
-     * @param list
+     * @param value
      * @return
      */
-    Integer removedCourse(List<RemovedCourseDto> list);
+    Integer removedCourse(List<ElcCourseTake> value);
 
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
 
     /**课程维护导出学生选课信息*/
     ExcelResult exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
+
+    /**课程维护导出学生个人全部选课信息*/
+    ExcelResult exportStudentInfo(PageCondition<String> condition);
 }

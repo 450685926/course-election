@@ -165,18 +165,14 @@ public class ElcCourseTakeController
 
     /**
      * 课程维护模块研究生加课
-     * @param jsonObject
+     * @param value
      * @return
      */
     @ApiOperation(value = "课程维护模块退课")
     @PostMapping("/removedCourse")
-    public RestResult<Integer> removedCourse(@RequestBody JSONObject jsonObject) {
-        JSONArray array = jsonObject.getJSONArray("list");
-        if (CollectionUtil.isEmpty(array)) {
-            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
-        }
-        List<RemovedCourseDto> list = array.toJavaList(RemovedCourseDto.class);
-        return RestResult.successData(courseTakeService.removedCourse(list));
+    public RestResult<Integer> removedCourse(@RequestBody @NotEmpty List<ElcCourseTake> value) {
+        ValidatorUtil.validateAndThrow(value, AddGroup.class);
+        return RestResult.successData(courseTakeService.removedCourse(value));
     }
 
     /**
@@ -198,8 +194,19 @@ public class ElcCourseTakeController
             @RequestBody PageCondition<ElcCourseTakeQuery> condition)
             throws Exception
     {
-        LOG.info("export.start");
+        LOG.info("exportElcStudentInfo.start");
         ExcelResult export = courseTakeService.exportElcStudentInfo(condition);
+        return RestResult.successData(export);
+    }
+
+    @ApiOperation(value = "课程维护模块导出学生个人全部选课信息")
+    @PostMapping("/exportStudentInfo")
+    public RestResult<ExcelResult> exportStudentInfo(
+            @RequestBody PageCondition<String> condition)
+            throws Exception
+    {
+        LOG.info("exportStudentInfo.start");
+        ExcelResult export = courseTakeService.exportStudentInfo(condition);
         return RestResult.successData(export);
     }
 
