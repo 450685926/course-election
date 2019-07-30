@@ -118,5 +118,7 @@ public interface ExemptionCourseService {
 	 * @return
 	 */
 	String adminAddApply(ExemptionApplyManage applyManage);
+	
+	String addGraduateExemptionApply(ExemptionApplyManage applyManage);
 }
 
