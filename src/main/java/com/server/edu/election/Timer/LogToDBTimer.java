@@ -77,7 +77,7 @@ public class LogToDBTimer {
 	  * @date: 2019年5月28日 上午10:12:07
 	  */
 	 //@Scheduled(cron = "0 30 0 ? * SAT")//每周六0：30执行
-	@Scheduled(cron = "0 10 0 * * ? ")
+	@Scheduled(cron = "0 20 0 * * ? ")
 	 public void agingLogTimer() {
 		 //获取一年前的时间
 		 //LocalDate minusYears = LocalDate.now().minusYears(1);
