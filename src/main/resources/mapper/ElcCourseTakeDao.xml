@@ -1285,7 +1285,7 @@
         from teaching_class_arrange_time_t t1
         join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
         where t1.TEACHING_CLASS_ID_ in
-        <foreach item="item" collection="#{list}" separator="," open="(" close=")" >
+        <foreach item="item" collection="list" separator="," open="(" close=")" >
             #{item}
         </foreach>
         group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
