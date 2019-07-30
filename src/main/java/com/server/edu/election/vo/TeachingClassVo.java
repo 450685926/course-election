@@ -2,6 +2,8 @@ package com.server.edu.election.vo;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -59,9 +61,9 @@ public class TeachingClassVo extends TeachingClass
     private Integer limitIsOverseas;
     
     private String limitIsDivsex;
-    
+    @NotNull
     private Integer numberMale;
-    
+    @NotNull
     private Integer numberFemale;
     
     private Integer limitGrade;
@@ -70,7 +72,17 @@ public class TeachingClassVo extends TeachingClass
     
     private String limitDirectionCode;
     
+    private String proportion;
     
+    
+    
+    
+	public String getProportion() {
+		return proportion;
+	}
+	public void setProportion(String proportion) {
+		this.proportion = proportion;
+	}
 	public Integer getNumberMale() {
 		return numberMale;
 	}

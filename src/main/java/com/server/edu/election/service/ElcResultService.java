@@ -106,6 +106,6 @@ public interface ElcResultService
 	
 	void saveElcLimit(TeachingClassVo teachingClassVo);
 	
-	
+	void saveProportion(TeachingClassVo teachingClassVo);
 
 }

@@ -155,6 +155,19 @@ public class ElcResultServiceImpl implements ElcResultService
                 		}
                 		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
                 	}
+                	if(Constants.ONE==condition.getIsHaveLimit()) {
+                		String boy = "无";
+                		if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
+                			boy = vo.getNumberMale().toString();
+                		}
+                		String girl = "无";
+                		if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
+                			girl = vo.getNumberFemale().toString();
+                		}
+                		String proportion = boy +"/" +girl;
+                		vo.setProportion(proportion);
+                		
+                	}
             	}
             }
             // 处理教学安排（上课时间地点）信息
@@ -677,4 +690,25 @@ public class ElcResultServiceImpl implements ElcResultService
 			professionDao.insertSelective(profession);
 		}
 	}
+	
+	@Override
+	@Transactional
+	public void saveProportion(TeachingClassVo teachingClassVo) {
+		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
+		attr.setTeachingClassId(teachingClassVo.getId());
+		attr.setNumberMale(teachingClassVo.getNumberMale());
+		attr.setNumberFemale(teachingClassVo.getNumberFemale());
+		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+		if(teachingClassAttr!=null) {
+			attr.setUpdatedAt(new Date());
+			attrDao.updateByExampleSelective(attr, example);
+		}else {
+			attr.setCreatedAt(new Date());
+			attrDao.insertSelective(attr);
+		}
+	}
+	
 }
