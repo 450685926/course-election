@@ -1094,7 +1094,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     private List<TimeTableMessage>  getTimeByTeachingClassId(List<Long> teachingClassIds){
-        List<TimeTableMessage> list=new ArrayList<>();
+        //去除同一个教学班教学安排一样老师不同
+        Set<TimeTableMessage> set=new HashSet<>();
         List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassIds);
         if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
             for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
@@ -1112,7 +1113,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 String weekNumStr = weekNums.toString();//周次
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
 
-
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 time.setRoomId(roomID);
                 time.setDayOfWeek(classTeacherDto.getDayOfWeek());
@@ -1124,9 +1124,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 time.setTimeAndRoom(timeStr);
                 time.setWeekNum(weekNumStr);
                 time.setTeacherName(String.join(",", names));
-                list.add(time);
+                set.add(time);
             }
         }
+        List<TimeTableMessage> list = new ArrayList<>(set.size());
+        list.addAll(set);
         return list;
     }
 
