@@ -156,6 +156,71 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     *@Description: 查询学生课表
+     *@Param:
+     *@return:
+     *@Author: bear
+     *@date: 2019/2/15 15:23
+     */
+    @Override
+    public StudentSchoolTimetabVo findSchoolTimetab(Long calendarId, String studentCode) {
+        Student student = studentDao.findStudentByCode(studentCode);
+        Double totalCredits=0.0;
+        StudentSchoolTimetabVo timetabVo=new StudentSchoolTimetabVo();
+        List<TimeTable> list=new ArrayList<>();
+        timetabVo.setStudentCode(student.getStudentCode());
+        timetabVo.setName(student.getName());
+        timetabVo.setFaculty(student.getFaculty());
+        timetabVo.setTrainingLevel(student.getTrainingLevel());
+        List<StudentSchoolTimetab> schoolTimetab = courseTakeDao.findSchoolTimetab(calendarId, studentCode);
+        if(CollectionUtil.isNotEmpty(schoolTimetab)){
+            for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
+                if(studentSchoolTimetab.getCredits()!=null){
+                    totalCredits+=studentSchoolTimetab.getCredits();
+                }
+                List<ClassTeacherDto> studentAndTeacherTime = findStudentAndTeacherTime(studentSchoolTimetab.getTeachingClassId());
+                if(CollectionUtil.isNotEmpty(studentAndTeacherTime)){
+                    for (ClassTeacherDto classTeacherDto : studentAndTeacherTime) {
+                        TimeTable timeTable=new TimeTable();
+                        String value=classTeacherDto.getTeacherName()+" "+studentSchoolTimetab.getCourseName()+"("+
+                                studentSchoolTimetab.getCourseCode()+")"+"("+classTeacherDto.getWeekNumberStr()+classTeacherDto.getRoom()+")";
+                        timeTable.setValue(value);
+                        timeTable.setDayOfWeek(classTeacherDto.getDayOfWeek());
+                        timeTable.setTimeStart(classTeacherDto.getTimeStart());
+                        timeTable.setTimeEnd(classTeacherDto.getTimeEnd());
+                        list.add(timeTable);
+                    }
+                }
+                List<String> names = findTeacherByTeachingClassId(studentSchoolTimetab.getTeachingClassId());
+                if(CollectionUtil.isNotEmpty(names)){
+                    studentSchoolTimetab.setTeacherName(String.join(",",names));
+                }
+                String s = findClassroomAndTime(studentSchoolTimetab.getTeachingClassId());
+                String[] strings = s.split("/");
+                List<String> timelist=new ArrayList<>();
+                Set<String> roomList=new HashSet<>();
+                for (String string : strings) {
+                    int i = string.indexOf("]");
+                    String time = string.substring(0,i+1);
+                    timelist.add(time);
+                    String[] rooms= string.substring(i + 1).replaceAll(" ","").split(",");
+                    List<String> stringList = Arrays.asList(rooms);
+                    roomList.addAll(stringList);
+                }
+                String time = String.join(",", timelist);
+                String room = String.join(",", roomList);
+                studentSchoolTimetab.setTime(time);
+                studentSchoolTimetab.setRoom(room);
+            }
+
+        }
+        timetabVo.setList(schoolTimetab);
+        timetabVo.setTotalCredits(totalCredits);
+        timetabVo.setTimeTables(list);
+        return timetabVo;
+    }
+
+    /**
     *@Description: 查询学生课表
     *@Param:
     *@return:
@@ -163,7 +228,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@date: 2019/2/15 15:23
     */
     @Override
-    public StudentSchoolTimetabVo findSchoolTimetab(Long calendarId, String studentCode) {
+    public StudentSchoolTimetabVo findSchoolTimetab2(Long calendarId, String studentCode) {
         Student student = studentDao.findStudentByCode(studentCode);
         Double totalCredits=0.0;
         StudentSchoolTimetabVo timetabVo=new StudentSchoolTimetabVo();

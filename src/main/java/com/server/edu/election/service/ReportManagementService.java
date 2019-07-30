@@ -36,6 +36,8 @@ public interface ReportManagementService {
     /**查询学生课表*/
     StudentSchoolTimetabVo findSchoolTimetab(Long calendarId, String studentCode);
 
+    StudentSchoolTimetabVo findSchoolTimetab2(Long calendarId, String studentCode);
+
     /**查询所有学生课表*/
     PageResult<StudentVo> findAllSchoolTimetab(PageCondition<ReportManagementCondition> condition);
 
