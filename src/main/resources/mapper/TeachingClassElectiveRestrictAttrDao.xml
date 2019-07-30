@@ -7,6 +7,7 @@
     -->
     <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
+    <result column="GRADE_" jdbcType="INTEGER" property="grade" />
     <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
     <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
     <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
@@ -20,6 +21,8 @@
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="FACULTY_" jdbcType="LONGVARCHAR" property="faculty" />
+    <result column="PROFESSION_" jdbcType="LONGVARCHAR" property="profession" />
   </resultMap>
   
   <select id="selectRestrictProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">

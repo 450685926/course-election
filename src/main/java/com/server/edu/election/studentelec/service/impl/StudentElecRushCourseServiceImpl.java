@@ -8,13 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Objects;
+import com.server.edu.election.constants.ChooseObj;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -58,6 +63,9 @@ public class StudentElecRushCourseServiceImpl
     private RebuildCourseChargeService chargeService;
     
     @Autowired
+    private ElecRoundsDao elecRoundsDao;
+    
+    @Autowired
     protected StudentElecRushCourseServiceImpl(
         ElecQueueService<ElecRequest> queueService)
     {
@@ -71,44 +79,57 @@ public class StudentElecRushCourseServiceImpl
         LOG.info("");
         Long roundId = request.getRoundId();
         String studentId = request.getStudentId();
+        Long calendarId = request.getCalendarId();
+        String projectId = request.getProjectId();
+        Integer chooseObj = request.getChooseObj();
         ElecContext context = null;
         try
         {
-            ElectionRounds round = dataProvider.getRound(roundId);
-            context =
-                new ElecContext(studentId, round.getCalendarId(), request);
-            
-            List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-            
-            // 获取执行规则
-            Map<String, AbstractRuleExceutor> map =
-                applicationContext.getBeansOfType(AbstractRuleExceutor.class);
-            
             List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
             List<AbstractWithdrwRuleExceutor> cancelExceutors =
                 new ArrayList<>();
-            
-            for (ElectionRuleVo ruleVo : rules)
+            // 研究生的管理员代选是没有轮次和规则的
+            if (StringUtils.isNotBlank(projectId)
+                && !Constants.PROJ_UNGRADUATE.equals(projectId)
+                && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
             {
-                AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
-                if (null != excetor)
+            }
+            else
+            {
+                ElectionRounds round = dataProvider.getRound(roundId);
+                calendarId = round.getCalendarId();
+                List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+                
+                // 获取执行规则
+                Map<String, AbstractRuleExceutor> map = applicationContext
+                    .getBeansOfType(AbstractRuleExceutor.class);
+                
+                for (ElectionRuleVo ruleVo : rules)
                 {
-                    excetor.setProjectId(ruleVo.getManagerDeptId());
-                    ElectRuleType type =
-                        ElectRuleType.valueOf(ruleVo.getType());
-                    excetor.setType(type);
-                    excetor.setDescription(ruleVo.getName());
-                    if (ElectRuleType.WITHDRAW.equals(type))
+                    AbstractRuleExceutor excetor =
+                        map.get(ruleVo.getServiceName());
+                    if (null != excetor)
                     {
-                        cancelExceutors
-                            .add((AbstractWithdrwRuleExceutor)excetor);
-                    }
-                    else
-                    {
-                        elecExceutors.add((AbstractElecRuleExceutor)excetor);
+                        excetor.setProjectId(ruleVo.getManagerDeptId());
+                        ElectRuleType type =
+                            ElectRuleType.valueOf(ruleVo.getType());
+                        excetor.setType(type);
+                        excetor.setDescription(ruleVo.getName());
+                        if (ElectRuleType.WITHDRAW.equals(type))
+                        {
+                            cancelExceutors
+                                .add((AbstractWithdrwRuleExceutor)excetor);
+                        }
+                        else
+                        {
+                            elecExceutors
+                                .add((AbstractElecRuleExceutor)excetor);
+                        }
                     }
                 }
             }
+            context = new ElecContext(studentId, calendarId, request);
+            
             ElecRespose respose = context.getRespose();
             respose.getSuccessCourses().clear();
             respose.getFailedReasons().clear();
@@ -118,8 +139,30 @@ public class StudentElecRushCourseServiceImpl
                 cancelExceutors,
                 request.getWithdrawClassList());
             
-            // 选课
-            doElec(context, elecExceutors, request.getElecClassList(), round);
+            // 研究生的管理员代选是没有轮次和规则的
+            if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+                && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
+            {
+                // 选课
+                List<ElectionRounds> elecRounds =
+                    elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
+                for (ElectionRounds round : elecRounds)
+                {
+                    doElec(context,
+                        elecExceutors,
+                        request.getElecClassList(),
+                        round);
+                }
+            }
+            else
+            {
+                ElectionRounds round = dataProvider.getRound(roundId);
+                // 选课
+                doElec(context,
+                    elecExceutors,
+                    request.getElecClassList(),
+                    round);
+            }
         }
         catch (Exception e)
         {
@@ -134,7 +177,8 @@ public class StudentElecRushCourseServiceImpl
         finally
         {
             // 不管选课有没有成功，结束时表示可以进行下一个选课请求
-            ElecContextUtil.setElecStatus(roundId, studentId, ElecStatus.Ready);
+            ElecContextUtil
+                .setElecStatus(calendarId, studentId, ElecStatus.Ready);
             if (null != context)
             {
                 // 数据保存到缓存
@@ -282,4 +326,5 @@ public class StudentElecRushCourseServiceImpl
         }
         
     }
+    
 }

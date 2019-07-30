@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.context;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.server.edu.election.entity.ElectionApply;
@@ -50,6 +51,8 @@ public class ElecContext
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
     
+    private Map<String, Object> elecResult;
+    
     private ElecRequest request;
     
     private ElecRespose respose;
@@ -63,7 +66,11 @@ public class ElecContext
         this.request = elecRequest;
     }
     
-    public ElecContext(String studentId, Long calendarId)
+    public ElecContext() {
+		super();
+	}
+
+	public ElecContext(String studentId, Long calendarId)
     {
         this.calendarId = calendarId;
         this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);
@@ -225,5 +232,13 @@ public class ElecContext
     {
         return elecApplyCourses;
     }
+
+	public Map<String, Object> getElecResult() {
+		return elecResult;
+	}
+
+	public void setElecResult(Map<String, Object> elecResult) {
+		this.elecResult = elecResult;
+	}
     
 }

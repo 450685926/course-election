@@ -19,7 +19,17 @@ public class ClassTimeUnit
     private String value;
     
     private String teacherCode;
-    
+
+    private String roomId;
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
     public Long getTeachClassId()
     {
         return teachClassId;

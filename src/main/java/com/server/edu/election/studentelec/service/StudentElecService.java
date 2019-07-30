@@ -10,12 +10,10 @@ import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.vo.AllCourseVo;
-import com.server.edu.election.vo.ElcResultCourseVo;
 
 /**
  * 选课请求的主入口
@@ -26,7 +24,7 @@ public interface StudentElecService
      * 加载学生数据
      * @return 当前状态
      */
-    RestResult<ElecRespose> loading(Long roundId, String studentId);
+    RestResult<ElecRespose> loading(ElecRequest elecRequest);
     
     /**
      * 选课数据提交
@@ -45,7 +43,7 @@ public interface StudentElecService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    ElecRespose getElectResult(Long roundId, String studentId);
+    ElecRespose getElectResult(ElecRequest elecRequest);
     
     /**
      * 保存选课数据到数据库, 需要判断是否启动了LimitCountCheckerRule校验规则，如果启用了还需要判断选课人数是否超过
@@ -60,10 +58,6 @@ public interface StudentElecService
     /**根据轮次查询学生信息*/
     Student findStuRound(Long roundId, String studentId);
 	
-    /** 选取学生本轮次可选课程 
-     * @param elecContext */
-    ElcResultCourseVo getOptionalCourses(Long roundId, String studentId);
-    
     /**
      * <ul>获取全部课程
      *   <li>全部课程指:在本次选课学期，学生学籍所在校区对应的培养层次所有的排课信息
@@ -86,14 +80,16 @@ public interface StudentElecService
      * @param map 
      * @return
      */
-	Map<String, Object> getElectResultCount(String uid, Long roundId, Map<String, Object> map);
+	Map<String, Object> getElectResultCount(String uid, Long roundId);
 
 	/**
 	 * 向上下文中添加可选课程信息
 	 * @param c
 	 * @param roundId 
+	 * @param calendarId 
 	 * @return
 	 */
-	ElecContext setData(ElecContext c, Long roundId);
+	ElecContext setData(String studentId,ElecContext c, Long roundId, Long calendarId);
+
 
 }

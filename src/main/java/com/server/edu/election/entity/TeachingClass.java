@@ -36,6 +36,7 @@ public class TeachingClass extends BaseEntity
     /**
      * 主键（自增）
      */
+	@NotNull
     @Id
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
