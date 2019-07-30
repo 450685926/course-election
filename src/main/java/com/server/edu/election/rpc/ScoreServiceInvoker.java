@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.StudentScore;
@@ -91,5 +92,30 @@ public class ScoreServiceInvoker {
                         studentCode);
 
         return restResult.getData();
+    }
+    /**
+     * 向成绩表插入免修免考成绩
+     */
+    public static RestResult saveExemptionScore(JSONObject jsonObject)
+    {
+    	@SuppressWarnings("unchecked")
+        RestResult restResult =
+                ServicePathEnum.SCORESERVICE.postForObject(
+                        "/teachingClassScore/saveExemptionScore",
+                        jsonObject, RestResult.class);
+
+        return restResult;
+    }
+    /**
+     * 删除成绩表免修免考成绩
+     */
+    public static RestResult deleteExemptionScore(String studentCode, Long calendarId, String courseCode)
+    {
+    	@SuppressWarnings("unchecked")
+    	RestResult restResult =
+    	ServicePathEnum.SCORESERVICE.getForObject("/teachingClassScore/deleteExemptionScore/{calendarId}/{studentId}/{courseCode}", 
+    			RestResult.class, calendarId,studentCode,courseCode);
+    			
+    	return restResult;
     }
 }

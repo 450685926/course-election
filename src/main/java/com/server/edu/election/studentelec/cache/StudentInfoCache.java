@@ -1,7 +1,5 @@
 package com.server.edu.election.studentelec.cache;
 
-import javax.persistence.Column;
-
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;

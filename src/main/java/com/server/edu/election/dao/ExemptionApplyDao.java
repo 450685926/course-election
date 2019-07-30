@@ -42,4 +42,22 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
 	 * @return
 	 */
 	Page<ExemptionApplyManageVo> findGraduteExemptionApply(ExemptionQuery condition);
+
+	/**
+	 * 研究生免修免考课程
+	 * @param calendarId
+	 * @param studentId
+	 * @return
+	 */
+	List<ExemptionApplyManage> findGraduteApplyRecord(@Param("calendarId") Long calendarId,
+            @Param("studentCode")String studentCode);
+
+	/**
+	 * 研究生免修免考课程
+	 * @param calendarId
+	 * @param studentId
+	 * @param applyCourseCodes
+	 * @return
+	 */
+	List<ElecCourse> findApplyCourse(@Param("list") List<String> list);
 }

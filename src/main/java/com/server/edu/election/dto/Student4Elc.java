@@ -52,6 +52,7 @@ public class Student4Elc
     private String enrolSeason;
     
     /**培养类别*/
+    @Code2Text(DictTypeEnum.X_PYLB)
     private String trainingCategory;
     
     /**学位类型*/
