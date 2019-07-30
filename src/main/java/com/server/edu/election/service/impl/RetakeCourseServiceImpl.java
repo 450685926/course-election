@@ -97,12 +97,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public void deleteRetakeCourseCount(Long retakeCourseCountId) {
-        retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountId);
+    public void deleteRetakeCourseCount(List<Long> retakeCourseCountIds) {
+        retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountIds);
     }
 
     @Override
-    public ElcRetakeSetVo getRetakeRul(Long calendarId, String projectId) {
+    public ElcRetakeSetVo getRetakeRule(Long calendarId, String projectId) {
         return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
     }
 

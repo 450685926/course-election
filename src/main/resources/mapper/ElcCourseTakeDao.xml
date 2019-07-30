@@ -333,6 +333,36 @@
         GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
         order by ti.DAY_OF_WEEK_,ti.TIME_START_
     </select>
+
+    <select id="findClassTime" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT
+        te.ID_ teachingClassId,
+        te.CODE_ classCode,
+        te.NAME_ className,
+        te.CAMPUS_ campus,
+        co.COURSE_CODE_ courseCode,
+        co.COURSE_NAME_ courseName,
+        ro.ARRANGE_TIME_ID_ timeId,
+        ti.DAY_OF_WEEK_ dayOfWeek,
+        ti.TIME_START_ timeStart,
+        ti.TIME_END_ timeEnd,
+        ro.ROOM_ID_ roomID,
+        ro.TEACHER_CODE_ teacherCode,
+        GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumberStr
+        FROM
+        teaching_class_t te
+        join teaching_task_t ta on te.TASK_ID_=ta.ID_
+        left join course_open_t co on ta.COURSE_OPEN_ID_=co.ID_
+        join teaching_class_arrange_time_t ti on te.ID_=ti.TEACHING_CLASS_ID_
+        JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
+        WHERE
+        te.ID_ in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        GROUP BY te.ID_
+        order by ti.DAY_OF_WEEK_,ti.TIME_START_
+    </select>
     
     <select id="findClassTimeAndRoomStr" resultType="com.server.edu.election.dto.ClassTeacherDto">
         SELECT
@@ -506,10 +536,11 @@
 
     <select id="findTeachingClassId" resultType="com.server.edu.election.dto.ClassTeacherDto">
         SELECT
-            el.CALENDAR_ID_ calendarId,cl.ID_ teachingClassId,cl.CODE_ classCode,
-            cl.ELC_NUMBER_ selectCourseNumber,cl.REMARK_ remark,
-            co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.TEACHING_LANGUAGE_ teachingLanguage,
-            co.LABEL_ label,co.WEEK_HOUR_ weekHour,co.CREDITS_ credits,cl.ELC_NUMBER_ selectCourseNumber
+            el.CALENDAR_ID_ calendarId,cl.ID_ teachingClassId,cl.CODE_ classCode,el.CREDITS_ credits,
+            el.COURSE_CODE_ courseCode,el.COURSE_NAME_ courseName,el.NATURE_ nature,
+            cl.ELC_NUMBER_ selectCourseNumber,cl.REMARK_ remark,cl.CAMPUS_ campus,
+            co.TEACHING_LANGUAGE_ teachingLanguage,
+            co.LABEL_ label,co.WEEK_HOUR_ weekHour,cl.ELC_NUMBER_ selectCourseNumber
         FROM `course_open_t` el
         LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
         LEFT JOIN teaching_task_t ts on ts.COURSE_OPEN_ID_=el.ID_
