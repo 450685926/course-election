@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.springframework.data.annotation.Transient;
-
 @Table(name = "exemption_apply_graduate_condition_t")
 public class ExemptionApplyGraduteCondition  implements Serializable{
 	private static final long serialVersionUID = 1L;
@@ -89,6 +87,11 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
     @Column(name = "MANAGER_DEPT_ID_")
     private String projId;
     
+    /**
+     * 是否删除（1-已删除；0-未删除）
+     */
+    @Column(name = "DELETE_STATUS_")
+    private Integer deleteStatus;
 
 
 	public Long getId() {
@@ -185,6 +188,14 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
 
 	public void setProjId(String projId) {
 		this.projId = projId;
+	}
+
+	public Integer getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(Integer deleteStatus) {
+		this.deleteStatus = deleteStatus;
 	}
 
 }
