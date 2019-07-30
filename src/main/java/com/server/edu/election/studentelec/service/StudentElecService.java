@@ -10,12 +10,10 @@ import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.vo.AllCourseVo;
-import com.server.edu.election.vo.ElcResultCourseVo;
 
 /**
  * 选课请求的主入口
@@ -26,13 +24,7 @@ public interface StudentElecService
      * 加载学生数据
      * @return 当前状态
      */
-    RestResult<ElecRespose> loading(Long roundId, String studentId);
-    
-    /**
-     * 加载学生数据(管理员)
-     * @return 当前状态
-     */
-    RestResult<ElecRespose> loadingAdmin(Integer chooseObj,Long calendarId, String studentId);
+    RestResult<ElecRespose> loading(ElecRequest elecRequest);
     
     /**
      * 选课数据提交
@@ -51,17 +43,7 @@ public interface StudentElecService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    ElecRespose getElectResult(Long roundId, String studentId);
-    
-    /**
-     * 获取学生选课结果(管理员代选)
-     * 
-     * @param calendarId
-     * @param studentId
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
-    ElecRespose getElectResultAdmin(Long calendarId, String studentId);
+    ElecRespose getElectResult(ElecRequest elecRequest);
     
     /**
      * 保存选课数据到数据库, 需要判断是否启动了LimitCountCheckerRule校验规则，如果启用了还需要判断选课人数是否超过
@@ -108,13 +90,6 @@ public interface StudentElecService
 	 * @return
 	 */
 	ElecContext setData(String studentId,ElecContext c, Long roundId, Long calendarId);
-
-	/**
-	 * 管理员选课
-	 * @param elecRequest
-	 * @return
-	 */
-	RestResult<ElecRespose> adminElect(ElecRequest elecRequest);
 
 
 }

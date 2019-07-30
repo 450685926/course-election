@@ -254,4 +254,36 @@ public class ElcResultController
     	
     }
     
+    /**
+     * 保存教学班选课限制
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "保存教学班选课限制")
+    @PostMapping("/saveElcLimit")
+    public RestResult<?> saveElcLimit(
+        @RequestBody TeachingClassVo teachingClassVo)
+    {
+        elcResultService.saveElcLimit(teachingClassVo);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 保存教学班男女人数
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "保存教学班男女人数")
+    @PostMapping("/saveProportion")
+    public RestResult<?> saveProportion(
+        @RequestBody @Valid TeachingClassVo teachingClassVo)
+    {
+        elcResultService.saveProportion(teachingClassVo);
+        
+        return RestResult.success();
+    }
+    
 }

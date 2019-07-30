@@ -18,7 +18,7 @@ import com.server.edu.election.validate.AgentElcGroup;
  */
 public class ElecRequest
 {
-    @NotNull(groups = {AgentElcGroup.class, Default.class})
+    @NotNull(groups = {Default.class})
     private Long roundId;
     
     /**
@@ -41,6 +41,10 @@ public class ElecRequest
     
     /** 学年学期 */
     private Long calendarId;
+    
+    /**管理部门*/
+    @NotBlank(groups = {AgentElcGroup.class})
+    private String projectId;
     
     public String getStudentId()
     {
@@ -119,5 +123,15 @@ public class ElecRequest
 	public void setCalendarId(Long calendarId) {
 		this.calendarId = calendarId;
 	}
+
+    public String getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
+    }
     
 }

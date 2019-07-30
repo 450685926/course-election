@@ -1,7 +1,5 @@
 package com.server.edu.election.service;
 
-import java.util.List;
-
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -12,7 +10,6 @@ import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
-import com.server.edu.util.excel.export.ExcelResult;
 
 public interface ElcResultService
 {
@@ -106,5 +103,9 @@ public interface ElcResultService
 	 * @return
 	 */
 	RestResult<String> exportOfNonSelectedCourse(ElcResultQuery condition);
+	
+	void saveElcLimit(TeachingClassVo teachingClassVo);
+	
+	void saveProportion(TeachingClassVo teachingClassVo);
 
 }
