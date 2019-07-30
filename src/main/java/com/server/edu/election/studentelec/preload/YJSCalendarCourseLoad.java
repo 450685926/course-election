@@ -1,14 +1,12 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,25 +15,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
-import com.server.edu.common.dto.CultureRuleDto;
-import com.server.edu.common.dto.PlanCourseDto;
-import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dto.CourseOpenDto;
-import com.server.edu.election.entity.Course;
-import com.server.edu.election.rpc.CultureSerivceInvoker;
-import com.server.edu.election.studentelec.cache.StudentInfoCache;
-import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.election.util.CourseCalendarNameUtil;
-import com.server.edu.util.CollectionUtil;
-
-import tk.mybatis.mapper.entity.Example;
 
 /**
  * 本科生培养计划课程查询
