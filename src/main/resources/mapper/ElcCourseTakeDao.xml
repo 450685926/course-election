@@ -322,9 +322,10 @@
         teaching_class_t te
         join teaching_task_t ta on te.TASK_ID_=ta.ID_
         left join course_open_t co on ta.COURSE_OPEN_ID_=co.ID_
-        join teaching_class_arrange_time_t ti on te.ID_=ti.TEACHING_CLASS_ID_
+        join teaching_class_arrange_time_t ti on (te.ID_=ti.TEACHING_CLASS_ID_ and ti.TYPE_ =2)
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
+        te.DEPLOY_FLAG_ &gt; 0 and 
         te.ID_ in
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
@@ -471,9 +472,9 @@
     <select id="findAllClassTeacher" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         SELECT el.CALENDAR_ID_ calendarId,el.TEACHING_CLASS_ID_ teachingClassId,cl.CODE_ classCode,co.CODE_ courseCode,co.NAME_ courseName,co.NATURE_ nature,co.COLLEGE_ faculty,tch.TEACHER_CODE_ teacherCode,tch.TEACHER_NAME_ teacherName,tch.SEX_ sex FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on co.CODE_=el.COURSE_CODE_
-        LEFT JOIN teaching_class_t cl on el.TEACHING_CLASS_ID_=cl.ID_
+        LEFT JOIN teaching_class_t cl on (el.TEACHING_CLASS_ID_=cl.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
         LEFT JOIN (select ti.TEACHING_CLASS_ID_,ro.TEACHER_CODE_ ,ch.TEACHER_NAME_,ch.SEX_ from teaching_class_arrange_time_t ti
-        LEFT JOIN teaching_class_arrange_room_t ro on ro.ARRANGE_TIME_ID_=ti.ID_
+        LEFT JOIN teaching_class_arrange_room_t ro on (ro.ARRANGE_TIME_ID_=ti.ID_ and ti.TYPE_ =2)
         LEFT JOIN (select TEACHER_CODE_,TEACHER_NAME_,SEX_ from teaching_class_teacher_t GROUP BY TEACHER_CODE_) ch
         on ro.TEACHER_CODE_=ch.TEACHER_CODE_
         GROUP BY ti.TEACHING_CLASS_ID_,ro.TEACHER_CODE_) tch on tch.TEACHING_CLASS_ID_=el.TEACHING_CLASS_ID_
@@ -514,7 +515,7 @@
         LEFT JOIN teaching_task_t ts on ts.COURSE_OPEN_ID_=el.ID_
         LEFT JOIN teaching_class_t cl on cl.TASK_ID_=ts.ID_
         LEFT JOIN teaching_class_teacher_t tl on tl.TEACHING_CLASS_ID_ = cl.ID_
-        WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
+        WHERE cl.DEPLOY_FLAG_ &gt; 0 and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
     </select>
 
     <delete id="deleteStudentById" parameterType="java.util.List">
@@ -751,6 +752,7 @@
       join  course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
     JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
     <where>
+        t3.DEPLOY_FLAG_ &gt; 0
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
             and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
         </if>
@@ -783,6 +785,7 @@
         join  course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
         JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
         <where>
+             t3.DEPLOY_FLAG_ &gt; 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             </if>
@@ -824,12 +827,11 @@
         t3.ELC_NUMBER_ elcNumber,
         t3.ID_ teachingClassId
         FROM
-        <!-- (select TEACHING_CLASS_ID_,COURSE_CODE_ from elc_course_takes_t  where CALENDAR_ID_=#{calendarId} GROUP BY TEACHING_CLASS_ID_) t1 -->
         teaching_class_t t3
         join teaching_task_t t4 on t3.TASK_ID_=t4.ID_
         JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
         join course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
-        where t2.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId}
+        where t3.DEPLOY_FLAG_ &gt; 0 and t2.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId}
     </select>
     
     <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
