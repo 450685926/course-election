@@ -282,20 +282,19 @@ public class ReportManagementController
     public RestResult<PageResult<StudentVo>> findStudentTimeTableByRole(
             @RequestBody PageCondition<ReportManagementCondition> condition)
     {
-//        ReportManagementCondition reportManagementCondition = condition.getCondition();
-//        Session session = SessionUtils.getCurrentSession();
-//        PageResult<StudentVo> schoolTimetab = null;
-//        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
-//            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
-//        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-//            reportManagementCondition.setFaculty(session.getFaculty());
-//            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
-//        }else if (session.isStudent()) {
-//            reportManagementCondition.setStudentCode(session.realUid());
-//            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
-//        }
-//        return RestResult.successData(schoolTimetab);
-        return RestResult.successData(managementService.findStudentTimeTableByRole(condition));
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<StudentVo> schoolTimetab = null;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            reportManagementCondition.setFaculty(session.getFaculty());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (session.isStudent()) {
+            reportManagementCondition.setStudentCode(session.realUid());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }
+        return RestResult.successData(schoolTimetab);
     }
     
     @ApiOperation(value = "查询学生课表对应老师时间地点") //不用
