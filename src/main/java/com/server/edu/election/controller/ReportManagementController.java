@@ -220,7 +220,7 @@ public class ReportManagementController
             return RestResult.fail("common.parameterError");
         }
         StudentSchoolTimetabVo schoolTimetab =
-            managementService.findSchoolTimetab(calendarId, studentCode);
+            managementService.findSchoolTimetab2(calendarId, studentCode);
         return RestResult.successData(schoolTimetab);
     }
     

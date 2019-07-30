@@ -9,6 +9,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ExemptionApplyConditionDao;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
@@ -38,7 +39,8 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
     		.andEqualTo("formLearnings", applyCondition.getFormLearnings())
     	    .andEqualTo("degreeCategorys", applyCondition.getDegreeCategorys())
     		.andEqualTo("conditions", applyCondition.getConditions())
-    		.andEqualTo("projId", applyCondition.getProjId());
+    		.andEqualTo("projId", applyCondition.getProjId())
+    		.andEqualTo("deleteStatus", String.valueOf(Constants.DELETE_FALSE));
     	
 	    int count = exemptionApplyConditionDao.selectCountByExample(example);
 	    if (count > 0)
@@ -51,6 +53,7 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	    Date date = new Date();
 	    applyCondition.setCreateBy(uid);
 	    applyCondition.setCreatedAt(date);
+	    applyCondition.setDeleteStatus(Constants.DELETE_FALSE);
 	    exemptionApplyConditionDao.insertSelective(applyCondition);
 	}
 
@@ -72,7 +75,27 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 
 	@Override
 	public void updateExemptionApplyCondition(ExemptionApplyGraduteCondition applyCondition) {
-        Date date = new Date();
+		Example example = new Example(ExemptionApplyGraduteCondition.class);
+    	example.createCriteria()
+    		.andEqualTo("courseCode", applyCondition.getCourseCode())
+    		.andEqualTo("courseName", applyCondition.getCourseName())
+    		.andEqualTo("trainingLevels", applyCondition.getTrainingLevels())
+    		.andEqualTo("trainingCategorys", applyCondition.getTrainingCategorys())
+    		.andEqualTo("formLearnings", applyCondition.getFormLearnings())
+    	    .andEqualTo("degreeCategorys", applyCondition.getDegreeCategorys())
+    		.andEqualTo("conditions", applyCondition.getConditions())
+    		.andEqualTo("projId", applyCondition.getProjId())
+    		.andEqualTo("deleteStatus", String.valueOf(Constants.DELETE_FALSE))
+    		.andNotEqualTo("id", applyCondition.getId());
+    		
+	    int count = exemptionApplyConditionDao.selectCountByExample(example);
+	    if (count > 0)
+	    {
+	        throw new ParameterValidateException(
+	            I18nUtil.getMsg("exemptionApply.condition.exist"));
+	    }
+		
+		Date date = new Date();
         applyCondition.setUpdatedAt(date);
         
         exemptionApplyConditionDao.updateByPrimaryKeySelective(applyCondition);
@@ -81,7 +104,10 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	@Override
 	public void deleteExemptionApplyCondition(List<Long> ids) {
 		for (Long id : ids) {
-			exemptionApplyConditionDao.deleteByPrimaryKey(id);
+			ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
+			condition.setId(id);
+			condition.setDeleteStatus(Constants.DELETE_TRUE);
+			exemptionApplyConditionDao.updateByPrimaryKeySelective(condition);
 		}
 	}
 

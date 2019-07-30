@@ -74,7 +74,7 @@ public class ElecController
     
     @Autowired
     private RedisTemplate redisTemplate;
-
+    
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
     public RestResult<List<ElectionRoundsVo>> getRounds(

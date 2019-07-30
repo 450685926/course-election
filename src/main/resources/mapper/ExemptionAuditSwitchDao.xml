@@ -14,12 +14,13 @@
     <result column="AUDIT_OPEN_" jdbcType="INTEGER" property="auditOpen" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="PROJ_ID_" jdbcType="VARCHAR" property="projId" />
+    <result column="DELETE_STATUS_" jdbcType="INTEGER" property="deleteStatus" />
   </resultMap>
   
   <select id="listPage" parameterType="com.server.edu.election.entity.ExemptionApplyAuditSwitch" resultMap="BaseResultMap">
   	select * from exemption_apply_audit_switch_t 
   	<where>
-  		PROJ_ID_ = '2'
+  		PROJ_ID_ = '2' and DELETE_STATUS_ = 0
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.grades)">
   			and GRADES_ like concat('%',#{condition.grades},'%')
   		</if>
