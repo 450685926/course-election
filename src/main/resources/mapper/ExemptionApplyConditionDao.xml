@@ -14,6 +14,7 @@
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="projId" />
+    <result column="DELETE_STATUS_" jdbcType="INTEGER" property="deleteStatus" />
   </resultMap>
   
   <resultMap id="DtoBaseResultMap" type="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" extends="BaseResultMap"></resultMap>
@@ -21,7 +22,7 @@
   <select id="listPage" parameterType="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" resultMap="BaseResultMap">
   	select * from exemption_apply_graduate_condition_t 
   	<where>
-  		MANAGER_DEPT_ID_ = '2'
+  		MANAGER_DEPT_ID_ = '2' and DELETE_STATUS_ = 0
    		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingLevels)">
   			and TRAINING_LEVELS_ like concat('%',#{condition.trainingLevels},'%')
   		</if>

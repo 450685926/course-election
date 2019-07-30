@@ -87,7 +87,13 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     @Column(name = "PROJ_ID_")
     private String projId;
 
-	public Long getId() {
+    /**
+     * 是否删除（1-已删除；0-未删除）
+     */
+    @Column(name = "DELETE_STATUS_")
+    private Integer deleteStatus;
+
+    public Long getId() {
 		return id;
 	}
 
@@ -181,6 +187,14 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 
 	public void setProjId(String projId) {
 		this.projId = projId;
+	}
+
+	public Integer getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(Integer deleteStatus) {
+		this.deleteStatus = deleteStatus;
 	}
     
 }

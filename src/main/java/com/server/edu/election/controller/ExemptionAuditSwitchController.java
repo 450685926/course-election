@@ -34,7 +34,7 @@ public class ExemptionAuditSwitchController {
 	@Autowired
 	ExemptionAuditSwitchService exemptionAuditSwitchService;
 	
-	@ApiOperation(value = "研究生添加免修免考申请审核开关")
+	@ApiOperation(value = "添加研究生免修免考申请审核开关")
     @PostMapping("/addExemptionAuditSwitch")
     public RestResult<?> addExemptionAuditSwitch(@RequestBody @NotNull @Valid ExemptionApplyAuditSwitch applyAuditSwitch){
     	logger.info("addExemptionAuditSwitch start");
@@ -43,7 +43,7 @@ public class ExemptionAuditSwitchController {
     	return RestResult.success();
     }
 
-    @ApiOperation(value = "研究生查询免修免考申请审核开关")
+    @ApiOperation(value = "查询研究生免修免考申请审核开关")
     @PostMapping("/queryExemptionAuditSwitch")
     public RestResult<PageResult<ExemptionApplyAuditSwitch>> queryExemptionAuditSwitch(@RequestBody PageCondition<ExemptionApplyAuditSwitch> condition){
     	logger.info("queryExemptionAuditSwitch start");
