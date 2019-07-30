@@ -2,6 +2,8 @@ package com.server.edu.election.vo;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -58,19 +60,29 @@ public class TeachingClassVo extends TeachingClass
     
     private Integer limitIsOverseas;
     
-    private Integer limitIsDivsex;
-    
+    private String limitIsDivsex;
+    @NotNull
     private Integer numberMale;
-    
+    @NotNull
     private Integer numberFemale;
     
     private Integer limitGrade;
     
-    private Integer limitProfession;
+    private String limitProfession;
     
-    private Integer limitDirectionCode;
+    private String limitDirectionCode;
+    
+    private String proportion;
     
     
+    
+    
+	public String getProportion() {
+		return proportion;
+	}
+	public void setProportion(String proportion) {
+		this.proportion = proportion;
+	}
 	public Integer getNumberMale() {
 		return numberMale;
 	}
@@ -89,16 +101,16 @@ public class TeachingClassVo extends TeachingClass
 	public void setLimitGrade(Integer limitGrade) {
 		this.limitGrade = limitGrade;
 	}
-	public Integer getLimitProfession() {
+	public String getLimitProfession() {
 		return limitProfession;
 	}
-	public void setLimitProfession(Integer limitProfession) {
+	public void setLimitProfession(String limitProfession) {
 		this.limitProfession = limitProfession;
 	}
-	public Integer getLimitDirectionCode() {
+	public String getLimitDirectionCode() {
 		return limitDirectionCode;
 	}
-	public void setLimitDirectionCode(Integer limitDirectionCode) {
+	public void setLimitDirectionCode(String limitDirectionCode) {
 		this.limitDirectionCode = limitDirectionCode;
 	}
 	public String getLimitFaculty() {
@@ -131,10 +143,10 @@ public class TeachingClassVo extends TeachingClass
 	public void setLimitIsOverseas(Integer limitIsOverseas) {
 		this.limitIsOverseas = limitIsOverseas;
 	}
-	public Integer getLimitIsDivsex() {
+	public String getLimitIsDivsex() {
 		return limitIsDivsex;
 	}
-	public void setLimitIsDivsex(Integer limitIsDivsex) {
+	public void setLimitIsDivsex(String limitIsDivsex) {
 		this.limitIsDivsex = limitIsDivsex;
 	}
 	public int getWithdrawNum() {

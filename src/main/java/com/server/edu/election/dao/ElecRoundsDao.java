@@ -71,6 +71,14 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
      */
     List<ElectionRounds> selectWillBeStart();
     
+    /**
+     * 查询快要开始的轮次，提前1个小时(管理员代理选课)
+     * @param calendarId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    List<ElectionRounds> selectWillBeStartByCalendarId(@Param("calendarId") Long calendarId);
+    
     /**查询学生选课名单*/
     Page<StudentSelectCourseList> findElectCourseList(ReportManagementCondition condition);
 }

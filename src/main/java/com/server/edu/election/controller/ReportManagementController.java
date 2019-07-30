@@ -285,9 +285,9 @@ public class ReportManagementController
         ReportManagementCondition reportManagementCondition = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
         PageResult<StudentVo> schoolTimetab = null;
-        if (session.isAdmin()) {
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
             schoolTimetab = managementService.findStudentTimeTableByRole(condition);
-        }else if (session.isAcdemicDean()) {
+        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             reportManagementCondition.setFaculty(session.getFaculty());
             schoolTimetab = managementService.findStudentTimeTableByRole(condition);
         }else if (session.isStudent()) {
@@ -339,12 +339,12 @@ public class ReportManagementController
         ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
         PageResult<ClassCodeToTeacher> classTeacher = null;
-        if (session.isAdmin()) {
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
             classTeacher = managementService.findTeacherTimeTableByRole(condition);
-        }else if (session.isAcdemicDean()) {
+        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             classCodeToTeacher.setFaculty(session.getFaculty());
             classTeacher = managementService.findTeacherTimeTableByRole(condition);
-        }else if (session.isTeacher()) {
+        }else if (StringUtils.equals(session.getCurrentRole(), "2")) {
             classCodeToTeacher.setTeacherCode(session.realUid());
             classTeacher = managementService.findTeacherTimeTableByRole(condition);
         }

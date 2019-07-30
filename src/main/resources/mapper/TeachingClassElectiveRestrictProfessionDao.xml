@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.TeachingClassElectiveRestrictProfessionDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.TeachingClassElectiveRestrictProfession">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
+    <result column="GRADE_" jdbcType="INTEGER" property="grade" />
+    <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+    <result column="NUMBER_" jdbcType="INTEGER" property="number" />
+    <result column="IS_LIMIT_NUMBER_" jdbcType="INTEGER" property="isLimitNumber" />
+    <result column="DIRECTION_CODE_" jdbcType="VARCHAR" property="directionCode" />
+    <result column="DIRECTION_NAME_" jdbcType="VARCHAR" property="directionName" />
+    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+</mapper>

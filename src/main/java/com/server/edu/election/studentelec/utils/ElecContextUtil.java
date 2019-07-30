@@ -267,15 +267,15 @@ public class ElecContextUtil
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public static ElecStatus getElecStatus(Long roundId, String studentId)
+    public static ElecStatus getElecStatus(Long calendarId, String studentId)
     {
         String value = getRedisTemplate().opsForValue()
-            .get(String.format(STD_STATUS, roundId, studentId));
+            .get(String.format(STD_STATUS, calendarId, studentId));
         if (StringUtils.isBlank(value))
         {
             logger.warn(
-                "----- elecStatus not find use Init [roundId:{}, studentId:{}] -----",
-                roundId,
+                "----- elecStatus not find use Init [calendarId:{}, studentId:{}] -----",
+                calendarId,
                 studentId);
             return ElecStatus.Init;
         }
@@ -294,7 +294,7 @@ public class ElecContextUtil
      * @param status
      * @see [类、类#方法、类#成员]
      */
-    public static void setElecStatus(Long roundId, String studentId,
+    public static void setElecStatus(Long calendarId, String studentId,
         ElecStatus status)
     {
         int timeout = 1;
@@ -303,7 +303,7 @@ public class ElecContextUtil
             timeout = 10;
         }
         getRedisTemplate().opsForValue()
-            .set(String.format(STD_STATUS, roundId, studentId),
+            .set(String.format(STD_STATUS, calendarId, studentId),
                 status.toString(),
                 timeout,
                 TimeUnit.HOURS);
@@ -347,10 +347,10 @@ public class ElecContextUtil
      * 给status 加锁，并返回key用于解锁
      * @return true 成功 false 失败
      */
-    public static boolean tryLock(Long roundId, String studentId)
+    public static boolean tryLock(Long calendarId, String studentId)
     {
         long value = System.currentTimeMillis();
-        String redisKey = String.format(STD_STATUS_LOCK, roundId, studentId);
+        String redisKey = String.format(STD_STATUS_LOCK, calendarId, studentId);
         if (getRedisTemplate().opsForValue()
             .setIfAbsent(redisKey, String.valueOf(value)))
         {
@@ -362,9 +362,9 @@ public class ElecContextUtil
     /**
      * 解锁，只能解除在当前线程加的锁，否则什么也不会发生
      */
-    public static void unlock(Long roundId, String studentId)
+    public static void unlock(Long calendarId, String studentId)
     {
-        String redisKey = String.format(STD_STATUS_LOCK, roundId, studentId);
+        String redisKey = String.format(STD_STATUS_LOCK, calendarId, studentId);
         getRedisTemplate().delete(redisKey);
     }
     

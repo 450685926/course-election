@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import com.server.edu.election.dao.ElcResultCountDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
+import com.server.edu.election.dao.TeachingClassElectiveRestrictProfessionDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ClassTeacherDto;
@@ -47,6 +49,8 @@ import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
+import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
@@ -110,6 +114,12 @@ public class ElcResultServiceImpl implements ElcResultService
     @Value("${task.cache.directory}")
     private String cacheDirectory;
     
+    @Autowired
+    private TeachingClassElectiveRestrictAttrDao attrDao;
+    
+    @Autowired
+    private TeachingClassElectiveRestrictProfessionDao professionDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -144,6 +154,19 @@ public class ElcResultServiceImpl implements ElcResultService
                 			stringBuilder.append(",");
                 		}
                 		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+                	}
+                	if(Constants.ONE==condition.getIsHaveLimit()) {
+                		String boy = "无";
+                		if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
+                			boy = vo.getNumberMale().toString();
+                		}
+                		String girl = "无";
+                		if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
+                			girl = vo.getNumberFemale().toString();
+                		}
+                		String proportion = boy +"/" +girl;
+                		vo.setProportion(proportion);
+                		
                 	}
             	}
             }
@@ -610,6 +633,7 @@ public class ElcResultServiceImpl implements ElcResultService
                  pageCondition.setPageNum_(pageNum);
                  PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
                  
+                 
                  list.addAll(studentList.getList());
 
                  if (studentList.getTotal_() <= list.size())
@@ -630,8 +654,61 @@ public class ElcResultServiceImpl implements ElcResultService
 	}
 	
 	@Override
+	@Transactional
 	public void saveElcLimit(TeachingClassVo teachingClassVo) {
-		
+		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
+		attr.setTeachingClassId(teachingClassVo.getId());
+		attr.setTrainingLevel(teachingClassVo.getLimitTrainingLevel());
+		attr.setTrainingCategory(teachingClassVo.getLimitTrainingCategory());
+		attr.setFaculty(teachingClassVo.getLimitFaculty());
+		attr.setIsDivsex(teachingClassVo.getLimitIsDivsex());
+		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+		if(teachingClassAttr!=null) {
+			attr.setUpdatedAt(new Date());
+			attrDao.updateByExampleSelective(attr, example);
+		}else {
+			attr.setCreatedAt(new Date());
+			attrDao.insertSelective(attr);
+		}
+		TeachingClassElectiveRestrictProfession profession = new TeachingClassElectiveRestrictProfession();
+		profession.setTeachingClassId(teachingClassVo.getId());
+		profession.setGrade(teachingClassVo.getLimitGrade());
+		profession.setProfession(teachingClassVo.getLimitProfession());
+		profession.setDirectionCode(teachingClassVo.getLimitDirectionCode());
+		Example pExample = new Example(TeachingClassElectiveRestrictProfession.class);
+		Example.Criteria pEriteria = pExample.createCriteria();
+		pEriteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+		TeachingClassElectiveRestrictProfession elcProfession = professionDao.selectOneByExample(pExample);
+		if(elcProfession!=null) {
+			profession.setUpdatedAt(new Date());
+			professionDao.updateByExample(profession, pExample);
+		}else {
+			profession.setCreatedAt(new Date());
+			professionDao.insertSelective(profession);
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void saveProportion(TeachingClassVo teachingClassVo) {
+		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
+		attr.setTeachingClassId(teachingClassVo.getId());
+		attr.setNumberMale(teachingClassVo.getNumberMale());
+		attr.setNumberFemale(teachingClassVo.getNumberFemale());
+		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+		if(teachingClassAttr!=null) {
+			attr.setUpdatedAt(new Date());
+			attrDao.updateByExampleSelective(attr, example);
+		}else {
+			attr.setCreatedAt(new Date());
+			attrDao.insertSelective(attr);
+		}
 	}
 	
 }

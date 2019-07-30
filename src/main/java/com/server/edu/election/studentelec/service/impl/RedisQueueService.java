@@ -60,9 +60,9 @@ public class RedisQueueService extends AbstractElecQueue
             ElecRequest take = queue.take();
             if (null != take)
             {
-                super.execute(() -> {
-                    comsumer.consume(take);
-                });
+				super.execute(() -> {
+        			comsumer.consume(take);
+        		});
             }
         }
         catch (InterruptedException e)
