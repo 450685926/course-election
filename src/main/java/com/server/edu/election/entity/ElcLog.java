@@ -9,6 +9,9 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.server.edu.common.jackson.LongJsonSerializer;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 
 /**
  * 
@@ -19,6 +22,7 @@ import com.server.edu.common.jackson.LongJsonSerializer;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
+@CodeI18n
 @Table(name = "election_log_t")
 public class ElcLog implements Serializable {
     /**
@@ -62,12 +66,14 @@ public class ElcLog implements Serializable {
     /**
      * 操作类型（1选课，2退课，3中期退课...）
      */
+    @Code2Text(DictTypeEnum.K_CZLX)
     @Column(name = "TYPE_")
     private Integer type;
 
     /**
      * 选课方式（1自选，2代选）
      */
+    @Code2Text(DictTypeEnum.K_XKFS)
     @Column(name = "MODE_")
     private Integer mode;
 

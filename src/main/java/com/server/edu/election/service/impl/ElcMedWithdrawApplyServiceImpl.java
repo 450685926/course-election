@@ -25,11 +25,12 @@ import com.server.edu.election.dao.ElcMedWithdrawApplyDao;
 import com.server.edu.election.dao.ElcMedWithdrawApplyLogDao;
 import com.server.edu.election.dao.ElcMedWithdrawRuleRefCourDao;
 import com.server.edu.election.dao.ElcMedWithdrawRulesDao;
-import com.server.edu.election.dao.ElcRoundsCourDao;
+import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcMedWithdrawApplyDto;
 import com.server.edu.election.dto.ElcMedWithdrawRuleRefCourDto;
 import com.server.edu.election.entity.ApprovalInfo;
@@ -38,7 +39,6 @@ import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElcMedWithdrawApply;
 import com.server.edu.election.entity.ElcMedWithdrawApplyLog;
 import com.server.edu.election.entity.ElcMedWithdrawRules;
-import com.server.edu.election.entity.ElcRoundsCour;
 import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.TeachingClass;
@@ -84,7 +84,7 @@ public class ElcMedWithdrawApplyServiceImpl
     private ElecRoundsDao elecRoundsDao;
     
     @Autowired
-    private ElcRoundsCourDao elcRoundsCourDao;
+    private ElecRoundCourseDao elcRoundsCourDao;
     
     @Autowired
     private ElcLogDao elcLogDao;
@@ -334,15 +334,11 @@ public class ElcMedWithdrawApplyServiceImpl
                     List<Long> roundIds = roundsList.stream()
                         .map(ElectionRounds::getId)
                         .collect(Collectors.toList());
-                    Example couRounds = new Example(ElcRoundsCour.class);
-                    Example.Criteria couCriteria = couRounds.createCriteria();
-                    couCriteria.andIn("roundsId", roundIds);
-                    List<ElcRoundsCour> elcRoundsCours =
-                        elcRoundsCourDao.selectByExample(couRounds);
+                     List<CourseOpenDto> elcRoundsCours= elcRoundsCourDao.getAddedCourseByRoundIds(roundIds);
                     if (CollectionUtil.isNotEmpty(elcRoundsCours))
                     {
                         List<String> courseCodes = elcRoundsCours.stream()
-                            .map(ElcRoundsCour::getCourseCode)
+                            .map(CourseOpenDto::getCourseCode)
                             .collect(Collectors.toList());
                         if (courseCodes.contains(elcCourseTake.getCourseCode()))
                         {

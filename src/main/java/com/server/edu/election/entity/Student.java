@@ -36,7 +36,7 @@ public class Student implements Serializable
     /**
      * 学习形式(全日制,非全日制,其他)
      */
-    @Code2Text(transformer = "X_XXXS")
+    @Code2Text(transformer = "G_XXXS")
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
     
@@ -104,13 +104,14 @@ public class Student implements Serializable
     /**
      * 培养类别
      */
+    @Code2Text(transformer = "X_PYLB")
     @Column(name = "TRAINING_CATEGORY_")
     private String trainingCategory;
     
     /**
      * 学位类别
      */
-    @Code2Text(transformer = "X_XWLX")
+    @Code2Text(transformer = "X_XWLB")
     @Column(name = "DEGREE_CATEGORY_")
     private String degreeCategory;
     
@@ -141,6 +142,7 @@ public class Student implements Serializable
     /**
      * 学位类型
      */
+    @Code2Text(transformer = "X_XWLX")
     @Column(name = "DEGREE_TYPE_")
     private String degreeType;
     
@@ -157,14 +159,45 @@ public class Student implements Serializable
     private String educationCode;
     
     /**
-     * 录取类别
+     * 入学方式
      */
     @Column(name = "ENROL_METHODS_")
     private String enrolMethods;
     
-    private static final long serialVersionUID = 1L;
     
     /**
+     * 在校状态(校内在读、校外在读、不在读、离校)
+     */
+    @Column(name = "LEAVE_SCHOOL_")
+    private String leaveSchool;
+
+    /**
+     * 是否在籍
+     */
+    @Column(name = "IS_MEMBERSHIP_")
+    private String isMembership;
+    
+    private static final long serialVersionUID = 1L;
+    
+    
+    
+    public String getLeaveSchool() {
+		return leaveSchool;
+	}
+
+	public void setLeaveSchool(String leaveSchool) {
+		this.leaveSchool = leaveSchool;
+	}
+
+	public String getIsMembership() {
+		return isMembership;
+	}
+
+	public void setIsMembership(String isMembership) {
+		this.isMembership = isMembership;
+	}
+
+	/**
      * 获取学生号
      *
      * @return STUDENT_CODE_ - 学生号
@@ -663,6 +696,8 @@ public class Student implements Serializable
         sb.append(", degreeCode=").append(degreeCode);
         sb.append(", educationCode=").append(educationCode);
         sb.append(", enrolMethods=").append(enrolMethods);
+        sb.append(", leaveSchool=").append(leaveSchool);
+        sb.append(", isMembership=").append(isMembership);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

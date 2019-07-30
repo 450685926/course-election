@@ -23,24 +23,34 @@
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
-  <select id="selectCourseList" parameterType="com.server.edu.election.entity.CourseOpen" resultMap="BaseResultMap">
-			   SELECT
-				t1.ID_,
-				t1.COURSE_CODE_,
-				t1.COURSE_NAME_,
-				t1.COURSE_NAME_EN_,
-				t1.TRAINING_LEVEL_,
-				t1.CREDITS_
-			FROM
-				course_open_t t1
-			WHERE
-				COURSE_CODE_ NOT IN (
-					SELECT
-						COURSE_CODE_
-					FROM
-						elc_affinity_courses_t
-				)
-			AND IS_OPEN_ = 1
+  <resultMap id="affinityMap" type="com.server.edu.election.vo.CourseOpenVo" extends="com.server.edu.election.dao.CourseOpenDao.BaseResultMap">
+     <result column="courseId" jdbcType="BIGINT" property="courseId" />
+     <result column="suggestStatus" jdbcType="INTEGER" property="suggestStatus" />
+  </resultMap>
+  <select id="selectCourseList" parameterType="com.server.edu.election.entity.CourseOpen" resultMap="affinityMap">
+		SELECT
+			t1.ID_,
+			t2.ID_ courseId,
+			t1.COURSE_CODE_,
+			t1.COURSE_NAME_,
+			t1.COURSE_NAME_EN_,
+			t1.TRAINING_LEVEL_,
+			t1.CREDITS_,
+			t1.FACULTY_
+		FROM
+			course_open_t t1
+		JOIN course_t t2 ON (
+			t1.IS_OPEN_ = 1
+			AND t1.COURSE_CODE_ = t2.CODE_
+		)
+		WHERE
+			COURSE_CODE_ NOT IN (
+				SELECT
+					t2.CODE_
+				FROM
+					course_t t2
+				JOIN elc_affinity_courses_t t3 ON t2.ID_ = t3.COURSE_ID_
+			)
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
 	        and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
 	    </if>
@@ -48,10 +58,7 @@
 	        and t1.COURSE_NAME_ like concat('%',#{courseName},'%')
 	    </if> 
   </select>
-    <resultMap id="SugesstResultMap" type="com.server.edu.election.vo.CourseOpenVo" extends="com.server.edu.election.dao.CourseOpenDao.BaseResultMap">
-    <result column="suggestStatus" jdbcType="INTEGER" property="suggestStatus" />
-  </resultMap>
-  <select id="selectCourseSuggestSwitch" parameterType="com.server.edu.election.dto.CourseOpenDto" resultMap="SugesstResultMap">
+  <select id="selectCourseSuggestSwitch" parameterType="com.server.edu.election.dto.CourseOpenDto" resultMap="affinityMap">
     SELECT DISTINCT * from (
 		SELECT
 		    t1.ID_,
@@ -108,4 +115,61 @@
 		    </if>
 		</where>
   </select>
+
+	<select id="queryNameAndTrainingLevelByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+		SELECT COURSE_CODE_,COURSE_NAME_,COURSE_NAME_EN_,TRAINING_LEVEL_ FROM course_open_t where COURSE_CODE_ = #{courseCode}
+	</select>
+
+	<select id="findFailedCourseInfo" resultType="com.server.edu.election.vo.FailedCourseVo">
+		select
+			a.CALENDAR_ID_ calendarId,a.IS_OPEN_ isOpen,a.COURSE_CODE_ courseCode,
+			a.COURSE_NAME_ courseName, a.TRAINING_LEVEL_ trainingLevel,a.CREDITS_ credits,
+			b.NATURE_ nature,b.ASSESSMENT_MODE_ assessmentMode
+		from course_open_t a
+		join course_t b on b.CODE_ = a.COURSE_CODE_
+		where a.COURSE_CODE_ in
+		<foreach item="item" collection="courseCodes" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+		and a.CALENDAR_ID_ = #{calendarId}
+	</select>
+
+	<select id="findRebuildCourses" resultType="com.server.edu.election.vo.RebuildCourseVo">
+		select
+			a.COURSE_CODE_ courseCode,a.COURSE_NAME_ courseName,a.FACULTY_ faculty,a.CREDITS_ credits,
+			c.ID_ teachingClassId,c.CODE_ classCode,c.CAMPUS_ campus,c.REMARK_ remark,
+			c.ELC_NUMBER_ selectNumber,c.NUMBER_ number,d.TEACHER_NAME_ teacherName
+		from course_open_t a
+		join teaching_task_t b on b.COURSE_OPEN_ID_ = a.ID_
+		join teaching_class_t c on c.TASK_ID_ = b.ID_
+		join teaching_class_teacher_t d on d.TEACHING_CLASS_ID_ = c.ID_
+		where a.COURSE_CODE_ in
+		<foreach item="item" collection="courseCodes" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+		and a.CALENDAR_ID_ = #{calendarId}
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+			and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord}, '%') or st.NAME_ like CONCAT('%', #{keyWord}, '%'))
+		</if>
+	</select>
+
+	<select id="findClassInfo" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+		SELECT
+			t1.ID_ teachClassId,
+			t1.CODE_ teachClassCode,
+			t1.REMARK_ remark,
+			t3.FACULTY_ faculty,
+			t3.TERM_ term,
+			t4.TEACHER_NAME_ teacherName
+		FROM
+			teaching_class_t t1
+			LEFT JOIN teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+			LEFT JOIN course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
+			LEFT JOIN teaching_class_teacher_t t4 ON t4.TEACHING_CLASS_ID_ = t1.ID_
+		WHERE
+			t1.ID_ in
+		<foreach item="item" collection="teachClassIds" separator="," open="(" close=")" >
+			#{item}
+		</foreach>
+	</select>
 </mapper>

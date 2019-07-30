@@ -1,6 +1,7 @@
 package com.server.edu.election.dto;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -180,5 +181,21 @@ public class TimeTableMessage {
 	public void setTimeId(Long timeId) {
 		this.timeId = timeId;
 	}
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeTableMessage that = (TimeTableMessage) o;
+        return Objects.equals(dayOfWeek, that.dayOfWeek) &&
+                Objects.equals(timeStart, that.timeStart) &&
+                Objects.equals(timeEnd, that.timeEnd) &&
+                Objects.equals(weekNum, that.weekNum) &&
+                Objects.equals(teachingClassId, that.teachingClassId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dayOfWeek, timeStart, timeEnd, weekNum, teachingClassId);
+    }
 }

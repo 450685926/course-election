@@ -10,14 +10,20 @@ public class AllCourseVo {
 	/**课程代码*/
     private String courseCode;
     
+    /**课程名称*/
+    private String courseName;
+    
     /** 授课教师编号 */
     private String teacherCode;
     
-	/** 开课学院 */
+    /** 授课教师名称 */
+    private String teacherName;
+
+    /** 开课学院 */
 	private String faculty;
 	
 	/** 课程类别（课程性质） */
-	private String natrue;
+	private String nature;
 	
 	/** 培养层次 */
 	private String trainingLevel;
@@ -49,12 +55,12 @@ public class AllCourseVo {
 		this.teacherCode = teacherCode;
 	}
 
-	public String getNatrue() {
-		return natrue;
+	public String getNature() {
+		return nature;
 	}
 
-	public void setNatrue(String natrue) {
-		this.natrue = natrue;
+	public void setNature(String nature) {
+		this.nature = nature;
 	}
 
 	public String getTrainingLevel() {
@@ -88,6 +94,21 @@ public class AllCourseVo {
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
-	
+
+	public String getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
 	
 }

@@ -19,7 +19,17 @@ public class ClassTimeUnit
     private String value;
     
     private String teacherCode;
-    
+
+    private String roomId;
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
     public Long getTeachClassId()
     {
         return teachClassId;
@@ -99,5 +109,12 @@ public class ClassTimeUnit
     {
         this.teacherCode = teacherCode;
     }
+
+	@Override
+	public String toString() {
+		return "ClassTimeUnit [teachClassId=" + teachClassId + ", arrangeTimeId=" + arrangeTimeId + ", timeStart="
+				+ timeStart + ", timeEnd=" + timeEnd + ", dayOfWeek=" + dayOfWeek + ", weeks=" + weeks + ", value="
+				+ value + ", teacherCode=" + teacherCode + "]";
+	}
     
 }

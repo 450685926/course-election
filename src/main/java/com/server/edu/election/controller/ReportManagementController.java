@@ -1,6 +1,8 @@
 package com.server.edu.election.controller;
 
 import java.io.File;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +27,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ExportPreCondition;
@@ -149,6 +154,30 @@ public class ReportManagementController
             managementService.findRollBookList(condition);
         return RestResult.successData(bookList);
     }
+
+    @ApiOperation(value = "研究生点名册查询")
+    @PostMapping("/findGraduteRollBookList")
+    public RestResult<PageResult<RollBookList>> findGraduteRollBookList(
+            @RequestBody PageCondition<RollBookConditionDto> condition)
+    {
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        if (rollBookConditionDto.getCalendarId() == null)
+        {
+            return RestResult.fail("common.parameterError");
+        }
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<RollBookList> bookList = null;
+        if (session.isAdmin()) {
+            bookList = managementService.findRollBookList(condition);
+        }else if (session.isAcdemicDean()) {
+            rollBookConditionDto.setFaculty(session.getFaculty());
+            bookList = managementService.findRollBookList(condition);
+        }else if (session.isTeacher()) {
+            rollBookConditionDto.setTeacherCode(session.realUid());
+            bookList = managementService.findRollBookList(condition);
+        }
+        return RestResult.successData(bookList);
+    }
     
     @ApiOperation(value = "预览点名册")
     @PostMapping("/previewRollBookList2")
@@ -191,7 +220,7 @@ public class ReportManagementController
             return RestResult.fail("common.parameterError");
         }
         StudentSchoolTimetabVo schoolTimetab =
-            managementService.findSchoolTimetab(calendarId, studentCode);
+            managementService.findSchoolTimetab2(calendarId, studentCode);
         return RestResult.successData(schoolTimetab);
     }
     
@@ -247,6 +276,26 @@ public class ReportManagementController
             managementService.findAllSchoolTimetab(condition);
         return RestResult.successData(allSchoolTimetab);
     }
+
+    @ApiOperation(value = "根据用户角色查询学生课表")
+    @PostMapping("/findStudentTimeTableByRole")
+    public RestResult<PageResult<StudentVo>> findStudentTimeTableByRole(
+            @RequestBody PageCondition<ReportManagementCondition> condition)
+    {
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<StudentVo> schoolTimetab = null;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            reportManagementCondition.setFaculty(session.getFaculty());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (session.isStudent()) {
+            reportManagementCondition.setStudentCode(session.realUid());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }
+        return RestResult.successData(schoolTimetab);
+    }
     
     @ApiOperation(value = "查询学生课表对应老师时间地点") //不用
     @GetMapping("/findStudentAndTeacherTime")
@@ -280,6 +329,26 @@ public class ReportManagementController
         PageResult<ClassCodeToTeacher> allClassTeacher =
             managementService.findAllTeacherTimeTable(condition);
         return RestResult.successData(allClassTeacher);
+    }
+
+    @ApiOperation(value = "根据用户角色查询教师课表")
+    @PostMapping("/findTeacherTimeTableByRole")
+    public RestResult<PageResult<ClassCodeToTeacher>> findTeacherTimeTableByRole(
+            @RequestBody PageCondition<ClassCodeToTeacher> condition)
+    {
+        ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<ClassCodeToTeacher> classTeacher = null;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            classTeacher = managementService.findTeacherTimeTableByRole(condition);
+        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            classCodeToTeacher.setFaculty(session.getFaculty());
+            classTeacher = managementService.findTeacherTimeTableByRole(condition);
+        }else if (StringUtils.equals(session.getCurrentRole(), "2")) {
+            classCodeToTeacher.setTeacherCode(session.realUid());
+            classTeacher = managementService.findTeacherTimeTableByRole(condition);
+        }
+        return RestResult.successData(classTeacher);
     }
     
     //学生课表调用预览点名册
@@ -327,7 +396,7 @@ public class ReportManagementController
         return RestResult.successData(teacherTimetable);
     }
     
-    @ApiOperation(value = "导出未选课学生名单")
+    @ApiOperation(value = "导出未选课学生名单本科生")
     @PostMapping("/exportStudentNoCourseList2")
     public RestResult<String> exportStudentNoCourseList(
         @RequestBody NoSelectCourseStdsDto condition)
@@ -337,7 +406,18 @@ public class ReportManagementController
         String export = managementService.exportStudentNoCourseList(condition);
         return RestResult.successData(export);
     }
-    
+
+    @ApiOperation(value = "导出未选课学生名单研究生")
+    @PostMapping("/exportStudentNoCourseListGradute")
+    public RestResult<String> exportStudentNoCourseListGradute(
+    		@RequestBody NoSelectCourseStdsDto condition)
+    				throws Exception
+    {
+    	LOG.info("export.gradute.start");
+    	String export = managementService.exportStudentNoCourseListGradute(condition);
+    	return RestResult.successData(export);
+    }
+
     @ApiOperation(value = "导出点名册")
     @PostMapping("/exportRollBookList")
     public RestResult<ExcelResult> exportRollBookList(
@@ -346,6 +426,24 @@ public class ReportManagementController
     {
         LOG.info("export.start");
         ExcelResult export = managementService.exportRollBookList(condition);
+        return RestResult.successData(export);
+    }
+
+    @ApiOperation(value = "导出研究生点名册")
+    @PostMapping("/exportGraduteRollBookList")
+    public RestResult<ExcelResult> exportGraduteRollBookList(
+            @RequestBody PageCondition<RollBookConditionDto> condition)
+            throws Exception
+    {
+        LOG.info("export.start");
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+       if (session.isAcdemicDean()) {
+            rollBookConditionDto.setFaculty(session.getFaculty());
+        }else if (session.isTeacher()) {
+            rollBookConditionDto.setTeacherCode(session.realUid());
+        }
+        ExcelResult export = managementService.exportGraduteRollBookList(condition);
         return RestResult.successData(export);
     }
     
@@ -388,7 +486,7 @@ public class ReportManagementController
         ExcelResult result = managementService.exportTeacher(condition);
         return RestResult.successData(result);
     }
-    
+
     /**
      * @Description: 根据key循环去redis取数据
      */
@@ -421,4 +519,72 @@ public class ReportManagementController
         return RestResult.successData(fileName);
     }
     
+    @GetMapping(value = "/exportStudentTimetabPdf")
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "导出学生课表pdf--研究生")})
+    public ResponseEntity<Resource> exportStudentTimetabPdf(
+    		@RequestParam("calendarId") Long calendarId,
+    		@RequestParam("calendarName") String calendarName,
+    		@RequestParam("studentCode") String studentCode, 
+    		@RequestParam("studentName") String studentName) throws Exception{
+    	LOG.info("exportStudentTimetabPdf.start");
+    	
+    	StringBuffer name = new StringBuffer();
+    	RestResult<String> restResult = managementService.exportStudentTimetabPdf(calendarId, calendarName, studentCode,studentName);
+    	
+    	if (ResultStatus.SUCCESS.code() == restResult.getCode()
+                && !"".equals(restResult.getData()))
+            {
+                Resource resource = new FileSystemResource(
+                    URLDecoder.decode(restResult.getData(), "utf-8"));// 绝对路径
+                return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE,
+                        "application/pdf; charset=utf-8")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename="
+                            + String.valueOf(
+                                URLEncoder.encode(name.toString(), "UTF-8"))
+                            + ".pdf")
+                    .body(resource);
+            }
+            else
+            {
+                return null;
+            }
+    }
+    
+    @GetMapping(value = "/exportTeacherTimetabPdf")
+    @ApiResponses({
+    	@ApiResponse(code = 200, response = File.class, message = "导出教师课表pdf--研究生")})
+    public ResponseEntity<Resource> exportTeacherTimetabPdf(
+    		@RequestParam("calendarId") Long calendarId,
+    		@RequestParam("calendarName") String calendarName,
+    		@RequestParam("teacherCode") String teacherCode, 
+    		@RequestParam("teacherName") String teacherName) throws Exception{
+    	LOG.info("exportTeacherTimetabPdf.start");
+    	
+    	StringBuffer name = new StringBuffer();
+    	RestResult<String> restResult = managementService.exportTeacherTimetabPdf(calendarId, calendarName, teacherCode,teacherName);
+    	
+    	if (ResultStatus.SUCCESS.code() == restResult.getCode()
+    			&& !"".equals(restResult.getData()))
+    	{
+    		Resource resource = new FileSystemResource(
+    				URLDecoder.decode(restResult.getData(), "utf-8"));// 绝对路径
+    		return ResponseEntity.ok()
+    				.header(HttpHeaders.CONTENT_TYPE,
+    						"application/pdf; charset=utf-8")
+    				.header(HttpHeaders.CONTENT_DISPOSITION,
+    						"attachment;filename="
+    								+ String.valueOf(
+    										URLEncoder.encode(name.toString(), "UTF-8"))
+    								+ ".pdf")
+    				.body(resource);
+    	}
+    	else
+    	{
+    		return null;
+    	}
+    }
+
 }

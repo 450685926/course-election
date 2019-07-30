@@ -14,6 +14,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
@@ -47,7 +48,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
         Page<CourseOpenDto> listPage;
-        if ("1".equals(query.getProjectId())) {
+        if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listPage(query);
         }else {
         	listPage = roundCourseDao.listPageGraduate(query);
@@ -69,7 +70,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         Page<CourseOpenDto> listPage;
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
-        if ("1".equals(query.getProjectId())) {
+        if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listUnAddPage(query,practicalCourse);
 		}else {
 			listPage = roundCourseDao.listUnAddPageGraduate(query);
@@ -133,7 +134,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 		    	list.add(electionRoundsCour);
         	}
         }
-        roundCourseDao.insertList(list);
+        roundCourseDao.batchInsert(list);
     }
     
     @Override
@@ -143,7 +144,13 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         if(condition.getMode()==2){//实践课
             practicalCourse = CultureSerivceInvoker.findPracticalCourse();
         }
-        Page<CourseOpenDto> listPage = roundCourseDao.listUnAddPage(condition,practicalCourse);
+        
+        Page<CourseOpenDto> listPage = new Page<CourseOpenDto>();
+        if (org.apache.commons.lang.StringUtils.equals(condition.getProjectId(), "1")) {
+        	listPage = roundCourseDao.listUnAddPage(condition,practicalCourse);
+		}else {
+			listPage = roundCourseDao.listUnAddPageGraduate(condition);
+		}
         List<ElectionRoundsCour> list = new ArrayList<>();
         for (CourseOpenDto courseOpenDto : listPage)
         {
@@ -152,7 +159,7 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 	    	electionRoundsCour.setTeachingClassId(courseOpenDto.getTeachingClassId());
 	    	list.add(electionRoundsCour);
         }
-        roundCourseDao.insertList(list);
+        roundCourseDao.batchInsert(list);
     }
     
     @Override

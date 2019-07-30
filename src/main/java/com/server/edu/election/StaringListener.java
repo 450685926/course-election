@@ -1,38 +1,23 @@
 package com.server.edu.election;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
-
-import com.alibaba.fastjson.JSON;
-import com.server.edu.dmskafka.dataSync.SyncReceiver;
-import com.server.edu.dmskafka.dataSync.SyncType;
-import com.server.edu.dmskafka.dataSync.data.StudentInfoSync;
-import com.server.edu.dmskafka.dataSync.data.StudentStatusSync;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.Student;
-import com.server.edu.election.util.StuInfoSyncUtil;
-
-import tk.mybatis.mapper.entity.Example;
 
 @Component
 public class StaringListener
     implements ApplicationListener<ApplicationReadyEvent>
 {
-    @Autowired
-    private StudentDao studentDao;
-    
-    @Autowired
-    private ThreadPoolTaskExecutor taskExecutor;
+//    @Autowired
+//    private StudentDao studentDao;
+//    
+//    @Autowired
+//    private ThreadPoolTaskExecutor taskExecutor;
     
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event)
     {
-        taskExecutor.execute(() -> {
+        /*taskExecutor.execute(() -> {
             SyncReceiver.receive(cons -> {
                 SyncType find = SyncType.find(cons.key());
                 if (SyncType.STU_BASE == find
@@ -41,10 +26,10 @@ public class StaringListener
                     syncStu(cons, find);
                 }
             });
-        });
+        });*/
     }
     
-    private void syncStu(ConsumerRecord<String, String> cons, SyncType find)
+    /*private void syncStu(ConsumerRecord<String, String> cons, SyncType find)
     {
         
         Student convert = null;
@@ -77,6 +62,6 @@ public class StaringListener
                 studentDao.updateByExampleSelective(convert, example);
             }
         }
-    }
+    }*/
     
 }

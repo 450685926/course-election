@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.RetakeSetRefRuleDao">
+
+    <insert id="saveRetakeSetRefRule" >
+        insert into
+            retake_set_ref_rule_t (RETAKE_SET_ID_,RULE_ID_)
+        VALUES
+        <foreach item="ruleId" collection="retakeSet.ruleIds" index="index" separator=",">
+            (#{retakeSet.retakeSetId},#{ruleId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByRetakeSetId">
+        delete from retake_set_ref_rule_t where RETAKE_SET_ID_ = #{retakeSetId}
+    </delete>
+
+</mapper>

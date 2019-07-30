@@ -5,12 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Objects;
+import com.server.edu.election.constants.ChooseObj;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -51,25 +55,39 @@ public class StudentElecPreloadingServiceImpl
     {
         Long roundId = preloadRequest.getRoundId();
         String studentId = preloadRequest.getStudentId();
+        Long calendarId = preloadRequest.getCalendarId();
+        String projectId = preloadRequest.getProjectId();
+        Integer chooseObj = preloadRequest.getChooseObj();
         try
         {
-            ElectionRounds round = dataProvider.getRound(roundId);
-            if (ElecContextUtil.tryLock(roundId, studentId))
+            // 研究生的管理员代选是没有轮次和规则的
+            if (StringUtils.isNotBlank(projectId)
+                && !Constants.PROJ_UNGRADUATE.equals(projectId)
+                && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
+            {
+            }
+            else
+            {
+                ElectionRounds round = dataProvider.getRound(roundId);
+                calendarId = round.getCalendarId();
+                projectId = round.getProjectId();
+            }
+            if (ElecContextUtil.tryLock(calendarId, studentId))
             {
                 ElecContext context = null;
                 try
                 {
-                    context = new ElecContext(studentId, round.getCalendarId());
+                    context = new ElecContext(studentId, calendarId);
                     context.setRequest(preloadRequest);
-                    String projectId = round.getProjectId();
                     
                     Map<String, DataProLoad> beansOfType =
                         applicationContext.getBeansOfType(DataProLoad.class);
                     
+                    String projId = projectId;
                     // 获取轮次对应管理部门的DataProLoad
                     List<DataProLoad> values =
                         beansOfType.values().stream().filter(load -> {
-                            return load.getProjectIds().contains(projectId);
+                            return load.getProjectIds().contains(projId);
                         }).collect(Collectors.toList());
                     
                     //排序
@@ -85,7 +103,7 @@ public class StudentElecPreloadingServiceImpl
                     
                     //完成后设置当前状态为Ready
                     ElecContextUtil
-                        .setElecStatus(roundId, studentId, ElecStatus.Ready);
+                        .setElecStatus(calendarId, studentId, ElecStatus.Ready);
                     context.getRespose().getFailedReasons().clear();
                     context.saveResponse();
                 }
@@ -101,11 +119,11 @@ public class StudentElecPreloadingServiceImpl
                     
                     LOG.error(e.getMessage(), e);
                     ElecContextUtil
-                        .setElecStatus(roundId, studentId, ElecStatus.Init);
+                        .setElecStatus(calendarId, studentId, ElecStatus.Init);
                 }
                 finally
                 {
-                    ElecContextUtil.unlock(roundId, studentId);
+                    ElecContextUtil.unlock(calendarId, studentId);
                 }
             }
             else
@@ -113,10 +131,12 @@ public class StudentElecPreloadingServiceImpl
                 // 该方法的值均从队列中获取，此时只要接收请求的方法不出问题，应该不会出现其他状态
                 // 什么场景会出现预加载情况下并发修改了该值？？
                 LOG.error(
-                    "预加载状态异常 unexpected status,roundId:{},studentId:{}, status:{}",
+                    "预加载状态异常 unexpected status,projectId:{},calendarId:{},roundId:{},studentId:{}, status:{}",
+                    projectId,
+                    calendarId,
                     roundId,
                     studentId,
-                    ElecContextUtil.getElecStatus(roundId, studentId));
+                    ElecContextUtil.getElecStatus(calendarId, studentId));
             }
         }
         catch (Exception e)
@@ -124,4 +144,5 @@ public class StudentElecPreloadingServiceImpl
             LOG.error(e.getMessage(), e);
         }
     }
+    
 }

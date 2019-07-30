@@ -2,9 +2,11 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ElcNumberSetDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.TeachingClass;
@@ -27,13 +29,23 @@ import tk.mybatis.mapper.common.Mapper;
 public interface TeachingClassDao extends Mapper<TeachingClass>
 {
     /**
-     * 分页查询教学班
+     * 分页查询教学班(本科生)
      * 
      * @param condition
      * @return
      * @see [类、类#方法、类#成员]
      */
     Page<TeachingClassVo> listPage(ElcResultQuery condition);
+    
+    /**
+     * 分页查询教学班（研究生）
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<TeachingClassVo> grduateListPage(ElcResultQuery condition);
+    
     /**
      * 对选课人数进行自增，不会判断限制人数
      * 
@@ -103,5 +115,13 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     List<TeacherClassTimeRoom> getClassTimes(List<Long> list);
     
     List<TeachingClassVo>  findTeachingClass(ElcResultQuery condition);
+    
+    List<TeachingClassVo> selectDrawClasss(ElcNumberSetDto elcNumberSetDto);
+    
+    int batchDecrElcNumber(List<TeachingClassVo> list);
+    
+    int updateReserveProportion(List<TeachingClass> list);
+
+    List<ElcStudentVo> findClassCodeAndFaculty(@Param("teachingClassIds") List<Long> ids);
 
 }

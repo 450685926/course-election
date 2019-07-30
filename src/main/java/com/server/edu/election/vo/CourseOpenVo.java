@@ -8,6 +8,18 @@ public class CourseOpenVo extends CourseOpen {
     //选课建议课表开启状态
     private Integer suggestStatus;
     
+    private Long courseId;
+    
+    
+    
+
+	public Long getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(Long courseId) {
+		this.courseId = courseId;
+	}
 
 	public Integer getSuggestStatus() {
 		return suggestStatus;

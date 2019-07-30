@@ -2,8 +2,11 @@ package com.server.edu.election.dto;
 
 import java.util.List;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.CourseOpen;
 
+@CodeI18n
 public class CourseOpenDto extends CourseOpen
 {
     private static final long serialVersionUID = 1L;
@@ -20,6 +23,7 @@ public class CourseOpenDto extends CourseOpen
     /**
      *  校区
      */
+    @Code2Text(transformer="X_XQ")
     private String campus;
     
     /**

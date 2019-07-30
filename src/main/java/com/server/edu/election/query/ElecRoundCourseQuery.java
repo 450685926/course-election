@@ -40,12 +40,13 @@ public class ElecRoundCourseQuery
     /**课程性质*/
     private String nature;
     
+    /**校区*/
+    private String campus; 
+    
     /**课程类别*/
     private String label;
     
     private String keyword;
-    
-    private String campus;
 
     public String getLabel() {
 		return label;
@@ -178,6 +179,5 @@ public class ElecRoundCourseQuery
 	public void setCampus(String campus) {
 		this.campus = campus;
 	}
-
     
 }

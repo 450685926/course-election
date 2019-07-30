@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,6 @@ public class RoundDataProvider
          * roundId -> lessonId -> json
          */
         ValueOperations<String, String> ops = strTemplate.opsForValue();
-        
         String dataLoadKey =
             String.format(Keys.STD_STATUS_LOCK, "dataLoad", "");
         Boolean setIfAbsent = ops.setIfAbsent(dataLoadKey,
@@ -77,17 +77,13 @@ public class RoundDataProvider
         {
             return;
         }
-        
         try
         {
             // 缓存所有选课规则
             ruleCacheService.cacheAllRule();
-            
             /** 一小时后即将开始的选课参数 */
             List<ElectionRounds> selectBeStart = roundsDao.selectWillBeStart();
-            
             Set<String> keys = this.roundCacheService.getRoundKeys();
-            
             Date now = new Date();
             Set<Long> calendarIds = new HashSet<>();
             for (ElectionRounds round : selectBeStart)
@@ -131,6 +127,7 @@ public class RoundDataProvider
         ElectionRounds round = roundsDao.selectByPrimaryKey(roundId);
         if (round != null
             && Objects.equals(Constants.IS_OPEN, round.getOpenFlag())
+            && Objects.equals(Constants.DELETE_FALSE, round.getDeleteStatus())
             && now.after(round.getBeginTime())
             && now.before(round.getEndTime()))
         {
@@ -146,13 +143,13 @@ public class RoundDataProvider
     {
         Long roundId = round.getId();
         Long calendarId = round.getCalendarId();
-        
         Date endTime = round.getEndTime();
         long timeout =
             TimeUnit.MILLISECONDS.toMinutes(endTime.getTime() - now.getTime())
                 + 3;
         // 缓存轮次数据
         roundCacheService.cacheRound(round, timeout);
+        
         // 缓存轮次规则数据
         ruleCacheService.cacheRoundRule(roundId, timeout);
         //缓存轮次条件
@@ -160,11 +157,14 @@ public class RoundDataProvider
         //缓存轮次学生
         roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
-        cachePreSemester(round, timeout);
-        
+        String manageDptId = round.getProjectId();
+        if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE))
+        {
+            cachePreSemester(round, timeout);
+        }
         // 缓存课程
-        roundCacheService.cacheCourse(timeout, roundId, calendarId);
-        
+        roundCacheService
+            .cacheCourse(timeout, roundId, calendarId, manageDptId);
     }
     
     /**
@@ -185,6 +185,7 @@ public class RoundDataProvider
         String roundPreSemester = Keys.getRoundPresemesterKey(round.getId());
         ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
     }
+    
     /**
      *  获取轮次对应的上一个学期
      */
@@ -279,6 +280,19 @@ public class RoundDataProvider
     }
     
     /**
+     * 
+     * 通过学年学期与课程代码获取教学班信息
+     * @param calendarId
+     * @param courseCode
+     * @return
+     */
+    public List<TeachingClassCache> getTeachClasssbyCalendarId(Long calendarId,
+    		String courseCode)
+    {
+    	return classCacheService.getTeachClasssBycalendarId(calendarId, courseCode);
+    }
+    
+    /**
      * 获取指定教学班信息
      * 
      * @param calendarId 校历
@@ -315,6 +329,17 @@ public class RoundDataProvider
     {
         return classCacheService.incrementElecNumber(teachClassId);
     }
+    /**
+     * 减少教学班人数
+     * 
+     * @param teachClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int decrElcNumber(Long teachClassId)
+    {
+        return classCacheService.decrElecNumber(teachClassId);
+    }
     
     /**
      * 判断学生是否在指定轮次中
@@ -334,12 +359,15 @@ public class RoundDataProvider
      * 
      * @param roundId
      * @param studentId
+     * @param projectId
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public boolean containsStuCondition(Long roundId, String studentId)
+    public boolean containsStuCondition(Long roundId, String studentId,
+        String projectId)
     {
-        return roundCacheService.containsStuCondition(roundId, studentId);
+        return roundCacheService
+            .containsStuCondition(roundId, studentId, projectId);
     }
     
 }

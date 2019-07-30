@@ -17,8 +17,11 @@ public class ElcResultQuery
     
     private String projectId;
     
+    /**
+     * 校区（取字典X_XQ）
+     */
     private String campus;
-    
+        
     /**
      * 课程编号
      */
@@ -30,7 +33,7 @@ public class ElcResultQuery
     private String courseName;
     
     /**
-     * 教学班编号
+     * 教学班编号（课程序号）
      */
     private String teachingClassCode;
     
@@ -38,6 +41,31 @@ public class ElcResultQuery
      * 教学班id
      */
     private Long teachingClassId;
+    
+    /**
+     * 培养类别
+     */
+    private String trainingCategory;
+    
+    /**
+     * 学习形式
+     */
+    private String formLearning;
+    
+    /**
+     * 年级
+     */
+    private String grade;
+    
+    /**
+     * 入学季节
+     */
+    private String enrolSeason;
+    
+    /**
+     * 学位类型
+     */
+    private String degreeType;
     
     /**
      * 教学班ids
@@ -58,7 +86,17 @@ public class ElcResultQuery
     
     private String keyword;
     
+    private String managerDeptId;
+    
+    /**
+     * 开课学院
+     */
     private String faculty;
+    
+    /**
+     * 专业
+     */
+    private String profession;
     
     /**
      * 课程类别ID
@@ -66,6 +104,19 @@ public class ElcResultQuery
     @Code2Text(DictTypeEnum.X_KCFL)
     private Long courseLabelId;
     
+    /**
+     * 课程性质
+     */
+    private String nature;
+    
+    /**
+     * 培养层次
+     */
+    private String trainingLevel;
+    
+    /**
+     * 教室编号
+     */
     private String teacherCode;
     
     private Integer actualAndUpper;
@@ -78,8 +129,31 @@ public class ElcResultQuery
     
     private Integer maxUpperNumber;
     
+    private Integer dimension;
     
-    public Integer getActualAndUpper() {
+    private List<String> studentIds;
+    
+    private Integer isElective;
+    
+    private Integer isHaveLimit;
+    
+	public Integer getIsHaveLimit() {
+		return isHaveLimit;
+	}
+
+	public void setIsHaveLimit(Integer isHaveLimit) {
+		this.isHaveLimit = isHaveLimit;
+	}
+
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
+
+	public Integer getActualAndUpper() {
 		return actualAndUpper;
 	}
 
@@ -225,7 +299,55 @@ public class ElcResultQuery
         this.teachingClassIds = teachingClassIds;
     }
     
-    public String getLabel()
+    public String getTrainingLevel() {
+		return trainingLevel;
+	}
+
+	public void setTrainingLevel(String trainingLevel) {
+		this.trainingLevel = trainingLevel;
+	}
+
+	public String getTrainingCategory() {
+		return trainingCategory;
+	}
+
+	public void setTrainingCategory(String trainingCategory) {
+		this.trainingCategory = trainingCategory;
+	}
+
+	public String getFormLearning() {
+		return formLearning;
+	}
+
+	public void setFormLearning(String formLearning) {
+		this.formLearning = formLearning;
+	}
+
+	public String getGrade() {
+		return grade;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+
+	public String getEnrolSeason() {
+		return enrolSeason;
+	}
+
+	public void setEnrolSeason(String enrolSeason) {
+		this.enrolSeason = enrolSeason;
+	}
+
+	public String getDegreeType() {
+		return degreeType;
+	}
+
+	public void setDegreeType(String degreeType) {
+		this.degreeType = degreeType;
+	}
+
+	public String getLabel()
     {
         return label;
     }
@@ -260,8 +382,46 @@ public class ElcResultQuery
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
+
+	public String getProfession() {
+		return profession;
+	}
+
+	public void setProfession(String profession) {
+		this.profession = profession;
+	}
+
+	public String getNature() {
+		return nature;
+	}
+
+	public void setNature(String nature) {
+		this.nature = nature;
+	}
+
+	public String getManagerDeptId() {
+		return managerDeptId;
+	}
+
+	public void setManagerDeptId(String managerDeptId) {
+		this.managerDeptId = managerDeptId;
+	}
+
+	public Integer getDimension() {
+		return dimension;
+	}
+
+	public void setDimension(Integer dimension) {
+		this.dimension = dimension;
+	}
+
+	public List<String> getStudentIds() {
+		return studentIds;
+	}
+
+	public void setStudentIds(List<String> studentIds) {
+		this.studentIds = studentIds;
+	}
 	
-    
-    
-    
+	
 }

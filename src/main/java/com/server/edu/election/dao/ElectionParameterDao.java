@@ -10,4 +10,7 @@ public interface ElectionParameterDao extends Mapper<ElectionParameter> {
 	int batchUpdateStatus(List<ElectionParameter> list);
 	
 	int batchUpdate(ElectionRuleDto electionRuleDto);
+
+	List<ElectionParameter> selectElectionParameter(Long ruleId);
+
 }

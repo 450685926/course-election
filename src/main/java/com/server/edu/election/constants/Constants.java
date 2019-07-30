@@ -34,5 +34,25 @@ public interface Constants
 	 public static final Integer NORMAL_MODEL=1;
 	 public static final Integer PE_MODEL=2;
 	 public static final Integer ENGLISH_MODEL=3;
+	 
+    /**
+     * 选课轮次
+     */
+    public static final int FIRST_TURN = 1;
+    public static final int SECOND_TURN = 2;
+    public static final int THIRD_TURN = 3;
+    public static final int FOURTH_TURN = 4;
+    
+    public static final int HUNDRED = 100;
+    
+    public static final double NEW_LIMIT_CREDITS = 48;
+    
+    public static final double TOTAL_LIMIT_CREDITS = 48;
+    
+    public static final int REBUILD_LIMIT_NUMBER = 6;
+    
+    /** 数据库逻辑删除标识  1-已删除;0-未删除 */
+    public static final Integer DELETE_TRUE = 1;
+    public static final Integer DELETE_FALSE = 0;
 
 }

@@ -5,25 +5,21 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <id column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+    <id column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
     <id column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
   </resultMap>
-   <insert id="batchInsert" parameterType="java.util.List">
+  
+  <insert id="batchInsert" parameterType="java.util.List">
     insert into elc_affinity_courses_stds_t(
-    COURSE_CODE_,STUDENT_ID_
+    COURSE_ID_,STUDENT_ID_
     )
     values
     <foreach item="item" collection="list" index="index"
              separator=",">
       (
-      #{item.courseCode,jdbcType=VARCHAR},
-      #{item.studentId,jdbcType=VARCHAR}
+      #{item.courseId},
+      #{item.studentId}
       )
     </foreach>
   </insert>
-  
-  <select id="selectStuAndCourse" resultMap="BaseResultMap">
-  	select std.STUDENT_ID_, std.COURSE_CODE_
-  	from elc_affinity_courses_stds_t std 
-  </select>
 </mapper>

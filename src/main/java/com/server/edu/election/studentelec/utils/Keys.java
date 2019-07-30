@@ -29,6 +29,9 @@ public class Keys
     /**轮次-课程 elec-roundCourse-[roundid] */
     private static final String ROUND_COURSE = "elec-roundCourse-%s";
     
+    /** 研究生管理员代理选课存储学年学期课程 elec-calendarId-%s-course*/
+    private static final String CALENDAR_COURSE = "elec-calendarId-%s-course";
+    
     /** 轮次的规则信息 elec-roundRule-[rountid] */
     private static final String ROUND_RULE = "elec-roundRule-%s";
     
@@ -78,6 +81,12 @@ public class Keys
     public static String getRoundCourseKey(Long roundId)
     {
         return String.format(Keys.ROUND_COURSE, roundId);
+    }
+    
+    /**学年学期课程key*/
+    public static String getCalendarCourseKey(Long calendarId)
+    {
+    	return String.format(Keys.CALENDAR_COURSE, calendarId);
     }
     
     /**教学班key*/

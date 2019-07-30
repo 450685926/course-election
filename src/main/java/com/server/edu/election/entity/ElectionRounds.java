@@ -2,15 +2,15 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-
 import org.hibernate.validator.constraints.NotBlank;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 
 @Table(name = "election_rounds_t")
 public class ElectionRounds implements Serializable {
@@ -101,8 +101,28 @@ public class ElectionRounds implements Serializable {
     private Date updatedAt;
 
     private static final long serialVersionUID = 1L;
-
+    
     /**
+            * 学年学期名称
+     */
+    @Transient
+    private String calendarName;
+    
+    /**
+     * 是否删除（1-已删除；0-未删除）
+     */
+    @Column(name = "DELETE_STATUS_")
+    private Integer deleteStatus;
+    
+    public String getCalendarName() {
+		return calendarName;
+	}
+
+	public void setCalendarName(String calendarName) {
+		this.calendarName = calendarName;
+	}
+
+	/**
      * 获取主键（自增）
      *
      * @return ID_ - 主键（自增）
@@ -136,6 +156,9 @@ public class ElectionRounds implements Serializable {
      */
     public void setCalendarId(Long calendarId) {
         this.calendarId = calendarId;
+        if (calendarId != null) {
+			setCalendarName(SchoolCalendarCacheUtil.getName(calendarId));
+		}
     }
 
     /**
@@ -332,27 +355,12 @@ public class ElectionRounds implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", calendarId=").append(calendarId);
-        sb.append(", turn=").append(turn);
-        sb.append(", electionObj=").append(electionObj);
-        sb.append(", mode=").append(mode);
-        sb.append(", projectId=").append(projectId);
-        sb.append(", name=").append(name);
-        sb.append(", openFlag=").append(openFlag);
-        sb.append(", beginTime=").append(beginTime);
-        sb.append(", endTime=").append(endTime);
-        sb.append(", remark=").append(remark);
-        sb.append(", createdAt=").append(createdAt);
-        sb.append(", updatedAt=").append(updatedAt);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
-    }
+	public Integer getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(Integer deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+    
 }

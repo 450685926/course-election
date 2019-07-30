@@ -1,9 +1,12 @@
 package com.server.edu.election.service;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.itextpdf.text.DocumentException;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ExportPreCondition;
@@ -33,8 +36,13 @@ public interface ReportManagementService {
     /**查询学生课表*/
     StudentSchoolTimetabVo findSchoolTimetab(Long calendarId, String studentCode);
 
+    StudentSchoolTimetabVo findSchoolTimetab2(Long calendarId, String studentCode);
+
     /**查询所有学生课表*/
     PageResult<StudentVo> findAllSchoolTimetab(PageCondition<ReportManagementCondition> condition);
+
+    /**根据用户角色查询学生课表*/
+    PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition);
 
     /**查询课表对应教师详细信息*/
     List<ClassTeacherDto> findStudentAndTeacherTime( Long teachingClassId);
@@ -58,11 +66,14 @@ public interface ReportManagementService {
     /**代选课*/
     String otherSelectCourse(StudentSelectCourseList studentSelectCourseList);
 
-    /**导出未选课学生名单*/
+    /**本科生导出未选课学生名单*/
     String exportStudentNoCourseList(NoSelectCourseStdsDto condition) throws Exception;
 
     /**导出点名册*/
     ExcelResult exportRollBookList(RollBookConditionDto condition) throws Exception;
+
+    /**导出研究生点名册*/
+    ExcelResult exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception;
 
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 
@@ -76,6 +87,8 @@ public interface ReportManagementService {
 
     List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
 
+    PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition);
+
     List<TimeTable> getTeacherTimetable(Long calendarId, String teacherCode, Integer week);
 
     ExcelResult export(NoSelectCourseStdsDto condition);
@@ -83,5 +96,29 @@ public interface ReportManagementService {
     ExcelResult exportTeacher(ClassCodeToTeacher condition);
 
     String exportPreRollBookList(ExportPreCondition condition) throws Exception;
+
+    /**研究生导出未选课学生名单*/
+	String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception;
+
+	/**
+	 * 导出学生课表pdf--研究生
+	 * @param calendarId
+	 * @param calendarName
+	 * @param studentCode
+	 * @param studentName
+	 * @return
+	 */
+	RestResult<String> exportStudentTimetabPdf(Long calendarId, String calendarName, String studentCode,String studentName) throws Exception;
+
+	/**
+	 * 导出教师课表pdf--研究生
+	 * @param calendarId
+	 * @param calendarName
+	 * @param teacherCode
+	 * @param teacherName
+	 * @return
+	 */
+	RestResult<String> exportTeacherTimetabPdf(Long calendarId, String calendarName, String teacherCode,
+			String teacherName) throws DocumentException, IOException;
 
 }
