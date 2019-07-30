@@ -9,6 +9,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ExemptionAuditSwitchDao;
 import com.server.edu.election.entity.ExemptionApplyAuditSwitch;
 import com.server.edu.election.service.ExemptionAuditSwitchService;
@@ -29,7 +30,8 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
     		.andEqualTo("formLearnings", applyAuditSwitch.getFormLearnings())
     		.andEqualTo("trainingCategorys", applyAuditSwitch.getTrainingCategorys())
     	    .andEqualTo("degreeCategorys", applyAuditSwitch.getDegreeCategorys())
-    		.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason());
+    		.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason())
+    		.andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE));
     	
 	    int count = exemptionAuditSwitchDao.selectCountByExample(example);
 	    if (count > 0)
@@ -40,6 +42,7 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
 		
 	    Date date = new Date();
 	    applyAuditSwitch.setCreatedAt(date);
+	    applyAuditSwitch.setDeleteStatus(Constants.DELETE_FALSE);
 	    exemptionAuditSwitchDao.insertSelective(applyAuditSwitch);
 	}
 
@@ -72,6 +75,7 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
 			.andEqualTo("trainingCategorys", applyAuditSwitch.getTrainingCategorys())
 		    .andEqualTo("degreeCategorys", applyAuditSwitch.getDegreeCategorys())
 			.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason())
+			.andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE))
             .andNotEqualTo("id", applyAuditSwitch.getId());
         int count = exemptionAuditSwitchDao.selectCountByExample(example);
         if (count > 0)
@@ -86,7 +90,10 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
 	@Override
 	public void deleteExemptionAuditSwitch(List<Long> ids) {
 		for (Long id : ids) {
-			exemptionAuditSwitchDao.deleteByPrimaryKey(id);
+			ExemptionApplyAuditSwitch auditSwitch = new ExemptionApplyAuditSwitch();
+			auditSwitch.setId(id);
+			auditSwitch.setDeleteStatus(Constants.DELETE_TRUE);
+			exemptionAuditSwitchDao.updateByPrimaryKeySelective(auditSwitch);
 		}
 	}
 }
