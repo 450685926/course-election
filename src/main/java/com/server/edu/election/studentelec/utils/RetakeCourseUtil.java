@@ -7,14 +7,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
-import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.PlanCourse;
-import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -40,10 +38,8 @@ public class RetakeCourseUtil {
 		Set<PlanCourse> planCourses = context.getPlanCourses();
 		/** 学生信息 */
 		StudentInfoCache studentInfo = context.getStudentInfo();
-		RoundDataProvider bean = SpringUtils.getBean(RoundDataProvider.class);
-		ElectionRounds round = bean.getRound(context.getRequest().getRoundId());
-		List<ElcNoGradCouSubs> noGradCouSubsCourses = ElecContextUtil.getNoGradCouSubs(round.getProjectId(),
-				round.getCalendarId());
+		List<ElcNoGradCouSubsVo> noGradCouSubsCourses = ElecContextUtil.getNoGradCouSubs(
+				studentInfo.getStudentId());
 		ElcNoGradCouSubs elcNoGradCouSubs = noGradCouSubsCourses.stream()
 				.filter(c -> courseCode.equals(c.getSubCourseId())).findFirst().orElse(null);
 		List<CompletedCourse> list = new ArrayList<>();

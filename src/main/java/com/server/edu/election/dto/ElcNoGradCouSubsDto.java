@@ -1,8 +1,10 @@
-package com.server.edu.election.vo;
+package com.server.edu.election.dto;
+
+import java.util.List;
 
 import com.server.edu.election.entity.ElcNoGradCouSubs;
 
-public class ElcNoGradCouSubsVo extends ElcNoGradCouSubs {
+public class ElcNoGradCouSubsDto extends ElcNoGradCouSubs {
     private static final long serialVersionUID = 1L;
     
     private String origsCourseName;
@@ -12,8 +14,15 @@ public class ElcNoGradCouSubsVo extends ElcNoGradCouSubs {
     private Integer grade;
     private String faculty;
     private String profession;
+    private List<String> studentIds;
     
-    public Integer getGrade() {
+    public List<String> getStudentIds() {
+		return studentIds;
+	}
+	public void setStudentIds(List<String> studentIds) {
+		this.studentIds = studentIds;
+	}
+	public Integer getGrade() {
 		return grade;
 	}
 	public void setGrade(Integer grade) {

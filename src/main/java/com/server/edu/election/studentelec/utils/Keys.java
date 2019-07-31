@@ -42,7 +42,7 @@ public class Keys
     private static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
     
     /**替代课程 elec-projectId-calendarId-%s-replaceCourse*/
-    private static final String REPLACE_COURSE = "elec-projectId-%s-calendarId-%s-replaceCourse";
+    private static final String REPLACE_COURSE = "elec-studentId-%s-replaceCourse";
     
     /**轮次上一学期 elec-roundPreSemester-%s */
     private static final String ROUND_PRESEMESTER = "elec-roundPreSemester-%s";
@@ -117,8 +117,8 @@ public class Keys
         return String.format(Keys.ROUND_PRESEMESTER, roundId);
     }
     
-    public static String getReplaceCourseKey(String projectId,Long calendarId)
+    public static String getReplaceCourseKey(String studentId)
     {
-        return String.format(Keys.REPLACE_COURSE, projectId,calendarId);
+        return String.format(Keys.REPLACE_COURSE, studentId);
     }
 }
