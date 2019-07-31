@@ -2,8 +2,6 @@ package com.server.edu.election.vo;
 
 import java.util.List;
 
-import com.server.edu.common.rest.PageResult;
-import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
 
 /**

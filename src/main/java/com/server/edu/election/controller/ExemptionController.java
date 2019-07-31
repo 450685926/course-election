@@ -436,8 +436,8 @@ public class ExemptionController {
     @LogRecord(title="研究生审批免修免考申请",type = AuditType.UPDATE)
     @ApiOperation(value = "研究生审批免修免考申请")
     @PostMapping("/approvalGraduteExemptionApply")
-    public RestResult<String> approvalGraduateExemptionApply(@RequestBody List<Long>  ids,@RequestParam Integer status,@RequestParam String auditor){
-        String s= exemptionCourseService.approvalGraduateExemptionApply(ids,status,auditor);
+    public RestResult<String> approvalGraduateExemptionApply(@RequestBody List<Long>  ids,@RequestParam Integer status){
+        String s= exemptionCourseService.approvalGraduateExemptionApply(ids,status);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
     
@@ -456,9 +456,9 @@ public class ExemptionController {
     }
     
     @ApiOperation(value = "研究生免修免考统计导出")
-    @GetMapping("/exemptionCountExport")
+    @PostMapping("/exemptionCountExport")
     public File exemptionCountExport(
-    		@ModelAttribute ExemptionQuery page)
+    		@RequestBody ExemptionQuery page)
     {
     	try {
     		ValidatorUtil.validateAndThrow(page);
@@ -515,9 +515,8 @@ public class ExemptionController {
     @GetMapping("/findCourseAdd")
     public RestResult<StudentAndCourseVo> findCourseCodeAdd(
     		@RequestParam  String studentId,
-    		@RequestParam  String courseCode,
     		@RequestParam  Long calendarId){
-    	StudentAndCourseVo result = exemptionCourseService.findCourseCode(studentId,courseCode,calendarId);
+    	StudentAndCourseVo result = exemptionCourseService.findCourseCode(studentId,calendarId);
         return RestResult.successData(result);
     }
     
@@ -525,7 +524,7 @@ public class ExemptionController {
      * 根据学生Id与课程编码找出学生课程
      */
     @ApiOperation(value = "管理员添加免修免考")
-    @GetMapping("/adminAddApply")
+    @PostMapping("/adminAddApply")
     public RestResult<String> adminAddApply(
     		@RequestBody ExemptionApplyManage applyManage){
     	Session session = SessionUtils.getCurrentSession();
@@ -537,9 +536,9 @@ public class ExemptionController {
     /**
      * 研究生免修免考列表
      */
-    @ApiOperation(value = "研究生免修免考列表")
-    @GetMapping("/findStudentCourse")
-    public RestResult<StudentAndCourseVo> findStudentCourse(@RequestParam Long calendarId){
+    @ApiOperation(value = "研究生免修免考申请列表")
+    @PostMapping("/findStudentCourse")
+    public RestResult<StudentAndCourseVo> findStudentCourse(@RequestBody Long calendarId){
     	
     	Session session = SessionUtils.getCurrentSession();
     	if (!session.isStudent()) {
@@ -558,7 +557,7 @@ public class ExemptionController {
     	Session session = SessionUtils.getCurrentSession();
     	applyManage.setManagerDeptId(session.getCurrentManageDptId());
     	applyManage.setStudentCode(session.realUid());
-        String s = exemptionCourseService.addExemptionApply(applyManage);
+        String s = exemptionCourseService.addGraduateExemptionApply(applyManage);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
     

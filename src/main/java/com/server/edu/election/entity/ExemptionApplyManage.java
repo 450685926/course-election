@@ -90,6 +90,11 @@ public class ExemptionApplyManage implements Serializable {
      */
     @Column(name = "MANAGER_DEPT_ID_")
     private String managerDeptId;
+    /**
+     * 删除状态
+     */
+    @Column(name = "DELETE_STATUS_")
+    private String deleteStatus;
     
     private static final long serialVersionUID = 1L;
 
@@ -316,7 +321,16 @@ public class ExemptionApplyManage implements Serializable {
         return materialIp;
     }
 
-    /**
+    
+    public String getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(String deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
+	/**
      * 设置上传材料地址
      *
      * @param materialIp 上传材料地址

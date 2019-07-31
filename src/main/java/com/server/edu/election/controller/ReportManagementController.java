@@ -210,7 +210,7 @@ public class ReportManagementController
     
     //导出待做
     
-    @ApiOperation(value = "查询学生个人课表")
+    @ApiOperation(value = "研究生查询学生个人课表")
     @GetMapping("/findSchoolTimetab2")
     public RestResult<StudentSchoolTimetabVo> findSchoolTimetab2(
         @RequestParam Long calendarId, @RequestParam String studentCode)
@@ -352,7 +352,7 @@ public class ReportManagementController
     }
     
     //学生课表调用预览点名册
-    @ApiOperation(value = "查询老师课表")
+    @ApiOperation(value = "研究生查询教师课表")
     @GetMapping("/findTeacherTimetable2")
     public RestResult<StudentSchoolTimetabVo> findTeacherTimetable2(
         @RequestParam Long calendarId, @RequestParam String teacherCode)

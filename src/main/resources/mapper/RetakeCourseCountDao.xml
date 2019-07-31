@@ -75,6 +75,15 @@
          and TRAINING_CATEGORY_ = #{trainingCategory}
          and DEGREE_TYPE_ = #{degreeType}
          and FORM_LEARNING_ = #{formLearning}
-         and MANAGER_DEPT_ID_ = #{managerDeptId}
+    </select>
+
+    <select id="findProjectName" parameterType="com.server.edu.election.vo.RetakeCourseCountVo" resultType="java.lang.String">
+         select PROJECT_NAME_ from elc_retake_course_count
+         where
+            DELETE_STATUS_ = 0
+         and TRAINING_LEVEL_ = #{trainingLevel}
+         and TRAINING_CATEGORY_ = #{trainingCategory}
+         and DEGREE_TYPE_ = #{degreeType}
+         and FORM_LEARNING_ = #{formLearning}
     </select>
 </mapper>

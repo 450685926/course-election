@@ -90,6 +90,10 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Long id = retakeCourseCountVo.getId();
         retakeCourseCountVo.setStatus(Constants.DELETE_FALSE);
         if (id == null) {
+            String projectName = retakeCourseCountDao.findProjectName(retakeCourseCountVo);
+            if (projectName != null) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",projectName));
+            }
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountVo);
         } else {
             retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountVo);
@@ -107,7 +111,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public List<FailedCourseVo> failedCourseList(String uid, Long calendarId) {
+    public List<FailedCourseVo> failedCourseList(Long calendarId) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.realUid();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(uid);
         List<FailedCourseVo> failedCourseInfo = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
@@ -115,6 +121,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             for (FailedCourseVo failedCourseVo : failedCourseInfo) {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 failedCourseVo.setCalendarName(schoolCalendar.getFullName());
+                // 借用 判断申请免修免考课程是否已经选课 判断学生是否选课
                 int count = courseTakeDao.findIsEletionCourse(uid, calendarId, failedCourseVo.getCourseCode());
                 if (count == 0) {
                     failedCourseVo.setSelected(false);
@@ -128,7 +135,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Override
     @Transactional
-    public void updateRebuildCourse(String studentId, RebuildCourseVo rebuildCourseVo) {
+    public void updateRebuildCourse(RebuildCourseVo rebuildCourseVo) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String studentId = currentSession.realUid();
         String courseCode = rebuildCourseVo.getCourseCode();
         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
         String courseName = rebuildCourseVo.getCourseName();
@@ -165,7 +174,6 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             take.setCreatedAt(date);
             take.setTurn(0);
             take.setMode(1);
-            // 重修缴费未设置，后面加
             courseTakeDao.insertSelective(take);
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
@@ -187,7 +195,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     public List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord) {
         Session session = SessionUtils.getCurrentSession();
-        String studentId = session.getUid();
+        String studentId = session.realUid();
         String currentManageDptId = session.getCurrentManageDptId();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
@@ -198,7 +206,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             }
             // 获取学生已选课程上课安排
             List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(studentId, calendarId);
-            List<TimeTableMessage> selectTimeTables = courseTakeDao.findCourseArrange(ids);
+            Set<TimeTableMessage> selectTimeTables = courseTakeDao.findCourseArrange(ids);
             // 获取重修课程教学安排
             List<Long> teachingClassIds = list.stream().map(RebuildCourseVo::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> timeTableMessages = getTimeById(teachingClassIds);
@@ -367,7 +375,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      * @param addTimeTables
      * @return
      */
-    private boolean getCourseConflict(List<TimeTableMessage> selectTimeTables, List<TimeTableMessage> addTimeTables) {
+    private boolean getCourseConflict(Set<TimeTableMessage> selectTimeTables, List<TimeTableMessage> addTimeTables) {
         if (CollectionUtil.isEmpty(addTimeTables)) {
             //说明上课时间未安排，暂时不冲突，可以添加
             return true;

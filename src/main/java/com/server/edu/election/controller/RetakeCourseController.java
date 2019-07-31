@@ -17,6 +17,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -56,7 +57,7 @@ public class RetakeCourseController {
 
     @ApiOperation(value = "添加修改选课门数上限")
     @PostMapping("/updateRetakeCourseCount")
-    public RestResult updateRetakeCourseCount(@RequestBody RetakeCourseCountVo retakeCourseCountVo) {
+    public RestResult updateRetakeCourseCount(@RequestBody @Valid RetakeCourseCountVo retakeCourseCountVo) {
         retakeCourseService.updateRetakeCourseCount(retakeCourseCountVo);
         return RestResult.success();
     }
@@ -71,9 +72,7 @@ public class RetakeCourseController {
     @ApiOperation(value = "学生个人不及格课程列表")
     @GetMapping("/failedCourseList")
     public RestResult<List<FailedCourseVo>> failedCourseList(@RequestParam("calendarId") Long calendarId) {
-        Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
-        List<FailedCourseVo> list = retakeCourseService.failedCourseList(uid, calendarId);
+        List<FailedCourseVo> list = retakeCourseService.failedCourseList(calendarId);
         return RestResult.successData(list);
     }
 
@@ -100,9 +99,7 @@ public class RetakeCourseController {
     @ApiOperation(value = "研究生重修选课、退课")
     @PostMapping("/updateRebuildCourse")
     public RestResult updateRebuildCourse(@RequestBody RebuildCourseVo rebuildCourseVo) {
-        Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
-        retakeCourseService.updateRebuildCourse(uid, rebuildCourseVo);
+        retakeCourseService.updateRebuildCourse(rebuildCourseVo);
         return RestResult.success();
     }
 
