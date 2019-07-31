@@ -28,6 +28,7 @@ import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -218,8 +219,23 @@ public class CourseGradeLoad extends DataProLoad
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         //3.学生免修课程
-        List<ElecCourse> applyRecord =
-            applyDao.findApplyRecord(calendarId, studentId);
+        List<ElecCourse> applyRecord = new ArrayList<>();
+        if (Integer.parseInt(stu.getManagerDeptId()) == Constants.ONE) {
+        	applyRecord = applyDao.findApplyRecord(calendarId, studentId);
+		}else {
+			List<ExemptionApplyManage> graduteApplyRecord = applyDao.findGraduteApplyRecord(calendarId, studentId);
+			List<String> applyCourseCodes = new ArrayList<>();
+			for (ExemptionApplyManage code : graduteApplyRecord) {
+				String[] codes = code.getCourseCode().split(",");
+				for (String string : codes) {
+					applyCourseCodes.add(string);
+				}
+			}
+			if (CollectionUtil.isNotEmpty(applyCourseCodes)) {
+				applyRecord = applyDao.findApplyCourse(applyCourseCodes);
+			}
+		}
+            
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的

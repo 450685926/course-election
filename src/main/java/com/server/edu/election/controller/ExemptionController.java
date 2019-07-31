@@ -537,7 +537,7 @@ public class ExemptionController {
     /**
      * 研究生免修免考列表
      */
-    @ApiOperation(value = "研究生免修免考列表")
+    @ApiOperation(value = "研究生免修免考申请列表")
     @GetMapping("/findStudentCourse")
     public RestResult<StudentAndCourseVo> findStudentCourse(@RequestParam Long calendarId){
     	
@@ -558,7 +558,7 @@ public class ExemptionController {
     	Session session = SessionUtils.getCurrentSession();
     	applyManage.setManagerDeptId(session.getCurrentManageDptId());
     	applyManage.setStudentCode(session.realUid());
-        String s = exemptionCourseService.addExemptionApply(applyManage);
+        String s = exemptionCourseService.addGraduateExemptionApply(applyManage);
         return RestResult.success(I18nUtil.getMsg(s,""));
     }
     

@@ -12,6 +12,7 @@ import com.server.edu.common.jackson.LongJsonSerializer;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.SchoolCalendarTranslator;
 
 /**
  * 
@@ -60,6 +61,7 @@ public class ElcLog implements Serializable {
     /**
      * 校历ID（学年学期）
      */
+    @Code2Text(translator=SchoolCalendarTranslator.class)
     @Column(name = "CALENDAR_ID_")
     private Long calendarId;
 

@@ -97,12 +97,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public void deleteRetakeCourseCount(Long retakeCourseCountId) {
-        retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountId);
+    public void deleteRetakeCourseCount(List<Long> retakeCourseCountIds) {
+        retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountIds);
     }
 
     @Override
-    public ElcRetakeSetVo getRetakeRul(Long calendarId, String projectId) {
+    public ElcRetakeSetVo getRetakeRule(Long calendarId, String projectId) {
         return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
     }
 
@@ -198,7 +198,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             }
             // 获取学生已选课程上课安排
             List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(studentId, calendarId);
-            List<TimeTableMessage> selectTimeTables = courseTakeDao.findCourseArrange(ids);
+            Set<TimeTableMessage> selectTimeTables = courseTakeDao.findCourseArrange(ids);
             // 获取重修课程教学安排
             List<Long> teachingClassIds = list.stream().map(RebuildCourseVo::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> timeTableMessages = getTimeById(teachingClassIds);
@@ -367,7 +367,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      * @param addTimeTables
      * @return
      */
-    private boolean getCourseConflict(List<TimeTableMessage> selectTimeTables, List<TimeTableMessage> addTimeTables) {
+    private boolean getCourseConflict(Set<TimeTableMessage> selectTimeTables, List<TimeTableMessage> addTimeTables) {
         if (CollectionUtil.isEmpty(addTimeTables)) {
             //说明上课时间未安排，暂时不冲突，可以添加
             return true;

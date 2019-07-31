@@ -150,6 +150,22 @@
         join student_t st on st.STUDENT_CODE_ =ap.STUDENT_CODE_
         WHERE ap.STUDENT_CODE_=#{studentCode} and ap.CALENDAR_ID_ =#{calendarId} and ap.EXAMINE_RESULT_ !=2 and ap.DELETE_STATUS_ = 0
     </select>
+    <select id="findGraduteApplyRecord"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ !=2 
+    </select>
+    <select id="findApplyCourse"  resultMap="BaseResultMap">
+		select
+        co.CODE_ courseCode,co.NAME_ courseName,co.CREDITS_ credits,co.NAME_EN_ nameEn,co.IS_ELECTIVE_ publicElec
+        from  course_t co
+        WHERE co.CODE_ in
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+        
+    </select>
       <select id="exemptionCount" parameterType="com.server.edu.election.query.ExemptionQuery" resultMap="ApplyCountMap">
 		SELECT t1.EXEMPTION_TYPE_,t1.COURSE_CODE_ ,t1.COURSE_NAME_,t2.TRAINING_LEVEL_,
 		t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_,COUNT(*) applyNum

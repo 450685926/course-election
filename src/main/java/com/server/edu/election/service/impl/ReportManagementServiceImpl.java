@@ -7,11 +7,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.util.WeekUtil;
+import com.server.edu.exception.ParameterValidateException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +72,7 @@ import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 
 import freemarker.template.Template;
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * @description: 报表管理实现类
@@ -91,6 +94,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private ElcNoSelectReasonDao reasonDao;
+
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDaoo;
 
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -263,8 +269,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 }
                 List<TimeTableMessage> timeTables = map.get(studentSchoolTimetab.getTeachingClassId());
                 if (CollectionUtil.isNotEmpty(timeTables)) {
-                    String times = String.valueOf(timeTables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList()));
-                    studentSchoolTimetab.setTime(times.substring(1,times.length()-1));
+                    List<String> times = timeTables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    studentSchoolTimetab.setTime(String.join(",", times));
                     studentSchoolTimetab.setTeacherName(timeTables.get(0).getTeacherName());
                 }
             }
@@ -431,7 +437,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
 
     /**
-    *@Description: 查询教师课表
+    *@Description: 研究生查询教师课表
     *@Param:
     *@return:
     *@Author: bear
@@ -441,40 +447,53 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode) {
         //查询所有教学班
         StudentSchoolTimetabVo vo=new StudentSchoolTimetabVo();
-        List<ClassTeacherDto> list=new ArrayList<>();
-        List<TimeTable> timeTables=new ArrayList<>();
+        String name = teachingClassTeacherDaoo.findTeacherName(teacherCode);
         List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassId(calendarId, teacherCode);
-        List<Long> ids = new ArrayList<>();
-        Map<Long, String> map = new HashMap<>();
-        for (ClassTeacherDto classTeacher : classTeachers) {
-            Long teachingClassId = classTeacher.getTeachingClassId();
-            ids.add(teachingClassId);
-            map.put(teachingClassId, classTeacher.getCourseName());
+        Map<Long, String> campus = classTeachers.stream()
+                .collect(Collectors.toMap(ClassTeacherDto::getTeachingClassId,ClassTeacherDto::getCampus));
+        Map<Long, String> courseNames = classTeachers.stream()
+                .collect(Collectors.toMap(ClassTeacherDto::getTeachingClassId,ClassTeacherDto::getCourseName));
+        Set<Long> longs = campus.keySet();
+        List<Long> teachingClassIds = new ArrayList<>(longs.size());
+        teachingClassIds.addAll(longs);
+        Set<TimeTableMessage> courseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
+        String lang = SessionUtils.getLang();
+        List<TimeTable> timeTables=new ArrayList<>(courseArrange.size());
+        if(CollectionUtil.isNotEmpty(courseArrange)){
+            for (TimeTableMessage timeTableMessage : courseArrange) {
+                Long teachingClassId = timeTableMessage.getTeachingClassId();
+                Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                Integer timeStart = timeTableMessage.getTimeStart();
+                Integer timeEnd = timeTableMessage.getTimeEnd();
+                String roomID = timeTableMessage.getRoomId();
+                String weekNumber = timeTableMessage.getWeekNum();
+                String[] str = weekNumber.split(",");
+                List<Integer> weeks = Stream.of(str).map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
+                String value=name+" "+ courseNames.get(teachingClassId)
+                        +"("+ weekNumStr + ClassroomCacheUtil.getRoomName(roomID) + ")"
+                        + " " + dictionaryService.query("X_XQ",campus.get(teachingClassId), lang);
+                timeTableMessage.setTimeAndRoom(timeStr);
+                TimeTable timeTable = new TimeTable();
+                timeTable.setDayOfWeek(dayOfWeek);
+                timeTable.setTimeStart(timeStart);
+                timeTable.setTimeEnd(timeEnd);
+                timeTable.setValue(value);
+                timeTables.add(timeTable);
+            }
+            Map<Long, List<TimeTableMessage>> collect = courseArrange.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+            for (ClassTeacherDto classTeacher : classTeachers) {
+                List<TimeTableMessage> timeTableMessages = collect.get(classTeacher.getTeachingClassId());
+                if (CollectionUtil.isNotEmpty(timeTableMessages)) {
+                    List<String> times = timeTableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    classTeacher.setTime(String.join(",",times));
+                }
+            }
         }
 
-        List<TimeTableMessage> tableMessages = getTimeByTeachingClassId(ids);
-        Multimap<Long, String> multimap = ArrayListMultimap.create();
-        String lang = SessionUtils.getLang();
-        for (TimeTableMessage tableMessage : tableMessages) {
-            TimeTable time=new TimeTable();
-            time.setDayOfWeek(tableMessage.getDayOfWeek());
-            time.setTimeStart(tableMessage.getTimeStart());
-            time.setTimeEnd(tableMessage.getTimeEnd());
-            Long teachingClassId = tableMessage.getTeachingClassId();
-            String value=tableMessage.getTeacherName()+" "+ map.get(teachingClassId)
-                    +"("+tableMessage.getWeekNum() + ClassroomCacheUtil.getRoomName(tableMessage.getRoomId()) + ")"
-                    + " " + dictionaryService.query("X_XQ",tableMessage.getCampus(), lang);
-            time.setValue(value);
-            timeTables.add(time);
-            multimap.put(teachingClassId, tableMessage.getTimeAndRoom());
-        }
-            for (ClassTeacherDto classTeacher : classTeachers) {
-                Collection<String> collection = multimap.get(classTeacher.getTeachingClassId());
-                if (!collection.isEmpty()) {
-                    String times = collection.toString();
-                    classTeacher.setTime(times.substring(1,times.length()-1));
-                }
-        }
         vo.setTimeTables(timeTables);
         vo.setTeacherDtos(classTeachers);
         return vo;
