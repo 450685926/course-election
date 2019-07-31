@@ -1006,7 +1006,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
 					applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
 					Integer examineResult = getGraduteExemptionApplyRecord(calendarId ,studentId,StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
-					applyCourse.setExamineResult(examineResult == null ? Constants.ZERO : examineResult);
+					applyCourse.setExamineResult(examineResult);
 					applyCourses.add(applyCourse);
 	
 			}else{
@@ -1020,7 +1020,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					applyCourse.setCourseCode(course.getCourseCode());
 					applyCourse.setCourseName(course.getCourseName());
 					Integer examineResult = getGraduteExemptionApplyRecord(calendarId ,studentId,course.getCourseCode());
-					applyCourse.setExamineResult(examineResult == null ? Constants.ZERO : examineResult);
+					applyCourse.setExamineResult(examineResult);
 					applyCourses.add(applyCourse);
 				}
 			}
