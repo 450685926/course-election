@@ -59,7 +59,8 @@
 	    t5.TRAINING_CATEGORY_ limitTrainingCategory,t5.SPCIAL_PLAN_ limitSpcialPlan,
 	    t5.IS_OVERSEAS_ limitIsOverseas,t5.IS_DIVSEX_ limitIsDivsex,
 	    t5.NUMBER_MALE_,t5.NUMBER_FEMALE_,t6.GRADE_ limitGrade,
-	    t6.PROFESSION_ limitProfession,t6.DIRECTION_CODE_ limitDirectionCode 
+	    t6.PROFESSION_ limitProfession,t6.DIRECTION_CODE_ limitDirectionCode,
+	    room.ROOM_ID_ roomId 
     </if>
     from 
 	teaching_class_t t1 
@@ -69,6 +70,8 @@
     left join teaching_class_elective_restrict_attr_t t5 on t5.TEACHING_CLASS_ID_ = t1.ID_
 	left join teaching_class_elective_restrict_profession_t t6 on t6.TEACHING_CLASS_ID_ =t1.ID_
     </if>	
+	left join teaching_class_arrange_time_t time on t1.ID_ = time.TEACHING_CLASS_ID_
+	left join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0

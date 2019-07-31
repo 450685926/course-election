@@ -131,7 +131,7 @@ public class ElcResultServiceImpl implements ElcResultService
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
-        	listPage = classDao.listPage(page.getCondition());
+        	listPage = classDao.listPage(condition);
 		}else {
 			Session session = SessionUtils.getCurrentSession();
 			if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
@@ -141,23 +141,24 @@ public class ElcResultServiceImpl implements ElcResultService
 				condition.setFaculty(faculty);
 			}
 			listPage = classDao.grduateListPage(condition);
-			// 添加教室容量
-			List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
-			RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
-			List<Classroom> classroomList = queryAllClassRoom.getData();
-			
-			for (TeachingClassVo teachingClassVo : listPage) {
-				for (Classroom classroom : classroomList) {
-					if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
-						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-					}
+		}
+        
+		// 添加教室容量
+		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
+		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
+		List<Classroom> classroomList = queryAllClassRoom.getData();
+		
+		for (TeachingClassVo teachingClassVo : listPage) {
+			for (Classroom classroom : classroomList) {
+				if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
+					teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
 				}
 			}
+		}
 
-			for (TeachingClassVo teachingClassVo : listPage) {
-				if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
-					teachingClassVo.setClassNumberStr("不限");
-				}
+		for (TeachingClassVo teachingClassVo : listPage) {
+			if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
+				teachingClassVo.setClassNumberStr("不限");
 			}
 		}
         
@@ -276,6 +277,21 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
     public void adjustClassNumber(TeachingClassVo teachingClassVo)
     {
+    	int elcNumber = teachingClassVo.getElcNumber().intValue(); // 选课人数
+    	int number = teachingClassVo.getNumber().intValue();       // 人数上限
+    	
+    	if (StringUtils.equals(teachingClassVo.getClassNumberStr(), "不限")) {
+    		if (number < elcNumber) {
+    			throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error"));
+    		}
+		}else {
+			int classNumber = Integer.parseInt(teachingClassVo.getClassNumberStr());  // 教室容量
+			boolean flag = elcNumber <= number && number <= classNumber;
+			if (!flag) {
+				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
+			}
+		}
+    	
     	Session session = SessionUtils.getCurrentSession();
     	Example example = new Example(ElcClassEditAuthority.class);
     	Example.Criteria criteria = example.createCriteria();
