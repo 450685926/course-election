@@ -21,7 +21,7 @@ public interface RetakeCourseService {
 
     ElcRetakeSetVo getRetakeRule(Long calendarId, String projectId);
 
-    List<FailedCourseVo> failedCourseList(String studentId, Long calendarId);
+    List<FailedCourseVo> failedCourseList(Long calendarId);
 
     List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord);
 
