@@ -23,7 +23,7 @@ public interface RetakeCourseService {
 
     List<FailedCourseVo> failedCourseList(Long calendarId);
 
-    List<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition);
+    PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition);
 
     void updateRebuildCourse(RebuildCourseVo rebuildCourseVo);
 }

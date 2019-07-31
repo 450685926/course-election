@@ -78,15 +78,14 @@ public class RetakeCourseController {
     /**
      * 研究生重修可选课程列表
      *
-     * @param calendarId
-     * @param keyWord
+     * @param condition
      * @return
      */
     @ApiOperation(value = "重修课程列表")
     @PostMapping("/findRebuildCourseList")
-    public RestResult<List<RebuildCourseVo>> findRebuildCourseList(@RequestBody PageCondition<RebuildCourseDto> condition) {
-        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList(condition);
-        return RestResult.successData(list);
+    public RestResult<PageResult<RebuildCourseVo>> findRebuildCourseList(@RequestBody PageCondition<RebuildCourseDto> condition) {
+        PageResult<RebuildCourseVo> rebuildCourseList = retakeCourseService.findRebuildCourseList(condition);
+        return RestResult.successData(rebuildCourseList);
     }
 
     /**
