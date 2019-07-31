@@ -48,6 +48,9 @@ public class ExemptionQuery
     /** 审核结果 */
     private String faculty;
     
+    /** 审核结果 */
+    private String keyword;
+    
 	public String getStudentId() {
 		return studentId;
 	}
@@ -150,6 +153,14 @@ public class ExemptionQuery
 
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
+	}
+
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
 	}
 	
 }

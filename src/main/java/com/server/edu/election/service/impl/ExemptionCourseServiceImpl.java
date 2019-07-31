@@ -844,11 +844,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	List<Long> optList = new ArrayList<>();
         	//查询申请表，判断是否状态为审批通过，若审批通过，则无法改为其他状态
         	for (Long id : ids) {
-				Example example = new Example(ExemptionApplyManage.class);
-				example.createCriteria().andEqualTo("studentCode",id);
-				ExemptionApplyManage  exemptionApplyManage  = applyDao.selectOneByExample(example);
-				if (exemptionApplyManage != null) {
-					if (exemptionApplyManage.getExamineResult().intValue() != 1) {
+				ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
+				if (applyRecord != null) {
+					if (applyRecord.getExamineResult().intValue() != 1) {
 						optList.add(id);
 					}
 				}
@@ -863,13 +861,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
 		Session currentSession = SessionUtils.getCurrentSession();
-//		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId("2");
+		String dptId = currentSession.getCurrentManageDptId();
+		condition.getCondition().setProjectId(dptId);
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
 			String[] courseNames = exemptionApplyManageVo.getCourseName().split(",");
-			String[] courseCodes = exemptionApplyManageVo.getCourseName().split(",");
+			String[] courseCodes = exemptionApplyManageVo.getCourseCode().split(",");
 			String[] applyCourse = new String[courseCodes.length];
 			for (int i = 0; i < courseNames.length; i++) {
 				applyCourse[i] = courseCodes[i] +""+ courseNames[i];
