@@ -525,7 +525,7 @@ public class ExemptionController {
      * 根据学生Id与课程编码找出学生课程
      */
     @ApiOperation(value = "管理员添加免修免考")
-    @GetMapping("/adminAddApply")
+    @PostMapping("/adminAddApply")
     public RestResult<String> adminAddApply(
     		@RequestBody ExemptionApplyManage applyManage){
     	Session session = SessionUtils.getCurrentSession();
