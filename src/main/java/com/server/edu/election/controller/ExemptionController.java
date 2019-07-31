@@ -456,9 +456,9 @@ public class ExemptionController {
     }
     
     @ApiOperation(value = "研究生免修免考统计导出")
-    @GetMapping("/exemptionCountExport")
+    @PostMapping("/exemptionCountExport")
     public File exemptionCountExport(
-    		@ModelAttribute ExemptionQuery page)
+    		@RequestBody ExemptionQuery page)
     {
     	try {
     		ValidatorUtil.validateAndThrow(page);
