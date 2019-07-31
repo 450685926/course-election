@@ -115,9 +115,14 @@ public class ElcResultQuery
     private String trainingLevel;
     
     /**
-     * 教室编号
+     * 教师工号
      */
     private String teacherCode;
+    
+    /**
+     * 教师名称
+     */
+    private String teacherName;
     
     private Integer actualAndUpper;
     
@@ -421,6 +426,14 @@ public class ElcResultQuery
 
 	public void setStudentIds(List<String> studentIds) {
 		this.studentIds = studentIds;
+	}
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
 	}
 	
 	
