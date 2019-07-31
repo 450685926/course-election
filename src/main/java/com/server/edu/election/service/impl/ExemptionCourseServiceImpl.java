@@ -836,7 +836,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
         		String[] courseCodes = applyRecord.getCourseCode().split(",");
-        		saveExemptionScore(applyRecord, courseCodes);
+        		String[] courseNames = applyRecord.getCourseName().split(",");
+        		saveExemptionScore(applyRecord, courseCodes,courseNames);
 			}
             
         }else{
@@ -862,8 +863,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
 		Session currentSession = SessionUtils.getCurrentSession();
-		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId(dptId);
+//		String dptId = currentSession.getCurrentManageDptId();
+		condition.getCondition().setProjectId("2");
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
@@ -1199,7 +1200,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	        applyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
 	      //查找申请信息
     		String[] courseCodes = applyManage.getCourseCode().split(",");
-    		saveExemptionScore(applyManage, courseCodes);
+    		String[] courseNames = applyManage.getCourseName().split(",");
+    		saveExemptionScore(applyManage, courseCodes,courseNames);
 	    }else{
 	        applyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
 	    }
@@ -1212,14 +1214,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param applyManage
 	 * @param courseCodes
 	 */
-	private void saveExemptionScore(ExemptionApplyManage applyManage, String[] courseCodes) {
-		for (String courseCode : courseCodes) {
+	private void saveExemptionScore(ExemptionApplyManage applyManage, String[] courseCodes, String[] courseNames) {
+		for (int i = 0; i < courseNames.length; i++) {
 			//调用成绩接口，向成绩中添加数据
 			JSONObject jsonObject = new JSONObject();
 			jsonObject.put("studentId", applyManage.getStudentCode());
-			jsonObject.put("studentName", applyManage.getName());
+			jsonObject.put("studentName", courseNames[i]);
 			jsonObject.put("calendarId", applyManage.getCalendarId());
-			jsonObject.put("courseCode", courseCode);
+			jsonObject.put("courseCode", courseCodes[i]);
 			ScoreServiceInvoker.saveExemptionScore(jsonObject);
 		}
 	}

@@ -15,8 +15,6 @@ public class StudentAndCourseVo{
 
     private Student student;
     
-    private String courseName;
-    
     private List<ExemptionStudentCourseVo> applyCourse;
 
 	public Student getStudent() {
@@ -25,14 +23,6 @@ public class StudentAndCourseVo{
 
 	public void setStudent(Student student) {
 		this.student = student;
-	}
-
-	public String getCourseName() {
-		return courseName;
-	}
-
-	public void setCourseName(String courseName) {
-		this.courseName = courseName;
 	}
 
 	public List<ExemptionStudentCourseVo> getApplyCourse() {
