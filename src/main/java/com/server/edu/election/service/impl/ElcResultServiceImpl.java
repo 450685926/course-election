@@ -21,6 +21,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -53,6 +55,7 @@ import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
@@ -130,7 +133,32 @@ public class ElcResultServiceImpl implements ElcResultService
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	listPage = classDao.listPage(page.getCondition());
 		}else {
-			listPage = classDao.grduateListPage(page.getCondition());
+			Session session = SessionUtils.getCurrentSession();
+			if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+					&& !session.isAdmin()
+					&& session.isAcdemicDean()) {
+				String faculty = session.getFaculty();
+				condition.setFaculty(faculty);
+			}
+			listPage = classDao.grduateListPage(condition);
+			// 添加教室容量
+			List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
+			RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
+			List<Classroom> classroomList = queryAllClassRoom.getData();
+			
+			for (TeachingClassVo teachingClassVo : listPage) {
+				for (Classroom classroom : classroomList) {
+					if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
+						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+					}
+				}
+			}
+
+			for (TeachingClassVo teachingClassVo : listPage) {
+				if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
+					teachingClassVo.setClassNumberStr("不限");
+				}
+			}
 		}
         
         List<TeachingClassVo> list = listPage.getResult();
