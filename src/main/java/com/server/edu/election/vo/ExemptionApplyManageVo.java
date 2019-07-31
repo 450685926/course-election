@@ -30,6 +30,8 @@ public class ExemptionApplyManageVo extends ExemptionApplyManage{
     private String calendarName;
 
     private String examineResultStr;
+    
+    private String applyCourse;
 
     public String getExamineResultStr() {
         return examineResultStr;
@@ -69,6 +71,14 @@ public class ExemptionApplyManageVo extends ExemptionApplyManage{
 
 	public void setTrainingLevel(String trainingLevel) {
 		this.trainingLevel = trainingLevel;
+	}
+
+	public String getApplyCourse() {
+		return applyCourse;
+	}
+
+	public void setApplyCourse(String applyCourse) {
+		this.applyCourse = applyCourse;
 	}
     
 }
