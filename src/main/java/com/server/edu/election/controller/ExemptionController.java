@@ -483,9 +483,9 @@ public class ExemptionController {
     }
     
     @ApiOperation(value = "研究生审批免修免考导出")
-    @PostMapping("/findGraduateExemptionApplyExport")
+    @GetMapping("/findGraduateExemptionApplyExport")
     public File findGraduateExemptionApplyExport(
-    		@RequestBody ExemptionQuery page)
+    		@ModelAttribute ExemptionQuery page)
     {
     	try {
     		ValidatorUtil.validateAndThrow(page);
@@ -537,8 +537,8 @@ public class ExemptionController {
      * 研究生免修免考列表
      */
     @ApiOperation(value = "研究生免修免考申请列表")
-    @PostMapping("/findStudentCourse")
-    public RestResult<StudentAndCourseVo> findStudentCourse(@RequestBody Long calendarId){
+    @GetMapping("/findStudentCourse")
+    public RestResult<StudentAndCourseVo> findStudentCourse(@RequestParam Long calendarId){
     	
     	Session session = SessionUtils.getCurrentSession();
     	if (!session.isStudent()) {

@@ -98,8 +98,8 @@
           <if test="studentId!=null and studentId !='' ">
               and ex.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}
           </if>
-          <if test="studentName!=null and studentName !='' ">
-              and s.NAME_  like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
+          <if test="keyword!=null and keyword !='' ">
+              and CONCAT(s.NAME_, s.STUDENT_CODE_)  like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
           </if>
           <if test="faculty!=null and faculty !='' ">
               and s.FACULTY_ =#{faculty,jdbcType=VARCHAR}
