@@ -59,7 +59,7 @@ public class ElcResultController
         @RequestBody PageCondition<ElcResultQuery> condition)
         throws Exception
     {
-        ValidatorUtil.validateAndThrow(condition.getCondition());
+        //ValidatorUtil.validateAndThrow(condition.getCondition());
         
         PageResult<TeachingClassVo> list = elcResultService.listPage(condition);
         
