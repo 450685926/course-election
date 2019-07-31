@@ -113,7 +113,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     public List<FailedCourseVo> failedCourseList(Long calendarId) {
         Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
+        String uid = currentSession.realUid();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(uid);
         List<FailedCourseVo> failedCourseInfo = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
@@ -135,7 +135,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Override
     @Transactional
-    public void updateRebuildCourse(String studentId, RebuildCourseVo rebuildCourseVo) {
+    public void updateRebuildCourse(RebuildCourseVo rebuildCourseVo) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String studentId = currentSession.realUid();
         String courseCode = rebuildCourseVo.getCourseCode();
         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
         String courseName = rebuildCourseVo.getCourseName();
@@ -172,7 +174,6 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             take.setCreatedAt(date);
             take.setTurn(0);
             take.setMode(1);
-            // 重修缴费未设置，后面加
             courseTakeDao.insertSelective(take);
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
@@ -194,7 +195,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     public List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord) {
         Session session = SessionUtils.getCurrentSession();
-        String studentId = session.getUid();
+        String studentId = session.realUid();
         String currentManageDptId = session.getCurrentManageDptId();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {

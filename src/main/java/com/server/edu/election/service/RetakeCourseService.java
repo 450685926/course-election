@@ -25,5 +25,5 @@ public interface RetakeCourseService {
 
     List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord);
 
-    void updateRebuildCourse(String studentId, RebuildCourseVo rebuildCourseVo);
+    void updateRebuildCourse(RebuildCourseVo rebuildCourseVo);
 }
