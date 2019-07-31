@@ -90,6 +90,10 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Long id = retakeCourseCountVo.getId();
         retakeCourseCountVo.setStatus(Constants.DELETE_FALSE);
         if (id == null) {
+            String projectName = retakeCourseCountDao.findProjectName(retakeCourseCountVo);
+            if (projectName != null) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",projectName));
+            }
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountVo);
         } else {
             retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountVo);
@@ -107,7 +111,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public List<FailedCourseVo> failedCourseList(String uid, Long calendarId) {
+    public List<FailedCourseVo> failedCourseList(Long calendarId) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(uid);
         List<FailedCourseVo> failedCourseInfo = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
@@ -115,6 +121,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             for (FailedCourseVo failedCourseVo : failedCourseInfo) {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 failedCourseVo.setCalendarName(schoolCalendar.getFullName());
+                // 借用 判断申请免修免考课程是否已经选课 判断学生是否选课
                 int count = courseTakeDao.findIsEletionCourse(uid, calendarId, failedCourseVo.getCourseCode());
                 if (count == 0) {
                     failedCourseVo.setSelected(false);
