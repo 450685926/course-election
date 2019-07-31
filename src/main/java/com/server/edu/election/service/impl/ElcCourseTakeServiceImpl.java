@@ -632,7 +632,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<Long> teachingClassIds = courseDto.getTeachingClassId();
         // 查询已选课程上课时间
         List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(courseDto.getStudentId(), courseDto.getCalendarId());
-        Set<TimeTableMessage> timeTableMessages = courseTakeDao.findCourseArrange(ids);
+        List<TimeTableMessage> timeTableMessages = courseTakeDao.findCourseArrange(ids);
         for (Long teachingClassId : teachingClassIds) {
             // 查询要添加课程的上课时间
             List<TimeTableMessage> timeTable= courseTakeDao.findCourseArrangeByTeachingClassId(teachingClassId);

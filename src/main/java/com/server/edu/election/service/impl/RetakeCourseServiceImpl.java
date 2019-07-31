@@ -11,6 +11,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -193,20 +194,23 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
 
     @Override
-    public List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord) {
+    public List<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition) {
         Session session = SessionUtils.getCurrentSession();
         String studentId = session.realUid();
         String currentManageDptId = session.getCurrentManageDptId();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
             // 通过重修的课程代码获取当前学期可重修的课程
-            List<RebuildCourseVo> list = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, keyWord);
+            RebuildCourseDto rebuildCourseDto = condition.getCondition();
+            Long calendarId = rebuildCourseDto.getCalendarId();
+            PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+            List<RebuildCourseVo> list = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord());
             if (list.isEmpty()) {
                 return new ArrayList<>();
             }
             // 获取学生已选课程上课安排
             List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(studentId, calendarId);
-            Set<TimeTableMessage> selectTimeTables = courseTakeDao.findCourseArrange(ids);
+            List<TimeTableMessage> selectTimeTables = courseTakeDao.findCourseArrange(ids);
             // 获取重修课程教学安排
             List<Long> teachingClassIds = list.stream().map(RebuildCourseVo::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> timeTableMessages = getTimeById(teachingClassIds);
@@ -375,7 +379,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      * @param addTimeTables
      * @return
      */
-    private boolean getCourseConflict(Set<TimeTableMessage> selectTimeTables, List<TimeTableMessage> addTimeTables) {
+    private boolean getCourseConflict(List<TimeTableMessage> selectTimeTables, List<TimeTableMessage> addTimeTables) {
         if (CollectionUtil.isEmpty(addTimeTables)) {
             //说明上课时间未安排，暂时不冲突，可以添加
             return true;
