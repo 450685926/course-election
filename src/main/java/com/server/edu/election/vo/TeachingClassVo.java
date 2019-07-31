@@ -44,6 +44,11 @@ public class TeachingClassVo extends TeachingClass
     private Integer classNumber;
     
     /**
+     * 教室容量字符串
+     */
+    private String classNumberStr;
+    
+    /**
      * 教学安排（上课时间地点）
      */
     private List<TimeAndRoom> timeTableList;
@@ -74,8 +79,10 @@ public class TeachingClassVo extends TeachingClass
     
     private String proportion;
     
-    
-    
+    /**
+     *  教师ID
+     */
+    private String roomId;
     
 	public String getProportion() {
 		return proportion;
@@ -224,7 +231,17 @@ public class TeachingClassVo extends TeachingClass
 	public void setCalendarId(Long calendarId) {
 		this.calendarId = calendarId;
 	}
+	public String getRoomId() {
+		return roomId;
+	}
+	public void setRoomId(String roomId) {
+		this.roomId = roomId;
+	}
+	public String getClassNumberStr() {
+		return classNumberStr;
+	}
+	public void setClassNumberStr(String classNumberStr) {
+		this.classNumberStr = classNumberStr;
+	}
 	
-	
-    
 }
