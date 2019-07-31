@@ -3,13 +3,12 @@ package com.server.edu.election.controller;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
 import com.server.edu.election.vo.RetakeCourseCountVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
@@ -84,9 +83,9 @@ public class RetakeCourseController {
      * @return
      */
     @ApiOperation(value = "重修课程列表")
-    @GetMapping("/findRebuildCourseList")
-    public RestResult<List<RebuildCourseVo>> findRebuildCourseList(@RequestParam("calendarId") Long calendarId, @RequestParam("keyWord") String keyWord) {
-        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList(calendarId, keyWord);
+    @PostMapping("/findRebuildCourseList")
+    public RestResult<List<RebuildCourseVo>> findRebuildCourseList(@RequestBody PageCondition<RebuildCourseDto> condition) {
+        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList(condition);
         return RestResult.successData(list);
     }
 
