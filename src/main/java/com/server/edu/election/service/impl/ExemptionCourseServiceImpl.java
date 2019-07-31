@@ -768,9 +768,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionStudentCountVo> exemptionCount(PageCondition<ExemptionQuery> page) {
-//		Session currentSession = SessionUtils.getCurrentSession();
-//        String dptId = currentSession.getCurrentManageDptId();
-        String dptId = "2";
+		Session currentSession = SessionUtils.getCurrentSession();
+        String dptId = currentSession.getCurrentManageDptId();
         page.getCondition().setProjectId(dptId);
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ExemptionStudentCountVo> countResult = applyDao.exemptionCount(page.getCondition());
@@ -823,7 +822,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@date: 2019/2/13 11:21
     */
     @Override
-    public String approvalGraduateExemptionApply(List<Long> ids,Integer status,String auditor) {
+    public String approvalGraduateExemptionApply(List<Long> ids,Integer status) {
+    	Session session = SessionUtils.getCurrentSession();
+    	String auditor = session.realUid();
         if(CollectionUtil.isEmpty(ids)){
             return "common.parameterError";
         }
@@ -860,11 +861,20 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
-//		Session currentSession = SessionUtils.getCurrentSession();
-//		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId("2");
+		Session currentSession = SessionUtils.getCurrentSession();
+		String dptId = currentSession.getCurrentManageDptId();
+		condition.getCondition().setProjectId(dptId);
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
+		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
+			String[] courseNames = exemptionApplyManageVo.getCourseName().split(",");
+			String[] courseCodes = exemptionApplyManageVo.getCourseName().split(",");
+			String[] applyCourse = new String[courseCodes.length];
+			for (int i = 0; i < courseNames.length; i++) {
+				applyCourse[i] = courseCodes[i] +""+ courseNames[i];
+			}
+			exemptionApplyManageVo.setApplyCourse(StringUtils.join(applyCourse, ","));
+		}
 		return new PageResult<>(exemptionApply);
 	}
 
@@ -906,49 +916,32 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	}
 
 	@Override
-	public StudentAndCourseVo findCourseCode(String studentId, String courseCode, Long calendarId) {
+	public StudentAndCourseVo findCourseCode(String studentId, Long calendarId) {
 		Student student = new Student();
-		String courseName = "";
 		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
-		if (StringUtils.isNotEmpty(studentId) && StringUtils.isEmpty(courseCode)) {
-			student = studentDao.findStudentByCode(studentId);
-		} else if (StringUtils.isNotEmpty(courseCode) && StringUtils.isEmpty(studentId)) {
-			Example example = new Example(Course.class);
-			example.createCriteria().andEqualTo("code",courseCode);
-			Course course = courseDao.selectOneByExample(example);
-			courseName = course.getName();
-		} else if (StringUtils.isNotEmpty(courseCode) && StringUtils.isNotEmpty(studentId)) {
-			student = studentDao.findStudentByCode(studentId);
-			Example example = new Example(ExemptionApplyAuditSwitch.class);
-			example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO);
-			List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
-			ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
-			if (applySwitch == null) {
-				StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
-				studentAndCourseVo.setStudent(student);
-				studentAndCourseVo.setApplyCourse(applyCourses);
-				return studentAndCourseVo;
-			}
-			
-			Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student, applySwitch, calendarId);
-			for (PlanCourse planCourse : studentExemptionCouses) {
-				ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
-				applyCourse.setCourseNameAndCode(planCourse.getCourseCode() + planCourse.getCourseName() + "");
-				applyCourse.setApplyType(Constants.ONE);
-				applyCourse.setCourseCode(planCourse.getCourseCode());
-				applyCourse.setCourseName(planCourse.getCourseName());
-				applyCourses.add(applyCourse);
-			}
-			for (PlanCourse planCourse : studentExemptionCouses) {
-				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), courseCode)) {
-					courseName = courseName + planCourse.getCourseName() + "";
-					break;
-				}
-			}
+		student = studentDao.findStudentByCode(studentId);
+		Example example = new Example(ExemptionApplyAuditSwitch.class);
+		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO);
+		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
+		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
+		if (applySwitch == null) {
+			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+			studentAndCourseVo.setStudent(student);
+			studentAndCourseVo.setApplyCourse(applyCourses);
+			return studentAndCourseVo;
+		}
+		
+		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student, applySwitch, calendarId);
+		for (PlanCourse course : studentExemptionCouses) {
+			ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
+			applyCourse.setCourseNameAndCode(course.getCourseCode() + course.getCourseName() + "");
+			applyCourse.setApplyType(Constants.ONE);
+			applyCourse.setCourseCode(course.getCourseCode());
+			applyCourse.setCourseName(course.getCourseName());
+			applyCourses.add(applyCourse);
 		}
 		StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 		studentAndCourseVo.setStudent(student);
-		studentAndCourseVo.setCourseName(courseName);
 		studentAndCourseVo.setApplyCourse(applyCourses);
 		return studentAndCourseVo;
 	}
@@ -1190,7 +1183,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	*@Author: bear
 	*@date: 2019/2/12 10:44
 	*/
-	public String addGraduateExemptionApply(ExemptionApplyManage applyManage) {//材料上传todo
+	public String addGraduateExemptionApply(ExemptionApplyManage applyManage) {
 	   Session session = SessionUtils.getCurrentSession();
 		if("".equals(applyManage.getApplyType())){
 	        return "common.parameterError";
