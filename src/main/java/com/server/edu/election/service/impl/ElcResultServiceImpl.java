@@ -621,32 +621,33 @@ public class ElcResultServiceImpl implements ElcResultService
 	public RestResult<String> exportOfNonSelectedCourse(ElcResultQuery condition) {
 		String path="";
         try {
-        	 PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
-             pageCondition.setCondition(condition);
-             pageCondition.setPageSize_(100);
-             int pageNum = 0;
-             pageCondition.setPageNum_(pageNum);
-             List<Student4Elc> list = new ArrayList<>();
-             while (true)
-             {
-                 pageNum++;
-                 pageCondition.setPageNum_(pageNum);
-                 PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
-                 
-                 
-                 list.addAll(studentList.getList());
+        	condition.setGrade(StringUtils.equalsIgnoreCase("全部", condition.getGrade()) ? "" : condition.getGrade());
+        	PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
+            pageCondition.setCondition(condition);
+            pageCondition.setPageSize_(100);
+            int pageNum = 0;
+            pageCondition.setPageNum_(pageNum);
+            List<Student4Elc> list = new ArrayList<>();
+            while (true)
+            {
+                pageNum++;
+                pageCondition.setPageNum_(pageNum);
+                PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
+                
+                
+                list.addAll(studentList.getList());
 
-                 if (studentList.getTotal_() <= list.size())
-                 {
-                     break;
-                 }
-             }
-             list = SpringUtils.convert(list);
+                if (studentList.getTotal_() <= list.size())
+                {
+                    break;
+                }
+            }
+            list = SpringUtils.convert(list);
         	ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getAllNonSelectedCourseStudentKey(),
         			excelStoreConfig.getAllNonSelectedCourseStudentTitle(),
         			cacheDirectory);
-        	path = excelExport.exportExcelToCacheDirectory("研究生为选课学生名单");
+        	path = excelExport.exportExcelToCacheDirectory("研究生未选课学生名单");
         }catch (Exception e){
             return RestResult.failData("minor.export.fail");
         }
