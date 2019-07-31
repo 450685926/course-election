@@ -17,9 +17,9 @@ public interface RetakeCourseService {
 
     void updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo);
 
-    void deleteRetakeCourseCount(Long retakeCourseCountId);
+    void deleteRetakeCourseCount(List<Long> retakeCourseCountIds);
 
-    ElcRetakeSetVo getRetakeRul(Long calendarId, String projectId);
+    ElcRetakeSetVo getRetakeRule(Long calendarId, String projectId);
 
     List<FailedCourseVo> failedCourseList(String studentId, Long calendarId);
 

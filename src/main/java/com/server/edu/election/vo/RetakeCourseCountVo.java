@@ -21,8 +21,7 @@ public class RetakeCourseCountVo {
 
     private Integer retakeCount;
 
-    @Code2Text(transformer = "X_GLBM")
-    private String managerDeptId;
+    private String projectName;
 
     /**删除状态，0未删除，1删除*/
     private Integer status;
@@ -83,11 +82,11 @@ public class RetakeCourseCountVo {
         this.retakeCount = retakeCount;
     }
 
-    public String getManagerDeptId() {
-        return managerDeptId;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public void setManagerDeptId(String managerDeptId) {
-        this.managerDeptId = managerDeptId;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

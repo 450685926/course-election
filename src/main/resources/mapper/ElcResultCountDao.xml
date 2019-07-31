@@ -38,7 +38,7 @@
 		        and t1.ENROL_SEASON_= #{elcResult.enrolSeason} 
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.degreeType)">
-		        and t1.DEGREE_CATEGORY_= #{elcResult.degreeType} 
+		        and t1.DEGREE_TYPE_= #{elcResult.degreeType} 
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.formLearning)">
 		        and t1.FORM_LEARNING_= #{elcResult.formLearning} 
@@ -50,7 +50,7 @@
 		        and t1.TRAINING_CATEGORY_= #{elcResult.trainingCategory} 
 		    </if>
 		</where>
-		GROUP BY  t1.TRAINING_LEVEL_,t1.TRAINING_CATEGORY_, t1.DEGREE_CATEGORY_, t1.FORM_LEARNING_ 
+		GROUP BY  t1.TRAINING_LEVEL_,t1.TRAINING_CATEGORY_, t1.FORM_LEARNING_ , t1.DEGREE_TYPE_
     </select>
     
     <select id="getElcResultByFacult" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="BaseResultMap">
@@ -119,7 +119,7 @@
 		        and t1.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t1.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t1.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t1.FORM_LEARNING_ = #{query.formLearning}
@@ -131,7 +131,7 @@
 		        and t1.TRAINING_CATEGORY_ = #{query.trainingCategory}
 		    </if>
 	        <if test="@com.server.edu.util.MybatisUtil@isEmpty(query.degreeType)">
-		        and (t1.DEGREE_CATEGORY_ = "" or t1.DEGREE_CATEGORY_ is null)
+		        and (t1.DEGREE_TYPE_ = "" or t1.DEGREE_TYPE_ is null)
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isEmpty(query.formLearning)">
 		        and (t1.FORM_LEARNING_ = ""  or t1.FORM_LEARNING_ is null)
@@ -172,7 +172,7 @@
 		        and t1.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t1.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t1.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t1.FORM_LEARNING_ = #{query.formLearning}
@@ -210,7 +210,7 @@
 		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t2.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t2.FORM_LEARNING_ = #{query.formLearning}
@@ -247,7 +247,7 @@
 		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t2.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t2.FORM_LEARNING_ = #{query.formLearning}
@@ -283,7 +283,7 @@
 		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t2.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t2.FORM_LEARNING_ = #{query.formLearning}
@@ -320,7 +320,7 @@
 		        and t2.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t2.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t2.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t2.FORM_LEARNING_ = #{query.formLearning}

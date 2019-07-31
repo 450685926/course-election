@@ -59,7 +59,7 @@
             and t1.COURSE_NAME_ like CONCAT(#{query.courseName},'%')
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-            and (t2.STUDENT_CODE_ like CONCAT(#{query.keyword},'%') or t2.NAME_ like CONCAT(#{query.keyword},'%'))
+            and (t2.STUDENT_CODE_ like CONCAT('%',#{query.keyword},'%') or t2.NAME_ like CONCAT('%',#{query.keyword},'%'))
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.startTime)">
             <![CDATA[
