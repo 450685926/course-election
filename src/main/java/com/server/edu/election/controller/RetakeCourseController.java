@@ -99,9 +99,7 @@ public class RetakeCourseController {
     @ApiOperation(value = "研究生重修选课、退课")
     @PostMapping("/updateRebuildCourse")
     public RestResult updateRebuildCourse(@RequestBody RebuildCourseVo rebuildCourseVo) {
-        Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
-        retakeCourseService.updateRebuildCourse(uid, rebuildCourseVo);
+        retakeCourseService.updateRebuildCourse(rebuildCourseVo);
         return RestResult.success();
     }
 
