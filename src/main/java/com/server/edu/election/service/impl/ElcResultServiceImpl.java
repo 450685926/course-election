@@ -155,7 +155,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 		}
                 		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
                 	}
-                	if(Constants.ONE==condition.getIsHaveLimit()) {
+                	if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
                 		String boy = "无";
                 		if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
                 			boy = vo.getNumberMale().toString();
@@ -254,7 +254,11 @@ public class ElcResultServiceImpl implements ElcResultService
     	criteria.andEqualTo("calendarId", teachingClassVo.getCalendarId());
     	criteria.andEqualTo("status", Constants.ZERO);
     	ElcClassEditAuthority editAuthority =elcClassEditAuthorityDao.selectOneByExample(example);
-    	if(session.isAcdemicDean()&&editAuthority!=null) {
+    	
+    	if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+    			&& !session.isAdmin() 
+    			&& session.isAcdemicDean()
+    			&& editAuthority!=null) {
     		throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority")); 
     	}
         TeachingClass record = new TeachingClass();
