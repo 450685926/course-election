@@ -690,7 +690,9 @@ public class ElcResultServiceImpl implements ElcResultService
                     break;
                 }
             }
+            logger.info(list.size() + "convert   dictionary   start");
             list = SpringUtils.convert(list);
+            logger.info("convert   dictionary   end");
         	ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getAllNonSelectedCourseStudentKey(),
         			excelStoreConfig.getAllNonSelectedCourseStudentTitle(),
