@@ -76,7 +76,7 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(subCourseName)">
 		        and t3.NAME_ = #{subCourseName}
 		    </if>		    
-		    ORDER BY t1.CREATED_AT_ DESC		    
 		</where>
+		 ORDER BY t1.CREATED_AT_ DESC
   </select>
 </mapper>
