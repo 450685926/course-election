@@ -4,7 +4,6 @@ import com.server.edu.election.entity.ElcNoGradCouSubs;
 
 public class ElcNoGradCouSubsVo extends ElcNoGradCouSubs {
     private static final long serialVersionUID = 1L;
-    
     private String origsCourseName;
     private Integer origsCredits;
     private String subCourseName;
@@ -12,8 +11,14 @@ public class ElcNoGradCouSubsVo extends ElcNoGradCouSubs {
     private Integer grade;
     private String faculty;
     private String profession;
-    
-    public Integer getGrade() {
+    private String studentName;
+    public String getStudentName() {
+		return studentName;
+	}
+	public void setStudentName(String studentName) {
+		this.studentName = studentName;
+	}
+	public Integer getGrade() {
 		return grade;
 	}
 	public void setGrade(Integer grade) {
