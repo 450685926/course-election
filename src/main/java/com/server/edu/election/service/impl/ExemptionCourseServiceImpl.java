@@ -911,7 +911,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
 		student = studentDao.findStudentByCode(studentId);
 		if (student == null) {
-			RestResult.fail("common.notExist");
+			RestResult.fail("common.notExist",studentId);
 		}
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
 		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO);
@@ -1188,13 +1188,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	    //查询是否重复申请
 	    ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
 	    if(exemptionApplyManageVo!=null){
-	    	return RestResult.fail("common.exist");
+	    	return RestResult.fail("common.exist",applyManage.getCourseCode());
 	    }
 	    String[] codes = applyManage.getCourseCode().split(",");
 	    for (String code : codes) {
 	    	ExemptionApplyManage exemptionApplyManage = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), code);
 	    	if(exemptionApplyManage!=null){
-	    		return RestResult.fail("common.exist");
+	    		return RestResult.fail("common.exist",applyManage.getCourseCode());
 	    	}
 		}
 	    if(applyManage.getApplyType()==0){//成绩申请
