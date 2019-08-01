@@ -127,12 +127,13 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 		
 		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
     	condition.setCourseCode(courseCode);
-    	condition.setTrainingLevels(student.getTrainingLevel());
-    	condition.setTrainingCategorys(student.getTrainingCategory());
-    	condition.setDegreeTypes(student.getDegreeType());
-    	condition.setFormLearnings(student.getFormLearning());
+    	condition.setTrainingLevels(String.valueOf(Integer.valueOf(student.getTrainingLevel())));
+    	condition.setTrainingCategorys(String.valueOf(Integer.valueOf(student.getTrainingCategory())));
+    	condition.setDegreeTypes(String.valueOf(Integer.valueOf(student.getDegreeType())));
+    	condition.setFormLearnings(String.valueOf(Integer.valueOf(student.getFormLearning())));
 		
 		return exemptionApplyConditionDao.queryApplyConditionByCourseCodeAndStudentId(condition);
 	}
+
 
 }
