@@ -107,8 +107,21 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public ElcRetakeSetVo getRetakeRule(Long calendarId, String projectId) {
-        return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+    public Boolean getRetakeRule(Long calendarId, String projectId) {
+        ElcRetakeSetVo retakeSet = retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+        if (retakeSet.getOpenFlag().intValue() == 1) {
+            Date start = retakeSet.getStart();
+            Date end = retakeSet.getEnd();
+            if (start != null && end != null) {
+                long startTime = start.getTime();
+                long endTime = end.getTime();
+                long nowTime = System.currentTimeMillis();
+                if (startTime < nowTime && nowTime < endTime ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
