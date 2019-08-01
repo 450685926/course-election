@@ -528,11 +528,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	for (Long id : ids) {
         		//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		String[] courseCodes = applyRecord.getCourseCode().split(",");
-        		for (String courseCode : courseCodes) {
-        			//调用成绩接口，向成绩中添加数据
-        			ScoreServiceInvoker.deleteExemptionScore(applyRecord.getStudentCode(),applyRecord.getCalendarId(),courseCode);
-        		}
+        		if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
+    				//调用成绩接口，向成绩中添加数据
+    				ScoreServiceInvoker.deleteExemptionScore(applyRecord.getStudentCode(),applyRecord.getCalendarId(),applyRecord.getCourseCode());
+				}
 			}
 		}
         applyDao.deleteExemptionApply(ids);
