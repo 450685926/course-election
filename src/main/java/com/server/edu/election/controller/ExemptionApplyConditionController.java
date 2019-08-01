@@ -172,10 +172,10 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "根据课程编号查询名称和培养层次")
     @PostMapping("/courseInfo/{code}")
     public RestResult<CourseOpen> queryNameAndTrainingLevelByCode(
-    		@RequestParam("courseCode") @NotNull String courseCode){
+    		@PathVariable("code") String code){
     	logger.info("courseInfo by code start");
     	
-    	CourseOpen data = exemptionApplyConditionSerice.queryNameAndTrainingLevelByCode(courseCode);
+    	CourseOpen data = exemptionApplyConditionSerice.queryNameAndTrainingLevelByCode(code);
     	return RestResult.successData(data);
     }
    
