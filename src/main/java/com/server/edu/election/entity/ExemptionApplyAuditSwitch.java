@@ -52,10 +52,10 @@ public class ExemptionApplyAuditSwitch implements Serializable{
     private String trainingCategorys;
     
     /**
-     * 学位类别(逗号分隔，字典表X_XWLB)
+     * 学位类型(逗号分隔，字典表X_XWLX)
      */
-    @Column(name = "DEGREE_CATEGORYS_")
-    private String degreeCategorys;
+    @Column(name = "DEGREE_TYPES_")
+    private String degreeTypes;
     
     /**
      * 入学季节
@@ -141,12 +141,12 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 		this.trainingCategorys = trainingCategorys;
 	}
 
-	public String getDegreeCategorys() {
-		return degreeCategorys;
+	public String getDegreeTypes() {
+		return degreeTypes;
 	}
 
-	public void setDegreeCategorys(String degreeCategorys) {
-		this.degreeCategorys = degreeCategorys;
+	public void setDegreeTypes(String degreeTypes) {
+		this.degreeTypes = degreeTypes;
 	}
 
 	public String getEnrolSeason() {
@@ -195,6 +195,15 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 
 	public void setDeleteStatus(Integer deleteStatus) {
 		this.deleteStatus = deleteStatus;
+	}
+
+	@Override
+	public String toString() {
+		return "ExemptionApplyAuditSwitch [id=" + id + ", grades=" + grades + ", excellentScore=" + excellentScore
+				+ ", trainingLevels=" + trainingLevels + ", formLearnings=" + formLearnings + ", trainingCategorys="
+				+ trainingCategorys + ", degreeTypes=" + degreeTypes + ", enrolSeason=" + enrolSeason + ", applyOpen="
+				+ applyOpen + ", auditOpen=" + auditOpen + ", createdAt=" + createdAt + ", projId=" + projId
+				+ ", deleteStatus=" + deleteStatus + "]";
 	}
     
 }

@@ -20,7 +20,7 @@
     <result column="origsCredits" jdbcType="INTEGER" property="origsCredits" />
     <result column="subCourseName" jdbcType="VARCHAR" property="subCourseName" />
     <result column="subCredits" jdbcType="INTEGER" property="subCredits" />
-    <result column="NAME_" jdbcType="VARCHAR" property="name" />
+    <result column="NAME_" jdbcType="VARCHAR" property="studentName" />
     <result column="GRADE_" jdbcType="INTEGER" property="grade" />
     <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
     <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
@@ -30,7 +30,6 @@
 		   t1.ID_,
 		   t1.STUDENT_ID_,
 		   t1.PROJECT_ID_,
-		   t1.CALENDAR_ID_,
 		   t1.ORIGS_COURSE_ID_,
 		   t1.SUB_COURSE_ID_,
 		   t4.NAME_,
@@ -77,7 +76,7 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(subCourseName)">
 		        and t3.NAME_ = #{subCourseName}
 		    </if>		    
-		    ORDER BY t1.CREATED_AT_ DESC		    
 		</where>
+		 ORDER BY t1.CREATED_AT_ DESC
   </select>
 </mapper>

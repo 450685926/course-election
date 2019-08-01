@@ -36,8 +36,8 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		List<ElcNoGradCouSubsVo> list = elcNoGradCouSubsDao.selectElcNoGradCouSubs(dto);
 		if(CollectionUtil.isNotEmpty(list)) {
 			for(ElcNoGradCouSubsVo vo:list) {
-				vo.setOrigsCourseInfo(vo.getOrigsCourseId()+vo.getOrigsCourseName());
-				vo.setSubCourseInfo(vo.getSubCourseId()+vo.getSubCourseName());
+				vo.setOrigsCourseInfo(vo.getOrigsCourseId()+"("+vo.getOrigsCourseName()+")");
+				vo.setSubCourseInfo(vo.getSubCourseId()+"("+vo.getSubCourseName()+")");
 			}
 		}
 		PageInfo<ElcNoGradCouSubsVo> pageInfo = new PageInfo<>(list);
