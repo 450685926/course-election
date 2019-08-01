@@ -1064,7 +1064,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					 contains(applySwitch.getTrainingLevels(),student.getTrainingLevel())&&
 					 contains(applySwitch.getFormLearnings(),student.getFormLearning())&&
 					 contains(applySwitch.getTrainingCategorys(),student.getTrainingCategory())&&
-					 contains(applySwitch.getDegreeCategorys(),student.getDegreeCategory())&&
+					 contains(applySwitch.getDegreeTypes(),student.getDegreeType())&&
 					 contains(applySwitch.getEnrolSeason(),student.getEnrolSeason());
 			if (openObjectFlag) {
 				applyAuditSwitch = applySwitch;
@@ -1107,7 +1107,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			boolean openObjectConditionFlag = contains(applySwitch.getTrainingLevels(),student.getTrainingLevel())&&
 					 contains(applySwitch.getFormLearnings(),student.getFormLearning())&&
 					 contains(applySwitch.getTrainingCategorys(),student.getTrainingCategory())&&
-					 contains(applySwitch.getDegreeCategorys(),student.getDegreeCategory());
+					 contains(applySwitch.getDegreeTypes(),student.getDegreeType());
 			if (openObjectConditionFlag) {
 				conditionCourses.add(graduteCondition);
 			}

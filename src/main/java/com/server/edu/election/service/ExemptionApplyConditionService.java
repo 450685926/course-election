@@ -49,5 +49,13 @@ public interface ExemptionApplyConditionService {
 	 * @return
 	 */
 	CourseOpen queryNameAndTrainingLevelByCode(String courseCode);
+
+	/**
+	 * 根据课程编号和学籍信息查询所有符合的申请条件
+	 * @param courseCode
+	 * @param studentId
+	 * @return
+	 */
+	List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode,String studentId);
 	
 }
