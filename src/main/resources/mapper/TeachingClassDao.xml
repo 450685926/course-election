@@ -50,6 +50,7 @@
   	<result column="limitGrade" jdbcType="INTEGER" property="limitGrade" />
   	<result column="limitProfession" jdbcType="VARCHAR" property="limitProfession" />
   	<result column="limitDirectionCode" jdbcType="VARCHAR" property="limitDirectionCode" />   	 	   	
+  	<result column="roomId" jdbcType="VARCHAR" property="roomId" />   	 	   	
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_
@@ -58,7 +59,8 @@
 	    t5.TRAINING_CATEGORY_ limitTrainingCategory,t5.SPCIAL_PLAN_ limitSpcialPlan,
 	    t5.IS_OVERSEAS_ limitIsOverseas,t5.IS_DIVSEX_ limitIsDivsex,
 	    t5.NUMBER_MALE_,t5.NUMBER_FEMALE_,t6.GRADE_ limitGrade,
-	    t6.PROFESSION_ limitProfession,t6.DIRECTION_CODE_ limitDirectionCode 
+	    t6.PROFESSION_ limitProfession,t6.DIRECTION_CODE_ limitDirectionCode,
+	    room.ROOM_ID_ roomId 
     </if>
     from 
 	teaching_class_t t1 
@@ -68,6 +70,8 @@
     left join teaching_class_elective_restrict_attr_t t5 on t5.TEACHING_CLASS_ID_ = t1.ID_
 	left join teaching_class_elective_restrict_profession_t t6 on t6.TEACHING_CLASS_ID_ =t1.ID_
     </if>	
+	left join teaching_class_arrange_time_t time on t1.ID_ = time.TEACHING_CLASS_ID_
+	left join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
@@ -135,13 +139,14 @@
   <select id="grduateListPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
     	   t2.CAMPUS_,
-    	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,t3.NUMBER_ classNumber,
-    	   t4.TEACHER_CODE_,t4.TEACHER_NAME_
+    	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,
+    	   t4.TEACHER_CODE_,t4.TEACHER_NAME_,room.ROOM_ID_ roomId
     from teaching_class_t  t1  
 		join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
 		join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
 		join teaching_class_arrange_time_t time on t1.ID_ = time.TEACHING_CLASS_ID_
-		JOIN teaching_class_teacher_t t4 on t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_= 0
+		join teaching_class_teacher_t t4 on t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_= 0
+		join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and time.TYPE_ = '2'
@@ -163,8 +168,8 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT('%', #{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT('%', #{keyword}, '%') OR t3.COURSE_CODE_ like CONCAT('%', #{keyword}, '%'))
   	  </if>
-  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-  	    and t4.TEACHER_CODE_ = #{teacherCode}
+  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherName)">
+  	    and t4.TEACHER_NAME_ like CONCAT('%', #{teacherName}, '%')
   	  </if>
     </where>
   </select>

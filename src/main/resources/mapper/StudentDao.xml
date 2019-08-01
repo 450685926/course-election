@@ -43,6 +43,7 @@
     <result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
     <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
     <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
     <result column="RESEARCH_DIRECTION_" jdbcType="VARCHAR" property="researchDirection" />
   </resultMap>
     <sql id="Base_Column_List">

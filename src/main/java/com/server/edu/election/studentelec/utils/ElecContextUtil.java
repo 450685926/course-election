@@ -22,10 +22,10 @@ import org.springframework.data.redis.core.ValueOperations;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -418,29 +418,28 @@ public class ElecContextUtil
     /**
      * 获取替代课程
      */
-    public static List<ElcNoGradCouSubs> getNoGradCouSubs(String projectId,
-        Long calendarId)
+    public static List<ElcNoGradCouSubsVo> getNoGradCouSubs(String studentId)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
+        String redisKey = Keys.getReplaceCourseKey(studentId);
         String value = opsForValue.get(redisKey);
         if (StringUtils.isEmpty(value))
         {
             return new ArrayList<>();
         }
-        return JSON.parseArray(value, ElcNoGradCouSubs.class);
+        return JSON.parseArray(value, ElcNoGradCouSubsVo.class);
     }
     
     /**
      * 设置替代课程
      */
-    public static void setNoGradCouSubs(String projectId, Long calendarId,
-        List<ElcNoGradCouSubs> list)
+    public static void setNoGradCouSubs(String studentId, 
+        List<ElcNoGradCouSubsVo> list)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
+        String redisKey = Keys.getReplaceCourseKey(studentId);
         if (CollectionUtil.isNotEmpty(list))
         {
             opsForValue.set(redisKey, JSON.toJSONString(list));

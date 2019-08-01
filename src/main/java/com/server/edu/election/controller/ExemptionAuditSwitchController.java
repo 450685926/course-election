@@ -65,7 +65,7 @@ public class ExemptionAuditSwitchController {
     @ApiOperation(value = "修改免修免考申请审核开关")
     @PutMapping
     public RestResult<?> updateExemptionAuditSwitch(@RequestBody @NotNull @Valid ExemptionApplyAuditSwitch applyAuditSwitch){
-    	logger.info("update applySwitch start");
+    	logger.error("update applySwitch start");
     	
     	exemptionAuditSwitchService.updateExemptionAuditSwitch(applyAuditSwitch);
     	return RestResult.success();

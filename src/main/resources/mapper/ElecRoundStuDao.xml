@@ -11,6 +11,7 @@
     <result column="GRADE_" jdbcType="INTEGER" property="grade" />
     <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
     <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
     <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
   </resultMap>
   
