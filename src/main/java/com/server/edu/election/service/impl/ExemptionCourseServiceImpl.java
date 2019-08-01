@@ -857,9 +857,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
-		Session currentSession = SessionUtils.getCurrentSession();
-		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId(dptId);
+//		Session currentSession = SessionUtils.getCurrentSession();
+//		String dptId = currentSession.getCurrentManageDptId();
+		condition.getCondition().setProjectId("2");
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
