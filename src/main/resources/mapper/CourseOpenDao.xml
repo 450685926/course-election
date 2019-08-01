@@ -149,7 +149,7 @@
 		</foreach>
 		and a.CALENDAR_ID_ = #{calendarId}
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-			and (a.COURSE_CODE_ like CONCAT('%', #{keyWord}, '%') or a.COURSE_NAME_ like CONCAT('%', #{keyWord}, '%'))
+			and (a.COURSE_CODE_ like CONCAT(#{keyWord}, '%') or a.COURSE_NAME_ like CONCAT('%', #{keyWord}, '%'))
 		</if>
 	</select>
 

@@ -34,7 +34,7 @@ public class RetakeCourseController {
 
     @ApiOperation(value = "设定重修选课的时间和规则")
     @PutMapping("/setRetakeRules")
-    public RestResult setRetakeRules(@RequestBody ElcRetakeSetVo elcRetakeSetVo) {
+    public RestResult setRetakeRules(@RequestBody @Valid ElcRetakeSetVo elcRetakeSetVo) {
         retakeCourseService.setRetakeRules(elcRetakeSetVo);
         return RestResult.success();
     }
