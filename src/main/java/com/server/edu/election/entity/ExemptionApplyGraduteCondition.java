@@ -52,10 +52,10 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
     private String trainingCategorys;
     
     /**
-     * 学位类别(逗号分隔，字典表X_XWLB)
+     * 学位类型(逗号分隔，字典表X_XWLX)
      */
-    @Column(name = "DEGREE_CATEGORYS_")
-    private String degreeCategorys;
+    @Column(name = "DEGREE_TYPES_")
+    private String degreeTypes;
     
     /**
      * 条件内容
@@ -142,12 +142,12 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
 		this.trainingCategorys = trainingCategorys;
 	}
 
-	public String getDegreeCategorys() {
-		return degreeCategorys;
+	public String getDegreeTypes() {
+		return degreeTypes;
 	}
 
-	public void setDegreeCategorys(String degreeCategorys) {
-		this.degreeCategorys = degreeCategorys;
+	public void setDegreeTypes(String degreeTypes) {
+		this.degreeTypes = degreeTypes;
 	}
 
 	public String getConditions() {

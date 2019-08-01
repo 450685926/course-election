@@ -2,7 +2,6 @@ package com.server.edu.election.rpc;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.TeacherInfo;
