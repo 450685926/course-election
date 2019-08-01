@@ -41,9 +41,8 @@ public class RetakeCourseController {
 
     @ApiOperation(value = "查询重修选课开关")
     @GetMapping("/getRetakeRule")
-    public RestResult<ElcRetakeSetVo> getRetakeRule(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
-        ElcRetakeSetVo elcRetakeSetVo = retakeCourseService.getRetakeRule(calendarId, projectId);
-        return RestResult.successData(elcRetakeSetVo);
+    public RestResult<Boolean> getRetakeRule(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
+        return RestResult.successData(retakeCourseService.getRetakeRule(calendarId, projectId));
     }
 
     @ApiOperation(value = "查询重修选课门数上限列表")

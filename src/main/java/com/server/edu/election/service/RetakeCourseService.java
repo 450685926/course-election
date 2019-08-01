@@ -19,7 +19,7 @@ public interface RetakeCourseService {
 
     void deleteRetakeCourseCount(List<Long> retakeCourseCountIds);
 
-    ElcRetakeSetVo getRetakeRule(Long calendarId, String projectId);
+    Boolean getRetakeRule(Long calendarId, String projectId);
 
     List<FailedCourseVo> failedCourseList(Long calendarId);
 
