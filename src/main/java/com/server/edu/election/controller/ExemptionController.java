@@ -553,12 +553,12 @@ public class ExemptionController {
     @LogRecord(title="新增研究生免修免考申请",type = AuditType.INSERT)
     @ApiOperation(value = "新增免修免考申请管理")
     @PostMapping("/addGraduteExemptionApply")
-    public RestResult<String> addGraduteExemptionApply(@RequestBody ExemptionApplyManage applyManage){
+    public RestResult<?> addGraduteExemptionApply(@RequestBody ExemptionApplyManage applyManage){
     	Session session = SessionUtils.getCurrentSession();
     	applyManage.setManagerDeptId(session.getCurrentManageDptId());
     	applyManage.setStudentCode(session.realUid());
-        String s = exemptionCourseService.addGraduateExemptionApply(applyManage);
-        return RestResult.success(I18nUtil.getMsg(s,""));
+    	RestResult<?> result = exemptionCourseService.addGraduateExemptionApply(applyManage);
+        return result;
     }
     
     
