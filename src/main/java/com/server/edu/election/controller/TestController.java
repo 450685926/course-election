@@ -20,6 +20,7 @@ import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -60,4 +61,19 @@ public class TestController
         return RestResult.successData(data);
     }
     
+    @PostMapping("/getSession")
+    public RestResult<Session> getSession(
+        @RequestParam("sessionId") @NotBlank String sessionId)
+    {
+        Session session = SessionUtils.getSession(sessionId);
+        return RestResult.successData(session);
+    }
+    
+    @PostMapping("/getSession2")
+    public RestResult<Session> getSession2(
+        @RequestParam("sessionId") @NotBlank String sessionId)
+    {
+        SessionUtils.getSession(sessionId);
+        return RestResult.successData(new Session());
+    }
 }
