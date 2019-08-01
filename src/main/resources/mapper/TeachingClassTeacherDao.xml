@@ -15,4 +15,15 @@
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
+
+  <select id="findTeacherName" resultType="java.lang.String">
+    select TEACHER_NAME_ from teaching_class_teacher_t where TEACHER_CODE_ = #{teacherCode} limit 1, 1
+  </select>
+
+  <select id="findTeacherNames" resultType="java.lang.String">
+    select distinct TEACHER_NAME_ from teaching_class_teacher_t where TEACHER_CODE_ in
+    <foreach item="item" collection="teacherCodes" separator="," open="(" close=")" >
+      #{item}
+    </foreach>
+  </select>
 </mapper>

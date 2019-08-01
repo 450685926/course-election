@@ -13,6 +13,7 @@ public class ElcRetakeSetVo {
     private Long retakeSetId;
 
     @NotNull
+    //开启状态（0关闭，1开启）
     private Integer openFlag;
 
     /**开始时间*/

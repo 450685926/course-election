@@ -15,7 +15,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,9 +70,6 @@ public class ElecController
     
     @Autowired
     private ElecRoundService electionRoundService;
-    
-    @Autowired
-    private RedisTemplate redisTemplate;
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -146,6 +142,8 @@ public class ElecController
         }
         ElecContext c =
             new ElecContext(session.realUid(), round.getCalendarId());
+        logger.info("======session.getCurrentManageDptId()=====================================>"+session.getCurrentManageDptId());
+        logger.info("======session.realUid()=====================================>"+session.realUid());
         if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
         {
             c = elecService.setData(session.realUid(), c, roundId, null);

@@ -630,43 +630,35 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Transactional
     public Integer addCourse(AddCourseDto courseDto) {
         List<Long> teachingClassIds = courseDto.getTeachingClassId();
+        List<TimeTableMessage> addCourseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
         // 查询已选课程上课时间
         List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(courseDto.getStudentId(), courseDto.getCalendarId());
-        List<TimeTableMessage> timeTableMessages = courseTakeDao.findCourseArrange(ids);
-        for (Long teachingClassId : teachingClassIds) {
-            // 查询要添加课程的上课时间
-            List<TimeTableMessage> timeTable= courseTakeDao.findCourseArrangeByTeachingClassId(teachingClassId);
-            if (CollectionUtil.isNotEmpty(timeTable)) {
-                //获取要添加课程的上课周
-                String[] week = timeTable.get(0).getWeekNum().split(",");
-                //说明上课时间未安排，暂时不冲突，可以添加
-                if (week.length == 0) {
-                    break;
-                }
-                // 循环已选课程上课周，判断上课周是否冲突
-                for (TimeTableMessage timeTableMessage : timeTableMessages) {
-                    String[] split = timeTableMessage.getWeekNum().split(",");
-                    if (split.length == 0) {
-                        break;
-                        }
-                    Set<String> set = new HashSet<>();
-                    set.addAll(Arrays.asList(week));
-                    set.addAll(Arrays.asList(split));
-                    // 数组长度之和大于set集合长度，说明上课周重复
-                    if (week.length + split.length > set.size()) {
-                        int dayOfWeek = timeTableMessage.getDayOfWeek().intValue();
-                        int timeStart = timeTableMessage.getTimeStart().intValue();
-                        int timeEnd = timeTableMessage.getTimeEnd().intValue();
-                        for (TimeTableMessage tableMessage : timeTable) {
-                            // 比较上课天是否相同
-                            if (dayOfWeek == tableMessage.getDayOfWeek().intValue()) {
-                                // 上课天相同，比价上课节次
-                                int start = timeTableMessage.getTimeStart().intValue();
-                                int end = tableMessage.getTimeEnd().intValue();
-                                // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
-                                if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                                    throw new ParameterValidateException(tableMessage.getCourseName() + "与已选课程上课时间冲突");
-                                }
+        if (CollectionUtil.isNotEmpty(ids)) {
+            List<TimeTableMessage> selectCourseArrange = courseTakeDao.findCourseArrange(ids);
+            for (TimeTableMessage addTable : addCourseArrange) {
+                String[] split = addTable.getWeekNum().split(",");
+                Set<String> addWeeks = new HashSet<>(Arrays.asList(split));
+                int dayOfWeek = addTable.getDayOfWeek().intValue();
+                int timeStart = addTable.getTimeStart().intValue();
+                int timeEnd = addTable.getTimeEnd().intValue();
+                int addSize = addWeeks.size();
+                for (TimeTableMessage selectTable : selectCourseArrange) {
+                    String[] week = selectTable.getWeekNum().split(",");
+                    Set<String> selectWeeks = new HashSet<>(Arrays.asList(week));
+                    int selectSize = selectWeeks.size();
+                    Set<String> weeks = new HashSet<>(addSize + selectSize);
+                    weeks.addAll(addWeeks);
+                    weeks.addAll(selectWeeks);
+                    // 判断上课周是否冲突
+                    if (addSize + selectSize > weeks.size()) {
+                        //上课周冲突，判断上课天
+                        if (dayOfWeek == selectTable.getDayOfWeek().intValue()) {
+                            // 上课天相同，比价上课节次
+                            int start = selectTable.getTimeStart().intValue();
+                            int end = selectTable.getTimeEnd().intValue();
+                            // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
+                            if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                                throw new ParameterValidateException(I18nUtil.getMsg("ruleCheck.timeConflict"));
                             }
                         }
                     }
@@ -678,7 +670,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<ElcLog> elcLogs = new ArrayList<>();
         // 保存数据，并判断当前角色
         addToList(courseDto, elcStudentVos, elcCourseTakes, elcLogs);
-
         Integer count = courseTakeDao.saveCourseTask(elcCourseTakes);
         if (count != 0) {
             elcLogDao.saveCourseLog(elcLogs);

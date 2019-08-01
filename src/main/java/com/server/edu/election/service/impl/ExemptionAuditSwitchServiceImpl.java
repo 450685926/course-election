@@ -29,7 +29,7 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
     		.andEqualTo("trainingLevels", applyAuditSwitch.getTrainingLevels())
     		.andEqualTo("formLearnings", applyAuditSwitch.getFormLearnings())
     		.andEqualTo("trainingCategorys", applyAuditSwitch.getTrainingCategorys())
-    	    .andEqualTo("degreeCategorys", applyAuditSwitch.getDegreeCategorys())
+    	    .andEqualTo("degreeTypes", applyAuditSwitch.getDegreeTypes())
     		.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason())
     		.andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE));
     	
@@ -73,7 +73,7 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
 			.andEqualTo("trainingLevels", applyAuditSwitch.getTrainingLevels())
 			.andEqualTo("formLearnings", applyAuditSwitch.getFormLearnings())
 			.andEqualTo("trainingCategorys", applyAuditSwitch.getTrainingCategorys())
-		    .andEqualTo("degreeCategorys", applyAuditSwitch.getDegreeCategorys())
+			.andEqualTo("degreeTypes", applyAuditSwitch.getDegreeTypes())
 			.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason())
 			.andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE))
             .andNotEqualTo("id", applyAuditSwitch.getId());

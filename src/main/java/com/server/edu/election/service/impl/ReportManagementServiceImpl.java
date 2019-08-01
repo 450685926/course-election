@@ -7,9 +7,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.github.pagehelper.Page;
@@ -36,18 +38,13 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcNoSelectReasonDao;
-import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -91,6 +88,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private ElcNoSelectReasonDao reasonDao;
+
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDao;
 
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -239,39 +239,65 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         timetabVo.setProfession(student.getProfession());
         timetabVo.setGrade(student.getGrade());
         List<StudentSchoolTimetab> schoolTimetab = courseTakeDao.findSchoolTimetab(calendarId, studentCode);
-        List<TimeTable> list=new ArrayList<>();
         if(CollectionUtil.isNotEmpty(schoolTimetab)){
             List<Long> ids = schoolTimetab.stream().map(StudentSchoolTimetab::getTeachingClassId).collect(Collectors.toList());
-            List<TimeTableMessage> tableMessages = getTimeByTeachingClassId(ids);
+            List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
+            int size = tableMessages.size();
+            MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
+            List<TimeTable> list=new ArrayList<>(size);
+            MultiValueMap<Long, String> nameMap = new LinkedMultiValueMap<>(size);
             String lang = SessionUtils.getLang();
             for (TimeTableMessage tableMessage : tableMessages) {
+                Integer dayOfWeek = tableMessage.getDayOfWeek();
+                Integer timeStart = tableMessage.getTimeStart();
+                Integer timeEnd = tableMessage.getTimeEnd();
+                String roomID = tableMessage.getRoomId();
+                String campus = tableMessage.getCampus();
+                String courseName = tableMessage.getCourseName();
+                String teacherCode = tableMessage.getTeacherCode();
+                String[] str = tableMessage.getWeekNum().split(",");
+                Long teachingClassId = tableMessage.getTeachingClassId();
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
+                arrangeMap.add(teachingClassId, timeStr);
+                String teacherName = "";
+                if (teacherCode != null) {
+                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
+                    nameMap.add(teachingClassId,teacherName);
+                }
                 TimeTable time = new TimeTable();
-                time.setDayOfWeek(tableMessage.getDayOfWeek());
-                time.setTimeStart(tableMessage.getTimeStart());
-                time.setTimeEnd(tableMessage.getTimeEnd());
-                String value = tableMessage.getTeacherName() + " " + tableMessage.getCourseName()
-                        + "(" + tableMessage.getWeekNum() + ClassroomCacheUtil.getRoomName(tableMessage.getRoomId()) + ")"
-                        + " " + dictionaryService.query("X_XQ", tableMessage.getCampus(), lang);
+                time.setDayOfWeek(dayOfWeek);
+                time.setTimeStart(timeStart);
+                time.setTimeEnd(timeEnd);
+                String value = teacherName + " " + courseName
+                        + "(" + weekNumStr + ClassroomCacheUtil.getRoomName(roomID) + ")"
+                        + " " + dictionaryService.query("X_XQ", campus, lang);
                 time.setValue(value);
                 list.add(time);
             }
-            Map<Long, List<TimeTableMessage>> map = tableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
                 }
-                List<TimeTableMessage> timeTables = map.get(studentSchoolTimetab.getTeachingClassId());
-                if (CollectionUtil.isNotEmpty(timeTables)) {
-                    String times = String.valueOf(timeTables.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList()));
-                    studentSchoolTimetab.setTime(times.substring(1,times.length()-1));
-                    studentSchoolTimetab.setTeacherName(timeTables.get(0).getTeacherName());
+                Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
+                List<String> times = arrangeMap.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(times)) {
+                    studentSchoolTimetab.setTime(String.join(",", times));
+                }
+                List<String> names = nameMap.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(names)) {
+                    Set<String> set = new HashSet<>(names.size());
+                    set.addAll(names);
+                    studentSchoolTimetab.setTeacherName(String.join(",", set));
                 }
             }
+            timetabVo.setTimeTables(list);
         }
         timetabVo.setList(schoolTimetab);
         timetabVo.setTotalCredits(totalCredits);
-        timetabVo.setTimeTables(list);
         return timetabVo;
     }
 
@@ -431,7 +457,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
 
     /**
-    *@Description: 查询教师课表
+    *@Description: 研究生查询教师课表
     *@Param:
     *@return:
     *@Author: bear
@@ -440,40 +466,53 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     @Override
     public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode) {
         //查询所有教学班
-        StudentSchoolTimetabVo vo=new StudentSchoolTimetabVo();
-        List<ClassTeacherDto> list=new ArrayList<>();
-        List<TimeTable> timeTables=new ArrayList<>();
-        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassId(calendarId, teacherCode);
-        List<Long> ids = new ArrayList<>();
-        Map<Long, String> map = new HashMap<>();
-        for (ClassTeacherDto classTeacher : classTeachers) {
-            Long teachingClassId = classTeacher.getTeachingClassId();
-            ids.add(teachingClassId);
-            map.put(teachingClassId, classTeacher.getCourseName());
+        StudentSchoolTimetabVo vo = new StudentSchoolTimetabVo();
+        String name = teachingClassTeacherDao.findTeacherName(teacherCode);
+        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassIds(calendarId, teacherCode);
+        if (CollectionUtil.isEmpty(classTeachers)) {
+            return vo;
         }
-
-        List<TimeTableMessage> tableMessages = getTimeByTeachingClassId(ids);
-        Multimap<Long, String> multimap = ArrayListMultimap.create();
+        Map<Long, String> campus = classTeachers.stream()
+                .collect(Collectors.toMap(ClassTeacherDto::getTeachingClassId,ClassTeacherDto::getCampus));
+        Map<Long, String> courseNames = classTeachers.stream()
+                .collect(Collectors.toMap(ClassTeacherDto::getTeachingClassId,ClassTeacherDto::getCourseName));
+        Set<Long> ids = campus.keySet();
+        List<TimeTableMessage> courseArrange = courseTakeDao.findTeachingArrange(ids, teacherCode);
         String lang = SessionUtils.getLang();
-        for (TimeTableMessage tableMessage : tableMessages) {
-            TimeTable time=new TimeTable();
-            time.setDayOfWeek(tableMessage.getDayOfWeek());
-            time.setTimeStart(tableMessage.getTimeStart());
-            time.setTimeEnd(tableMessage.getTimeEnd());
-            Long teachingClassId = tableMessage.getTeachingClassId();
-            String value=tableMessage.getTeacherName()+" "+ map.get(teachingClassId)
-                    +"("+tableMessage.getWeekNum() + ClassroomCacheUtil.getRoomName(tableMessage.getRoomId()) + ")"
-                    + " " + dictionaryService.query("X_XQ",tableMessage.getCampus(), lang);
-            time.setValue(value);
-            timeTables.add(time);
-            multimap.put(teachingClassId, tableMessage.getTimeAndRoom());
-        }
+        List<TimeTable> timeTables=new ArrayList<>(courseArrange.size());
+        if(CollectionUtil.isNotEmpty(courseArrange)){
+            for (TimeTableMessage timeTableMessage : courseArrange) {
+                Long teachingClassId = timeTableMessage.getTeachingClassId();
+                Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                Integer timeStart = timeTableMessage.getTimeStart();
+                Integer timeEnd = timeTableMessage.getTimeEnd();
+                String roomID = timeTableMessage.getRoomId();
+                String weekNumber = timeTableMessage.getWeekNum();
+                String[] str = weekNumber.split(",");
+                List<Integer> weeks = Stream.of(str).map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
+                String value=name+" "+ courseNames.get(teachingClassId)
+                        +"("+ weekNumStr + ClassroomCacheUtil.getRoomName(roomID) + ")"
+                        + " " + dictionaryService.query("X_XQ",campus.get(teachingClassId), lang);
+                timeTableMessage.setTimeAndRoom(timeStr);
+                TimeTable timeTable = new TimeTable();
+                timeTable.setDayOfWeek(dayOfWeek);
+                timeTable.setTimeStart(timeStart);
+                timeTable.setTimeEnd(timeEnd);
+                timeTable.setValue(value);
+                timeTables.add(timeTable);
+            }
+            Map<Long, List<TimeTableMessage>> collect = courseArrange.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             for (ClassTeacherDto classTeacher : classTeachers) {
-                Collection<String> collection = multimap.get(classTeacher.getTeachingClassId());
-                if (!collection.isEmpty()) {
-                    String times = collection.toString();
-                    classTeacher.setTime(times.substring(1,times.length()-1));
+                List<TimeTableMessage> timeTableMessages = collect.get(classTeacher.getTeachingClassId());
+                if (CollectionUtil.isNotEmpty(timeTableMessages)) {
+                    List<String> times = timeTableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                    classTeacher.setTime(String.join(",",times));
                 }
+            }
         }
         vo.setTimeTables(timeTables);
         vo.setTeacherDtos(classTeachers);
@@ -1156,45 +1195,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         out.flush();
         out.close();
         return path;
-    }
-
-    private List<TimeTableMessage>  getTimeByTeachingClassId(List<Long> teachingClassIds){
-        //去除同一个教学班教学安排一样老师不同
-        Set<TimeTableMessage> set=new HashSet<>();
-        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassIds);
-        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
-            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
-                Long teachingClassId = classTeacherDto.getTeachingClassId();
-                List<String> names = courseTakeDao.findTeacherNameById(teachingClassId);
-                TimeTableMessage time = new TimeTableMessage();
-                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                Integer timeStart = classTeacherDto.getTimeStart();
-                Integer timeEnd = classTeacherDto.getTimeEnd();
-                String roomID = classTeacherDto.getRoomID();
-                String weekNumber = classTeacherDto.getWeekNumberStr();
-                String[] str = weekNumber.split(",");
-                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
-                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
-                String weekNumStr = weekNums.toString();//周次
-                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
-
-                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
-                time.setRoomId(roomID);
-                time.setDayOfWeek(classTeacherDto.getDayOfWeek());
-                time.setTimeStart(classTeacherDto.getTimeStart());
-                time.setTimeEnd(classTeacherDto.getTimeEnd());
-                time.setCampus(classTeacherDto.getCampus());
-                time.setCourseName(classTeacherDto.getCourseName());
-                time.setTeachingClassId(teachingClassId);
-                time.setTimeAndRoom(timeStr);
-                time.setWeekNum(weekNumStr);
-                time.setTeacherName(String.join(",", names));
-                set.add(time);
-            }
-        }
-        List<TimeTableMessage> list = new ArrayList<>(set.size());
-        list.addAll(set);
-        return list;
     }
 
     private GeneralExcelDesigner getDesignTwo() {

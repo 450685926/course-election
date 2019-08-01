@@ -2,9 +2,6 @@ package com.server.edu.election.vo;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
-import com.server.edu.election.dto.TimeTableMessage;
-
-import java.util.List;
 
 /**
  * 课程维护学生选课数据实体类

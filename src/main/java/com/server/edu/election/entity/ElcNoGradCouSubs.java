@@ -8,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -18,6 +17,13 @@ public class ElcNoGradCouSubs implements Serializable {
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    /**
+     * 学号
+     */
+    @NotBlank
+    @Column(name = "STUDENT_ID_")
+    private String studentId;
 
     /**
      * 管理部门ID
@@ -25,10 +31,6 @@ public class ElcNoGradCouSubs implements Serializable {
     @Column(name = "PROJECT_ID_")
     private String projectId;
     
-    @NotNull
-    @Column(name = "CALENDAR_ID_")
-    private Long calendarId;
-
     /**
      * 原课程代码
      */
@@ -76,6 +78,24 @@ public class ElcNoGradCouSubs implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+    
+    /**
+     * 获取学号
+     *
+     * @return STUDENT_ID_ - 学号
+     */
+    public String getStudentId() {
+        return studentId;
+    }
+
+    /**
+     * 设置学号
+     *
+     * @param studentId 学号
+     */
+    public void setStudentId(String studentId) {
+        this.studentId = studentId == null ? null : studentId.trim();
+    }
 
     /**
      * 获取管理部门ID
@@ -93,20 +113,6 @@ public class ElcNoGradCouSubs implements Serializable {
      */
     public void setProjectId(String projectId) {
         this.projectId = projectId == null ? null : projectId.trim();
-    }
-
-    /**
-     * @return CALENDAR_ID_
-     */
-    public Long getCalendarId() {
-        return calendarId;
-    }
-
-    /**
-     * @param calendarId
-     */
-    public void setCalendarId(Long calendarId) {
-        this.calendarId = calendarId;
     }
 
     /**
@@ -207,7 +213,6 @@ public class ElcNoGradCouSubs implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", projectId=").append(projectId);
-        sb.append(", calendarId=").append(calendarId);
         sb.append(", origsCourseId=").append(origsCourseId);
         sb.append(", subCourseId=").append(subCourseId);
         sb.append(", remark=").append(remark);

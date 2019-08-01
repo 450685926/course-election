@@ -13,8 +13,10 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ExemptionApplyConditionDao;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
+import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ExemptionApplyConditionService;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -28,6 +30,9 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	@Autowired
 	CourseOpenDao courseOpenDao;
 	
+    @Autowired
+    private StudentDao studentDao;
+	
 	@Override
 	public void addExemptionApplyCondition(ExemptionApplyGraduteCondition applyCondition) {
 		Example example = new Example(ExemptionApplyGraduteCondition.class);
@@ -37,7 +42,7 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
     		.andEqualTo("trainingLevels", applyCondition.getTrainingLevels())
     		.andEqualTo("trainingCategorys", applyCondition.getTrainingCategorys())
     		.andEqualTo("formLearnings", applyCondition.getFormLearnings())
-    	    .andEqualTo("degreeCategorys", applyCondition.getDegreeCategorys())
+    	    .andEqualTo("degreeTypes", applyCondition.getDegreeTypes())
     		.andEqualTo("conditions", applyCondition.getConditions())
     		.andEqualTo("projId", applyCondition.getProjId())
     		.andEqualTo("deleteStatus", String.valueOf(Constants.DELETE_FALSE));
@@ -82,7 +87,7 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
     		.andEqualTo("trainingLevels", applyCondition.getTrainingLevels())
     		.andEqualTo("trainingCategorys", applyCondition.getTrainingCategorys())
     		.andEqualTo("formLearnings", applyCondition.getFormLearnings())
-    	    .andEqualTo("degreeCategorys", applyCondition.getDegreeCategorys())
+    		.andEqualTo("degreeTypes", applyCondition.getDegreeTypes())
     		.andEqualTo("conditions", applyCondition.getConditions())
     		.andEqualTo("projId", applyCondition.getProjId())
     		.andEqualTo("deleteStatus", String.valueOf(Constants.DELETE_FALSE))
@@ -115,5 +120,20 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	public CourseOpen queryNameAndTrainingLevelByCode(String courseCode) {
 		return courseOpenDao.queryNameAndTrainingLevelByCode(courseCode);
 	}
+
+	@Override
+	public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode, String studentId) {
+		Student student = studentDao.findStudentByCode(studentId);
+		
+		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
+    	condition.setCourseCode(courseCode);
+    	condition.setTrainingLevels(String.valueOf(Integer.valueOf(student.getTrainingLevel())));
+    	condition.setTrainingCategorys(String.valueOf(Integer.valueOf(student.getTrainingCategory())));
+    	condition.setDegreeTypes(String.valueOf(Integer.valueOf(student.getDegreeType())));
+    	condition.setFormLearnings(String.valueOf(Integer.valueOf(student.getFormLearning())));
+		
+		return exemptionApplyConditionDao.queryApplyConditionByCourseCodeAndStudentId(condition);
+	}
+
 
 }

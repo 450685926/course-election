@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.github.pagehelper.Page;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -26,7 +27,7 @@ public interface CourseOpenDao extends Mapper<CourseOpen> {
 
 	List<FailedCourseVo> findFailedCourseInfo(@Param("courseCodes") List<String> failedCourseCodes, @Param("calendarId") Long calendarId);
 
-	List<RebuildCourseVo> findRebuildCourses(
+	Page<RebuildCourseVo> findRebuildCourses(
 			@Param("courseCodes") List<String> failedCourseCodes, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
 
 	List<TeachingClassCache> findClassInfo(@Param("teachClassIds") List<Long> teachClassIds);

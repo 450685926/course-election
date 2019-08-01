@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,27 +48,27 @@ import io.swagger.annotations.SwaggerDefinition;
 
 @SwaggerDefinition(info = @Info(title = "研究生免修免考申请条件", version = ""))
 @RestSchema(schemaId = "ExemptionApplyConditionController")
-@RequestMapping("/exemptionConditionGradute")
+@RequestMapping("/exemptionGradute/applyCondition")
 public class ExemptionApplyConditionController {
-	static Logger logger = LoggerFactory.getLogger(ExemptionController.class);
+	static Logger logger = LoggerFactory.getLogger(ExemptionApplyConditionController.class);
 	
 	@Autowired
 	ExemptionApplyConditionService exemptionApplyConditionSerice;
 	
 	@ApiOperation(value = "添加研究生免修免考申请条件")
-    @PostMapping("/addExemptionApplyCondition")
+    @PostMapping
     public RestResult<?> addExemptionApplyCondition(@RequestBody @NotNull @Valid ExemptionApplyGraduteCondition applyCondition){
-    	logger.info("addExemptionApplyCondition start");
+    	logger.info("add applyCondition start");
     	
     	exemptionApplyConditionSerice.addExemptionApplyCondition(applyCondition);
     	return RestResult.success();
     }
 	
     @ApiOperation(value = "查询研究生免修免考申请条件列表")
-    @PostMapping("/queryExemptionApplyCondition")
+    @PostMapping("/list")
     public RestResult<PageResult<ExemptionApplyGraduteCondition>> queryExemptionApplyCondition(
     		@RequestBody PageCondition<ExemptionApplyGraduteConditionDto> applyConditionDto){
-    	logger.info("queryExemptionApplyCondition start");
+    	logger.info("query applyCondition list start");
     	
     	PageResult<ExemptionApplyGraduteCondition> page = exemptionApplyConditionSerice.queryExemptionApplyCondition(applyConditionDto);
     	return RestResult.successData(page);
@@ -76,16 +77,16 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "根据ID查询免修免考申请条件")
     @GetMapping("/{id}")
     public RestResult<ExemptionApplyGraduteCondition> findExemptionAuditConditionById(@PathVariable("id") Long id){
-    	logger.info("findExemptionAuditConditionById start");
+    	logger.info("query applyCondition by id start");
     	
     	ExemptionApplyGraduteCondition exemptionApplyAuditSwitch = exemptionApplyConditionSerice.findExemptionAuditConditionById(id);
     	return RestResult.successData(exemptionApplyAuditSwitch);
     }
 	
     @ApiOperation(value = "修改免修免考申请条件")
-    @PostMapping("/updateExemptionApplyCondition")
+    @PutMapping
     public RestResult<?> updateExemptionApplyCondition(@RequestBody @NotNull @Valid ExemptionApplyGraduteCondition applyCondition){
-    	logger.info("updateExemptionApplyCondition start");
+    	logger.info("update applyCondition start");
     	
     	exemptionApplyConditionSerice.updateExemptionApplyCondition(applyCondition);
     	return RestResult.success();
@@ -94,7 +95,7 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "删除免修免考申请条件")
     @DeleteMapping
     public RestResult<?> deleteExemptionApplyCondition(@RequestBody @NotEmpty List<Long> ids){
-    	logger.info("deleteExemptionApplyCondition start");
+    	logger.info("delete applyCondition start");
     	
     	exemptionApplyConditionSerice.deleteExemptionApplyCondition(ids);
     	return RestResult.success();
@@ -102,7 +103,7 @@ public class ExemptionApplyConditionController {
     
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "免修条件下载模版（研究生）")})
-    @GetMapping(value = "/graduateDownload")
+    @GetMapping(value = "/export")
     public ResponseEntity<Resource> graduateDownload()
     {
         Resource resource = new ClassPathResource("/excel/yanJiuShengExemptionApplyCondition.xls");
@@ -115,7 +116,7 @@ public class ExemptionApplyConditionController {
     }
     
     @ApiOperation(value = "导入免修免考申请条件")
-    @PostMapping("/importExemptionAuditSwitch")
+    @PostMapping("/import")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file){
     	if (file == null)
         {
@@ -169,12 +170,24 @@ public class ExemptionApplyConditionController {
     }
     
     @ApiOperation(value = "根据课程编号查询名称和培养层次")
-    @PostMapping("/queryNameAndTrainingLevelByCode")
+    @PostMapping("/courseInfo/{code}")
     public RestResult<CourseOpen> queryNameAndTrainingLevelByCode(
-    		@RequestParam("courseCode") @NotNull String courseCode){
-    	logger.info("queryNameAndTrainingLevelByCode start");
+    		@PathVariable("code") String code){
+    	logger.info("courseInfo by code start");
     	
-    	CourseOpen data = exemptionApplyConditionSerice.queryNameAndTrainingLevelByCode(courseCode);
+    	CourseOpen data = exemptionApplyConditionSerice.queryNameAndTrainingLevelByCode(code);
     	return RestResult.successData(data);
     }
+   
+    @ApiOperation(value = "根据课程编号和学籍信息查询所有符合的申请条件")
+    @PostMapping("/matchedConditions")
+    public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
+    		@RequestParam("courseCode") @NotNull String courseCode,
+    		@RequestParam("studentId") @NotNull String studentId) throws Exception{
+    	logger.info("matchedConditions by CourseCode and studentId start");
+    	
+    	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
+    	return RestResult.successData(list);
+    }
+    
 }

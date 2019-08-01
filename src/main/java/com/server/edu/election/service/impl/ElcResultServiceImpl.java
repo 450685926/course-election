@@ -21,6 +21,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -53,6 +55,7 @@ import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
@@ -128,9 +131,35 @@ public class ElcResultServiceImpl implements ElcResultService
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
-        	listPage = classDao.listPage(page.getCondition());
+        	listPage = classDao.listPage(condition);
 		}else {
-			listPage = classDao.grduateListPage(page.getCondition());
+			Session session = SessionUtils.getCurrentSession();
+			if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+					&& !session.isAdmin()
+					&& session.isAcdemicDean()) {
+				String faculty = session.getFaculty();
+				condition.setFaculty(faculty);
+			}
+			listPage = classDao.grduateListPage(condition);
+		}
+        
+		// 添加教室容量
+		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
+		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
+		List<Classroom> classroomList = queryAllClassRoom.getData();
+		
+		for (TeachingClassVo teachingClassVo : listPage) {
+			for (Classroom classroom : classroomList) {
+				if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
+					teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+				}
+			}
+		}
+
+		for (TeachingClassVo teachingClassVo : listPage) {
+			if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
+				teachingClassVo.setClassNumberStr("不限");
+			}
 		}
         
         List<TeachingClassVo> list = listPage.getResult();
@@ -155,7 +184,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 		}
                 		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
                 	}
-                	if(Constants.ONE==condition.getIsHaveLimit()) {
+                	if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
                 		String boy = "无";
                 		if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
                 			boy = vo.getNumberMale().toString();
@@ -248,13 +277,32 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
     public void adjustClassNumber(TeachingClassVo teachingClassVo)
     {
+    	int elcNumber = teachingClassVo.getElcNumber().intValue(); // 选课人数
+    	int number = teachingClassVo.getNumber().intValue();       // 人数上限
+    	
+    	if (StringUtils.equals(teachingClassVo.getClassNumberStr(), "不限")) {
+    		if (number < elcNumber) {
+    			throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error"));
+    		}
+		}else {
+			int classNumber = Integer.parseInt(teachingClassVo.getClassNumberStr());  // 教室容量
+			boolean flag = elcNumber <= number && number <= classNumber;
+			if (!flag) {
+				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
+			}
+		}
+    	
     	Session session = SessionUtils.getCurrentSession();
     	Example example = new Example(ElcClassEditAuthority.class);
     	Example.Criteria criteria = example.createCriteria();
     	criteria.andEqualTo("calendarId", teachingClassVo.getCalendarId());
     	criteria.andEqualTo("status", Constants.ZERO);
     	ElcClassEditAuthority editAuthority =elcClassEditAuthorityDao.selectOneByExample(example);
-    	if(session.isAcdemicDean()&&editAuthority!=null) {
+    	
+    	if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+    			&& !session.isAdmin() 
+    			&& session.isAcdemicDean()
+    			&& editAuthority!=null) {
     		throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority")); 
     	}
         TeachingClass record = new TeachingClass();
@@ -621,32 +669,35 @@ public class ElcResultServiceImpl implements ElcResultService
 	public RestResult<String> exportOfNonSelectedCourse(ElcResultQuery condition) {
 		String path="";
         try {
-        	 PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
-             pageCondition.setCondition(condition);
-             pageCondition.setPageSize_(100);
-             int pageNum = 0;
-             pageCondition.setPageNum_(pageNum);
-             List<Student4Elc> list = new ArrayList<>();
-             while (true)
-             {
-                 pageNum++;
-                 pageCondition.setPageNum_(pageNum);
-                 PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
-                 
-                 
-                 list.addAll(studentList.getList());
+        	condition.setGrade(StringUtils.equalsIgnoreCase("全部", condition.getGrade()) ? "" : condition.getGrade());
+        	PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
+            pageCondition.setCondition(condition);
+            pageCondition.setPageSize_(100);
+            int pageNum = 0;
+            pageCondition.setPageNum_(pageNum);
+            List<Student4Elc> list = new ArrayList<>();
+            while (true)
+            {
+                pageNum++;
+                pageCondition.setPageNum_(pageNum);
+                PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
+                
+                
+                list.addAll(studentList.getList());
 
-                 if (studentList.getTotal_() <= list.size())
-                 {
-                     break;
-                 }
-             }
-             list = SpringUtils.convert(list);
+                if (studentList.getTotal_() <= list.size())
+                {
+                    break;
+                }
+            }
+            logger.info(list.size() + "convert   dictionary   start");
+            list = SpringUtils.convert(list);
+            logger.info("convert   dictionary   end");
         	ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getAllNonSelectedCourseStudentKey(),
         			excelStoreConfig.getAllNonSelectedCourseStudentTitle(),
         			cacheDirectory);
-        	path = excelExport.exportExcelToCacheDirectory("研究生为选课学生名单");
+        	path = excelExport.exportExcelToCacheDirectory("研究生未选课学生名单");
         }catch (Exception e){
             return RestResult.failData("minor.export.fail");
         }

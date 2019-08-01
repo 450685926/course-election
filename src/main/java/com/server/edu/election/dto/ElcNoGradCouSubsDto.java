@@ -1,26 +1,26 @@
-package com.server.edu.election.vo;
+package com.server.edu.election.dto;
 
-import com.server.edu.dictionary.annotation.Code2Text;
-import com.server.edu.dictionary.annotation.CodeI18n;
+import java.util.List;
+
 import com.server.edu.election.entity.ElcNoGradCouSubs;
-@CodeI18n
-public class ElcNoGradCouSubsVo extends ElcNoGradCouSubs {
+
+public class ElcNoGradCouSubsDto extends ElcNoGradCouSubs {
     private static final long serialVersionUID = 1L;
+    
     private String origsCourseName;
     private Integer origsCredits;
     private String subCourseName;
     private Integer subCredits;
     private Integer grade;
-    @Code2Text(transformer="X_YX")
     private String faculty;
-    @Code2Text(transformer = "G_ZY")
     private String profession;
-    private String studentName;
-    public String getStudentName() {
-		return studentName;
+    private List<String> studentIds;
+    
+    public List<String> getStudentIds() {
+		return studentIds;
 	}
-	public void setStudentName(String studentName) {
-		this.studentName = studentName;
+	public void setStudentIds(List<String> studentIds) {
+		this.studentIds = studentIds;
 	}
 	public Integer getGrade() {
 		return grade;

@@ -2,27 +2,35 @@ package com.server.edu.election.vo;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 
 @CodeI18n
 public class RetakeCourseCountVo {
     private Long id;
 
+    @NotBlank
     @Code2Text(transformer = "X_PYCC")
     private String trainingLevel;
 
+    @NotBlank
     @Code2Text(transformer = "X_PYLB")
     private String trainingCategory;
 
+    @NotBlank
     @Code2Text(transformer = "X_XWLX")
     private String degreeType;
 
+    @NotBlank
     @Code2Text(transformer = "G_XXXS")
     private String formLearning;
 
+    @NotNull
     private Integer retakeCount;
 
-    @Code2Text(transformer = "X_GLBM")
-    private String managerDeptId;
+    @NotBlank
+    private String projectName;
 
     /**删除状态，0未删除，1删除*/
     private Integer status;
@@ -83,11 +91,11 @@ public class RetakeCourseCountVo {
         this.retakeCount = retakeCount;
     }
 
-    public String getManagerDeptId() {
-        return managerDeptId;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public void setManagerDeptId(String managerDeptId) {
-        this.managerDeptId = managerDeptId;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 }

@@ -43,6 +43,7 @@
     <result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
     <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
     <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
     <result column="RESEARCH_DIRECTION_" jdbcType="VARCHAR" property="researchDirection" />
   </resultMap>
     <sql id="Base_Column_List">
@@ -280,7 +281,7 @@
 		        and t4.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t4.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t4.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t4.FORM_LEARNING_ = #{query.formLearning}
@@ -344,7 +345,7 @@
 		        and t4.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t4.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t4.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t4.FORM_LEARNING_ = #{query.formLearning}
