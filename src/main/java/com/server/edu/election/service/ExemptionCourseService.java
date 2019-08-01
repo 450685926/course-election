@@ -76,10 +76,9 @@ public interface ExemptionCourseService {
      * 研究生免修免考审批
      * @param ids
      * @param status
-     * @param auditor
      * @return
      */
-    String approvalGraduateExemptionApply(List<Long> ids, Integer status, String auditor);
+    String approvalGraduateExemptionApply(List<Long> ids, Integer status);
     
     /**
      * 研究生免修免考申请管理
@@ -98,11 +97,10 @@ public interface ExemptionCourseService {
 	/**
 	 * 根据学生Id与课程编码找出学生课程
 	 * @param studentCode
-	 * @param courseCode
 	 * @param calendarId 
 	 * @return
 	 */
-	StudentAndCourseVo findCourseCode(String studentCode, String courseCode, Long calendarId);
+	StudentAndCourseVo findCourseCode(String studentCode, Long calendarId);
 	
 	/**
 	 * 研究生免修免考课程列表
@@ -119,6 +117,6 @@ public interface ExemptionCourseService {
 	 */
 	String adminAddApply(ExemptionApplyManage applyManage);
 	
-	String addGraduateExemptionApply(ExemptionApplyManage applyManage);
+	RestResult<?> addGraduateExemptionApply(ExemptionApplyManage applyManage);
 }
 

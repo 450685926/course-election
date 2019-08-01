@@ -15,7 +15,7 @@ public class StudentAndCourseVo{
 
     private Student student;
     
-    private String courseName;
+    private Boolean isAchievement;
     
     private List<ExemptionStudentCourseVo> applyCourse;
 
@@ -27,20 +27,20 @@ public class StudentAndCourseVo{
 		this.student = student;
 	}
 
-	public String getCourseName() {
-		return courseName;
-	}
-
-	public void setCourseName(String courseName) {
-		this.courseName = courseName;
-	}
-
 	public List<ExemptionStudentCourseVo> getApplyCourse() {
 		return applyCourse;
 	}
 
 	public void setApplyCourse(List<ExemptionStudentCourseVo> applyCourse) {
 		this.applyCourse = applyCourse;
+	}
+
+	public Boolean getIsAchievement() {
+		return isAchievement;
+	}
+
+	public void setIsAchievement(Boolean isAchievement) {
+		this.isAchievement = isAchievement;
 	}
     
 }

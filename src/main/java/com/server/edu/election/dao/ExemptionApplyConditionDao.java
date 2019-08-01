@@ -1,5 +1,7 @@
 package com.server.edu.election.dao;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -15,4 +17,10 @@ public interface ExemptionApplyConditionDao extends Mapper<ExemptionApplyGradute
 	 */
 	Page<ExemptionApplyGraduteCondition> listPage(@Param("condition") ExemptionApplyGraduteCondition condition);
 	
+	/**
+	 * 根据课程编号和学籍信息查询所有符合的申请条件
+	 * @param ExemptionApplyGraduteCondition
+	 * @return
+	 */
+	List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(@Param("condition") ExemptionApplyGraduteCondition condition);
 }
