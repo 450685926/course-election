@@ -198,4 +198,30 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
 		this.deleteStatus = deleteStatus;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((courseCode == null) ? 0 : courseCode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ExemptionApplyGraduteCondition other = (ExemptionApplyGraduteCondition) obj;
+		if (courseCode == null) {
+			if (other.courseCode != null)
+				return false;
+		} else if (!courseCode.equals(other.courseCode))
+			return false;
+		return true;
+	}
+
+	
 }
