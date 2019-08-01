@@ -67,6 +67,9 @@ public class ExemptionAuditSwitchController {
     public RestResult<?> updateExemptionAuditSwitch(@RequestBody @NotNull @Valid ExemptionApplyAuditSwitch applyAuditSwitch){
     	logger.info("update applySwitch start");
     	
+    	logger.info("id"+applyAuditSwitch.getId());
+    	logger.info("======="+applyAuditSwitch);
+    	
     	exemptionAuditSwitchService.updateExemptionAuditSwitch(applyAuditSwitch);
     	return RestResult.success();
     }
