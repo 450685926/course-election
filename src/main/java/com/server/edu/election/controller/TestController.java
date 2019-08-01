@@ -19,6 +19,7 @@ import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 
@@ -66,6 +67,9 @@ public class TestController
         @RequestParam("sessionId") @NotBlank String sessionId)
     {
         Session session = SessionUtils.getSession(sessionId);
+        if(session == null) {
+            throw new ParameterValidateException("");
+        }
         return RestResult.successData(session);
     }
     
@@ -73,7 +77,10 @@ public class TestController
     public RestResult<Session> getSession2(
         @RequestParam("sessionId") @NotBlank String sessionId)
     {
-        SessionUtils.getSession(sessionId);
+        Session session = SessionUtils.getSession(sessionId);
+        if(session == null) {
+            throw new ParameterValidateException("");
+        }
         return RestResult.successData(new Session());
     }
 }
