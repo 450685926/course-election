@@ -14,7 +14,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -344,21 +346,27 @@ public class ElecContextUtil
         long value = System.currentTimeMillis();
         String redisKey = String.format(STD_STATUS_LOCK, calendarId, studentId);
         
-        Jedis connection = (Jedis)getRedisTemplate().getConnectionFactory()
-            .getConnection()
-            .getNativeConnection();
-        
-        String statusCode = connection.set(redisKey,
-            String.valueOf(value),
-            "NX",
-            "EX",
-            TimeUnit.MINUTES.toSeconds(30));
+        String statusCode =
+            getRedisTemplate().execute(new RedisCallback<String>()
+            {
+                @Override
+                public String doInRedis(RedisConnection connection)
+                {
+                    Jedis conn = (Jedis)connection.getNativeConnection();
+                    return conn.set(redisKey,
+                        String.valueOf(value),
+                        "NX",
+                        "EX",
+                        TimeUnit.MINUTES.toSeconds(30));
+                }
+            }, true);
         
         if ("OK".equals(statusCode))
         {
             lockKeys.add(redisKey);
             return true;
         }
+        
         return false;
     }
     
@@ -437,7 +445,7 @@ public class ElecContextUtil
     /**
      * 设置替代课程
      */
-    public static void setNoGradCouSubs(String studentId, 
+    public static void setNoGradCouSubs(String studentId,
         List<ElcNoGradCouSubsVo> list)
     {
         ValueOperations<String, String> opsForValue =
