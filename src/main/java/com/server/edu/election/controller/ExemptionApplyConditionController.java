@@ -172,22 +172,22 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "根据课程编号查询名称和培养层次")
     @PostMapping("/courseInfo/{code}")
     public RestResult<CourseOpen> queryNameAndTrainingLevelByCode(
-    		@RequestParam("courseCode") @NotNull String courseCode){
+    		@PathVariable("code") String code){
     	logger.info("courseInfo by code start");
     	
-    	CourseOpen data = exemptionApplyConditionSerice.queryNameAndTrainingLevelByCode(courseCode);
+    	CourseOpen data = exemptionApplyConditionSerice.queryNameAndTrainingLevelByCode(code);
     	return RestResult.successData(data);
     }
-    
+   
     @ApiOperation(value = "根据课程编号和学籍信息查询所有符合的申请条件")
     @PostMapping("/matchedConditions")
-    public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(
+    public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
     		@RequestParam("courseCode") @NotNull String courseCode,
     		@RequestParam("studentId") @NotNull String studentId) throws Exception{
     	logger.info("matchedConditions by CourseCode and studentId start");
     	
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
-    	return list;
+    	return RestResult.successData(list);
     }
     
 }
