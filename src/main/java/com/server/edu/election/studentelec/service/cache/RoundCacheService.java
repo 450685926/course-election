@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -107,6 +108,7 @@ public class RoundCacheService extends AbstractCacheService
      * 
      * @return
      */
+    @Cacheable(value = "getAllRound")
     public List<ElectionRounds> getAllRound()
     {
         HashOperations<String, String, ElectionRounds> hash = opsRound();
