@@ -48,8 +48,15 @@ public class TestController
         @RequestParam(name = "mode") @NotNull Integer mode,
         @RequestParam(name = "studentId") String studentId)
     {
+        long start = System.currentTimeMillis();
         List<ElectionRoundsVo> data = new ArrayList<>();
+        
         List<ElectionRounds> allRound = dataProvider.getAllRound();
+        
+        long end = System.currentTimeMillis();
+        if(TimeUnit.MILLISECONDS.toSeconds(end - start) > 1) {
+            LOG.error("----- getRounds request time > 1 -------");
+        }
         return RestResult.successData(data);
     }
     
@@ -60,8 +67,14 @@ public class TestController
         @RequestParam(name = "mode") @NotNull Integer mode,
         @RequestParam(name = "studentId") String studentId){
         
+        long start = System.currentTimeMillis();
+        
         String string = redisTemplate.opsForValue().get("testElc_test1");
         
+        long end = System.currentTimeMillis();
+        if(TimeUnit.MILLISECONDS.toSeconds(end - start) > 1) {
+            LOG.error("----- getRound2 request time > 1 -------");
+        }
         List<ElectionRoundsVo> data = new ArrayList<>();
         return RestResult.successData(data);
     }
@@ -69,9 +82,16 @@ public class TestController
     @PostMapping("/getRound3")
     public RestResult<List<ElectionRounds>> getRound3(){
         
+        long start = System.currentTimeMillis();
+        
         String text = redisTemplate.opsForValue().get("testElc_test1");
         
         List<ElectionRounds> data = JSON.parseArray(text, ElectionRounds.class);
+        
+        long end = System.currentTimeMillis();
+        if(TimeUnit.MILLISECONDS.toSeconds(end - start) > 1) {
+            LOG.error("----- getRound2 request time > 1 -------");
+        }
         
         return RestResult.successData(data);
     }
