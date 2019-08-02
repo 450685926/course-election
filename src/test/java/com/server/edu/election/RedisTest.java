@@ -4,7 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisStringCommands.SetOption;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -34,10 +36,20 @@ public class RedisTest extends ApplicationTest
     @Test
     public void test1()
     {
-        Jedis connection =
-            (Jedis)redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
+        String statusCode =
+            redisTemplate.execute(new RedisCallback<String>()
+            {
+                @Override
+                public String doInRedis(RedisConnection connection)
+                {
+                    Jedis conn = (Jedis)connection.getNativeConnection();
+                    return conn.set("test",  "test",
+                        "NX",
+                        "EX",
+                        TimeUnit.MINUTES.toSeconds(30));
+                }
+            }, true);
         
-        String statusCode = connection.set("test",  "test", "NX", "EX", TimeUnit.MINUTES.toSeconds(30));
         if("OK".equals(statusCode)) {
             System.out.println("============================== success");
         }
