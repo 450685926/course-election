@@ -155,7 +155,44 @@ public class TestController
         long end = System.currentTimeMillis();
         long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
         LOG.error("----- test2 request time[{}] -------", seconds);
-        return RestResult.success();
+        return RestResult.successData(seconds);
+    }
+    
+    @GetMapping("/test3")
+    public RestResult<?> test3()
+    {
+        this.test1();
+        
+        long start = System.currentTimeMillis();
+        CountDownLatch downLatch = new CountDownLatch(100);
+        for (int i = 1; i <= 100; i++)
+        {
+            executorService.submit(() -> {
+                try
+                {
+                    for (int j = 0; j < 1000; j++)
+                    {
+                        redisTemplate.opsForValue().get("testElc_test1");
+                    }
+                }
+                finally
+                {
+                    downLatch.countDown();
+                }
+            });
+        }
+        try
+        {
+            downLatch.await();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        long end = System.currentTimeMillis();
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
+        LOG.error("----- test2 request time[{}] -------", seconds);
+        return RestResult.successData(seconds);
     }
     
     @PostMapping("/getSession")
