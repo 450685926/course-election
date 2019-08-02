@@ -34,14 +34,14 @@
         </where>
     </select>
 
-    <insert id = "saveRetakeCourseCount">
+    <insert id = "saveRetakeCourseCount" parameterType="com.server.edu.election.vo.RetakeCourseCountVo">
         insert into elc_retake_course_count
-              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,PROJECT_NAME_,DELETE_STATUS_)
+              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,PROJECT_NAME_,CREATE_BY_,CREATED_AT_,DELETE_STATUS_)
         values
-              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{projectName},#{status})
+              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{projectName},#{createBy},#{createAt},#{status})
     </insert>
 
-    <update id="updateRetakeCourseCount">
+    <update id="updateRetakeCourseCount" parameterType="com.server.edu.election.vo.RetakeCourseCountVo">
         update
               elc_retake_course_count
         set
@@ -51,6 +51,7 @@
             FORM_LEARNING_ = #{formLearning},
             RETAKE_COUNT_ = #{retakeCount},
             PROJECT_NAME_ = #{projectName},
+            UPDATED_AT_ = #{updatedAt},
             DELETE_STATUS_ = #{status}
         where
             ID_ = #{id}
@@ -77,8 +78,8 @@
          and FORM_LEARNING_ = #{formLearning}
     </select>
 
-    <select id="findProjectName" parameterType="com.server.edu.election.vo.RetakeCourseCountVo" resultType="java.lang.String">
-         select PROJECT_NAME_ from elc_retake_course_count
+    <select id="findRetakeCourseCount" parameterType="com.server.edu.election.vo.RetakeCourseCountVo" resultMap="BaseResultMap">
+         select * from elc_retake_course_count
          where
             DELETE_STATUS_ = 0
          and TRAINING_LEVEL_ = #{trainingLevel}
