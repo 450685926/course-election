@@ -4,7 +4,6 @@ import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +26,8 @@ import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.util.CollectionUtil;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 选课上下文工具类
@@ -51,6 +52,7 @@ public class ElecContextUtil
     private Long calendarId;
     
     private String studentId;
+    
     // 由于使用redis的hash来保存数据，为了能快速得到所有的数据使用map先保存起来
     public Map<String, String> cacheData;
     
@@ -88,9 +90,16 @@ public class ElecContextUtil
         return Keys.STD + calendarId + "-" + studentId;
     }
     
+    static StringRedisTemplate stringRedisTemplate;
+    
     static StringRedisTemplate getRedisTemplate()
     {
-        return SpringUtils.getBean(StringRedisTemplate.class);
+        if (stringRedisTemplate == null)
+        {
+            stringRedisTemplate =
+                SpringUtils.getBean(StringRedisTemplate.class);
+        }
+        return stringRedisTemplate;
     }
     
     public <T> T getObject(String type, Class<T> clazz)
@@ -310,50 +319,44 @@ public class ElecContextUtil
     }
     
     /**
-     * 需要处理加锁成功后程序挂了，这个时候值没有设置超时将会一直无法选课
+     * 更新锁的生存时间，防止生存时间到了任务还没做完的情况
      * 
      */
-    public static void delDeadLock()
+    public static void updateLockTime()
     {
-        Set<String> keys =
-            getRedisTemplate().keys(Keys.STD_STATUS_LOCK_PATTERN);
-        if (CollectionUtil.isNotEmpty(keys))
+        if (CollectionUtil.isNotEmpty(lockKeys))
         {
-            Long now = new Date().getTime();
-            List<String> values =
-                getRedisTemplate().opsForValue().multiGet(keys);
-            
-            int index = 0;
-            List<String> delKeys = new ArrayList<>();
-            for (String key : keys)
+            for (String key : lockKeys)
             {
-                String timeStr = values.get(index);
-                if (StringUtils.isNumeric(timeStr))
-                {
-                    Long time = Long.valueOf(timeStr);
-                    long hours = TimeUnit.MILLISECONDS.toHours(now - time);
-                    if (hours >= 1)// 超过一个小时的锁认为是死锁，删除掉
-                    {
-                        delKeys.add(key);
-                    }
-                }
-                index++;
+                getRedisTemplate().expire(key, 30, TimeUnit.MINUTES);
             }
-            getRedisTemplate().delete(delKeys);
         }
     }
     
+    static final List<String> lockKeys = new ArrayList<>();
+    
     /**
-     * 给status 加锁，并返回key用于解锁
+     * 给status 加锁，默认生存时间为30分钟
      * @return true 成功 false 失败
      */
     public static boolean tryLock(Long calendarId, String studentId)
     {
         long value = System.currentTimeMillis();
         String redisKey = String.format(STD_STATUS_LOCK, calendarId, studentId);
-        if (getRedisTemplate().opsForValue()
-            .setIfAbsent(redisKey, String.valueOf(value)))
+        
+        Jedis connection = (Jedis)getRedisTemplate().getConnectionFactory()
+            .getConnection()
+            .getNativeConnection();
+        
+        String statusCode = connection.set(redisKey,
+            String.valueOf(value),
+            "NX",
+            "EX",
+            TimeUnit.MINUTES.toSeconds(30));
+        
+        if ("OK".equals(statusCode))
         {
+            lockKeys.add(redisKey);
             return true;
         }
         return false;

@@ -28,6 +28,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
@@ -68,11 +69,9 @@ public class RoundDataProvider
         /*
          * roundId -> lessonId -> json
          */
-        ValueOperations<String, String> ops = strTemplate.opsForValue();
-        String dataLoadKey =
-            String.format(Keys.STD_STATUS_LOCK, "dataLoad", "");
-        Boolean setIfAbsent = ops.setIfAbsent(dataLoadKey,
-            String.valueOf(System.currentTimeMillis()));
+        Long caKey = 0L;
+        String key = "dataLoad";
+        Boolean setIfAbsent = ElecContextUtil.tryLock(caKey, key);
         if (!Boolean.TRUE.equals(setIfAbsent))
         {
             return;
@@ -110,7 +109,7 @@ public class RoundDataProvider
         }
         finally
         {
-            strTemplate.delete(dataLoadKey);
+            ElecContextUtil.unlock(caKey, key);
         }
     }
     
@@ -287,9 +286,10 @@ public class RoundDataProvider
      * @return
      */
     public List<TeachingClassCache> getTeachClasssbyCalendarId(Long calendarId,
-    		String courseCode)
+        String courseCode)
     {
-    	return classCacheService.getTeachClasssBycalendarId(calendarId, courseCode);
+        return classCacheService.getTeachClasssBycalendarId(calendarId,
+            courseCode);
     }
     
     /**
@@ -329,6 +329,7 @@ public class RoundDataProvider
     {
         return classCacheService.incrementElecNumber(teachClassId);
     }
+    
     /**
      * 减少教学班人数
      * 
