@@ -6,6 +6,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.validation.constraints.NotNull;
 
@@ -127,6 +128,7 @@ public class TestController
         this.test1();
         
         long start = System.currentTimeMillis();
+        AtomicInteger count = new AtomicInteger(0);
         CountDownLatch downLatch = new CountDownLatch(100);
         for (int i = 1; i <= 100; i++)
         {
@@ -136,6 +138,7 @@ public class TestController
                     for (int j = 0; j < 1000; j++)
                     {
                         getRound3();
+                        count.getAndIncrement();
                     }
                 }
                 finally
@@ -154,8 +157,10 @@ public class TestController
         }
         long end = System.currentTimeMillis();
         long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
-        LOG.error("----- test2 request time[{}] -------", seconds);
-        return RestResult.successData(seconds);
+        
+        String format = String.format("----- test2 request time[%s], count[%s] -------", seconds, count.get());
+        LOG.error(format);
+        return RestResult.successData(format);
     }
     
     @GetMapping("/test3")
@@ -164,6 +169,7 @@ public class TestController
         this.test1();
         
         long start = System.currentTimeMillis();
+        AtomicInteger count = new AtomicInteger(0);
         CountDownLatch downLatch = new CountDownLatch(100);
         for (int i = 1; i <= 100; i++)
         {
@@ -173,6 +179,7 @@ public class TestController
                     for (int j = 0; j < 1000; j++)
                     {
                         redisTemplate.opsForValue().get("testElc_test1");
+                        count.getAndIncrement();
                     }
                 }
                 finally
@@ -191,8 +198,9 @@ public class TestController
         }
         long end = System.currentTimeMillis();
         long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
-        LOG.error("----- test3 request time[{}] -------", seconds);
-        return RestResult.successData(seconds);
+        String format = String.format("----- test3 request time[%s], count[%s] -------", seconds, count.get());
+        LOG.error(format);
+        return RestResult.successData(format);
     }
     
     @GetMapping("/test4")
