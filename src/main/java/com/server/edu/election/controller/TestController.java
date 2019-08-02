@@ -2,6 +2,9 @@ package com.server.edu.election.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.validation.constraints.NotNull;
@@ -54,8 +57,10 @@ public class TestController
         List<ElectionRounds> allRound = dataProvider.getAllRound();
         
         long end = System.currentTimeMillis();
-        if(TimeUnit.MILLISECONDS.toSeconds(end - start) > 1) {
-            LOG.error("----- getRounds request time > 1 -------");
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
+        if (seconds > 1)
+        {
+            LOG.error("----- getRounds request time[{}] > 1 -------", seconds);
         }
         return RestResult.successData(data);
     }
@@ -65,22 +70,26 @@ public class TestController
         @RequestParam("electionObj") @NotBlank String electionObj,
         @RequestParam("projectId") @NotBlank String projectId,
         @RequestParam(name = "mode") @NotNull Integer mode,
-        @RequestParam(name = "studentId") String studentId){
+        @RequestParam(name = "studentId") String studentId)
+    {
         
         long start = System.currentTimeMillis();
         
         String string = redisTemplate.opsForValue().get("testElc_test1");
         
         long end = System.currentTimeMillis();
-        if(TimeUnit.MILLISECONDS.toSeconds(end - start) > 1) {
-            LOG.error("----- getRound2 request time > 1 -------");
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
+        if (seconds > 1)
+        {
+            LOG.error("----- getRound2 request time[{}] > 1 -------", seconds);
         }
         List<ElectionRoundsVo> data = new ArrayList<>();
         return RestResult.successData(data);
     }
     
     @PostMapping("/getRound3")
-    public RestResult<List<ElectionRounds>> getRound3(){
+    public RestResult<List<ElectionRounds>> getRound3()
+    {
         
         long start = System.currentTimeMillis();
         
@@ -89,17 +98,63 @@ public class TestController
         List<ElectionRounds> data = JSON.parseArray(text, ElectionRounds.class);
         
         long end = System.currentTimeMillis();
-        if(TimeUnit.MILLISECONDS.toSeconds(end - start) > 1) {
-            LOG.error("----- getRound2 request time > 1 -------");
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
+        if (seconds > 1)
+        {
+            LOG.error("----- getRound3 request time[{}] > 1 -------", seconds);
         }
         
         return RestResult.successData(data);
     }
     
     @GetMapping("/test1")
-    public RestResult<?> test1(){
+    public RestResult<?> test1()
+    {
         List<ElectionRounds> allRound = dataProvider.getAllRound();
-        redisTemplate.opsForValue().set("testElc_test1", JSON.toJSONString(allRound), 1, TimeUnit.HOURS);
+        redisTemplate.opsForValue()
+            .set("testElc_test1",
+                JSON.toJSONString(allRound),
+                1,
+                TimeUnit.HOURS);
+        return RestResult.success();
+    }
+    
+    static ExecutorService executorService = Executors.newFixedThreadPool(100);
+    
+    @GetMapping("/test2")
+    public RestResult<?> test2()
+    {
+        this.test1();
+        
+        long start = System.currentTimeMillis();
+        CountDownLatch downLatch = new CountDownLatch(100);
+        for (int i = 1; i <= 100; i++)
+        {
+            executorService.submit(() -> {
+                try
+                {
+                    for (int j = 0; j < 1000; j++)
+                    {
+                        getRound3();
+                    }
+                }
+                finally
+                {
+                    downLatch.countDown();
+                }
+            });
+        }
+        try
+        {
+            downLatch.await();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+        long end = System.currentTimeMillis();
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(end - start);
+        LOG.error("----- test2 request time[{}] -------", seconds);
         return RestResult.success();
     }
     
@@ -108,7 +163,8 @@ public class TestController
         @RequestParam("sessionId") @NotBlank String sessionId)
     {
         Session session = SessionUtils.getSession(sessionId);
-        if(session == null) {
+        if (session == null)
+        {
             throw new ParameterValidateException("");
         }
         return RestResult.successData(session);
@@ -119,7 +175,8 @@ public class TestController
         @RequestParam("sessionId") @NotBlank String sessionId)
     {
         Session session = SessionUtils.getSession(sessionId);
-        if(session == null) {
+        if (session == null)
+        {
             throw new ParameterValidateException("");
         }
         return RestResult.successData(new Session());
