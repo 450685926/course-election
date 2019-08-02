@@ -66,6 +66,16 @@ public class TestController
         return RestResult.successData(data);
     }
     
+    @PostMapping("/getRound3")
+    public RestResult<List<ElectionRounds>> getRound3(){
+        
+        String text = redisTemplate.opsForValue().get("testElc_test1");
+        
+        List<ElectionRounds> data = JSON.parseArray(text, ElectionRounds.class);
+        
+        return RestResult.successData(data);
+    }
+    
     @GetMapping("/test1")
     public RestResult<?> test1(){
         List<ElectionRounds> allRound = dataProvider.getAllRound();
