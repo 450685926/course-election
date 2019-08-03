@@ -137,7 +137,7 @@ public class BaseresServiceInvoker
      */
     public static RestResult<List<Classroom>> queryAllClassRoom(List<String> roomIds){
     	@SuppressWarnings("unchecked")
-    	RestResult<List<Classroom>> classrooms= ServicePathEnum.BASESERVICE.postForObject("/schoolCalendar/queryAllClassRoom?roomIds={roomIds}", roomIds, RestResult.class);
+    	RestResult<List<Classroom>> classrooms= ServicePathEnum.BASESERVICE.postForObject("/schoolCalendar/queryAllClassRoom", roomIds, RestResult.class);
     	return classrooms;
     }
     

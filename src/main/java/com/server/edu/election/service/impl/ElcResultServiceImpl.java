@@ -145,8 +145,14 @@ public class ElcResultServiceImpl implements ElcResultService
         
 		// 添加教室容量
 		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
+		
+		logger.info("================================TeachingClass================================size: "+roomIds.size());
+		logger.info("================================TeachingClass================================roomIds: "+roomIds);
+		
 		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
 		List<Classroom> classroomList = queryAllClassRoom.getData();
+		
+		logger.info("================================TeachingClass================================classroomList size: "+classroomList.size());
 		
 		for (TeachingClassVo teachingClassVo : listPage) {
 			for (Classroom classroom : classroomList) {
