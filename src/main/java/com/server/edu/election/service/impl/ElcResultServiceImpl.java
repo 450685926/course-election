@@ -155,16 +155,14 @@ public class ElcResultServiceImpl implements ElcResultService
 		logger.info("================================TeachingClass================================classroomList size: "+classroomList.size());
 		
 		for (TeachingClassVo teachingClassVo : listPage) {
-			for (Classroom classroom : classroomList) {
-				if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
-					teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-				}
-			}
-		}
-
-		for (TeachingClassVo teachingClassVo : listPage) {
 			if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
 				teachingClassVo.setClassNumberStr("不限");
+			}else {
+				for (Classroom classroom : classroomList) {
+					if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
+						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+					}
+				}
 			}
 		}
         
