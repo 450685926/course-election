@@ -66,17 +66,31 @@ public class ElecAgentController
         @RequestParam(name = "mode") @NotNull Integer mode,
         @RequestParam(name = "studentId") String studentId)
     {
+    	
+    	LOG.info("============================getRounds=====代理选课获取轮次信息参数：=======================:");
+    	LOG.info("============================getRounds=====代理选课获取轮次信息参数electionObj：=======================:"+electionObj);
+    	LOG.info("============================getRounds=====代理选课获取轮次信息参数projectId：=======================:"+projectId);
+    	LOG.info("============================getRounds=====代理选课获取轮次信息参数mode：=======================:"+mode);
+    	LOG.info("============================getRounds=====代理选课获取轮次信息参数studentId：=======================:"+studentId);
+    	
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
         Date date = new Date();
         for (ElectionRounds round : allRound)
         {
+        	if (round.getId().longValue() == 151L) {
+        		LOG.info("======151=====151========151=========getRounds=====代理选课获取轮次信息参数151轮次信息拿到：======151=======151======151====");
+			}
+        	
             if (StringUtils.equals(projectId, round.getProjectId())
                 && StringUtils.equals(electionObj, round.getElectionObj())
                 && Objects.equals(mode, round.getMode())
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime()))
             {
+            	LOG.info("===================dataProvider.containsStu(round.getId(), studentId): "+dataProvider.containsStu(round.getId(), studentId));
+            	LOG.info("===================dataProvider.containsStuCondition(round.getId(),studentId,projectId): "+dataProvider.containsStu(round.getId(), studentId));
+            	
                 // 研究生(研究生只有教务员代理选课需要查询轮次信息)
                 if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)
                     && (!dataProvider.containsStu(round.getId(), studentId)
@@ -86,6 +100,9 @@ public class ElecAgentController
                 {
                     continue;
                 }
+                
+                LOG.info("============================getRounds=====代理选课获取轮次信息=======================:");
+                
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules =
                     dataProvider.getRules(round.getId());
@@ -243,9 +260,6 @@ public class ElecAgentController
             noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
             noSelectCourseStds.setFaculty(session.getFaculty());
         }
-        
-        LOG.info("====================condition===================="+condition.getCondition().getKeyword());
-
         PageResult<NoSelectCourseStdsDto> list =
             elecService.findAgentElcStudentList(condition);
         return RestResult.successData(list);

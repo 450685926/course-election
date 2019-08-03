@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.controller.ElecAgentController;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
@@ -45,6 +48,8 @@ import com.server.edu.util.CollectionUtil;
 @Service
 public class RoundCacheService extends AbstractCacheService
 {
+	Logger log = LoggerFactory.getLogger(RoundCacheService.class);
+	
     @Autowired
     private ElcRoundConditionDao elcRoundConditionDao;
     
@@ -181,6 +186,8 @@ public class RoundCacheService extends AbstractCacheService
      */
     public boolean containsStuCondition(Long roundId, String studentId,String projectId)
     {
+    	log.info("============================containsStuCondition=====匹配轮次信息开始=======================:");
+    	
         if (null == roundId || StringUtils.isBlank(studentId))
         {
             return false;
@@ -192,6 +199,8 @@ public class RoundCacheService extends AbstractCacheService
         String text = ops.get(key, studentId);
         if (StringUtils.isBlank(text))
         {
+        	log.info("========================containsStuCondition=====数据库查询student信息=======================:");
+        	
             student = studentDao.selectByPrimaryKey(studentId);
             if (null == student)
             {
@@ -199,9 +208,14 @@ public class RoundCacheService extends AbstractCacheService
             }
             ops.put(key, studentId, JSON.toJSONString(student));
             strTemplate.expire(key, 1, TimeUnit.HOURS);
+            
+            log.info("========================containsStuCondition=====数据库查询student信息放入缓存中=======================:");
+            log.info("========================containsStuCondition============================:"+ student);
         }
         else
         {
+        	log.info("========================containsStuCondition=====直接从缓存中取student信息=======================:");
+        	
             student = JSON.parseObject(text, Student.class);
         }
         ElcRoundCondition con = getRoundCondition(roundId);
@@ -213,6 +227,8 @@ public class RoundCacheService extends AbstractCacheService
         			&& contains(con.getMajors(), student.getProfession())
         			&& contains(con.getTrainingLevels(),student.getTrainingLevel());
             
+        	log.info("========================containsStuCondition=====matchConditionFlag=======================:"+matchConditionFlag);
+        	
         	if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
         		if (!matchConditionFlag) {
 					return false;
@@ -221,6 +237,9 @@ public class RoundCacheService extends AbstractCacheService
         		boolean matchConditionGraduteFlag = contains(con.getTrainingCategorys(), student.getTrainingCategory())
         				&& contains(con.getDegreeTypes(), student.getDegreeType())
         				&& contains(con.getFormLearnings(), student.getFormLearning());
+        		
+        		log.info("========================containsStuCondition=====matchConditionGraduteFlag=======================:"+matchConditionGraduteFlag);
+        		
         		if (!matchConditionFlag || !matchConditionGraduteFlag) {
 					return false;
 				}
