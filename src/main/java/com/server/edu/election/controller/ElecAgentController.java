@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.io.filefilter.FalseFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -64,7 +65,7 @@ public class ElecAgentController
         @RequestParam("electionObj") @NotBlank String electionObj,
         @RequestParam("projectId") @NotBlank String projectId,
         @RequestParam(name = "mode") @NotNull Integer mode,
-        @RequestParam(name = "studentId") String studentId)
+        @RequestParam(name = "studentId",required=false) String studentId)
     {
     	
     	LOG.info("============================getRounds=====代理选课获取轮次信息参数：=======================:");
