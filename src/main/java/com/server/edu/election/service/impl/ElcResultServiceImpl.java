@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -146,6 +147,10 @@ public class ElcResultServiceImpl implements ElcResultService
 		// 添加教室容量
 		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
 		
+		Set<String> set = new HashSet<String>(roomIds);
+		roomIds.clear();
+		roomIds.addAll(set);
+		
 		logger.info("================================TeachingClass================================size: "+roomIds.size());
 		logger.info("================================TeachingClass================================roomIds: "+roomIds);
 		
@@ -161,7 +166,7 @@ public class ElcResultServiceImpl implements ElcResultService
 			}else {
 				logger.info("======TeachingClass=============TeachingClass=============TeachingClass============TeachingClass======");
 				for (Classroom classroom : classroomList) {
-					if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
+					if (StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
 						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
 					}
 				}
