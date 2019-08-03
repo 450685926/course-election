@@ -138,7 +138,7 @@
   
   <select id="grduateListPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
-    	   t2.CAMPUS_,
+    	   t1.CAMPUS_,
     	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,
     	   t4.TEACHER_CODE_,t4.TEACHER_NAME_,room.ROOM_ID_ roomId
     from teaching_class_t  t1  
@@ -154,7 +154,7 @@
         and t3.FACULTY_ = #{faculty}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus}
+        and t1.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
         and t3.NATURE_ = #{nature}

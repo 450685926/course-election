@@ -151,22 +151,16 @@ public class ElcResultServiceImpl implements ElcResultService
 		roomIds.clear();
 		roomIds.addAll(set);
 		
-		logger.info("================================TeachingClass================================size: "+roomIds.size());
-		logger.info("================================TeachingClass================================roomIds: "+roomIds);
-		
 		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
 		List<Classroom> classroomList = queryAllClassRoom.getData();
-		
-		logger.info("================================TeachingClass================================classroomList size: "+classroomList.size());
 		
 		for (TeachingClassVo teachingClassVo : listPage) {
 			if (StringUtils.isBlank(teachingClassVo.getRoomId()) || 
 					StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
 				teachingClassVo.setClassNumberStr("不限");
 			}else {
-				logger.info("======TeachingClass=============TeachingClass=============TeachingClass============TeachingClass======");
 				for (Classroom classroom : classroomList) {
-					if (StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
+					if (classroom != null && StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
 						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
 					}
 				}
