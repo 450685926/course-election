@@ -202,8 +202,12 @@ public class RoundCacheService extends AbstractCacheService
         	log.info("========================containsStuCondition=====数据库查询student信息=======================:");
         	
             student = studentDao.selectByPrimaryKey(studentId);
+            
+            log.info("========================student=====AAAAAAAAAAAAAAstudentAAAAAAAAAAAAAAA=======================:"+student);
+            
             if (null == student)
             {
+            	log.info("==========student is null==============student is null=====student is null==========student is null=========student is null====:");
                 return false;
             }
             ops.put(key, studentId, JSON.toJSONString(student));
