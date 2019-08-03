@@ -76,7 +76,7 @@ import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcResultServiceImpl implements ElcResultService
 {
-    Logger logger = LoggerFactory.getLogger(getClass());
+    Logger logger = LoggerFactory.getLogger(ElcResultServiceImpl.class);
     
     @Autowired
     private TeachingClassDao classDao;
@@ -155,9 +155,11 @@ public class ElcResultServiceImpl implements ElcResultService
 		logger.info("================================TeachingClass================================classroomList size: "+classroomList.size());
 		
 		for (TeachingClassVo teachingClassVo : listPage) {
-			if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
+			if (StringUtils.isBlank(teachingClassVo.getRoomId()) || 
+					StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
 				teachingClassVo.setClassNumberStr("不限");
 			}else {
+				logger.info("======TeachingClass=============TeachingClass=============TeachingClass============TeachingClass======");
 				for (Classroom classroom : classroomList) {
 					if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
 						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
