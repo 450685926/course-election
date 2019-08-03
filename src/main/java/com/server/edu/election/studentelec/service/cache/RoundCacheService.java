@@ -213,7 +213,7 @@ public class RoundCacheService extends AbstractCacheService
         			&& contains(con.getMajors(), student.getProfession())
         			&& contains(con.getTrainingLevels(),student.getTrainingLevel());
             
-        	if("1".equals(projectId)) {
+        	if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
         		if (!matchConditionFlag) {
 					return false;
 				}

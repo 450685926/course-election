@@ -243,7 +243,6 @@ public class ElecAgentController
             noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
             noSelectCourseStds.setFaculty(session.getFaculty());
         }
-        
         PageResult<NoSelectCourseStdsDto> list =
             elecService.findAgentElcStudentList(condition);
         return RestResult.successData(list);
