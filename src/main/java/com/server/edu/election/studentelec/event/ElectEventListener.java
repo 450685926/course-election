@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.preload.CourseGradeLoad;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 
 @Component
 public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
 {
     @Autowired
-    private CourseGradeLoad courseGradeLoad;
+    private BKCourseGradeLoad bKCourseGradeLoad;
     
     @Override
     public void onApplicationEvent(ElectLoadEvent event)
@@ -29,7 +29,7 @@ public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
                 return;
             }
             // 重新加载学生缓存数据
-            courseGradeLoad.loadSelectedCourses(studentId,
+            bKCourseGradeLoad.loadSelectedCourses(studentId,
                 context.getSelectedCourses(),
                 calendarId);
             

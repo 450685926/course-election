@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.controller.ElecAgentController;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundStuDao;

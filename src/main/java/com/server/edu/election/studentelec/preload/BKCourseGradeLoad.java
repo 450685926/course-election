@@ -1,19 +1,22 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.studentelec.context.*;
-import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.Teacher;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
@@ -30,10 +33,19 @@ import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.CompletedCourse;
+import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.context.SelectedCourse;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
+import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -41,7 +53,7 @@ import com.server.edu.util.CollectionUtil;
 import tk.mybatis.mapper.entity.Example;
 
 /**
- * 查询学生有成绩的课程
+ * 查询本科学生有成绩的课程
  * 
  * 
  * @author  OuYangGuoDong
@@ -50,7 +62,7 @@ import tk.mybatis.mapper.entity.Example;
  * @since  [产品/模块版本]
  */
 @Component
-public class CourseGradeLoad extends DataProLoad
+public class BKCourseGradeLoad extends DataProLoad
 {
     @Override
     public int getOrder()
@@ -61,7 +73,7 @@ public class CourseGradeLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-    	return "1,2,4";
+    	return "1";
     }
     
     @Autowired
