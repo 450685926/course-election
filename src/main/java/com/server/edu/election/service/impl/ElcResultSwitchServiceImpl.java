@@ -1,5 +1,7 @@
 package com.server.edu.election.service.impl;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.server.edu.common.locale.I18nUtil;
@@ -30,10 +32,11 @@ public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 	    int count = elecResultSwitchDao.selectCountByExample(example);
 	    if (count > 0)
 	    {
-	        throw new ParameterValidateException(
-	            I18nUtil.getMsg("resultSwitch.exist"));
+	        return;
 	    }
-		
+	    
+	    Date date = new Date();
+	    resultSwitch.setCreateAt(date);
 		int result = elecResultSwitchDao.insertSelective(resultSwitch);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.addError",I18nUtil.getMsg("elecResultSwitch.addError")));
