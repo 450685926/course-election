@@ -78,13 +78,13 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             course2.setCredits(planCourseTypeDto.getCredits());
                             String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                             course2.setCalendarName(calendarName);
+                            course2.setCompulsory(planCourseTypeDto.getCompulsory());
 						}
                         pl.setCourse(course2);
                         pl.setSemester(planCourseTypeDto.getSemester());
                         pl.setWeekType(planCourseTypeDto.getWeekType());
                         pl.setSubCourseCode(planCourseTypeDto.getSubCourseCode());
                         pl.setLabel(label);
-//                        pl.setCompulsory(planCourseTypeDto.getCompulsory());
                         planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
                             ElecCourse c=new ElecCourse();
@@ -92,7 +92,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             c.setCourseName(planCourseTypeDto.getName());
                             c.setNameEn(planCourseTypeDto.getNameEn());
                             c.setCredits(planCourseTypeDto.getCredits());
-//                            c.setCompulsory(planCourseTypeDto.getCompulsory());
+                            c.setCompulsory(planCourseTypeDto.getCompulsory());
                             String calendar = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                             c.setCalendarName(calendar);
                             publicCourses.add(c);
