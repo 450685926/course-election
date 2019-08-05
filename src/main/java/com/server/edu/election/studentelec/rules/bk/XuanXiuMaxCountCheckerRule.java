@@ -13,10 +13,10 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.entity.ElectionParameter;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -24,7 +24,7 @@ import com.server.edu.util.CollectionUtil;
  * XuanXiuMaxCountChecker
  */
 @Component("XuanXiuMaxCountCheckerRule")
-public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutor
+public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutorBk
 {
     
     @Autowired
@@ -34,13 +34,15 @@ public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutor
      * 执行选课操作时
      */
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
-        if (StringUtils.isNotBlank(courseClass.getCourseCode())
+        String courseCode = courseClass.getCourseCode();
+        boolean publicElec = courseClass.isPublicElec();
+        if (StringUtils.isNotBlank(courseCode)
             && courseClass.getTeachClassId() != null)
         {
-            if (!courseClass.isPublicElec())
+            if (!publicElec)
             {//是否选修课
                 return true;
             }
@@ -48,7 +50,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutor
             if (CollectionUtil.isNotEmpty(selectedCourses))
             {
                 List<SelectedCourse> list = selectedCourses.stream()
-                    .filter(c -> c.isPublicElec() == true)
+                    .filter(c -> c.getTeachingClass().isPublicElec() == true)
                     .collect(Collectors.toList());
                 int stsNum = list.size();
                 // 选课门数上限

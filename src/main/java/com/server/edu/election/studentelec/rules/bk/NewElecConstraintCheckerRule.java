@@ -11,10 +11,10 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 
 /**
@@ -23,17 +23,17 @@ import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
  * NewElectionConstraintChecker
  */
 @Component("NewElecConstraintCheckerRule")
-public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
+public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutorBk
 {
     
     @Autowired
     private ElectionConstantsDao constantsDao;
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
-        boolean count = RetakeCourseUtil.isRetakeCourse(context,
+        boolean count = RetakeCourseUtil.isRetakeCourseBk(context,
             courseClass.getCourseCode());
         if (count)
         {//重修
@@ -105,7 +105,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutor
                     .collect(Collectors.toSet());
                 double size = collect.stream()
                     .collect(
-                        Collectors.summingDouble(SelectedCourse::getCredits));//已经新选学分
+                        Collectors.summingDouble(c -> {return c.getTeachingClass().getCredits();}));//已经新选学分
                 Double curCredits = courseClass.getCredits();//当前课程学分
                 if (curCredits + size <= num)
                 {

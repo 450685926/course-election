@@ -29,7 +29,7 @@ import tk.mybatis.mapper.entity.Example;
  * 
  */
 @Component
-public class YJSCoursePlanLoad extends DataProLoad
+public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
 {
     Logger log = LoggerFactory.getLogger(getClass());
     

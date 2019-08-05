@@ -38,12 +38,12 @@ import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
-import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
@@ -62,7 +62,7 @@ import tk.mybatis.mapper.entity.Example;
  * @since  [产品/模块版本]
  */
 @Component
-public class BKCourseGradeLoad extends DataProLoad
+public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
 {
     @Override
     public int getOrder()
@@ -101,7 +101,7 @@ public class BKCourseGradeLoad extends DataProLoad
     private TeachClassCacheService teachClassCacheService;
     
     @Override
-    public void load(ElecContext context)
+    public void load(ElecContextBk context)
     {
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
         // 1. 查询学生课程成绩(包括已完成)
@@ -132,20 +132,23 @@ public class BKCourseGradeLoad extends DataProLoad
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (StudentScoreVo studentScore : stuScoreBest)
             {
-                CompletedCourse lesson = new CompletedCourse();
+                CompletedCourse c = new CompletedCourse();
                 Long teachingClassId = studentScore.getTeachingClassId();
+                TeachingClassCache lesson = new TeachingClassCache();
                 lesson.setTeachClassId(teachingClassId);
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
-                lesson.setScore(studentScore.getTotalMarkScore());
                 lesson.setCredits(studentScore.getCredit());
-                lesson.setExcellent(studentScore.isBestScore());
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
-                lesson.setIsPass(studentScore.getIsPass());
                 lesson.setNature(studentScore.getCourseNature());
-                lesson.setCourseLabelId(studentScore.getCourseLabelId());
-                lesson.setCheat(
+                
+                c.setTeachingClass(lesson);
+                c.setScore(studentScore.getTotalMarkScore());
+                c.setExcellent(studentScore.isBestScore());
+                c.setIsPass(studentScore.getIsPass());
+                c.setCourseLabelId(studentScore.getCourseLabelId());
+                c.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 //本科生研究生课程安排查询
                 if ("1".equals(studentScore.getManagerDeptId())) {
@@ -200,11 +203,11 @@ public class BKCourseGradeLoad extends DataProLoad
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
-                    completedCourses.add(lesson);
+                    completedCourses.add(c);
                 }
                 else
                 {
-                    failedCourse.add(lesson);
+                    failedCourse.add(c);
                 }
                 
             }
@@ -262,6 +265,7 @@ public class BKCourseGradeLoad extends DataProLoad
         elecApplyCourses.addAll(electionApplys);
     }
     
+    
     /**
      * 加载本学期已选课课程数据
      * 
@@ -287,28 +291,29 @@ public class BKCourseGradeLoad extends DataProLoad
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
-                course.setCalendarName(year);
-                course.setTeachClassMsg(c.getTeachingClassId());
-                course.setNature(c.getNature());
-                course.setApply(c.getApply());
-                course.setLabel(c.getLabel());
-                course.setCampus(c.getCampus());
-                course.setChooseObj(c.getChooseObj());
-                course.setCourseCode(c.getCourseCode());
-                course.setCourseName(c.getCourseName());
-                course.setCourseTakeType(c.getCourseTakeType());
-                course.setCredits(c.getCredits());
-                course.setCalendarId(c.getCalendarId());
-                course.setAssessmentMode(c.getAssessmentMode());
-                course.setPublicElec(
+                TeachingClassCache lesson = new TeachingClassCache();
+                lesson.setCalendarName(year);
+                lesson.setNature(c.getNature());
+                lesson.setApply(c.getApply());
+                lesson.setCampus(c.getCampus());
+                lesson.setCourseCode(c.getCourseCode());
+                lesson.setCourseName(c.getCourseName());
+                lesson.setCredits(c.getCredits());
+                lesson.setCalendarId(c.getCalendarId());
+                lesson.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
-                course.setTeachClassId(c.getTeachingClassId());
-                course.setTeachClassCode(c.getTeachingClassCode());
+                lesson.setTeachClassId(c.getTeachingClassId());
+                lesson.setTeachClassCode(c.getTeachingClassCode());
+                lesson.setFaculty(c.getFaculty());
+                lesson.setTerm(c.getTerm());
+                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
+                lesson.setTimes(times);
+                
+                course.setLabel(c.getLabel());
+                course.setChooseObj(c.getChooseObj());
+                course.setCourseTakeType(c.getCourseTakeType());
+                course.setAssessmentMode(c.getAssessmentMode());
                 course.setTurn(c.getTurn());
-                course.setFaculty(c.getFaculty());
-                course.setTerm(c.getTerm());
-                List<ClassTimeUnit> times = this.concatTime(collect, course);
-                course.setTimes(times);
                 selectedCourses.add(course);
             }
         }

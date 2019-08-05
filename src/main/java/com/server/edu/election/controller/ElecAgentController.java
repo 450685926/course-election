@@ -26,7 +26,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -55,16 +54,13 @@ public class ElecAgentController
     @Autowired
     private RoundDataProvider dataProvider;
     
-    @Autowired
-    private ElecYjsService yjsService;
-    
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
     public RestResult<List<ElectionRoundsVo>> getRounds(
         @RequestParam("electionObj") @NotBlank String electionObj,
         @RequestParam("projectId") @NotBlank String projectId,
         @RequestParam(name = "mode") @NotNull Integer mode,
-        @RequestParam(name = "studentId",required=false) String studentId)
+        @RequestParam(name = "studentId", required = false) String studentId)
     {
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
@@ -114,46 +110,22 @@ public class ElecAgentController
         return elecService.loading(elecRequest);
     }
     
-    @ApiOperation(value = "获取学生选课数据")
-    @PostMapping("/getData")
-    public RestResult<ElecContext> getData(
+    @ApiOperation(value = "获取本科生选课数据")
+    @PostMapping("/getDataBk")
+    public RestResult<ElecContext> getDataBk(
         @RequestBody(required = false) ElecRequest elecRequest)
     {
         ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         
-        Session session = SessionUtils.getCurrentSession();
         String studentId = elecRequest.getStudentId();
         
-        ElectionRounds round = new ElectionRounds();
-        ElecContext c = new ElecContext();
-        if (elecRequest.getRoundId() != null)
-        { // 教务员
-            round = dataProvider.getRound(elecRequest.getRoundId());
-            if (round == null)
-            {
-                return RestResult.error("elec.roundNotExistTip");
-            }
-            c = new ElecContext(studentId, round.getCalendarId());
-        }
-        else
-        { // 管理员
-            c = new ElecContext(studentId, elecRequest.getCalendarId());
-        }
-        
-        if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
+        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
+        if (round == null)
         {
-            if (elecRequest.getChooseObj() == Constants.TOW)
-            { // 教务员
-                c = yjsService
-                    .setData(studentId, c, elecRequest.getRoundId(), null);
-            }
-            else if (elecRequest.getChooseObj() == Constants.THREE)
-            { // 管理员
-                c = yjsService
-                    .setData(studentId, c, null, elecRequest.getCalendarId());
-                //c = elecService.setData(c,null,calendarId);
-            }
+            return RestResult.error("elec.roundNotExistTip");
         }
+        ElecContext c = new ElecContext(studentId, round.getCalendarId());
+        
         return RestResult.successData(c);
     }
     

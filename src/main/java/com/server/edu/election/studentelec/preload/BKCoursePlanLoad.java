@@ -16,9 +16,9 @@ import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.PlanCourse;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -29,7 +29,7 @@ import tk.mybatis.mapper.entity.Example;
  * 
  */
 @Component
-public class BKCoursePlanLoad extends DataProLoad
+public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 {
     Logger log = LoggerFactory.getLogger(getClass());
     
@@ -50,7 +50,7 @@ public class BKCoursePlanLoad extends DataProLoad
     }
 
     @Override
-    public void load(ElecContext context)
+    public void load(ElecContextBk context)
     {
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(stu.getStudentId());
@@ -69,18 +69,20 @@ public class BKCoursePlanLoad extends DataProLoad
                         Example example = new Example(Course.class);
                         example.createCriteria().andEqualTo("code",planCourseTypeDto.getCourseCode());
                         Course course = courseDao.selectOneByExample(example);
+                        ElecCourse course2 = new ElecCourse();
                         if (course != null) {
-                        	pl.setNature(course.getNature());
+                            course2.setCourseCode(planCourseTypeDto.getCourseCode());
+                            course2.setCourseName(planCourseTypeDto.getName());
+                            course2.setNameEn(planCourseTypeDto.getNameEn());
+                            course2.setNature(course.getNature());
+                            course2.setCredits(planCourseTypeDto.getCredits());
+                            String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
+                            course2.setCalendarName(calendarName);
 						}
+                        pl.setCourse(course2);
                         pl.setSemester(planCourseTypeDto.getSemester());
                         pl.setWeekType(planCourseTypeDto.getWeekType());
-                        pl.setCourseCode(planCourseTypeDto.getCourseCode());
-                        pl.setCourseName(planCourseTypeDto.getName());
-                        pl.setNameEn(planCourseTypeDto.getNameEn());
                         pl.setSubCourseCode(planCourseTypeDto.getSubCourseCode());
-                        pl.setCredits(planCourseTypeDto.getCredits());
-                        String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
-                        pl.setCalendarName(calendarName);
                         pl.setLabel(label);
 //                        pl.setCompulsory(planCourseTypeDto.getCompulsory());
                         planCourses.add(pl);

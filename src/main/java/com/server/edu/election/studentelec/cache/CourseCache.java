@@ -18,7 +18,6 @@ public class CourseCache extends ElecCourse
     
     public CourseCache(ElecCourse course)
     {
-        this.setCampus(course.getCampus());
         this.setCourseCode(course.getCourseCode());
         this.setCourseName(course.getCourseName());
         this.setCredits(course.getCredits());
