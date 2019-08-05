@@ -282,6 +282,7 @@ public class ReportManagementController
     public RestResult<PageResult<StudentVo>> findStudentTimeTableByRole(
             @RequestBody PageCondition<ReportManagementCondition> condition)
     {
+        LOG.info("findStudentTimeTableByRole.start");
         ReportManagementCondition reportManagementCondition = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
         PageResult<StudentVo> schoolTimetab = null;
@@ -518,7 +519,7 @@ public class ReportManagementController
         String fileName = managementService.exportPreRollBookList(condition);
         return RestResult.successData(fileName);
     }
-    
+
     @GetMapping(value = "/exportStudentTimetabPdf")
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "导出学生课表pdf--研究生")})
@@ -528,9 +529,7 @@ public class ReportManagementController
     		@RequestParam("studentCode") String studentCode, 
     		@RequestParam("studentName") String studentName) throws Exception{
     	LOG.info("exportStudentTimetabPdf.start");
-    	
-    	StringBuffer name = new StringBuffer();
-    	RestResult<String> restResult = managementService.exportStudentTimetabPdf(calendarId, calendarName, studentCode,studentName);
+    	RestResult<String> restResult = managementService.exportStudentTimetabPdf(calendarId, calendarName, studentCode, studentName);
     	
     	if (ResultStatus.SUCCESS.code() == restResult.getCode()
                 && !"".equals(restResult.getData()))
@@ -543,7 +542,7 @@ public class ReportManagementController
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment;filename="
                             + String.valueOf(
-                                URLEncoder.encode(name.toString(), "UTF-8"))
+                                URLEncoder.encode(studentName, "UTF-8"))
                             + ".pdf")
                     .body(resource);
             }
