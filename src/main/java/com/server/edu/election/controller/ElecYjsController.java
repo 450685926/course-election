@@ -24,6 +24,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.session.util.SessionUtils;
@@ -51,6 +52,9 @@ public class ElecYjsController
     
     @Autowired
     private ElecRoundService electionRoundService;
+    
+    @Autowired
+    private ElecYjsService yjsService;
     
     /**
      * 全部课程指：在本次选课学期，学生学籍所在校区对应的培养层次所有的排课信息
@@ -83,7 +87,7 @@ public class ElecYjsController
         allCourseVo.setCalendarId(roundsDto.getCalendarId());
         
         List<TeachingClassCache> restResult =
-            elecService.arrangementCourses(allCourseVo);
+            yjsService.arrangementCourses(allCourseVo);
         return RestResult.successData(restResult);
     }
     
@@ -141,7 +145,7 @@ public class ElecYjsController
         
         logger.info("culturePath select success");
         Map<String, Object> restResult3 =
-            elecService.getElectResultCount(uid, roundId);
+            yjsService.getElectResultCount(uid, roundId);
         List<Map<String, Object>> resultList =
             new ArrayList<Map<String, Object>>(1);
         

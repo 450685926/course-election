@@ -28,6 +28,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
@@ -53,6 +54,9 @@ public class ElecController
     
     @Autowired
     private RoundDataProvider dataProvider;
+    
+    @Autowired
+    private ElecYjsService yjsService;
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -129,7 +133,7 @@ public class ElecController
         logger.info("======session.realUid()=====================================>"+session.realUid());
         if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
         {
-            c = elecService.setData(session.realUid(), c, roundId, null);
+            c = yjsService.setData(session.realUid(), c, roundId, null);
         }
         
         return RestResult.successData(c);

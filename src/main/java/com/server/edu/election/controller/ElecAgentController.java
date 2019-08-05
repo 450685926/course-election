@@ -18,18 +18,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -57,6 +54,9 @@ public class ElecAgentController
     
     @Autowired
     private RoundDataProvider dataProvider;
+    
+    @Autowired
+    private ElecYjsService yjsService;
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -144,12 +144,12 @@ public class ElecAgentController
         {
             if (elecRequest.getChooseObj() == Constants.TOW)
             { // 教务员
-                c = elecService
+                c = yjsService
                     .setData(studentId, c, elecRequest.getRoundId(), null);
             }
             else if (elecRequest.getChooseObj() == Constants.THREE)
             { // 管理员
-                c = elecService
+                c = yjsService
                     .setData(studentId, c, null, elecRequest.getCalendarId());
                 //c = elecService.setData(c,null,calendarId);
             }
@@ -222,31 +222,6 @@ public class ElecAgentController
             ElecStatus.Init);
         
         return RestResult.success();
-    }
-    
-    @ApiOperation(value = "获取被代理选课的学生列表")
-    @PostMapping("/findAgentElcStudentList")
-    public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
-        @RequestBody PageCondition<NoSelectCourseStdsDto> condition)
-    {
-        Session session = SessionUtils.getCurrentSession();
-        
-        if (!StringUtils.equals(session.getCurrentRole(), "1"))
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("agentElc.role.err"));
-        }
-        
-        if (StringUtils.equals(session.getCurrentRole(), "1")
-            && !session.isAdmin() && session.isAcdemicDean())
-        {// 教务员
-            NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
-            noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
-            noSelectCourseStds.setFaculty(session.getFaculty());
-        }
-        PageResult<NoSelectCourseStdsDto> list =
-            elecService.findAgentElcStudentList(condition);
-        return RestResult.successData(list);
     }
     
 }
