@@ -1064,6 +1064,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(role)">
                 and FACULTY_ = #{faculty,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (STUDENT_CODE_ like concat('%',#{keyword},'%') OR NAME_ like concat('%',#{keyword},'%'))
+            </if>
         </where>
     </select>
 

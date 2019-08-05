@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.controller.ElecAgentController;
 import com.server.edu.election.dao.ElcRoundConditionDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
@@ -45,6 +48,8 @@ import com.server.edu.util.CollectionUtil;
 @Service
 public class RoundCacheService extends AbstractCacheService
 {
+	Logger log = LoggerFactory.getLogger(RoundCacheService.class);
+	
     @Autowired
     private ElcRoundConditionDao elcRoundConditionDao;
     
@@ -212,8 +217,8 @@ public class RoundCacheService extends AbstractCacheService
         			&& contains(con.getGrades(), student.getGrade().toString())
         			&& contains(con.getMajors(), student.getProfession())
         			&& contains(con.getTrainingLevels(),student.getTrainingLevel());
-            
-        	if("1".equals(projectId)) {
+        	
+        	if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
         		if (!matchConditionFlag) {
 					return false;
 				}
@@ -221,6 +226,7 @@ public class RoundCacheService extends AbstractCacheService
         		boolean matchConditionGraduteFlag = contains(con.getTrainingCategorys(), student.getTrainingCategory())
         				&& contains(con.getDegreeTypes(), student.getDegreeType())
         				&& contains(con.getFormLearnings(), student.getFormLearning());
+        		
         		if (!matchConditionFlag || !matchConditionGraduteFlag) {
 					return false;
 				}
