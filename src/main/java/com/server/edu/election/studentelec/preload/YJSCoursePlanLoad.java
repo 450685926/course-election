@@ -25,11 +25,11 @@ import com.server.edu.util.CollectionUtil;
 import tk.mybatis.mapper.entity.Example;
 
 /**
- * 本科生培养计划课程查询
+ * 研究生培养计划课程查询
  * 
  */
 @Component
-public class BKCoursePlanLoad extends DataProLoad
+public class YJSCoursePlanLoad extends DataProLoad
 {
     Logger log = LoggerFactory.getLogger(getClass());
     
@@ -46,7 +46,7 @@ public class BKCoursePlanLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-        return "1";
+        return "2,4";
     }
 
     @Override

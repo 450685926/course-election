@@ -25,7 +25,6 @@ import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.service.ElecYjsService;
-import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -43,9 +42,6 @@ public class ElecYjsController
     private RestTemplate restTemplate = RestTemplateBuilder.create();
     
     Logger logger = LoggerFactory.getLogger(getClass());
-    
-    @Autowired
-    private StudentElecService elecService;
     
     @Autowired
     private ExemptionCourseService exemptionCourseServiceImpl;
