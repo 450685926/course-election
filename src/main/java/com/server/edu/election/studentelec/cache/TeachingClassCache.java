@@ -3,13 +3,12 @@ package com.server.edu.election.studentelec.cache;
 import java.util.List;
 import java.util.Objects;
 
-import com.server.edu.dictionary.DictTypeEnum;
-import com.server.edu.dictionary.annotation.Code2Text;
-import com.server.edu.dictionary.annotation.CodeI18n;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
@@ -41,33 +40,40 @@ public class TeachingClassCache extends ElecCourse
     
     /** 上课时间按教学周拆分集合 */
     private List<ClassTimeUnit> times;
-	
-	/** 上课时间地点 */
-	private List<TimeAndRoom> timeTableList;
+    
+    /** 上课时间地点 */
+    private List<TimeAndRoom> timeTableList;
     
     private String teacherCode;
     
     private String teacherName;
-
+    
+    /**校区*/
+    @Code2Text(DictTypeEnum.X_XQ)
+    private String campus;
+    
     @Code2Text(DictTypeEnum.X_YX)
     private String faculty;
-
-    @Code2Text(transformer="X_KKXQ")
+    
+    @Code2Text(transformer = "X_KKXQ")
     private String term;
-
-    public String getTerm() {
+    
+    public String getTerm()
+    {
         return term;
     }
-
-    public void setTerm(String term) {
+    
+    public void setTerm(String term)
+    {
         this.term = term;
     }
-
-    public TeachingClassCache(){}
-
+    
+    public TeachingClassCache()
+    {
+    }
+    
     public TeachingClassCache(ElecCourse course)
     {
-        this.setCampus(course.getCampus());
         this.setCourseCode(course.getCourseCode());
         this.setCourseName(course.getCourseName());
         this.setCredits(course.getCredits());
@@ -79,22 +85,22 @@ public class TeachingClassCache extends ElecCourse
     {
         return teacherCode;
     }
-
+    
     public void setTeacherCode(String teacherCode)
     {
         this.teacherCode = teacherCode;
     }
-
+    
     public String getTeacherName()
     {
         return teacherName;
     }
-
+    
     public void setTeacherName(String teacherName)
     {
         this.teacherName = teacherName;
     }
-
+    
     public Long getTeachClassId()
     {
         return teachClassId;
@@ -174,15 +180,27 @@ public class TeachingClassCache extends ElecCourse
     {
         this.times = times;
     }
-
-    public String getFaculty() {
+    
+    public String getCampus()
+    {
+        return campus;
+    }
+    
+    public void setCampus(String campus)
+    {
+        this.campus = campus;
+    }
+    
+    public String getFaculty()
+    {
         return faculty;
     }
-
-    public void setFaculty(String faculty) {
+    
+    public void setFaculty(String faculty)
+    {
         this.faculty = faculty;
     }
-
+    
     @JsonIgnore
     public String getCourseCodeAndClassCode()
     {
@@ -196,15 +214,17 @@ public class TeachingClassCache extends ElecCourse
         return Objects.hash(this.teachClassId, this.teachClassCode);
     }
     
-    public List<TimeAndRoom> getTimeTableList() {
-		return timeTableList;
-	}
-
-	public void setTimeTableList(List<TimeAndRoom> timeTableList) {
-		this.timeTableList = timeTableList;
-	}
-
-	@Override
+    public List<TimeAndRoom> getTimeTableList()
+    {
+        return timeTableList;
+    }
+    
+    public void setTimeTableList(List<TimeAndRoom> timeTableList)
+    {
+        this.timeTableList = timeTableList;
+    }
+    
+    @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
@@ -220,13 +240,17 @@ public class TeachingClassCache extends ElecCourse
         }
         return false;
     }
-
-	@Override
-	public String toString() {
-		return "TeachingClassCache [teachClassId=" + teachClassId + ", teachClassCode=" + teachClassCode
-				+ ", teachClassType=" + teachClassType + ", practice=" + practice + ", retraining=" + retraining
-				+ ", maxNumber=" + maxNumber + ", currentNumber=" + currentNumber + ", times=" + times
-				+ ", teacherCode=" + teacherCode + ", teacherName=" + teacherName + ", faculty=" + faculty + "]";
-	}
+    
+    @Override
+    public String toString()
+    {
+        return "TeachingClassCache [teachClassId=" + teachClassId
+            + ", teachClassCode=" + teachClassCode + ", teachClassType="
+            + teachClassType + ", practice=" + practice + ", retraining="
+            + retraining + ", maxNumber=" + maxNumber + ", currentNumber="
+            + currentNumber + ", times=" + times + ", teacherCode="
+            + teacherCode + ", teacherName=" + teacherName + ", faculty="
+            + faculty + "]";
+    }
     
 }

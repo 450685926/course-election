@@ -49,12 +49,10 @@ public class PlanCourse extends ElecCourse
         this.label = label;
     }
 
-	@Override
 	public String getFaculty() {
 		return faculty;
 	}
 
-	@Override
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}

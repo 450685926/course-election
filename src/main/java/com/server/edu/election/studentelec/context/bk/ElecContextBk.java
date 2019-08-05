@@ -1,12 +1,16 @@
-package com.server.edu.election.studentelec.context;
+package com.server.edu.election.studentelec.context.bk;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.context.CourseGroup;
+import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 
@@ -14,7 +18,7 @@ import com.server.edu.election.vo.ElcNoGradCouSubsVo;
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
  *
  */
-public class ElecContext implements IElecContext
+public class ElecContextBk implements IElecContext
 {
     /**学期*/
     private Long calendarId;
@@ -52,9 +56,6 @@ public class ElecContext implements IElecContext
     /**选课申请课程*/
     private Set<ElectionApply> elecApplyCourses;
     
-    /**研究生可选课程*/
-    private List<ElcCourseResult> optionalCourses;
-    
     private Map<String, Object> elecResult;
     
     private ElecRequest request;
@@ -63,18 +64,19 @@ public class ElecContext implements IElecContext
     
     private ElecContextUtil contextUtil;
     
-    public ElecContext(String studentId, Long calendarId,
+    public ElecContextBk(String studentId, Long calendarId,
         ElecRequest elecRequest)
     {
         this(studentId, calendarId);
         this.request = elecRequest;
     }
     
-    public ElecContext() {
-		super();
-	}
-
-	public ElecContext(String studentId, Long calendarId)
+    public ElecContextBk()
+    {
+        super();
+    }
+    
+    public ElecContextBk(String studentId, Long calendarId)
     {
         this.calendarId = calendarId;
         this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);
@@ -96,13 +98,15 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
         elecApplyCourses = this.contextUtil.getElecApplyCourse();
-        replaceCourses = new HashSet<>(ElecContextUtil.getNoGradCouSubs(studentId));
+        replaceCourses =
+            new HashSet<>(ElecContextUtil.getNoGradCouSubs(studentId));
     }
     
     /**
      * 保存到redis中
      * 
      */
+    
     @Override
     public void saveToCache()
     {
@@ -137,6 +141,7 @@ public class ElecContext implements IElecContext
      * 清空CompletedCourses,SelectedCourses,ApplyForDropCourses,PlanCourses,courseGroups,publicCourses,failedCourse
      * 
      */
+    
     @Override
     public void clear()
     {
@@ -154,13 +159,11 @@ public class ElecContext implements IElecContext
         this.getReplaceCourses().clear();
     }
     
-    
-    @Override
     public Long getCalendarId()
     {
         return calendarId;
     }
-
+    
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
@@ -186,8 +189,7 @@ public class ElecContext implements IElecContext
         return planCourses;
     }
     
-
-	public Set<ElecCourse> getPublicCourses()
+    public Set<ElecCourse> getPublicCourses()
     {
         return publicCourses;
     }
@@ -224,22 +226,13 @@ public class ElecContext implements IElecContext
         this.respose = respose;
     }
     
-    
-    public List<ElcCourseResult> getOptionalCourses() {
-		return optionalCourses;
-	}
-
-	public void setOptionalCourses(List<ElcCourseResult> optionalCourses) {
-		this.optionalCourses = optionalCourses;
-	}
-	
-	public void setSelectedCourses(Set<SelectedCourse> selectedCourses) {
-		this.selectedCourses = selectedCourses;
-	}
-
-	public Set<String> getApplyCourse()
+    public void setSelectedCourses(Set<SelectedCourse> selectedCourses)
     {
-        
+        this.selectedCourses = selectedCourses;
+    }
+    
+    public Set<String> getApplyCourse()
+    {
         if (applyCourse == null)
         {
             applyCourse =
@@ -257,13 +250,15 @@ public class ElecContext implements IElecContext
     {
         return replaceCourses;
     }
-
-	public Map<String, Object> getElecResult() {
-		return elecResult;
-	}
-
-	public void setElecResult(Map<String, Object> elecResult) {
-		this.elecResult = elecResult;
-	}
+    
+    public Map<String, Object> getElecResult()
+    {
+        return elecResult;
+    }
+    
+    public void setElecResult(Map<String, Object> elecResult)
+    {
+        this.elecResult = elecResult;
+    }
     
 }

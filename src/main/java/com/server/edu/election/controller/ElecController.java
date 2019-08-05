@@ -25,10 +25,9 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.service.ElecYjsService;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
@@ -54,9 +53,6 @@ public class ElecController
     
     @Autowired
     private RoundDataProvider dataProvider;
-    
-    @Autowired
-    private ElecYjsService yjsService;
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -111,9 +107,9 @@ public class ElecController
         return elecService.loading(elecRequest);
     }
     
-    @ApiOperation(value = "获取学生选课数据")
-    @PostMapping("/{roundId}/getData")
-    public RestResult<ElecContext> getData(
+    @ApiOperation(value = "获取本科生选课数据")
+    @PostMapping("/{roundId}/getDataBk")
+    public RestResult<ElecContextBk> getDataBk(
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
@@ -127,14 +123,8 @@ public class ElecController
         {
             return RestResult.error("elec.roundNotExistTip");
         }
-        ElecContext c =
-            new ElecContext(session.realUid(), round.getCalendarId());
-        logger.info("======session.getCurrentManageDptId()=====================================>"+session.getCurrentManageDptId());
-        logger.info("======session.realUid()=====================================>"+session.realUid());
-        if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
-        {
-            c = yjsService.setData(session.realUid(), c, roundId, null);
-        }
+        ElecContextBk c =
+            new ElecContextBk(session.realUid(), round.getCalendarId());
         
         return RestResult.successData(c);
     }

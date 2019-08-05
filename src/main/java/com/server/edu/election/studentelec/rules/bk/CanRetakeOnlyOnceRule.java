@@ -6,10 +6,10 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -18,11 +18,11 @@ import com.server.edu.util.CollectionUtil;
  * CanRetakeOnlyOnceChecker
  */
 @Component("CanRetakeOnlyOnceRule")
-public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutor
+public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutorBk
 {
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
@@ -31,12 +31,12 @@ public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutor
         long failCount=0L;
         if(CollectionUtil.isNotEmpty(completedCourses)){
              successCount = completedCourses.stream().filter(c -> courseClass.getCourseCode()
-                    .equals(c.getCourseCode())).count();
+                    .equals(c.getTeachingClass().getCourseCode())).count();
         }
 
         if(CollectionUtil.isEmpty(failedCourse)){
             failCount = completedCourses.stream().filter(c -> courseClass.getCourseCode()
-                    .equals(c.getCourseCode())).count();
+                    .equals(c.getTeachingClass().getCourseCode())).count();
         }
 
         if(successCount==1 && failCount==0){

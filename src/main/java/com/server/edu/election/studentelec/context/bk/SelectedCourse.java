@@ -49,6 +49,10 @@ public class SelectedCourse
     
     public TeachingClassCache getTeachingClass()
     {
+        if (teachingClass == null)
+        {
+            teachingClass = new TeachingClassCache();
+        }
         return teachingClass;
     }
     
@@ -120,7 +124,7 @@ public class SelectedCourse
     @Override
     public int hashCode()
     {
-        return this.teachingClass.hashCode();
+        return this.getTeachingClass().hashCode();
     }
     
     @Override

@@ -142,6 +142,57 @@ public class ElcResultQuery
     
     private Integer isHaveLimit;
     
+    private Integer minFirstTurnNum;
+    
+    private Integer maxFirstTurnNum;
+    
+    private Integer minSecondTurnNum;
+    
+    private Integer maxSecondTurnNum;
+    
+    private Integer isScreening;
+    
+    
+	public Integer getIsScreening() {
+		return isScreening;
+	}
+
+	public void setIsScreening(Integer isScreening) {
+		this.isScreening = isScreening;
+	}
+
+	public Integer getMinFirstTurnNum() {
+		return minFirstTurnNum;
+	}
+
+	public void setMinFirstTurnNum(Integer minFirstTurnNum) {
+		this.minFirstTurnNum = minFirstTurnNum;
+	}
+
+	public Integer getMaxFirstTurnNum() {
+		return maxFirstTurnNum;
+	}
+
+	public void setMaxFirstTurnNum(Integer maxFirstTurnNum) {
+		this.maxFirstTurnNum = maxFirstTurnNum;
+	}
+
+	public Integer getMinSecondTurnNum() {
+		return minSecondTurnNum;
+	}
+
+	public void setMinSecondTurnNum(Integer minSecondTurnNum) {
+		this.minSecondTurnNum = minSecondTurnNum;
+	}
+
+	public Integer getMaxSecondTurnNum() {
+		return maxSecondTurnNum;
+	}
+
+	public void setMaxSecondTurnNum(Integer maxSecondTurnNum) {
+		this.maxSecondTurnNum = maxSecondTurnNum;
+	}
+
 	public Integer getIsHaveLimit() {
 		return isHaveLimit;
 	}

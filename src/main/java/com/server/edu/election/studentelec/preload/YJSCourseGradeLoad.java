@@ -57,7 +57,7 @@ import tk.mybatis.mapper.entity.Example;
  * 
  */
 @Component
-public class YJSCourseGradeLoad extends DataProLoad
+public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
 {
     @Override
     public int getOrder()

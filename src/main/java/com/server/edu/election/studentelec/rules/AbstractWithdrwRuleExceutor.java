@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.rules;
 
+import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 
 /**
@@ -12,6 +13,6 @@ import com.server.edu.election.studentelec.context.SelectedCourse;
  * @since  [产品/模块版本]
  */
 public abstract class AbstractWithdrwRuleExceutor
-    extends AbstractRuleExceutor<SelectedCourse>
+    extends AbstractRuleExceutor<ElecContext, SelectedCourse>
 {
 }

@@ -10,11 +10,11 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.PlanCourse;
-import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -22,10 +22,10 @@ import com.server.edu.util.CollectionUtil;
  * 被RetakeCourseBuildInPrepare这个ElectBuildInPrepare调用，因此不论用户页面有没有选这个规则，都会调用它的prepare
  */
 @Component("PlanCourseGroupCreditsRule")
-public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutor
+public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutorBk
 {
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         String code = courseClass.getCourseCode();
@@ -62,7 +62,7 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutor
                     .collect(Collectors.toSet());
                 for (SelectedCourse selectedCourse : electiveCourse)
                 {
-                    hasCredits += selectedCourse.getCredits();
+                    hasCredits += selectedCourse.getTeachingClass().getCredits();
                 }
             }
             
@@ -93,7 +93,7 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutor
                 if (CollectionUtil.isNotEmpty(planCourses))
                 {
                     List<PlanCourse> collect = planCourses.stream()
-                        .filter(vo -> vo.getCourseCode().equals(code))
+                        .filter(vo -> vo.getCourse().getCourseCode().equals(code))
                         .distinct()
                         .collect(Collectors.toList());
                     if (CollectionUtil.isNotEmpty(collect))
@@ -112,10 +112,10 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutor
                         {
                             for (SelectedCourse selectedCourse : unElectiveCourse)
                             {
-                                if (planCourse.getCourseCode()
-                                    .equals(selectedCourse.getCourseCode()))
+                                if (planCourse.getCourse().getCourseCode()
+                                    .equals(selectedCourse.getTeachingClass().getCourseCode()))
                                 {
-                                    hasCredits += selectedCourse.getCredits();
+                                    hasCredits += selectedCourse.getTeachingClass().getCredits();
                                 }
                             }
                         }

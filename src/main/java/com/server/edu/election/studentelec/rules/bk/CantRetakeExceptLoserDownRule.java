@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 
 /**
@@ -18,15 +18,15 @@ import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
  * CantRetakeExceptLoserDownFilter
  */
 @Component("CantRetakeExceptLoserDownRule")
-public class CantRetakeExceptLoserDownRule extends AbstractElecRuleExceutor
+public class CantRetakeExceptLoserDownRule extends AbstractElecRuleExceutorBk
 {
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
         boolean repeater = studentInfo.isRepeater();//是否留降级
-        boolean isReTakeCourse = RetakeCourseUtil.isRetakeCourse(context,
+        boolean isReTakeCourse = RetakeCourseUtil.isRetakeCourseBk(context,
             courseClass.getCourseCode());
         //历史课程中要包含替代的课程 todo
         boolean flag = repeater || !isReTakeCourse;
