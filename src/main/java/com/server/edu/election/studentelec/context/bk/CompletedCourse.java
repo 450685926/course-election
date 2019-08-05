@@ -12,7 +12,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 public class CompletedCourse
 {
     
-    private TeachingClassCache teachingClass;
+    private TeachingClassCache course;
     
     /**
      * 成绩
@@ -41,14 +41,18 @@ public class CompletedCourse
     
     private Integer isPass;
     
-    public TeachingClassCache getTeachingClass()
+    public TeachingClassCache getCourse()
     {
-        return teachingClass;
+        if (course == null)
+        {
+            course = new TeachingClassCache();
+        }
+        return course;
     }
     
-    public void setTeachingClass(TeachingClassCache teachingClass)
+    public void setCourse(TeachingClassCache course)
     {
-        this.teachingClass = teachingClass;
+        this.course = course;
     }
     
     public String getRank()
@@ -115,8 +119,8 @@ public class CompletedCourse
     public int hashCode()
     {
         return Objects.hash(this.score,
-            this.getTeachingClass().getCourseCode(),
-            this.getTeachingClass().getCalendarId());
+            this.getCourse().getCourseCode(),
+            this.getCourse().getCalendarId());
     }
     
     @Override
@@ -131,10 +135,10 @@ public class CompletedCourse
         {
             CompletedCourse o = (CompletedCourse)obj;
             return StringUtils.equals(this.score, o.score)
-                && StringUtils.equals(this.getTeachingClass().getCourseCode(),
-                    o.getTeachingClass().getCourseCode())
-                && Objects.equals(this.getTeachingClass().getCalendarId(),
-                    o.getTeachingClass().getCalendarId());
+                && StringUtils.equals(this.getCourse().getCourseCode(),
+                    o.getCourse().getCourseCode())
+                && Objects.equals(this.getCourse().getCalendarId(),
+                    o.getCourse().getCalendarId());
         }
         return false;
     }

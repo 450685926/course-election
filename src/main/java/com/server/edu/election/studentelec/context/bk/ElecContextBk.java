@@ -1,7 +1,6 @@
 package com.server.edu.election.studentelec.context.bk;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.server.edu.election.entity.ElectionApply;
@@ -55,8 +54,6 @@ public class ElecContextBk implements IElecContext
     
     /**选课申请课程*/
     private Set<ElectionApply> elecApplyCourses;
-    
-    private Map<String, Object> elecResult;
     
     private ElecRequest request;
     
@@ -159,6 +156,7 @@ public class ElecContextBk implements IElecContext
         this.getReplaceCourses().clear();
     }
     
+    @Override
     public Long getCalendarId()
     {
         return calendarId;
@@ -249,16 +247,6 @@ public class ElecContextBk implements IElecContext
     public Set<ElcNoGradCouSubsVo> getReplaceCourses()
     {
         return replaceCourses;
-    }
-    
-    public Map<String, Object> getElecResult()
-    {
-        return elecResult;
-    }
-    
-    public void setElecResult(Map<String, Object> elecResult)
-    {
-        this.elecResult = elecResult;
     }
     
 }

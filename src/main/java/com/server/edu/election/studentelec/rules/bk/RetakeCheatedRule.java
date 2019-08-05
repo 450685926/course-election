@@ -41,8 +41,8 @@ public class RetakeCheatedRule extends AbstractElecRuleExceutorBk
             if (CollectionUtil.isNotEmpty(failedCourse))
             {
                 Set<CompletedCourse> collect = failedCourse.stream()
-                    .filter(vo -> Long.toString(vo.getTeachingClass().getCalendarId()).equals(id)
-                        && vo.getTeachingClass().getCourseCode().equals(courseCode))
+                    .filter(vo -> Long.toString(vo.getCourse().getCalendarId()).equals(id)
+                        && vo.getCourse().getCourseCode().equals(courseCode))
                     .collect(Collectors.toSet());
                 if (CollectionUtil.isNotEmpty(collect))
                 {

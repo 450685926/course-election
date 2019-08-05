@@ -44,7 +44,7 @@ public class UnElectBecauseARule extends AbstractElecRuleExceutorBk
                 String courseCode = courseClass.getCourseCode();
                 //还要判断是否有替代得优的课程todo
                 long count = list.stream()
-                    .filter(c -> courseCode.equals(c.getTeachingClass().getCourseCode()))
+                    .filter(c -> courseCode.equals(c.getCourse().getCourseCode()))
                     .count();
                 if (count > 0)
                 {

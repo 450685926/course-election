@@ -143,7 +143,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setCalendarId(calendarId);
                 lesson.setNature(studentScore.getCourseNature());
                 
-                c.setTeachingClass(lesson);
+                c.setCourse(lesson);
                 c.setScore(studentScore.getTotalMarkScore());
                 c.setExcellent(studentScore.isBestScore());
                 c.setIsPass(studentScore.getIsPass());

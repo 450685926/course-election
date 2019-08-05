@@ -31,12 +31,12 @@ public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutorBk
         long failCount=0L;
         if(CollectionUtil.isNotEmpty(completedCourses)){
              successCount = completedCourses.stream().filter(c -> courseClass.getCourseCode()
-                    .equals(c.getTeachingClass().getCourseCode())).count();
+                    .equals(c.getCourse().getCourseCode())).count();
         }
 
         if(CollectionUtil.isEmpty(failedCourse)){
             failCount = completedCourses.stream().filter(c -> courseClass.getCourseCode()
-                    .equals(c.getTeachingClass().getCourseCode())).count();
+                    .equals(c.getCourse().getCourseCode())).count();
         }
 
         if(successCount==1 && failCount==0){

@@ -62,7 +62,7 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutorBk
                     .collect(Collectors.toSet());
                 for (SelectedCourse selectedCourse : electiveCourse)
                 {
-                    hasCredits += selectedCourse.getTeachingClass().getCredits();
+                    hasCredits += selectedCourse.getCourse().getCredits();
                 }
             }
             
@@ -113,9 +113,9 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutorBk
                             for (SelectedCourse selectedCourse : unElectiveCourse)
                             {
                                 if (planCourse.getCourse().getCourseCode()
-                                    .equals(selectedCourse.getTeachingClass().getCourseCode()))
+                                    .equals(selectedCourse.getCourse().getCourseCode()))
                                 {
-                                    hasCredits += selectedCourse.getTeachingClass().getCredits();
+                                    hasCredits += selectedCourse.getCourse().getCredits();
                                 }
                             }
                         }
