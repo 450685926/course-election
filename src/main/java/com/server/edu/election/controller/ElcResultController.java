@@ -22,6 +22,7 @@ import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.entity.ElcScreeningLabel;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
@@ -62,6 +63,26 @@ public class ElcResultController
         ValidatorUtil.validateAndThrow(condition.getCondition());
         
         PageResult<TeachingClassVo> list = elcResultService.listPage(condition);
+        
+        return RestResult.successData(list);
+    }
+    
+    /**
+     * 研究生上课名单列表
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "研究生上课名单列表")
+    @PostMapping("/graduateTeachClassPage")
+    public RestResult<PageResult<TeachingClassVo>> graduatePage(
+        @RequestBody PageCondition<ElcResultQuery> condition)
+        throws Exception
+    {
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+        
+        PageResult<TeachingClassVo> list = elcResultService.graduatePage(condition);
         
         return RestResult.successData(list);
     }
@@ -282,6 +303,22 @@ public class ElcResultController
         @RequestBody @Valid TeachingClassVo teachingClassVo)
     {
         elcResultService.saveProportion(teachingClassVo);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 保存选课筛选标签
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "保存选课筛选标签")
+    @PostMapping("/saveScreeningLabel")
+    public RestResult<?> saveScreeningLabel(
+        @RequestBody @Valid ElcScreeningLabel elcScreeningLabel)
+    {
+        elcResultService.saveScreeningLabel(elcScreeningLabel);
         
         return RestResult.success();
     }

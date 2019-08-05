@@ -15,8 +15,15 @@ public class ElcNoGradCouSubsDto extends ElcNoGradCouSubs {
     private String faculty;
     private String profession;
     private List<String> studentIds;
+    private Integer mode;
     
-    public List<String> getStudentIds() {
+    public Integer getMode() {
+		return mode;
+	}
+	public void setMode(Integer mode) {
+		this.mode = mode;
+	}
+	public List<String> getStudentIds() {
 		return studentIds;
 	}
 	public void setStudentIds(List<String> studentIds) {

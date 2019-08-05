@@ -6,6 +6,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.entity.ElcScreeningLabel;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcResultCountVo;
@@ -21,6 +22,15 @@ public interface ElcResultService
      * @see [类、类#方法、类#成员]
      */
     PageResult<TeachingClassVo> listPage(PageCondition<ElcResultQuery> page);
+    
+    /**
+     * 研究生教学班信息
+     * 
+     * @param page
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<TeachingClassVo> graduatePage(PageCondition<ElcResultQuery> page);
     
     /**
      * 调整教学班容量
@@ -107,5 +117,7 @@ public interface ElcResultService
 	void saveElcLimit(TeachingClassVo teachingClassVo);
 	
 	void saveProportion(TeachingClassVo teachingClassVo);
+	
+	void saveScreeningLabel(ElcScreeningLabel elcScreeningLabel);
 
 }
