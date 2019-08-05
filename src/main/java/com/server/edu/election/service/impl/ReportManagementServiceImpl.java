@@ -9,9 +9,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.WeekUtil;
+import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +104,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
+
+    @Autowired
+    private ExcelStoreConfig excelStoreConfig;
     
     // 导出学生课表
     private static final String[] setSchoolTimeTitle = {"节次/周次", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"};
@@ -678,64 +684,29 @@ public class ReportManagementServiceImpl implements ReportManagementService {
      *@return:
      *@Author:
      *@date: 2019/7/4
+     * @param rollBookConditionDto
      */
     @Override
-    public ExcelResult exportGraduteRollBookList(PageCondition<RollBookConditionDto> condition) throws Exception{
-//        PageResult<RollBookList> rollBookList = findRollBookList(condition);
-//        if (rollBookList != null) {
-//            GeneralExcelDesigner design = getDesignTeacherRollBook();
-//            design.setDatas(rollBookList.getList());
-//            ExcelWriterUtil generalExcelHandle;
-//            generalExcelHandle = GeneralExcelUtil.generalExcelHandle(design);
-//            FileUtil.mkdirs(cacheDirectory);
-//            String fileName = "TeacherRollBooks.xls";
-//            String path = cacheDirectory + fileName;
-//            generalExcelHandle.writeExcel(new FileOutputStream(path));
-//            return fileName;
-//        }
-//        return "";
-        ExcelResult excelResult = ExportExcelUtils.submitTask("GraduteRollBookList", new ExcelExecuter() {
-            @Override
-            public GeneralExcelDesigner getExcelDesigner() {
-                ExcelResult result = this.getResult();
-                PageResult<RollBookList> rollBookList = findRollBookList(condition);
-                List<RollBookList> list = rollBookList.getList();
-                //组装excel
-                GeneralExcelDesigner design = getDesignTeacherRollBook();
-                if (CollectionUtil.isNotEmpty(list)) {
-                    design.setDatas(list);
-                    result.setDoneCount(list.size());
-                }
-                //将数据放入excel对象中
-                return design;
-            }
-        });
-        return excelResult;
+    public RestResult<String> exportGraduteRollBookList(RollBookConditionDto rollBookConditionDto) throws Exception{
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+        PageCondition<RollBookConditionDto> condition = new PageCondition<>();
+        condition.setCondition(rollBookConditionDto);
+        PageResult<RollBookList> rollBookList = findRollBookList(condition);
+        String path="";
+        if (rollBookList != null && rollBookList.getList() != null) {
+            List<RollBookList> list = rollBookList.getList();
+            list = SpringUtils.convert(list);
+            @SuppressWarnings("unchecked")
+            ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
+                    excelStoreConfig.getGraduteRollBookListKey(),
+                    excelStoreConfig.getGraduteRollBookListTitle(),
+                    cacheDirectory);
+            path = excelExport.exportExcelToCacheDirectory("研究生点名册");
+        }
+        return RestResult.successData("minor.export.success",path);
     }
-
-    private GeneralExcelDesigner getDesignTeacherRollBook() {
-        GeneralExcelDesigner design = new GeneralExcelDesigner();
-        design.setNullCellValue("");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "classCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"), "className");
-        String lang = SessionUtils.getLang();
-        design.addCell(I18nUtil.getMsg("elcCourseUphold.nature"), "courseNature").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_KCXZ", value, lang);
-                });
-        design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"), "selectCourseNumber");
-        design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"), "numberLimit");
-        design.addCell(I18nUtil.getMsg("elcCourseUphold.courseFaculty"), "faculty").setValueHandler(
-                (value, rawData, cell) -> {
-                    return dictionaryService.query("X_YX", value, lang);
-                });
-        design.addCell(I18nUtil.getMsg("rollBookManage.teacher"), "teacherName");
-        return design;
-    }
-
-
 
     /**
     *@Description: 查询点名册
@@ -746,8 +717,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition) {
-
-            PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+            Integer pageNum_ = condition.getPageNum_();
+            Integer pageSize_ = condition.getPageSize_();
+            if (pageNum_ != null && pageSize_ != null) {
+                PageHelper.startPage(pageNum_, pageSize_);
+            }
             Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
             if (rollBookList != null) {
                 List<RollBookList> result = rollBookList.getResult();
@@ -796,9 +770,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         		}
         		vo.setExportName(exportName);
         	}
+            pre.setStudentsList(student);
+            pre.setSize(student.size());
         }
-        pre.setStudentsList(student);
-        pre.setSize(student.size());
 //        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
 //        pre.setCalendarName(schoolCalendarVo.getFullName());
         //封装教学班信息拆解
@@ -1416,7 +1390,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         document.add(subtitle);
 		
         //----3 学生基本信息----
-        StudentSchoolTimetabVo studentTimetab = findSchoolTimetab(calendarId,studentCode);
+        StudentSchoolTimetabVo studentTimetab = findSchoolTimetab2(calendarId,studentCode);
         
         PdfPTable table1 = new PdfPTable(4);
         //前间距
@@ -1528,11 +1502,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 			PdfPCell cell = createCell(setTimeListTitle[i],1,1,subtitleChinese,null);
 			table.addCell(cell);
 		}
-		
+
 		// 添加表内容
 		for (int j = 0; j < list.size(); j++) {
 			List<String> timeTableList = getTimeTableList(list.get(j));
-			for (int i = 0; i < setTimeListTitle.length; i++) {
+			for (int i = 0; i < setTimeListTitle.length - 1; i++) {
 				PdfPCell cell = new PdfPCell();
 				if (i == 0) {
 					cell = createCell(String.valueOf(j+1),1,1,name2,null);
@@ -1550,7 +1524,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 		list.add(timeTable.getCourseCode());
 		list.add(timeTable.getCourseName());
 		list.add("2".equals(timeTable.getCourseType())?"是":"");
-		list.add(timeTable.getIsElective() == 1?"选修":"必修");
+        Integer isElective = timeTable.getIsElective();
+        if (isElective != null) {
+            list.add( isElective == 1?"选修":"必修");
+        }
 		list.add(timeTable.getAssessmentMode());
 		list.add(String.valueOf(timeTable.getCredits()));
 		list.add(timeTable.getTeacherName());

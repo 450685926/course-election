@@ -298,7 +298,8 @@
     </select>
 
     <select id="findStudentByTeachingClassId" resultType="com.server.edu.election.vo.StudentVo">
-        SELECT st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,st.GRADE_ grade,st.FACULTY_ faculty,st.TRAINING_LEVEL_ trainingLevel,el.COURSE_TAKE_TYPE_ courseTakeType FROM `elc_course_takes_t` el
+        SELECT st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,st.GRADE_ grade,st.FACULTY_ faculty,st.TRAINING_LEVEL_ trainingLevel,el.COURSE_TAKE_TYPE_ courseTakeType
+        FROM `elc_course_takes_t` el
         LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
         where TEACHING_CLASS_ID_= #{id,jdbcType=BIGINT}
     </select>
