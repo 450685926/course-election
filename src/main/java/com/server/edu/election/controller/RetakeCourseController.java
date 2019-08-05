@@ -34,16 +34,15 @@ public class RetakeCourseController {
 
     @ApiOperation(value = "设定重修选课的时间和规则")
     @PutMapping("/setRetakeRules")
-    public RestResult setRetakeRules(@RequestBody ElcRetakeSetVo elcRetakeSetVo) {
+    public RestResult setRetakeRules(@RequestBody @Valid ElcRetakeSetVo elcRetakeSetVo) {
         retakeCourseService.setRetakeRules(elcRetakeSetVo);
         return RestResult.success();
     }
 
     @ApiOperation(value = "查询重修选课开关")
     @GetMapping("/getRetakeRule")
-    public RestResult<ElcRetakeSetVo> getRetakeRule(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
-        ElcRetakeSetVo elcRetakeSetVo = retakeCourseService.getRetakeRule(calendarId, projectId);
-        return RestResult.successData(elcRetakeSetVo);
+    public RestResult<Boolean> getRetakeRule(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
+        return RestResult.successData(retakeCourseService.getRetakeRule(calendarId, projectId));
     }
 
     @ApiOperation(value = "查询重修选课门数上限列表")

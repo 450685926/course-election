@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSONObject;
-import com.ctc.wstx.util.StringUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
@@ -529,11 +528,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	for (Long id : ids) {
         		//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		String[] courseCodes = applyRecord.getCourseCode().split(",");
-        		for (String courseCode : courseCodes) {
-        			//调用成绩接口，向成绩中添加数据
-        			ScoreServiceInvoker.deleteExemptionScore(applyRecord.getStudentCode(),applyRecord.getCalendarId(),courseCode);
-        		}
+        		if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
+    				//调用成绩接口，向成绩中添加数据
+    				ScoreServiceInvoker.deleteExemptionScore(applyRecord.getStudentCode(),applyRecord.getCalendarId(),applyRecord.getCourseCode());
+				}
 			}
 		}
         applyDao.deleteExemptionApply(ids);
@@ -835,9 +833,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	for (Long id : ids) {
 				//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		String[] courseCodes = applyRecord.getCourseCode().split(",");
-        		String[] courseNames = applyRecord.getCourseName().split(",");
-        		saveExemptionScore(applyRecord, courseCodes,courseNames);
+        		saveExemptionScore(applyRecord, applyRecord.getCourseCode(),applyRecord.getCourseName());
 			}
             
         }else{
@@ -866,13 +862,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
-			String[] courseNames = exemptionApplyManageVo.getCourseName().split(",");
-			String[] courseCodes = exemptionApplyManageVo.getCourseCode().split(",");
-			String[] applyCourse = new String[courseCodes.length];
-			for (int i = 0; i < courseNames.length; i++) {
-				applyCourse[i] = courseCodes[i] +""+ courseNames[i];
-			}
-			exemptionApplyManageVo.setApplyCourse(StringUtils.join(applyCourse, ","));
+			exemptionApplyManageVo.setApplyCourse(exemptionApplyManageVo.getCourseCode()+""+exemptionApplyManageVo.getCourseName());
 		}
 		return new PageResult<>(exemptionApply);
 	}
@@ -903,7 +893,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
              }
              list = SpringUtils.convert(list);
         	@SuppressWarnings("unchecked")
-			ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
+			ExcelEntityExport<ExemptionApplyManageVo> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getGraduateExemptionApplyExportKey(),
         			excelStoreConfig.getGraduateExemptionApplyExportTitle(),
         			cacheDirectory);
@@ -919,6 +909,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		Student student = new Student();
 		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
 		student = studentDao.findStudentByCode(studentId);
+		if (student == null) {
+			RestResult.fail("common.notExist",studentId);
+		}
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
 		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO);
 		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
@@ -949,6 +942,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	@Override
 	public StudentAndCourseVo findStudentApplyCourse(String studentId,Long calendarId) {
 		Student student = studentDao.findStudentByCode(studentId);
+		Boolean isAchievement = false;
 		//查找本次开通的免修免考课程
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
 		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO);
@@ -989,26 +983,26 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		//满足优线生申请条件
 		if (CollectionUtil.isNotEmpty(optCourses)) {
 			if (scoreModel != null && applySwitch.getExcellentScore().doubleValue() <= scoreModel.getScore().doubleValue()) {
-					ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
-					String courseNameAndCode = " ";
-					List<String> courseCode = new ArrayList<>();
-					List<String> courseName = new ArrayList<>();
-					for (PlanCourse course : optCourses) {
-						courseNameAndCode = courseNameAndCode + course.getCourseCode() + course.getCourseName() + " ";
-						applyCourse.setFirstForeignLanguageCode(scoreModel.getCourseCode());
-						applyCourse.setFirstForeignLanguageScore(scoreModel.getScore());
-						courseCode.add(course.getCourseCode());
-						courseName.add(course.getCourseName());
-						applyCourse.setApplyType(Constants.ZERO);
-					}
-					applyCourse.setFirstForeignLanguageName(dictCache.getNameCN());
-					applyCourse.setCourseNameAndCode(courseNameAndCode);
-					applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
-					applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
-					Integer examineResult = getGraduteExemptionApplyRecord(calendarId ,studentId,StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
-					applyCourse.setExamineResult(examineResult);
-					applyCourses.add(applyCourse);
-	
+				isAchievement = true;
+				ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
+				String courseNameAndCode = " ";
+				List<String> courseCode = new ArrayList<>();
+				List<String> courseName = new ArrayList<>();
+				for (PlanCourse course : optCourses) {
+					courseNameAndCode = courseNameAndCode + course.getCourseCode() + course.getCourseName() + " ";
+					applyCourse.setFirstForeignLanguageCode(scoreModel.getCourseCode());
+					applyCourse.setFirstForeignLanguageScore(scoreModel.getScore());
+					courseCode.add(course.getCourseCode());
+					courseName.add(course.getCourseName());
+					applyCourse.setApplyType(Constants.ZERO);
+				}
+				applyCourse.setFirstForeignLanguageName(dictCache.getNameCN());
+				applyCourse.setCourseNameAndCode(courseNameAndCode);
+				applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
+				applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
+				Integer examineResult = getGraduteExemptionApplyRecord(calendarId ,studentId,StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
+				applyCourse.setExamineResult(examineResult);
+				applyCourses.add(applyCourse);
 			}else{
 				for (PlanCourse course : optCourses) {
 					ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
@@ -1043,6 +1037,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		}
 		StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 		studentAndCourseVo.setStudent(student);
+		studentAndCourseVo.setIsAchievement(isAchievement);
 		studentAndCourseVo.setApplyCourse(applyCourses);
 		return studentAndCourseVo;
 	}
@@ -1064,8 +1059,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					 contains(applySwitch.getTrainingLevels(),student.getTrainingLevel())&&
 					 contains(applySwitch.getFormLearnings(),student.getFormLearning())&&
 					 contains(applySwitch.getTrainingCategorys(),student.getTrainingCategory())&&
-					 contains(applySwitch.getDegreeTypes(),student.getDegreeType())&&
-					 contains(applySwitch.getEnrolSeason(),student.getEnrolSeason());
+					 contains(applySwitch.getDegreeTypes(),student.getDegreeType())
+//					 && contains(applySwitch.getEnrolSeason(),student.getEnrolSeason())
+					 ;
 			if (openObjectFlag) {
 				applyAuditSwitch = applySwitch;
 				break;
@@ -1182,29 +1178,51 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	*@Author: bear
 	*@date: 2019/2/12 10:44
 	*/
-	public String addGraduateExemptionApply(ExemptionApplyManage applyManage) {
+	public RestResult<?> addGraduateExemptionApply(ExemptionApplyManage applyManage) {
 	   Session session = SessionUtils.getCurrentSession();
 		if("".equals(applyManage.getApplyType())){
-	        return "common.parameterError";
+	        return RestResult.fail("common.parameterError");
 	    }
 		applyManage.setManagerDeptId(session.getCurrentManageDptId());
 	    //查询是否重复申请
 	    ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
 	    if(exemptionApplyManageVo!=null){
-	        return "common.exist";
+	    	return RestResult.fail("common.exist",applyManage.getCourseCode());
 	    }
+	    String[] codes = applyManage.getCourseCode().split(",");
+	    for (String code : codes) {
+	    	ExemptionApplyManage exemptionApplyManage = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), code);
+	    	if(exemptionApplyManage!=null){
+	    		return RestResult.fail("common.exist",applyManage.getCourseCode());
+	    	}
+		}
 	    if(applyManage.getApplyType()==0){//成绩申请
 	        applyManage.setScore("免修");
 	        applyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
 	      //查找申请信息
     		String[] courseCodes = applyManage.getCourseCode().split(",");
     		String[] courseNames = applyManage.getCourseName().split(",");
-    		saveExemptionScore(applyManage, courseCodes,courseNames);
+    		for (int i = 0; i < courseCodes.length; i++) {
+				if (courseCodes.length == courseNames.length) {
+					applyManage.setCourseCode(courseCodes[i]);
+					applyManage.setCourseName(courseNames[i]);
+					applyDao.insertSelective(applyManage);
+					saveExemptionScore(applyManage, courseCodes[i],courseNames[i]);
+				}
+			}
 	    }else{
 	        applyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
+	        String[] courseCodes = applyManage.getCourseCode().split(",");
+    		String[] courseNames = applyManage.getCourseName().split(",");
+    		for (int i = 0; i < courseCodes.length; i++) {
+				if (courseCodes.length == courseNames.length) {
+					applyManage.setCourseCode(courseCodes[i]);
+					applyManage.setCourseName(courseNames[i]);
+					applyDao.insertSelective(applyManage);
+				}
+			}
 	    }
-	    applyDao.insertSelective(applyManage);
-	    return "common.addsuccess";
+	    return RestResult.success("common.addsuccess");
 	}
 
 	/**
@@ -1212,15 +1230,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param applyManage
 	 * @param courseCodes
 	 */
-	private void saveExemptionScore(ExemptionApplyManage applyManage, String[] courseCodes, String[] courseNames) {
-		for (int i = 0; i < courseNames.length; i++) {
-			//调用成绩接口，向成绩中添加数据
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("studentId", applyManage.getStudentCode());
-			jsonObject.put("studentName", courseNames[i]);
-			jsonObject.put("calendarId", applyManage.getCalendarId());
-			jsonObject.put("courseCode", courseCodes[i]);
-			ScoreServiceInvoker.saveExemptionScore(jsonObject);
-		}
+	private void saveExemptionScore(ExemptionApplyManage applyManage, String courseCode, String courseName) {
+		//调用成绩接口，向成绩中添加数据
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("studentId", applyManage.getStudentCode());
+		jsonObject.put("studentName", courseName);
+		jsonObject.put("calendarId", applyManage.getCalendarId());
+		jsonObject.put("courseCode", courseCode);
+		ScoreServiceInvoker.saveExemptionScore(jsonObject);
 	}
 }

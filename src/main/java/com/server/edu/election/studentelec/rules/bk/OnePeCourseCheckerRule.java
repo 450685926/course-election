@@ -4,18 +4,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import com.server.edu.election.dao.ElcPeFreeStdsDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.dao.ElcPeFreeStdsDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -23,7 +23,7 @@ import com.server.edu.util.CollectionUtil;
  * OnePeCourseChecker
  */
 @Component("OnePeCourseCheckerRule")
-public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
+public class OnePeCourseCheckerRule extends AbstractElecRuleExceutorBk
 {
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
@@ -35,7 +35,7 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
      * 执行选课操作时
      */
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         // 体育课程代码
@@ -63,7 +63,7 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutor
             {
                 for (SelectedCourse selectedCours : selectedCourses)
                 {
-                    if (list.contains(selectedCours.getCourseCode()))
+                    if (list.contains(selectedCours.getTeachingClass().getCourseCode()))
                     {
                         ElecRespose respose = context.getRespose();
                         respose.getFailedReasons()

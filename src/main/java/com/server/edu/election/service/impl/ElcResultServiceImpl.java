@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,7 +79,7 @@ import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcResultServiceImpl implements ElcResultService
 {
-    Logger logger = LoggerFactory.getLogger(getClass());
+    Logger logger = LoggerFactory.getLogger(ElcResultServiceImpl.class);
     
     @Autowired
     private TeachingClassDao classDao;
@@ -216,26 +217,24 @@ public class ElcResultServiceImpl implements ElcResultService
         
 		// 添加教室容量
 		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
-		logger.info("==================AAAAAAAAAAAAAAAAA===============:" + roomIds.size());
-		logger.info("==================AAAAAAAAAAAAAAAAA===============:" + roomIds.toString());
+		
+		Set<String> set = new HashSet<String>(roomIds);
+		roomIds.clear();
+		roomIds.addAll(set);
 		
 		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
 		List<Classroom> classroomList = queryAllClassRoom.getData();
-		logger.info("==================BBBBBBBBBBBBBBBBB===============:" + classroomList.size());
-		logger.info("==================BBBBBBBBBBBBBBBBB===============:" + classroomList.toString());
-		
 		
 		for (TeachingClassVo teachingClassVo : listPage) {
-			for (Classroom classroom : classroomList) {
-				if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
-					teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-				}
-			}
-		}
-
-		for (TeachingClassVo teachingClassVo : listPage) {
-			if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
+			if (StringUtils.isBlank(teachingClassVo.getRoomId()) || 
+					StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
 				teachingClassVo.setClassNumberStr("不限");
+			}else {
+				for (Classroom classroom : classroomList) {
+					if (classroom != null && StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
+						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+					}
+				}
 			}
 		}
         

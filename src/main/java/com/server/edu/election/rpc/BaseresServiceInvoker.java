@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.entity.Teacher;
@@ -137,7 +139,7 @@ public class BaseresServiceInvoker
      */
     public static RestResult<List<Classroom>> queryAllClassRoom(List<String> roomIds){
     	@SuppressWarnings("unchecked")
-    	RestResult<List<Classroom>> classrooms= ServicePathEnum.BASESERVICE.postForObject("/schoolCalendar/queryAllClassRoom?roomIds={roomIds}", roomIds, RestResult.class);
+    	RestResult<List<Classroom>> classrooms= ServicePathEnum.BASESERVICE.postForObject("/classroom/queryAllClassRoom", JSONArray.parseArray(JSON.toJSONString(roomIds)), RestResult.class);
     	return classrooms;
     }
     

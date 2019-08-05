@@ -1,10 +1,10 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
 import java.util.Objects;
 
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
+
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 
 /**
  * 已完成课程

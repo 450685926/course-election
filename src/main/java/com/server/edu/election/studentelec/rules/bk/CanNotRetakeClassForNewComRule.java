@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 
@@ -19,7 +19,7 @@ import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
  * !elected&&lesson.getTags().size()>0
  */
 @Component("CanNotRetakeClassForNewComRule")
-public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
+public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutorBk
 {
     @Override
     public int getOrder()
@@ -28,10 +28,10 @@ public class CanNotRetakeClassForNewComRule extends AbstractElecRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
-        boolean count = RetakeCourseUtil.isRetakeCourse(context,
+        boolean count = RetakeCourseUtil.isRetakeCourseBk(context,
             courseClass.getCourseCode());
         
         if (!count

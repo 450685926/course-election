@@ -107,8 +107,21 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public ElcRetakeSetVo getRetakeRule(Long calendarId, String projectId) {
-        return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+    public Boolean getRetakeRule(Long calendarId, String projectId) {
+        ElcRetakeSetVo retakeSet = retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+        if (retakeSet != null && retakeSet.getOpenFlag().intValue() == 1) {
+            Date start = retakeSet.getStart();
+            Date end = retakeSet.getEnd();
+            if (start != null && end != null) {
+                long startTime = start.getTime();
+                long endTime = end.getTime();
+                long nowTime = System.currentTimeMillis();
+                if (startTime < nowTime && nowTime < endTime ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -399,7 +412,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             if (split.length == 0) {
                 return true;
             }
-            List<Integer> selectWeeks = Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
+            // 避免重复周次
+            Set<Integer> selectWeeks = Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toSet());
             Set<Integer> set = new HashSet<>();
             set.addAll(addWeeks);
             set.addAll(selectWeeks);
@@ -466,35 +480,27 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      * @return
      */
     private List<TimeTableMessage> getTimeById(List<Long> teachingClassId) {
-        List<TimeTableMessage> list = new ArrayList<>();
-        if (CollectionUtil.isNotEmpty(teachingClassId)) {
-            List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
-            if (CollectionUtil.isNotEmpty(classTimeAndRoom)) {
-                for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
-                    Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                    Integer timeStart = classTeacherDto.getTimeStart();
-                    Integer timeEnd = classTeacherDto.getTimeEnd();
-                    String weekNumber = classTeacherDto.getWeekNumberStr();
+            List<TimeTableMessage> courseArrange = courseTakeDao.findCourseArrange(teachingClassId);
+            if (CollectionUtil.isNotEmpty(courseArrange)) {
+                for (TimeTableMessage timeTableMessage : courseArrange) {
+                    Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                    Integer timeStart = timeTableMessage.getTimeStart();
+                    Integer timeEnd = timeTableMessage.getTimeEnd();
+                    String weekNumber = timeTableMessage.getWeekNum();
                     String[] str = weekNumber.split(",");
-
-                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                    // 避免同一门课程同一时间多个老师导致周次重复
+                    Set<String> weeksSet = new HashSet<>(Arrays.asList(str));
+                    List<Integer> weeks = weeksSet.stream().map(Integer::parseInt).collect(Collectors.toList());
                     List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
                     String weekNumStr = weekNums.toString();//周次
                     String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                     String timeStr = weekstr + timeStart + "-" + timeEnd + "节"
-                            + weekNumStr + ClassroomCacheUtil.getRoomName(classTeacherDto.getRoomID());
-                    TimeTableMessage time = new TimeTableMessage();
-                    time.setDayOfWeek(dayOfWeek);
-                    time.setTimeStart(timeStart);
-                    time.setTimeEnd(timeEnd);
-                    time.setTeachingClassId(classTeacherDto.getTeachingClassId());
-                    time.setTimeAndRoom(timeStr);
-                    time.setWeeks(weeks);
-                    list.add(time);
+                            + weekNumStr + ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
+                    timeTableMessage.setTimeAndRoom(timeStr);
+                    timeTableMessage.setWeeks(weeks);
                 }
             }
-        }
-        return list;
+        return courseArrange;
     }
 
 }

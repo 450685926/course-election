@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.rules;
 
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecContext;
 
 /**
  * 选课规则
@@ -12,6 +13,6 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
  * @since  [产品/模块版本]
  */
 public abstract class AbstractElecRuleExceutor
-    extends AbstractRuleExceutor<TeachingClassCache>
+    extends AbstractRuleExceutor<ElecContext, TeachingClassCache>
 {
 }

@@ -117,7 +117,7 @@
   </select>
 
 	<select id="queryNameAndTrainingLevelByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
-		SELECT COURSE_CODE_,COURSE_NAME_,COURSE_NAME_EN_,TRAINING_LEVEL_ FROM course_open_t where COURSE_CODE_ = #{courseCode}
+		SELECT CODE_ COURSE_CODE_,NAME_ COURSE_NAME_,NAME_EN_ COURSE_NAME_EN_,TRAINING_LEVEL_ FROM course_t where CODE_ = #{courseCode}
 	</select>
 
 	<select id="findFailedCourseInfo" resultType="com.server.edu.election.vo.FailedCourseVo">
@@ -149,7 +149,7 @@
 		</foreach>
 		and a.CALENDAR_ID_ = #{calendarId}
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-			and (a.COURSE_CODE_ like CONCAT('%', #{keyWord}, '%') or a.COURSE_NAME_ like CONCAT('%', #{keyWord}, '%'))
+			and (a.COURSE_CODE_ like CONCAT(#{keyWord}, '%') or a.COURSE_NAME_ like CONCAT('%', #{keyWord}, '%'))
 		</if>
 	</select>
 

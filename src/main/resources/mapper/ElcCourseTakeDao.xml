@@ -334,26 +334,34 @@
         order by ti.DAY_OF_WEEK_,ti.TIME_START_
     </select>
 
-    <select id="findClassTime" resultType="com.server.edu.election.dto.ClassTeacherDto">
+    <select id="findClassTime" resultType="com.server.edu.election.dto.TimeTableMessage">
         SELECT
         te.ID_ teachingClassId,
+        te.CODE_ classCode,
+        te.NAME_ className,
         te.CAMPUS_ campus,
         co.COURSE_CODE_ courseCode,
         co.COURSE_NAME_ courseName,
-        ti.ID_ timeId,
+        ro.ARRANGE_TIME_ID_ timeId,
         ti.DAY_OF_WEEK_ dayOfWeek,
         ti.TIME_START_ timeStart,
-        ti.TIME_END_ timeEnd
+        ti.TIME_END_ timeEnd,
+        ro.ROOM_ID_ roomID,
+        ro.TEACHER_CODE_ teacherCode,
+        GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNum
         FROM
         teaching_class_t te
         join teaching_task_t ta on te.TASK_ID_=ta.ID_
         left join course_open_t co on ta.COURSE_OPEN_ID_=co.ID_
-        join teaching_class_arrange_time_t ti on te.ID_=ti.TEACHING_CLASS_ID_
+        join teaching_class_arrange_time_t ti on (te.ID_=ti.TEACHING_CLASS_ID_ and ti.TYPE_ =2)
+        JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
         te.ID_ in
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
+        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
+        order by ti.DAY_OF_WEEK_,ti.TIME_START_,ti.TIME_END_
     </select>
     
     <select id="findClassTimeAndRoomStr" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -539,6 +547,21 @@
         LEFT JOIN teaching_class_t cl on cl.TASK_ID_=ts.ID_
         LEFT JOIN teaching_class_teacher_t tl on tl.TEACHING_CLASS_ID_ = cl.ID_
         WHERE cl.DEPLOY_FLAG_ &gt; 0 and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
+    </select>
+
+    <select id="findTeachingClassIds" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT
+            el.CALENDAR_ID_ calendarId,cl.ID_ teachingClassId,cl.CODE_ classCode,el.CREDITS_ credits,
+            el.COURSE_CODE_ courseCode,el.COURSE_NAME_ courseName,el.NATURE_ nature,
+            cl.ELC_NUMBER_ selectCourseNumber,cl.REMARK_ remark,cl.CAMPUS_ campus,
+            co.TEACHING_LANGUAGE_ teachingLanguage,
+            co.WEEK_HOUR_ weekHour,cl.ELC_NUMBER_ selectCourseNumber
+        FROM `course_open_t` el
+        JOIN course_t co on co.CODE_=el.COURSE_CODE_
+        JOIN teaching_task_t ts on ts.COURSE_OPEN_ID_=el.ID_
+        JOIN teaching_class_t cl on cl.TASK_ID_=ts.ID_
+        JOIN teaching_class_teacher_t tl on tl.TEACHING_CLASS_ID_ = cl.ID_
+        WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
     </select>
 
     <delete id="deleteStudentById" parameterType="java.util.List">
@@ -1041,6 +1064,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(role)">
                 and FACULTY_ = #{faculty,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (STUDENT_CODE_ like concat('%',#{keyword},'%') OR NAME_ like concat('%',#{keyword},'%'))
+            </if>
         </where>
     </select>
 
@@ -1284,6 +1310,21 @@
         </foreach>
         group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
         order by t1.DAY_OF_WEEK_,t1.TIME_START_
+    </select>
+
+    <select id="findTeachingArrange" resultType="com.server.edu.election.dto.TimeTableMessage">
+        select
+        t1.TEACHING_CLASS_ID_ teachingClassId,t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
+        t2.ROOM_ID_ roomId,GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
+        from teaching_class_arrange_time_t t1
+        join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
+        where t1.TEACHING_CLASS_ID_ in
+        <foreach item="item" collection="teachingClassIds" separator="," open="(" close=")" >
+            #{item}
+        </foreach>
+        AND t2.TEACHER_CODE_ = #{teacherCode}
+        group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
+        order by t1.DAY_OF_WEEK_,t1.TIME_START_,t1.TIME_END_
     </select>
 
     <select id="findCourseArrangeByTeachingClassId" resultType="com.server.edu.election.dto.TimeTableMessage">

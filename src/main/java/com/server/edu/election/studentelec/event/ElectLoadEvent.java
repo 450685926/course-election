@@ -23,6 +23,7 @@ public class ElectLoadEvent extends ApplicationEvent
     public ElectLoadEvent(Long calendarId, String studentId)
     {
         super(calendarId);
+        this.studentId = studentId;
     }
     
     @Override

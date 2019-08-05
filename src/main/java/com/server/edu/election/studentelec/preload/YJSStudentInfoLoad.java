@@ -24,7 +24,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
  * @since  [产品/模块版本]
  */
 @Component
-public class StudentInfoLoad extends DataProLoad
+public class YJSStudentInfoLoad extends DataProLoad<ElecContext>
 {
     @Override
     public int getOrder()
@@ -35,7 +35,7 @@ public class StudentInfoLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-        return "1,2,4";
+        return "2,4";
     }
     
     @Autowired

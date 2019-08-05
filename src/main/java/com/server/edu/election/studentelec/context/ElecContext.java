@@ -14,7 +14,7 @@ import com.server.edu.election.vo.ElcNoGradCouSubsVo;
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
  *
  */
-public class ElecContext
+public class ElecContext implements IElecContext
 {
     /**学期*/
     private Long calendarId;
@@ -103,6 +103,7 @@ public class ElecContext
      * 保存到redis中
      * 
      */
+    @Override
     public void saveToCache()
     {
         this.contextUtil.updateMem(StudentInfoCache.class.getSimpleName(),
@@ -124,6 +125,7 @@ public class ElecContext
         this.contextUtil.saveAll();
     }
     
+    @Override
     public void saveResponse()
     {
         this.respose.setStatus(null);
@@ -135,6 +137,7 @@ public class ElecContext
      * 清空CompletedCourses,SelectedCourses,ApplyForDropCourses,PlanCourses,courseGroups,publicCourses,failedCourse
      * 
      */
+    @Override
     public void clear()
     {
         this.getCompletedCourses().clear();
@@ -151,6 +154,13 @@ public class ElecContext
         this.getReplaceCourses().clear();
     }
     
+    
+    @Override
+    public Long getCalendarId()
+    {
+        return calendarId;
+    }
+
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
@@ -197,11 +207,13 @@ public class ElecContext
         return request;
     }
     
+    @Override
     public void setRequest(ElecRequest request)
     {
         this.request = request;
     }
     
+    @Override
     public ElecRespose getRespose()
     {
         return respose;

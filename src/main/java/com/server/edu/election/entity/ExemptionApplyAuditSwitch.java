@@ -196,5 +196,14 @@ public class ExemptionApplyAuditSwitch implements Serializable{
 	public void setDeleteStatus(Integer deleteStatus) {
 		this.deleteStatus = deleteStatus;
 	}
+
+	@Override
+	public String toString() {
+		return "ExemptionApplyAuditSwitch [id=" + id + ", grades=" + grades + ", excellentScore=" + excellentScore
+				+ ", trainingLevels=" + trainingLevels + ", formLearnings=" + formLearnings + ", trainingCategorys="
+				+ trainingCategorys + ", degreeTypes=" + degreeTypes + ", enrolSeason=" + enrolSeason + ", applyOpen="
+				+ applyOpen + ", auditOpen=" + auditOpen + ", createdAt=" + createdAt + ", projId=" + projId
+				+ ", deleteStatus=" + deleteStatus + "]";
+	}
     
 }
