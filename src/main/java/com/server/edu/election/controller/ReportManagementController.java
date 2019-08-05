@@ -16,12 +16,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
@@ -199,6 +194,7 @@ public class ReportManagementController
     public RestResult<PreViewRollDto> findPreviewRollBookList(
         @RequestParam Long teachingClassId, @RequestParam Long calendarId)
     {
+        LOG.info("findPreviewRollBookList.start");
         if (teachingClassId == null)
         {
             return RestResult.fail("common.parameterError");
@@ -352,7 +348,6 @@ public class ReportManagementController
         return RestResult.successData(classTeacher);
     }
     
-    //学生课表调用预览点名册
     @ApiOperation(value = "研究生查询教师课表")
     @GetMapping("/findTeacherTimetable2")
     public RestResult<StudentSchoolTimetabVo> findTeacherTimetable2(
@@ -431,21 +426,34 @@ public class ReportManagementController
     }
 
     @ApiOperation(value = "导出研究生点名册")
-    @PostMapping("/exportGraduteRollBookList")
-    public RestResult<ExcelResult> exportGraduteRollBookList(
-            @RequestBody PageCondition<RollBookConditionDto> condition)
+    @GetMapping("/exportGraduteRollBookList")
+    public File exportGraduteRollBookList(
+            @ModelAttribute RollBookConditionDto rollBookConditionDto)
             throws Exception
     {
         LOG.info("export.start");
-        RollBookConditionDto rollBookConditionDto = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
        if (session.isAcdemicDean()) {
             rollBookConditionDto.setFaculty(session.getFaculty());
         }else if (session.isTeacher()) {
             rollBookConditionDto.setTeacherCode(session.realUid());
         }
-        ExcelResult export = managementService.exportGraduteRollBookList(condition);
-        return RestResult.successData(export);
+        try {
+            RestResult<String> restResult = managementService.exportGraduteRollBookList(rollBookConditionDto);
+            if (restResult.getCode() == ResultStatus.SUCCESS.code()
+                    && !"".equals(restResult.getData()))
+            {
+                return new File(restResult.getData());
+            }
+            else
+            {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
     /**
