@@ -688,6 +688,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
      */
     @Override
     public RestResult<String> exportGraduteRollBookList(RollBookConditionDto rollBookConditionDto) throws Exception{
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
         PageCondition<RollBookConditionDto> condition = new PageCondition<>();
         condition.setCondition(rollBookConditionDto);
         PageResult<RollBookList> rollBookList = findRollBookList(condition);
@@ -1387,7 +1390,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         document.add(subtitle);
 		
         //----3 学生基本信息----
-        StudentSchoolTimetabVo studentTimetab = findSchoolTimetab(calendarId,studentCode);
+        StudentSchoolTimetabVo studentTimetab = findSchoolTimetab2(calendarId,studentCode);
         
         PdfPTable table1 = new PdfPTable(4);
         //前间距
@@ -1499,11 +1502,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 			PdfPCell cell = createCell(setTimeListTitle[i],1,1,subtitleChinese,null);
 			table.addCell(cell);
 		}
-		
+
 		// 添加表内容
 		for (int j = 0; j < list.size(); j++) {
 			List<String> timeTableList = getTimeTableList(list.get(j));
-			for (int i = 0; i < setTimeListTitle.length; i++) {
+			for (int i = 0; i < setTimeListTitle.length - 1; i++) {
 				PdfPCell cell = new PdfPCell();
 				if (i == 0) {
 					cell = createCell(String.valueOf(j+1),1,1,name2,null);
@@ -1521,7 +1524,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
 		list.add(timeTable.getCourseCode());
 		list.add(timeTable.getCourseName());
 		list.add("2".equals(timeTable.getCourseType())?"是":"");
-		list.add(timeTable.getIsElective() == 1?"选修":"必修");
+        Integer isElective = timeTable.getIsElective();
+        if (isElective != null) {
+            list.add( isElective == 1?"选修":"必修");
+        }
 		list.add(timeTable.getAssessmentMode());
 		list.add(String.valueOf(timeTable.getCredits()));
 		list.add(timeTable.getTeacherName());
