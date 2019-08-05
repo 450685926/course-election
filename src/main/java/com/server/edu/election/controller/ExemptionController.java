@@ -36,6 +36,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dmskafka.entity.AuditType;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.dto.ExemptionCourseScoreDto;
 import com.server.edu.election.entity.ExemptionApplyManage;
@@ -205,9 +206,15 @@ public class ExemptionController {
     @LogRecord(title="删除免修免考申请",type = AuditType.DELETE)
     @ApiOperation(value = "删除免修免考申请")
     @PostMapping("/deleteExemptionApply")
-    public RestResult<String> deleteExemptionApply(@RequestBody List<Long>  ids){
-        String s= exemptionCourseService.deleteExemptionApply(ids);
-        return RestResult.success(I18nUtil.getMsg(s,""));
+    public RestResult<?> deleteExemptionApply(@RequestBody List<Long>  ids){
+    	Session session = SessionUtils.getCurrentSession();
+    	if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), Constants.PROJ_UNGRADUATE)) {
+    		RestResult<?> result= exemptionCourseService.deleteGraduteExemptionApply(ids);
+    		return result;
+		}else{
+			String s= exemptionCourseService.deleteExemptionApply(ids);
+			return RestResult.success(I18nUtil.getMsg(s,""));
+		}
     }
 
     @LogRecord(title="审批免修免考申请",type = AuditType.UPDATE)
