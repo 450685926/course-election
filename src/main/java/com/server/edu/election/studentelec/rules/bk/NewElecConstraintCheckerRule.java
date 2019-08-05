@@ -105,7 +105,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutorBk
                     .collect(Collectors.toSet());
                 double size = collect.stream()
                     .collect(
-                        Collectors.summingDouble(c -> {return c.getTeachingClass().getCredits();}));//已经新选学分
+                        Collectors.summingDouble(c -> {return c.getCourse().getCredits();}));//已经新选学分
                 Double curCredits = courseClass.getCredits();//当前课程学分
                 if (curCredits + size <= num)
                 {

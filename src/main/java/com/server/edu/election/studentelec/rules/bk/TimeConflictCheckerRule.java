@@ -45,7 +45,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutorBk
                 {
                     for (SelectedCourse selectedCours : selectedCourses)
                     {
-                        List<ClassTimeUnit> times = selectedCours.getTeachingClass().getTimes();
+                        List<ClassTimeUnit> times = selectedCours.getCourse().getTimes();
                         for (ClassTimeUnit v0 : teachingClassTime)
                         {
                             for (ClassTimeUnit v1 : times)

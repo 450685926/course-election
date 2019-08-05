@@ -45,7 +45,7 @@ public class UnElectLessonByPassedFornoGraduate
                 {
                     List<CompletedCourse> list = completedCourses.stream()
                         .filter(temp -> courseClass.getCourseCode()
-                            .equals(temp.getTeachingClass().getCourseCode()))
+                            .equals(temp.getCourse().getCourseCode()))
                         .collect(Collectors.toList());
                     if (CollectionUtil.isNotEmpty(list))
                     {

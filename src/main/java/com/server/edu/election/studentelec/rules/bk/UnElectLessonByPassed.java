@@ -56,7 +56,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
             {
                 //还要判断是否优替代的通过课程todo
                 List<CompletedCourse> list = completedCourses.stream()
-                    .filter(temp -> courseCode.equals(temp.getTeachingClass().getCourseCode()))
+                    .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
                     .collect(Collectors.toList());
                 if (studentInfo.isGraduate())
                 {
@@ -69,7 +69,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
                     {
                         count = completedCourses.stream()
                             .filter(c -> elcNoGradCouSubs.getOrigsCourseId()
-                                .equals(c.getTeachingClass().getCourseCode()))
+                                .equals(c.getCourse().getCourseCode()))
                             .count();
                     }
                 }
@@ -92,7 +92,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
                             {
                                 count = completedCourses.stream()
                                     .filter(c -> subCourses
-                                        .contains(c.getTeachingClass().getCourseCode()))
+                                        .contains(c.getCourse().getCourseCode()))
                                     .count();
                             }
                         }

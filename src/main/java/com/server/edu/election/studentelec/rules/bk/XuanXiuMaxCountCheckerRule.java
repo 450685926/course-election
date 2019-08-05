@@ -50,7 +50,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutorBk
             if (CollectionUtil.isNotEmpty(selectedCourses))
             {
                 List<SelectedCourse> list = selectedCourses.stream()
-                    .filter(c -> c.getTeachingClass().isPublicElec() == true)
+                    .filter(c -> c.getCourse().isPublicElec() == true)
                     .collect(Collectors.toList());
                 int stsNum = list.size();
                 // 选课门数上限

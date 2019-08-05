@@ -221,7 +221,7 @@ public class ElecBkServiceImpl implements ElecBkService
             Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
             for (SelectedCourse selectCourse : selectedCourses)
             {
-                if (selectCourse.getTeachingClass()
+                if (selectCourse.getCourse()
                     .getTeachClassId()
                     .equals(teachClassId))
                 {
@@ -243,8 +243,8 @@ public class ElecBkServiceImpl implements ElecBkService
                 {
                     // 校验不通过时跳过后面的校验进行下一个
                     allSuccess = false;
-                    String key = teachClass.getTeachingClass()
-                        .getCourseCodeAndClassCode();
+                    String key =
+                        teachClass.getCourse().getCourseCodeAndClassCode();
                     if (!failedReasons.containsKey(key))
                     {
                         failedReasons.put(key, exceutor.getDescription());
@@ -256,16 +256,14 @@ public class ElecBkServiceImpl implements ElecBkService
             if (allSuccess)
             {
                 this.saveElc(context,
-                    teachClass.getTeachingClass(),
+                    teachClass.getCourse(),
                     ElectRuleType.WITHDRAW);
                 // 删除缓存中的数据
                 Iterator<SelectedCourse> iterator = selectedCourses.iterator();
                 while (iterator.hasNext())
                 {
                     SelectedCourse c = iterator.next();
-                    if (c.getTeachingClass()
-                        .getTeachClassId()
-                        .equals(teachClassId))
+                    if (c.getCourse().getTeachClassId().equals(teachClassId))
                     {
                         iterator.remove();
                         break;
