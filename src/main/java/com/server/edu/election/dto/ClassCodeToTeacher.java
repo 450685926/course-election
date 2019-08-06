@@ -24,7 +24,16 @@ public class ClassCodeToTeacher {
     @Code2Text(transformer = "X_KCXZ")
     private String nature;
     private Long teachingClassId;
+    private Integer elcNumber;
     private String keyWord;//查询条件
+
+    public Integer getElcNumber() {
+        return elcNumber;
+    }
+
+    public void setElcNumber(Integer elcNumber) {
+        this.elcNumber = elcNumber;
+    }
 
     public Long getTeachingClassId() {
         return teachingClassId;

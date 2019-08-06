@@ -154,12 +154,69 @@
      <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
      and t1.MODE_ = #{query.mode}
      </if>-->
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-	 AND (t1.STUDENT_ID_ like CONCAT('%',#{query.keyword}, '%') OR t2.NAME_ like CONCAT('%',#{query.keyword}, '%'))
-	 </if>
-  	</where>
+      </where>
   	order by CREATED_AT_ DESC, t1.STUDENT_ID_
   </select>
+
+    <select id="elcStudentInfo" resultMap="VoResultMap">
+        select
+        t1.*,
+        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
+        t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
+        t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
+        t4.CAMPUS_
+        from elc_course_takes_t t1
+        left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+        left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+        join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
+                and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+                and t2.GRADE_ = #{query.grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+                and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+                and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+                and t2.DEGREE_TYPE_= #{elcResult.degreeType}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+                and t2.FORM_LEARNING_= #{elcResult.formLearning}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
+                and t2.PROFESSION_ = #{query.profession}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.researchDirection)">
+                and t2.RESEARCH_DIRECTION_ = #{query.researchDirection}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+                and t2.FACULTY_ = #{query.faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+                and t3.CODE_ = #{query.courseCode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+                and t3.NAME_ = #{query.courseName}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+                and t3.NATURE_ = #{query.nature}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
+                and t4.CODE_ = #{query.teachingClassCode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
+                and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+                and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
+            </if>
+            </where>
+    </select>
   
   <select id="getTeachingClassInfo" resultMap="VoResultMap">
   	select 
@@ -301,7 +358,7 @@
         SELECT st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,st.GRADE_ grade,st.FACULTY_ faculty,st.TRAINING_LEVEL_ trainingLevel,el.COURSE_TAKE_TYPE_ courseTakeType
         FROM `elc_course_takes_t` el
         LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
-        where TEACHING_CLASS_ID_= #{id,jdbcType=BIGINT}
+        where el.TEACHING_CLASS_ID_= #{id,jdbcType=BIGINT}
     </select>
 
     <select id="findClassTimeAndRoom" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -326,13 +383,26 @@
         join teaching_class_arrange_time_t ti on (te.ID_=ti.TEACHING_CLASS_ID_ and ti.TYPE_ =2)
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        te.DEPLOY_FLAG_ &gt; 0 and 
+        te.DEPLOY_FLAG_ &gt; 0 and
         te.ID_ in
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
         </foreach>
         GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
         order by ti.DAY_OF_WEEK_,ti.TIME_START_
+    </select>
+
+    <select id="findClassTimeAndRoomById" resultType="com.server.edu.election.dto.TimeTableMessage">
+        select
+            te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart, te.TIME_END_ timeEnd,ro.ROOM_ID_ roomId,
+            GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNum
+        from teaching_class_t tc
+        join teaching_class_arrange_time_t te on te.TEACHING_CLASS_ID_ = tc.ID_
+        join teaching_class_arrange_room_t ro ON te.ID_ = ro.ARRANGE_TIME_ID_
+        WHERE
+        tc.ID_ = #{teachingClassId}
+        GROUP BY ro.ARRANGE_TIME_ID_
+        order by te.DAY_OF_WEEK_,te.TIME_START_
     </select>
 
     <select id="findClassTime" resultType="com.server.edu.election.dto.TimeTableMessage">
@@ -821,6 +891,7 @@
         t2.TEACHER_CODE_ teacherCode,
         t2.TEACHER_NAME_ teacherName,
         t3.CODE_ classCode,
+        t3.ELC_NUMBER_ elcNumber,
         t1.COURSE_CODE_ courseCode,
         t1.COURSE_NAME_ courseName,
         t1.FACULTY_ faculty,
@@ -832,7 +903,6 @@
         join  course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
         JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
         <where>
-             t3.DEPLOY_FLAG_ &gt; 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             </if>
