@@ -188,7 +188,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 		
                 	}
                 	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
-        				Classroom classroom = classroomList.stream().filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
         				vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
         			}else {
         				vo.setClassNumberStr("不限");
