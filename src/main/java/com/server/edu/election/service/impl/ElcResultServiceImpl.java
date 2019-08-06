@@ -67,6 +67,7 @@ import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -145,7 +146,9 @@ public class ElcResultServiceImpl implements ElcResultService
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
-        	if(Constants.IS==condition.getIsScreening()) {
+        	if(Constants.IS.equals(condition.getIsScreening())) {
+        		int mode = TableIndexUtil.getMode(condition.getCalendarId());
+        		condition.setMode(mode);
         		listPage = classDao.listScreeningPage(condition);
         	}else {
         		listPage = classDao.listPage(condition);
@@ -185,7 +188,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 		
                 	}
                 	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
-        				Classroom classroom = classroomList.stream().filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
         				vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
         			}else {
         				vo.setClassNumberStr("不限");
