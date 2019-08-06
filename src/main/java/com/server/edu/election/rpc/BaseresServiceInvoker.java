@@ -132,7 +132,7 @@ public class BaseresServiceInvoker
     }
     
     /**
-     * ´ÓRedisÖĞ²éÑ¯ËùÓĞ½ÌÊÒĞÅÏ¢
+     * ä»Redisä¸­æŸ¥è¯¢æ‰€æœ‰æ•™å®¤ä¿¡æ¯
      *
      * @author daichang
      * @date 2019/3/5
