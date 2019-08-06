@@ -233,7 +233,7 @@ public class ElecBkServiceImpl implements ElecBkService
             {
                 failedReasons.put(String.format("%s[%s]",
                     data.getCourseCode(),
-                    data.getTeachClassCode()), "教学班不存在无法选课");
+                    data.getTeachClassCode()), "教学班不存在无法退课");
                 continue;
             }
             boolean allSuccess = true;
