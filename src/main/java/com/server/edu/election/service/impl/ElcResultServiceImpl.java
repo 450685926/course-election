@@ -67,6 +67,7 @@ import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -146,6 +147,8 @@ public class ElcResultServiceImpl implements ElcResultService
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS==condition.getIsScreening()) {
+        		int mode = TableIndexUtil.getMode(condition.getCalendarId());
+        		condition.setMode(mode);
         		listPage = classDao.listScreeningPage(condition);
         	}else {
         		listPage = classDao.listPage(condition);
