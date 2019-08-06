@@ -63,7 +63,7 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutorBk
             {
                 for (SelectedCourse selectedCours : selectedCourses)
                 {
-                    if (list.contains(selectedCours.getTeachingClass().getCourseCode()))
+                    if (list.contains(selectedCours.getCourse().getCourseCode()))
                     {
                         ElecRespose respose = context.getRespose();
                         respose.getFailedReasons()

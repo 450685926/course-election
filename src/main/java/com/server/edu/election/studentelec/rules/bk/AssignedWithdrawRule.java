@@ -28,7 +28,7 @@ public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutorBk
     public boolean checkRule(ElecContextBk context, SelectedCourse course)
     {
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        TeachingClassCache tClass = course.getTeachingClass();
+        TeachingClassCache tClass = course.getCourse();
         String courseCode = tClass.getCourseCode();
         if (tClass.getTeachClassId() != null
             && StringUtils.isNotBlank(courseCode)
@@ -36,7 +36,7 @@ public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutorBk
         {
             List<SelectedCourse> list = selectedCourses.stream()
                 .filter(c -> ChooseObj.STU.type() != c.getChooseObj())
-                .filter(c -> courseCode.equals(c.getTeachingClass().getCourseCode()))
+                .filter(c -> courseCode.equals(c.getCourse().getCourseCode()))
                 .collect(Collectors.toList());
             if (CollectionUtil.isEmpty(list))
             {

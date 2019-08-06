@@ -72,13 +72,13 @@ public class ElcResultController
     }
     
     /**
-     * 研究生上课名单列表
+     * 研究生教学班查询列表
      * 
      * @param condition
      * @return
      * @see [类、类#方法、类#成员]
      */
-    @ApiOperation(value = "研究生上课名单列表")
+    @ApiOperation(value = "研究生教学班查询列表")
     @PostMapping("/graduateTeachClassPage")
     public RestResult<PageResult<TeachingClassVo>> graduatePage(
         @RequestBody PageCondition<ElcResultQuery> condition)

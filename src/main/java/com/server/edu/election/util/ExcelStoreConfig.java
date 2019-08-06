@@ -35,7 +35,27 @@ public class ExcelStoreConfig
     private List<String> graduateExemptionApplyExportTitle;
     
     private List<String> graduateExemptionApplyExportKey;
-    
+
+	private List<String> GraduteRollBookListTitle;
+
+	private List<String> GraduteRollBookListKey;
+
+	public List<String> getGraduteRollBookListKey() {
+		return GraduteRollBookListKey;
+	}
+
+	public void setGraduteRollBookListKey(List<String> graduteRollBookListKey) {
+		GraduteRollBookListKey = graduteRollBookListKey;
+	}
+
+	public List<String> getGraduteRollBookListTitle() {
+		return GraduteRollBookListTitle;
+	}
+
+	public void setGraduteRollBookListTitle(List<String> graduteRollBookListTitle) {
+		GraduteRollBookListTitle = graduteRollBookListTitle;
+	}
+
 	public List<String> getElcResultCountExportByStudentTitle() {
 		return elcResultCountExportByStudentTitle;
 	}

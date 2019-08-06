@@ -33,7 +33,7 @@ public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutorBk
         if (!round.getTurn().equals(course.getTurn()))
         {
             String courseCodeAndClassCode =
-                course.getTeachingClass().getCourseCodeAndClassCode();
+                course.getCourse().getCourseCodeAndClassCode();
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
                 .put(courseCodeAndClassCode,

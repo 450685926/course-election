@@ -11,7 +11,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 @CodeI18n
 public class SelectedCourse
 {
-    private TeachingClassCache teachingClass;
+    private TeachingClassCache course;
     
     /**
      * 选课对象(1学生，2教务员，3管理员)
@@ -44,23 +44,23 @@ public class SelectedCourse
     
     public SelectedCourse(TeachingClassCache teachingClass)
     {
-        this.teachingClass = teachingClass;
+        this.course = teachingClass;
     }
     
-    public TeachingClassCache getTeachingClass()
+    public TeachingClassCache getCourse()
     {
-        if (teachingClass == null)
+        if (course == null)
         {
-            teachingClass = new TeachingClassCache();
+            course = new TeachingClassCache();
         }
-        return teachingClass;
+        return course;
     }
     
-    public void setTeachingClass(TeachingClassCache teachingClass)
+    public void setCourse(TeachingClassCache course)
     {
-        this.teachingClass = teachingClass;
+        this.course = course;
     }
-    
+
     public Integer getChooseObj()
     {
         return chooseObj;
@@ -124,7 +124,7 @@ public class SelectedCourse
     @Override
     public int hashCode()
     {
-        return this.getTeachingClass().hashCode();
+        return this.getCourse().hashCode();
     }
     
     @Override
@@ -138,12 +138,12 @@ public class SelectedCourse
         if (obj instanceof SelectedCourse)
         {
             SelectedCourse o = (SelectedCourse)obj;
-            if (this.teachingClass == o.getTeachingClass())
+            if (this.course == o.getCourse())
             {
                 return true;
             }
-            return this.teachingClass != null
-                && this.teachingClass.equals(o.getTeachingClass());
+            return this.course != null
+                && this.getCourse().equals(o.getCourse());
         }
         return false;
     }

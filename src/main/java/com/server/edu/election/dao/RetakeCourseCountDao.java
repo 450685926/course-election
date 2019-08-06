@@ -19,5 +19,5 @@ public interface RetakeCourseCountDao {
     /**根据学生信息查询学生重修门数上限*/
     Integer findRetakeCount(Student student);
 
-    String findProjectName(RetakeCourseCountVo retakeCourseCountVo);
+    RetakeCourseCountVo findRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo);
 }

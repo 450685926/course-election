@@ -93,13 +93,13 @@ public class ElecAgentYjsController
     {
         Session session = SessionUtils.getCurrentSession();
         
-        if (!StringUtils.equals(session.getCurrentRole(), "1"))
+        if (!StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)))
         {
             throw new ParameterValidateException(
                 I18nUtil.getMsg("agentElc.role.err"));
         }
         
-        if (StringUtils.equals(session.getCurrentRole(), "1")
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
             && !session.isAdmin() && session.isAcdemicDean())
         {// 教务员
             NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();

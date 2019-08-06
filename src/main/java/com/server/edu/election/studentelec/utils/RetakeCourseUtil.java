@@ -100,8 +100,8 @@ public class RetakeCourseUtil {
         if (CollectionUtil.isNotEmpty(list)) {
             if (studentInfo.isGraduate()) {
                 if (elcNoGradCouSubs != null) {
-                    count = list.stream().filter(vo -> vo.getTeachingClass().getCourseCode().equals(courseCode))
-                            .filter(c -> elcNoGradCouSubs.getOrigsCourseId().equals(c.getTeachingClass().getCourseCode())).count();
+                    count = list.stream().filter(vo -> vo.getCourse().getCourseCode().equals(courseCode))
+                            .filter(c -> elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourse().getCourseCode())).count();
                 }
             } else {
                 if (CollectionUtil.isNotEmpty(planCourses)) {
@@ -112,8 +112,8 @@ public class RetakeCourseUtil {
                                 .filter(c -> courseCode.equals(c.getSubCourseCode())).map(p -> {return p.getCourse().getCourseCode();})
                                 .collect(Collectors.toList());
                         if (CollectionUtil.isNotEmpty(subCourses)) {
-                            count = list.stream().filter(vo -> vo.getTeachingClass().getCourseCode().equals(courseCode))
-                                    .filter(vo -> subCourses.contains(vo.getTeachingClass().getCourseCode())).count();
+                            count = list.stream().filter(vo -> vo.getCourse().getCourseCode().equals(courseCode))
+                                    .filter(vo -> subCourses.contains(vo.getCourse().getCourseCode())).count();
                         }
                     }
                 }

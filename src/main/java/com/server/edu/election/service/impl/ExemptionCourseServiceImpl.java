@@ -522,18 +522,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if(CollectionUtil.isEmpty(ids)){
             return "common.parameterError";
         }
-        Session session = SessionUtils.getCurrentSession();
-        String currentManageDptId = session.getCurrentManageDptId();
-        if (!StringUtils.equalsIgnoreCase(currentManageDptId, Constants.PROJ_UNGRADUATE)) {
-        	for (Long id : ids) {
-        		//查找申请信息
-        		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
-    				//调用成绩接口，向成绩中添加数据
-    				ScoreServiceInvoker.deleteExemptionScore(applyRecord.getStudentCode(),applyRecord.getCalendarId(),applyRecord.getCourseCode());
-				}
-			}
-		}
         applyDao.deleteExemptionApply(ids);
         return "common.deleteSuccess";
     }
@@ -1239,5 +1227,26 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		jsonObject.put("calendarId", applyManage.getCalendarId());
 		jsonObject.put("courseCode", courseCode);
 		ScoreServiceInvoker.saveExemptionScore(jsonObject);
+	}
+
+
+	@Override
+	public RestResult<?> deleteGraduteExemptionApply(List<Long> ids) {
+		List<Long> effectiveIds = new ArrayList<>();
+		List<String> noEffectiveIds = new ArrayList<>();
+		for (Long id : ids) {
+			//查找申请信息
+			ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
+			if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
+				//调用成绩接口，查看是否有成绩
+				if (true) {
+					noEffectiveIds.add(applyRecord.getStudentCode());
+				}else{
+					effectiveIds.add(id);
+				}
+			}
+		}
+        applyDao.deleteExemptionApply(effectiveIds);
+        return RestResult.success("common.deleteSuccess");
 	}
 }
