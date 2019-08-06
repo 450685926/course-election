@@ -733,7 +733,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 ExcelEntityExport<StudentVo> excelExport = new ExcelEntityExport(studentsList,
                         excelStoreConfig.getGraduteRollBookKey(),
                         excelStoreConfig.getGraduteRollBookTitle(),
-                        "D:\\");
+                        cacheDirectory);
                 path = excelExport.exportExcelToCacheDirectory("学生点名册");
             }
         }

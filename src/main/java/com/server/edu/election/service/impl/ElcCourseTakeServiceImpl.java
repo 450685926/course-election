@@ -792,7 +792,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
                         excelStoreConfig.getElcPersonalInfoKey(),
                         excelStoreConfig.getElcPersonalInfoTitle(),
-                        "D:\\");
+                        cacheDirectory);
                 path = excelExport.exportExcelToCacheDirectory("全部选课信息");
             }
         }
