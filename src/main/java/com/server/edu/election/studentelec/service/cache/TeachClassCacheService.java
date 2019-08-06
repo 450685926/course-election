@@ -30,7 +30,7 @@ import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
-import com.server.edu.election.studentelec.preload.CourseGradeLoad;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -56,7 +56,7 @@ public class TeachClassCacheService extends AbstractCacheService
     private ElcCourseTakeDao courseTakeDao;
     
     @Autowired
-    private CourseGradeLoad gradeLoad;
+    private BKCourseGradeLoad gradeLoad;
     
     @Autowired
     private RoundCacheService roundCacheService;

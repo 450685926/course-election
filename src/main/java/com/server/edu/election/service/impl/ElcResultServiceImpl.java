@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,11 +22,11 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
@@ -34,6 +35,8 @@ import com.server.edu.election.dao.ElcCourseSuggestSwitchDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
 import com.server.edu.election.dao.ElcResultCountDao;
+import com.server.edu.election.dao.ElcScreeningLabelDao;
+import com.server.edu.election.dao.ElcTeachingClassBindDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
@@ -49,6 +52,8 @@ import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcClassEditAuthority;
 import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcScreeningLabel;
+import com.server.edu.election.entity.ElcTeachingClassBind;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
@@ -76,7 +81,7 @@ import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcResultServiceImpl implements ElcResultService
 {
-    Logger logger = LoggerFactory.getLogger(getClass());
+    Logger logger = LoggerFactory.getLogger(ElcResultServiceImpl.class);
     
     @Autowired
     private TeachingClassDao classDao;
@@ -123,6 +128,15 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private TeachingClassElectiveRestrictProfessionDao professionDao;
     
+    @Autowired
+    private ElcScreeningLabelDao elcScreeningLabelDao;
+    
+    @Autowired
+    private ElcTeachingClassBindDao bindDao;
+    
+    @Autowired
+    private TeachingClassDao teachingClassDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -131,45 +145,18 @@ public class ElcResultServiceImpl implements ElcResultService
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
-        	listPage = classDao.listPage(condition);
-		}else {
-			Session session = SessionUtils.getCurrentSession();
-			if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
-					&& !session.isAdmin()
-					&& session.isAcdemicDean()) {
-				String faculty = session.getFaculty();
-				condition.setFaculty(faculty);
+        	if(Constants.ONE==condition.getIsScreening()) {
+        		listPage = classDao.listScreeningPage(condition);
+        	}else {
+        		listPage = classDao.listPage(condition);
 			}
-			listPage = classDao.grduateListPage(condition);
 		}
-        
 		// 添加教室容量
-		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
-		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
-		List<Classroom> classroomList = queryAllClassRoom.getData();
-		
-		for (TeachingClassVo teachingClassVo : listPage) {
-			for (Classroom classroom : classroomList) {
-				if (String.valueOf(classroom.getId()) == teachingClassVo.getRoomId()) {
-					teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-				}
-			}
-		}
-
-		for (TeachingClassVo teachingClassVo : listPage) {
-			if (StringUtils.isBlank(teachingClassVo.getRoomId())) {
-				teachingClassVo.setClassNumberStr("不限");
-			}
-		}
-        
+		Set<String> roomIds = listPage.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
+		List<Classroom> classroomList = ClassroomCacheUtil.getList(roomIds);
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
-        	List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
-    	    // 查找任课教师信息
-            Example teacherExample = new Example(TeachingClassTeacher.class);
-            teacherExample.createCriteria().andIn("teachingClassId", classIds).
-                    andEqualTo("type",Constants.TEACHER_DEFAULT);
-            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
+        	List<TeachingClassTeacher> teacherList = getTeachingTeachers(list);
             for(TeachingClassVo vo: list) {
             	if(CollectionUtil.isNotEmpty(teacherList)) {
                 	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
@@ -196,6 +183,90 @@ public class ElcResultServiceImpl implements ElcResultService
                 		String proportion = boy +"/" +girl;
                 		vo.setProportion(proportion);
                 		
+                	}
+                	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+        				Classroom classroom = classroomList.stream().filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        				vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+        			}else {
+        				vo.setClassNumberStr("不限");
+        			}
+            	}
+            }
+            // 处理教学安排（上课时间地点）信息
+            getTimeList(list);
+        }
+        return new PageResult<>(listPage);
+    }
+    
+    // 查找任课教师信息
+	private List<TeachingClassTeacher> getTeachingTeachers(List<TeachingClassVo> list) {
+		List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+		Example teacherExample = new Example(TeachingClassTeacher.class);
+		teacherExample.createCriteria().andIn("teachingClassId", classIds).
+		        andEqualTo("type",Constants.TEACHER_DEFAULT);
+		List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
+		return teacherList;
+	}
+    
+    @Override
+    public PageResult<TeachingClassVo> graduatePage(
+        PageCondition<ElcResultQuery> page)
+    {
+        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+        ElcResultQuery condition = page.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+				&& !session.isAdmin()
+				&& session.isAcdemicDean()) {
+			String faculty = session.getFaculty();
+			condition.setFaculty(faculty);
+		}
+		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
+        
+		// 添加教室容量
+		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
+		
+		Set<String> set = new HashSet<String>(roomIds);
+		roomIds.clear();
+		roomIds.addAll(set);
+		
+		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
+		List<Classroom> classroomList = queryAllClassRoom.getData();
+		
+		for (TeachingClassVo teachingClassVo : listPage) {
+			if (StringUtils.isBlank(teachingClassVo.getRoomId()) || 
+					StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
+				teachingClassVo.setClassNumberStr("不限");
+			}else {
+				for (Classroom classroom : classroomList) {
+					if (classroom != null && StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
+						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+					}
+				}
+			}
+		}
+        
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+        	List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+    	    // 查找任课教师信息
+            Example teacherExample = new Example(TeachingClassTeacher.class);
+            teacherExample.createCriteria().andIn("teachingClassId", classIds).
+                    andEqualTo("type",Constants.TEACHER_DEFAULT);
+            List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
+            for(TeachingClassVo vo: list) {
+            	if(CollectionUtil.isNotEmpty(teacherList)) {
+                	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
+                	StringBuilder stringBuilder = new StringBuilder();
+                	if(CollectionUtil.isNotEmpty(teachers)) {
+                		for(TeachingClassTeacher teacher:teachers) {
+                			stringBuilder.append(teacher.getTeacherName());
+                			stringBuilder.append("(");
+                			stringBuilder.append(teacher.getTeacherCode());
+                			stringBuilder.append(")");
+                			stringBuilder.append(",");
+                		}
+                		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
                 	}
             	}
             }
@@ -760,6 +831,59 @@ public class ElcResultServiceImpl implements ElcResultService
 			attr.setCreatedAt(new Date());
 			attrDao.insertSelective(attr);
 		}
+	}
+	
+	@Override
+	@Transactional
+	public void saveScreeningLabel(ElcScreeningLabel elcScreeningLabel) {
+		Example example = new Example(ElcScreeningLabel.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("calendarId", elcScreeningLabel.getCalendarId());
+		criteria.andEqualTo("labelName", elcScreeningLabel.getLabelName());
+		ElcScreeningLabel label = elcScreeningLabelDao.selectOneByExample(example);
+		if(label!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcScreeningLabel")));
+		}
+		elcScreeningLabelDao.insert(elcScreeningLabel);
+	}
+	
+	@Override
+	@Transactional
+	public void updateScreeningLabel(ElcScreeningLabel elcScreeningLabel) {
+		if(elcScreeningLabel.getId() ==null) {
+			 throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		elcScreeningLabelDao.updateByPrimaryKeySelective(elcScreeningLabel);
+	}
+	@Override
+	@Transactional
+	public void saveClassBind(ElcTeachingClassBind elcTeachingClassBind) {
+		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
+		if(bind!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcTeachingClassBind")));
+		}
+		bindDao.insert(bind);
+	}
+	@Override
+	@Transactional
+	public void updateClassBind(ElcTeachingClassBind elcTeachingClassBind) {
+		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
+		if(bind!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcTeachingClassBind")));
+		}
+		bindDao.updateByPrimaryKey(elcTeachingClassBind);
+	}
+	
+	@Override
+	@Transactional
+	public void updateClassRemark(Long id, String remark) {
+		TeachingClass teachingClass =new TeachingClass();
+		teachingClass.setId(id);
+		teachingClass.setRemark(remark);
+		teachingClassDao.updateByPrimaryKeySelective(teachingClass);
 	}
 	
 }

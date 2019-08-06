@@ -3,8 +3,8 @@ package com.server.edu.election.studentelec.rules.bk;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 
 /**
  * 英语课程能力等级检察器<br>
@@ -14,7 +14,7 @@ import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
  * 
  */
 @Component("EnglishAbilityCheckerRule")
-public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutor {
+public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk {
 
 //	private static final String PARAM_ENG_COURSES = "PARAM_ENG_COURSE_ABILITY_MAP";
 
@@ -24,7 +24,7 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutor {
 	 * 执行选课操作时
 	 */
 	@Override
-	public boolean checkRule(ElecContext context, TeachingClassCache courseClass) {
+	public boolean checkRule(ElecContextBk context, TeachingClassCache courseClass) {
 		// Map<Long, Set<String>> courseId2Abilities =
 		// (Map<Long, Set<String>>)state.getParams().get(PARAM_ENG_COURSES);
 		// String[] stdAbilities = (String[])state.getParams().get(PARAM_ENG_STD);

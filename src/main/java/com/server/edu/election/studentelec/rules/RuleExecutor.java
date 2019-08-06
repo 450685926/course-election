@@ -1,8 +1,6 @@
 package com.server.edu.election.studentelec.rules;
 
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 
 /**
  * 
@@ -13,7 +11,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public interface RuleExecutor<T extends TeachingClassCache>
+public interface RuleExecutor<EC,T>
 {
     /**
      * 获取ProjectID
@@ -48,8 +46,8 @@ public interface RuleExecutor<T extends TeachingClassCache>
     /**
      *  检查选课规则
      * @param context 选课上下文
-     * @param courseClass 教学班
+     * @param c 教学班w
      * @return true通过，false不通过
      */
-    boolean checkRule(ElecContext context, T courseClass);
+    boolean checkRule(EC baseContext, T c);
 }

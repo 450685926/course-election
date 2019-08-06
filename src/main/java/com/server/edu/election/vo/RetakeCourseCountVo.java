@@ -5,6 +5,7 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @CodeI18n
 public class RetakeCourseCountVo {
@@ -32,8 +33,38 @@ public class RetakeCourseCountVo {
     @NotBlank
     private String projectName;
 
+    private String createBy;
+
+    private Date createAt;
+
+    private Date updatedAt;
+
     /**删除状态，0未删除，1删除*/
     private Integer status;
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Date getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
 
     public Integer getStatus() {
         return status;

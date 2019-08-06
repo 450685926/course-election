@@ -91,12 +91,24 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Long id = retakeCourseCountVo.getId();
         retakeCourseCountVo.setStatus(Constants.DELETE_FALSE);
         if (id == null) {
-            String projectName = retakeCourseCountDao.findProjectName(retakeCourseCountVo);
-            if (projectName != null) {
-                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",projectName));
+            // 判断这条数据是否重复
+            RetakeCourseCountVo retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountVo);
+            if (retakeCourseCount != null) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
             }
+//            Session currentSession = SessionUtils.getCurrentSession();
+//            String uid = currentSession.getUid();
+//            retakeCourseCountVo.setCreateBy(uid);
+            retakeCourseCountVo.setCreateBy("cssc");
+            retakeCourseCountVo.setCreateAt(new Date());
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountVo);
         } else {
+            // 判断修改后的数据是否与数据库已有数据重复
+            RetakeCourseCountVo retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountVo);
+            if (retakeCourseCount != null && id.intValue() != retakeCourseCount.getId().intValue()) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
+            }
+            retakeCourseCountVo.setUpdatedAt(new Date());
             retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountVo);
         }
     }

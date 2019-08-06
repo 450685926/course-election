@@ -11,8 +11,8 @@ import com.server.edu.election.entity.ElcLoserDownStds;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 
 /**
  * 加载学生信息
@@ -24,7 +24,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
  * @since  [产品/模块版本]
  */
 @Component
-public class StudentInfoLoad extends DataProLoad
+public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
 {
     @Override
     public int getOrder()
@@ -35,7 +35,7 @@ public class StudentInfoLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-        return "1,2,4";
+        return "1";
     }
     
     @Autowired
@@ -48,7 +48,7 @@ public class StudentInfoLoad extends DataProLoad
     private ElcLoserDownStdsDao elcLoserDownStdsDao;
     
     @Override
-    public void load(ElecContext context)
+    public void load(ElecContextBk context)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
         
