@@ -123,7 +123,4 @@ public interface ReportManagementService {
 	 */
 	RestResult<String> exportTeacherTimetabPdf(Long calendarId, String calendarName, String teacherCode,
 			String teacherName) throws DocumentException, IOException;
-
-	/**导出学生点名册*/
-    RestResult<String> exportGraduteRollBook(Long teachingClassId) throws Exception;
 }
