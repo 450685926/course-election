@@ -55,11 +55,14 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ = #{studentId}
 		    </if>
+		    <if test="mode !=null and mode ==2">
+		        and t4.TRAINING_METHODS_ = #{mode} and TIMESTAMPDIFF(SECOND,TIMESTAMP(DATE_ADD(NOW(), INTERVAL -2 YEAR)),t4.ACTUAL_GRADUATION_DATE_)  &gt; 0
+		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t4.GRADE_ = #{grade}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-		        and t4.FACULTY_ = #{faculty}
+		        and t4.FACULTY_ = #{faculty} 
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 		        and t4.PROFESSION_ = #{profession}

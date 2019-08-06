@@ -18,18 +18,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.validator.Assert;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -64,7 +61,7 @@ public class ElecAgentController
         @RequestParam("electionObj") @NotBlank String electionObj,
         @RequestParam("projectId") @NotBlank String projectId,
         @RequestParam(name = "mode") @NotNull Integer mode,
-        @RequestParam(name = "studentId") String studentId)
+        @RequestParam(name = "studentId", required = false) String studentId)
     {
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
@@ -86,6 +83,7 @@ public class ElecAgentController
                 {
                     continue;
                 }
+                
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules =
                     dataProvider.getRules(round.getId());
@@ -113,46 +111,20 @@ public class ElecAgentController
         return elecService.loading(elecRequest);
     }
     
-    @ApiOperation(value = "获取学生选课数据")
-    @PostMapping("/getData")
-    public RestResult<ElecContext> getData(
+    @ApiOperation(value = "获取本科生选课数据")
+    @PostMapping("/getDataBk")
+    public RestResult<ElecContextBk> getDataBk(
         @RequestBody(required = false) ElecRequest elecRequest)
     {
         ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
         
-        Session session = SessionUtils.getCurrentSession();
         String studentId = elecRequest.getStudentId();
         
-        ElectionRounds round = new ElectionRounds();
-        ElecContext c = new ElecContext();
-        if (elecRequest.getRoundId() != null)
-        { // 教务员
-            round = dataProvider.getRound(elecRequest.getRoundId());
-            if (round == null)
-            {
-                return RestResult.error("elec.roundNotExistTip");
-            }
-            c = new ElecContext(studentId, round.getCalendarId());
-        }
-        else
-        { // 管理员
-            c = new ElecContext(studentId, elecRequest.getCalendarId());
-        }
+        ElectionRounds round = dataProvider.getRound(elecRequest.getRoundId());
+        Assert.notNull(round, "elec.roundNotExistTip");
         
-        if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
-        {
-            if (elecRequest.getChooseObj() == Constants.TOW)
-            { // 教务员
-                c = elecService
-                    .setData(studentId, c, elecRequest.getRoundId(), null);
-            }
-            else if (elecRequest.getChooseObj() == Constants.THREE)
-            { // 管理员
-                c = elecService
-                    .setData(studentId, c, null, elecRequest.getCalendarId());
-                //c = elecService.setData(c,null,calendarId);
-            }
-        }
+        ElecContextBk c = new ElecContextBk(studentId, round.getCalendarId());
+        
         return RestResult.successData(c);
     }
     
@@ -221,32 +193,6 @@ public class ElecAgentController
             ElecStatus.Init);
         
         return RestResult.success();
-    }
-    
-    @ApiOperation(value = "获取被代理选课的学生列表")
-    @PostMapping("/findAgentElcStudentList")
-    public RestResult<PageResult<NoSelectCourseStdsDto>> findAgentElcStudentList(
-        @RequestBody PageCondition<NoSelectCourseStdsDto> condition)
-    {
-        Session session = SessionUtils.getCurrentSession();
-        
-        if (!StringUtils.equals(session.getCurrentRole(), "1"))
-        {
-            throw new ParameterValidateException(
-                I18nUtil.getMsg("agentElc.role.err"));
-        }
-        
-        if (StringUtils.equals(session.getCurrentRole(), "1")
-            && !session.isAdmin() && session.isAcdemicDean())
-        {// 教务员
-            NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
-            noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
-            noSelectCourseStds.setFaculty(session.getFaculty());
-        }
-        
-        PageResult<NoSelectCourseStdsDto> list =
-            elecService.findAgentElcStudentList(condition);
-        return RestResult.successData(list);
     }
     
 }

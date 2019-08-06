@@ -14,9 +14,9 @@ import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.util.CollectionUtil;
 
@@ -27,61 +27,74 @@ import com.server.edu.util.CollectionUtil;
  * ElectableLessonByTeachClassFilter
  */
 @Component("ElecByTeachClassRule")
-public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
+public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
+{
     @Override
-    public int getOrder() {
+    public int getOrder()
+    {
         return RulePriority.FIFTH.ordinal();
     }
-
-    public ElecByTeachClassRule() {
+    
+    public ElecByTeachClassRule()
+    {
         super();
     }
-
+    
     @Autowired
     private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
-
+    
     @Autowired
     private ElcCourseTakeDao takeDao;
-
+    
     private static final String IS_OVERSEAS_ = "1";
+    
     private static final String IS_NOT_OVERSEAS_ = "0";
-//    private static final String NOT_DISTINGYISH_SEX = "0";//不区分性别
+    
+    //    private static final String NOT_DISTINGYISH_SEX = "0";//不区分性别
     private static final String MALE = "1";//男性
+    
     private static final String FEMALE = "2";//女性
-
+    
     @Override
-    public boolean checkRule(ElecContext context,
-                             TeachingClassCache courseClass) {
+    public boolean checkRule(ElecContextBk context,
+        TeachingClassCache courseClass)
+    {
         Long teachClassId = courseClass.getTeachClassId();
         StudentInfoCache studentInfo = context.getStudentInfo();
-
+        
         List<String> stringList =
-                restrictAttrDao.selectRestrictStudent(teachClassId);//限制学生
+            restrictAttrDao.selectRestrictStudent(teachClassId);//限制学生
         List<SuggestProfessionDto> suggestProfessionDtos =
-                restrictAttrDao.selectRestrictProfession(teachClassId);//限制专业
+            restrictAttrDao.selectRestrictProfession(teachClassId);//限制专业
         TeachingClassElectiveRestrictAttr record =
-                new TeachingClassElectiveRestrictAttr();
+            new TeachingClassElectiveRestrictAttr();
         record.setTeachingClassId(teachClassId);
         TeachingClassElectiveRestrictAttr restrictAttr =
-                restrictAttrDao.selectOne(record);//其他限制条件
-        if (CollectionUtil.isNotEmpty(stringList)) {
-            if (stringList.contains(studentInfo.getStudentId())) {
+            restrictAttrDao.selectOne(record);//其他限制条件
+        if (CollectionUtil.isNotEmpty(stringList))
+        {
+            if (stringList.contains(studentInfo.getStudentId()))
+            {
                 return true;
             }
         }
-        if (CollectionUtil.isNotEmpty(suggestProfessionDtos)) {
+        if (CollectionUtil.isNotEmpty(suggestProfessionDtos))
+        {
             Integer grade = studentInfo.getGrade();
             String major = studentInfo.getMajor();
-            for (SuggestProfessionDto suggestProfessionDto : suggestProfessionDtos) {
+            for (SuggestProfessionDto suggestProfessionDto : suggestProfessionDtos)
+            {
                 if (suggestProfessionDto.getGrade().intValue() == grade
-                        .intValue()
-                        && suggestProfessionDto.getProfession().equals(major)) {
+                    .intValue()
+                    && suggestProfessionDto.getProfession().equals(major))
+                {
                     return true;
                 }
             }
         }
-
-        if (restrictAttr != null) {
+        
+        if (restrictAttr != null)
+        {
             String isOverseas = restrictAttr.getIsOverseas();//是否留学限制
             String trainingLevel = restrictAttr.getTrainingLevel();//培养层次
             String spcialPlan = restrictAttr.getSpcialPlan();//专项计划
@@ -89,64 +102,84 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
             Integer numberMale = restrictAttr.getNumberMale();//男生人数 1
             Integer numberFemale = restrictAttr.getNumberFemale();//女生人数 2
             boolean flag = false;
-            if (isOverseas != null) {
-                String s = studentInfo.isAboard() ? IS_OVERSEAS_ : IS_NOT_OVERSEAS_;
+            if (isOverseas != null)
+            {
+                String s =
+                    studentInfo.isAboard() ? IS_OVERSEAS_ : IS_NOT_OVERSEAS_;
                 flag = isOverseas.equals(s);
             }
-            if (trainingLevel != null) {
+            if (trainingLevel != null)
+            {
                 flag = trainingLevel.equals(studentInfo.getTrainingLevel());
             }
-
-            if (spcialPlan != null) {
+            
+            if (spcialPlan != null)
+            {
                 flag = spcialPlan.equals(studentInfo.getSpcialPlan());
             }
-
-            if (isDivsex != null) {
-                ElcCourseLimitDto sexNumber = takeDao.findSexNumber(teachClassId);
+            
+            if (isDivsex != null)
+            {
+                ElcCourseLimitDto sexNumber =
+                    takeDao.findSexNumber(teachClassId);
                 String sex = String.valueOf(studentInfo.getSex());//当前学生性别
                 int currentNum = 0;
-                if (sexNumber==null) {//当前还没有选课人数
+                if (sexNumber == null)
+                {//当前还没有选课人数
                     currentNum = 0;
-                } else {
-                    if(sex.equals(MALE)&&sexNumber.getMaleNum()!=null){
-                        currentNum=sexNumber.getMaleNum();
+                }
+                else
+                {
+                    if (sex.equals(MALE) && sexNumber.getMaleNum() != null)
+                    {
+                        currentNum = sexNumber.getMaleNum();
                     }
-                    if(sex.equals(FEMALE)&&sexNumber.getFeMaleNum()!=null){
-                        currentNum=sexNumber.getFeMaleNum();
+                    if (sex.equals(FEMALE) && sexNumber.getFeMaleNum() != null)
+                    {
+                        currentNum = sexNumber.getFeMaleNum();
                     }
                 }
-
+                
                 int limitNumber = 0;
-                if (sex.equals(MALE)) {//男
+                if (sex.equals(MALE))
+                {//男
                     limitNumber = numberMale;
-                } else {
+                }
+                else
+                {
                     limitNumber = numberFemale;
                 }
-                if (currentNum + Constants.ONE <= limitNumber) {
+                if (currentNum + Constants.ONE <= limitNumber)
+                {
                     flag = true;
-                } else {
+                }
+                else
+                {
                     flag = false;
                 }
             }
-
-
-            if (flag == true) {
+            
+            if (flag == true)
+            {
                 return flag;
             }
         }
-
+        
         if (CollectionUtil.isEmpty(stringList)
-                && CollectionUtil.isEmpty(suggestProfessionDtos)
-                && restrictAttr == null) {
+            && CollectionUtil.isEmpty(suggestProfessionDtos)
+            && restrictAttr == null)
+        {
             return true;
-        } else {
+        }
+        else
+        {
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                    .put(courseClass.getCourseCodeAndClassCode(),
-                            I18nUtil.getMsg("ruleCheck.classLimit"));
+                .put(courseClass.getCourseCodeAndClassCode(),
+                    I18nUtil.getMsg("ruleCheck.classLimit"));
             return false;
         }
-
+        
     }
-
+    
 }

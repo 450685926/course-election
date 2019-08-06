@@ -26,7 +26,7 @@ import com.server.edu.election.studentelec.utils.Keys;
  * 
  */
 @Component
-public class YJSCalendarCourseLoad extends DataProLoad
+public class YJSCalendarCourseLoad extends DataProLoad<ElecContext>
 {
     Logger log = LoggerFactory.getLogger(getClass());
     

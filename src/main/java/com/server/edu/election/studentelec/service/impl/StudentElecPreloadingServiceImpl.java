@@ -18,6 +18,8 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.context.IElecContext;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.preload.DataProLoad;
 import com.server.edu.election.studentelec.service.AbstractElecQueueComsumerService;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -50,6 +52,7 @@ public class StudentElecPreloadingServiceImpl
         super(QueueGroups.STUDENT_LOADING, elecQueueService);
     }
     
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void consume(ElecRequest preloadRequest)
     {
@@ -74,10 +77,17 @@ public class StudentElecPreloadingServiceImpl
             }
             if (ElecContextUtil.tryLock(calendarId, studentId))
             {
-                ElecContext context = null;
+                IElecContext context = null;
                 try
                 {
-                    context = new ElecContext(studentId, calendarId);
+                    if (Constants.PROJ_UNGRADUATE.equals(projectId))
+                    {
+                        context = new ElecContextBk(studentId, calendarId);
+                    }
+                    else
+                    {
+                        context = new ElecContext(studentId, calendarId);
+                    }
                     context.setRequest(preloadRequest);
                     
                     Map<String, DataProLoad> beansOfType =

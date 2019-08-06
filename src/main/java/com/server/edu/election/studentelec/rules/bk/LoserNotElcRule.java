@@ -7,23 +7,23 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 
 /**
  * 预警学生不能选课
  * LoserGoodbyeRule
  */
 @Component("LoserNotElcRule")
-public class LoserNotElcRule extends AbstractElecRuleExceutor
+public class LoserNotElcRule extends AbstractElecRuleExceutorBk
 {
     @Autowired
     private StudentDao studentDao;
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         String studentId = context.getStudentInfo().getStudentId();

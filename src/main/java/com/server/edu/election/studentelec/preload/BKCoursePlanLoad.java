@@ -3,11 +3,13 @@ package com.server.edu.election.studentelec.preload;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
 import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
@@ -16,9 +18,9 @@ import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.PlanCourse;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -29,7 +31,7 @@ import tk.mybatis.mapper.entity.Example;
  * 
  */
 @Component
-public class BKCoursePlanLoad extends DataProLoad
+public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 {
     Logger log = LoggerFactory.getLogger(getClass());
     
@@ -46,14 +48,14 @@ public class BKCoursePlanLoad extends DataProLoad
     @Override
     public String getProjectIds()
     {
-        return "1,2,4";
+        return "1";
     }
 
     @Override
-    public void load(ElecContext context)
+    public void load(ElecContextBk context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(stu.getStudentId());
+        List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
@@ -64,34 +66,41 @@ public class BKCoursePlanLoad extends DataProLoad
                 CultureRuleDto rule = planCourse.getRule();
                 Long label = planCourse.getLabel();
                 if(CollectionUtil.isNotEmpty(list)){
-                    for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
+                    for (PlanCourseTypeDto pct : list) {//培养课程
+                        String courseCode = pct.getCourseCode();
+                        if(StringUtils.isBlank(courseCode)) {
+                            log.warn("courseCode is Blank skip this record: {}", JSON.toJSONString(pct));
+                            continue;
+                        }
                         PlanCourse pl=new PlanCourse();
                         Example example = new Example(Course.class);
-                        example.createCriteria().andEqualTo("code",planCourseTypeDto.getCourseCode());
+                        example.createCriteria().andEqualTo("code", courseCode);
                         Course course = courseDao.selectOneByExample(example);
+                        ElecCourse course2 = new ElecCourse();
                         if (course != null) {
-                        	pl.setNature(course.getNature());
+                            course2.setCourseCode(courseCode);
+                            course2.setCourseName(pct.getName());
+                            course2.setNameEn(pct.getNameEn());
+                            course2.setNature(course.getNature());
+                            course2.setCredits(pct.getCredits());
+                            String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
+                            course2.setCalendarName(calendarName);
+                            course2.setCompulsory(pct.getCompulsory());
 						}
-                        pl.setSemester(planCourseTypeDto.getSemester());
-                        pl.setWeekType(planCourseTypeDto.getWeekType());
-                        pl.setCourseCode(planCourseTypeDto.getCourseCode());
-                        pl.setCourseName(planCourseTypeDto.getName());
-                        pl.setNameEn(planCourseTypeDto.getNameEn());
-                        pl.setSubCourseCode(planCourseTypeDto.getSubCourseCode());
-                        pl.setCredits(planCourseTypeDto.getCredits());
-                        String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
-                        pl.setCalendarName(calendarName);
+                        pl.setCourse(course2);
+                        pl.setSemester(pct.getSemester());
+                        pl.setWeekType(pct.getWeekType());
+                        pl.setSubCourseCode(pct.getSubCourseCode());
                         pl.setLabel(label);
-//                        pl.setCompulsory(planCourseTypeDto.getCompulsory());
                         planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
                             ElecCourse c=new ElecCourse();
-                            c.setCourseCode(planCourseTypeDto.getCourseCode());
-                            c.setCourseName(planCourseTypeDto.getName());
-                            c.setNameEn(planCourseTypeDto.getNameEn());
-                            c.setCredits(planCourseTypeDto.getCredits());
-//                            c.setCompulsory(planCourseTypeDto.getCompulsory());
-                            String calendar = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
+                            c.setCourseCode(courseCode);
+                            c.setCourseName(pct.getName());
+                            c.setNameEn(pct.getNameEn());
+                            c.setCredits(pct.getCredits());
+                            c.setCompulsory(pct.getCompulsory());
+                            String calendar = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
                             c.setCalendarName(calendar);
                             publicCourses.add(c);
                         }

@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.util.CollectionUtil;
 
@@ -20,7 +20,7 @@ import com.server.edu.util.CollectionUtil;
  * UnElectLessonBecauseA
  */
 @Component("UnElectBecauseARule")
-public class UnElectBecauseARule extends AbstractElecRuleExceutor
+public class UnElectBecauseARule extends AbstractElecRuleExceutorBk
 {
     @Override
     public int getOrder()
@@ -29,7 +29,7 @@ public class UnElectBecauseARule extends AbstractElecRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
@@ -41,14 +41,17 @@ public class UnElectBecauseARule extends AbstractElecRuleExceutor
                 .collect(Collectors.toList());
             if (CollectionUtil.isNotEmpty(list))
             {
+                String courseCode = courseClass.getCourseCode();
                 //还要判断是否有替代得优的课程todo
-                long count = list.stream().filter(c -> courseClass.getCourseCode().equals(c.getCourseCode())).count();
-                if (count>0)
+                long count = list.stream()
+                    .filter(c -> courseCode.equals(c.getCourse().getCourseCode()))
+                    .count();
+                if (count > 0)
                 {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
-                                    I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
+                        .put(courseClass.getCourseCodeAndClassCode(),
+                            I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
                     return false;
                 }
             }

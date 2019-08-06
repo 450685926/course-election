@@ -53,14 +53,29 @@
   	<result column="roomId" jdbcType="VARCHAR" property="roomId" />   	 	   	
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
-    select t1.*, t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_
+    select distinct 
+    t1.ID_,
+	t1.CODE_,
+	t1.NAME_,
+	t1.ASSESSMENT_MODE_,
+	t1.TEACHING_WAY_,
+	t1.TEACHING_LANGUAGE_,
+	t1.COURSE_LABEL_ID_,
+	t1.PERIOD_,
+	t1.WEEK_HOUR_,
+	t1.CAMPUS_,
+	t1.NUMBER_,
+	t1.ELC_NUMBER_,
+	t1.RESERVE_NUMBER_,
+	t1.ASSISTANT_NUMBER_,
+	t1.REMARK_, 
+    t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId 
     <if test="isHaveLimit !=null and isHaveLimit ==1">
 	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,
 	    t5.TRAINING_CATEGORY_ limitTrainingCategory,t5.SPCIAL_PLAN_ limitSpcialPlan,
 	    t5.IS_OVERSEAS_ limitIsOverseas,t5.IS_DIVSEX_ limitIsDivsex,
 	    t5.NUMBER_MALE_,t5.NUMBER_FEMALE_,t6.GRADE_ limitGrade,
-	    t6.PROFESSION_ limitProfession,t6.DIRECTION_CODE_ limitDirectionCode,
-	    room.ROOM_ID_ roomId 
+	    t6.PROFESSION_ limitProfession,t6.DIRECTION_CODE_ limitDirectionCode
     </if>
     from 
 	teaching_class_t t1 
@@ -70,8 +85,8 @@
     left join teaching_class_elective_restrict_attr_t t5 on t5.TEACHING_CLASS_ID_ = t1.ID_
 	left join teaching_class_elective_restrict_profession_t t6 on t6.TEACHING_CLASS_ID_ =t1.ID_
     </if>	
-	left join teaching_class_arrange_time_t time on t1.ID_ = time.TEACHING_CLASS_ID_
-	left join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
+	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
+	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
@@ -134,11 +149,124 @@
   	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
   	  </if>
     </where>
+       GROUP BY
+			t1.ID_
+  </select>
+  
+    <select id="listScreeningPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
+    select * from (
+    select distinct 
+    t1.ID_,
+	t1.CODE_,
+	t1.NAME_,
+	t1.ASSESSMENT_MODE_,
+	t1.TEACHING_WAY_,
+	t1.TEACHING_LANGUAGE_,
+	t1.COURSE_LABEL_ID_,
+	t1.PERIOD_,
+	t1.WEEK_HOUR_,
+	t1.CAMPUS_,
+	t1.NUMBER_,
+	t1.ELC_NUMBER_,
+	t1.RESERVE_NUMBER_,
+	t1.ASSISTANT_NUMBER_,
+	t1.REMARK_,
+    t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId 
+    ,CASE WHEN t7.TURN_ = 1 THEN
+    count(t7.ID_) END firstTurnNum,
+    CASE WHEN t7.TURN_ = 2 THEN
+	count(t7.ID_) END secondTurnNum
+    from 
+	teaching_class_t t1 
+	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
+	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
+	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
+    left join elc_course_takes_t t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t7.CALENDAR_ID_ =#{calendarId})
+    <where>
+      t3.CALENDAR_ID_ = #{calendarId}
+      and t1.DEPLOY_FLAG_ &gt; 0
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+        and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+        and t1.IS_ELECTIVE_ = #{isElective}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
+        and t1.COURSE_LABEL_ID_ = #{courseLabelId}
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==1">
+        and t1.ELC_NUMBER_ &gt; t1.NUMBER_
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==2">
+        and t1.ELC_NUMBER_ &lt; t1.NUMBER_
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==3">
+        and t1.ELC_NUMBER_ = t1.NUMBER_
+      </if>
+      <if test="minUpperNumber != null and minUpperNumber !=0">
+        and t1.NUMBER_ &gt; #{minUpperNumber}
+      </if>
+      <if test="maxUpperNumber != null and maxUpperNumber !=0">
+        and t1.NUMBER_ &lt; #{maxUpperNumber}
+      </if>
+       <if test="minActualNumber != null and minActualNumber !=0">
+        and t1.ELC_NUMBER_ &gt; #{minActualNumber}
+      </if>
+      <if test="maxActualNumber != null and maxActualNumber !=0">
+        and t1.ELC_NUMBER_ &lt; #{maxActualNumber}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
+        and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+        and t3.COURSE_CODE_ = #{courseCode}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+        and t3.COURSE_NAME_ = #{courseName}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+        and t2.CAMPUS_ = #{campus}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+        and t3.PROJ_ID_ = #{projectId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+        and t3.FACULTY_ = #{faculty}
+      </if>
+      <if test="credits!=null and credits!=0">
+        and t3.CREDITS_ = #{credits}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+  		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  	  </if>
+  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+  	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4 
+  	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
+  	  </if>
+    </where>
+       GROUP BY
+			t1.ID_
+	 )t8 
+	 <where>
+	  <if test="minFirstTurnNum !=null and minFirstTurnNum !=0">
+        and t8.firstTurnNum &gt; #{minFirstTurnNum}
+      </if>
+      <if test="maxFirstTurnNum !=null and maxFirstTurnNum !=0">
+        and t8.firstTurnNum &lt; #{maxFirstTurnNum}
+      </if>
+      <if test="minSecondTurnNum !=null and minSecondTurnNum !=0">
+        and t8.secondTurnNum &gt; #{minSecondTurnNum}
+      </if>
+      <if test="maxSecondTurnNum !=null and maxSecondTurnNum !=0">
+        and t8.secondTurnNum &lt; #{maxSecondTurnNum}
+      </if>
+	 </where>
   </select>
   
   <select id="grduateListPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
-    	   t2.CAMPUS_,
+    	   t1.CAMPUS_,
     	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,
     	   t4.TEACHER_CODE_,t4.TEACHER_NAME_,room.ROOM_ID_ roomId
     from teaching_class_t  t1  
@@ -154,7 +282,7 @@
         and t3.FACULTY_ = #{faculty}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus}
+        and t1.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
         and t3.NATURE_ = #{nature}

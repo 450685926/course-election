@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutorBk;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 
 /**
@@ -17,16 +17,14 @@ import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
  * WithdrawTimeChecker
  */
 @Component("WithdrawTimeCheckerRule")
-public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutor
+public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutorBk
 {
     @Autowired
     private RoundDataProvider dataProvider;
     
     @Override
-    public boolean checkRule(ElecContext context,
-        SelectedCourse courseClass)
+    public boolean checkRule(ElecContextBk context, SelectedCourse course)
     {
-        SelectedCourse course = courseClass;
         ElecRequest request = context.getRequest();
         
         Long roundId = request.getRoundId();
@@ -34,9 +32,11 @@ public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutor
         // 退课需要校验turn是否与本轮的turn一样
         if (!round.getTurn().equals(course.getTurn()))
         {
+            String courseCodeAndClassCode =
+                course.getCourse().getCourseCodeAndClassCode();
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                .put(courseClass.getCourseCodeAndClassCode(),
+                .put(courseCodeAndClassCode,
                     I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
             return false;
         }

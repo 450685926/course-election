@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
@@ -265,6 +266,20 @@ public class ElecContextUtil
             respose = new ElecRespose(ElecStatus.Init);
         }
         return respose;
+    }
+    
+    public static void saveElecResponse(String studentId, Long calendarId,
+        ElecRespose respose)
+    {
+        Assert.notNull(respose, "response can not be null");
+        HashOperations<String, String, String> ops =
+            getRedisTemplate().opsForHash();
+        String key = getKey(studentId, calendarId);
+        
+        respose.setStatus(null);
+        ops.put(key,
+            ElecRespose.class.getSimpleName(),
+            JSON.toJSONString(respose));
     }
     
     /**

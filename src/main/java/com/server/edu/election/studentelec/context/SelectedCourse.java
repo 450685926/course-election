@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -89,7 +88,6 @@ public class SelectedCourse extends TeachingClassCache
     
     public SelectedCourse(ElecCourse course)
     {
-        this.setCampus(course.getCampus());
         this.setCourseCode(course.getCourseCode());
         this.setCourseName(course.getCourseName());
         this.setCredits(course.getCredits());

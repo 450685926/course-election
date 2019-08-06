@@ -118,5 +118,11 @@ public interface ExemptionCourseService {
 	String adminAddApply(ExemptionApplyManage applyManage);
 	
 	RestResult<?> addGraduateExemptionApply(ExemptionApplyManage applyManage);
+	/**
+	 * 删除研究生免修免考信息
+	 * @param ids
+	 * @return
+	 */
+	RestResult<?> deleteGraduteExemptionApply(List<Long> ids);
 }
 
