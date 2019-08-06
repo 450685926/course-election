@@ -71,7 +71,7 @@
 	t1.RESERVE_NUMBER_,
 	t1.ASSISTANT_NUMBER_,
 	t1.REMARK_, 
-    t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId 
+    t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId 
     <if test="isHaveLimit !=null and isHaveLimit ==1">
 	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,
 	    t5.TRAINING_CATEGORY_ limitTrainingCategory,t5.SPCIAL_PLAN_ limitSpcialPlan,
@@ -173,7 +173,7 @@
 	t1.RESERVE_NUMBER_,
 	t1.ASSISTANT_NUMBER_,
 	t1.REMARK_,
-    t2.CAMPUS_, t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId 
+    t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId 
     ,CASE WHEN t7.TURN_ = 1 THEN
     count(t7.ID_) END firstTurnNum,
     CASE WHEN t7.TURN_ = 2 THEN
