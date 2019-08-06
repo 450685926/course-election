@@ -304,6 +304,37 @@
         where el.TEACHING_CLASS_ID_= #{id,jdbcType=BIGINT}
     </select>
 
+    <select id="findClassTimeAndRoom" resultType="com.server.edu.election.dto.ClassTeacherDto">
+        SELECT
+        te.ID_ teachingClassId,
+        te.CODE_ classCode,
+        te.NAME_ className,
+        te.CAMPUS_ campus,
+        co.COURSE_CODE_ courseCode,
+        co.COURSE_NAME_ courseName,
+        ro.ARRANGE_TIME_ID_ timeId,
+        ti.DAY_OF_WEEK_ dayOfWeek,
+        ti.TIME_START_ timeStart,
+        ti.TIME_END_ timeEnd,
+        ro.ROOM_ID_ roomID,
+        ro.TEACHER_CODE_ teacherCode,
+        GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNumberStr
+        FROM
+        teaching_class_t te
+        join teaching_task_t ta on te.TASK_ID_=ta.ID_
+        left join course_open_t co on ta.COURSE_OPEN_ID_=co.ID_
+        join teaching_class_arrange_time_t ti on (te.ID_=ti.TEACHING_CLASS_ID_ and ti.TYPE_ =2)
+        JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
+        WHERE
+        te.DEPLOY_FLAG_ &gt; 0 and
+        te.ID_ in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        GROUP BY ro.ARRANGE_TIME_ID_,ti.TIME_START_,ti.TIME_END_,ro.ROOM_ID_ ,ro.TEACHER_CODE_
+        order by ti.DAY_OF_WEEK_,ti.TIME_START_
+    </select>
+
     <select id="findClassTimeAndRoomById" resultType="com.server.edu.election.dto.TimeTableMessage">
         select
             te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart, te.TIME_END_ timeEnd,ro.ROOM_ID_ roomId,
