@@ -3,8 +3,10 @@ package com.server.edu.election.controller;
 import java.io.File;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
@@ -23,6 +26,7 @@ import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcScreeningLabel;
+import com.server.edu.election.entity.ElcTeachingClassBind;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
@@ -319,6 +323,71 @@ public class ElcResultController
         @RequestBody @Valid ElcScreeningLabel elcScreeningLabel)
     {
         elcResultService.saveScreeningLabel(elcScreeningLabel);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 修改选课筛选标签
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "修改选课筛选标签")
+    @PostMapping("/updateScreeningLabel")
+    public RestResult<?> updateScreeningLabel(
+        @RequestBody @Valid ElcScreeningLabel elcScreeningLabel)
+    {
+        elcResultService.updateScreeningLabel(elcScreeningLabel);
+        
+        return RestResult.success();
+    }
+    
+    
+    /**
+     * 保存选课班级属性信息
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "保存选课班级属性信息")
+    @PostMapping("/saveClassBind")
+    public RestResult<?> saveClassBind(
+        @RequestBody @Valid ElcTeachingClassBind elcTeachingClassBind)
+    {
+        elcResultService.saveClassBind(elcTeachingClassBind);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 修改选课班级属性信息
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "修改选课班级属性信息")
+    @PostMapping("/updateClassBind")
+    public RestResult<?> updateClassBind(
+        @RequestBody @Valid ElcTeachingClassBind elcTeachingClassBind)
+    {
+        elcResultService.updateClassBind(elcTeachingClassBind);
+        
+        return RestResult.success();
+    }
+    
+    /**
+     * 修改教学班备注信息
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "修改教学班备注信息")
+    @PostMapping("/updateClassRemark")
+    public RestResult<?> updateClassRemark(
+        @RequestParam("id") @NotNull Long id,@RequestParam("remark") @NotBlank String remark)
+    {
+        elcResultService.updateClassRemark(id,remark);
         
         return RestResult.success();
     }

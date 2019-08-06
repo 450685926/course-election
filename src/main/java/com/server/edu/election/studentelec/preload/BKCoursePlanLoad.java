@@ -53,7 +53,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     public void load(ElecContextBk context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(stu.getStudentId());
+        List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程

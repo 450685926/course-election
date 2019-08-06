@@ -1077,7 +1077,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 */
 	private Set<PlanCourse> getStudentExemptionCouses(Student student, ExemptionApplyAuditSwitch applySwitch, Long calendarId) {
 		//获取学生培养计划课程
-		List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(student.getStudentCode());
+		List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(student.getStudentCode());
 		Set<PlanCourse> planCourses = new HashSet<>();//培养课程
 		if (CollectionUtil.isNotEmpty(courseType)) {
 			for (PlanCourseDto planCourse : courseType) {
@@ -1178,6 +1178,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	*@Author: bear
 	*@date: 2019/2/12 10:44
 	*/
+	@Override
 	public RestResult<?> addGraduateExemptionApply(ExemptionApplyManage applyManage) {
 	   Session session = SessionUtils.getCurrentSession();
 		if("".equals(applyManage.getApplyType())){
