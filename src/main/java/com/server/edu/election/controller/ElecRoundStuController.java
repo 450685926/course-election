@@ -110,7 +110,7 @@ public class ElecRoundStuController
             add = "学号" + add + "已经添加或不存在,或与是否留学身份不匹配";
         }
         
-        return RestResult.success(add);
+        return RestResult.error(add);
     }
     
     /**

@@ -82,7 +82,7 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                         String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                         pl.setCalendarName(calendarName);
                         pl.setLabel(label);
-//                        pl.setCompulsory(planCourseTypeDto.getCompulsory());
+                        pl.setCompulsory(planCourseTypeDto.getCompulsory());
                         planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
                             ElecCourse c=new ElecCourse();
@@ -90,7 +90,7 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                             c.setCourseName(planCourseTypeDto.getName());
                             c.setNameEn(planCourseTypeDto.getNameEn());
                             c.setCredits(planCourseTypeDto.getCredits());
-//                            c.setCompulsory(planCourseTypeDto.getCompulsory());
+                            c.setCompulsory(planCourseTypeDto.getCompulsory());
                             String calendar = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                             c.setCalendarName(calendar);
                             publicCourses.add(c);
