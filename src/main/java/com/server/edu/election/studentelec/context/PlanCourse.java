@@ -1,9 +1,15 @@
 package com.server.edu.election.studentelec.context;
 
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
+@CodeI18n
 public class PlanCourse extends ElecCourse
 {
 
     /**课程分类*/
+	@Code2Text(DictTypeEnum.X_KCFL)
     private Long label;
     
     /**开课学院*/
