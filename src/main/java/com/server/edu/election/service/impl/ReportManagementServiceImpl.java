@@ -13,6 +13,7 @@ import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.PageConditionUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
@@ -691,19 +692,50 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 30);
-        PageCondition<RollBookConditionDto> condition = new PageCondition<>();
-        condition.setCondition(rollBookConditionDto);
+        PageCondition condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
         PageResult<RollBookList> rollBookList = findRollBookList(condition);
         String path="";
-        if (rollBookList != null && rollBookList.getList() != null) {
+        if (rollBookList != null) {
             List<RollBookList> list = rollBookList.getList();
-            list = SpringUtils.convert(list);
-            @SuppressWarnings("unchecked")
-            ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
-                    excelStoreConfig.getGraduteRollBookListKey(),
-                    excelStoreConfig.getGraduteRollBookListTitle(),
-                    cacheDirectory);
-            path = excelExport.exportExcelToCacheDirectory("研究生点名册");
+            if (CollectionUtil.isNotEmpty(list)) {
+                list = SpringUtils.convert(list);
+                @SuppressWarnings("unchecked")
+                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
+                        excelStoreConfig.getGraduteRollBookListKey(),
+                        excelStoreConfig.getGraduteRollBookListTitle(),
+                        cacheDirectory);
+                path = excelExport.exportExcelToCacheDirectory("研究生点名册");
+            }
+        }
+        return RestResult.successData("minor.export.success",path);
+    }
+
+    /**
+     *@Description: 导出研究生点名册详情
+     *@Param:
+     *@return:
+     *@Author:
+     *@date: 2019/8/5
+     * @param teachingClassId
+     */
+    @Override
+    public RestResult<String> exportGraduteRollBook(Long teachingClassId) throws Exception {
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+        PreViewRollDto preViewRollDto = previewGraduteRollBook(teachingClassId);
+        String path="";
+        if (preViewRollDto != null) {
+            List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+            if (CollectionUtil.isNotEmpty(studentsList)) {
+                studentsList = SpringUtils.convert(studentsList);
+                @SuppressWarnings("unchecked")
+                ExcelEntityExport<StudentVo> excelExport = new ExcelEntityExport(studentsList,
+                        excelStoreConfig.getGraduteRollBookKey(),
+                        excelStoreConfig.getGraduteRollBookTitle(),
+                        cacheDirectory);
+                path = excelExport.exportExcelToCacheDirectory("学生点名册");
+            }
         }
         return RestResult.successData("minor.export.success",path);
     }
@@ -717,12 +749,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition) {
-            Integer pageNum_ = condition.getPageNum_();
-            Integer pageSize_ = condition.getPageSize_();
-            if (pageNum_ != null && pageSize_ != null) {
-                PageHelper.startPage(pageNum_, pageSize_);
-            }
-            Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
+        PageConditionUtil.setPageHelper(condition);
+        Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
             if (rollBookList != null) {
                 List<RollBookList> result = rollBookList.getResult();
                 if (CollectionUtil.isNotEmpty(result)) {
@@ -806,6 +834,57 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
+     *@Description: 研究生点名册详情
+     *@Param:
+     *@return:
+     *@Author:
+     *@date: 2019/8/5
+     */
+    @Override
+    public PreViewRollDto previewGraduteRollBook(Long teachingClassId) {
+        PreViewRollDto pre=new PreViewRollDto();
+        List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
+        if(CollectionUtil.isNotEmpty(student)) {
+            for(StudentVo vo:student) {
+                String exportName = vo.getName();
+                Integer courseTakeType = vo.getCourseTakeType();
+                if (courseTakeType != null && courseTakeType.intValue() == 2) {
+                    exportName ="(重)"+vo.getName();
+                } else if (!StringUtils.equals(vo.getTrainingLevel(), "1")) {
+                    exportName ="(#)"+vo.getName();
+                }
+                vo.setExportName(exportName);
+            }
+            pre.setStudentsList(student);
+            pre.setSize(student.size());
+        }
+        //封装教学班信息拆解
+        List<TimeTableMessage> timeTableMessages = courseTakeDao.findClassTimeAndRoomById(teachingClassId);
+        if (CollectionUtil.isNotEmpty(timeTableMessages)) {
+            for (TimeTableMessage timeTableMessage : timeTableMessages) {
+                Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                Integer timeStart = timeTableMessage.getTimeStart();
+                Integer timeEnd = timeTableMessage.getTimeEnd();
+                String weekNumber = timeTableMessage.getWeekNum();
+                String[] str = weekNumber.split(",");
+                if (str == null || str.length == 0) {
+                    continue;
+                }
+                LinkedHashSet<String> set = new LinkedHashSet<>(Arrays.asList(str));
+                List<Integer> weeks = set.stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                String timeStr = weekstr + " " + timeStart + "-" + timeEnd + "节" + weekNumStr + ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
+                timeTableMessage.setTimeAndRoom(timeStr);
+            }
+            pre.setTimeTabelList(timeTableMessages);
+        }
+        return pre;
+    }
+
+
+    /**
     *@Description: 查询学生个人课表
     *@Param:
     *@return:
@@ -879,11 +958,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-     * @Description: 查询所有教师课表
-     * @Param:
-     * @return:
-     * @Author: bear
-     * @date: 2019/4/30 17:39
+     * 查询所有教师课表
+     * @param condition
+     * @return
      */
     @Override
     public PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition) {

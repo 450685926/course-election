@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
@@ -28,6 +29,16 @@ public interface ElcCourseTakeService
      */
     PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page);
+
+    /**
+     * 研究生课程维护模块学生选课记录列表
+     *
+     * @param page
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<ElcCourseTakeVo> elcStudentInfo(
+            PageCondition<ElcCourseTakeQuery> page);
     
     /**
      * 为指定学生加课
@@ -138,8 +149,8 @@ public interface ElcCourseTakeService
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
 
     /**课程维护导出学生选课信息*/
-    ExcelResult exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
+    RestResult<String> exportElcStudentInfo(ElcCourseTakeQuery elcCourseTakeQuery) throws Exception;
 
     /**课程维护导出学生个人全部选课信息*/
-    ExcelResult exportElcPersonalInfo(PageCondition<String> condition);
+    RestResult<String> exportElcPersonalInfo(String studentId) throws Exception;
 }

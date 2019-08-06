@@ -80,6 +80,8 @@ public interface ReportManagementService {
 
     PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
 
+    PreViewRollDto previewGraduteRollBook(Long teachingClassId);
+
     List<StudnetTimeTable> findStudentTimetab(Long calendarId, String studentCode);
 
     PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition);
@@ -122,4 +124,6 @@ public interface ReportManagementService {
 	RestResult<String> exportTeacherTimetabPdf(Long calendarId, String calendarName, String teacherCode,
 			String teacherName) throws DocumentException, IOException;
 
+	/**导出学生点名册*/
+    RestResult<String> exportGraduteRollBook(Long teachingClassId) throws Exception;
 }
