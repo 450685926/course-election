@@ -84,6 +84,23 @@ public class TeachingClassVo extends TeachingClass
      */
     private String roomId;
     
+    private Integer firstTurnNum;
+    
+    private Integer secondTurnNum;
+    
+    
+	public Integer getFirstTurnNum() {
+		return firstTurnNum;
+	}
+	public void setFirstTurnNum(Integer firstTurnNum) {
+		this.firstTurnNum = firstTurnNum;
+	}
+	public Integer getSecondTurnNum() {
+		return secondTurnNum;
+	}
+	public void setSecondTurnNum(Integer secondTurnNum) {
+		this.secondTurnNum = secondTurnNum;
+	}
 	public String getProportion() {
 		return proportion;
 	}

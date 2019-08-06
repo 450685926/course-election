@@ -50,7 +50,9 @@
   	<result column="limitGrade" jdbcType="INTEGER" property="limitGrade" />
   	<result column="limitProfession" jdbcType="VARCHAR" property="limitProfession" />
   	<result column="limitDirectionCode" jdbcType="VARCHAR" property="limitDirectionCode" />   	 	   	
-  	<result column="roomId" jdbcType="VARCHAR" property="roomId" />   	 	   	
+  	<result column="roomId" jdbcType="VARCHAR" property="roomId" />
+  	<result column="firstTurnNum" jdbcType="INTEGER" property="firstTurnNum" />
+  	<result column="secondTurnNum" jdbcType="INTEGER" property="secondTurnNum" />       	 	   	
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct 
@@ -182,7 +184,7 @@
 	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
 	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
 	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
-    left join elc_course_takes_t t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t7.CALENDAR_ID_ =#{calendarId})
+    left join elc_course_takes_t t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_ and t7.CALENDAR_ID_ =#{calendarId})
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
