@@ -34,6 +34,8 @@ public class CompletedCourse extends TeachingClassCache {
      * 课程分类
      */
     private Long courseLabelId;
+    
+    private String labelName;
 
     private Integer isPass;
 
@@ -83,6 +85,14 @@ public class CompletedCourse extends TeachingClassCache {
 
 	public void setCourseLabelId(Long courseLabelId) {
 		this.courseLabelId = courseLabelId;
+	}
+
+	public String getLabelName() {
+		return labelName;
+	}
+
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
 	}
 
 	@Override

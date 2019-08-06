@@ -12,9 +12,14 @@ import com.server.edu.dictionary.annotation.CodeI18n;
  */
 @CodeI18n
 public class ElcCourseResult{
-	/** 课程类别（课程性质） */
+	/** （课程性质） */
 	@Code2Text(DictTypeEnum.X_KCXZ)
 	private String nature;
+	/** 课程类别 */
+	private Long Label;
+	
+	/** 课程类别 */
+	private String LabelName;
 	
 	/** 教学班主键ID */
 	private Long teachClassId;
@@ -59,6 +64,9 @@ public class ElcCourseResult{
 	
 	/** 是否冲突（0-不冲突；1-冲突） */
 	private Integer isConflict;
+	
+	/** 冲突课程 */
+	private String conflictCourse;
 
 	
 	public String getNature() {
@@ -180,6 +188,29 @@ public class ElcCourseResult{
 	public void setTimes(List<ClassTimeUnit> times) {
 		this.times = times;
 	}
-	
+
+	public Long getLabel() {
+		return Label;
+	}
+
+	public void setLabel(Long label) {
+		Label = label;
+	}
+
+	public String getLabelName() {
+		return LabelName;
+	}
+
+	public void setLabelName(String labelName) {
+		LabelName = labelName;
+	}
+
+	public String getConflictCourse() {
+		return conflictCourse;
+	}
+
+	public void setConflictCourse(String conflictCourse) {
+		this.conflictCourse = conflictCourse;
+	}
 	
 }
