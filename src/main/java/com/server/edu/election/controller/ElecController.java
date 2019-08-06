@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
@@ -119,10 +120,8 @@ public class ElecController
             return RestResult.fail("elec.mustBeStu");
         }
         ElectionRounds round = dataProvider.getRound(roundId);
-        if (round == null)
-        {
-            return RestResult.error("elec.roundNotExistTip");
-        }
+        Assert.notNull(round, "elec.roundNotExistTip");
+        
         ElecContextBk c =
             new ElecContextBk(session.realUid(), round.getCalendarId());
         

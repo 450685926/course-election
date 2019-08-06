@@ -36,6 +36,7 @@ import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
 import com.server.edu.election.dao.ElcResultCountDao;
 import com.server.edu.election.dao.ElcScreeningLabelDao;
+import com.server.edu.election.dao.ElcTeachingClassBindDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
@@ -52,6 +53,7 @@ import com.server.edu.election.entity.ElcClassEditAuthority;
 import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcScreeningLabel;
+import com.server.edu.election.entity.ElcTeachingClassBind;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
@@ -129,6 +131,12 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private ElcScreeningLabelDao elcScreeningLabelDao;
     
+    @Autowired
+    private ElcTeachingClassBindDao bindDao;
+    
+    @Autowired
+    private TeachingClassDao teachingClassDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -137,7 +145,7 @@ public class ElcResultServiceImpl implements ElcResultService
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
-        	if(Constants.ONE==condition.getIsScreening()) {
+        	if(Constants.IS==condition.getIsScreening()) {
         		listPage = classDao.listScreeningPage(condition);
         	}else {
         		listPage = classDao.listPage(condition);
@@ -838,6 +846,44 @@ public class ElcResultServiceImpl implements ElcResultService
                     I18nUtil.getMsg("election.elcScreeningLabel")));
 		}
 		elcScreeningLabelDao.insert(elcScreeningLabel);
+	}
+	
+	@Override
+	@Transactional
+	public void updateScreeningLabel(ElcScreeningLabel elcScreeningLabel) {
+		if(elcScreeningLabel.getId() ==null) {
+			 throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		elcScreeningLabelDao.updateByPrimaryKeySelective(elcScreeningLabel);
+	}
+	@Override
+	@Transactional
+	public void saveClassBind(ElcTeachingClassBind elcTeachingClassBind) {
+		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
+		if(bind!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcTeachingClassBind")));
+		}
+		bindDao.insert(bind);
+	}
+	@Override
+	@Transactional
+	public void updateClassBind(ElcTeachingClassBind elcTeachingClassBind) {
+		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
+		if(bind!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcTeachingClassBind")));
+		}
+		bindDao.updateByPrimaryKey(elcTeachingClassBind);
+	}
+	
+	@Override
+	@Transactional
+	public void updateClassRemark(Long id, String remark) {
+		TeachingClass teachingClass =new TeachingClass();
+		teachingClass.setId(id);
+		teachingClass.setRemark(remark);
+		teachingClassDao.updateByPrimaryKeySelective(teachingClass);
 	}
 	
 }
