@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.StudentDao;
@@ -57,6 +58,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         else
         {
             ElectionRounds round = dataProvider.getRound(roundId);
+            Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();
             elecRequest.setCalendarId(calendarId);
         }
@@ -106,6 +108,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         else
         {
             ElectionRounds round = dataProvider.getRound(roundId);
+            Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();
             elecRequest.setCalendarId(calendarId);
         }
@@ -153,10 +156,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         else
         {
             ElectionRounds round = dataProvider.getRound(roundId);
-            if (round == null)
-            {
-                return new ElecRespose();
-            }
+            Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();
         }
         
