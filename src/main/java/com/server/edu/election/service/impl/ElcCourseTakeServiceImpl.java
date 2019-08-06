@@ -13,10 +13,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.WeekUtil;
+import com.server.edu.election.vo.*;
+import com.server.edu.util.FileUtil;
+import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
@@ -52,10 +57,6 @@ import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
-import com.server.edu.election.vo.ElcCourseTakeNameListVo;
-import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -106,6 +107,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Autowired
     private DictionaryService dictionaryService;
 
+    @Autowired
+    private ExcelStoreConfig excelStoreConfig;
+
     @Value("${cache.directory}")
     private String cacheDirectory;
 
@@ -136,6 +140,21 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         cond.setIncludeCourseCodes(includeCodes);
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
+        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        return result;
+    }
+
+    @Override
+    public PageResult<ElcCourseTakeVo> elcStudentInfo(
+            PageCondition<ElcCourseTakeQuery> page)
+    {
+        ElcCourseTakeQuery cond = page.getCondition();
+        Integer pageNum_ = page.getPageNum_();
+        Integer pageSize_ = page.getPageSize_();
+        if (pageNum_ != null && pageSize_ != null) {
+            PageHelper.startPage(pageNum_, pageSize_);
+        }
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.elcStudentInfo(cond);
         setTeachingArrange(listPage);
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
@@ -734,24 +753,44 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
      * 导出学生选课信息
      */
     @Override
-    public ExcelResult exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception {
-        ExcelResult excelResult = ExportExcelUtils.submitTask("elcStudentInfo", new ExcelExecuter() {
-            @Override
-            public GeneralExcelDesigner getExcelDesigner() {
-                ExcelResult result = this.getResult();
-                PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-                Page<ElcStudentCourseDto> studentCourses = courseTakeDao.findElcStudentCourse(condition.getCondition());
-                //组装excel
-                GeneralExcelDesigner design = getDesignElcStudent();
-                if (CollectionUtil.isNotEmpty(studentCourses)) {
-                    design.setDatas(studentCourses);
-                    result.setDoneCount(studentCourses.size());
-                }
-                //将数据放入excel对象中
-                return design;
+    public RestResult<String> exportElcStudentInfo(ElcCourseTakeQuery elcCourseTakeQuery) throws Exception {
+//        ExcelResult excelResult = ExportExcelUtils.submitTask("elcStudentInfo", new ExcelExecuter() {
+//            @Override
+//            public GeneralExcelDesigner getExcelDesigner() {
+//                ExcelResult result = this.getResult();
+//                PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+//                Page<ElcStudentCourseDto> studentCourses = courseTakeDao.findElcStudentCourse(condition.getCondition());
+//                //组装excel
+//                GeneralExcelDesigner design = getDesignElcStudent();
+//                if (CollectionUtil.isNotEmpty(studentCourses)) {
+//                    design.setDatas(studentCourses);
+//                    result.setDoneCount(studentCourses.size());
+//                }
+//                //将数据放入excel对象中
+//                return design;
+//            }
+//        });
+//        return excelResult;
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+        PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
+        condition.setCondition(elcCourseTakeQuery);
+        PageResult<ElcCourseTakeVo> elcCourseTakeVoPageResult = elcStudentInfo(condition);
+        String path="";
+        if (elcCourseTakeVoPageResult != null) {
+            List<ElcCourseTakeVo> list = elcCourseTakeVoPageResult.getList();
+            if (CollectionUtil.isNotEmpty(list)) {
+                list = SpringUtils.convert(list);
+                @SuppressWarnings("unchecked")
+                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
+                        excelStoreConfig.getGraduteRollBookListKey(),
+                        excelStoreConfig.getGraduteRollBookListTitle(),
+                        cacheDirectory);
+                path = excelExport.exportExcelToCacheDirectory("研究生点名册");
             }
-        });
-        return excelResult;
+        }
+        return RestResult.successData("minor.export.success",path);
     }
 
     /*

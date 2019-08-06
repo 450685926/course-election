@@ -21,7 +21,10 @@ public interface ElcCourseTakeDao
 {
     /**分页查询选课名单*/
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
-    
+
+    /**研究生课程维护模块分页查询选课记录*/
+    Page<ElcCourseTakeVo> elcStudentInfo(@Param("query") ElcCourseTakeQuery take);
+
     /**
      * 根据教学班ID，教学班code查询课程id与教学班id
      * 
@@ -200,7 +203,7 @@ public interface ElcCourseTakeDao
 
     List<String> findCourseCode(@Param("list") List<String> teachingClassIds);
 
-    Page<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
+    List<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
 
     Page<ElcCourseTakeVo> allSelectedCourse(String condition);
 
