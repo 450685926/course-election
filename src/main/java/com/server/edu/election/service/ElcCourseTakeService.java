@@ -152,5 +152,5 @@ public interface ElcCourseTakeService
     RestResult<String> exportElcStudentInfo(ElcCourseTakeQuery elcCourseTakeQuery) throws Exception;
 
     /**课程维护导出学生个人全部选课信息*/
-    ExcelResult exportElcPersonalInfo(PageCondition<String> condition);
+    RestResult<String> exportElcPersonalInfo(String studentId) throws Exception;
 }

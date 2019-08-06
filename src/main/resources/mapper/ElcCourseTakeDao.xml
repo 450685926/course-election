@@ -154,6 +154,7 @@
      <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
      and t1.MODE_ = #{query.mode}
      </if>-->
+      </where>
   	order by CREATED_AT_ DESC, t1.STUDENT_ID_
   </select>
 
@@ -214,6 +215,7 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
                 and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
             </if>
+            </where>
     </select>
   
   <select id="getTeachingClassInfo" resultMap="VoResultMap">

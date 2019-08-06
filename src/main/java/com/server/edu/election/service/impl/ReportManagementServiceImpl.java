@@ -13,6 +13,7 @@ import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.PageConditionUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
@@ -691,8 +692,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 30);
-        PageCondition<RollBookConditionDto> condition = new PageCondition<>();
-        condition.setCondition(rollBookConditionDto);
+        PageCondition condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
         PageResult<RollBookList> rollBookList = findRollBookList(condition);
         String path="";
         if (rollBookList != null) {
@@ -749,12 +749,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition) {
-            Integer pageNum_ = condition.getPageNum_();
-            Integer pageSize_ = condition.getPageSize_();
-            if (pageNum_ != null && pageSize_ != null) {
-                PageHelper.startPage(pageNum_, pageSize_);
-            }
-            Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
+        PageConditionUtil.setPageHelper(condition);
+        Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
             if (rollBookList != null) {
                 List<RollBookList> result = rollBookList.getResult();
                 if (CollectionUtil.isNotEmpty(result)) {

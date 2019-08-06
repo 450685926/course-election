@@ -231,14 +231,28 @@ public class ElcCourseTakeController
     }
 
     @ApiOperation(value = "课程维护模块导出学生个人全部选课信息")
-    @PostMapping("/exportElcPersonalInfo")
-    public RestResult<ExcelResult> exportElcPersonalInfo(
-            @RequestBody PageCondition<String> condition)
+    @GetMapping("/exportElcPersonalInfo")
+    public File exportElcPersonalInfo(
+            @RequestParam String studentId)
             throws Exception
     {
         LOG.info("exportStudentInfo.start");
-        ExcelResult export = courseTakeService.exportElcPersonalInfo(condition);
-        return RestResult.successData(export);
+        try {
+            RestResult<String> restResult = courseTakeService.exportElcPersonalInfo(studentId);
+            if (restResult.getCode() == ResultStatus.SUCCESS.code()
+                    && !"".equals(restResult.getData()))
+            {
+                return new File(restResult.getData());
+            }
+            else
+            {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
