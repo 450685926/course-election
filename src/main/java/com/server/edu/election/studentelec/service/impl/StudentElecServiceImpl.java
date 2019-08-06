@@ -66,6 +66,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         // 如果当前是Init状态，进行初始化
         if (ElecStatus.Init.equals(currentStatus))
         {
+            ElecContextUtil.saveElecResponse(studentId, calendarId, new ElecRespose());
             // 加入队列
             currentStatus = ElecStatus.Loading;
             ElecContextUtil.setElecStatus(calendarId, studentId, currentStatus);
@@ -77,9 +78,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 return RestResult.fail("请稍后再试");
             }
         }
-        ElecRespose response = this.getElectResult(elecRequest);
         
-        return RestResult.successData(response);
+        return RestResult.successData(new ElecRespose(currentStatus));
     }
     
     @Override
@@ -117,6 +117,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         {
             try
             {
+                ElecContextUtil.saveElecResponse(studentId, calendarId, new ElecRespose());
                 // 加入选课队列
                 if (queueService.add(QueueGroups.STUDENT_ELEC, elecRequest))
                 {
