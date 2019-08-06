@@ -90,7 +90,8 @@
 	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
 	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
-      t3.CALENDAR_ID_ = #{calendarId}
+      t1.DELETE_STATUS_ = 0 
+      and t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
@@ -186,7 +187,8 @@
 	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     left join elc_course_takes_t_${mode} t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_ and t7.CALENDAR_ID_ =#{calendarId})
     <where>
-      t3.CALENDAR_ID_ = #{calendarId}
+      t1.DELETE_STATUS_ = 0 
+      and t3.CALENDAR_ID_ = #{calendarId}
       and t1.DEPLOY_FLAG_ &gt; 0
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}

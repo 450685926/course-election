@@ -49,8 +49,17 @@ public class CourseOpenDto extends CourseOpen
     private Long courseLabelId;
     
     private String teacherCode;
+    //教学班预留人数
+    private Integer reserveNumber;
     
-    
+
+	public Integer getReserveNumber() {
+		return reserveNumber;
+	}
+
+	public void setReserveNumber(Integer reserveNumber) {
+		this.reserveNumber = reserveNumber;
+	}
 
 	public Long getCourseLabelId() {
 		return courseLabelId;
