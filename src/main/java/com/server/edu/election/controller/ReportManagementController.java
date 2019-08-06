@@ -1,10 +1,21 @@
 package com.server.edu.election.controller;
 
-import java.io.File;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.List;
-
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
+import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.ElcNoSelectReason;
+import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.vo.*;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.ExportUtil;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -18,41 +29,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.common.rest.ResultStatus;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
-import com.server.edu.election.entity.ElcNoSelectReason;
-import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.vo.ElcNoSelectReasonVo;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
-import com.server.edu.election.vo.TimeTable;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.ExportUtil;
-import com.server.edu.util.excel.export.ExcelResult;
-import com.server.edu.util.excel.export.ExportExcelUtils;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
+import java.io.File;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.List;
 
 /**
  * @description: 报表管理
@@ -150,7 +130,7 @@ public class ReportManagementController
         return RestResult.successData(bookList);
     }
 
-    @ApiOperation(value = "研究生点名册查询")
+    @ApiOperation(value = "研究生点名册查询列表")
     @PostMapping("/findGraduteRollBookList")
     public RestResult<PageResult<RollBookList>> findGraduteRollBookList(
             @RequestBody PageCondition<RollBookConditionDto> condition)
@@ -172,6 +152,41 @@ public class ReportManagementController
             bookList = managementService.findRollBookList(condition);
         }
         return RestResult.successData(bookList);
+    }
+
+    @ApiOperation(value = "研究生点名册（学生名单）详情")
+    @GetMapping("/previewGraduteRollBook")
+    public RestResult<PreViewRollDto> previewGraduteRollBook(
+            @RequestParam Long teachingClassId)
+    {
+        if (teachingClassId == null)
+        {
+            return RestResult.fail("common.parameterError");
+        }
+        PreViewRollDto previewRollBookList = managementService
+                .previewGraduteRollBook(teachingClassId);
+        return RestResult.successData(previewRollBookList);
+    }
+
+    @ApiOperation(value = "导出研究生点名册详情（学生名单）")
+    @GetMapping("/exportGraduteRollBook")
+    public File exportGraduteRollBook(@RequestParam Long teachingClassId) {
+        try {
+            RestResult<String> restResult = managementService.exportGraduteRollBook(teachingClassId);
+            if (restResult.getCode() == ResultStatus.SUCCESS.code()
+                    && !"".equals(restResult.getData()))
+            {
+                return new File(restResult.getData());
+            }
+            else
+            {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
     @ApiOperation(value = "预览点名册")
@@ -455,7 +470,7 @@ public class ReportManagementController
         }
         return null;
     }
-    
+
     /**
      * 从磁盘中下载
      * 

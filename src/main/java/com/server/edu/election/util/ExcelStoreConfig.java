@@ -40,6 +40,26 @@ public class ExcelStoreConfig
 
 	private List<String> GraduteRollBookListKey;
 
+	private List<String> GraduteRollBookTitle;
+
+	private List<String> GraduteRollBookKey;
+
+	public List<String> getGraduteRollBookTitle() {
+		return GraduteRollBookTitle;
+	}
+
+	public void setGraduteRollBookTitle(List<String> graduteRollBookTitle) {
+		GraduteRollBookTitle = graduteRollBookTitle;
+	}
+
+	public List<String> getGraduteRollBookKey() {
+		return GraduteRollBookKey;
+	}
+
+	public void setGraduteRollBookKey(List<String> graduteRollBookKey) {
+		GraduteRollBookKey = graduteRollBookKey;
+	}
+
 	public List<String> getGraduteRollBookListKey() {
 		return GraduteRollBookListKey;
 	}

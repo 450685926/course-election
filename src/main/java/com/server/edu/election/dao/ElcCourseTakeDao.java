@@ -54,9 +54,8 @@ public interface ElcCourseTakeDao
     List<ClassTeacherDto> findTeacherByClassCode(Long teachingClassId);
     
     /**查询点名册中学生信息*/
-    
     List<StudentVo> findStudentByTeachingClassId(Long id);
-    
+
     /** 查询教学班时间地点*/
     List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
 
@@ -64,7 +63,10 @@ public interface ElcCourseTakeDao
     List<TimeTableMessage> findClassTime(List<Long> list);
 
     /** 查询教学安排*/
-    List<ClassTeacherDto> findClassTimeAndRoomStr(Long list);
+    List<ClassTeacherDto> findClassTimeAndRoomStr(Long teachingClassId);
+
+    /** 以教学班为单位查询教学安排*/
+    List<TimeTableMessage> findClassTimeAndRoomById(Long teachingClassId);
     
     /**查询学生课表*/
     List<StudentSchoolTimetab> findSchoolTimetab(
@@ -135,6 +137,7 @@ public interface ElcCourseTakeDao
 
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
+    /**研究生教师课表查询*/
     Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
