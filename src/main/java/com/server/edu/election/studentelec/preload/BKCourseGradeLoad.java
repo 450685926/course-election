@@ -308,6 +308,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setTerm(c.getTerm());
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
+                course.setCourse(lesson);
                 
                 course.setLabel(c.getLabel());
                 course.setChooseObj(c.getChooseObj());
