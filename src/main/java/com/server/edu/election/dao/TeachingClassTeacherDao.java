@@ -9,5 +9,7 @@ import java.util.List;
 public interface TeachingClassTeacherDao extends Mapper<TeachingClassTeacher> {
     String findTeacherName(String teacherCode);
 
+    TeachingClassTeacher findTeacher(String teacherCode);
+
     List<String> findTeacherNames(@Param("teacherCodes") List<String> teacherCodes);
 }

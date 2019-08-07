@@ -142,7 +142,7 @@ public class ElecAgentController
         }
         Session session = SessionUtils.getCurrentSession();
         elecRequest.setCreateBy(session.getUid());
-        elecRequest.setRequestIp(session.getIp());
+        elecRequest.setRequestIp(SessionUtils.getRequestIp());
         return elecService.elect(elecRequest);
     }
     

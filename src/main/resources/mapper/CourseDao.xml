@@ -53,4 +53,7 @@
 			AND t1.MANAGER_DEPT_ID_ = #{managerDeptId}
 		) t3 ON t2.CODE_ = t3.courseCode
   </select>
+  <select id="getCourseLabelName" resultType="java.lang.String">
+  	SELECT LABEL_ FROM `courses_label_t` WHERE ID_ = #{label}
+  </select>
 </mapper>

@@ -3,7 +3,6 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +192,6 @@ public class ElecBkServiceImpl implements ElecBkService
         String studentId = context.getStudentInfo().getStudentId();
         if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
         {
-            context.getRespose().setData(new HashMap<>());
             context.getRespose().getData().put("retakePay", "true");
         }
     }
@@ -233,7 +231,7 @@ public class ElecBkServiceImpl implements ElecBkService
             {
                 failedReasons.put(String.format("%s[%s]",
                     data.getCourseCode(),
-                    data.getTeachClassCode()), "教学班不存在无法选课");
+                    data.getTeachClassCode()), "教学班不存在无法退课");
                 continue;
             }
             boolean allSuccess = true;

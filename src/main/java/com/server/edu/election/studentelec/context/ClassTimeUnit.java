@@ -2,6 +2,13 @@ package com.server.edu.election.studentelec.context;
 
 import java.util.List;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.Code2Text.DataType;
+import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
+import com.server.edu.dictionary.translator.TeacherTranslator;
+
+@CodeI18n
 public class ClassTimeUnit
 {
     private Long teachClassId;
@@ -18,8 +25,10 @@ public class ClassTimeUnit
     
     private String value;
     
+    @Code2Text(translator = TeacherTranslator.class, dataType = DataType.SPLIT)
     private String teacherCode;
 
+    @Code2Text(translator = ClassRoomTranslator.class, dataType = DataType.SPLIT)
     private String roomId;
 
     public String getRoomId() {

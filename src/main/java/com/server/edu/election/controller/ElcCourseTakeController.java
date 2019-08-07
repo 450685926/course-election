@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.common.rest.ResultStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -20,13 +21,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,7 +58,6 @@ import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
 
@@ -97,7 +91,7 @@ public class ElcCourseTakeController
     private static Logger LOG = LoggerFactory.getLogger(ExemptionController.class);
     
     /**
-     * 上课名单列表(研究生课程维护模块学生选课列表)
+     * 上课名单列表
      * 
      * @param condition
      * @return
@@ -114,6 +108,26 @@ public class ElcCourseTakeController
         PageResult<ElcCourseTakeVo> list =
             courseTakeService.listPage(condition);
         
+        return RestResult.successData(list);
+    }
+
+    /**
+     * 研究生课程维护模块学生选课列表
+     *
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "学生选课列表")
+    @PostMapping("/graduatePage")
+    public RestResult<PageResult<ElcCourseTakeVo>> graduatePage(
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+    {
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+
+        PageResult<ElcCourseTakeVo> list =
+                courseTakeService.graduatePage(condition);
+
         return RestResult.successData(list);
     }
 
@@ -191,25 +205,53 @@ public class ElcCourseTakeController
     }
 
     @ApiOperation(value = "课程维护模块导出学生选课信息")
-    @PostMapping("/exportElcStudentInfo")
-    public RestResult<ExcelResult> exportElcStudentInfo(
-            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+    @GetMapping("/exportElcStudentInfo")
+    public File exportElcStudentInfo(
+            @ModelAttribute ElcCourseTakeQuery elcCourseTakeQuery)
             throws Exception
     {
         LOG.info("exportElcStudentInfo.start");
-        ExcelResult export = courseTakeService.exportElcStudentInfo(condition);
-        return RestResult.successData(export);
+        try {
+            RestResult<String> restResult = courseTakeService.exportElcStudentInfo(elcCourseTakeQuery);
+            if (restResult.getCode() == ResultStatus.SUCCESS.code()
+                    && !"".equals(restResult.getData()))
+            {
+                return new File(restResult.getData());
+            }
+            else
+            {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @ApiOperation(value = "课程维护模块导出学生个人全部选课信息")
-    @PostMapping("/exportElcPersonalInfo")
-    public RestResult<ExcelResult> exportElcPersonalInfo(
-            @RequestBody PageCondition<String> condition)
+    @GetMapping("/exportElcPersonalInfo")
+    public File exportElcPersonalInfo(
+            @RequestParam String studentId)
             throws Exception
     {
         LOG.info("exportStudentInfo.start");
-        ExcelResult export = courseTakeService.exportElcPersonalInfo(condition);
-        return RestResult.successData(export);
+        try {
+            RestResult<String> restResult = courseTakeService.exportElcPersonalInfo(studentId);
+            if (restResult.getCode() == ResultStatus.SUCCESS.code()
+                    && !"".equals(restResult.getData()))
+            {
+                return new File(restResult.getData());
+            }
+            else
+            {
+                return null;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
