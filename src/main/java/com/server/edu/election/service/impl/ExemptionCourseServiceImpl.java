@@ -754,9 +754,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionStudentCountVo> exemptionCount(PageCondition<ExemptionQuery> page) {
-		Session currentSession = SessionUtils.getCurrentSession();
-        String dptId = currentSession.getCurrentManageDptId();
-        page.getCondition().setProjectId(dptId);
+
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ExemptionStudentCountVo> countResult = applyDao.exemptionCount(page.getCondition());
         
@@ -844,9 +842,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
-		Session currentSession = SessionUtils.getCurrentSession();
-		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId(dptId);
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
