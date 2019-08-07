@@ -51,6 +51,7 @@ import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
@@ -914,12 +915,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                         Set<String> timeTabel=new HashSet<>();
                         Set<String> room=new HashSet<>();
                         for (TimeTableMessage tableMessage : timeTableMessages) {
-                            String teacherName = tableMessage.getTeacherName();
+                            String teacherCode = tableMessage.getTeacherCode();
                             String timeTab = tableMessage.getTimeTab();
                             String roomId = tableMessage.getRoomId();
-                            List<String> list = Arrays.asList(teacherName.split(","));
-                            if(CollectionUtil.isNotEmpty(list)){
-                                teacher.addAll(list);
+                            //查询老师名称
+                            List<String> names = TeacherCacheUtil.getNames(teacherCode.split(","));
+                            if(CollectionUtil.isNotEmpty(names)){
+                                teacher.addAll(names);
                             }
                             if(StringUtils.isNotEmpty(timeTab)){
                                 timeTabel.add(timeTab);
@@ -1040,7 +1042,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             List<TimeTableMessage> tableMessages = getTimeById(ids);
             Map<Long, List<TimeTableMessage>> listMap=new HashMap<>();
             if(CollectionUtil.isNotEmpty(tableMessages)){
-                List<TimeTableMessage> timeTableMessages = tableMessages.stream().filter(vo -> Arrays.asList(vo.getTeacherCode().split(",")).contains(teacherCode)).collect(Collectors.toList());
+                List<TimeTableMessage> timeTableMessages = tableMessages.stream()
+                    .filter(t -> StringUtils.isEmpty(t.getTeacherCode()))
+                    .filter(vo -> Arrays.asList(vo.getTeacherCode().split(",")).contains(teacherCode))
+                    .collect(Collectors.toList());
                 if(CollectionUtil.isNotEmpty(timeTableMessages)){
                     listMap = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
                 }
@@ -1823,6 +1828,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     time.setTeachingClassId(classTeacherDto.getTeachingClassId());
                     time.setTimeAndRoom(timeStr);
                     time.setDayOfWeek(dayOfWeek);
+                    time.setTimeStart(timeStart);
+                    time.setTimeEnd(timeEnd);
+                    time.setTeacherCode(classTeacherDto.getTeacherCode());
+                    time.setTeacherName(classTeacherDto.getTeacherName());
                     list.add(time);
                 }
             }
