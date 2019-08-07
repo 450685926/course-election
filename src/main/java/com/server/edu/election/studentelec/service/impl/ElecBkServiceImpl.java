@@ -3,7 +3,6 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -193,7 +192,6 @@ public class ElecBkServiceImpl implements ElecBkService
         String studentId = context.getStudentInfo().getStudentId();
         if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
         {
-            context.getRespose().setData(new HashMap<>());
             context.getRespose().getData().put("retakePay", "true");
         }
     }
