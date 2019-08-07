@@ -63,10 +63,6 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.export.ExcelExecuter;
-import com.server.edu.util.excel.export.ExcelResult;
-import com.server.edu.util.excel.export.ExportExcelUtils;
 
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
@@ -146,7 +142,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
 
     @Override
-    public PageResult<ElcCourseTakeVo> elcStudentInfo(
+    public PageResult<ElcCourseTakeVo> graduatePage(
             PageCondition<ElcCourseTakeQuery> page)
     {
         ElcCourseTakeQuery cond = page.getCondition();
@@ -756,7 +752,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         FileUtil.deleteFile(cacheDirectory, 30);
         PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
         condition.setCondition(elcCourseTakeQuery);
-        PageResult<ElcCourseTakeVo> elcCourseTakeVoPageResult = elcStudentInfo(condition);
+        PageResult<ElcCourseTakeVo> elcCourseTakeVoPageResult = graduatePage(condition);
         String path="";
         if (elcCourseTakeVoPageResult != null) {
             List<ElcCourseTakeVo> list = elcCourseTakeVoPageResult.getList();

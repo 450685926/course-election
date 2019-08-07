@@ -58,7 +58,6 @@ import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
 
@@ -120,14 +119,14 @@ public class ElcCourseTakeController
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "学生选课列表")
-    @PostMapping("/elcStudentInfo")
-    public RestResult<PageResult<ElcCourseTakeVo>> elcStudentInfo(
+    @PostMapping("/graduatePage")
+    public RestResult<PageResult<ElcCourseTakeVo>> graduatePage(
             @RequestBody PageCondition<ElcCourseTakeQuery> condition)
     {
         ValidatorUtil.validateAndThrow(condition.getCondition());
 
         PageResult<ElcCourseTakeVo> list =
-                courseTakeService.elcStudentInfo(condition);
+                courseTakeService.graduatePage(condition);
 
         return RestResult.successData(list);
     }
