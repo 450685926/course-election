@@ -754,9 +754,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionStudentCountVo> exemptionCount(PageCondition<ExemptionQuery> page) {
-		Session currentSession = SessionUtils.getCurrentSession();
-        String dptId = currentSession.getCurrentManageDptId();
-        page.getCondition().setProjectId(dptId);
+
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ExemptionStudentCountVo> countResult = applyDao.exemptionCount(page.getCondition());
         
@@ -793,7 +791,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         			excelStoreConfig.getExemptionCountExportKey(),
         			excelStoreConfig.getExemptionCountExportTitle(),
         			cacheDirectory);
-        	path = excelExport.exportExcelToCacheDirectory("研究生为选课学生名单");
+        	path = excelExport.exportExcelToCacheDirectory("研究生免修免考统计");
         }catch (Exception e){
             return RestResult.failData("minor.export.fail");
         }
@@ -844,9 +842,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
-		Session currentSession = SessionUtils.getCurrentSession();
-		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId(dptId);
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
@@ -860,26 +855,31 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	public RestResult<String> findGraduateExemptionApplyExport(ExemptionQuery page) {
 		String path="";
         try {
-        	 PageCondition<ExemptionQuery> pageCondition = new PageCondition<ExemptionQuery>();
-             pageCondition.setCondition(page);
-             pageCondition.setPageSize_(100);
-             int pageNum = 0;
-             pageCondition.setPageNum_(pageNum);
-             List<ExemptionApplyManageVo> list = new ArrayList<>();
-             while (true)
-             {
-                 pageNum++;
-                 pageCondition.setPageNum_(pageNum);
-                 PageResult<ExemptionApplyManageVo> applyResult = findGraduateExemptionApply(pageCondition);
-                 
-                 list.addAll(applyResult.getList());
+        	PageCondition<ExemptionQuery> pageCondition = new PageCondition<ExemptionQuery>();
+            pageCondition.setCondition(page);
+            pageCondition.setPageSize_(100);
+            int pageNum = 0;
+            pageCondition.setPageNum_(pageNum);
+            List<ExemptionApplyManageVo> list = new ArrayList<>();
+            while (true)
+            {
+                pageNum++;
+                pageCondition.setPageNum_(pageNum);
+                PageResult<ExemptionApplyManageVo> applyResult = findGraduateExemptionApply(pageCondition);
+                
+                list.addAll(applyResult.getList());
 
-                 if (applyResult.getTotal_() <= list.size())
-                 {
-                     break;
-                 }
-             }
-             list = SpringUtils.convert(list);
+                if (applyResult.getTotal_() <= list.size())
+                {
+                    break;
+                }
+            }
+            for (ExemptionApplyManageVo exemptionApplyManageVo : list) {
+            	exemptionApplyManageVo.setStudentId(exemptionApplyManageVo.getStudentCode());
+            	exemptionApplyManageVo.setResult(exemptionApplyManageVo.getExamineResult().toString());
+            	exemptionApplyManageVo.setStudentName(exemptionApplyManageVo.getName());
+			}
+            list = SpringUtils.convert(list);
         	@SuppressWarnings("unchecked")
 			ExcelEntityExport<ExemptionApplyManageVo> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getGraduateExemptionApplyExportKey(),
@@ -1239,14 +1239,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
 			if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
 				//调用成绩接口，查看是否有成绩
-				if (true) {
 					noEffectiveIds.add(applyRecord.getStudentCode());
-				}else{
-					effectiveIds.add(id);
-				}
+			}else{
+				effectiveIds.add(id);
 			}
 		}
-        applyDao.deleteExemptionApply(effectiveIds);
-        return RestResult.success("common.deleteSuccess");
+		if (CollectionUtil.isNotEmpty(effectiveIds)) {
+			applyDao.deleteExemptionApply(effectiveIds);
+		}
+        return RestResult.success("common.deleteSuccess",StringUtils.join(effectiveIds,","));
 	}
 }

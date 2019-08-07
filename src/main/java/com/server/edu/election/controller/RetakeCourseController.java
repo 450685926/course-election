@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +33,8 @@ import java.util.List;
 public class RetakeCourseController {
     @Autowired
     private RetakeCourseService retakeCourseService;
+
+    private static Logger LOG = LoggerFactory.getLogger("com.server.edu.election.Timer.LogToDBTimer");
 
     @ApiOperation(value = "设定重修选课的时间和规则")
     @PutMapping("/setRetakeRules")
@@ -56,6 +60,7 @@ public class RetakeCourseController {
     @ApiOperation(value = "添加修改选课门数上限")
     @PostMapping("/updateRetakeCourseCount")
     public RestResult updateRetakeCourseCount(@RequestBody @Valid RetakeCourseCountVo retakeCourseCountVo) {
+        LOG.info("updateRetakeCourseCount.start");
         retakeCourseService.updateRetakeCourseCount(retakeCourseCountVo);
         return RestResult.success();
     }

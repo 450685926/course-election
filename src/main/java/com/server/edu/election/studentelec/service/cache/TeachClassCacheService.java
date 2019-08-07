@@ -267,7 +267,7 @@ public class TeachClassCacheService extends AbstractCacheService
     /**
      * 获取指定教学班信息
      * 
-     * @param calendarId 校历
+     * @param roundId 轮次ID
      * @param teachClassId 教学班ID
      * @return
      */
@@ -285,6 +285,40 @@ public class TeachClassCacheService extends AbstractCacheService
         List<Long> teachClassIds =
             this.roundCacheService.getTeachClassIds(roundId, courseCode);
         
+        if (CollectionUtil.isEmpty(teachClassIds)
+            || !teachClassIds.contains(teachClassId))
+        {
+            return null;
+        }
+        HashOperations<String, String, TeachingClassCache> hash =
+            opsTeachClass();
+        
+        TeachingClassCache lesson =
+            hash.get(Keys.getClassKey(), teachClassId.toString());
+        return lesson;
+    }
+    
+    /**
+     * 获取指定教学班信息
+     * 
+     * @param calendarId 校历
+     * @param teachClassId 教学班ID
+     * @return
+     */
+    public TeachingClassCache getTeachClassByCalendarId(Long calendarId, String courseCode,
+        Long teachClassId)
+    {
+        if (calendarId == null || StringUtils.isBlank(courseCode)
+            || teachClassId == null)
+        {
+            logger.warn(
+                "---- calendarId, courseCode and teachClassId can not be null ----");
+            return null;
+        }
+        
+        List<Long> teachClassIds =
+            this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
+                                   
         if (CollectionUtil.isEmpty(teachClassIds)
             || !teachClassIds.contains(teachClassId))
         {

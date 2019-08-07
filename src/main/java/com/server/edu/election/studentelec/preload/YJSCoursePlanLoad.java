@@ -63,6 +63,10 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
                 Long label = planCourse.getLabel();
+                String labelName = null;
+                if (label != null) {
+                	labelName  = courseDao.getCourseLabelName(label);
+				}
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
                         PlanCourse pl=new PlanCourse();
@@ -82,7 +86,8 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                         String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                         pl.setCalendarName(calendarName);
                         pl.setLabel(label);
-//                        pl.setCompulsory(planCourseTypeDto.getCompulsory());
+                        pl.setLabelName(labelName);
+                        pl.setCompulsory(planCourseTypeDto.getCompulsory());
                         planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
                             ElecCourse c=new ElecCourse();
@@ -90,7 +95,7 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                             c.setCourseName(planCourseTypeDto.getName());
                             c.setNameEn(planCourseTypeDto.getNameEn());
                             c.setCredits(planCourseTypeDto.getCredits());
-//                            c.setCompulsory(planCourseTypeDto.getCompulsory());
+                            c.setCompulsory(planCourseTypeDto.getCompulsory());
                             String calendar = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), planCourseTypeDto.getSemester());
                             c.setCalendarName(calendar);
                             publicCourses.add(c);
