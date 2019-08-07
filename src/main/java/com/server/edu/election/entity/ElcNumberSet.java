@@ -1,7 +1,6 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -9,6 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 @Table(name = "elc_number_set_t")
 public class ElcNumberSet implements Serializable {
@@ -20,30 +21,30 @@ public class ElcNumberSet implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "CALENDAR_ID_")
     @NotNull
+    @Column(name = "CALENDAR_ID_")
     private Long calendarId;
 
     /**
      * 状态
      */
-    @Column(name = "STATUS_")
     @NotNull
+    @Column(name = "STATUS_")
     private Integer status;
 
     /**
      * 释放时间
      */
+    @NotBlank
     @Column(name = "FIRST_TIME_")
-    @NotNull
-    private Date firstTime;
+    private String firstTime;
 
     /**
      * 释放时间
      */
+    @NotBlank
     @Column(name = "SECOND_TIME_")
-    @NotNull
-    private Date secondTime;
+    private String secondTime;
 
     private static final long serialVersionUID = 1L;
 
@@ -102,7 +103,7 @@ public class ElcNumberSet implements Serializable {
      *
      * @return FIRST_TIME_ - 释放时间
      */
-    public Date getFirstTime() {
+    public String getFirstTime() {
         return firstTime;
     }
 
@@ -111,8 +112,8 @@ public class ElcNumberSet implements Serializable {
      *
      * @param firstTime 释放时间
      */
-    public void setFirstTime(Date firstTime) {
-        this.firstTime = firstTime;
+    public void setFirstTime(String firstTime) {
+        this.firstTime = firstTime == null ? null : firstTime.trim();
     }
 
     /**
@@ -120,7 +121,7 @@ public class ElcNumberSet implements Serializable {
      *
      * @return SECOND_TIME_ - 释放时间
      */
-    public Date getSecondTime() {
+    public String getSecondTime() {
         return secondTime;
     }
 
@@ -129,8 +130,8 @@ public class ElcNumberSet implements Serializable {
      *
      * @param secondTime 释放时间
      */
-    public void setSecondTime(Date secondTime) {
-        this.secondTime = secondTime;
+    public void setSecondTime(String secondTime) {
+        this.secondTime = secondTime == null ? null : secondTime.trim();
     }
 
     @Override
