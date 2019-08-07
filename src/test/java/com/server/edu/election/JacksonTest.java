@@ -10,12 +10,14 @@ import org.apache.servicecomb.common.rest.codec.RestObjectMapperFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.election.entity.ElecContextMock;
+import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 
 @ActiveProfiles("dev")
 public class JacksonTest extends ApplicationTest
@@ -68,5 +70,14 @@ public class JacksonTest extends ApplicationTest
         list.add(c);
         List<JSONObject> convertList = JacksonUtil.convertList(list);
         System.out.println(convertList);
+    }
+    
+    @Autowired
+    RoundCacheService cacheService;
+    
+    @Test
+    public void test3() {
+        cacheService.getAllRound();
+        cacheService.getAllRound();
     }
 }
