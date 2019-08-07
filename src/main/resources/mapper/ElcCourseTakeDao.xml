@@ -457,7 +457,9 @@
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
         LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
-        where el.STUDENT_ID_=#{studentCode,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT};
+        where el.STUDENT_ID_=#{studentCode,jdbcType=VARCHAR}
+        and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
+        and te.DEPLOY_FLAG_ &gt; 0
     </select>
 
     <select id="findAllSchoolTimetab" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.vo.StudentVo">
@@ -632,7 +634,7 @@
         JOIN teaching_task_t ts on ts.COURSE_OPEN_ID_=el.ID_
         JOIN teaching_class_t cl on cl.TASK_ID_=ts.ID_
         JOIN teaching_class_teacher_t tl on tl.TEACHING_CLASS_ID_ = cl.ID_
-        WHERE el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
+        WHERE cl.DEPLOY_FLAG_ &gt; 0 and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
     </select>
 
     <delete id="deleteStudentById" parameterType="java.util.List">
