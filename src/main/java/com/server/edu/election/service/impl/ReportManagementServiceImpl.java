@@ -1828,6 +1828,8 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     time.setTeachingClassId(classTeacherDto.getTeachingClassId());
                     time.setTimeAndRoom(timeStr);
                     time.setDayOfWeek(dayOfWeek);
+                    time.setTimeStart(timeStart);
+                    time.setTimeEnd(timeEnd);
                     time.setTeacherCode(classTeacherDto.getTeacherCode());
                     time.setTeacherName(classTeacherDto.getTeacherName());
                     list.add(time);
