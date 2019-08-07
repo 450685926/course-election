@@ -295,8 +295,9 @@ public class RoundDataProvider
     /**
      * 获取指定教学班信息
      * 
-     * @param calendarId 校历
+     * @param roundId 轮次
      * @param teachClassId 教学班ID
+     * @param courseCode 课程编号
      * @return
      */
     public TeachingClassCache getTeachClass(Long roundId, String courseCode,
@@ -304,6 +305,21 @@ public class RoundDataProvider
     {
         return classCacheService
             .getTeachClass(roundId, courseCode, teachClassId);
+    }
+    
+    /**
+     * 获取指定教学班信息
+     * 
+     * @param calendarId 校历
+     * @param teachClassId 教学班ID
+     * @param courseCode 课程编号
+     * @return
+     */
+    public TeachingClassCache getTeachClassByCalendarId(Long calendarId, String courseCode,
+    		Long teachClassId)
+    {
+    	return classCacheService
+    			.getTeachClassByCalendarId(calendarId, courseCode, teachClassId);
     }
     
     /**
