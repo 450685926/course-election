@@ -52,11 +52,13 @@ public class StudentElecServiceImpl extends AbstractCacheService
         if (!Constants.PROJ_UNGRADUATE.equals(projectId)
             && Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
         {
+        	LOG.info("=====ADMIN======loading============projectId:" +projectId+"chooseObj:"+chooseObj);
             calendarId = elecRequest.getCalendarId();
             elecRequest.setCalendarId(calendarId);
         }
         else
         {
+        	LOG.info("=====DAPARTMENT======loading============projectId:" +projectId+"chooseObj:"+chooseObj);
             ElectionRounds round = dataProvider.getRound(roundId);
             Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();

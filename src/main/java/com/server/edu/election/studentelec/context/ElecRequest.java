@@ -18,7 +18,7 @@ import com.server.edu.election.validate.AgentElcGroup;
  */
 public class ElecRequest
 {
-    @NotNull(groups = {Default.class})
+    //@NotNull(groups = {Default.class})
     private Long roundId;
     
     /**

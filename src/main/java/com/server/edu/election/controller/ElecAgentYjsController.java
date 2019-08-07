@@ -57,6 +57,7 @@ public class ElecAgentYjsController
         ElecContext c = new ElecContext();
         if (elecRequest.getRoundId() != null)
         { // 教务员
+        	LOG.info("===========getData============RoundId:" + elecRequest.getRoundId());
             round = dataProvider.getRound(elecRequest.getRoundId());
             if (round == null)
             {
