@@ -293,7 +293,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             {
                 failedReasons.put(String.format("%s[%s]",
                     data.getCourseCode(),
-                    data.getTeachClassCode()), "教学班不存在无法选课");
+                    data.getTeachClassCode()), "教学班不存在无法退课");
                 continue;
             }
             boolean allSuccess = true;
@@ -667,7 +667,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                                 List<Integer> weeks =
                                     thisClassTimeUnit.getWeeks();
                                 thisWeeks.retainAll(weeks);
-                                if (CollectionUtil.isNotEmpty(weeks))
+                                //教学周无重复
+                                if (CollectionUtil.isEmpty(thisWeeks))
                                 {
                                     flag = true;
                                 }
@@ -729,6 +730,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                                     {
                                         flag = true;
                                     }
+                                }
+                                if (!flag)
+                                {
+                                	break;
                                 }
                             }
                             if (!flag)

@@ -793,7 +793,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         			excelStoreConfig.getExemptionCountExportKey(),
         			excelStoreConfig.getExemptionCountExportTitle(),
         			cacheDirectory);
-        	path = excelExport.exportExcelToCacheDirectory("研究生为选课学生名单");
+        	path = excelExport.exportExcelToCacheDirectory("研究生免修免考统计");
         }catch (Exception e){
             return RestResult.failData("minor.export.fail");
         }
@@ -860,26 +860,31 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	public RestResult<String> findGraduateExemptionApplyExport(ExemptionQuery page) {
 		String path="";
         try {
-        	 PageCondition<ExemptionQuery> pageCondition = new PageCondition<ExemptionQuery>();
-             pageCondition.setCondition(page);
-             pageCondition.setPageSize_(100);
-             int pageNum = 0;
-             pageCondition.setPageNum_(pageNum);
-             List<ExemptionApplyManageVo> list = new ArrayList<>();
-             while (true)
-             {
-                 pageNum++;
-                 pageCondition.setPageNum_(pageNum);
-                 PageResult<ExemptionApplyManageVo> applyResult = findGraduateExemptionApply(pageCondition);
-                 
-                 list.addAll(applyResult.getList());
+        	PageCondition<ExemptionQuery> pageCondition = new PageCondition<ExemptionQuery>();
+            pageCondition.setCondition(page);
+            pageCondition.setPageSize_(100);
+            int pageNum = 0;
+            pageCondition.setPageNum_(pageNum);
+            List<ExemptionApplyManageVo> list = new ArrayList<>();
+            while (true)
+            {
+                pageNum++;
+                pageCondition.setPageNum_(pageNum);
+                PageResult<ExemptionApplyManageVo> applyResult = findGraduateExemptionApply(pageCondition);
+                
+                list.addAll(applyResult.getList());
 
-                 if (applyResult.getTotal_() <= list.size())
-                 {
-                     break;
-                 }
-             }
-             list = SpringUtils.convert(list);
+                if (applyResult.getTotal_() <= list.size())
+                {
+                    break;
+                }
+            }
+            for (ExemptionApplyManageVo exemptionApplyManageVo : list) {
+            	exemptionApplyManageVo.setStudentId(exemptionApplyManageVo.getStudentCode());
+            	exemptionApplyManageVo.setResult(exemptionApplyManageVo.getExamineResult().toString());
+            	exemptionApplyManageVo.setStudentName(exemptionApplyManageVo.getName());
+			}
+            list = SpringUtils.convert(list);
         	@SuppressWarnings("unchecked")
 			ExcelEntityExport<ExemptionApplyManageVo> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getGraduateExemptionApplyExportKey(),

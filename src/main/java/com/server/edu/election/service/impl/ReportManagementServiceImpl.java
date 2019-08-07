@@ -851,16 +851,21 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 }
                 vo.setExportName(exportName);
             }
-            pre.setStudentsList(student);
-            pre.setSize(student.size());
-            pre.setLineNumber(student.size());
         }
+        pre.setStudentsList(student);
+        pre.setSize(student.size());
         //封装教学班信息拆解
         List<TimeTableMessage> timeTableMessages = courseTakeDao.findClassTimeAndRoomById(teachingClassId);
+        // 最大周集合
+        List<Integer> number=new ArrayList<>();
+        Set<Integer> days =new HashSet<>();
         if (CollectionUtil.isNotEmpty(timeTableMessages)) {
-            List<Integer> number=new ArrayList<>();
             for (TimeTableMessage timeTableMessage : timeTableMessages) {
                 Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                if (dayOfWeek == null) {
+                    continue;
+                }
+                days.add(dayOfWeek);
                 Integer timeStart = timeTableMessage.getTimeStart();
                 Integer timeEnd = timeTableMessage.getTimeEnd();
                 String weekNumber = timeTableMessage.getWeekNum();
@@ -877,10 +882,11 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 String timeStr = weekstr + " " + timeStart + "-" + timeEnd + "节" + weekNumStr + ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
                 timeTableMessage.setTimeAndRoom(timeStr);
             }
-            Integer max = Collections.max(number);
-            pre.setRowNumber(max);
             pre.setTimeTabelList(timeTableMessages);
         }
+        Integer max = Collections.max(number);
+        pre.setRowNumber(max);
+        pre.setLineNumber(days.size());
         return pre;
     }
 
