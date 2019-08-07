@@ -31,6 +31,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.entity.BeanUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -45,6 +46,7 @@ import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -175,21 +177,18 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         if (Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
         {
             // 选课
-            List<ElectionRounds> elecRounds =
-                elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
-            for (ElectionRounds round : elecRounds)
-            {
-                doElec(context,
-                    elecExceutors,
-                    request.getElecClassList(),
-                    round);
-            }
+//            List<ElectionRounds> elecRounds =
+//                elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
+//            for (ElectionRounds round : elecRounds)
+//            {
+                doElec(context,elecExceutors,request.getElecClassList(),null,calendarId);
+//            }
         }
         else
         {
             ElectionRounds round = dataProvider.getRound(roundId);
             // 选课
-            doElec(context, elecExceutors, request.getElecClassList(), round);
+            doElec(context, elecExceutors, request.getElecClassList(), round,null);
         }
         
         return context;
@@ -198,7 +197,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     /**选课*/
     private void doElec(ElecContext context,
         List<AbstractElecRuleExceutor> exceutors,
-        List<ElecTeachClassDto> teachClassIds, ElectionRounds round)
+        List<ElecTeachClassDto> teachClassIds, ElectionRounds round, Long calendarId)
     {
         if (CollectionUtil.isEmpty(teachClassIds))
         {
@@ -213,10 +212,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
-            TeachingClassCache teachClass =
-                dataProvider.getTeachClass(round.getId(),
-                    data.getCourseCode(),
-                    teachClassId);
+            TeachingClassCache teachClass = new TeachingClassCache();
+            if (round != null) {  // 教务员代理选课
+            	teachClass = dataProvider.getTeachClass(round.getId(),data.getCourseCode(),teachClassId);
+			}else {               // 管理员代理选课
+				teachClass = dataProvider.getTeachClassByCalendarId(calendarId,data.getCourseCode(),teachClassId);
+			}
             if (teachClass == null)
             {
                 failedReasons.put(String.format("%s[%s]",
@@ -343,9 +344,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         Date date = new Date();
         String studentId = stu.getStudentId();
         
-        Long roundId = request.getRoundId();
-        ElectionRounds round = dataProvider.getRound(roundId);
         Long teachClassId = teachClass.getTeachClassId();
+        Long roundId = request.getRoundId();
+        ElectionRounds round = new ElectionRounds();
+        if (roundId != null) {
+        	round = dataProvider.getRound(roundId);
+		}else {
+			// 通过教学班ID查询轮次
+			ElectionRoundsDto electionRoundsDto = elecRoundsDao.getRoundByTeachClassId(teachClassId);
+			BeanUtil.copyProperties(round, electionRoundsDto);
+		}
         String TeachClassCode = teachClass.getTeachClassCode();
         String courseCode = teachClass.getCourseCode();
         String courseName = teachClass.getCourseName();
@@ -370,15 +378,15 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             
             ElcCourseTake take = new ElcCourseTake();
-            take.setCalendarId(round.getCalendarId());
             take.setChooseObj(request.getChooseObj());
             take.setCourseCode(courseCode);
             take.setCourseTakeType(courseTakeType);
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
-            take.setMode(round.getMode());
-            take.setTurn(round.getTurn());
+        	take.setCalendarId(round.getCalendarId());
+        	take.setMode(round.getMode());
+        	take.setTurn(round.getTurn());
             courseTakeDao.insertSelective(take);
         }
         else
