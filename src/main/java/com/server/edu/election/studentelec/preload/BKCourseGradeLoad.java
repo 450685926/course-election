@@ -320,7 +320,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     List<Integer> roomWeeks = roomTeachers.stream()
                         .map(TeacherClassTimeRoom::getWeekNumber)
                         .collect(Collectors.toList());
-                    sb.append(this.fillValue(r, roomWeeks)).append(";");
+                    
+                    String weekStr = CalUtil.getWeeks(roomWeeks);
+                    
+                    String teacherNames = getTeacherInfo(r.getTeacherCode());
+                    
+                    String roomName = ClassroomCacheUtil.getRoomName(r.getRoomId());
+                    // 老师名称(老师编号)[周] 教室
+                    sb.append(String.format("%s[%s] %s", teacherNames, weekStr, roomName)).append(" ");
                 }
                 Collections.sort(weeks);
                 un.setValue(sb.toString());
@@ -397,17 +404,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             }
         }
         return tName;
-    }
-    
-    private String fillValue(TeacherClassTimeRoom r, List<Integer> weeks)
-    {
-        String weekStr = CalUtil.getWeeks(weeks);
-        
-        String teacherNames = getTeacherInfo(r.getTeacherCode());
-        
-        String roomName = ClassroomCacheUtil.getRoomName(r.getRoomId());
-        // 老师名称(老师编号)[周] 教室
-        return String.format("%s[%s] %s", teacherNames, weekStr, roomName);
     }
     
     private String getTeacherInfo(String teacherCode)
