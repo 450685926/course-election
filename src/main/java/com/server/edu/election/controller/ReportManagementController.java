@@ -168,27 +168,6 @@ public class ReportManagementController
         return RestResult.successData(previewRollBookList);
     }
 
-    @ApiOperation(value = "导出研究生点名册详情（学生名单）")
-    @GetMapping("/exportGraduteRollBook")
-    public File exportGraduteRollBook(@RequestParam Long teachingClassId) {
-        try {
-            RestResult<String> restResult = managementService.exportGraduteRollBook(teachingClassId);
-            if (restResult.getCode() == ResultStatus.SUCCESS.code()
-                    && !"".equals(restResult.getData()))
-            {
-                return new File(restResult.getData());
-            }
-            else
-            {
-                return null;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
     @ApiOperation(value = "预览点名册")
     @PostMapping("/previewRollBookList2")
     public RestResult<PreviewRollBookList> findPreviewRollBookList2(
