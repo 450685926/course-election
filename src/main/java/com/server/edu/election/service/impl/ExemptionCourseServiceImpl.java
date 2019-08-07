@@ -1239,14 +1239,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
 			if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
 				//调用成绩接口，查看是否有成绩
-				if (true) {
 					noEffectiveIds.add(applyRecord.getStudentCode());
-				}else{
-					effectiveIds.add(id);
-				}
+			}else{
+				effectiveIds.add(id);
 			}
 		}
-        applyDao.deleteExemptionApply(effectiveIds);
-        return RestResult.success("common.deleteSuccess");
+		if (CollectionUtil.isNotEmpty(effectiveIds)) {
+			applyDao.deleteExemptionApply(effectiveIds);
+		}
+        return RestResult.success("common.deleteSuccess",StringUtils.join(effectiveIds,","));
 	}
 }
