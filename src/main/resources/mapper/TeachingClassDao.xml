@@ -435,7 +435,7 @@
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(turns)">
 	        AND t1.TURN_ IN
 	        <foreach item="id" collection="turns" index="index" open="(" separator="," close=")">
-	          #{turn}
+	          #{id}
 	        </foreach>
         </if>
         </where>
