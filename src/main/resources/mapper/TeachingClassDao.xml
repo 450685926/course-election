@@ -98,7 +98,7 @@
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
-        and t1.IS_ELECTIVE_ = #{isElective}
+        and t3.IS_ELECTIVE_ = #{isElective}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
         and t1.COURSE_LABEL_ID_ = #{courseLabelId}
@@ -187,7 +187,7 @@
 	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
 	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
 	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
-	join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
+	left join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
     left join elc_course_takes_t_${mode} t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_ and t7.CALENDAR_ID_ =#{calendarId})
     <where>
       t1.DELETE_STATUS_ = 0 
@@ -197,7 +197,7 @@
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
-        and t1.IS_ELECTIVE_ = #{isElective}
+        and t3.IS_ELECTIVE_ = #{isElective}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
         and t1.COURSE_LABEL_ID_ = #{courseLabelId}
