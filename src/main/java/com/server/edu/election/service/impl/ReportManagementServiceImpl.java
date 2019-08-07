@@ -710,35 +710,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         return RestResult.successData("minor.export.success",path);
     }
 
-    /**
-     *@Description: 导出研究生点名册详情
-     *@Param:
-     *@return:
-     *@Author:
-     *@date: 2019/8/5
-     * @param teachingClassId
-     */
-    @Override
-    public RestResult<String> exportGraduteRollBook(Long teachingClassId) throws Exception {
-        FileUtil.mkdirs(cacheDirectory);
-        //删除超过30天的文件
-        FileUtil.deleteFile(cacheDirectory, 30);
-        PreViewRollDto preViewRollDto = previewGraduteRollBook(teachingClassId);
-        String path="";
-        if (preViewRollDto != null) {
-            List<StudentVo> studentsList = preViewRollDto.getStudentsList();
-            if (CollectionUtil.isNotEmpty(studentsList)) {
-                studentsList = SpringUtils.convert(studentsList);
-                @SuppressWarnings("unchecked")
-                ExcelEntityExport<StudentVo> excelExport = new ExcelEntityExport(studentsList,
-                        excelStoreConfig.getGraduteRollBookKey(),
-                        excelStoreConfig.getGraduteRollBookTitle(),
-                        cacheDirectory);
-                path = excelExport.exportExcelToCacheDirectory("学生点名册");
-            }
-        }
-        return RestResult.successData("minor.export.success",path);
-    }
 
     /**
     *@Description: 查询点名册
@@ -857,10 +828,12 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             }
             pre.setStudentsList(student);
             pre.setSize(student.size());
+            pre.setLineNumber(student.size());
         }
         //封装教学班信息拆解
         List<TimeTableMessage> timeTableMessages = courseTakeDao.findClassTimeAndRoomById(teachingClassId);
         if (CollectionUtil.isNotEmpty(timeTableMessages)) {
+            List<Integer> number=new ArrayList<>();
             for (TimeTableMessage timeTableMessage : timeTableMessages) {
                 Integer dayOfWeek = timeTableMessage.getDayOfWeek();
                 Integer timeStart = timeTableMessage.getTimeStart();
@@ -872,12 +845,15 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 }
                 LinkedHashSet<String> set = new LinkedHashSet<>(Arrays.asList(str));
                 List<Integer> weeks = set.stream().map(Integer::parseInt).collect(Collectors.toList());
+                number.addAll(weeks);
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
                 String weekNumStr = weekNums.toString();//周次
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr = weekstr + " " + timeStart + "-" + timeEnd + "节" + weekNumStr + ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
                 timeTableMessage.setTimeAndRoom(timeStr);
             }
+            Integer max = Collections.max(number);
+            pre.setRowNumber(max);
             pre.setTimeTabelList(timeTableMessages);
         }
         return pre;
@@ -1216,9 +1192,10 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     */
     @Override
     public String exportPreRollBookList(ExportPreCondition condition) throws Exception{
-        PreViewRollDto preViewRollDto = findPreviewRollBookListById(condition.getTeachingClassId(), condition.getCalendarId());
+        PreViewRollDto preViewRollDto = previewGraduteRollBook(condition.getTeachingClassId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
-        String calendarName ="同济大学"+ condition.getCalendarName()+"学生点名册";
+        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(condition.getCalendarId());
+        String calendarName ="同济大学"+ schoolCalendarVo.getFullName() + "学生点名册";
         Integer lineNumber = preViewRollDto.getLineNumber();
         Integer rowNumber = preViewRollDto.getRowNumber();
         List<Integer> lineList = new ArrayList<>();
@@ -1247,6 +1224,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         out.close();
         return path;
     }
+
 
     private GeneralExcelDesigner getDesignTwo() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
