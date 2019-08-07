@@ -969,7 +969,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             List<Long> ids = studentTable.stream().map(StudnetTimeTable::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> timeById = getTimeById(ids);
             for (TimeTableMessage tm : timeById) {
-                if(!tm.getWeeks().contains(week)) {
+                if(null != tm.getWeeks() && null != week && !tm.getWeeks().contains(week)) {
                     continue;
                 }
                 TimeTable tt=new TimeTable();
