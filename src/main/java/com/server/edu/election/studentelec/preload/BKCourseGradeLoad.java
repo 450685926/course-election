@@ -119,9 +119,10 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             // 获取学院，教师名称
             List<TeachingClassCache> classInfo =
                 courseOpenDao.findClassInfo(teachClassIds);
-            Map<Long, List<TeachingClassCache>> classMap = classInfo.stream()
-                .collect(
-                    Collectors.groupingBy(TeachingClassCache::getTeachClassId));
+            //
+            Map<Long, TeachingClassCache> classMap = classInfo.stream()
+                .collect(Collectors.toMap(TeachingClassCache::getTeachClassId,
+                    teachClass -> teachClass));
             
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (StudentScoreVo studentScore : stuScoreBest)
@@ -137,11 +138,11 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setCalendarId(calendarId);
                 lesson.setNature(studentScore.getCourseNature());
-                List<TeachingClassCache> classList =
-                    classMap.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(classList))
+                
+                TeachingClassCache tClass = classMap.get(teachingClassId);
+                if (null != tClass)
                 {
-                    lesson.setFaculty(classList.get(0).getFaculty());
+                    lesson.setFaculty(tClass.getFaculty());
                 }
                 
                 c.setCourse(lesson);
@@ -325,9 +326,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     
                     String teacherNames = getTeacherInfo(r.getTeacherCode());
                     
-                    String roomName = ClassroomCacheUtil.getRoomName(r.getRoomId());
+                    String roomName =
+                        ClassroomCacheUtil.getRoomName(r.getRoomId());
                     // 老师名称(老师编号)[周] 教室
-                    sb.append(String.format("%s[%s] %s", teacherNames, weekStr, roomName)).append(" ");
+                    sb.append(String
+                        .format("%s[%s] %s", teacherNames, weekStr, roomName))
+                        .append(" ");
                 }
                 Collections.sort(weeks);
                 un.setValue(sb.toString());
