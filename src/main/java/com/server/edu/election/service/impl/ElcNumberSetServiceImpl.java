@@ -10,6 +10,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -30,14 +32,15 @@ import tk.mybatis.mapper.entity.Example;
 @Service
 @Primary
 public class ElcNumberSetServiceImpl implements ElcNumberSetService {
+	private static final Logger log = LoggerFactory.getLogger(ElcNumberSetServiceImpl.class);
 	@Autowired
 	private TeachingClassDao teachingClassDao;
 	@Autowired
 	private ElcNumberSetDao elcNumberSetDao;
+	
 	@Override
 	@Transactional
 	public int releaseAll(Long calendarId) {
-		// TODO Auto-generated method stub
 		List<Integer> turns = new ArrayList<>();
 		turns.add(Constants.THIRD_TURN);
 		turns.add(Constants.FOURTH_TURN);
@@ -45,9 +48,11 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 		elcNumberSetDto.setCalendarId(calendarId);
 		elcNumberSetDto.setTurns(turns);
 		int result = 0;
+		log.info("start select list");
 		List<TeachingClassVo> list = teachingClassDao.selectDrawClasss(elcNumberSetDto);
 		if(CollectionUtil.isNotEmpty(list)) {
 			result =teachingClassDao.batchDecrElcNumber(list);
+			log.info("end clear data sucesess");
 		}
         if (result <= Constants.ZERO)
         {
@@ -79,26 +84,28 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
     		Runnable runnable = new Runnable() {
 	  		    @Override
 	  			public void run() {
+	  		    	  log.info("start clear data"+elcNumberSet.getCalendarId());
 	  		    	  releaseAll(elcNumberSet.getCalendarId());
+	  		    	  log.info("start clear data sucesess");
 	  		    }
     		};
-  		SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
-  		executeEightAtNightPerDay(runnable,df.format(elcNumberSet.getFirstTime()));
-  		executeEightAtNightPerDay(runnable,df.format(elcNumberSet.getSecondTime()));
+	  		executeEightAtNightPerDay(runnable, elcNumberSet.getFirstTime()+":00");
+	  		executeEightAtNightPerDay(runnable, elcNumberSet.getSecondTime()+":00");
         }
 		return result;
 	}
+	static ScheduledExecutorService executor = Executors.newScheduledThreadPool(2);  
 	
 	/** 
 	 * 每天指定时间执行
 	 * 每天定时安排任务进行执行 
 	 */  
-	public static void executeEightAtNightPerDay(Runnable runnable,String time) { 
-	    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);  
+	public static void executeEightAtNightPerDay(Runnable runnable,String time) {
 	    long oneDay = 24 * 60 * 60 * 1000;  
-	    long initDelay  =getTimeMillis(time) - System.currentTimeMillis();  
-	    initDelay = initDelay > 0 ? initDelay : oneDay + initDelay;  
-	    executor.scheduleAtFixedRate(  
+	    long initDelay = getTimeMillis(time) - System.currentTimeMillis();  
+	    initDelay = initDelay > 0 ? initDelay : oneDay + initDelay;
+	    log.info("call time "+initDelay + "Timing tasks strat");
+	    executor.scheduleAtFixedRate(
 	    		runnable,  
 	            initDelay,  
 	            oneDay,  
@@ -123,7 +130,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
         try {  
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
             DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");  
-            Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time+":00");  
+            Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time);  
             return curDate.getTime();  
         } catch (ParseException e) {  
             e.printStackTrace();  
