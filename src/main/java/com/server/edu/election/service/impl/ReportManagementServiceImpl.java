@@ -805,7 +805,6 @@ public class ReportManagementServiceImpl implements ReportManagementService {
         Set<String> set=new HashSet<>();
         List<Integer> number=new ArrayList<>();
         int max=0;
-        int size=0;
         if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
             for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
                 List<String> num = Arrays.asList(classTeacherDto.getWeekNumberStr().split(","));
@@ -817,11 +816,13 @@ public class ReportManagementServiceImpl implements ReportManagementService {
             max=Collections.max(number);
         }
         List<TimeTableMessage> list = getTimeById(ids);
-        if(CollectionUtil.isNotEmpty(list)){
-            Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
-            size = collect.size();
-        }
-        pre.setLineNumber(size);
+//        int size=0;
+//        if(CollectionUtil.isNotEmpty(list)){
+//            Map<Integer, List<TimeTableMessage>> collect = list.stream().collect(Collectors.groupingBy(TimeTableMessage::getDayOfWeek));
+//            size = collect.size();
+//        }
+//        pre.setLineNumber(size);
+        pre.setLineNumber(1);
         pre.setRowNumber(max);
         pre.setTimeTabelList(list);
         return pre;
@@ -1815,6 +1816,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                     TimeTableMessage time = new TimeTableMessage();
                     time.setTeachingClassId(classTeacherDto.getTeachingClassId());
                     time.setTimeAndRoom(timeStr);
+                    time.setDayOfWeek(dayOfWeek);
                     list.add(time);
                 }
             }
