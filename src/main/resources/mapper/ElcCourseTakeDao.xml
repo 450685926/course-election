@@ -183,10 +183,10 @@
                 and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-                and t2.DEGREE_TYPE_= #{elcResult.degreeType}
+                and t2.DEGREE_TYPE_= #{query.degreeType}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
-                and t2.FORM_LEARNING_= #{elcResult.formLearning}
+                and t2.FORM_LEARNING_= #{query.formLearning}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
                 and t2.PROFESSION_ = #{query.profession}
