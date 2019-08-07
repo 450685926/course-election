@@ -54,7 +54,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 			result =teachingClassDao.batchDecrElcNumber(list);
 			log.info("end clear data sucesess");
 		}
-        if (result <= Constants.ZERO)
+        if (result < Constants.ZERO)
         {
             throw new ParameterValidateException(
                 I18nUtil.getMsg("elcNumberSet.releaseFail"));
