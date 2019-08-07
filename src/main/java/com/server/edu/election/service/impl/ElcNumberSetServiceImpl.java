@@ -1,7 +1,10 @@
 package com.server.edu.election.service.impl;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,7 +25,6 @@ import com.server.edu.election.service.ElcNumberSetService;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.DateUtil;
 
 import tk.mybatis.mapper.entity.Example;
 @Service
@@ -94,7 +96,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 	public static void executeEightAtNightPerDay(Runnable runnable,String time) { 
 	    ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);  
 	    long oneDay = 24 * 60 * 60 * 1000;  
-	    long initDelay  =DateUtil.getTimeMillis(time) - System.currentTimeMillis();  
+	    long initDelay  =getTimeMillis(time) - System.currentTimeMillis();  
 	    initDelay = initDelay > 0 ? initDelay : oneDay + initDelay;  
 	    executor.scheduleAtFixedRate(  
 	    		runnable,  
@@ -111,6 +113,23 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService {
 		ElcNumberSet elcNumberSet =elcNumberSetDao.selectOneByExample(example);
 		return elcNumberSet;
 	}
+	
+    /** 
+     * 获取指定时间对应的毫秒数 
+     * @param time “HH:mm:ss” 
+     * @return 
+     */  
+    private static long getTimeMillis(String time) {  
+        try {  
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
+            DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd");  
+            Date curDate = dateFormat.parse(dayFormat.format(new Date()) + " " + time+":00");  
+            return curDate.getTime();  
+        } catch (ParseException e) {  
+            e.printStackTrace();  
+        }  
+        return 0;  
+    }
 	
 
 }
