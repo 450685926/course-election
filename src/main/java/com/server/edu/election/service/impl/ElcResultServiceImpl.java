@@ -746,12 +746,19 @@ public class ElcResultServiceImpl implements ElcResultService
 		String path="";
         try {
         	condition.setGrade(StringUtils.equalsIgnoreCase("全部", condition.getGrade()) ? "" : condition.getGrade());
+        	condition.setFaculty(StringUtils.equalsIgnoreCase("null", condition.getFaculty()) ? "" : condition.getFaculty());
+        	condition.setTrainingLevel(StringUtils.equalsIgnoreCase("null", condition.getTrainingLevel()) ? "" : condition.getTrainingLevel());
+        	condition.setTrainingCategory(StringUtils.equalsIgnoreCase("null", condition.getTrainingCategory()) ? "" : condition.getTrainingCategory());
+        	condition.setDegreeType(StringUtils.equalsIgnoreCase("null", condition.getDegreeType()) ? "" : condition.getDegreeType());
+        	condition.setFormLearning(StringUtils.equalsIgnoreCase("null", condition.getFormLearning()) ? "" : condition.getFormLearning());
+        	condition.setEnrolSeason(StringUtils.equalsIgnoreCase("null", condition.getEnrolSeason()) ? "" : condition.getEnrolSeason());
+        	condition.setProfession(StringUtils.equalsIgnoreCase("null", condition.getProfession()) ? "" : condition.getProfession());
         	PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
             pageCondition.setCondition(condition);
             pageCondition.setPageSize_(100);
             int pageNum = 0;
             pageCondition.setPageNum_(pageNum);
-            List<Student4Elc> list = new ArrayList<>();
+            List<Student4Elc> list = new ArrayList<Student4Elc>();
             while (true)
             {
                 pageNum++;
