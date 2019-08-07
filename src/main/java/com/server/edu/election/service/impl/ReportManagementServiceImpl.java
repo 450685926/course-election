@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.PageConditionUtil;
 import com.server.edu.election.util.WeekUtil;
@@ -927,7 +928,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     public PageResult<ClassCodeToTeacher> findAllTeacherTimeTable(PageCondition<ClassCodeToTeacher> condition) {
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findAllTeacherTimeTable(condition.getCondition());
-        if(teacherTimeTable!=null){
+        if(teacherTimeTable!= null){
             List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
             if(CollectionUtil.isNotEmpty(result)){
                 SchoolCalendarVo schoolCalendar= BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
@@ -940,7 +941,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     }
 
     /**
-     * 查询所有教师课表
+     * 研究生查询教师课表列表
      * @param condition
      * @return
      */
@@ -954,6 +955,9 @@ public class ReportManagementServiceImpl implements ReportManagementService {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
                 for (ClassCodeToTeacher toTeacher : result) {
                     toTeacher.setCalendarName(schoolCalendar.getFullName());
+                    TeachingClassTeacher teacher = teachingClassTeacherDao.findTeacher(toTeacher.getTeacherCode());
+                    toTeacher.setTeacherName(teacher.getTeacherName());
+                    teacher.setSex(teacher.getSex());
                 }
             }
         }

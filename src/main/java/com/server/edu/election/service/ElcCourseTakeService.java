@@ -37,7 +37,7 @@ public interface ElcCourseTakeService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    PageResult<ElcCourseTakeVo> elcStudentInfo(
+    PageResult<ElcCourseTakeVo> graduatePage(
             PageCondition<ElcCourseTakeQuery> page);
     
     /**
