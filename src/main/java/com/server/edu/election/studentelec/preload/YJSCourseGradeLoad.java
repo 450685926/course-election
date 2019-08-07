@@ -226,22 +226,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         //3.学生免修课程
-        List<ElecCourse> applyRecord = new ArrayList<>();
-        if (Integer.parseInt(stu.getManagerDeptId()) == Constants.ONE) {
-        	applyRecord = applyDao.findApplyRecord(calendarId, studentId);
-		}else {
-			List<ExemptionApplyManage> graduteApplyRecord = applyDao.findGraduteApplyRecord(calendarId, studentId);
-			List<String> applyCourseCodes = new ArrayList<>();
-			for (ExemptionApplyManage code : graduteApplyRecord) {
-				String[] codes = code.getCourseCode().split(",");
-				for (String string : codes) {
-					applyCourseCodes.add(string);
-				}
-			}
-			if (CollectionUtil.isNotEmpty(applyCourseCodes)) {
-				applyRecord = applyDao.findApplyCourse(applyCourseCodes);
-			}
-		}
+        List<ElecCourse> applyRecord = applyDao.findApplyRecord(calendarId, studentId);
             
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
@@ -286,7 +271,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 course.setTeachClassMsg(c.getTeachingClassId());
                 course.setNature(c.getNature());
                 course.setApply(c.getApply());
-                course.setLabel(c.getLabel());
                 course.setCampus(c.getCampus());
                 course.setChooseObj(c.getChooseObj());
                 course.setCourseCode(c.getCourseCode());

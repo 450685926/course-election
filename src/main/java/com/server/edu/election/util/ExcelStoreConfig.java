@@ -40,6 +40,66 @@ public class ExcelStoreConfig
 
 	private List<String> GraduteRollBookListKey;
 
+	private List<String> GraduteRollBookTitle;
+
+	private List<String> GraduteRollBookKey;
+
+	private List<String> elcStudentInfoTitle;
+
+	private List<String> elcStudentInfoKey;
+
+	private List<String> elcPersonalInfoTitle;
+
+	private List<String> elcPersonalInfoKey;
+
+	public List<String> getElcPersonalInfoTitle() {
+		return elcPersonalInfoTitle;
+	}
+
+	public void setElcPersonalInfoTitle(List<String> elcPersonalInfoTitle) {
+		this.elcPersonalInfoTitle = elcPersonalInfoTitle;
+	}
+
+	public List<String> getElcPersonalInfoKey() {
+		return elcPersonalInfoKey;
+	}
+
+	public void setElcPersonalInfoKey(List<String> elcPersonalInfoKey) {
+		this.elcPersonalInfoKey = elcPersonalInfoKey;
+	}
+
+	public List<String> getElcStudentInfoTitle() {
+		return elcStudentInfoTitle;
+	}
+
+	public void setElcStudentInfoTitle(List<String> elcStudentInfoTitle) {
+		this.elcStudentInfoTitle = elcStudentInfoTitle;
+	}
+
+	public List<String> getElcStudentInfoKey() {
+		return elcStudentInfoKey;
+	}
+
+	public void setElcStudentInfoKey(List<String> elcStudentInfoKey) {
+		this.elcStudentInfoKey = elcStudentInfoKey;
+	}
+
+	public List<String> getGraduteRollBookTitle() {
+		return GraduteRollBookTitle;
+	}
+
+	public void setGraduteRollBookTitle(List<String> graduteRollBookTitle) {
+		GraduteRollBookTitle = graduteRollBookTitle;
+	}
+
+	public List<String> getGraduteRollBookKey() {
+		return GraduteRollBookKey;
+	}
+
+	public void setGraduteRollBookKey(List<String> graduteRollBookKey) {
+		GraduteRollBookKey = graduteRollBookKey;
+	}
+
 	public List<String> getGraduteRollBookListKey() {
 		return GraduteRollBookListKey;
 	}
