@@ -5,22 +5,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.util.ExcelStoreConfig;
-import com.server.edu.election.util.PageConditionUtil;
-import com.server.edu.election.util.WeekUtil;
-import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -48,12 +50,33 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcNoSelectReasonDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.PageConditionUtil;
+import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.ElcNoSelectReasonVo;
 import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
@@ -69,6 +92,7 @@ import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
 import freemarker.template.Template;
 
@@ -961,6 +985,7 @@ public class ReportManagementServiceImpl implements ReportManagementService {
     *@Author: bear
     *@date: 2019/5/5 9:34
     */
+    @Cacheable(value="getStudentTimetab", key="#p1")
     @Override
     public List<TimeTable> getStudentTimetab(Long calendarId, String studentCode, Integer week) {
         List<StudnetTimeTable> studentTable = courseTakeDao.findStudentTable(calendarId, studentCode);//查询所有教学班
