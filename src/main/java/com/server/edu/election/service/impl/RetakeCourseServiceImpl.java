@@ -61,6 +61,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Autowired
     private ElcLogDao elcLogDao;
 
+    @Autowired
+    private TeachingClassDao teachingClassDao;
+
     @Override
     @Transactional
     public void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo) {
@@ -201,6 +204,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             take.setTurn(0);
             take.setMode(1);
             courseTakeDao.insertSelective(take);
+            teachingClassDao.increElcNumber(teachingClassId);
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
             elcLogDao.insertSelective(log);
@@ -209,6 +213,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             List<Long> list = new ArrayList<>(1);
             list.add(id);
             courseTakeDao.deleteCourseTask(list, studentId);
+            teachingClassDao.decrElcNumber(teachingClassId);
             // 添加选课日志
             log.setType(ElcLogVo.TYPE_2);
             elcLogDao.insertSelective(log);
