@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -182,11 +183,11 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "根据课程编号和学籍信息查询所有符合的申请条件")
     @PostMapping("/matchedConditions")
     public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
-    		@RequestParam("courseCode") String courseCode,
-    		@RequestParam("studentId") String studentId){
+    		@RequestBody JSONObject  json){
     	logger.info("matchedConditions by CourseCode and studentId start");
     	
-    	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
+    	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.
+    			queryApplyConditionByCourseCodeAndStudentId(json.getString("courseCode"),json.getString("studentId"));
     	return RestResult.successData(list);
     }
     
