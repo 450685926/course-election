@@ -478,7 +478,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<RollBookList> findRollBookList(
         PageCondition<RollBookConditionDto> condition)
     {
-        PageConditionUtil.setPageHelper(condition);
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RollBookList> rollBookList =
             courseTakeDao.findClassByTeacherCode(condition.getCondition());
         if (rollBookList != null)

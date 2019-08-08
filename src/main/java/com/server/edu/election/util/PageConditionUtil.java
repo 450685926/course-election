@@ -8,15 +8,15 @@ import com.server.edu.common.PageCondition;
  */
 public class PageConditionUtil {
     /**
-     * 修改分页默认值
+     * 设置导出分页默认值
      * @param obj
      * @param <T>
      * @return
      */
     public static <T> PageCondition getPageCondition(T obj){
         PageCondition<T> condition = new PageCondition<>();
-        condition.setPageNum_(0);
-        condition.setPageSize_(0);
+        condition.setPageNum_(1);
+        condition.setPageSize_(1000);
         condition.setCondition(obj);
         return condition;
     }
