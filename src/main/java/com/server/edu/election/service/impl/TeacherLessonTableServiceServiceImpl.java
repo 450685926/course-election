@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.server.edu.election.entity.TeachingClassTeacher;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,18 +35,21 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
+import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.TeacherLessonTableService;
@@ -222,63 +224,46 @@ public class TeacherLessonTableServiceServiceImpl
     public List<TeacherTimeTable> findTeacherTimetable(Long calendarId,
         String teacherCode)
     {
-        List<TeacherTimeTable> classTimeAndRoom =
-            courseTakeDao.findTeacherTimetable(calendarId, teacherCode);
-        if (CollectionUtil.isNotEmpty(classTimeAndRoom))
-        {
-            List<Long> ids = classTimeAndRoom.stream()
-                .map(TeacherTimeTable::getTeachingClassId)
-                .collect(Collectors.toList());
+        List<TeacherTimeTable > classTimeAndRoom=courseTakeDao.findTeacherTimetable(calendarId,teacherCode);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            List<Long> ids = classTimeAndRoom.stream().map(TeacherTimeTable::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> tableMessages = getTimeById(ids);
-            Map<Long, List<TimeTableMessage>> listMap = new HashMap<>();
-            if (CollectionUtil.isNotEmpty(tableMessages))
-            {
-                List<TimeTableMessage> timeTableMessages = tableMessages
-                    .stream()
-                    .filter(t -> StringUtils.isEmpty(t.getTeacherCode()))
+            Map<Long, List<TimeTableMessage>> listMap=new HashMap<>();
+            if(CollectionUtil.isNotEmpty(tableMessages)){
+                List<TimeTableMessage> timeTableMessages = tableMessages.stream()
                     .filter(vo -> Arrays.asList(vo.getTeacherCode().split(","))
-                        .contains(teacherCode))
+                    .contains(teacherCode))
                     .collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(timeTableMessages))
-                {
-                    listMap = timeTableMessages.stream()
-                        .collect(Collectors
-                            .groupingBy(TimeTableMessage::getTeachingClassId));
+                if(CollectionUtil.isNotEmpty(timeTableMessages)){
+                    listMap = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
                 }
             }
-            for (TeacherTimeTable teacherTimeTable : classTimeAndRoom)
-            {
-                List<TimeTableMessage> timeTableMessages =
-                    listMap.get(teacherTimeTable.getTeachingClassId());
-                String labelName = CultureSerivceInvoker
-                    .getCourseLabelNameById(teacherTimeTable.getCourseLabel());
+            for (TeacherTimeTable teacherTimeTable : classTimeAndRoom) {
+                List<TimeTableMessage> timeTableMessages = listMap.get(teacherTimeTable.getTeachingClassId());
+                String labelName = CultureSerivceInvoker.getCourseLabelNameById(teacherTimeTable.getCourseLabel());
                 teacherTimeTable.setCourseLabelName(labelName);
                 teacherTimeTable.setTimeTableList(timeTableMessages);
-                if (CollectionUtil.isNotEmpty(timeTableMessages))
-                {
-                    Set<String> timeTabel = new HashSet<>();
-                    Set<String> room = new HashSet<>();
-                    for (TimeTableMessage tableMessage : timeTableMessages)
-                    {
-                        String timeTab = tableMessage.getTimeTab();
-                        String roomId = tableMessage.getRoomId();
-                        if (StringUtils.isNotEmpty(timeTab))
-                        {
-                            timeTabel.add(timeTab);
-                        }
-                        if (StringUtils.isNotEmpty(roomId))
-                        {
-                            room.add(roomId);
-                        }
+                if(CollectionUtil.isNotEmpty(timeTableMessages)){
+                    Set<String> timeTabel=new HashSet<>();
+                    Set<String> room=new HashSet<>();
+                    for (TimeTableMessage tableMessage : timeTableMessages) {
+                            String timeTab = tableMessage.getTimeTab();
+                            String roomId = tableMessage.getRoomId();
+                            if(StringUtils.isNotEmpty(timeTab)){
+                                timeTabel.add(timeTab);
+                            }
+                            if(StringUtils.isNotEmpty(roomId)){
+                                room.add(roomId);
+                            }
                     }
                     String classTime = String.join(",", timeTabel);
                     String classRoom = String.join(",", room);
                     teacherTimeTable.setClassTime(classTime);
                     teacherTimeTable.setClassRoom(classRoom);
                 }
-                
+
             }
-            
+
         }
         return classTimeAndRoom;
     }
@@ -879,45 +864,81 @@ public class TeacherLessonTableServiceServiceImpl
     
     public List<TimeTableMessage> getTimeById(List<Long> teachingClassId)
     {
-        List<TimeTableMessage> list = new ArrayList<>();
-        if (CollectionUtil.isNotEmpty(teachingClassId))
-        {
-            List<ClassTeacherDto> classTimeAndRoom =
-                courseTakeDao.findClassTimeAndRoom(teachingClassId);
-            if (CollectionUtil.isNotEmpty(classTimeAndRoom))
-            {
-                for (ClassTeacherDto classTeacherDto : classTimeAndRoom)
-                {
-                    Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                    Integer timeStart = classTeacherDto.getTimeStart();
-                    Integer timeEnd = classTeacherDto.getTimeEnd();
-                    String weekNumber = classTeacherDto.getWeekNumberStr();
-                    String[] str = weekNumber.split(",");
-                    
-                    List<Integer> weeks = Arrays.asList(str)
-                        .stream()
-                        .map(Integer::parseInt)
-                        .collect(Collectors.toList());
-                    List<String> weekNums =
-                        CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
-                    String weekNumStr = weekNums.toString();//周次
-                    String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
-                    String timeStr = weekstr + " " + timeStart + "-" + timeEnd
-                        + "节" + weekNumStr + dictionaryService.query("X_XQ",
-                            classTeacherDto.getCampus());
-                    TimeTableMessage time = new TimeTableMessage();
-                    time.setTeachingClassId(
-                        classTeacherDto.getTeachingClassId());
-                    time.setTimeAndRoom(timeStr);
-                    time.setDayOfWeek(dayOfWeek);
-                    time.setTimeStart(timeStart);
-                    time.setTimeEnd(timeEnd);
-                    time.setTeacherCode(classTeacherDto.getTeacherCode());
-                    time.setTeacherName(classTeacherDto.getTeacherName());
-                    list.add(time);
+        List<TimeTableMessage> list=new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                TimeTableMessage time=new TimeTableMessage();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String teacherCode = classTeacherDto.getTeacherCode();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                String[] str = weekNumber.split(",");
+                
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = findWeek(dayOfWeek);//星期
+                
+                String[] tcodes = teacherCode.split(",");
+                List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
+                String teacherName="";
+                if(teachers != null) {
+                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
                 }
+                
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
+                String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
+                time.setDayOfWeek(dayOfWeek);
+                time.setTimeStart(timeStart);
+                time.setTimeEnd(timeEnd);
+                time.setRoomId(roomID);
+                time.setTeacherCode(teacherCode);
+                time.setTeacherName(teacherName);
+                time.setWeekNum(weekNumStr);
+                time.setWeekstr(weekstr);
+                time.setWeeks(weeks);
+                time.setTimeAndRoom(timeStr);
+                time.setTimeTab(roomStr);
+                time.setCampus(classTeacherDto.getCampus());
+                time.setClassCode(classTeacherDto.getClassCode());
+                time.setCourseCode(classTeacherDto.getCourseCode());
+                time.setCourseName(classTeacherDto.getCourseName());
+                time.setClassName(classTeacherDto.getClassName());
+                time.setTeachingClassId(classTeacherDto.getTeachingClassId());
+                list.add(time);
             }
         }
         return list;
+    }
+    
+    public String findWeek(Integer number){
+        String week="";
+        switch(number){
+            case 1:
+                week="星期一";
+                break;
+            case 2:
+                week="星期二";
+                break;
+            case 3:
+                week="星期三";
+                break;
+            case 4:
+                week="星期四";
+                break;
+            case 5:
+                week="星期五";
+                break;
+            case 6:
+                week="星期六";
+                break;
+            case 7:
+                week="星期日";
+                break;
+        }
+        return week;
     }
 }

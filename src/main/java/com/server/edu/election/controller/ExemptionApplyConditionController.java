@@ -182,8 +182,8 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "根据课程编号和学籍信息查询所有符合的申请条件")
     @PostMapping("/matchedConditions")
     public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
-    		@RequestParam("courseCode") @NotNull String courseCode,
-    		@RequestParam("studentId") @NotNull String studentId) throws Exception{
+    		@RequestParam("courseCode") String courseCode,
+    		@RequestParam("studentId") String studentId){
     	logger.info("matchedConditions by CourseCode and studentId start");
     	
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);

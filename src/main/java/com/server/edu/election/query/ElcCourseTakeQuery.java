@@ -80,6 +80,17 @@ public class ElcCourseTakeQuery
 
     private String nature;
 
+    /**导出功能选中的id集合*/
+    private List<Long> ids;
+
+    public List<Long> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<Long> ids) {
+        this.ids = ids;
+    }
+
     public String getNature() {
         return nature;
     }

@@ -13,7 +13,7 @@ public class PageConditionUtil {
      * @param <T>
      * @return
      */
-    public static <T> PageCondition getPageCondition(T obj){
+    public static <T> PageCondition<T> getPageCondition(T obj){
         PageCondition<T> condition = new PageCondition<>();
         condition.setPageNum_(1);
         condition.setPageSize_(1000);

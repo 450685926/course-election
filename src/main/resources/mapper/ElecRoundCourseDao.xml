@@ -324,7 +324,7 @@
 		cl1.CLASS_TYPE_ AS teachClassType,
 		cl1.NUMBER_ AS maxNumber,
 		cl1.ELC_NUMBER_ AS currentNumber,
-		cl1.REMARK_ AS remark
+		cl1.REMARK_ AS remark,cl1.RESERVE_NUMBER_ AS reserveNumber
 	FROM
 		course_open_t op1
 	JOIN teaching_task_t ta ON op1.ID_ = ta.COURSE_OPEN_ID_

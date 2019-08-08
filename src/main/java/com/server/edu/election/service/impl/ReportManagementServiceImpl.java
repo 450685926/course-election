@@ -16,14 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.TeachingClassTeacher;
-import com.server.edu.election.util.ExcelStoreConfig;
-import com.server.edu.election.util.PageConditionUtil;
-import com.server.edu.election.util.WeekUtil;
-import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -448,15 +440,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 30);
-        PageCondition condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
+        PageCondition<RollBookConditionDto> condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
         PageResult<RollBookList> rollBookList = findRollBookList(condition);
         String path="";
         if (rollBookList != null) {
             List<RollBookList> list = rollBookList.getList();
             if (CollectionUtil.isNotEmpty(list)) {
                 list = SpringUtils.convert(list);
-                @SuppressWarnings("unchecked")
-                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
+                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport<RollBookList>(list,
                         excelStoreConfig.getGraduteRollBookListKey(),
                         excelStoreConfig.getGraduteRollBookListTitle(),
                         cacheDirectory);
@@ -486,39 +477,29 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<RollBookList> result = rollBookList.getResult();
             if (CollectionUtil.isNotEmpty(result))
             {
-                List<Long> list = result.stream()
-                    .map(RollBookList::getTeachingClassId)
-                    .collect(Collectors.toList());
+                List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
                 Map<Long, List<RollBookList>> map = new HashMap<>();
                 //批量查询教师名字
-                List<RollBookList> teahers =
-                    courseTakeDao.findTeacherName(list);
+                List<RollBookList> teahers = courseTakeDao.findTeacherName(list);
                 if (CollectionUtil.isNotEmpty(teahers))
                 {
-                    map = teahers.stream()
-                        .collect(Collectors
-                            .groupingBy(RollBookList::getTeachingClassId));
+                    map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
                 }
                 if (map.size() != 0)
                 {
                     for (RollBookList bookList : result)
                     {
-                        List<RollBookList> rollBookLists =
-                            map.get(bookList.getTeachingClassId());
+                        List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
                         if (CollectionUtil.isNotEmpty(rollBookLists))
                         {
-                            Set<String> collect = rollBookLists.stream()
-                                .map(RollBookList::getTeacherName)
-                                .collect(Collectors.toSet());
+                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
                             String teacherName = String.join(",", collect);
                             bookList.setTeacherName(teacherName);
                         }
 
                     }
                 }
-
             }
-
         }
         return new PageResult<>(rollBookList);
     }

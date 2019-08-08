@@ -754,9 +754,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionStudentCountVo> exemptionCount(PageCondition<ExemptionQuery> page) {
-		Session currentSession = SessionUtils.getCurrentSession();
-        String dptId = currentSession.getCurrentManageDptId();
-        page.getCondition().setProjectId(dptId);
+
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ExemptionStudentCountVo> countResult = applyDao.exemptionCount(page.getCondition());
         
@@ -838,15 +836,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	ids.clear();
         	ids.addAll(optList);
         }
-        applyDao.approvalExemptionApply(ids,status,score,auditor);
+        if (CollectionUtil.isNotEmpty(ids)) {
+        	applyDao.approvalExemptionApply(ids,status,score,auditor);
+		}
         return "common.editSuccess";
     }
 
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
-		Session currentSession = SessionUtils.getCurrentSession();
-		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId(dptId);
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
@@ -1244,14 +1241,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
 			if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
 				//调用成绩接口，查看是否有成绩
-				if (true) {
 					noEffectiveIds.add(applyRecord.getStudentCode());
-				}else{
-					effectiveIds.add(id);
-				}
+			}else{
+				effectiveIds.add(id);
 			}
 		}
-        applyDao.deleteExemptionApply(effectiveIds);
-        return RestResult.success("common.deleteSuccess");
+		if (CollectionUtil.isNotEmpty(effectiveIds)) {
+			applyDao.deleteExemptionApply(effectiveIds);
+		}
+        return RestResult.success("common.deleteSuccess",StringUtils.join(effectiveIds,","));
 	}
 }
