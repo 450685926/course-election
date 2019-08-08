@@ -27,7 +27,8 @@ public class ElecRespose
     
     private Map<String, String> data;
     
-    public ElecRespose() {
+    public ElecRespose()
+    {
         
     }
     
@@ -73,12 +74,16 @@ public class ElecRespose
     {
         this.status = status;
     }
-
+    
     public Map<String, String> getData()
     {
+        if (data == null)
+        {
+            data = new HashMap<>();
+        }
         return data;
     }
-
+    
     public void setData(Map<String, String> data)
     {
         this.data = data;

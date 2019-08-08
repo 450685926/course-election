@@ -9,4 +9,7 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface CourseDao extends Mapper<Course> {
 	List<Course> getPEorEnglishCourses(ElectionConstants electionConstants);
+
+	String getCourseLabelName(Long label);
+
 }

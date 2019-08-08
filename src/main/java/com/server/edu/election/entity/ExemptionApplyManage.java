@@ -3,6 +3,10 @@ package com.server.edu.election.entity;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
+@CodeI18n
 @Table(name = "exemption_apply_manage_t")
 public class ExemptionApplyManage implements Serializable {
     /**
@@ -46,6 +50,7 @@ public class ExemptionApplyManage implements Serializable {
     /**
      * 申请类别
      */
+    @Code2Text(transformer = "X_MXSQLX")
     @Column(name = "APPLY_TYPE_")
     private Integer applyType;
 
@@ -58,6 +63,7 @@ public class ExemptionApplyManage implements Serializable {
     /**
      * 审核结果 0 待审批 1审批通过 2 审批未通过
      */
+    @Code2Text(transformer = "X_SHZT")
     @Column(name = "EXAMINE_RESULT_")
     private Integer examineResult;
 
@@ -90,6 +96,11 @@ public class ExemptionApplyManage implements Serializable {
      */
     @Column(name = "MANAGER_DEPT_ID_")
     private String managerDeptId;
+    /**
+     * 删除状态
+     */
+    @Column(name = "DELETE_STATUS_")
+    private String deleteStatus;
     
     private static final long serialVersionUID = 1L;
 
@@ -316,7 +327,16 @@ public class ExemptionApplyManage implements Serializable {
         return materialIp;
     }
 
-    /**
+    
+    public String getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(String deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
+	/**
      * 设置上传材料地址
      *
      * @param materialIp 上传材料地址

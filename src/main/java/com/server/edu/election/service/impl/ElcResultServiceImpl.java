@@ -4,6 +4,8 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,9 +22,11 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
@@ -31,9 +35,12 @@ import com.server.edu.election.dao.ElcCourseSuggestSwitchDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcInvincibleStdsDao;
 import com.server.edu.election.dao.ElcResultCountDao;
+import com.server.edu.election.dao.ElcScreeningLabelDao;
+import com.server.edu.election.dao.ElcTeachingClassBindDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
+import com.server.edu.election.dao.TeachingClassElectiveRestrictProfessionDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.ClassTeacherDto;
@@ -45,16 +52,22 @@ import com.server.edu.election.entity.ElcAffinityCoursesStds;
 import com.server.edu.election.entity.ElcClassEditAuthority;
 import com.server.edu.election.entity.ElcCourseSuggestSwitch;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcScreeningLabel;
+import com.server.edu.election.entity.ElcTeachingClassBind;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
+import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -69,7 +82,7 @@ import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcResultServiceImpl implements ElcResultService
 {
-    Logger logger = LoggerFactory.getLogger(getClass());
+    Logger logger = LoggerFactory.getLogger(ElcResultServiceImpl.class);
     
     @Autowired
     private TeachingClassDao classDao;
@@ -110,6 +123,21 @@ public class ElcResultServiceImpl implements ElcResultService
     @Value("${task.cache.directory}")
     private String cacheDirectory;
     
+    @Autowired
+    private TeachingClassElectiveRestrictAttrDao attrDao;
+    
+    @Autowired
+    private TeachingClassElectiveRestrictProfessionDao professionDao;
+    
+    @Autowired
+    private ElcScreeningLabelDao elcScreeningLabelDao;
+    
+    @Autowired
+    private ElcTeachingClassBindDao bindDao;
+    
+    @Autowired
+    private TeachingClassDao teachingClassDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -118,9 +146,108 @@ public class ElcResultServiceImpl implements ElcResultService
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
-        	listPage = classDao.listPage(page.getCondition());
-		}else {
-			listPage = classDao.grduateListPage(page.getCondition());
+        	if(Constants.IS.equals(condition.getIsScreening())) {
+        		int mode = TableIndexUtil.getMode(condition.getCalendarId());
+        		condition.setMode(mode);
+        		listPage = classDao.listScreeningPage(condition);
+        	}else {
+        		listPage = classDao.listPage(condition);
+			}
+		}
+		// 添加教室容量
+		Set<String> roomIds = listPage.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
+		List<Classroom> classroomList = ClassroomCacheUtil.getList(roomIds);
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+        	List<TeachingClassTeacher> teacherList = getTeachingTeachers(list);
+            for(TeachingClassVo vo: list) {
+            	if(CollectionUtil.isNotEmpty(teacherList)) {
+                	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
+                	StringBuilder stringBuilder = new StringBuilder();
+                	if(CollectionUtil.isNotEmpty(teachers)) {
+                		for(TeachingClassTeacher teacher:teachers) {
+                			stringBuilder.append(teacher.getTeacherName());
+                			stringBuilder.append("(");
+                			stringBuilder.append(teacher.getTeacherCode());
+                			stringBuilder.append(")");
+                			stringBuilder.append(",");
+                		}
+                		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+                	}
+                	if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
+                		String boy = "无";
+                		if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
+                			boy = vo.getNumberMale().toString();
+                		}
+                		String girl = "无";
+                		if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
+                			girl = vo.getNumberFemale().toString();
+                		}
+                		String proportion = boy +"/" +girl;
+                		vo.setProportion(proportion);
+                		
+                	}
+                	vo.setClassNumberStr("不限");
+                	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+        				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        				if(classroom!=null && classroom.getClassNumber()!=null) {
+        					vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+        				}
+        			}
+            	}
+            }
+            // 处理教学安排（上课时间地点）信息
+            getTimeList(list);
+        }
+        return new PageResult<>(listPage);
+    }
+    
+    // 查找任课教师信息
+	private List<TeachingClassTeacher> getTeachingTeachers(List<TeachingClassVo> list) {
+		List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+		Example teacherExample = new Example(TeachingClassTeacher.class);
+		teacherExample.createCriteria().andIn("teachingClassId", classIds).
+		        andEqualTo("type",Constants.TEACHER_DEFAULT);
+		List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
+		return teacherList;
+	}
+    
+    @Override
+    public PageResult<TeachingClassVo> graduatePage(
+        PageCondition<ElcResultQuery> page)
+    {
+        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+        ElcResultQuery condition = page.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+				&& !session.isAdmin()
+				&& session.isAcdemicDean()) {
+			String faculty = session.getFaculty();
+			condition.setFaculty(faculty);
+		}
+		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
+        
+		// 添加教室容量
+		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
+		
+		Set<String> set = new HashSet<String>(roomIds);
+		roomIds.clear();
+		roomIds.addAll(set);
+		
+		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
+		List<Classroom> classroomList = queryAllClassRoom.getData();
+		
+		for (TeachingClassVo teachingClassVo : listPage) {
+			if (StringUtils.isBlank(teachingClassVo.getRoomId()) || 
+					StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
+				teachingClassVo.setClassNumberStr("不限");
+			}else {
+				for (Classroom classroom : classroomList) {
+					if (classroom != null && StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
+						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+					}
+				}
+			}
 		}
         
         List<TeachingClassVo> list = listPage.getResult();
@@ -225,13 +352,32 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
     public void adjustClassNumber(TeachingClassVo teachingClassVo)
     {
+    	int elcNumber = teachingClassVo.getElcNumber().intValue(); // 选课人数
+    	int number = teachingClassVo.getNumber().intValue();       // 人数上限
+    	
+    	if (StringUtils.equals(teachingClassVo.getClassNumberStr(), "不限")) {
+    		if (number < elcNumber) {
+    			throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error"));
+    		}
+		}else {
+			int classNumber = Integer.parseInt(teachingClassVo.getClassNumberStr());  // 教室容量
+			boolean flag = elcNumber <= number && number <= classNumber;
+			if (!flag) {
+				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
+			}
+		}
+    	
     	Session session = SessionUtils.getCurrentSession();
     	Example example = new Example(ElcClassEditAuthority.class);
     	Example.Criteria criteria = example.createCriteria();
     	criteria.andEqualTo("calendarId", teachingClassVo.getCalendarId());
     	criteria.andEqualTo("status", Constants.ZERO);
     	ElcClassEditAuthority editAuthority =elcClassEditAuthorityDao.selectOneByExample(example);
-    	if(session.isAcdemicDean()&&editAuthority!=null) {
+    	
+    	if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+    			&& !session.isAdmin() 
+    			&& session.isAcdemicDean()
+    			&& editAuthority!=null) {
     		throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority")); 
     	}
         TeachingClass record = new TeachingClass();
@@ -598,31 +744,42 @@ public class ElcResultServiceImpl implements ElcResultService
 	public RestResult<String> exportOfNonSelectedCourse(ElcResultQuery condition) {
 		String path="";
         try {
-        	 PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
-             pageCondition.setCondition(condition);
-             pageCondition.setPageSize_(100);
-             int pageNum = 0;
-             pageCondition.setPageNum_(pageNum);
-             List<Student4Elc> list = new ArrayList<>();
-             while (true)
-             {
-                 pageNum++;
-                 pageCondition.setPageNum_(pageNum);
-                 PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
-                 
-                 list.addAll(studentList.getList());
+        	condition.setGrade(StringUtils.equalsIgnoreCase("全部", condition.getGrade()) ? "" : condition.getGrade());
+        	condition.setFaculty(StringUtils.equalsIgnoreCase("null", condition.getFaculty()) ? "" : condition.getFaculty());
+        	condition.setTrainingLevel(StringUtils.equalsIgnoreCase("null", condition.getTrainingLevel()) ? "" : condition.getTrainingLevel());
+        	condition.setTrainingCategory(StringUtils.equalsIgnoreCase("null", condition.getTrainingCategory()) ? "" : condition.getTrainingCategory());
+        	condition.setDegreeType(StringUtils.equalsIgnoreCase("null", condition.getDegreeType()) ? "" : condition.getDegreeType());
+        	condition.setFormLearning(StringUtils.equalsIgnoreCase("null", condition.getFormLearning()) ? "" : condition.getFormLearning());
+        	condition.setEnrolSeason(StringUtils.equalsIgnoreCase("null", condition.getEnrolSeason()) ? "" : condition.getEnrolSeason());
+        	condition.setProfession(StringUtils.equalsIgnoreCase("null", condition.getProfession()) ? "" : condition.getProfession());
+        	PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
+            pageCondition.setCondition(condition);
+            pageCondition.setPageSize_(100);
+            int pageNum = 0;
+            pageCondition.setPageNum_(pageNum);
+            List<Student4Elc> list = new ArrayList<Student4Elc>();
+            while (true)
+            {
+                pageNum++;
+                pageCondition.setPageNum_(pageNum);
+                PageResult<Student4Elc> studentList = getStudentPage(pageCondition);
+                
+                
+                list.addAll(studentList.getList());
 
-                 if (studentList.getTotal_() <= list.size())
-                 {
-                     break;
-                 }
-             }
-             list = SpringUtils.convert(list);
+                if (studentList.getTotal_() <= list.size())
+                {
+                    break;
+                }
+            }
+            logger.info(list.size() + "convert   dictionary   start");
+            list = SpringUtils.convert(list);
+            logger.info("convert   dictionary   end");
         	ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getAllNonSelectedCourseStudentKey(),
         			excelStoreConfig.getAllNonSelectedCourseStudentTitle(),
         			cacheDirectory);
-        	path = excelExport.exportExcelToCacheDirectory("研究生为选课学生名单");
+        	path = excelExport.exportExcelToCacheDirectory("研究生未选课学生名单");
         }catch (Exception e){
             return RestResult.failData("minor.export.fail");
         }
@@ -630,8 +787,114 @@ public class ElcResultServiceImpl implements ElcResultService
 	}
 	
 	@Override
+	@Transactional
 	public void saveElcLimit(TeachingClassVo teachingClassVo) {
-		
+		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
+		attr.setTeachingClassId(teachingClassVo.getId());
+		attr.setTrainingLevel(teachingClassVo.getLimitTrainingLevel());
+		attr.setTrainingCategory(teachingClassVo.getLimitTrainingCategory());
+		attr.setFaculty(teachingClassVo.getLimitFaculty());
+		attr.setIsDivsex(teachingClassVo.getLimitIsDivsex());
+		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+		if(teachingClassAttr!=null) {
+			attr.setUpdatedAt(new Date());
+			attrDao.updateByExampleSelective(attr, example);
+		}else {
+			attr.setCreatedAt(new Date());
+			attrDao.insertSelective(attr);
+		}
+		TeachingClassElectiveRestrictProfession profession = new TeachingClassElectiveRestrictProfession();
+		profession.setTeachingClassId(teachingClassVo.getId());
+		profession.setGrade(teachingClassVo.getLimitGrade());
+		profession.setProfession(teachingClassVo.getLimitProfession());
+		profession.setDirectionCode(teachingClassVo.getLimitDirectionCode());
+		Example pExample = new Example(TeachingClassElectiveRestrictProfession.class);
+		Example.Criteria pEriteria = pExample.createCriteria();
+		pEriteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+		TeachingClassElectiveRestrictProfession elcProfession = professionDao.selectOneByExample(pExample);
+		if(elcProfession!=null) {
+			profession.setUpdatedAt(new Date());
+			professionDao.updateByExample(profession, pExample);
+		}else {
+			profession.setCreatedAt(new Date());
+			professionDao.insertSelective(profession);
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void saveProportion(TeachingClassVo teachingClassVo) {
+		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
+		attr.setTeachingClassId(teachingClassVo.getId());
+		attr.setNumberMale(teachingClassVo.getNumberMale());
+		attr.setNumberFemale(teachingClassVo.getNumberFemale());
+		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+		if(teachingClassAttr!=null) {
+			attr.setUpdatedAt(new Date());
+			attrDao.updateByExampleSelective(attr, example);
+		}else {
+			attr.setCreatedAt(new Date());
+			attrDao.insertSelective(attr);
+		}
+	}
+	
+	@Override
+	@Transactional
+	public void saveScreeningLabel(ElcScreeningLabel elcScreeningLabel) {
+		Example example = new Example(ElcScreeningLabel.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("calendarId", elcScreeningLabel.getCalendarId());
+		criteria.andEqualTo("labelName", elcScreeningLabel.getLabelName());
+		ElcScreeningLabel label = elcScreeningLabelDao.selectOneByExample(example);
+		if(label!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcScreeningLabel")));
+		}
+		elcScreeningLabelDao.insert(elcScreeningLabel);
+	}
+	
+	@Override
+	@Transactional
+	public void updateScreeningLabel(ElcScreeningLabel elcScreeningLabel) {
+		if(elcScreeningLabel.getId() ==null) {
+			 throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+		}
+		elcScreeningLabelDao.updateByPrimaryKeySelective(elcScreeningLabel);
+	}
+	@Override
+	@Transactional
+	public void saveClassBind(ElcTeachingClassBind elcTeachingClassBind) {
+		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
+		if(bind!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcTeachingClassBind")));
+		}
+		bindDao.insert(bind);
+	}
+	@Override
+	@Transactional
+	public void updateClassBind(ElcTeachingClassBind elcTeachingClassBind) {
+		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
+		if(bind!=null) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+                    I18nUtil.getMsg("election.elcTeachingClassBind")));
+		}
+		bindDao.updateByPrimaryKey(elcTeachingClassBind);
+	}
+	
+	@Override
+	@Transactional
+	public void updateClassRemark(Long id, String remark) {
+		TeachingClass teachingClass =new TeachingClass();
+		teachingClass.setId(id);
+		teachingClass.setRemark(remark);
+		teachingClassDao.updateByPrimaryKeySelective(teachingClass);
 	}
 	
 }

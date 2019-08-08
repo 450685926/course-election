@@ -21,7 +21,7 @@ public class Student4Elc
     private String name;
     
     @Code2Text(transformer = "G_XBIE")
-    private Integer sex;
+    private String sex;
     
     /**学院*/
     @Code2Text(DictTypeEnum.X_YX)
@@ -52,6 +52,7 @@ public class Student4Elc
     private String enrolSeason;
     
     /**培养类别*/
+    @Code2Text(DictTypeEnum.X_PYLB)
     private String trainingCategory;
     
     /**学位类型*/
@@ -212,12 +213,12 @@ public class Student4Elc
         this.name = name;
     }
     
-    public Integer getSex()
+    public String getSex()
     {
         return sex;
     }
     
-    public void setSex(Integer sex)
+    public void setSex(String sex)
     {
         this.sex = sex;
     }

@@ -115,9 +115,14 @@ public class ElcResultQuery
     private String trainingLevel;
     
     /**
-     * 教室编号
+     * 教师工号
      */
     private String teacherCode;
+    
+    /**
+     * 教师名称
+     */
+    private String teacherName;
     
     private Integer actualAndUpper;
     
@@ -137,6 +142,66 @@ public class ElcResultQuery
     
     private Integer isHaveLimit;
     
+    private Integer minFirstTurnNum;
+    
+    private Integer maxFirstTurnNum;
+    
+    private Integer minSecondTurnNum;
+    
+    private Integer maxSecondTurnNum;
+    
+    private Integer isScreening;
+    
+    private Integer mode;
+    
+	public Integer getMode() {
+		return mode;
+	}
+
+	public void setMode(Integer mode) {
+		this.mode = mode;
+	}
+
+	public Integer getIsScreening() {
+		return isScreening;
+	}
+
+	public void setIsScreening(Integer isScreening) {
+		this.isScreening = isScreening;
+	}
+
+	public Integer getMinFirstTurnNum() {
+		return minFirstTurnNum;
+	}
+
+	public void setMinFirstTurnNum(Integer minFirstTurnNum) {
+		this.minFirstTurnNum = minFirstTurnNum;
+	}
+
+	public Integer getMaxFirstTurnNum() {
+		return maxFirstTurnNum;
+	}
+
+	public void setMaxFirstTurnNum(Integer maxFirstTurnNum) {
+		this.maxFirstTurnNum = maxFirstTurnNum;
+	}
+
+	public Integer getMinSecondTurnNum() {
+		return minSecondTurnNum;
+	}
+
+	public void setMinSecondTurnNum(Integer minSecondTurnNum) {
+		this.minSecondTurnNum = minSecondTurnNum;
+	}
+
+	public Integer getMaxSecondTurnNum() {
+		return maxSecondTurnNum;
+	}
+
+	public void setMaxSecondTurnNum(Integer maxSecondTurnNum) {
+		this.maxSecondTurnNum = maxSecondTurnNum;
+	}
+
 	public Integer getIsHaveLimit() {
 		return isHaveLimit;
 	}
@@ -421,6 +486,14 @@ public class ElcResultQuery
 
 	public void setStudentIds(List<String> studentIds) {
 		this.studentIds = studentIds;
+	}
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
 	}
 	
 	

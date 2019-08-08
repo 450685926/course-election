@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
-import com.server.edu.election.studentelec.preload.CourseGradeLoad;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -55,7 +56,7 @@ public class TeachClassCacheService extends AbstractCacheService
     private ElcCourseTakeDao courseTakeDao;
     
     @Autowired
-    private CourseGradeLoad gradeLoad;
+    private BKCourseGradeLoad gradeLoad;
     
     @Autowired
     private RoundCacheService roundCacheService;
@@ -141,10 +142,12 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setTeachClassType(lesson.getTeachClassType());
             tc.setMaxNumber(lesson.getMaxNumber());
             tc.setCurrentNumber(lesson.getCurrentNumber());
+            tc.setRemark(lesson.getRemark());
             tc.setTimeTableList(getTimeById(teachingClassId));
             tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
             tc.setFaculty(lesson.getFaculty());
+            tc.setCalendarId(lesson.getCalendarId());
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
@@ -178,7 +181,7 @@ public class TeachClassCacheService extends AbstractCacheService
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
-                String weekstr = findWeek(dayOfWeek);//星期
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
                 time.setTimeId(timeId);
                 time.setTimeAndRoom(timeStr);
@@ -188,41 +191,7 @@ public class TeachClassCacheService extends AbstractCacheService
         }
         return list;
     }
-    /**
-     *@Description: 星期
-     *@Param:
-     *@return:
-     *@Author: bear
-     *@date: 2019/2/15 13:59
-     */
-  	private String findWeek(Integer number){
-         String week="";
-         switch(number){
-             case 1:
-                 week="星期一";
-                 break;
-             case 2:
-                 week="星期二";
-                 break;
-             case 3:
-                 week="星期三";
-                 break;
-             case 4:
-                 week="星期四";
-                 break;
-             case 5:
-                 week="星期五";
-                 break;
-             case 6:
-                 week="星期六";
-                 break;
-             case 7:
-                 week="星期日";
-                 break;
-         }
-         return week;
-     }
-    
+
     /**
      * 
      * 通过轮次与课程代码获取教学班信息
@@ -260,9 +229,45 @@ public class TeachClassCacheService extends AbstractCacheService
     }
     
     /**
+     * 
+     * 通过学年学期与课程代码获取教学班信息
+     * @param calendarId
+     * @param courseCode
+     * @return
+     */
+    public List<TeachingClassCache> getTeachClasssBycalendarId(Long calendarId,
+    		String courseCode)
+    {
+    	List<TeachingClassCache> lessons = new ArrayList<>();
+    	
+    	List<Long> teachClassIds =
+    			this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
+    	if (CollectionUtil.isEmpty(teachClassIds))
+    	{
+    		return lessons;
+    	}
+    	
+    	if (CollectionUtil.isNotEmpty(teachClassIds))
+    	{
+    		Collections.sort(teachClassIds);
+    		
+    		List<String> keys = teachClassIds.stream()
+    				.map(String::valueOf)
+    				.collect(Collectors.toList());
+    		
+    		HashOperations<String, String, TeachingClassCache> hash =
+    				opsTeachClass();
+    		lessons = hash.multiGet(Keys.getClassKey(), keys);
+    		// 过滤null
+    		lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    	}
+    	return lessons;
+    }
+    
+    /**
      * 获取指定教学班信息
      * 
-     * @param calendarId 校历
+     * @param roundId 轮次ID
      * @param teachClassId 教学班ID
      * @return
      */
@@ -280,6 +285,40 @@ public class TeachClassCacheService extends AbstractCacheService
         List<Long> teachClassIds =
             this.roundCacheService.getTeachClassIds(roundId, courseCode);
         
+        if (CollectionUtil.isEmpty(teachClassIds)
+            || !teachClassIds.contains(teachClassId))
+        {
+            return null;
+        }
+        HashOperations<String, String, TeachingClassCache> hash =
+            opsTeachClass();
+        
+        TeachingClassCache lesson =
+            hash.get(Keys.getClassKey(), teachClassId.toString());
+        return lesson;
+    }
+    
+    /**
+     * 获取指定教学班信息
+     * 
+     * @param calendarId 校历
+     * @param teachClassId 教学班ID
+     * @return
+     */
+    public TeachingClassCache getTeachClassByCalendarId(Long calendarId, String courseCode,
+        Long teachClassId)
+    {
+        if (calendarId == null || StringUtils.isBlank(courseCode)
+            || teachClassId == null)
+        {
+            logger.warn(
+                "---- calendarId, courseCode and teachClassId can not be null ----");
+            return null;
+        }
+        
+        List<Long> teachClassIds =
+            this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
+                                   
         if (CollectionUtil.isEmpty(teachClassIds)
             || !teachClassIds.contains(teachClassId))
         {

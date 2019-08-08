@@ -3,20 +3,22 @@ package com.server.edu.election.controller;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
 import com.server.edu.election.vo.RetakeCourseCountVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -32,18 +34,19 @@ public class RetakeCourseController {
     @Autowired
     private RetakeCourseService retakeCourseService;
 
+    private static Logger LOG = LoggerFactory.getLogger("com.server.edu.election.Timer.LogToDBTimer");
+
     @ApiOperation(value = "设定重修选课的时间和规则")
     @PutMapping("/setRetakeRules")
-    public RestResult setRetakeRules(@RequestBody ElcRetakeSetVo elcRetakeSetVo) {
+    public RestResult setRetakeRules(@RequestBody @Valid ElcRetakeSetVo elcRetakeSetVo) {
         retakeCourseService.setRetakeRules(elcRetakeSetVo);
         return RestResult.success();
     }
 
     @ApiOperation(value = "查询重修选课开关")
     @GetMapping("/getRetakeRule")
-    public RestResult<ElcRetakeSetVo> getRetakeRule(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
-        ElcRetakeSetVo elcRetakeSetVo = retakeCourseService.getRetakeRul(calendarId, projectId);
-        return RestResult.successData(elcRetakeSetVo);
+    public RestResult<Boolean> getRetakeRule(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
+        return RestResult.successData(retakeCourseService.getRetakeRule(calendarId, projectId));
     }
 
     @ApiOperation(value = "查询重修选课门数上限列表")
@@ -56,39 +59,37 @@ public class RetakeCourseController {
 
     @ApiOperation(value = "添加修改选课门数上限")
     @PostMapping("/updateRetakeCourseCount")
-    public RestResult updateRetakeCourseCount(@RequestBody RetakeCourseCountVo retakeCourseCountVo) {
+    public RestResult updateRetakeCourseCount(@RequestBody @Valid RetakeCourseCountVo retakeCourseCountVo) {
+        LOG.info("updateRetakeCourseCount.start");
         retakeCourseService.updateRetakeCourseCount(retakeCourseCountVo);
         return RestResult.success();
     }
 
     @ApiOperation(value = "删除选课门数上限")
-    @DeleteMapping("/deleteRetakeCourseCount")
-    public RestResult deleteRetakeCourseCount(@RequestParam("retakeCourseCountId") Long retakeCourseCountId) {
-        retakeCourseService.deleteRetakeCourseCount(retakeCourseCountId);
+    @PostMapping("/deleteRetakeCourseCount")
+    public RestResult deleteRetakeCourseCount(@RequestBody List<Long> retakeCourseCountIds) {
+        retakeCourseService.deleteRetakeCourseCount(retakeCourseCountIds);
         return RestResult.success();
     }
 
     @ApiOperation(value = "学生个人不及格课程列表")
     @GetMapping("/failedCourseList")
     public RestResult<List<FailedCourseVo>> failedCourseList(@RequestParam("calendarId") Long calendarId) {
-        Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
-        List<FailedCourseVo> list = retakeCourseService.failedCourseList(uid, calendarId);
+        List<FailedCourseVo> list = retakeCourseService.failedCourseList(calendarId);
         return RestResult.successData(list);
     }
 
     /**
      * 研究生重修可选课程列表
      *
-     * @param calendarId
-     * @param keyWord
+     * @param condition
      * @return
      */
     @ApiOperation(value = "重修课程列表")
-    @GetMapping("/findRebuildCourseList")
-    public RestResult<List<RebuildCourseVo>> findRebuildCourseList(@RequestParam("calendarId") Long calendarId, @RequestParam("keyWord") String keyWord) {
-        List<RebuildCourseVo> list = retakeCourseService.findRebuildCourseList(calendarId, keyWord);
-        return RestResult.successData(list);
+    @PostMapping("/findRebuildCourseList")
+    public RestResult<PageResult<RebuildCourseVo>> findRebuildCourseList(@RequestBody PageCondition<RebuildCourseDto> condition) {
+        PageResult<RebuildCourseVo> rebuildCourseList = retakeCourseService.findRebuildCourseList(condition);
+        return RestResult.successData(rebuildCourseList);
     }
 
     /**
@@ -100,9 +101,7 @@ public class RetakeCourseController {
     @ApiOperation(value = "研究生重修选课、退课")
     @PostMapping("/updateRebuildCourse")
     public RestResult updateRebuildCourse(@RequestBody RebuildCourseVo rebuildCourseVo) {
-        Session currentSession = SessionUtils.getCurrentSession();
-        String uid = currentSession.getUid();
-        retakeCourseService.updateRebuildCourse(uid, rebuildCourseVo);
+        retakeCourseService.updateRebuildCourse(rebuildCourseVo);
         return RestResult.success();
     }
 

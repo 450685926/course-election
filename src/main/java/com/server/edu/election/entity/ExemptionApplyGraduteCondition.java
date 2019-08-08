@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.springframework.data.annotation.Transient;
-
 @Table(name = "exemption_apply_graduate_condition_t")
 public class ExemptionApplyGraduteCondition  implements Serializable{
 	private static final long serialVersionUID = 1L;
@@ -54,10 +52,10 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
     private String trainingCategorys;
     
     /**
-     * 学位类别(逗号分隔，字典表X_XWLB)
+     * 学位类型(逗号分隔，字典表X_XWLX)
      */
-    @Column(name = "DEGREE_CATEGORYS_")
-    private String degreeCategorys;
+    @Column(name = "DEGREE_TYPES_")
+    private String degreeTypes;
     
     /**
      * 条件内容
@@ -89,6 +87,11 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
     @Column(name = "MANAGER_DEPT_ID_")
     private String projId;
     
+    /**
+     * 是否删除（1-已删除；0-未删除）
+     */
+    @Column(name = "DELETE_STATUS_")
+    private Integer deleteStatus;
 
 
 	public Long getId() {
@@ -139,12 +142,12 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
 		this.trainingCategorys = trainingCategorys;
 	}
 
-	public String getDegreeCategorys() {
-		return degreeCategorys;
+	public String getDegreeTypes() {
+		return degreeTypes;
 	}
 
-	public void setDegreeCategorys(String degreeCategorys) {
-		this.degreeCategorys = degreeCategorys;
+	public void setDegreeTypes(String degreeTypes) {
+		this.degreeTypes = degreeTypes;
 	}
 
 	public String getConditions() {
@@ -187,4 +190,38 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
 		this.projId = projId;
 	}
 
+	public Integer getDeleteStatus() {
+		return deleteStatus;
+	}
+
+	public void setDeleteStatus(Integer deleteStatus) {
+		this.deleteStatus = deleteStatus;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((courseCode == null) ? 0 : courseCode.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ExemptionApplyGraduteCondition other = (ExemptionApplyGraduteCondition) obj;
+		if (courseCode == null) {
+			if (other.courseCode != null)
+				return false;
+		} else if (!courseCode.equals(other.courseCode))
+			return false;
+		return true;
+	}
+
+	
 }

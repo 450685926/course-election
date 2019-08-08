@@ -1,6 +1,7 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +58,13 @@ public class RedisQueueService extends AbstractElecQueue
         try
         {
             RedisList<ElecRequest> queue = getQueue(group);
-            ElecRequest take = queue.take();
-            if (null != take)
+            // redis在集群模式下不能使用take，会柱塞其他的连接，这时修改为poll
+            ElecRequest take = queue.poll();
+            if (null == take)
+            {
+                TimeUnit.SECONDS.sleep(1);
+            }
+            else
             {
                 super.execute(() -> {
                     comsumer.consume(take);

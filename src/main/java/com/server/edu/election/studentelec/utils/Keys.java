@@ -29,6 +29,9 @@ public class Keys
     /**轮次-课程 elec-roundCourse-[roundid] */
     private static final String ROUND_COURSE = "elec-roundCourse-%s";
     
+    /** 研究生管理员代理选课存储学年学期课程 elec-calendarId-%s-course*/
+    private static final String CALENDAR_COURSE = "elec-calendarId-%s-course";
+    
     /** 轮次的规则信息 elec-roundRule-[rountid] */
     private static final String ROUND_RULE = "elec-roundRule-%s";
     
@@ -39,7 +42,7 @@ public class Keys
     private static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
     
     /**替代课程 elec-projectId-calendarId-%s-replaceCourse*/
-    private static final String REPLACE_COURSE = "elec-projectId-%s-calendarId-%s-replaceCourse";
+    private static final String REPLACE_COURSE = "elec-studentId-%s-replaceCourse";
     
     /**轮次上一学期 elec-roundPreSemester-%s */
     private static final String ROUND_PRESEMESTER = "elec-roundPreSemester-%s";
@@ -80,6 +83,12 @@ public class Keys
         return String.format(Keys.ROUND_COURSE, roundId);
     }
     
+    /**学年学期课程key*/
+    public static String getCalendarCourseKey(Long calendarId)
+    {
+    	return String.format(Keys.CALENDAR_COURSE, calendarId);
+    }
+    
     /**教学班key*/
     public static String getClassKey()
     {
@@ -108,8 +117,8 @@ public class Keys
         return String.format(Keys.ROUND_PRESEMESTER, roundId);
     }
     
-    public static String getReplaceCourseKey(String projectId,Long calendarId)
+    public static String getReplaceCourseKey(String studentId)
     {
-        return String.format(Keys.REPLACE_COURSE, projectId,calendarId);
+        return String.format(Keys.REPLACE_COURSE, studentId);
     }
 }

@@ -8,12 +8,13 @@
     <result column="TRAINING_LEVELS_" jdbcType="VARCHAR" property="trainingLevels" />
     <result column="FORM_LEARNINGS_" jdbcType="VARCHAR" property="formLearnings" />
     <result column="TRAINING_CATEGORYS_" jdbcType="VARCHAR" property="trainingCategorys" />
-    <result column="DEGREE_CATEGORYS_" jdbcType="VARCHAR" property="degreeCategorys" />
+    <result column="DEGREE_TYPES_" jdbcType="VARCHAR" property="degreeTypes" />
     <result column="CONDITIONS_" jdbcType="VARCHAR" property="conditions" />
     <result column="CREATE_BY_" jdbcType="VARCHAR" property="createBy" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="projId" />
+    <result column="DELETE_STATUS_" jdbcType="INTEGER" property="deleteStatus" />
   </resultMap>
   
   <resultMap id="DtoBaseResultMap" type="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" extends="BaseResultMap"></resultMap>
@@ -21,7 +22,7 @@
   <select id="listPage" parameterType="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" resultMap="BaseResultMap">
   	select * from exemption_apply_graduate_condition_t 
   	<where>
-  		MANAGER_DEPT_ID_ = '2'
+  		MANAGER_DEPT_ID_ = '2' and DELETE_STATUS_ = 0
    		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingLevels)">
   			and TRAINING_LEVELS_ like concat('%',#{condition.trainingLevels},'%')
   		</if>
@@ -31,11 +32,33 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingCategorys)">
   			and TRAINING_CATEGORYS_ like concat('%',#{condition.trainingCategorys},'%')
   		</if>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.degreeCategorys)">
-  			and DEGREE_CATEGORYS_ like concat('%',#{condition.degreeCategorys},'%')
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.degreeTypes)">
+  			and DEGREE_TYPES_ like concat('%',#{condition.degreeTypes},'%')
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.keyWord)">
   			and (COURSE_CODE_ like concat('%',#{condition.keyWord},'%') or COURSE_NAME_ like concat('%',#{condition.keyWord},'%'))
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="queryApplyConditionByCourseCodeAndStudentId" parameterType="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" resultMap="BaseResultMap">
+  	select ID_,CONDITIONS_ from exemption_apply_graduate_condition_t 
+  	<where>
+  		MANAGER_DEPT_ID_ = '2' and DELETE_STATUS_ = 0
+   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingLevels)">
+  			and TRAINING_LEVELS_ like concat('%',#{condition.trainingLevels},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.formLearnings)">
+  			and FORM_LEARNINGS_ like concat('%',#{condition.formLearnings},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingCategorys)">
+  			and TRAINING_CATEGORYS_ like concat('%',#{condition.trainingCategorys},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.degreeTypes)">
+  			and DEGREE_TYPES_ like concat('%',#{condition.degreeTypes},'%')
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.courseCode)">
+  			and COURSE_CODE_ = #{condition.courseCode}
   		</if>
   	</where>
   </select>

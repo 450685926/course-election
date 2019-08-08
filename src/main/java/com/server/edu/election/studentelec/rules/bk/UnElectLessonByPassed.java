@@ -5,24 +5,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
-import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.PlanCourse;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
-import com.server.edu.election.studentelec.service.cache.RoundCacheService;
-import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -30,67 +26,79 @@ import com.server.edu.util.CollectionUtil;
  * UnElectLessonByPassed
  */
 @Component("UnElectLessonByPassed")
-public class UnElectLessonByPassed extends AbstractElecRuleExceutor
+public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
 {
     @Override
     public int getOrder()
     {
         return RulePriority.FIFTH.ordinal();
     }
-    @Autowired
-    private RoundCacheService roundCacheService;
+    
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
-		RoundDataProvider bean = SpringUtils.getBean(RoundDataProvider.class);
-		ElectionRounds round = bean.getRound(context.getRequest().getRoundId());
-		List<ElcNoGradCouSubs> noGradCouSubsCourses = ElecContextUtil.getNoGradCouSubs(round.getProjectId(),
-				round.getCalendarId());
+        /** 学生信息 */
+        StudentInfoCache studentInfo = context.getStudentInfo();
+        List<ElcNoGradCouSubsVo> noGradCouSubsCourses =
+            ElecContextUtil.getNoGradCouSubs(studentInfo.getStudentId());
         /** 已完成课程 */
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         /**培养计划课程 */
-        Set<PlanCourse> planCourses =context.getPlanCourses();
+        Set<PlanCourse> planCourses = context.getPlanCourses();
         /**学生信息 */
-        StudentInfoCache studentInfo = context.getStudentInfo();
         long count = 0;
         if (courseClass.getTeachClassId() != null
             && CollectionUtil.isNotEmpty(completedCourses))
         {
-            if (StringUtils.isNotBlank(courseClass.getCourseCode()))
+            String courseCode = courseClass.getCourseCode();
+            if (StringUtils.isNotBlank(courseCode))
             {
                 //还要判断是否优替代的通过课程todo
                 List<CompletedCourse> list = completedCourses.stream()
-                    .filter(temp -> courseClass.getCourseCode()
-                        .equals(temp.getCourseCode()))
+                    .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
                     .collect(Collectors.toList());
-                if(studentInfo.isGraduate()) {
-                    Long roundId = context.getRequest().getRoundId();
-                    Long calendarId = roundCacheService.getRound(roundId).getCalendarId();
-                    ElcNoGradCouSubs  elcNoGradCouSubs=  noGradCouSubsCourses.stream()
-                    		.filter(c->calendarId.equals(c.getCalendarId()))
-                    		.filter(c->courseClass.getCourseCode().equals(c.getSubCourseId()))
-                    		.findFirst().orElse(null);
-                    if(elcNoGradCouSubs!=null) {
-                        count = completedCourses.stream().filter(c->elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode())).count();
+                if (studentInfo.isGraduate())
+                {
+                    ElcNoGradCouSubs elcNoGradCouSubs =
+                        noGradCouSubsCourses.stream()
+                            .filter(c -> courseCode.equals(c.getSubCourseId()))
+                            .findFirst()
+                            .orElse(null);
+                    if (elcNoGradCouSubs != null)
+                    {
+                        count = completedCourses.stream()
+                            .filter(c -> elcNoGradCouSubs.getOrigsCourseId()
+                                .equals(c.getCourse().getCourseCode()))
+                            .count();
                     }
-                }else {
-                	if(CollectionUtil.isNotEmpty(planCourses)) {
-                    	List<PlanCourse> subCourseCodes = planCourses.stream()
-                    			.filter(c->StringUtils.isNotBlank(c.getSubCourseCode()))
-                    			.collect(Collectors.toList());
-                    	if(CollectionUtil.isNotEmpty(subCourseCodes)) {
-                    		 List<String> subCourses = subCourseCodes.stream()
-                    				 .filter(c->courseClass.getCourseCode().equals(c.getSubCourseCode()))
-                    				 .map(PlanCourse::getCourseCode)
-                    				 .collect(Collectors.toList());
-                    		 if(CollectionUtil.isNotEmpty(subCourses)) {
-                    			 count = completedCourses.stream().filter(c->subCourses.contains(c.getCourseCode())).count();
-                    		 }
-                    	}
-                	}
-				}
-                if (CollectionUtil.isEmpty(list)||count ==0)
+                }
+                else
+                {
+                    if (CollectionUtil.isNotEmpty(planCourses))
+                    {
+                        List<PlanCourse> subCourseCodes = planCourses.stream()
+                            .filter(c -> StringUtils
+                                .isNotBlank(c.getSubCourseCode()))
+                            .collect(Collectors.toList());
+                        if (CollectionUtil.isNotEmpty(subCourseCodes))
+                        {
+                            List<String> subCourses = subCourseCodes.stream()
+                                .filter(c -> courseCode
+                                    .equals(c.getSubCourseCode()))
+                                .map(UnElectLessonByPassed::courseCode)
+                                .collect(Collectors.toList());
+                            if (CollectionUtil.isNotEmpty(subCourses))
+                            {
+                                count = completedCourses.stream()
+                                    .filter(c -> subCourses
+                                        .contains(c.getCourse().getCourseCode()))
+                                    .count();
+                            }
+                        }
+                    }
+                }
+                if (CollectionUtil.isEmpty(list) || count == 0)
                 {
                     return true;
                 }
@@ -105,4 +113,8 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutor
         return true;
     }
     
+    static String courseCode(PlanCourse planc)
+    {
+        return planc.getCourse().getCourseCode();
+    }
 }

@@ -8,18 +8,19 @@
     <result column="TRAINING_LEVELS_" jdbcType="VARCHAR" property="trainingLevels" />
     <result column="FORM_LEARNINGS_" jdbcType="VARCHAR" property="formLearnings" />
     <result column="TRAINING_CATEGORYS_" jdbcType="VARCHAR" property="trainingCategorys" />
-    <result column="DEGREE_CATEGORYS_" jdbcType="VARCHAR" property="degreeCategorys" />
+    <result column="DEGREE_TYPES_" jdbcType="VARCHAR" property="degreeTypes" />
     <result column="ENROL_SEASON_" jdbcType="VARCHAR" property="enrolSeason" />
     <result column="APPLY_OPEN_" jdbcType="INTEGER" property="applyOpen" />
     <result column="AUDIT_OPEN_" jdbcType="INTEGER" property="auditOpen" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="PROJ_ID_" jdbcType="VARCHAR" property="projId" />
+    <result column="DELETE_STATUS_" jdbcType="INTEGER" property="deleteStatus" />
   </resultMap>
   
   <select id="listPage" parameterType="com.server.edu.election.entity.ExemptionApplyAuditSwitch" resultMap="BaseResultMap">
   	select * from exemption_apply_audit_switch_t 
   	<where>
-  		PROJ_ID_ = '2'
+  		PROJ_ID_ = '2' and DELETE_STATUS_ = 0
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.grades)">
   			and GRADES_ like concat('%',#{condition.grades},'%')
   		</if>
@@ -32,8 +33,8 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingCategorys)">
   			and TRAINING_CATEGORYS_ like concat('%',#{condition.trainingCategorys},'%')
   		</if>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.degreeCategorys)">
-  			and DEGREE_CATEGORYS_ like concat('%',#{condition.degreeCategorys},'%')
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.degreeTypes)">
+  			and DEGREE_TYPES_ like concat('%',#{condition.degreeTypes},'%')
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.enrolSeason)">
   			and ENROL_SEASON_ like concat('%',#{condition.enrolSeason},'%')

@@ -6,12 +6,12 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.election.constants.ChooseObj;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -20,7 +20,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.RetakeCourseService;
-import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -61,6 +61,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Autowired
     private ElcLogDao elcLogDao;
 
+    @Autowired
+    private TeachingClassDao teachingClassDao;
+
     @Override
     @Transactional
     public void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo) {
@@ -89,25 +92,57 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     public void updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo) {
         Long id = retakeCourseCountVo.getId();
+        retakeCourseCountVo.setStatus(Constants.DELETE_FALSE);
         if (id == null) {
+            // 判断这条数据是否重复
+            RetakeCourseCountVo retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountVo);
+            if (retakeCourseCount != null) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
+            }
+//            Session currentSession = SessionUtils.getCurrentSession();
+//            String uid = currentSession.getUid();
+//            retakeCourseCountVo.setCreateBy(uid);
+            retakeCourseCountVo.setCreateBy("cssc");
+            retakeCourseCountVo.setCreateAt(new Date());
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountVo);
         } else {
+            // 判断修改后的数据是否与数据库已有数据重复
+            RetakeCourseCountVo retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountVo);
+            if (retakeCourseCount != null && id.intValue() != retakeCourseCount.getId().intValue()) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
+            }
+            retakeCourseCountVo.setUpdatedAt(new Date());
             retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountVo);
         }
     }
 
     @Override
-    public void deleteRetakeCourseCount(Long retakeCourseCountId) {
-        retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountId);
+    public void deleteRetakeCourseCount(List<Long> retakeCourseCountIds) {
+        retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountIds);
     }
 
     @Override
-    public ElcRetakeSetVo getRetakeRul(Long calendarId, String projectId) {
-        return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+    public Boolean getRetakeRule(Long calendarId, String projectId) {
+        ElcRetakeSetVo retakeSet = retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+        if (retakeSet != null && retakeSet.getOpenFlag().intValue() == 1) {
+            Date start = retakeSet.getStart();
+            Date end = retakeSet.getEnd();
+            if (start != null && end != null) {
+                long startTime = start.getTime();
+                long endTime = end.getTime();
+                long nowTime = System.currentTimeMillis();
+                if (startTime < nowTime && nowTime < endTime ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
-    public List<FailedCourseVo> failedCourseList(String uid, Long calendarId) {
+    public List<FailedCourseVo> failedCourseList(Long calendarId) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.realUid();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(uid);
         List<FailedCourseVo> failedCourseInfo = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
@@ -115,6 +150,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             for (FailedCourseVo failedCourseVo : failedCourseInfo) {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 failedCourseVo.setCalendarName(schoolCalendar.getFullName());
+                // 借用 判断申请免修免考课程是否已经选课 判断学生是否选课
                 int count = courseTakeDao.findIsEletionCourse(uid, calendarId, failedCourseVo.getCourseCode());
                 if (count == 0) {
                     failedCourseVo.setSelected(false);
@@ -128,7 +164,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Override
     @Transactional
-    public void updateRebuildCourse(String studentId, RebuildCourseVo rebuildCourseVo) {
+    public void updateRebuildCourse(RebuildCourseVo rebuildCourseVo) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String studentId = currentSession.realUid();
         String courseCode = rebuildCourseVo.getCourseCode();
         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
         String courseName = rebuildCourseVo.getCourseName();
@@ -165,48 +203,56 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             take.setCreatedAt(date);
             take.setTurn(0);
             take.setMode(1);
-            // 重修缴费未设置，后面加
             courseTakeDao.insertSelective(take);
+            teachingClassDao.increElcNumber(teachingClassId);
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
             elcLogDao.insertSelective(log);
-        }
-        if (rebuildCourseVo.getStatus() == 1) {
+        } else if (rebuildCourseVo.getStatus() == 1) {
             Long id = rebuildCourseVo.getTeachingClassId();
             List<Long> list = new ArrayList<>(1);
             list.add(id);
             courseTakeDao.deleteCourseTask(list, studentId);
+            teachingClassDao.decrElcNumber(teachingClassId);
             // 添加选课日志
             log.setType(ElcLogVo.TYPE_2);
             elcLogDao.insertSelective(log);
+        } else {
+            throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.statusError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
     }
 
 
     @Override
-    public List<RebuildCourseVo> findRebuildCourseList(Long calendarId, String keyWord) {
+    public PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition) {
         Session session = SessionUtils.getCurrentSession();
-        String studentId = session.getUid();
+        String studentId = session.realUid();
         String currentManageDptId = session.getCurrentManageDptId();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
             // 通过重修的课程代码获取当前学期可重修的课程
-            List<RebuildCourseVo> list = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, keyWord);
-            if (list.isEmpty()) {
-                return new ArrayList<>();
+            RebuildCourseDto rebuildCourseDto = condition.getCondition();
+            Long calendarId = rebuildCourseDto.getCalendarId();
+            PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+            Page<RebuildCourseVo> page = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord());
+            if (CollectionUtil.isEmpty(page)) {
+                return new PageResult<>(page);
             }
             // 获取学生已选课程上课安排
             List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(studentId, calendarId);
-            List<TimeTableMessage> selectTimeTables = courseTakeDao.findCourseArrange(ids);
+            List<TimeTableMessage> selectTimeTables = new ArrayList<>();
+            if (CollectionUtil.isNotEmpty(ids)) {
+                selectTimeTables = courseTakeDao.findCourseArrange(ids);
+            }
             // 获取重修课程教学安排
-            List<Long> teachingClassIds = list.stream().map(RebuildCourseVo::getTeachingClassId).collect(Collectors.toList());
+            List<Long> teachingClassIds = page.stream().map(RebuildCourseVo::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> timeTableMessages = getTimeById(teachingClassIds);
             Map<Long, List<TimeTableMessage>> map = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             // 获取重修规则
             List<Integer> courseRole = getCourseRole(calendarId, currentManageDptId);
             // 重修规则为空说明所有重修课程都可以选择
             if (courseRole.isEmpty()) {
-                for (RebuildCourseVo rebuildCourseVo : list) {
+                for (RebuildCourseVo rebuildCourseVo : page) {
                     setCourseArrange(map, rebuildCourseVo);
                     // 判断这门课程是可以进行选课操作还是退课操作
                     int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
@@ -220,7 +266,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                 Integer i = courseRole.get(0);
                 if (i == 1) {
                     String campus = studentDao.findCampus(studentId);
-                    for (RebuildCourseVo rebuildCourseVo : list) {
+                    for (RebuildCourseVo rebuildCourseVo : page) {
                         setCourseArrange(map, rebuildCourseVo);
                         int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                         // 为0说明学生要进行选课操作，需判断规则
@@ -235,7 +281,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                         }
                     }
                 } else if (i == 2) {
-                    for (RebuildCourseVo rebuildCourseVo : list) {
+                    for (RebuildCourseVo rebuildCourseVo : page) {
                         setCourseArrange(map, rebuildCourseVo);
                         int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                         if (count == 0) {
@@ -248,7 +294,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                         }
                     }
                 } else if (i == 3) {
-                    for (RebuildCourseVo rebuildCourseVo : list) {
+                    for (RebuildCourseVo rebuildCourseVo : page) {
                         setCourseArrange(map, rebuildCourseVo);
                         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
                         int count = courseTakeDao.findCount(studentId, calendarId, teachingClassId);
@@ -265,7 +311,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             } else if (courseRole.size() == 2) {
                 if (courseRole.contains(1) && courseRole.contains(2)) {
                     String campus = studentDao.findCampus(studentId);
-                    for (RebuildCourseVo rebuildCourseVo : list) {
+                    for (RebuildCourseVo rebuildCourseVo : page) {
                         setCourseArrange(map, rebuildCourseVo);
                         int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
                         if (count == 0) {
@@ -282,7 +328,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     }
                 } else if (courseRole.contains(1) && courseRole.contains(3)) {
                     String campus = studentDao.findCampus(studentId);
-                    for (RebuildCourseVo rebuildCourseVo : list) {
+                    for (RebuildCourseVo rebuildCourseVo : page) {
                         setCourseArrange(map, rebuildCourseVo);
                         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
                         int count = courseTakeDao.findCount(studentId, calendarId, teachingClassId);
@@ -299,7 +345,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                         }
                     }
                 } else if (courseRole.contains(2) && courseRole.contains(3)) {
-                    for (RebuildCourseVo rebuildCourseVo : list) {
+                    for (RebuildCourseVo rebuildCourseVo : page) {
                         setCourseArrange(map, rebuildCourseVo);
                         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
                         int count = courseTakeDao.findCount(studentId, calendarId, teachingClassId);
@@ -318,7 +364,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                 }
             } else {
                 String campus = studentDao.findCampus(studentId);
-                for (RebuildCourseVo rebuildCourseVo : list) {
+                for (RebuildCourseVo rebuildCourseVo : page) {
                     setCourseArrange(map, rebuildCourseVo);
                     Long teachingClassId = rebuildCourseVo.getTeachingClassId();
                     int count = courseTakeDao.findCount(studentId, calendarId, teachingClassId);
@@ -338,9 +384,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     }
                 }
             }
-            return list;
+            return  new PageResult<>(page);
         }
-        return new ArrayList<>();
+        return new PageResult<>();
     }
 
 
@@ -383,7 +429,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             if (split.length == 0) {
                 return true;
             }
-            List<Integer> selectWeeks = Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toList());
+            // 避免重复周次
+            Set<Integer> selectWeeks = Arrays.asList(split).stream().map(Integer::parseInt).collect(Collectors.toSet());
             Set<Integer> set = new HashSet<>();
             set.addAll(addWeeks);
             set.addAll(selectWeeks);
@@ -418,6 +465,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      */
     private List<Integer> getCourseRole(Long calendarId, String manageDptId) {
         List<Long> ruleIds = retakeCourseSetDao.findRuleIds(calendarId, manageDptId);
+        if (ruleIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         Example example = new Example(ElectionRule.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andIn("id", ruleIds);
@@ -447,62 +497,27 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      * @return
      */
     private List<TimeTableMessage> getTimeById(List<Long> teachingClassId) {
-        List<TimeTableMessage> list = new ArrayList<>();
-        if (CollectionUtil.isNotEmpty(teachingClassId)) {
-            List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
-            if (CollectionUtil.isNotEmpty(classTimeAndRoom)) {
-                for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
-                    Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                    Integer timeStart = classTeacherDto.getTimeStart();
-                    Integer timeEnd = classTeacherDto.getTimeEnd();
-                    String weekNumber = classTeacherDto.getWeekNumberStr();
+            List<TimeTableMessage> courseArrange = courseTakeDao.findCourseArrange(teachingClassId);
+            if (CollectionUtil.isNotEmpty(courseArrange)) {
+                for (TimeTableMessage timeTableMessage : courseArrange) {
+                    Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                    Integer timeStart = timeTableMessage.getTimeStart();
+                    Integer timeEnd = timeTableMessage.getTimeEnd();
+                    String weekNumber = timeTableMessage.getWeekNum();
                     String[] str = weekNumber.split(",");
-
-                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                    // 避免同一门课程同一时间多个老师导致周次重复
+                    Set<String> weeksSet = new HashSet<>(Arrays.asList(str));
+                    List<Integer> weeks = weeksSet.stream().map(Integer::parseInt).collect(Collectors.toList());
                     List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
                     String weekNumStr = weekNums.toString();//周次
-                    String weekstr = findWeek(dayOfWeek);//星期
+                    String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                     String timeStr = weekstr + timeStart + "-" + timeEnd + "节"
-                            + weekNumStr + ClassroomCacheUtil.getRoomName(classTeacherDto.getRoomID());
-                    TimeTableMessage time = new TimeTableMessage();
-                    time.setDayOfWeek(dayOfWeek);
-                    time.setTimeStart(timeStart);
-                    time.setTimeEnd(timeEnd);
-                    time.setTeachingClassId(classTeacherDto.getTeachingClassId());
-                    time.setTimeAndRoom(timeStr);
-                    time.setWeeks(weeks);
-                    list.add(time);
+                            + weekNumStr + ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
+                    timeTableMessage.setTimeAndRoom(timeStr);
+                    timeTableMessage.setWeeks(weeks);
                 }
             }
-        }
-        return list;
+        return courseArrange;
     }
 
-    public String findWeek(Integer number) {
-        String week = "";
-        switch (number) {
-            case 1:
-                week = "星期一";
-                break;
-            case 2:
-                week = "星期二";
-                break;
-            case 3:
-                week = "星期三";
-                break;
-            case 4:
-                week = "星期四";
-                break;
-            case 5:
-                week = "星期五";
-                break;
-            case 6:
-                week = "星期六";
-                break;
-            case 7:
-                week = "星期日";
-                break;
-        }
-        return week;
-    }
 }

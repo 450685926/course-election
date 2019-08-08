@@ -9,17 +9,15 @@
         <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
         <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
         <result column="RETAKE_COUNT_" jdbcType="INTEGER" property="retakeCount" />
-        <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
+        <result column="PROJECT_NAME_" jdbcType="VARCHAR" property="projectName" />
     </resultMap>
 
     <select id="findRetakeCourseCountList" parameterType="com.server.edu.election.vo.RetakeCourseCountVo" resultMap="BaseResultMap">
-        select
-        ID_,TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,MANAGER_DEPT_ID_
-        from
-            elc_retake_course_count
+        select * from elc_retake_course_count
         <where>
+            DELETE_STATUS_ = 0
         <if test="trainingLevel != null and trainingLevel != ''">
-            TRAINING_LEVEL_ = #{trainingLevel}
+            and TRAINING_LEVEL_ = #{trainingLevel}
         </if>
         <if test="trainingCategory != null and trainingCategory != ''">
             and TRAINING_CATEGORY_ = #{trainingCategory}
@@ -36,14 +34,14 @@
         </where>
     </select>
 
-    <insert id = "saveRetakeCourseCount">
+    <insert id = "saveRetakeCourseCount" parameterType="com.server.edu.election.vo.RetakeCourseCountVo">
         insert into elc_retake_course_count
-              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,MANAGER_DEPT_ID_)
+              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,PROJECT_NAME_,CREATE_BY_,CREATED_AT_,DELETE_STATUS_)
         values
-              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{managerDeptId})
+              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{projectName},#{createBy},#{createAt},#{status})
     </insert>
 
-    <update id="updateRetakeCourseCount">
+    <update id="updateRetakeCourseCount" parameterType="com.server.edu.election.vo.RetakeCourseCountVo">
         update
               elc_retake_course_count
         set
@@ -52,21 +50,41 @@
             DEGREE_TYPE_ = #{degreeType},
             FORM_LEARNING_ = #{formLearning},
             RETAKE_COUNT_ = #{retakeCount},
-            MANAGER_DEPT_ID_ = #{managerDeptId}
+            PROJECT_NAME_ = #{projectName},
+            UPDATED_AT_ = #{updatedAt},
+            DELETE_STATUS_ = #{status}
         where
             ID_ = #{id}
     </update>
 
-    <delete id="deleteRetakeCourseCount">
-         delete from elc_retake_course_count where ID_ = #{retakeCourseCountId}
-    </delete>
+    <update id="deleteRetakeCourseCount">
+        update
+          elc_retake_course_count
+        set
+          DELETE_STATUS_ = 1
+        where ID_ in
+        <foreach collection="ids" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+    </update>
 
     <select id="findRetakeCount" parameterType="com.server.edu.election.entity.Student" resultType="java.lang.Integer">
          select RETAKE_COUNT_ from elc_retake_course_count
-         where TRAINING_LEVEL_ = #{trainingLevel}
+         where
+            DELETE_STATUS_ = 0
+         and TRAINING_LEVEL_ = #{trainingLevel}
          and TRAINING_CATEGORY_ = #{trainingCategory}
          and DEGREE_TYPE_ = #{degreeType}
          and FORM_LEARNING_ = #{formLearning}
-         and MANAGER_DEPT_ID_ = #{managerDeptId}
+    </select>
+
+    <select id="findRetakeCourseCount" parameterType="com.server.edu.election.vo.RetakeCourseCountVo" resultMap="BaseResultMap">
+         select * from elc_retake_course_count
+         where
+            DELETE_STATUS_ = 0
+         and TRAINING_LEVEL_ = #{trainingLevel}
+         and TRAINING_CATEGORY_ = #{trainingCategory}
+         and DEGREE_TYPE_ = #{degreeType}
+         and FORM_LEARNING_ = #{formLearning}
     </select>
 </mapper>

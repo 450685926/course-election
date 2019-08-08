@@ -16,7 +16,26 @@
     <result column="UPDATED_AT" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
   <select id="getLimitStudents" parameterType="com.server.edu.election.dto.ElcStudentLimitDto" resultType="com.server.edu.election.vo.ElcStudentLimitVo">
-		SELECT *  from(
+		SELECT  
+		      id,
+			  studentId,
+			  calendarId,
+			  projectId,
+			  newLimitCredits,
+			  totalLimitCredits,
+			  rebuildLimitNumber,
+			  courseCode,
+			  teachingClassId,
+			  NAME,
+			  grade,
+			  faculty,
+			  profession,
+			  trainingLevel,
+			  studentCategory,
+			  researchDirection,
+			  IFNULL(selectedCredits,0) selectedCredits,
+			  IFNULL(selectedRebuild,0) selectedRebuild  
+		from(
 		SELECT
 		    t1.ID_ id,
 			t1.STUDENT_ID_ studentId,
@@ -40,12 +59,12 @@
 			sum(t3.CREDITS_) END selectedRebuild
 		FROM
 			elc_student_limit_t t1
-		JOIN elc_course_takes_t t2 ON (
+		LEFT JOIN elc_course_takes_t t2 ON (
 			t1.STUDENT_ID_ = t2.STUDENT_ID_
 			AND t1.CALENDAR_ID_ = t2.CALENDAR_ID_
 			AND t2.CALENDAR_ID_ = #{calendarId}
 		)
-		JOIN course_t t3 ON t3.CODE_ = t2.COURSE_CODE_
+		LEFT JOIN course_t t3 ON t3.CODE_ = t2.COURSE_CODE_
     JOIN student_t t4 ON t1.STUDENT_ID_ = t4.STUDENT_CODE_
 		<where>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(id)">

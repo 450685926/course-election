@@ -11,7 +11,7 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 @CodeI18n
 public class ElecCourse
 {
-	/**课程代码*/
+    /**课程代码*/
     private String courseCode;
     
     /**课程名称*/
@@ -27,93 +27,31 @@ public class ElecCourse
     @Code2Text(DictTypeEnum.X_KCXZ)
     private String nature;
     
-    /**校区*/
-    @Code2Text(DictTypeEnum.X_XQ)
-    private String campus;
-    
-    private String faculty;
-    
     /** 是否公选课 */
     private boolean publicElec;
-
+    
     /**
      * 学期
      */
     private Long calendarId;
-
+    
     /**学期周学时对应学期*/
     private String calendarName;
     
     /**选课申请ID*/
     private Long electionApplyId;
-
-    /**选课申请状态*/    
+    
+    /**选课申请状态*/
     private Integer apply;
     
     /**是否必修*/
     private String compulsory;
     
-    public String getCompulsory() {
-		return compulsory;
-	}
-
-	public void setCompulsory(String compulsory) {
-		this.compulsory = compulsory;
-	}
-    
-    public String getFaculty() {
-		return faculty;
-	}
-
-	public void setFaculty(String faculty) {
-		this.faculty = faculty;
-	}
-
     /**
      * 备注
      */
     private String remark;
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public Long getCalendarId() {
-        return calendarId;
-    }
-
-    public void setCalendarId(Long calendarId) {
-        this.calendarId = calendarId;
-    }
-
-    public Long getElectionApplyId() {
-		return electionApplyId;
-	}
-
-	public void setElectionApplyId(Long electionApplyId) {
-		this.electionApplyId = electionApplyId;
-	}
-
-	public Integer getApply() {
-		return apply;
-	}
-
-	public void setApply(Integer apply) {
-		this.apply = apply;
-	}
-
-    public String getCalendarName() {
-        return calendarName;
-    }
-
-    public void setCalendarName(String calendarName) {
-        this.calendarName = calendarName;
-    }
-
+    
     public String getCourseCode()
     {
         return courseCode;
@@ -154,22 +92,14 @@ public class ElecCourse
         this.nameEn = nameEn;
     }
     
-    public String getNature() {
-		return nature;
-	}
-
-	public void setNature(String nature) {
-		this.nature = nature;
-	}
-
-	public String getCampus()
+    public String getNature()
     {
-        return campus;
+        return nature;
     }
     
-    public void setCampus(String campus)
+    public void setNature(String nature)
     {
-        this.campus = campus;
+        this.nature = nature;
     }
     
     public boolean isPublicElec()
@@ -180,6 +110,66 @@ public class ElecCourse
     public void setPublicElec(boolean publicElec)
     {
         this.publicElec = publicElec;
+    }
+    
+    public Long getCalendarId()
+    {
+        return calendarId;
+    }
+    
+    public void setCalendarId(Long calendarId)
+    {
+        this.calendarId = calendarId;
+    }
+    
+    public String getCalendarName()
+    {
+        return calendarName;
+    }
+    
+    public void setCalendarName(String calendarName)
+    {
+        this.calendarName = calendarName;
+    }
+    
+    public Long getElectionApplyId()
+    {
+        return electionApplyId;
+    }
+    
+    public void setElectionApplyId(Long electionApplyId)
+    {
+        this.electionApplyId = electionApplyId;
+    }
+    
+    public Integer getApply()
+    {
+        return apply;
+    }
+    
+    public void setApply(Integer apply)
+    {
+        this.apply = apply;
+    }
+    
+    public String getCompulsory()
+    {
+        return compulsory;
+    }
+    
+    public void setCompulsory(String compulsory)
+    {
+        this.compulsory = compulsory;
+    }
+    
+    public String getRemark()
+    {
+        return remark;
+    }
+    
+    public void setRemark(String remark)
+    {
+        this.remark = remark;
     }
     
     @Override

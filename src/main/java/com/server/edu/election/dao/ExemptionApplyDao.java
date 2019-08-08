@@ -1,14 +1,18 @@
 package com.server.edu.election.dao;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ExemptionApplyCondition;
 import com.server.edu.election.entity.ExemptionApplyManage;
+import com.server.edu.election.query.ExemptionQuery;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
-import org.apache.ibatis.annotations.Param;
-import tk.mybatis.mapper.common.Mapper;
+import com.server.edu.election.vo.ExemptionStudentCountVo;
 
-import java.util.List;
+import tk.mybatis.mapper.common.Mapper;
 
 public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
 
@@ -29,4 +33,31 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
 
     List<ElecCourse> findApplyRecord(@Param("calendarId") Long calendarId,
                                      @Param("studentCode")String studentCode);
+
+	Page<ExemptionStudentCountVo> exemptionCount(@Param("query")ExemptionQuery query);
+
+	/**
+	 * 研究生免修免考申请管理
+	 * @param condition
+	 * @return
+	 */
+	Page<ExemptionApplyManageVo> findGraduteExemptionApply(ExemptionQuery condition);
+
+	/**
+	 * 研究生免修免考课程
+	 * @param calendarId
+	 * @param studentId
+	 * @return
+	 */
+	List<ExemptionApplyManage> findGraduteApplyRecord(@Param("calendarId") Long calendarId,
+            @Param("studentCode")String studentCode);
+
+	/**
+	 * 研究生免修免考课程
+	 * @param calendarId
+	 * @param studentId
+	 * @param applyCourseCodes
+	 * @return
+	 */
+	List<ElecCourse> findApplyCourse(@Param("list") List<String> list);
 }

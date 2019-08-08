@@ -12,7 +12,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -45,6 +48,8 @@ import com.server.edu.util.CollectionUtil;
 @Service
 public class RoundCacheService extends AbstractCacheService
 {
+	Logger log = LoggerFactory.getLogger(RoundCacheService.class);
+	
     @Autowired
     private ElcRoundConditionDao elcRoundConditionDao;
     
@@ -107,6 +112,7 @@ public class RoundCacheService extends AbstractCacheService
      * 
      * @return
      */
+    @Cacheable(value = "getAllRound")
     public List<ElectionRounds> getAllRound()
     {
         HashOperations<String, String, ElectionRounds> hash = opsRound();
@@ -212,8 +218,8 @@ public class RoundCacheService extends AbstractCacheService
         			&& contains(con.getGrades(), student.getGrade().toString())
         			&& contains(con.getMajors(), student.getProfession())
         			&& contains(con.getTrainingLevels(),student.getTrainingLevel());
-            
-        	if("1".equals(projectId)) {
+        	
+        	if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
         		if (!matchConditionFlag) {
 					return false;
 				}
@@ -221,6 +227,7 @@ public class RoundCacheService extends AbstractCacheService
         		boolean matchConditionGraduteFlag = contains(con.getTrainingCategorys(), student.getTrainingCategory())
         				&& contains(con.getDegreeTypes(), student.getDegreeType())
         				&& contains(con.getFormLearnings(), student.getFormLearning());
+        		
         		if (!matchConditionFlag || !matchConditionGraduteFlag) {
 					return false;
 				}
@@ -319,6 +326,34 @@ public class RoundCacheService extends AbstractCacheService
         Collections.sort(teachClassIds);
         
         return teachClassIds;
+    }
+    
+    /**
+     * 得到学年学期课程所对应的教学班ID
+     * 
+     * @param calendarId
+     * @param courseCode
+     * @param ops
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public List<Long> getTeachClassIdsByCalendarId(Long calendarId, String courseCode)
+    {
+    	HashOperations<String, String, String> ops = strTemplate.opsForHash();
+    	
+    	String key = Keys.getCalendarCourseKey(calendarId);
+    	
+    	String text = ops.get(key, courseCode);
+    	List<Long> teachClassIds = null;
+    	if (StringUtils.isEmpty(text))
+    	{
+    		return teachClassIds;
+    	}
+    	teachClassIds = JSON.parseArray(text, Long.class);
+    	
+    	Collections.sort(teachClassIds);
+    	
+    	return teachClassIds;
     }
     
     @Autowired

@@ -4,7 +4,6 @@ import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
 import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,18 +14,23 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.util.CollectionUtil;
+
+import redis.clients.jedis.Jedis;
 
 /**
  * 选课上下文工具类
@@ -51,6 +55,7 @@ public class ElecContextUtil
     private Long calendarId;
     
     private String studentId;
+    
     // 由于使用redis的hash来保存数据，为了能快速得到所有的数据使用map先保存起来
     public Map<String, String> cacheData;
     
@@ -88,9 +93,16 @@ public class ElecContextUtil
         return Keys.STD + calendarId + "-" + studentId;
     }
     
+    static StringRedisTemplate stringRedisTemplate;
+    
     static StringRedisTemplate getRedisTemplate()
     {
-        return SpringUtils.getBean(StringRedisTemplate.class);
+        if (stringRedisTemplate == null)
+        {
+            stringRedisTemplate =
+                SpringUtils.getBean(StringRedisTemplate.class);
+        }
+        return stringRedisTemplate;
     }
     
     public <T> T getObject(String type, Class<T> clazz)
@@ -256,6 +268,20 @@ public class ElecContextUtil
         return respose;
     }
     
+    public static void saveElecResponse(String studentId, Long calendarId,
+        ElecRespose respose)
+    {
+        Assert.notNull(respose, "response can not be null");
+        HashOperations<String, String, String> ops =
+            getRedisTemplate().opsForHash();
+        String key = getKey(studentId, calendarId);
+        
+        respose.setStatus(null);
+        ops.put(key,
+            ElecRespose.class.getSimpleName(),
+            JSON.toJSONString(respose));
+    }
+    
     /**
      * 获取学生指定轮次选课状态<br>
      * ElecStatus 的四种状态的转换关系<br>
@@ -267,15 +293,15 @@ public class ElecContextUtil
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public static ElecStatus getElecStatus(Long roundId, String studentId)
+    public static ElecStatus getElecStatus(Long calendarId, String studentId)
     {
         String value = getRedisTemplate().opsForValue()
-            .get(String.format(STD_STATUS, roundId, studentId));
+            .get(String.format(STD_STATUS, calendarId, studentId));
         if (StringUtils.isBlank(value))
         {
             logger.warn(
-                "----- elecStatus not find use Init [roundId:{}, studentId:{}] -----",
-                roundId,
+                "----- elecStatus not find use Init [calendarId:{}, studentId:{}] -----",
+                calendarId,
                 studentId);
             return ElecStatus.Init;
         }
@@ -294,7 +320,7 @@ public class ElecContextUtil
      * @param status
      * @see [类、类#方法、类#成员]
      */
-    public static void setElecStatus(Long roundId, String studentId,
+    public static void setElecStatus(Long calendarId, String studentId,
         ElecStatus status)
     {
         int timeout = 1;
@@ -303,68 +329,68 @@ public class ElecContextUtil
             timeout = 10;
         }
         getRedisTemplate().opsForValue()
-            .set(String.format(STD_STATUS, roundId, studentId),
+            .set(String.format(STD_STATUS, calendarId, studentId),
                 status.toString(),
                 timeout,
                 TimeUnit.HOURS);
     }
     
     /**
-     * 需要处理加锁成功后程序挂了，这个时候值没有设置超时将会一直无法选课
+     * 更新锁的生存时间，防止生存时间到了任务还没做完的情况
      * 
      */
-    public static void delDeadLock()
+    public static void updateLockTime()
     {
-        Set<String> keys =
-            getRedisTemplate().keys(Keys.STD_STATUS_LOCK_PATTERN);
-        if (CollectionUtil.isNotEmpty(keys))
+        if (CollectionUtil.isNotEmpty(lockKeys))
         {
-            Long now = new Date().getTime();
-            List<String> values =
-                getRedisTemplate().opsForValue().multiGet(keys);
-            
-            int index = 0;
-            List<String> delKeys = new ArrayList<>();
-            for (String key : keys)
+            for (String key : lockKeys)
             {
-                String timeStr = values.get(index);
-                if (StringUtils.isNumeric(timeStr))
-                {
-                    Long time = Long.valueOf(timeStr);
-                    long hours = TimeUnit.MILLISECONDS.toHours(now - time);
-                    if (hours >= 1)// 超过一个小时的锁认为是死锁，删除掉
-                    {
-                        delKeys.add(key);
-                    }
-                }
-                index++;
+                getRedisTemplate().expire(key, 30, TimeUnit.MINUTES);
             }
-            getRedisTemplate().delete(delKeys);
         }
     }
     
+    static final List<String> lockKeys = new ArrayList<>();
+    
     /**
-     * 给status 加锁，并返回key用于解锁
+     * 给status 加锁，默认生存时间为30分钟
      * @return true 成功 false 失败
      */
-    public static boolean tryLock(Long roundId, String studentId)
+    public static boolean tryLock(Long calendarId, String studentId)
     {
         long value = System.currentTimeMillis();
-        String redisKey = String.format(STD_STATUS_LOCK, roundId, studentId);
-        if (getRedisTemplate().opsForValue()
-            .setIfAbsent(redisKey, String.valueOf(value)))
+        String redisKey = String.format(STD_STATUS_LOCK, calendarId, studentId);
+        
+        String statusCode =
+            getRedisTemplate().execute(new RedisCallback<String>()
+            {
+                @Override
+                public String doInRedis(RedisConnection connection)
+                {
+                    Jedis conn = (Jedis)connection.getNativeConnection();
+                    return conn.set(redisKey,
+                        String.valueOf(value),
+                        "NX",
+                        "EX",
+                        TimeUnit.MINUTES.toSeconds(30));
+                }
+            }, true);
+        
+        if ("OK".equals(statusCode))
         {
+            lockKeys.add(redisKey);
             return true;
         }
+        
         return false;
     }
     
     /**
      * 解锁，只能解除在当前线程加的锁，否则什么也不会发生
      */
-    public static void unlock(Long roundId, String studentId)
+    public static void unlock(Long calendarId, String studentId)
     {
-        String redisKey = String.format(STD_STATUS_LOCK, roundId, studentId);
+        String redisKey = String.format(STD_STATUS_LOCK, calendarId, studentId);
         getRedisTemplate().delete(redisKey);
     }
     
@@ -418,29 +444,28 @@ public class ElecContextUtil
     /**
      * 获取替代课程
      */
-    public static List<ElcNoGradCouSubs> getNoGradCouSubs(String projectId,
-        Long calendarId)
+    public static List<ElcNoGradCouSubsVo> getNoGradCouSubs(String studentId)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
+        String redisKey = Keys.getReplaceCourseKey(studentId);
         String value = opsForValue.get(redisKey);
         if (StringUtils.isEmpty(value))
         {
             return new ArrayList<>();
         }
-        return JSON.parseArray(value, ElcNoGradCouSubs.class);
+        return JSON.parseArray(value, ElcNoGradCouSubsVo.class);
     }
     
     /**
      * 设置替代课程
      */
-    public static void setNoGradCouSubs(String projectId, Long calendarId,
-        List<ElcNoGradCouSubs> list)
+    public static void setNoGradCouSubs(String studentId,
+        List<ElcNoGradCouSubsVo> list)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
-        String redisKey = Keys.getReplaceCourseKey(projectId, calendarId);
+        String redisKey = Keys.getReplaceCourseKey(studentId);
         if (CollectionUtil.isNotEmpty(list))
         {
             opsForValue.set(redisKey, JSON.toJSONString(list));

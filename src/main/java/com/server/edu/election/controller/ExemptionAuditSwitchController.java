@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.server.edu.common.PageCondition;
@@ -27,26 +28,26 @@ import io.swagger.annotations.SwaggerDefinition;
 
 @SwaggerDefinition(info = @Info(title = "研究生免修免考申请审核开关", version = ""))
 @RestSchema(schemaId = "ExemptionAuditSwitchController")
-@RequestMapping("/exemptionGradute")
+@RequestMapping("/exemptionGradute/auditSwitch")
 public class ExemptionAuditSwitchController {
-    static Logger logger = LoggerFactory.getLogger(ExemptionController.class);
+    static Logger logger = LoggerFactory.getLogger(ExemptionAuditSwitchController.class);
 	
 	@Autowired
 	ExemptionAuditSwitchService exemptionAuditSwitchService;
 	
-	@ApiOperation(value = "研究生添加免修免考申请审核开关")
-    @PostMapping("/addExemptionAuditSwitch")
+	@ApiOperation(value = "添加研究生免修免考申请审核开关")
+    @PostMapping
     public RestResult<?> addExemptionAuditSwitch(@RequestBody @NotNull @Valid ExemptionApplyAuditSwitch applyAuditSwitch){
-    	logger.info("addExemptionAuditSwitch start");
+    	logger.info("add applySwitch start");
     	
     	exemptionAuditSwitchService.addExemptionAuditSwitch(applyAuditSwitch);
     	return RestResult.success();
     }
 
-    @ApiOperation(value = "研究生查询免修免考申请审核开关")
-    @PostMapping("/queryExemptionAuditSwitch")
+    @ApiOperation(value = "查询研究生免修免考申请审核开关列表")
+    @PostMapping("/list")
     public RestResult<PageResult<ExemptionApplyAuditSwitch>> queryExemptionAuditSwitch(@RequestBody PageCondition<ExemptionApplyAuditSwitch> condition){
-    	logger.info("queryExemptionAuditSwitch start");
+    	logger.info("applySwitch list start");
     	
     	PageResult<ExemptionApplyAuditSwitch> page = exemptionAuditSwitchService.queryExemptionAuditSwitch(condition);
     	return RestResult.successData(page);
@@ -55,16 +56,16 @@ public class ExemptionAuditSwitchController {
     @ApiOperation(value = "根据ID查询免修免考申请审核开关")
     @GetMapping("/{id}")
     public RestResult<ExemptionApplyAuditSwitch> findExemptionAuditSwitchById(@PathVariable("id") Long id){
-    	logger.info("findExemptionAuditSwitchById start");
+    	logger.info("applySwitch by id start");
     	
     	ExemptionApplyAuditSwitch exemptionApplyAuditSwitch = exemptionAuditSwitchService.findExemptionAuditSwitchById(id);
     	return RestResult.successData(exemptionApplyAuditSwitch);
     }
     
     @ApiOperation(value = "修改免修免考申请审核开关")
-    @PostMapping("/updateExemptionAuditSwitch")
+    @PutMapping
     public RestResult<?> updateExemptionAuditSwitch(@RequestBody @NotNull @Valid ExemptionApplyAuditSwitch applyAuditSwitch){
-    	logger.info("updateExemptionAuditSwitch start");
+    	logger.error("update applySwitch start");
     	
     	exemptionAuditSwitchService.updateExemptionAuditSwitch(applyAuditSwitch);
     	return RestResult.success();
@@ -73,7 +74,7 @@ public class ExemptionAuditSwitchController {
     @ApiOperation(value = "删除免修免考申请审核开关")
     @DeleteMapping
     public RestResult<?> deleteExemptionAuditSwitch(@RequestBody @NotEmpty List<Long> ids){
-    	logger.info("deleteExemptionAuditSwitch start");
+    	logger.info("delete exemptionAuditSwitch start");
     	
     	exemptionAuditSwitchService.deleteExemptionAuditSwitch(ids);
     	return RestResult.success();

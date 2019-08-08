@@ -43,6 +43,7 @@
     <result column="CAMPUS_" jdbcType="VARCHAR" property="campus" />
     <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
     <result column="DEGREE_CATEGORY_" jdbcType="VARCHAR" property="degreeCategory" />
+    <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
     <result column="RESEARCH_DIRECTION_" jdbcType="VARCHAR" property="researchDirection" />
   </resultMap>
     <sql id="Base_Column_List">
@@ -98,9 +99,6 @@
 		          #{studentId}
 		    </foreach>
 			AND t1.STUDENT_CODE_  NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} and COURSE_CODE_ = #{query.courseCode})
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-	        and t1.STUDENT_CODE_ like concat('%',#{studentCode},'%')
-		    </if>
 	      	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
 		  	and t1.GRADE_ = #{query.grade}
 		  	</if>
@@ -280,7 +278,7 @@
 		        and t4.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t4.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t4.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t4.FORM_LEARNING_ = #{query.formLearning}
@@ -333,7 +331,7 @@
        SELECT t4.* FROM student_t t4 
         <where>
         	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
-        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId})
+        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t4.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t4.FACULTY_ = #{query.faculty}
 		    </if>
@@ -344,7 +342,7 @@
 		        and t4.ENROL_SEASON_ = #{query.enrolSeason}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		        and t4.DEGREE_CATEGORY_= #{query.degreeType}
+		        and t4.DEGREE_TYPE_= #{query.degreeType}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		        and t4.FORM_LEARNING_ = #{query.formLearning}

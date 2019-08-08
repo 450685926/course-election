@@ -21,7 +21,10 @@ public interface ElcCourseTakeDao
 {
     /**分页查询选课名单*/
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
-    
+
+    /**研究生课程维护模块分页查询选课记录*/
+    Page<ElcCourseTakeVo> elcStudentInfo(@Param("query") ElcCourseTakeQuery take);
+
     /**
      * 根据教学班ID，教学班code查询课程id与教学班id
      * 
@@ -54,15 +57,19 @@ public interface ElcCourseTakeDao
     List<ClassTeacherDto> findTeacherByClassCode(Long teachingClassId);
     
     /**查询点名册中学生信息*/
-    
     List<StudentVo> findStudentByTeachingClassId(Long id);
-    
+
     /** 查询教学班时间地点*/
-    
     List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
 
+    /**研究生查询教学班安排*/
+    List<TimeTableMessage> findClassTime(List<Long> list);
+
     /** 查询教学安排*/
-    List<ClassTeacherDto> findClassTimeAndRoomStr(Long list);
+    List<ClassTeacherDto> findClassTimeAndRoomStr(Long teachingClassId);
+
+    /** 以教学班为单位查询教学安排*/
+    List<TimeTableMessage> findClassTimeAndRoomById(Long teachingClassId);
     
     /**查询学生课表*/
     List<StudentSchoolTimetab> findSchoolTimetab(
@@ -91,6 +98,9 @@ public interface ElcCourseTakeDao
 
     /**查询某一学期教师对应的教学班*/
     List<ClassTeacherDto> findTeachingClassId(@Param("calendarId") Long calendarId, @Param("teacherCode") String teacherCode);
+
+    /**研究生查询教师的教学安排*/
+    List<ClassTeacherDto> findTeachingClassIds(@Param("calendarId") Long calendarId, @Param("teacherCode") String teacherCode);
 
     /**通过学生删除课程*/
     
@@ -130,6 +140,7 @@ public interface ElcCourseTakeDao
 
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
+    /**研究生教师课表查询*/
     Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
@@ -175,21 +186,24 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
 
-    Page<ElcStudentVo> findAddCourseList(@Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId);
+    Page<ElcStudentVo> findAddCourseList(
+            @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
 
     Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
-    List<ElcStudentVo> findCourseInfo(List<Long> list);
+    List<ElcStudentVo> findCourseInfo(@Param("list") List<Long> list);
 
     Integer saveCourseTask(List<ElcCourseTake> list);
 
     int deleteCourseTask(@Param("list") List<Long> list,@Param("studentId") String studentId);
 
+    int deleteByCourseTask(@Param("list") List<ElcCourseTake> value);
+
     List<String> findSelectedCourseCode(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
     List<String> findCourseCode(@Param("list") List<String> teachingClassIds);
 
-    Page<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
+    List<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
 
     Page<ElcCourseTakeVo> allSelectedCourse(String condition);
 
@@ -197,7 +211,15 @@ public interface ElcCourseTakeDao
 
     List<Long> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
-    List<TimeTableMessage> findCourseArrange(@Param("teachingClassIds") List<Long> ids);
+    /**
+     * 研究生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
+     * @param list
+     * @return
+     */
+    List<TimeTableMessage> findCourseArrange(@Param("list") List<Long> list);
+
+    /**研究生查询教师课程安排*/
+    List<TimeTableMessage> findTeachingArrange(@Param("teachingClassIds") Set<Long> ids, @Param("teacherCode") String teacherCode);
 
     List<TimeTableMessage> findCourseArrangeByTeachingClassId(Long teachingClassId);
 

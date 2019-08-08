@@ -53,7 +53,19 @@
   </select>
   
   <select id="selectWillBeStart" resultMap="BaseResultMap">
-  	select * from election_rounds_t where DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_ and OPEN_FLAG_ = 1
+  	select * from election_rounds_t where DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_ and OPEN_FLAG_ = 1 and DELETE_STATUS_ = '0'
+  </select>
+  
+  <select id="selectWillBeStartByCalendarId" resultMap="BaseResultMap">
+  	select * from election_rounds_t 
+  	<where>  
+  		DATE_ADD(sysdate(),INTERVAL 1 HOUR) BETWEEN BEGIN_TIME_ and END_TIME_
+  		and OPEN_FLAG_ = 1 
+  		and DELETE_STATUS_ = '0'
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and CALENDAR_ID_ =#{calendarId}
+        </if>
+  	</where>
   </select>
   
     <select id="findElectCourseList" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.dto.StudentSelectCourseList">
@@ -122,4 +134,12 @@
             </if>
         </where>
     </select>
+    <select id="getRoundByTeachClassId" resultMap="BaseResultMap">
+	  	select * from election_rounds_t t
+	  	    left join election_rounds_cour_t c on c.ROUNDS_ID_ = t.ID_ 
+	  	<where>
+	  	    c.TEACHING_CLASS_ID_ = #{teachClassId}  
+	  	</where>
+  	</select>
+    
 </mapper>

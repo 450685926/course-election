@@ -18,6 +18,16 @@
         <result column="EXEMPTION_TYPE_" jdbcType="VARCHAR" property="exemptionType" />
         <result column="MATERIAL_IP_" jdbcType="VARCHAR" property="materialIp" />
     </resultMap>
+    <resultMap id="ApplyCountMap" type="com.server.edu.election.vo.ExemptionStudentCountVo">
+       <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+      <result column="EXEMPTION_TYPE_" jdbcType="VARCHAR" property="applyCondition" />
+      <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseName" />
+      <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+      <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+      <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
+      <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />
+      <result column="applyNum" jdbcType="INTEGER" property="applyNum" />
+  </resultMap>
     <sql id="Base_Column_List">
         ID_, COURSE_CODE_, COURSE_NAME_, STUDENT_CODE_, NAME_, CALENDAR_ID_, APPLY_TYPE_,
         SCORE_, EXAMINE_RESULT_, AUDITOR_, EXEMPTION_TYPE_, MATERIAL_IP_
@@ -30,10 +40,11 @@
       LEFT JOIN student_t s on s.STUDENT_CODE_=ex.STUDENT_CODE_
         left JOIN course_t c on c.CODE_=ex.COURSE_CODE_
       <where>
-          <if test="calendarId !=null">
+      ex.DELETE_STATUS_ = 0
+          <if test="calendarId !=null  and calendarId !='' ">
               and ex.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
           </if>
-          <if test="grade !=null">
+          <if test="grade !=null and grade !='' ">
             and s.GRADE_ =#{grade,jdbcType=INTEGER}
           </if>
           <if test="trainingLevel!=null and trainingLevel !='' ">
@@ -69,16 +80,55 @@
       </where>
         order by ex.ID_ desc
     </select>
+    
+    <select id="findGraduteExemptionApply" parameterType="com.server.edu.election.query.ExemptionQuery" resultType="com.server.edu.election.vo.ExemptionApplyManageVo">
+      SELECT ex.STUDENT_CODE_ studentCode,s.NAME_ name,s.FACULTY_ faculty,s.PROFESSION_ profession ,s.TRAINING_LEVEL_ trainingLevel,
+      ex.COURSE_CODE_ courseCode,ex.COURSE_NAME_ courseName,ex.ID_ id,ex.CALENDAR_ID_ calendarId,ex.APPLY_TYPE_ applyType,ex.EXAMINE_RESULT_ examineResult
+      FROM `exemption_apply_manage_t` ex 
+      LEFT JOIN student_t s  on s.STUDENT_CODE_ = ex.STUDENT_CODE_ 
+      <where>
+      ex.DELETE_STATUS_ = 0 and 
+      s.MANAGER_DEPT_ID_ =  #{projectId,jdbcType=VARCHAR}
+          <if test="grade !=null  and grade !='' ">
+            and s.GRADE_ =#{grade,jdbcType=INTEGER}
+          </if>
+          <if test="enrolSeason!=null and enrolSeason !='' ">
+              and s.ENROL_SEASON_ =#{enrolSeason,jdbcType=VARCHAR}
+          </if>
+          <if test="studentId!=null and studentId !='' ">
+              and ex.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}
+          </if>
+          <if test="keyword!=null and keyword !='' ">
+              and CONCAT(s.NAME_, s.STUDENT_CODE_)  like CONCAT('%', #{studentName,jdbcType=VARCHAR}, '%')
+          </if>
+          <if test="faculty!=null and faculty !='' ">
+              and s.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+          </if>
+          <if test="formLearning!=null and formLearning !='' ">
+              and s.FORM_LEARNING_ =#{formLearning,jdbcType=VARCHAR}
+          </if>
+          <if test="courseCode!=null and courseCode !='' ">
+              and ex.COURSE_CODE_ like CONCAT('%', #{courseCode,jdbcType=VARCHAR}, '%')
+          </if>
+          <if test="courseName!=null and courseName !='' ">
+              and ex.COURSE_NAME_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
+          </if>
+          <if test="examineResult!=null and examineResult !='' ">
+              and ex.EXAMINE_RESULT_ =#{examineResult,jdbcType=VARCHAR}
+          </if>
+      </where>
+        order by ex.ID_ desc
+    </select>
 
     <delete id="deleteExemptionApply" parameterType="java.util.List">
-        delete from exemption_apply_manage_t where ID_ in
+        update exemption_apply_manage_t  set DELETE_STATUS_ = 1 where DELETE_STATUS_ = 0 and ID_ in
         <foreach collection="list" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
     </delete>
     <update id="approvalExemptionApply" >
         update exemption_apply_manage_t set EXAMINE_RESULT_ =#{status,jdbcType=INTEGER} , SCORE_ =#{score,jdbcType=VARCHAR}, AUDITOR_ =#{auditor,jdbcType=VARCHAR}
-        where ID_ in
+        where DELETE_STATUS_ = 0 and ID_ in
         <foreach collection="list" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
@@ -88,7 +138,7 @@
         select
         <include refid="Base_Column_List"></include>
         from exemption_apply_manage_t
-        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId}
+        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0
     </select>
 
     <select id="findApplyRecord" resultType="com.server.edu.election.studentelec.context.ElecCourse">
@@ -97,6 +147,59 @@
         from exemption_apply_manage_t ap
         join course_t co on co.CODE_ =ap.COURSE_CODE_
         join student_t st on st.STUDENT_CODE_ =ap.STUDENT_CODE_
-        WHERE ap.STUDENT_CODE_=#{studentCode} and ap.CALENDAR_ID_ =#{calendarId} and ap.EXAMINE_RESULT_ !=2
+        WHERE ap.STUDENT_CODE_=#{studentCode} and ap.CALENDAR_ID_ =#{calendarId} and ap.EXAMINE_RESULT_ !=2 and ap.DELETE_STATUS_ = 0
     </select>
+    <select id="findGraduteApplyRecord"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ !=2 
+    </select>
+    <select id="findApplyCourse"  resultMap="BaseResultMap">
+		select
+        co.CODE_ courseCode,co.NAME_ courseName,co.CREDITS_ credits,co.NAME_EN_ nameEn,co.IS_ELECTIVE_ publicElec
+        from  course_t co
+        WHERE co.CODE_ in
+        <foreach collection="list" open="(" separator="," close=")" item="id">
+            #{id}
+        </foreach>
+        
+    </select>
+      <select id="exemptionCount" parameterType="com.server.edu.election.query.ExemptionQuery" resultMap="ApplyCountMap">
+		SELECT t3.CONDITIONS_ EXEMPTION_TYPE_,t1.COURSE_CODE_ ,t1.COURSE_NAME_,t2.TRAINING_LEVEL_,
+		t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_,COUNT(*) applyNum
+		FROM exemption_apply_manage_t t1
+		LEFT JOIN student_t t2
+		ON t1.STUDENT_CODE_ = t2.STUDENT_CODE_
+		left join exemption_apply_graduate_condition_t t3
+		on t3.ID_ = t1.EXEMPTION_TYPE_
+	<where>
+		t1.APPLY_TYPE_ = 1 and t2.MANAGER_DEPT_ID_=  #{query.projectId}  and t1.DELETE_STATUS_ = 0
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+	        and t2.GRADE_  = #{query.grade}
+	    </if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		    and t2.ENROL_SEASON_= #{query.enrolSeason} 
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		    and t2.DEGREE_CATEGORY_= #{query.degreeType} 
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		    and t2.FORM_LEARNING_= #{query.formLearning} 
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		    and t2.TRAINING_LEVEL_= #{query.trainingLevel} 
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		    and t2.TRAINING_CATEGORY_= #{query.trainingCategory} 
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+		    and t1.COURSE_CODE_= #{query.courseCode} 
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+		    and t1.COURSE_NAME_= #{query.courseName} 
+		</if>
+	</where>
+		GROUP BY t1.EXEMPTION_TYPE_ ,t1.COURSE_CODE_ ,t2.TRAINING_LEVEL_,t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_
+  </select>
 </mapper>

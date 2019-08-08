@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.ElcNoGradCouSubsDto;
 import com.server.edu.election.entity.ElcNoGradCouSubs;
 import com.server.edu.election.service.ElcNoGradCouSubsService;
 import com.server.edu.election.vo.ElcNoGradCouSubsVo;
@@ -23,7 +24,7 @@ import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
-@SwaggerDefinition(info = @Info(title = "结业生替代课程", version = ""))
+@SwaggerDefinition(info = @Info(title = "替代课程", version = ""))
 @RestSchema(schemaId = "ElcNoGradCouSubsController")
 @RequestMapping("elcNoGradCouSubs")
 public class ElcNoGradCouSubsController {
@@ -32,7 +33,7 @@ public class ElcNoGradCouSubsController {
 	@Autowired
 	private ElcNoGradCouSubsService elcNoGradCouSubsService;
 	 /**
-     * 建议课表列表
+     * 替代课程列表
      * 
      * @param condition
      * @return
@@ -41,7 +42,7 @@ public class ElcNoGradCouSubsController {
     @ApiOperation(value = "替代课程列表")
     @PostMapping("/page")
     public RestResult<PageInfo<ElcNoGradCouSubsVo>> page(
-        @RequestBody PageCondition<ElcNoGradCouSubs> condition)
+        @RequestBody PageCondition<ElcNoGradCouSubsDto> condition)
         throws Exception
     {
         LOG.info("page.start");
