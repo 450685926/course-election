@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -94,6 +96,7 @@ import tk.mybatis.mapper.entity.Example;
 @Primary
 public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
+	Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private ExemptionCourseDao exemptionCourseDao;
     
@@ -1222,13 +1225,17 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param courseCodes
 	 */
 	private void saveExemptionScore(ExemptionApplyManage applyManage, String courseCode, String courseName) {
+		
+		
+		logger.info("save score start -----------------------------");
 		//调用成绩接口，向成绩中添加数据
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("studentId", applyManage.getStudentCode());
 		jsonObject.put("studentName", courseName);
 		jsonObject.put("calendarId", applyManage.getCalendarId());
 		jsonObject.put("courseCode", courseCode);
-		ScoreServiceInvoker.saveExemptionScore(jsonObject);
+		RestResult saveExemptionScore = ScoreServiceInvoker.saveExemptionScore(jsonObject);
+		logger.info("save score end -----------------------------"+saveExemptionScore.getCode());
 	}
 
 
