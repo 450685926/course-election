@@ -471,46 +471,35 @@ public class ReportManagementServiceImpl implements ReportManagementService
         PageCondition<RollBookConditionDto> condition)
     {
         PageConditionUtil.setPageHelper(condition);
-        Page<RollBookList> rollBookList =
-            courseTakeDao.findClassByTeacherCode(condition.getCondition());
+        Page<RollBookList> rollBookList = courseTakeDao.findClassByTeacherCode(condition.getCondition());
         if (rollBookList != null)
         {
             List<RollBookList> result = rollBookList.getResult();
             if (CollectionUtil.isNotEmpty(result))
             {
-                List<Long> list = result.stream()
-                    .map(RollBookList::getTeachingClassId)
-                    .collect(Collectors.toList());
+                List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
                 Map<Long, List<RollBookList>> map = new HashMap<>();
                 //批量查询教师名字
-                List<RollBookList> teahers =
-                    courseTakeDao.findTeacherName(list);
+                List<RollBookList> teahers = courseTakeDao.findTeacherName(list);
                 if (CollectionUtil.isNotEmpty(teahers))
                 {
-                    map = teahers.stream()
-                        .collect(Collectors
-                            .groupingBy(RollBookList::getTeachingClassId));
+                    map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
                 }
                 if (map.size() != 0)
                 {
                     for (RollBookList bookList : result)
                     {
-                        List<RollBookList> rollBookLists =
-                            map.get(bookList.getTeachingClassId());
+                        List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
                         if (CollectionUtil.isNotEmpty(rollBookLists))
                         {
-                            Set<String> collect = rollBookLists.stream()
-                                .map(RollBookList::getTeacherName)
-                                .collect(Collectors.toSet());
+                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
                             String teacherName = String.join(",", collect);
                             bookList.setTeacherName(teacherName);
                         }
 
                     }
                 }
-
             }
-
         }
         return new PageResult<>(rollBookList);
     }
