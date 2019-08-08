@@ -44,7 +44,7 @@
   		and t1.MANAGER_DEPT_ID_ = #{stu.projectId}
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.degreeType)">
-	    and t1.DEGREE_CATEGORY_= #{stu.degreeType} 
+	    and t1.DEGREE_TYPE_= #{stu.degreeType} 
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.formLearning)">
 	    and t1.FORM_LEARNING_= #{stu.formLearning} 
@@ -87,7 +87,7 @@
   		and t1.MANAGER_DEPT_ID_ = #{stu.projectId}
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.degreeType)">
-	    and t1.DEGREE_CATEGORY_= #{stu.degreeType} 
+	    and t1.DEGREE_TYPE_= #{stu.degreeType} 
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.formLearning)">
 	    and t1.FORM_LEARNING_= #{stu.formLearning} 
@@ -166,7 +166,7 @@
 	  		    and t1.MANAGER_DEPT_ID_ = #{stu.projectId}
 	  		</if>
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.degreeType)">
-		    	and t1.DEGREE_CATEGORY_= #{stu.degreeType} 
+		    	and t1.DEGREE_TYPE_= #{stu.degreeType} 
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.formLearning)">
 		    	and t1.FORM_LEARNING_= #{stu.formLearning} 
