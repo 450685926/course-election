@@ -556,7 +556,7 @@
                 and st.STUDENT_CODE_ =#{studentCode,jdbcType=VARCHAR}
             </if>
         </where>
-        GROUP BY STUDENT_ID_,CALENDAR_ID_ order by el.ID_
+        group by STUDENT_ID_,CALENDAR_ID_ order by el.ID_
     </select>
 
     <select id="findClassTeacherByTeacherCode" resultType="java.lang.String">
@@ -642,9 +642,9 @@
         JOIN course_t co ON co.CODE_ = el.COURSE_CODE_
         JOIN teaching_task_t ts ON ts.COURSE_OPEN_ID_ = el.ID_
         JOIN teaching_class_t cl ON cl.TASK_ID_ = ts.ID_
-        JOIN teaching_class_arrange_time_t ta ON ta.TEACHING_CLASS_ID_ = cl.ID_
+        JOIN teaching_class_arrange_time_t ta ON (ta.TEACHING_CLASS_ID_ = cl.ID_ and ta.TYPE_ = 2)
         JOIN teaching_class_arrange_room_t tr ON tr.ARRANGE_TIME_ID_ = ta.ID_
-        WHERE el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT} and ta.TYPE_ = 2 and tr.TEACHER_CODE_ =#{teacherCode}
+        WHERE el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT} and tr.TEACHER_CODE_ =#{teacherCode}
         GROUP BY cl.ID_
     </select>
 
@@ -936,7 +936,7 @@
                 and tc.CODE_ =#{classCode,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-                and (te.TEACHER_CODE_ like concat('%',#{keyWord,jdbcType=VARCHAR},'%') or  te.TEACHER_NAME_ like concat('%',#{keyWord,jdbcType=VARCHAR},'%'))
+                and (tr.TEACHER_CODE_ like concat('%',#{keyWord,jdbcType=VARCHAR},'%'))
             </if>
         </where>
         group by tc.ID_,tr.TEACHER_CODE_
