@@ -440,15 +440,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 30);
-        PageCondition condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
+        PageCondition<RollBookConditionDto> condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
         PageResult<RollBookList> rollBookList = findRollBookList(condition);
         String path="";
         if (rollBookList != null) {
             List<RollBookList> list = rollBookList.getList();
             if (CollectionUtil.isNotEmpty(list)) {
                 list = SpringUtils.convert(list);
-                @SuppressWarnings("unchecked")
-                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
+                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport<RollBookList>(list,
                         excelStoreConfig.getGraduteRollBookListKey(),
                         excelStoreConfig.getGraduteRollBookListTitle(),
                         cacheDirectory);
