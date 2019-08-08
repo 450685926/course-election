@@ -224,63 +224,46 @@ public class TeacherLessonTableServiceServiceImpl
     public List<TeacherTimeTable> findTeacherTimetable(Long calendarId,
         String teacherCode)
     {
-        List<TeacherTimeTable> classTimeAndRoom =
-            courseTakeDao.findTeacherTimetable(calendarId, teacherCode);
-        if (CollectionUtil.isNotEmpty(classTimeAndRoom))
-        {
-            List<Long> ids = classTimeAndRoom.stream()
-                .map(TeacherTimeTable::getTeachingClassId)
-                .collect(Collectors.toList());
+        List<TeacherTimeTable > classTimeAndRoom=courseTakeDao.findTeacherTimetable(calendarId,teacherCode);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            List<Long> ids = classTimeAndRoom.stream().map(TeacherTimeTable::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> tableMessages = getTimeById(ids);
-            Map<Long, List<TimeTableMessage>> listMap = new HashMap<>();
-            if (CollectionUtil.isNotEmpty(tableMessages))
-            {
-                List<TimeTableMessage> timeTableMessages = tableMessages
-                    .stream()
-                    .filter(t -> StringUtils.isEmpty(t.getTeacherCode()))
+            Map<Long, List<TimeTableMessage>> listMap=new HashMap<>();
+            if(CollectionUtil.isNotEmpty(tableMessages)){
+                List<TimeTableMessage> timeTableMessages = tableMessages.stream()
                     .filter(vo -> Arrays.asList(vo.getTeacherCode().split(","))
-                        .contains(teacherCode))
+                    .contains(teacherCode))
                     .collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(timeTableMessages))
-                {
-                    listMap = timeTableMessages.stream()
-                        .collect(Collectors
-                            .groupingBy(TimeTableMessage::getTeachingClassId));
+                if(CollectionUtil.isNotEmpty(timeTableMessages)){
+                    listMap = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
                 }
             }
-            for (TeacherTimeTable teacherTimeTable : classTimeAndRoom)
-            {
-                List<TimeTableMessage> timeTableMessages =
-                    listMap.get(teacherTimeTable.getTeachingClassId());
-                String labelName = CultureSerivceInvoker
-                    .getCourseLabelNameById(teacherTimeTable.getCourseLabel());
+            for (TeacherTimeTable teacherTimeTable : classTimeAndRoom) {
+                List<TimeTableMessage> timeTableMessages = listMap.get(teacherTimeTable.getTeachingClassId());
+                String labelName = CultureSerivceInvoker.getCourseLabelNameById(teacherTimeTable.getCourseLabel());
                 teacherTimeTable.setCourseLabelName(labelName);
                 teacherTimeTable.setTimeTableList(timeTableMessages);
-                if (CollectionUtil.isNotEmpty(timeTableMessages))
-                {
-                    Set<String> timeTabel = new HashSet<>();
-                    Set<String> room = new HashSet<>();
-                    for (TimeTableMessage tableMessage : timeTableMessages)
-                    {
-                        String timeTab = tableMessage.getTimeTab();
-                        String roomId = tableMessage.getRoomId();
-                        if (StringUtils.isNotEmpty(timeTab))
-                        {
-                            timeTabel.add(timeTab);
-                        }
-                        if (StringUtils.isNotEmpty(roomId))
-                        {
-                            room.add(roomId);
-                        }
+                if(CollectionUtil.isNotEmpty(timeTableMessages)){
+                    Set<String> timeTabel=new HashSet<>();
+                    Set<String> room=new HashSet<>();
+                    for (TimeTableMessage tableMessage : timeTableMessages) {
+                            String timeTab = tableMessage.getTimeTab();
+                            String roomId = tableMessage.getRoomId();
+                            if(StringUtils.isNotEmpty(timeTab)){
+                                timeTabel.add(timeTab);
+                            }
+                            if(StringUtils.isNotEmpty(roomId)){
+                                room.add(roomId);
+                            }
                     }
                     String classTime = String.join(",", timeTabel);
                     String classRoom = String.join(",", room);
                     teacherTimeTable.setClassTime(classTime);
                     teacherTimeTable.setClassRoom(classRoom);
                 }
-                
+
             }
-            
+
         }
         return classTimeAndRoom;
     }
