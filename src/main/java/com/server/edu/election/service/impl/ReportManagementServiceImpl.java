@@ -16,14 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.TeachingClassTeacher;
-import com.server.edu.election.util.ExcelStoreConfig;
-import com.server.edu.election.util.PageConditionUtil;
-import com.server.edu.election.util.WeekUtil;
-import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
