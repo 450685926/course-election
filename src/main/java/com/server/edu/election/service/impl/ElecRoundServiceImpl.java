@@ -186,5 +186,10 @@ public class ElecRoundServiceImpl implements ElecRoundService
             dataProvider.updateRoundCache(id);
         }
     }
+
+	@Override
+	public ElectionRoundsDto getRoundByTeachClassId(Long teachClassId) {
+		return roundsDao.getRoundByTeachClassId(teachClassId);
+	}
     
 }

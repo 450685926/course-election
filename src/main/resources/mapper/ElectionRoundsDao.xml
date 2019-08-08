@@ -134,4 +134,12 @@
             </if>
         </where>
     </select>
+    <select id="getRoundByTeachClassId" resultMap="BaseResultMap">
+	  	select * from election_rounds_t t
+	  	    left join election_rounds_cour_t c on c.ROUNDS_ID_ = t.ID_ 
+	  	<where>
+	  	    c.TEACHING_CLASS_ID_ = #{teachClassId}  
+	  	</where>
+  	</select>
+    
 </mapper>

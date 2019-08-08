@@ -67,6 +67,7 @@ import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.util.ExcelStoreConfig;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -145,7 +146,9 @@ public class ElcResultServiceImpl implements ElcResultService
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
-        	if(Constants.IS==condition.getIsScreening()) {
+        	if(Constants.IS.equals(condition.getIsScreening())) {
+        		int mode = TableIndexUtil.getMode(condition.getCalendarId());
+        		condition.setMode(mode);
         		listPage = classDao.listScreeningPage(condition);
         	}else {
         		listPage = classDao.listPage(condition);
@@ -185,8 +188,10 @@ public class ElcResultServiceImpl implements ElcResultService
                 		
                 	}
                 	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
-        				Classroom classroom = classroomList.stream().filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
-        				vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+        				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        				if(classroom!=null && classroom.getClassNumber()!=null) {
+        					vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+        				}
         			}else {
         				vo.setClassNumberStr("不限");
         			}
@@ -741,12 +746,19 @@ public class ElcResultServiceImpl implements ElcResultService
 		String path="";
         try {
         	condition.setGrade(StringUtils.equalsIgnoreCase("全部", condition.getGrade()) ? "" : condition.getGrade());
+        	condition.setFaculty(StringUtils.equalsIgnoreCase("null", condition.getFaculty()) ? "" : condition.getFaculty());
+        	condition.setTrainingLevel(StringUtils.equalsIgnoreCase("null", condition.getTrainingLevel()) ? "" : condition.getTrainingLevel());
+        	condition.setTrainingCategory(StringUtils.equalsIgnoreCase("null", condition.getTrainingCategory()) ? "" : condition.getTrainingCategory());
+        	condition.setDegreeType(StringUtils.equalsIgnoreCase("null", condition.getDegreeType()) ? "" : condition.getDegreeType());
+        	condition.setFormLearning(StringUtils.equalsIgnoreCase("null", condition.getFormLearning()) ? "" : condition.getFormLearning());
+        	condition.setEnrolSeason(StringUtils.equalsIgnoreCase("null", condition.getEnrolSeason()) ? "" : condition.getEnrolSeason());
+        	condition.setProfession(StringUtils.equalsIgnoreCase("null", condition.getProfession()) ? "" : condition.getProfession());
         	PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
             pageCondition.setCondition(condition);
             pageCondition.setPageSize_(100);
             int pageNum = 0;
             pageCondition.setPageNum_(pageNum);
-            List<Student4Elc> list = new ArrayList<>();
+            List<Student4Elc> list = new ArrayList<Student4Elc>();
             while (true)
             {
                 pageNum++;

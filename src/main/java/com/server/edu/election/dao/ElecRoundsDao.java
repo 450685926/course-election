@@ -81,4 +81,11 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
     
     /**查询学生选课名单*/
     Page<StudentSelectCourseList> findElectCourseList(ReportManagementCondition condition);
+    
+    /**
+     * 通过教学班主键ID查询轮次信息
+     * @param teachClassId 教学班主键ID
+     * @return
+     */
+	ElectionRoundsDto getRoundByTeachClassId(@Param("teachClassId") Long teachClassId);
 }

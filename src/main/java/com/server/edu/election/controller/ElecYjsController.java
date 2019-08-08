@@ -25,8 +25,10 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElecRoundService;
+import com.server.edu.election.service.ExemptionApplyConditionService;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -58,6 +60,9 @@ public class ElecYjsController
     
     @Autowired
     private ElecRoundService electionRoundService;
+    
+    @Autowired
+    private ExemptionApplyConditionService exemptionApplyConditionSerice;
     
     @Autowired
     private ElecYjsService yjsService;
@@ -170,19 +175,20 @@ public class ElecYjsController
     @ApiOperation(value = "获取研究生个人培养计划信息")
     @PostMapping("/culturePlanMsg")
     public RestResult<?> getCulturePlanMsg(
-        @RequestParam("roundId") Long roundId)
+    		@RequestParam("courseCode") String courseCode,
+    		@RequestParam("studentId") String studentId)
     {
-        Session session = SessionUtils.getCurrentSession();
-        String uid = session.realUid();
-        
-        logger.info("culturePath select success");
-        Map<String, Object> restResult3 =
-            yjsService.getElectResultCount(uid, roundId);
-        List<Map<String, Object>> resultList =
-            new ArrayList<Map<String, Object>>(1);
-        
-        resultList.add(restResult3);
-        return RestResult.successData(resultList);
+    	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
+    	return RestResult.successData(list);
     }
-    
+//    @ApiOperation(value = "根据课程编号和学籍信息查询所有符合的申请条件")
+//    @PostMapping("/matchedConditions")
+//    public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
+//    		@RequestParam("courseCode") @NotNull String courseCode,
+//    		@RequestParam("studentId") @NotNull String studentId){
+//    	logger.info("matchedConditions by CourseCode and studentId start");
+//    	
+//    	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
+//    	return RestResult.successData(list);
+//    }
 }

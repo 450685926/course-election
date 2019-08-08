@@ -56,4 +56,11 @@ public interface ElecRoundService
      * @see [类、类#方法、类#成员]
      */
     void delete(List<Long> ids);
+    
+    /**
+     * 通过教学班主键ID查询轮次信息
+     * @param teachClassId 教学班主键ID
+     * @return
+     */
+    ElectionRoundsDto getRoundByTeachClassId(Long teachClassId);
 }
