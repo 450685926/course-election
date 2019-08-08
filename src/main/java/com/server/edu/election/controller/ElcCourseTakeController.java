@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.server.edu.common.rest.ResultStatus;
+import com.server.edu.election.util.PageConditionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -129,6 +130,64 @@ public class ElcCourseTakeController
                 courseTakeService.graduatePage(condition);
 
         return RestResult.successData(list);
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出")})
+    @PostMapping(value = "/exportGraduatePage")
+    public ResponseEntity<Resource> exportGraduatePage(
+            @RequestBody ElcCourseTakeQuery query)
+            throws Exception
+    {
+        ValidatorUtil.validateAndThrow(query);
+        PageCondition condition = PageConditionUtil.getPageCondition(query);
+        PageResult<ElcCourseTakeVo> page = courseTakeService.graduatePage(condition);
+        List<ElcCourseTakeVo> list = page.getList();
+
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.addCell("学号", "studentId");
+        design.addCell("姓名", "name");
+        design.addCell("培养层次", "trainingLevel").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_PYCC.getType(), value);
+                    return dict;
+                });
+        design.addCell("培养类别", "degreeCategory").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_PYLB.getType(), value);
+                    return dict;
+                });
+        design.addCell("学位类型", "degreeType").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_XWLX.getType(), value);
+                    return dict;
+                });
+        design.addCell("学习形式", "formLearning").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_XXXS.getType(), value);
+                    return dict;
+                });
+        design.addCell("学院", "faculty").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                    return dict;
+                });
+        design.addCell("专业", "profession").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.G_ZY.getType(), value);
+                    return dict;
+                });
+        design.setDatas(list);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+
+        return ExportUtil
+                .exportExcel(excelUtil, cacheDirectory, "yanJiuShengKeXuanKeMingDanDaoChu.xls");
     }
 
     /**
@@ -485,90 +544,90 @@ public class ElcCourseTakeController
             .body(resource);
     }
     
-    @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "导出")})
-    @PostMapping(value = "/export")
-    public ResponseEntity<Resource> export(
-        @RequestBody ElcCourseTakeQuery query)
-        throws Exception
-    {
-        ValidatorUtil.validateAndThrow(query);
-        
-        PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
-        page.setCondition(query);
-        page.setPageNum_(1);
-        page.setPageSize_(1000);
-        
-        List<ElcCourseTakeVo> datas = new ArrayList<>();
-        
-        PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
-        while (datas.size() < res.getTotal_())
-        {
-            datas.addAll(res.getList());
-            page.setPageNum_(page.getPageNum_() + 1);
-            if (datas.size() < res.getTotal_())
-            {
-                res = courseTakeService.listPage(page);
-            }
-        }
-        
-        GeneralExcelDesigner design = new GeneralExcelDesigner();
-        design.addCell("学号", "studentId");
-        design.addCell("姓名", "studentName");
-        design.addCell("课程序号", "teachingClassCode");
-        design.addCell("课程代码", "courseCode");
-        design.addCell("课程名称", "courseName");
-        design.addCell("专业", "profession")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.G_ZY.getType(), value);
-                    return dict;
-                });
-        design.addCell("校区", "campus")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_XQ.getType(), value);
-                    return dict;
-                });
-        design.addCell("学分", "credits");
-        design.addCell("修读类别", "courseTakeType")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    if ("1".equals(value))
-                    {
-                        return "正常修读";
-                    }
-                    else if ("2".equals(value))
-                    {
-                        return "重修";
-                    }
-                    else if ("3".equals(value))
-                    {
-                        return "免修不免考";
-                    }
-                    else if ("4".equals(value))
-                    {
-                        return "免修";
-                    }
-                    return value;
-                });
-        design.setDatas(datas);
-        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        
-        return ExportUtil
-            .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
-    }
-    
-    @ApiOperation(value = "修改修读类别")
-    @PostMapping("/editStudyType")
-    public RestResult<Integer> editStudyType(
-        @RequestBody ElcCourseTakeDto elcCourseTakeDto)
-    {
-        int result =courseTakeService.editStudyType(elcCourseTakeDto);
-        return RestResult.successData(result);
-    }
+//    @ApiResponses({
+//        @ApiResponse(code = 200, response = File.class, message = "导出")})
+//    @PostMapping(value = "/export")
+//    public ResponseEntity<Resource> export(
+//        @RequestBody ElcCourseTakeQuery query)
+//        throws Exception
+//    {
+//        ValidatorUtil.validateAndThrow(query);
+//
+//        PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
+//        page.setCondition(query);
+//        page.setPageNum_(1);
+//        page.setPageSize_(1000);
+//
+//        List<ElcCourseTakeVo> datas = new ArrayList<>();
+//
+//        PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
+//        while (datas.size() < res.getTotal_())
+//        {
+//            datas.addAll(res.getList());
+//            page.setPageNum_(page.getPageNum_() + 1);
+//            if (datas.size() < res.getTotal_())
+//            {
+//                res = courseTakeService.listPage(page);
+//            }
+//        }
+//
+//        GeneralExcelDesigner design = new GeneralExcelDesigner();
+//        design.addCell("学号", "studentId");
+//        design.addCell("姓名", "studentName");
+//        design.addCell("课程序号", "teachingClassCode");
+//        design.addCell("课程代码", "courseCode");
+//        design.addCell("课程名称", "courseName");
+//        design.addCell("专业", "profession")
+//            .setValueHandler(
+//                (String value, Object rawData, GeneralExcelCell cell) -> {
+//                    String dict = dictionaryService
+//                        .query(DictTypeEnum.G_ZY.getType(), value);
+//                    return dict;
+//                });
+//        design.addCell("校区", "campus")
+//            .setValueHandler(
+//                (String value, Object rawData, GeneralExcelCell cell) -> {
+//                    String dict = dictionaryService
+//                        .query(DictTypeEnum.X_XQ.getType(), value);
+//                    return dict;
+//                });
+//        design.addCell("学分", "credits");
+//        design.addCell("修读类别", "courseTakeType")
+//            .setValueHandler(
+//                (String value, Object rawData, GeneralExcelCell cell) -> {
+//                    if ("1".equals(value))
+//                    {
+//                        return "正常修读";
+//                    }
+//                    else if ("2".equals(value))
+//                    {
+//                        return "重修";
+//                    }
+//                    else if ("3".equals(value))
+//                    {
+//                        return "免修不免考";
+//                    }
+//                    else if ("4".equals(value))
+//                    {
+//                        return "免修";
+//                    }
+//                    return value;
+//                });
+//        design.setDatas(datas);
+//        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+//
+//        return ExportUtil
+//            .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
+//    }
+//
+//    @ApiOperation(value = "修改修读类别")
+//    @PostMapping("/editStudyType")
+//    public RestResult<Integer> editStudyType(
+//        @RequestBody ElcCourseTakeDto elcCourseTakeDto)
+//    {
+//        int result =courseTakeService.editStudyType(elcCourseTakeDto);
+//        return RestResult.successData(result);
+//    }
 
     @ApiOperation(value = "学生选课列表")
     @GetMapping(value = "/findTeachingClassId")
