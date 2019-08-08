@@ -836,7 +836,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	ids.clear();
         	ids.addAll(optList);
         }
-        applyDao.approvalExemptionApply(ids,status,score,auditor);
+        if (CollectionUtil.isNotEmpty(ids)) {
+        	applyDao.approvalExemptionApply(ids,status,score,auditor);
+		}
         return "common.editSuccess";
     }
 
