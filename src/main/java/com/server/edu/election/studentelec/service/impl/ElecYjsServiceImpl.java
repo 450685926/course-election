@@ -177,12 +177,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         if (Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
         {
             // 选课
-//            List<ElectionRounds> elecRounds =
-//                elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
-//            for (ElectionRounds round : elecRounds)
-//            {
-                doElec(context,elecExceutors,request.getElecClassList(),null,calendarId);
-//            }
+            List<ElectionRounds> elecRounds =
+                elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
+            for (ElectionRounds round : elecRounds)
+            {
+                doElec(context,elecExceutors,request.getElecClassList(),round,calendarId);
+            }
         }
         else
         {

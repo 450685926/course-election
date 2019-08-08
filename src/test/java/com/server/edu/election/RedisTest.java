@@ -12,6 +12,8 @@ import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+
 import redis.clients.jedis.Jedis;
 
 @ActiveProfiles("dev")
@@ -54,5 +56,14 @@ public class RedisTest extends ApplicationTest
             System.out.println("============================== success");
         }
         System.out.println("============================== code = "+statusCode);
+    }
+    
+    @Autowired
+    RoundDataProvider cacheService;
+    
+    @Test
+    public void test3() {
+        cacheService.getAllRound();
+        cacheService.getAllRound();
     }
 }
