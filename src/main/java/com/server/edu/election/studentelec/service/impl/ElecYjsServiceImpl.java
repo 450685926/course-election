@@ -482,18 +482,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             elcCourseResult.setCalendarId(selected.getCalendarId());
             elcCourseResult.setTerm(selected.getTerm());
             List<TeachingClassCache> teachClasss =
-                new ArrayList<TeachingClassCache>();
-            if (roundId != null)
-            { // 教务员
-                teachClasss = dataProvider.getTeachClasss(roundId,
-                		selected.getCourseCode());
-            }
-            else
-            { // 管理员
-                teachClasss =
                     dataProvider.getTeachClasssbyCalendarId(calendarId,
                     		selected.getCourseCode());
-            }
             
             if (CollectionUtil.isNotEmpty(teachClasss))
             {
