@@ -1,5 +1,7 @@
 package com.server.edu.election.dto;
 
+import java.util.List;
+
 /**
  * @description: 点名册查询条件
  * @author: bear
@@ -14,6 +16,15 @@ public class RollBookConditionDto {
     private String teacherCode;
     private String courseNature;
     private String classCode;
+    private List<Long> ids;//导出列表id集合
+
+    public List<Long> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<Long> ids) {
+        this.ids = ids;
+    }
 
     public String getCourseNature() {
         return courseNature;
