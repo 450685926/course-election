@@ -13,15 +13,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.util.ExcelStoreConfig;
-import com.server.edu.election.util.PageConditionUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
+import com.server.edu.util.ExportUtil;
 import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelCell;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
@@ -30,8 +36,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.pagehelper.Page;
@@ -110,6 +120,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Autowired
     private ExcelStoreConfig excelStoreConfig;
 
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDao;
+
     @Value("${cache.directory}")
     private String cacheDirectory;
 
@@ -149,9 +162,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             PageCondition<ElcCourseTakeQuery> page)
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        Page<ElcCourseTakeVo> listPage = courseTakeDao.elcStudentInfo(page.getCondition());
-        setTeachingArrange(listPage);
-        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        Page<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.graduatePage(page.getCondition());
+        setTeachingArrange(elcCourseTakeVos);
+        PageResult<ElcCourseTakeVo> result = new PageResult<>(elcCourseTakeVos);
         return result;
     }
 
@@ -162,50 +175,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(condition.getCondition());
         setTeachingArrange(listPage);
         return new PageResult<>(listPage);
-    }
-
-    private void setTeachingArrange(Page<ElcCourseTakeVo> elcCourseTakeVos) {
-        if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
-            List<Long> ids = elcCourseTakeVos.stream().map(ElcCourseTakeVo::getTeachingClassId).collect(Collectors.toList());
-            List<TimeTableMessage> tableMessages = getTimeById(ids);
-            Map<Long, List<TimeTableMessage>> listMap = tableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-            for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(elcCourseTakeVo.getCalendarId());
-                elcCourseTakeVo.setCalendarName(schoolCalendar.getFullName());
-                List<TimeTableMessage> timeTableMessages = listMap.get(elcCourseTakeVo.getTeachingClassId());
-                if (CollectionUtil.isNotEmpty(timeTableMessages)) {
-                    List<String> timeAndRooms = timeTableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                    elcCourseTakeVo.setCourseArrange(String.join(",", timeAndRooms));
-                }
-            }
-        }
-    }
-
-    private List<TimeTableMessage> getTimeById(List<Long> teachingClassId) {
-        List<TimeTableMessage> list = new ArrayList<>();
-        if (CollectionUtil.isNotEmpty(teachingClassId)) {
-            List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(teachingClassId);
-            if (CollectionUtil.isNotEmpty(classTimeAndRoom)) {
-                for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
-                    Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                    Integer timeStart = classTeacherDto.getTimeStart();
-                    Integer timeEnd = classTeacherDto.getTimeEnd();
-                    String weekNumber = classTeacherDto.getWeekNumberStr();
-                    String[] str = weekNumber.split(",");
-
-                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
-                    List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));
-                    String weekNumStr = weekNums.toString();//周次
-                    String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
-                    String timeStr = weekstr + " " + timeStart + "-" + timeEnd + "节" + weekNumStr + dictionaryService.query("X_XQ",classTeacherDto.getCampus());
-                    TimeTableMessage time = new TimeTableMessage();
-                    time.setTeachingClassId(classTeacherDto.getTeachingClassId());
-                    time.setTimeAndRoom(timeStr);
-                    list.add(time);
-                }
-            }
-        }
-        return list;
     }
 
     @Transactional
@@ -748,57 +717,70 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return new PageResult<>(elcStudentVos);
     }
 
-    /*
-     * 导出学生选课信息
-     */
-    @Override
-    public RestResult<String> exportElcStudentInfo(ElcCourseTakeQuery elcCourseTakeQuery) throws Exception {
-        FileUtil.mkdirs(cacheDirectory);
-        //删除超过30天的文件
-        FileUtil.deleteFile(cacheDirectory, 30);
-        PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
-        condition.setCondition(elcCourseTakeQuery);
-        PageResult<ElcCourseTakeVo> elcCourseTakeVoPageResult = graduatePage(condition);
-        String path="";
-        if (elcCourseTakeVoPageResult != null) {
-            List<ElcCourseTakeVo> list = elcCourseTakeVoPageResult.getList();
-            if (CollectionUtil.isNotEmpty(list)) {
-                list = SpringUtils.convert(list);
-                @SuppressWarnings("unchecked")
-                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
-                        excelStoreConfig.getElcStudentInfoKey(),
-                        excelStoreConfig.getElcStudentInfoTitle(),
-                        cacheDirectory);
-                path = excelExport.exportExcelToCacheDirectory("学生选课信息");
-            }
-        }
-        return RestResult.successData("minor.export.success",path);
-    }
 
-    /*
-     * 导出学生选课信息
-     */
     @Override
-    public RestResult<String> exportElcPersonalInfo(String studentId) throws Exception {
+    public ResponseEntity<Resource> exportGraduatePage(ElcCourseTakeQuery query) throws Exception {
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 30);
-        PageCondition<String> condition = PageConditionUtil.getPageCondition(studentId);
-        PageResult<ElcCourseTakeVo> elcCourseTakeVoPageResult = allSelectedCourse(condition);
-        String path="";
-        if (elcCourseTakeVoPageResult != null) {
-            List<ElcCourseTakeVo> list = elcCourseTakeVoPageResult.getList();
-            if (CollectionUtil.isNotEmpty(list)) {
-                list = SpringUtils.convert(list);
-                @SuppressWarnings("unchecked")
-                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport(list,
-                        excelStoreConfig.getElcPersonalInfoKey(),
-                        excelStoreConfig.getElcPersonalInfoTitle(),
-                        cacheDirectory);
-                path = excelExport.exportExcelToCacheDirectory("全部选课信息");
-            }
+        List<Long> ids = query.getIds();
+        Page<ElcCourseTakeVo> elcCourseTakeVos;
+        if (CollectionUtil.isNotEmpty(ids)) {
+            elcCourseTakeVos = courseTakeDao.graduatePage(query);
+        } else {
+            PageHelper.startPage(1, 1000);
+            elcCourseTakeVos = courseTakeDao.graduatePage(query);
         }
-        return RestResult.successData("minor.export.success",path);
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.addCell("学号", "studentId");
+        design.addCell("姓名", "studentName");
+        design.addCell("班级", "teachingClassName");
+        design.addCell("年级", "grade");
+        design.addCell("培养层次", "trainingLevel").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_PYCC.getType(), value);
+                    return dict;
+                });
+        design.addCell("培养类别", "degreeCategory").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_PYLB.getType(), value);
+                    return dict;
+                });
+        design.addCell("学位类型", "degreeType").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_XWLX.getType(), value);
+                    return dict;
+                });
+        design.addCell("学习形式", "formLearning").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_XXXS.getType(), value);
+                    return dict;
+                });
+        design.addCell("学院", "faculty").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                    return dict;
+                });
+        design.addCell("专业", "profession").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.G_ZY.getType(), value);
+                    return dict;
+                });
+        design.addCell("方向", "profession").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.G_ZY.getType(), value);
+                    return dict;
+                });
+        design.setDatas(elcCourseTakeVos);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, "yanJiuShengKeXuanKeMingDanDaoChu.xls");
     }
 
     private void addToList(AddCourseDto courseDto, List<ElcStudentVo> elcStudentVos, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {
@@ -873,19 +855,95 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
 
-    private void setCourseArrange(Page<ElcStudentVo> elcStudentVos) {
-        if (CollectionUtil.isNotEmpty(elcStudentVos)) {
-            List<Long> ids = elcStudentVos.stream().map(ElcStudentVo::getTeachingClassId).collect(Collectors.toList());
-            List<TimeTableMessage> tableMessages = getTimeById(ids);
-            Map<Long, List<TimeTableMessage>> listMap = tableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-            for (ElcStudentVo elcCourseTakeVo : elcStudentVos) {
-                List<TimeTableMessage> timeTableMessages = listMap.get(elcCourseTakeVo.getTeachingClassId());
-                if (CollectionUtil.isNotEmpty(timeTableMessages)) {
-                    List<String> timeAndRooms = timeTableMessages.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                    elcCourseTakeVo.setCourseArrange(String.join(",", timeAndRooms));
+    private void setTeachingArrange(Page<ElcCourseTakeVo> elcCourseTakeVos) {
+        if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+            List<Long> ids = elcCourseTakeVos.stream().map(ElcCourseTakeVo::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
+            int size = tableMessages.size();
+            MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
+            MultiValueMap<Long, String> nameMap = new LinkedMultiValueMap<>(size);
+            for (TimeTableMessage tableMessage : tableMessages) {
+                Integer dayOfWeek = tableMessage.getDayOfWeek();
+                Integer timeStart = tableMessage.getTimeStart();
+                Integer timeEnd = tableMessage.getTimeEnd();
+                String roomID = tableMessage.getRoomId();
+                String teacherCode = tableMessage.getTeacherCode();
+                Long teachingClassId = tableMessage.getTeachingClassId();
+                String teacherName = "";
+                if (teacherCode != null) {
+                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
+                    nameMap.add(teachingClassId,teacherName);
+                }
+                String[] str = tableMessage.getWeekNum().split(",");
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ ClassroomCacheUtil.getRoomName(roomID);
+                arrangeMap.add(teachingClassId, timeStr);
+            }
+            for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(elcCourseTakeVo.getCalendarId());
+                elcCourseTakeVo.setCalendarName(schoolCalendar.getFullName());
+                Long teachingClassId = elcCourseTakeVo.getTeachingClassId();
+                List<String> arr = arrangeMap.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(arr)) {
+                    Set<String> set = new HashSet<>(arr.size());
+                    set.addAll(arr);
+                    elcCourseTakeVo.setCourseArrange(String.join(",", set));
+                }
+                List<String> names = nameMap.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(names)) {
+                    Set<String> set = new HashSet<>(names.size());
+                    set.addAll(names);
+                    elcCourseTakeVo.setTeachingName(String.join(",", set));
                 }
             }
         }
     }
 
+    private void setCourseArrange(Page<ElcStudentVo> elcStudentVos) {
+        if (CollectionUtil.isNotEmpty(elcStudentVos)) {
+            List<Long> ids = elcStudentVos.stream().map(ElcStudentVo::getTeachingClassId).collect(Collectors.toList());
+            List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
+            int size = tableMessages.size();
+            MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
+            MultiValueMap<Long, String> nameMap = new LinkedMultiValueMap<>(size);
+            for (TimeTableMessage tableMessage : tableMessages) {
+                Integer dayOfWeek = tableMessage.getDayOfWeek();
+                Integer timeStart = tableMessage.getTimeStart();
+                Integer timeEnd = tableMessage.getTimeEnd();
+                String roomID = tableMessage.getRoomId();
+                String teacherCode = tableMessage.getTeacherCode();
+                Long teachingClassId = tableMessage.getTeachingClassId();
+                String teacherName = "";
+                if (teacherCode != null) {
+                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
+                    nameMap.add(teachingClassId,teacherName);
+                }
+                String[] str = tableMessage.getWeekNum().split(",");
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ ClassroomCacheUtil.getRoomName(roomID);
+                arrangeMap.add(teachingClassId, timeStr);
+            }
+            for (ElcStudentVo elcStudentVo : elcStudentVos) {
+                Long teachingClassId = elcStudentVo.getTeachingClassId();
+                List<String> times = arrangeMap.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(times)) {
+                    Set<String> set = new HashSet<>(times.size());
+                    set.addAll(times);
+                    elcStudentVo.setCourseArrange(String.join(",", set));
+                }
+                List<String> names = nameMap.get(teachingClassId);
+                if (CollectionUtil.isNotEmpty(names)) {
+                    Set<String> set = new HashSet<>(names.size());
+                    set.addAll(names);
+                    elcStudentVo.setTeacherName(String.join(",", set));
+                }
+            }
+        }
+    }
 }

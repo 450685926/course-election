@@ -3,8 +3,16 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelCell;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -67,10 +75,12 @@ public class ReportManagementController
     
     @Autowired
     private ReportManagementService managementService;
-    
+
+    private DictionaryService dictionaryService;
+
     private static Logger LOG =
         LoggerFactory.getLogger(ExemptionController.class);
-    
+
     @Value("${cache.directory}")
     private String cacheDirectory;
     
@@ -107,23 +117,44 @@ public class ReportManagementController
     public RestResult<PageResult<RollBookList>> findGraduteRollBookList(
             @RequestBody PageCondition<RollBookConditionDto> condition)
     {
-        RollBookConditionDto rollBookConditionDto = condition.getCondition();
-        if (rollBookConditionDto.getCalendarId() == null)
-        {
-            return RestResult.fail("common.parameterError");
+//        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+//        if (rollBookConditionDto.getCalendarId() == null)
+//        {
+//            return RestResult.fail("common.parameterError");
+//        }
+//        Session session = SessionUtils.getCurrentSession();
+//        PageResult<RollBookList> bookList = null;
+//        if (session.isAdmin()) {
+//            bookList = managementService.findRollBookList(condition);
+//        }else if (session.isAcdemicDean()) {
+//            rollBookConditionDto.setFaculty(session.getFaculty());
+//            bookList = managementService.findRollBookList(condition);
+//        }else if (session.isTeacher()) {
+//            rollBookConditionDto.setTeacherCode(session.realUid());
+//            bookList = managementService.findRollBookList(condition);
+//        }
+//        return RestResult.successData(bookList);
+        return RestResult.successData(managementService.findRollBookList(condition));
+    }
+
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出")})
+    @PostMapping("/exportGraduteRollBookList")
+    public ResponseEntity<Resource> exportGraduteRollBookList(
+            @RequestBody PageCondition<RollBookConditionDto> condition)
+            throws Exception
+    {
+        ValidatorUtil.validateAndThrow(condition);
+        RestResult<PageResult<RollBookList>> graduteRollBookList = findGraduteRollBookList(condition);
+        GeneralExcelDesigner design = graduteRollBookList();
+        PageResult<RollBookList> data = graduteRollBookList.getData();
+        List<RollBookList> list = new ArrayList<>();
+        if (data != null) {
+            list = data.getList();
         }
-        Session session = SessionUtils.getCurrentSession();
-        PageResult<RollBookList> bookList = null;
-        if (session.isAdmin()) {
-            bookList = managementService.findRollBookList(condition);
-        }else if (session.isAcdemicDean()) {
-            rollBookConditionDto.setFaculty(session.getFaculty());
-            bookList = managementService.findRollBookList(condition);
-        }else if (session.isTeacher()) {
-            rollBookConditionDto.setTeacherCode(session.realUid());
-            bookList = managementService.findRollBookList(condition);
-        }
-        return RestResult.successData(bookList);
+        design.setDatas(list);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, "graduateRollBookList.xls");
     }
 
     @ApiOperation(value = "研究生点名册（学生名单）详情")
@@ -171,7 +202,6 @@ public class ReportManagementController
     }
     
     //导出待做
-    
     @ApiOperation(value = "研究生查询学生个人课表")
     @GetMapping("/findSchoolTimetab2")
     public RestResult<StudentSchoolTimetabVo> findSchoolTimetab2(
@@ -244,21 +274,20 @@ public class ReportManagementController
     public RestResult<PageResult<StudentVo>> findStudentTimeTableByRole(
             @RequestBody PageCondition<ReportManagementCondition> condition)
     {
-//        LOG.info("findStudentTimeTableByRole.start");
-//        ReportManagementCondition reportManagementCondition = condition.getCondition();
-//        Session session = SessionUtils.getCurrentSession();
-//        PageResult<StudentVo> schoolTimetab = null;
-//        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
-//            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
-//        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-//            reportManagementCondition.setFaculty(session.getFaculty());
-//            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
-//        }else if (session.isStudent()) {
-//            reportManagementCondition.setStudentCode(session.realUid());
-//            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
-//        }
-//        return RestResult.successData(schoolTimetab);
-        return RestResult.successData(managementService.findStudentTimeTableByRole(condition));
+        LOG.info("findStudentTimeTableByRole.start");
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<StudentVo> schoolTimetab = null;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            reportManagementCondition.setFaculty(session.getFaculty());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }else if (session.isStudent()) {
+            reportManagementCondition.setStudentCode(session.realUid());
+            schoolTimetab = managementService.findStudentTimeTableByRole(condition);
+        }
+        return RestResult.successData(schoolTimetab);
     }
     
     @ApiOperation(value = "导出点名册")
@@ -270,37 +299,6 @@ public class ReportManagementController
         LOG.info("export.start");
         ExcelResult export = managementService.exportRollBookList(condition);
         return RestResult.successData(export);
-    }
-
-    @ApiOperation(value = "导出研究生点名册")
-    @GetMapping("/exportGraduteRollBookList")
-    public File exportGraduteRollBookList(
-            @ModelAttribute RollBookConditionDto rollBookConditionDto)
-            throws Exception
-    {
-        LOG.info("export.start");
-        Session session = SessionUtils.getCurrentSession();
-       if (session.isAcdemicDean()) {
-            rollBookConditionDto.setFaculty(session.getFaculty());
-        }else if (session.isTeacher()) {
-            rollBookConditionDto.setTeacherCode(session.realUid());
-        }
-        try {
-            RestResult<String> restResult = managementService.exportGraduteRollBookList(rollBookConditionDto);
-            if (restResult.getCode() == ResultStatus.SUCCESS.code()
-                    && !"".equals(restResult.getData()))
-            {
-                return new File(restResult.getData());
-            }
-            else
-            {
-                return null;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     /**
@@ -384,6 +382,30 @@ public class ReportManagementController
                 return null;
             }
     }
-    
+
+    /**
+     * 点名册excel拼装返回
+     * @return
+     */
+    private GeneralExcelDesigner graduteRollBookList() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.addCell("课程序号", "classCode");
+        design.addCell("课程代码", "courseCode");
+        design.addCell("课程名称", "courseName");
+        design.addCell("教学班", "className");
+        design.addCell("课程性质", "courseNature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_KCXZ", value);
+                });
+        design.addCell("实际人数", "selectCourseNumber");
+        design.addCell("人数上限", "numberLimit");
+        design.addCell("开课学院", "faculty").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    return dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                });
+        design.addCell("教师", "teacherName");
+        return design;
+    }
 
 }
