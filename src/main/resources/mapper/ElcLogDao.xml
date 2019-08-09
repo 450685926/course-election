@@ -61,6 +61,9 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
             and (t2.STUDENT_CODE_ like CONCAT('%',#{query.keyword},'%') or t2.NAME_ like CONCAT('%',#{query.keyword},'%'))
         </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.createBy)">
+            and t1.CREATE_BY_ like CONCAT('%',#{query.createBy},'%')
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.startTime)">
             <![CDATA[
 				and t1.CREATED_AT_ >= #{query.startTime}
