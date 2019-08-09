@@ -327,18 +327,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> allSchoolTimetab =
             courseTakeDao.findAllSchoolTimetab(condition.getCondition());
-        if (allSchoolTimetab != null)
-        {
-            List<StudentVo> result = allSchoolTimetab.getResult();
-            SchoolCalendarVo schoolCalendar =
-                BaseresServiceInvoker.getSchoolCalendarById(
-                    condition.getCondition().getCalendarId());
-            for (StudentVo studentVo : result)
-            {
-                studentVo.setCalendarName(schoolCalendar.getFullName());
-            }
-
-        }
         return new PageResult<>(allSchoolTimetab);
     }
 
@@ -353,14 +341,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(condition.getCondition());
-        if (!schoolTimetab.isEmpty()) {
-            List<StudentVo> result = schoolTimetab.getResult();
-            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
-            for (StudentVo studentVo : result) {
-                studentVo.setCalendarName(schoolCalendar.getFullName());
-            }
-
-        }
         return new PageResult<>(schoolTimetab);
     }
 
