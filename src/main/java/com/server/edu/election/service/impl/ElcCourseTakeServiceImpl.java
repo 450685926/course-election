@@ -655,10 +655,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         addToList(courseDto, elcStudentVos, elcCourseTakes, elcLogs);
         Integer count = courseTakeDao.saveCourseTask(elcCourseTakes);
         if (count.intValue() != teachingClassIds.size()) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dropCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
         teachingClassDao.increElcNumberList(teachingClassIds);
-        elcLogDao.saveCourseLog(elcLogs);
+        Integer logCount = elcLogDao.saveCourseLog(elcLogs);
+        if (logCount != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         return count;
     }
 
@@ -669,10 +672,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<Long> teachingClassIds = value.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
         int delSize = teachingClassIds.size();
         if (teachingClassIds.size() != count ) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dropCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
-        teachingClassDao.decrElcNumberList(teachingClassIds);
+        int decr = teachingClassDao.decrElcNumberList(teachingClassIds);
+        if (decr != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
+        if (elcStudentVos.size() != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.teachingTaskError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         Session session = SessionUtils.getCurrentSession();
         String id = session.getUid();
         String name = session.getName();
@@ -704,7 +713,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcLog.setCreatedAt(new Date());
             elcLogs.add(elcLog);
         }
-        elcLogDao.saveCourseLog(elcLogs);
+        Integer logCount = elcLogDao.saveCourseLog(elcLogs);
+        if (logCount != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         return count;
     }
 

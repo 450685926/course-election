@@ -268,6 +268,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             {
                 SelectedCourse course = new SelectedCourse();
                 course.setCalendarName(year);
+                course.setTerm(c.getTerm());
                 course.setTeachClassMsg(c.getTeachingClassId());
                 course.setNature(c.getNature());
                 course.setApply(c.getApply());
@@ -285,7 +286,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 course.setTeachClassCode(c.getTeachingClassCode());
                 course.setTurn(c.getTurn());
                 course.setFaculty(c.getFaculty());
-                course.setTerm(c.getTerm());
                 List<ClassTimeUnit> times = this.concatTime(collect, course);
                 course.setTimes(times);
                 selectedCourses.add(course);
