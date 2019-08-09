@@ -184,8 +184,6 @@ public class TeacherLessonTableController
         throws Exception
     {
         LOG.info("exportTeacherTimetabPdf.start");
-        
-        StringBuffer name = new StringBuffer();
         RestResult<String> restResult =
             lessonTableService.exportTeacherTimetabPdf(calendarId,
                 calendarName,
@@ -203,7 +201,7 @@ public class TeacherLessonTableController
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment;filename="
                         + String.valueOf(
-                            URLEncoder.encode(name.toString(), "UTF-8"))
+                            URLEncoder.encode(teacherName, "UTF-8"))
                         + ".pdf")
                 .body(resource);
         }

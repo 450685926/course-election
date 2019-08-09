@@ -150,7 +150,4 @@ public interface ElcCourseTakeService
     Integer removedCourse(List<ElcCourseTake> value);
 
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
-
-    /**课程维护导出学生选课信息*/
-    ResponseEntity<Resource> exportGraduatePage(ElcCourseTakeQuery query) throws Exception;
 }

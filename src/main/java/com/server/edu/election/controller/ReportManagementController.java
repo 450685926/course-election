@@ -25,7 +25,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -76,6 +75,7 @@ public class ReportManagementController
     @Autowired
     private ReportManagementService managementService;
 
+    @Autowired
     private DictionaryService dictionaryService;
 
     private static Logger LOG =
@@ -395,7 +395,7 @@ public class ReportManagementController
         design.addCell("教学班", "className");
         design.addCell("课程性质", "courseNature").setValueHandler(
                 (value, rawData, cell) -> {
-                    return dictionaryService.query("X_KCXZ", value);
+                    return dictionaryService.query(DictTypeEnum.X_KCXZ.getType(), value);
                 });
         design.addCell("实际人数", "selectCourseNumber");
         design.addCell("人数上限", "numberLimit");
