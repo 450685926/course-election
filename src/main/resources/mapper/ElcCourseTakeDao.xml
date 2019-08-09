@@ -469,9 +469,12 @@
     </select>
 
     <select id="findAllSchoolTimetab" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.vo.StudentVo">
-        SELECT el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,st.GRADE_ grade,st.FACULTY_ faculty,st.PROFESSION_ profession,
-        st.TRAINING_LEVEL_ trainingLevel,st.FORM_LEARNING_ formLearning FROM `elc_course_takes_t` el
-        LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+        SELECT 
+        	el.CALENDAR_ID_ calendarId,
+        	st.STUDENT_CODE_ studentCode,st.NAME_ name,st.GRADE_ grade,st.FACULTY_ faculty,st.PROFESSION_ profession,
+	        st.TRAINING_LEVEL_ trainingLevel,st.FORM_LEARNING_ formLearning 
+        FROM student_t st
+        JOIN elc_course_takes_t el on el.STUDENT_ID_=st.STUDENT_CODE_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
@@ -509,9 +512,8 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(registrationStatus)">
                 and st.REGISTRATION_STATUS_ =#{registrationStatus,jdbcType=VARCHAR}
             </if>
-
         </where>
-        GROUP BY STUDENT_ID_,CALENDAR_ID_ order by el.ID_
+		 group by st.STUDENT_CODE_ order by st.STUDENT_CODE_
     </select>
 
     <select id="findStudentAndTeacherTime" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -527,10 +529,11 @@
     </select>
 
     <select id="findSchoolTimetabByRole" parameterType="com.server.edu.election.dto.ReportManagementCondition" resultType="com.server.edu.election.vo.StudentVo">
-        SELECT el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,st.GRADE_ grade,st.FACULTY_ faculty,st.PROFESSION_ profession,
-        st.TRAINING_LEVEL_ trainingLevel,st.TRAINING_CATEGORY_ trainingCategory,st.DEGREE_TYPE_ degreeType,st.FORM_LEARNING_ formLearning
-        FROM `elc_course_takes_t` el
-        LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+        SELECT 
+	        el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ name,st.GRADE_ grade,st.FACULTY_ faculty,st.PROFESSION_ profession,
+	        st.TRAINING_LEVEL_ trainingLevel,st.TRAINING_CATEGORY_ trainingCategory,st.DEGREE_TYPE_ degreeType,st.FORM_LEARNING_ formLearning 
+        FROM student_t st
+        JOIN elc_course_takes_t el on el.STUDENT_ID_=st.STUDENT_CODE_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
@@ -563,7 +566,7 @@
                 and st.STUDENT_CODE_ =#{studentCode,jdbcType=VARCHAR}
             </if>
         </where>
-        group by STUDENT_ID_,CALENDAR_ID_ order by el.ID_
+        group by STUDENT_ID_ order by STUDENT_ID_
     </select>
 
     <select id="findClassTeacherByTeacherCode" resultType="java.lang.String">

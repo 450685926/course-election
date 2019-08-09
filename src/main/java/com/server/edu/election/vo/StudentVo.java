@@ -1,5 +1,8 @@
 package com.server.edu.election.vo;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.SchoolCalendarTranslator;
 import com.server.edu.election.entity.Student;
 
 /**
@@ -7,6 +10,7 @@ import com.server.edu.election.entity.Student;
  * @author: bear
  * @create: 2019-02-13 16:14
  */
+@CodeI18n
 public class StudentVo extends Student {
     /**
      * 
@@ -15,6 +19,7 @@ public class StudentVo extends Student {
 
     private Integer rebuildNumber;
 
+    @Code2Text(translator = SchoolCalendarTranslator.class)
     private Long calendarId;
 
     private String calendarName;
