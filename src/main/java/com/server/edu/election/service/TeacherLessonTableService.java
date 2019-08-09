@@ -35,13 +35,14 @@ public interface TeacherLessonTableService
     /**
      * 导出教师课表pdf--研究生
      * @param calendarId
+     * @param teacherName
      * @param calendarName
      * @param teacherCode
-     * @param teacherName
+     * @param faculty
      * @return
      */
-    RestResult<String> exportTeacherTimetabPdf(Long calendarId, String calendarName, String teacherCode,
-            String teacherName) throws DocumentException, IOException;
+    RestResult<String> exportTeacherTimetabPdf(Long calendarId,  String calendarName, String teacherCode, String teacherName,
+                                               String faculty) throws DocumentException, IOException;
     
     /**查询课表对应教师详细信息*/
     List<ClassTeacherDto> findStudentAndTeacherTime( Long teachingClassId);

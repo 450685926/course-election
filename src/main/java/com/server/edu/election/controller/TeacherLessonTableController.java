@@ -180,7 +180,8 @@ public class TeacherLessonTableController
         @RequestParam("calendarId") Long calendarId,
         @RequestParam("calendarName") String calendarName,
         @RequestParam("teacherCode") String teacherCode,
-        @RequestParam("teacherName") String teacherName)
+        @RequestParam("teacherName") String teacherName,
+        @RequestParam("faculty") String faculty)
         throws Exception
     {
         LOG.info("exportTeacherTimetabPdf.start");
@@ -188,7 +189,8 @@ public class TeacherLessonTableController
             lessonTableService.exportTeacherTimetabPdf(calendarId,
                 calendarName,
                 teacherCode,
-                teacherName);
+                teacherName,
+                    faculty);
         
         if (ResultStatus.SUCCESS.code() == restResult.getCode()
             && !"".equals(restResult.getData()))
