@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ctc.wstx.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,14 +134,20 @@ public class TeacherLessonTableServiceServiceImpl
      */
     @Override
     public PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition) {
+        ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
+        String keyWord = classCodeToTeacher.getKeyWord();
+        if (keyWord != null && keyWord != "") {
+            List<String> teacherCodes = teachingClassTeacherDao.findTeacherCodes(keyWord);
+            classCodeToTeacher.setTeacherCodes(teacherCodes);
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(condition.getCondition());
+        Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(classCodeToTeacher);
         if (CollectionUtil.isNotEmpty(teacherTimeTable)) {
             List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
             if (CollectionUtil.isNotEmpty(result)) {
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+//                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
                 for (ClassCodeToTeacher toTeacher : result) {
-                    toTeacher.setCalendarName(schoolCalendar.getFullName());
+//                    toTeacher.setCalendarName(schoolCalendar.getFullName());
                     TeachingClassTeacher teacher = teachingClassTeacherDao.findTeacher(toTeacher.getTeacherCode());
                     toTeacher.setTeacherName(teacher.getTeacherName());
                     teacher.setSex(teacher.getSex());

@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -66,7 +68,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.util.ExcelStoreConfig;
-import com.server.edu.election.util.PageConditionUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
@@ -297,7 +298,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
-                    studentSchoolTimetab.setTime(String.join(",", times));
+                    Set<String> set = new HashSet<>(times.size());
+                    set.addAll(times);
+                    studentSchoolTimetab.setTime(String.join(",", set));
                 }
                 List<String> names = nameMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
@@ -407,35 +410,43 @@ public class ReportManagementServiceImpl implements ReportManagementService
         return excelResult;
     }
 
-    /**
-     *@Description: 导出研究生点名册
-     *@Param:
-     *@return:
-     *@Author:
-     *@date: 2019/7/4
-     * @param rollBookConditionDto
-     */
-    @Override
-    public RestResult<String> exportGraduteRollBookList(RollBookConditionDto rollBookConditionDto) throws Exception{
-        FileUtil.mkdirs(cacheDirectory);
-        //删除超过30天的文件
-        FileUtil.deleteFile(cacheDirectory, 30);
-        PageCondition<RollBookConditionDto> condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
-        PageResult<RollBookList> rollBookList = findRollBookList(condition);
-        String path="";
-        if (rollBookList != null) {
-            List<RollBookList> list = rollBookList.getList();
-            if (CollectionUtil.isNotEmpty(list)) {
-                list = SpringUtils.convert(list);
-                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport<RollBookList>(list,
-                        excelStoreConfig.getGraduteRollBookListKey(),
-                        excelStoreConfig.getGraduteRollBookListTitle(),
-                        cacheDirectory);
-                path = excelExport.exportExcelToCacheDirectory("研究生点名册");
-            }
-        }
-        return RestResult.successData("minor.export.success",path);
-    }
+//    /**
+//     *@Description: 导出研究生点名册
+//     *@Param:
+//     *@return:
+//     *@Author:
+//     *@date: 2019/7/4
+//     * @param rollBookConditionDto
+//     */
+//    @Override
+//    public ResponseEntity<Resource> exportGraduteRollBookList(RollBookConditionDto rollBookConditionDto) throws Exception{
+//        FileUtil.mkdirs(cacheDirectory);
+//        //删除超过30天的文件
+//        FileUtil.deleteFile(cacheDirectory, 30);
+//        List<Long> ids = rollBookConditionDto.getIds();
+//        Page<RollBookList> classToExport;
+//        if (CollectionUtil.isNotEmpty(ids)) {
+//            classToExport = courseTakeDao.findClassToExport(ids);
+//        } else {
+//            PageCondition<RollBookConditionDto> condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
+//            classToExport = findRollBookList(condition);
+//        }
+//
+//        PageResult<RollBookList> rollBookList = findRollBookList(condition);
+//        String path="";
+//        if (rollBookList != null) {
+//            List<RollBookList> list = rollBookList.getList();
+//            if (CollectionUtil.isNotEmpty(list)) {
+//                list = SpringUtils.convert(list);
+//                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport<RollBookList>(list,
+//                        excelStoreConfig.getGraduteRollBookListKey(),
+//                        excelStoreConfig.getGraduteRollBookListTitle(),
+//                        cacheDirectory);
+//                path = excelExport.exportExcelToCacheDirectory("研究生点名册");
+//            }
+//        }
+//        return RestResult.successData("minor.export.success",path);
+//    }
 
 
     /**

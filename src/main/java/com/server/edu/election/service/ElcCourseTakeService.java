@@ -13,7 +13,10 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 
 /**
  * 已选课名单
@@ -147,10 +150,4 @@ public interface ElcCourseTakeService
     Integer removedCourse(List<ElcCourseTake> value);
 
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
-
-    /**课程维护导出学生选课信息*/
-    RestResult<String> exportElcStudentInfo(ElcCourseTakeQuery elcCourseTakeQuery) throws Exception;
-
-    /**课程维护导出学生个人全部选课信息*/
-    RestResult<String> exportElcPersonalInfo(String studentId) throws Exception;
 }
