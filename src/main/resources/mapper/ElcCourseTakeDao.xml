@@ -714,7 +714,7 @@
     <select id="findSelectedCourses" resultMap="VoResultMap">
       select
 	      t1.*,op.NATURE_ NATURE,
-	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,op.TERM_,
+	      op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,t3.TERM_,
 	      t3.LABEL_, t4.PERIOD_,
           t3.ASSESSMENT_MODE_,
 	      t4.CODE_ as teachingClassCode,
