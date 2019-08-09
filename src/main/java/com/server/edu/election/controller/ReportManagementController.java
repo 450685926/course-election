@@ -117,24 +117,23 @@ public class ReportManagementController
     public RestResult<PageResult<RollBookList>> findGraduteRollBookList(
             @RequestBody PageCondition<RollBookConditionDto> condition)
     {
-//        RollBookConditionDto rollBookConditionDto = condition.getCondition();
-//        if (rollBookConditionDto.getCalendarId() == null)
-//        {
-//            return RestResult.fail("common.parameterError");
-//        }
-//        Session session = SessionUtils.getCurrentSession();
-//        PageResult<RollBookList> bookList = null;
-//        if (session.isAdmin()) {
-//            bookList = managementService.findRollBookList(condition);
-//        }else if (session.isAcdemicDean()) {
-//            rollBookConditionDto.setFaculty(session.getFaculty());
-//            bookList = managementService.findRollBookList(condition);
-//        }else if (session.isTeacher()) {
-//            rollBookConditionDto.setTeacherCode(session.realUid());
-//            bookList = managementService.findRollBookList(condition);
-//        }
-//        return RestResult.successData(bookList);
-        return RestResult.successData(managementService.findRollBookList(condition));
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        if (rollBookConditionDto.getCalendarId() == null)
+        {
+            return RestResult.fail("common.parameterError");
+        }
+        Session session = SessionUtils.getCurrentSession();
+        PageResult<RollBookList> bookList = null;
+        if (session.isAdmin()) {
+            bookList = managementService.findRollBookList(condition);
+        }else if (session.isAcdemicDean()) {
+            rollBookConditionDto.setFaculty(session.getFaculty());
+            bookList = managementService.findRollBookList(condition);
+        }else if (session.isTeacher()) {
+            rollBookConditionDto.setTeacherCode(session.realUid());
+            bookList = managementService.findRollBookList(condition);
+        }
+        return RestResult.successData(bookList);
     }
 
     @ApiResponses({
@@ -389,6 +388,7 @@ public class ReportManagementController
      */
     private GeneralExcelDesigner graduteRollBookList() {
         GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
         design.addCell("课程序号", "classCode");
         design.addCell("课程代码", "courseCode");
         design.addCell("课程名称", "courseName");
