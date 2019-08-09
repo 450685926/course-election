@@ -131,7 +131,7 @@ public class ElecAgentController
     /**
      * 选课请求,选课时发送一次，此时应该返回ElecRespose.status=processing
      */
-    @ApiOperation(value = "学生选课")
+    @ApiOperation(value = "代理学生选课")
     @PostMapping("/elect")
     public RestResult<ElecRespose> elect(@RequestBody ElecRequest elecRequest)
     {
