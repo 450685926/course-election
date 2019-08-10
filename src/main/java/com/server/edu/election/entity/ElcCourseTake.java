@@ -70,6 +70,7 @@ public class ElcCourseTake implements Serializable
     /**
      * 选课模式
      * */
+    @Code2Text(transformer = "K_XKFS")
     @Column(name = "MODE_")
     private Integer mode;
     
