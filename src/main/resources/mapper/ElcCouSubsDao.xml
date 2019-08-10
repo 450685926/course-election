@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.server.edu.election.dao.ElcNoGradCouSubsDao">
-  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElcNoGradCouSubs">
+<mapper namespace="com.server.edu.election.dao.ElcCouSubsDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElcCouSubs">
     <!--
       WARNING - @mbg.generated
     -->
     <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
     <result column="PROJECT_ID_" jdbcType="VARCHAR" property="projectId" />
-    <result column="ORIGS_COURSE_ID_" jdbcType="VARCHAR" property="origsCourseId" />
-    <result column="SUB_COURSE_ID_" jdbcType="VARCHAR" property="subCourseId" />
+    <result column="ORIGS_COURSE_ID_" jdbcType="BIGINT" property="origsCourseId" />
+    <result column="SUB_COURSE_ID_" jdbcType="BIGINT" property="subCourseId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="CREATED_AT_" jdbcType="DATE" property="createdAt" />
     <result column="UPDATED_AT" jdbcType="DATE" property="updatedAt" />
   </resultMap>
   
-  <resultMap id="subsMap" type="com.server.edu.election.vo.ElcNoGradCouSubsVo" extends="com.server.edu.election.dao.ElcNoGradCouSubsDao.BaseResultMap">
+  <resultMap id="subsMap" type="com.server.edu.election.vo.ElcCouSubsVo" extends="com.server.edu.election.dao.ElcCouSubsDao.BaseResultMap">
+    <result column="origsCourseCode" jdbcType="VARCHAR" property="origsCourseCode" />
     <result column="origsCourseName" jdbcType="VARCHAR" property="origsCourseName" />
     <result column="origsCredits" jdbcType="INTEGER" property="origsCredits" />
+    <result column="subCourseCode" jdbcType="VARCHAR" property="subCourseCode" />
     <result column="subCourseName" jdbcType="VARCHAR" property="subCourseName" />
     <result column="subCredits" jdbcType="INTEGER" property="subCredits" />
     <result column="NAME_" jdbcType="VARCHAR" property="studentName" />
@@ -25,7 +27,7 @@
     <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
     <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
   </resultMap>
-  <select id="selectElcNoGradCouSubs" parameterType="com.server.edu.election.dto.ElcNoGradCouSubsDto" resultMap="subsMap">
+  <select id="selectElcNoGradCouSubs" parameterType="com.server.edu.election.dto.ElcCouSubsDto" resultMap="subsMap">
 		SELECT
 		   t1.ID_,
 		   t1.STUDENT_ID_,
@@ -36,14 +38,16 @@
 		   t4.GRADE_,
 		   t4.FACULTY_,
 		   t4.PROFESSION_,
+		   t2.CODE_ origsCourseCode,
 		   t2.NAME_ origsCourseName,
 		   t2.CREDITS_ origsCredits,
+		   t3.CODE_ subCourseCode,
 		   t3.NAME_ subCourseName,
 		   t3.CREDITS_ subCredits
 		FROM
-			elc_no_grad_cou_subs_t t1
-		LEFT JOIN course_t t2 ON t1.ORIGS_COURSE_ID_ = t2.CODE_
-		LEFT JOIN course_t t3 ON t1.SUB_COURSE_ID_ = t3.CODE_
+			elc_cou_subs_t t1
+		JOIN course_t t2 ON t1.ORIGS_COURSE_ID_ = t2.ID_
+		JOIN course_t t3 ON t1.SUB_COURSE_ID_ = t3.ID_
 		JOIN  student_t t4 ON t1.student_ID_ = t4.STUDENT_CODE_
 		<where>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentIds)">
@@ -67,14 +71,14 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 		        and t4.PROFESSION_ = #{profession}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(origsCourseId)">
-		        and t1.ORIGS_COURSE_ID_  =#{origsCourseId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(origsCourseCode)">
+		        and t2.CODE_  =#{origsCourseCode}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(origsCourseName)">
 		        and t2.NAME_ = #{origsCourseName}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(subCourseId)">
-		        and t1.SUB_COURSE_ID_  =#{subCourseId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(subCourseCode)">
+		        and t3.CODE_  =#{subCourseCode}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(subCourseName)">
 		        and t3.NAME_ = #{subCourseName}

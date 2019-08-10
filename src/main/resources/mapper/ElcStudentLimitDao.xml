@@ -24,8 +24,6 @@
 			  newLimitCredits,
 			  totalLimitCredits,
 			  rebuildLimitNumber,
-			  courseCode,
-			  teachingClassId,
 			  NAME,
 			  grade,
 			  faculty,
@@ -37,6 +35,7 @@
 			  IFNULL(selectedRebuild,0) selectedRebuild  
 		from(
 		SELECT
+		    DISTINCT
 		    t1.ID_ id,
 			t1.STUDENT_ID_ studentId,
 			t1.CALENDAR_ID_ calendarId,
@@ -44,8 +43,6 @@
 			t1.NEW_LIMIT_CREDITS_ newLimitCredits,
 			t1.TOTAL_LIMIT_CREDITS_ totalLimitCredits,
 			t1.REBUILD_LIMIT_NUMBER_ rebuildLimitNumber,
-			t2.COURSE_CODE_ courseCode,
-			t2.TEACHING_CLASS_ID_ teachingClassId,
 			t4.NAME_ name,
 			t4.GRADE_ grade,
 			t4.FACULTY_ faculty,
@@ -59,7 +56,7 @@
 			sum(t3.CREDITS_) END selectedRebuild
 		FROM
 			elc_student_limit_t t1
-		LEFT JOIN elc_course_takes_t t2 ON (
+		LEFT JOIN elc_course_takes_t_${mode} t2 ON (
 			t1.STUDENT_ID_ = t2.STUDENT_ID_
 			AND t1.CALENDAR_ID_ = t2.CALENDAR_ID_
 			AND t2.CALENDAR_ID_ = #{calendarId}
@@ -71,7 +68,7 @@
 		        and t1.ID_ = #{id}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-		        and (t1.CALENDAR_ID_ = #{calendarId} AND t2.CALENDAR_ID_ = #{calendarId})
+		        and t1.CALENDAR_ID_ = #{calendarId}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ = #{studentId}

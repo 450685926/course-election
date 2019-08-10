@@ -122,6 +122,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
+    public ElcRetakeSetVo getRetakeSet(Long calendarId, String projectId) {
+        return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
+    }
+
+    @Override
     public Boolean getRetakeRule(Long calendarId, String projectId) {
         ElcRetakeSetVo retakeSet = retakeCourseSetDao.findRetakeSet(calendarId, projectId);
         if (retakeSet != null && retakeSet.getOpenFlag().intValue() == 1) {

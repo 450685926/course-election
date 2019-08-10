@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dao.TeachingClassDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,6 @@ import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
-import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
 import freemarker.template.Template;
 
@@ -105,6 +105,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
     @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
+
+    @Autowired
+    private TeachingClassDao teachingClassDao;
 
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -330,18 +333,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> allSchoolTimetab =
             courseTakeDao.findAllSchoolTimetab(condition.getCondition());
-        if (allSchoolTimetab != null)
-        {
-            List<StudentVo> result = allSchoolTimetab.getResult();
-            SchoolCalendarVo schoolCalendar =
-                BaseresServiceInvoker.getSchoolCalendarById(
-                    condition.getCondition().getCalendarId());
-            for (StudentVo studentVo : result)
-            {
-                studentVo.setCalendarName(schoolCalendar.getFullName());
-            }
-
-        }
         return new PageResult<>(allSchoolTimetab);
     }
 
@@ -590,17 +581,29 @@ public class ReportManagementServiceImpl implements ReportManagementService
     @Override
     public PreViewRollDto previewGraduteRollBook(Long teachingClassId) {
         PreViewRollDto pre=new PreViewRollDto();
+        String trainingLevel = teachingClassDao.findTrainingLevel(teachingClassId);
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
         if(CollectionUtil.isNotEmpty(student)) {
             for(StudentVo vo:student) {
-                String exportName = vo.getName();
                 Integer courseTakeType = vo.getCourseTakeType();
+                List<String> list = new ArrayList<>();
                 if (courseTakeType != null && courseTakeType.intValue() == 2) {
-                    exportName ="(重)"+vo.getName();
-                } else if (!StringUtils.equals(vo.getTrainingLevel(), "1")) {
-                    exportName ="(#)"+vo.getName();
+                    list.add("重");
                 }
+                if (trainingLevel.equals(vo.getTrainingLevel())) {
+                    list.add("#");
+                }
+                boolean conflict = getConflict(vo.getCalendarId(), vo.getStudentCode(), teachingClassId);
+                if (conflict) {
+                    list.add("*");
+                }
+                String exportName = "";
+                if (CollectionUtil.isNotEmpty(list)) {
+                    exportName = "(" + String.join(",",list) + ")";
+                }
+                exportName = exportName + vo.getName();
                 vo.setExportName(exportName);
+                vo.setPrefix(list);
             }
         }
         pre.setStudentsList(student);
@@ -641,7 +644,50 @@ public class ReportManagementServiceImpl implements ReportManagementService
         return pre;
     }
 
-
+    private boolean getConflict(Long calendarId, String studentCode, Long teachingClassId) {
+        List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(studentCode, calendarId);
+        List<TimeTableMessage> selectCourseArrange = courseTakeDao.findCourseArrange(ids);
+        Map<Long, List<TimeTableMessage>> map = selectCourseArrange.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+        //获取当前教学班的课程安排
+        List<TimeTableMessage> timeTableMessages = map.get(teachingClassId);
+        if (CollectionUtil.isEmpty(timeTableMessages)) {
+            return false;
+        }
+        for (TimeTableMessage timeTableMessage : timeTableMessages) {
+            Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+            Integer timeStart = timeTableMessage.getTimeStart();
+            Integer timeEnd = timeTableMessage.getTimeEnd();
+            String[] split = timeTableMessage.getWeekNum().split(",");
+            //当前教学班周次
+            Set<String> nowWeeks = new HashSet<>(Arrays.asList(split));
+            int nowSize = nowWeeks.size();
+            for (TimeTableMessage tableMessage : selectCourseArrange) {
+                if (tableMessage.getTeachingClassId().intValue() == teachingClassId.intValue()) {
+                    continue;
+                }
+                String[] week = tableMessage.getWeekNum().split(",");
+                Set<String> otherWeeks = new HashSet<>(Arrays.asList(week));
+                int otherSize = otherWeeks.size();
+                Set<String> weeks = new HashSet<>(nowSize + otherSize);
+                weeks.addAll(nowWeeks);
+                weeks.addAll(otherWeeks);
+                // 判断上课周是否冲突
+                if (nowSize + otherSize > weeks.size()) {
+                    //上课周冲突，判断上课天
+                    if (dayOfWeek == tableMessage.getDayOfWeek().intValue()) {
+                        // 上课天相同，比价上课节次
+                        int start = tableMessage.getTimeStart().intValue();
+                        int end = tableMessage.getTimeEnd().intValue();
+                        // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
+                        if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
     /**
     *@Description: 查询学生个人课表
     *@Param:

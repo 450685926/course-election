@@ -180,17 +180,17 @@ public class TeacherLessonTableController
         @RequestParam("calendarId") Long calendarId,
         @RequestParam("calendarName") String calendarName,
         @RequestParam("teacherCode") String teacherCode,
-        @RequestParam("teacherName") String teacherName)
+        @RequestParam("teacherName") String teacherName,
+        @RequestParam("faculty") String faculty)
         throws Exception
     {
         LOG.info("exportTeacherTimetabPdf.start");
-        
-        StringBuffer name = new StringBuffer();
         RestResult<String> restResult =
             lessonTableService.exportTeacherTimetabPdf(calendarId,
                 calendarName,
                 teacherCode,
-                teacherName);
+                teacherName,
+                    faculty);
         
         if (ResultStatus.SUCCESS.code() == restResult.getCode()
             && !"".equals(restResult.getData()))
@@ -203,7 +203,7 @@ public class TeacherLessonTableController
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment;filename="
                         + String.valueOf(
-                            URLEncoder.encode(name.toString(), "UTF-8"))
+                            URLEncoder.encode(teacherName, "UTF-8"))
                         + ".pdf")
                 .body(resource);
         }

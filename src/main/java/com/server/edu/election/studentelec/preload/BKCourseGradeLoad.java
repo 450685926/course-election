@@ -24,10 +24,12 @@ import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcCouSubsDao;
 import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dto.ElcCouSubsDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.Student;
@@ -42,6 +44,7 @@ import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -76,6 +79,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     
     @Autowired
     private CourseOpenDao courseOpenDao;
+    
+    @Autowired
+    private ElcCouSubsDao elcCouSubsDao;
     
     @Override
     public int getOrder()
@@ -168,11 +174,10 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             }
         }
         
-        //2.学生已选择课程
-        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        
         //得到校历id
         Long calendarId = request.getCalendarId();
+        //2.学生已选择课程
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         
@@ -184,7 +189,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
         
-        //5.保存选课申请
+        //5. 学生选课申请课程
         Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
         Example aExample = new Example(ElectionApply.class);
         Example.Criteria aCriteria = aExample.createCriteria();
@@ -193,6 +198,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
+        
+        //6. 学生替代课程
+        ElcCouSubsDto dto = new ElcCouSubsDto();
+        dto.setStudentId(studentId);
+        List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
+        context.getReplaceCourses().addAll(list);
     }
     
     /**

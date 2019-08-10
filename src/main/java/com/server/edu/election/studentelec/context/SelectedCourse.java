@@ -115,6 +115,7 @@ public class SelectedCourse extends TeachingClassCache
         this.setCurrentNumber(course.getCurrentNumber());
         this.setTeacherName(course.getTeacherName());
         this.setTimes(course.getTimes());
+        this.setTerm(course.getTerm());
     }
     
     public Integer getChooseObj()

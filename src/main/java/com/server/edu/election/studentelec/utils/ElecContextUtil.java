@@ -27,7 +27,9 @@ import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
+import com.server.edu.election.studentelec.context.IElecContext;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 import redis.clients.jedis.Jedis;
@@ -46,18 +48,18 @@ public class ElecContextUtil
     private static Logger logger =
         LoggerFactory.getLogger(ElecContextUtil.class);
     
-    private ElecContextUtil(Long calendarId, String studentId)
-    {
-        this.calendarId = calendarId;
-        this.studentId = studentId;
-    }
-    
     private Long calendarId;
     
     private String studentId;
     
     // 由于使用redis的hash来保存数据，为了能快速得到所有的数据使用map先保存起来
     public Map<String, String> cacheData;
+    
+    private ElecContextUtil(Long calendarId, String studentId)
+    {
+        this.calendarId = calendarId;
+        this.studentId = studentId;
+    }
     
     /**
      * 创建，此方法比较重量级，如果只是操作某个属性先找一下有没有static方法能满足
@@ -85,12 +87,12 @@ public class ElecContextUtil
     
     String getRedisKey()
     {
-        return ElecContextUtil.getKey(studentId, calendarId);
+        return ElecContextUtil.getKey(studentId);
     }
     
-    static String getKey(String studentId, Long calendarId)
+    static String getKey(String studentId)
     {
-        return Keys.STD + calendarId + "-" + studentId;
+        return Keys.STD + studentId;
     }
     
     static StringRedisTemplate stringRedisTemplate;
@@ -107,19 +109,24 @@ public class ElecContextUtil
     
     public <T> T getObject(String type, Class<T> clazz)
     {
-        String value = getByKey(type);
+        String value = getByType(type);
         return JSON.parseObject(value, clazz);
     }
     
     public <T> Set<T> getSet(String type, Class<T> clazz)
     {
+        // 本学期已选择课程是跟学期关联的，需要带上学期
+        if (IElecContext.SELECTED_COURSES.equals(type))
+        {
+            type = type + "-" + calendarId;
+        }
         List<T> list = getList(type, clazz);
         return new HashSet<>(list);
     }
     
     public <T> List<T> getList(String type, Class<T> clazz)
     {
-        String value = getByKey(type);
+        String value = getByType(type);
         
         if (StringUtils.isEmpty(value))
         {
@@ -137,7 +144,7 @@ public class ElecContextUtil
         return new ArrayList<>();
     }
     
-    private String getByKey(String type)
+    private String getByType(String type)
     {
         String value = null;
         if (null != this.cacheData)
@@ -222,30 +229,6 @@ public class ElecContextUtil
     }
     
     /**
-     * 获取选课申请课程
-     */
-    public Set<ElectionApply> getElecApplyCourse()
-    {
-        return getSet("elecApplyCourses", ElectionApply.class);
-    }
-    
-    /**
-     *保存学生选课申请课程
-     */
-    public static void setElecApplyCourse(String studentId, Long calendarId,
-        List<ElectionApply> electionApplys)
-    {
-        String key = getKey(studentId, calendarId);
-        if (getRedisTemplate().hasKey(key))
-        {
-            HashOperations<String, String, String> ops =
-                getRedisTemplate().opsForHash();
-            String jsonString = JSON.toJSONString(electionApplys);
-            ops.put(key, "elecApplyCourses", jsonString);
-        }
-    }
-    
-    /**
      * 得到学生选课响应
      * 
      * @param studentId
@@ -253,11 +236,11 @@ public class ElecContextUtil
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public static ElecRespose getElecRespose(String studentId, Long calendarId)
+    public static ElecRespose getElecRespose(String studentId)
     {
         HashOperations<String, String, String> ops =
             getRedisTemplate().opsForHash();
-        String key = getKey(studentId, calendarId);
+        String key = getKey(studentId);
         
         String value = ops.get(key, ElecRespose.class.getSimpleName());
         ElecRespose respose = JSON.parseObject(value, ElecRespose.class);
@@ -268,13 +251,12 @@ public class ElecContextUtil
         return respose;
     }
     
-    public static void saveElecResponse(String studentId, Long calendarId,
-        ElecRespose respose)
+    public static void saveElecResponse(String studentId, ElecRespose respose)
     {
         Assert.notNull(respose, "response can not be null");
         HashOperations<String, String, String> ops =
             getRedisTemplate().opsForHash();
-        String key = getKey(studentId, calendarId);
+        String key = getKey(studentId);
         
         respose.setStatus(null);
         ops.put(key,
@@ -402,73 +384,52 @@ public class ElecContextUtil
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
         String redisKey = Keys.getApplyCourseKey(calendarId);
-        String value = opsForValue.get(redisKey);
-        if (CollectionUtil.isNotEmpty(courses))
-        {
-            if (StringUtils.isNotBlank(value))
-            {
-                List<String> result = JSON.parseArray(value, String.class);
-                for (String course : courses)
-                {
-                    if (!value.contains(course))
-                    {
-                        result.add(course);
-                    }
-                    else
-                    {
-                        result.remove(course);
-                    }
-                }
-            }
-            opsForValue.set(redisKey, JSON.toJSONString(courses));
-        }
+
+        opsForValue.set(redisKey, JSON.toJSONString(courses));
     }
     
     /**
      * 获取选课申请管理课程
      */
-    public static List<String> getApplyCourse(Long calendarId)
+    public static Set<String> getApplyCourse(Long calendarId)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
         String redisKey = Keys.getApplyCourseKey(calendarId);
-        ;
         String value = opsForValue.get(redisKey);
         if (StringUtils.isEmpty(value))
         {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
-        return JSON.parseArray(value, String.class);
-    }
-    
-    /**
-     * 获取替代课程
-     */
-    public static List<ElcNoGradCouSubsVo> getNoGradCouSubs(String studentId)
-    {
-        ValueOperations<String, String> opsForValue =
-            getRedisTemplate().opsForValue();
-        String redisKey = Keys.getReplaceCourseKey(studentId);
-        String value = opsForValue.get(redisKey);
-        if (StringUtils.isEmpty(value))
-        {
-            return new ArrayList<>();
-        }
-        return JSON.parseArray(value, ElcNoGradCouSubsVo.class);
+        return new HashSet<>(JSON.parseArray(value, String.class));
     }
     
     /**
      * 设置替代课程
      */
-    public static void setNoGradCouSubs(String studentId,
-        List<ElcNoGradCouSubsVo> list)
+    public static void setReplaceCourses(String studentId,
+        List<ElcCouSubsVo> list)
     {
-        ValueOperations<String, String> opsForValue =
-            getRedisTemplate().opsForValue();
-        String redisKey = Keys.getReplaceCourseKey(studentId);
-        if (CollectionUtil.isNotEmpty(list))
+        String key = getKey(studentId);
+        if (getRedisTemplate().hasKey(key))
         {
-            opsForValue.set(redisKey, JSON.toJSONString(list));
+            HashOperations<String, String, String> ops =
+                getRedisTemplate().opsForHash();
+            String jsonString = JSON.toJSONString(list);
+            ops.put(key, ElecContextBk.REPLACE_COURSES, jsonString);
+        }
+    }
+    
+    public static void setElecApplyCourse(String studentId,
+    		List<ElectionApply> courseCods)
+    {
+        String key = getKey(studentId);
+        if (getRedisTemplate().hasKey(key))
+        {
+            HashOperations<String, String, String> ops =
+                getRedisTemplate().opsForHash();
+            String jsonString = JSON.toJSONString(courseCods);
+            ops.put(key, ElecContextBk.ELEC_APPLY_COURSES, jsonString);
         }
     }
     
