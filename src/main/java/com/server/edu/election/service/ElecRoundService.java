@@ -62,5 +62,5 @@ public interface ElecRoundService
      * @param teachClassId 教学班主键ID
      * @return
      */
-    ElectionRoundsDto getRoundByTeachClassId(Long teachClassId);
+    List<ElectionRoundsDto> getRoundByTeachClassId(Long teachClassId);
 }

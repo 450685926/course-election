@@ -362,5 +362,15 @@ public class ElectionRounds implements Serializable {
 	public void setDeleteStatus(Integer deleteStatus) {
 		this.deleteStatus = deleteStatus;
 	}
+
+	@Override
+	public String toString() {
+		return "ElectionRounds [id=" + id + ", calendarId=" + calendarId + ", turn=" + turn + ", electionObj="
+				+ electionObj + ", mode=" + mode + ", projectId=" + projectId + ", name=" + name + ", openFlag="
+				+ openFlag + ", beginTime=" + beginTime + ", endTime=" + endTime + ", remark=" + remark + ", createdAt="
+				+ createdAt + ", updatedAt=" + updatedAt + ", calendarName=" + calendarName + ", deleteStatus="
+				+ deleteStatus + "]";
+	}
     
+	
 }
