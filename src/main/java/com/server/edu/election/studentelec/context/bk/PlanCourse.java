@@ -22,6 +22,16 @@ public class PlanCourse
     /**个人替代课程*/
     private String subCourseCode;
     
+    public String getCourseCode()
+    {
+        return getCourse().getCourseCode();
+    }
+    
+    public void setCourseCode(String courseCode)
+    {
+        this.getCourse().setCourseCode(courseCode);
+    }
+    
     public ElecCourse getCourse()
     {
         if (course == null)

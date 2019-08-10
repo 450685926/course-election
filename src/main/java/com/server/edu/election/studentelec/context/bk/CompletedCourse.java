@@ -41,6 +41,16 @@ public class CompletedCourse
     
     private Integer isPass;
     
+    public String getCourseCode()
+    {
+        return getCourse().getCourseCode();
+    }
+    
+    public void setCourseCode(String courseCode)
+    {
+        this.getCourse().setCourseCode(courseCode);
+    }
+    
     public TeachingClassCache getCourse()
     {
         if (course == null)
