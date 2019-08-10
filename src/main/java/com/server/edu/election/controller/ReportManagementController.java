@@ -9,6 +9,7 @@ import java.util.List;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -25,7 +26,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -76,6 +76,7 @@ public class ReportManagementController
     @Autowired
     private ReportManagementService managementService;
 
+    @Autowired
     private DictionaryService dictionaryService;
 
     private static Logger LOG =
@@ -144,6 +145,9 @@ public class ReportManagementController
             throws Exception
     {
         ValidatorUtil.validateAndThrow(condition);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
         RestResult<PageResult<RollBookList>> graduteRollBookList = findGraduteRollBookList(condition);
         GeneralExcelDesigner design = graduteRollBookList();
         PageResult<RollBookList> data = graduteRollBookList.getData();
@@ -153,7 +157,9 @@ public class ReportManagementController
         }
         design.setDatas(list);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        return ExportUtil.exportExcel(excelUtil, cacheDirectory, "graduateRollBookList.xls");
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, uid + ".xls");
     }
 
     @ApiOperation(value = "研究生点名册（学生名单）详情")
@@ -395,7 +401,7 @@ public class ReportManagementController
         design.addCell("教学班", "className");
         design.addCell("课程性质", "courseNature").setValueHandler(
                 (value, rawData, cell) -> {
-                    return dictionaryService.query("X_KCXZ", value);
+                    return dictionaryService.query(DictTypeEnum.X_KCXZ.getType(), value);
                 });
         design.addCell("实际人数", "selectCourseNumber");
         design.addCell("人数上限", "numberLimit");

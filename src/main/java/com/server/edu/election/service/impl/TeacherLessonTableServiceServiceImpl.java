@@ -577,7 +577,7 @@ public class TeacherLessonTableServiceServiceImpl
     
     @Override
     public RestResult<String> exportTeacherTimetabPdf(Long calendarId,
-        String calendarName, String teacherCode, String teacherName)
+                                                      String calendarName, String teacherCode,String teacherName, String faculty)
         throws DocumentException, IOException
     {
         //检查目录是否存在

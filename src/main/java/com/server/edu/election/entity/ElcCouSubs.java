@@ -8,11 +8,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-@Table(name = "elc_no_grad_cou_subs_t")
-public class ElcNoGradCouSubs implements Serializable {
+/**替代课程*/
+@Table(name = "elc_cou_subs_t")
+public class ElcCouSubs implements Serializable {
     @Id
     @Column(name = "ID_")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,18 +34,18 @@ public class ElcNoGradCouSubs implements Serializable {
     private String projectId;
     
     /**
-     * 原课程代码
+     * 原课程ID
      */
-    @NotBlank
+    @NotNull
     @Column(name = "ORIGS_COURSE_ID_")
-    private String origsCourseId;
+    private Long origsCourseId;
 
     /**
-     * 替代课程代码
+     * 替代课程ID
      */
-    @NotBlank
+    @NotNull
     @Column(name = "SUB_COURSE_ID_")
-    private String subCourseId;
+    private Long subCourseId;
 
     /**
      * 备注
@@ -116,39 +118,39 @@ public class ElcNoGradCouSubs implements Serializable {
     }
 
     /**
-     * 获取原课程代码
+     * 获取原课程ID
      *
-     * @return ORIGS_COURSE_ID_ - 原课程代码
+     * @return ORIGS_COURSE_ID_ - 原课程ID
      */
-    public String getOrigsCourseId() {
+    public Long getOrigsCourseId() {
         return origsCourseId;
     }
 
     /**
-     * 设置原课程代码
+     * 设置原课程ID
      *
-     * @param origsCourseId 原课程代码
+     * @param origsCourseId 原课程ID
      */
-    public void setOrigsCourseId(String origsCourseId) {
-        this.origsCourseId = origsCourseId == null ? null : origsCourseId.trim();
+    public void setOrigsCourseId(Long origsCourseId) {
+        this.origsCourseId = origsCourseId;
     }
 
     /**
-     * 获取替代课程代码
+     * 获取替代课程ID
      *
-     * @return SUB_COURSE_ID_ - 替代课程代码
+     * @return SUB_COURSE_ID_ - 替代课程ID
      */
-    public String getSubCourseId() {
+    public Long getSubCourseId() {
         return subCourseId;
     }
 
     /**
-     * 设置替代课程代码
+     * 设置替代课程ID
      *
-     * @param subCourseId 替代课程代码
+     * @param subCourseId 替代课程ID
      */
-    public void setSubCourseId(String subCourseId) {
-        this.subCourseId = subCourseId == null ? null : subCourseId.trim();
+    public void setSubCourseId(Long subCourseId) {
+        this.subCourseId = subCourseId;
     }
 
     /**

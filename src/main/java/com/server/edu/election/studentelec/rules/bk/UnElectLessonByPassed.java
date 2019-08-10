@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.entity.ElcCouSubs;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -17,8 +17,7 @@ import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
-import com.server.edu.election.studentelec.utils.ElecContextUtil;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
+import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -40,8 +39,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
     {
         /** 学生信息 */
         StudentInfoCache studentInfo = context.getStudentInfo();
-        List<ElcNoGradCouSubsVo> noGradCouSubsCourses =
-            ElecContextUtil.getNoGradCouSubs(studentInfo.getStudentId());
+        Set<ElcCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
         /** 已完成课程 */
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         /**培养计划课程 */
@@ -60,15 +58,15 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
                     .collect(Collectors.toList());
                 if (studentInfo.isGraduate())
                 {
-                    ElcNoGradCouSubs elcNoGradCouSubs =
+                    ElcCouSubs elcCouSubs =
                         noGradCouSubsCourses.stream()
                             .filter(c -> courseCode.equals(c.getSubCourseId()))
                             .findFirst()
                             .orElse(null);
-                    if (elcNoGradCouSubs != null)
+                    if (elcCouSubs != null)
                     {
                         count = completedCourses.stream()
-                            .filter(c -> elcNoGradCouSubs.getOrigsCourseId()
+                            .filter(c -> elcCouSubs.getOrigsCourseId()
                                 .equals(c.getCourse().getCourseCode()))
                             .count();
                     }

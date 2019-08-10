@@ -655,10 +655,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         addToList(courseDto, elcStudentVos, elcCourseTakes, elcLogs);
         Integer count = courseTakeDao.saveCourseTask(elcCourseTakes);
         if (count.intValue() != teachingClassIds.size()) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dropCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
         teachingClassDao.increElcNumberList(teachingClassIds);
-        elcLogDao.saveCourseLog(elcLogs);
+        Integer logCount = elcLogDao.saveCourseLog(elcLogs);
+        if (logCount != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         return count;
     }
 
@@ -669,10 +672,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<Long> teachingClassIds = value.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
         int delSize = teachingClassIds.size();
         if (teachingClassIds.size() != count ) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dropCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
-        teachingClassDao.decrElcNumberList(teachingClassIds);
+        int decr = teachingClassDao.decrElcNumberList(teachingClassIds);
+        if (decr != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
+        if (elcStudentVos.size() != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.teachingTaskError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         Session session = SessionUtils.getCurrentSession();
         String id = session.getUid();
         String name = session.getName();
@@ -704,7 +713,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcLog.setCreatedAt(new Date());
             elcLogs.add(elcLog);
         }
-        elcLogDao.saveCourseLog(elcLogs);
+        Integer logCount = elcLogDao.saveCourseLog(elcLogs);
+        if (logCount != count) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        }
         return count;
     }
 
@@ -715,72 +727,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Page<ElcStudentVo> elcStudentVos = courseTakeDao.findRemovedCourseList(elcCourseTakeQuery.getCalendarId(), elcCourseTakeQuery.getStudentId());
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
-    }
-
-
-    @Override
-    public ResponseEntity<Resource> exportGraduatePage(ElcCourseTakeQuery query) throws Exception {
-        FileUtil.mkdirs(cacheDirectory);
-        //删除超过30天的文件
-        FileUtil.deleteFile(cacheDirectory, 30);
-        List<Long> ids = query.getIds();
-        Page<ElcCourseTakeVo> elcCourseTakeVos;
-        if (CollectionUtil.isNotEmpty(ids)) {
-            elcCourseTakeVos = courseTakeDao.graduatePage(query);
-        } else {
-            PageHelper.startPage(1, 1000);
-            elcCourseTakeVos = courseTakeDao.graduatePage(query);
-        }
-        GeneralExcelDesigner design = new GeneralExcelDesigner();
-        design.addCell("学号", "studentId");
-        design.addCell("姓名", "studentName");
-        design.addCell("班级", "teachingClassName");
-        design.addCell("年级", "grade");
-        design.addCell("培养层次", "trainingLevel").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                            .query(DictTypeEnum.X_PYCC.getType(), value);
-                    return dict;
-                });
-        design.addCell("培养类别", "degreeCategory").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                            .query(DictTypeEnum.X_PYLB.getType(), value);
-                    return dict;
-                });
-        design.addCell("学位类型", "degreeType").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                            .query(DictTypeEnum.X_XWLX.getType(), value);
-                    return dict;
-                });
-        design.addCell("学习形式", "formLearning").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                            .query(DictTypeEnum.X_XXXS.getType(), value);
-                    return dict;
-                });
-        design.addCell("学院", "faculty").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                            .query(DictTypeEnum.X_YX.getType(), value);
-                    return dict;
-                });
-        design.addCell("专业", "profession").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                            .query(DictTypeEnum.G_ZY.getType(), value);
-                    return dict;
-                });
-        design.addCell("方向", "profession").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                            .query(DictTypeEnum.G_ZY.getType(), value);
-                    return dict;
-                });
-        design.setDatas(elcCourseTakeVos);
-        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        return ExportUtil.exportExcel(excelUtil, cacheDirectory, "yanJiuShengKeXuanKeMingDanDaoChu.xls");
     }
 
     private void addToList(AddCourseDto courseDto, List<ElcStudentVo> elcStudentVos, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {

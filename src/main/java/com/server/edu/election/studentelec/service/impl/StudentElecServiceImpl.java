@@ -68,7 +68,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         // 如果当前是Init状态，进行初始化
         if (ElecStatus.Init.equals(currentStatus))
         {
-            ElecContextUtil.saveElecResponse(studentId, calendarId, new ElecRespose());
+            ElecContextUtil.saveElecResponse(studentId, new ElecRespose());
             // 加入队列
             currentStatus = ElecStatus.Loading;
             ElecContextUtil.setElecStatus(calendarId, studentId, currentStatus);
@@ -120,7 +120,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         {
             try
             {
-                ElecContextUtil.saveElecResponse(studentId, calendarId, new ElecRespose());
+                ElecContextUtil.saveElecResponse(studentId, new ElecRespose());
                 // 加入选课队列
                 if (queueService.add(QueueGroups.STUDENT_ELEC, elecRequest))
                 {
@@ -161,7 +161,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         }
         
         ElecRespose response =
-            ElecContextUtil.getElecRespose(studentId, calendarId);
+            ElecContextUtil.getElecRespose(studentId);
         ElecStatus status =
             ElecContextUtil.getElecStatus(calendarId, studentId);
         if (response == null)
