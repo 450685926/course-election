@@ -10,7 +10,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
+import com.server.edu.election.vo.ElcCouSubsVo;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -43,7 +43,7 @@ public class ElecContextBk implements IElecContext
     private Set<PlanCourse> planCourses;
     
     /** 个人替代课程 */
-    private Set<ElcNoGradCouSubsVo> replaceCourses;
+    private Set<ElcCouSubsVo> replaceCourses;
     
     /** 通识选修课程 */
     private Set<ElecCourse> publicCourses;
@@ -98,7 +98,7 @@ public class ElecContextBk implements IElecContext
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         applyCourse = ElecContextUtil.getApplyCourse(calendarId);
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
-        replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcNoGradCouSubsVo.class);
+        replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
     }
     
     /**
@@ -241,7 +241,7 @@ public class ElecContextBk implements IElecContext
         return elecApplyCourses;
     }
     
-    public Set<ElcNoGradCouSubsVo> getReplaceCourses()
+    public Set<ElcCouSubsVo> getReplaceCourses()
     {
         return replaceCourses;
     }

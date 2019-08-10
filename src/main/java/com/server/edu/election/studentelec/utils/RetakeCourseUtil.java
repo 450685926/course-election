@@ -7,12 +7,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.entity.ElcCouSubs;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
+import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -74,9 +74,8 @@ public class RetakeCourseUtil {
         List<com.server.edu.election.studentelec.context.bk.CompletedCourse> list = new ArrayList<>();
         list.addAll(completedCourses);
         list.addAll(failedCourse);
-        
-        Set<ElcNoGradCouSubsVo> subsCourses = context.getReplaceCourses();
-        ElcNoGradCouSubs elcNoGradCouSubs = subsCourses.stream()
+        Set<ElcCouSubsVo> subsCourses = context.getReplaceCourses();
+        ElcCouSubs elcNoGradCouSubs = subsCourses.stream()
                 .filter(c -> courseCode.equals(c.getSubCourseId())).findFirst().orElse(null);
         long count = 0L;
         if (CollectionUtil.isNotEmpty(list)) {

@@ -29,7 +29,7 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
+import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 import redis.clients.jedis.Jedis;
@@ -408,7 +408,7 @@ public class ElecContextUtil
      * 设置替代课程
      */
     public static void setReplaceCourses(String studentId,
-        List<ElcNoGradCouSubsVo> list)
+        List<ElcCouSubsVo> list)
     {
         String key = getKey(studentId);
         if (getRedisTemplate().hasKey(key))
