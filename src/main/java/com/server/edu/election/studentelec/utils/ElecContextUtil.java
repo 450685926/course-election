@@ -24,6 +24,7 @@ import org.springframework.util.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
@@ -44,9 +45,6 @@ import redis.clients.jedis.Jedis;
  */
 public class ElecContextUtil
 {
-    /**选课申请课程*/
-    private static final String ELEC_APPLY_COURSES = "elecApplyCourses";
-    
     private static Logger logger =
         LoggerFactory.getLogger(ElecContextUtil.class);
     
@@ -419,6 +417,19 @@ public class ElecContextUtil
                 getRedisTemplate().opsForHash();
             String jsonString = JSON.toJSONString(list);
             ops.put(key, ElecContextBk.REPLACE_COURSES, jsonString);
+        }
+    }
+    
+    public static void setElecApplyCourse(String studentId,
+    		List<ElectionApply> courseCods)
+    {
+        String key = getKey(studentId);
+        if (getRedisTemplate().hasKey(key))
+        {
+            HashOperations<String, String, String> ops =
+                getRedisTemplate().opsForHash();
+            String jsonString = JSON.toJSONString(courseCods);
+            ops.put(key, ElecContextBk.ELEC_APPLY_COURSES, jsonString);
         }
     }
     

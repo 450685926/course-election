@@ -174,11 +174,10 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             }
         }
         
-        //2.学生已选择课程
-        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        
         //得到校历id
         Long calendarId = request.getCalendarId();
+        //2.学生已选择课程
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         
@@ -190,18 +189,17 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
         
-        //5.保存学生选课申请课程
-        Set<String> elecApplyCourses = context.getElecApplyCourses();
+        //5. 学生选课申请课程
+        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
         Example aExample = new Example(ElectionApply.class);
         Example.Criteria aCriteria = aExample.createCriteria();
         aCriteria.andEqualTo("studentId", studentId);
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
-        if(CollectionUtil.isNotEmpty(electionApplys)) {
-        	elecApplyCourses.addAll(electionApplys.stream().filter(c->c!=null).map(ElectionApply::getCourseCode).collect(Collectors.toList()));
-        }
-        //6. 替代课程
+        elecApplyCourses.addAll(electionApplys);
+        
+        //6. 学生替代课程
         ElcNoGradCouSubsDto dto = new ElcNoGradCouSubsDto();
         dto.setStudentId(studentId);
         List<ElcNoGradCouSubsVo> list = elcNoGradCouSubsDao.selectElcNoGradCouSubs(dto);
