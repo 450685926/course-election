@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.util.ExportUtil;
+import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -144,6 +145,9 @@ public class ElcCourseTakeController
             throws Exception
     {
         ValidatorUtil.validateAndThrow(condition);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
         RestResult<PageResult<ElcCourseTakeVo>> pageResultRestResult = graduatePage(condition);
         PageResult<ElcCourseTakeVo> data = pageResultRestResult.getData();
         List<ElcCourseTakeVo> list = new ArrayList<>();
@@ -153,7 +157,9 @@ public class ElcCourseTakeController
         GeneralExcelDesigner design = graduatePage();
         design.setDatas(list);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        return ExportUtil.exportExcel(excelUtil, cacheDirectory, "graduatePage.xls");
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, uid + ".xls");
     }
 
     /**
@@ -194,6 +200,9 @@ public class ElcCourseTakeController
             throws Exception
     {
         ValidatorUtil.validateAndThrow(condition);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
         List<ElcCourseTakeVo> list = new ArrayList<>();
         condition.setPageNum_(1);
         condition.setPageSize_(200);
@@ -209,7 +218,7 @@ public class ElcCourseTakeController
         GeneralExcelDesigner design = allSelectedCourseExcel();
         design.setDatas(list);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        return ExportUtil.exportExcel(excelUtil, cacheDirectory, "allSelectedCourse.xls");
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, condition.getCondition() + ".xls");
     }
 
     /**
