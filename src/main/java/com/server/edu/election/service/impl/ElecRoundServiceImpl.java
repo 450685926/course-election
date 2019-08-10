@@ -188,7 +188,7 @@ public class ElecRoundServiceImpl implements ElecRoundService
     }
 
 	@Override
-	public ElectionRoundsDto getRoundByTeachClassId(Long teachClassId) {
+	public List<ElectionRoundsDto> getRoundByTeachClassId(Long teachClassId) {
 		return roundsDao.getRoundByTeachClassId(teachClassId);
 	}
     

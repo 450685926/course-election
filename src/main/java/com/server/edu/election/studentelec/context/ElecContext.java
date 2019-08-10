@@ -90,8 +90,8 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-        elecApplyCourses = this.contextUtil.getElecApplyCourse();
+        applyCourse = ElecContextUtil.getApplyCourse(calendarId);
+        elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElectionApply.class);
     }
     
     /**

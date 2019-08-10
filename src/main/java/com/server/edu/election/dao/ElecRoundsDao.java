@@ -87,5 +87,5 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
      * @param teachClassId 教学班主键ID
      * @return
      */
-	ElectionRoundsDto getRoundByTeachClassId(@Param("teachClassId") Long teachClassId);
+    List<ElectionRoundsDto> getRoundByTeachClassId(@Param("teachClassId") Long teachClassId);
 }

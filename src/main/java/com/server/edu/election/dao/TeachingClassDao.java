@@ -152,4 +152,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      */
     Page<TeachingClassVo> listScreeningPage(ElcResultQuery condition);
 
+    String findTrainingLevel(@Param("teachingClassId") Long teachingClassId);
+
+
 }

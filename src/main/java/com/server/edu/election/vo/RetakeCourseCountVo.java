@@ -24,7 +24,7 @@ public class RetakeCourseCountVo {
     private String degreeType;
 
     @NotBlank
-    @Code2Text(transformer = "G_XXXS")
+    @Code2Text(transformer = "X_XXXS")
     private String formLearning;
 
     @NotNull

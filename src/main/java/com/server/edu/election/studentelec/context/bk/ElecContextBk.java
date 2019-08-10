@@ -1,8 +1,8 @@
 package com.server.edu.election.studentelec.context.bk;
 
-import java.util.HashSet;
 import java.util.Set;
 
+import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -18,6 +18,9 @@ import com.server.edu.election.vo.ElcNoGradCouSubsVo;
  */
 public class ElecContextBk implements IElecContext
 {
+	/**选课申请课程*/
+    public static final String ELEC_APPLY_COURSES = "elecApplyCourses";
+    
     /**学期*/
     private Long calendarId;
     
@@ -52,7 +55,7 @@ public class ElecContextBk implements IElecContext
     private Set<String> applyCourse;
     
     /**学生的选课申请课程*/
-    private Set<String> elecApplyCourses;
+    private Set<ElectionApply> elecApplyCourses;
        
     
     private ElecRequest request;
@@ -94,7 +97,7 @@ public class ElecContextBk implements IElecContext
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         applyCourse = ElecContextUtil.getApplyCourse(calendarId);
-        elecApplyCourses =this.contextUtil.getSet("elecApplyCourses", String.class);
+        elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcNoGradCouSubsVo.class);
     }
     
@@ -230,15 +233,10 @@ public class ElecContextBk implements IElecContext
     
     public Set<String> getApplyCourse()
     {
-        if (applyCourse == null)
-        {
-            applyCourse =
-                new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-        }
         return applyCourse;
     }
     
-    public Set<String> getElecApplyCourses()
+    public Set<ElectionApply> getElecApplyCourses()
     {
         return elecApplyCourses;
     }
