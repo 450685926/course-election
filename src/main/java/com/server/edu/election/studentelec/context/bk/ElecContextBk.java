@@ -53,6 +53,7 @@ public class ElecContextBk implements IElecContext
     
     /**学生的选课申请课程*/
     private Set<String> elecApplyCourses;
+       
     
     private ElecRequest request;
     

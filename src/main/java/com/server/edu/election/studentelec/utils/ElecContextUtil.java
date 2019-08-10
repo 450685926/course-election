@@ -386,26 +386,8 @@ public class ElecContextUtil
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
         String redisKey = Keys.getApplyCourseKey(calendarId);
-        String value = opsForValue.get(redisKey);
-        if (CollectionUtil.isNotEmpty(courses))
-        {
-            if (StringUtils.isNotBlank(value))
-            {
-                List<String> result = JSON.parseArray(value, String.class);
-                for (String course : courses)
-                {
-                    if (!value.contains(course))
-                    {
-                        result.add(course);
-                    }
-                    else
-                    {
-                        result.remove(course);
-                    }
-                }
-            }
-            opsForValue.set(redisKey, JSON.toJSONString(courses));
-        }
+
+        opsForValue.set(redisKey, JSON.toJSONString(courses));
     }
     
     /**

@@ -24,6 +24,7 @@ import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.service.impl.ElectionApplyCoursesServiceImpl;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.cache.RuleCacheService;
@@ -55,6 +56,9 @@ public class RoundDataProvider
     
     @Autowired
     private TeachClassCacheService classCacheService;
+    
+    @Autowired
+    private ElectionApplyCoursesServiceImpl applyCoursesServiceImpl;
     
     @Autowired
     private StringRedisTemplate strTemplate;
@@ -104,6 +108,7 @@ public class RoundDataProvider
             for (Long calendarId : calendarIds)
             {
                 classCacheService.cacheAllTeachClass(calendarId);
+                applyCoursesServiceImpl.setToCache(calendarId);
             }
             
         }
