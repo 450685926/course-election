@@ -190,16 +190,17 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
         
-        //5.保存选课申请
-        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
+        //5.保存学生选课申请课程
+        Set<String> elecApplyCourses = context.getElecApplyCourses();
         Example aExample = new Example(ElectionApply.class);
         Example.Criteria aCriteria = aExample.createCriteria();
         aCriteria.andEqualTo("studentId", studentId);
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
-        elecApplyCourses.addAll(electionApplys);
-        
+        if(CollectionUtil.isNotEmpty(electionApplys)) {
+        	elecApplyCourses.addAll(electionApplys.stream().filter(c->c!=null).map(ElectionApply::getCourseCode).collect(Collectors.toList()));
+        }
         //6. 替代课程
         ElcNoGradCouSubsDto dto = new ElcNoGradCouSubsDto();
         dto.setStudentId(studentId);

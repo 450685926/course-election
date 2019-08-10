@@ -24,7 +24,6 @@ import org.springframework.util.Assert;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.server.edu.dictionary.utils.SpringUtils;
-import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
@@ -232,30 +231,6 @@ public class ElecContextUtil
     }
     
     /**
-     * 获取选课申请课程
-     */
-    public Set<ElectionApply> getElecApplyCourse()
-    {
-        return getSet(ELEC_APPLY_COURSES, ElectionApply.class);
-    }
-    
-    /**
-     *保存学生选课申请课程
-     */
-    public static void setElecApplyCourse(String studentId,
-        List<ElectionApply> electionApplys)
-    {
-        String key = getKey(studentId);
-        if (getRedisTemplate().hasKey(key))
-        {
-            HashOperations<String, String, String> ops =
-                getRedisTemplate().opsForHash();
-            String jsonString = JSON.toJSONString(electionApplys);
-            ops.put(key, ELEC_APPLY_COURSES, jsonString);
-        }
-    }
-    
-    /**
      * 得到学生选课响应
      * 
      * @param studentId
@@ -436,7 +411,7 @@ public class ElecContextUtil
     /**
      * 获取选课申请管理课程
      */
-    public static List<String> getApplyCourse(Long calendarId)
+    public static Set<String> getApplyCourse(Long calendarId)
     {
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
@@ -444,9 +419,9 @@ public class ElecContextUtil
         String value = opsForValue.get(redisKey);
         if (StringUtils.isEmpty(value))
         {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
-        return JSON.parseArray(value, String.class);
+        return new HashSet<>(JSON.parseArray(value, String.class));
     }
     
     /**
