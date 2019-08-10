@@ -86,20 +86,24 @@ public class RetakeCourseUtil {
         if (CollectionUtil.isNotEmpty(list)) {
             if (studentInfo.isGraduate()) {
                 if (elcNoGradCouSubs != null) {
-                    count = list.stream().filter(vo -> vo.getCourse().getCourseCode().equals(courseCode))
-                            .filter(c -> elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourse().getCourseCode())).count();
+                    count = list.stream()
+                            .filter(vo -> vo.getCourseCode().equals(courseCode))
+                            .filter(c -> elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode())).count();
                 }
             } else {
                 if (CollectionUtil.isNotEmpty(planCourses)) {
                     List<com.server.edu.election.studentelec.context.bk.PlanCourse> subCourseCodes = planCourses.stream()
-                            .filter(c -> StringUtils.isNotBlank(c.getSubCourseCode())).collect(Collectors.toList());
+                            .filter(c -> StringUtils.isNotBlank(c.getSubCourseCode()))
+                            .collect(Collectors.toList());
                     if (CollectionUtil.isNotEmpty(subCourseCodes)) {
                         List<String> subCourses = subCourseCodes.stream()
-                                .filter(c -> courseCode.equals(c.getSubCourseCode())).map(p -> {return p.getCourse().getCourseCode();})
+                                .filter(c -> courseCode.equals(c.getSubCourseCode()))
+                                .map(p -> {return p.getCourseCode();})
                                 .collect(Collectors.toList());
                         if (CollectionUtil.isNotEmpty(subCourses)) {
-                            count = list.stream().filter(vo -> vo.getCourse().getCourseCode().equals(courseCode))
-                                    .filter(vo -> subCourses.contains(vo.getCourse().getCourseCode())).count();
+                            count = list.stream()
+                                    .filter(vo -> vo.getCourseCode().equals(courseCode))
+                                    .filter(vo -> subCourses.contains(vo.getCourseCode())).count();
                         }
                     }
                 }
