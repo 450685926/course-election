@@ -21,6 +21,8 @@ public interface RetakeCourseService {
 
     Boolean getRetakeRule(Long calendarId, String projectId);
 
+    ElcRetakeSetVo getRetakeSet(Long calendarId, String projectId);
+
     List<FailedCourseVo> failedCourseList(Long calendarId);
 
     PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition);
