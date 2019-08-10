@@ -29,9 +29,7 @@ import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
-import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
@@ -49,8 +47,6 @@ import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
-
-import tk.mybatis.mapper.entity.Example;
 
 /**
  * 查询研究生有成绩的课程
@@ -231,15 +227,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
-        
-        //5.保存选课申请
-        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
-        Example aExample =new Example(ElectionApply.class);
-        Example.Criteria aCriteria = aExample.createCriteria();
-        aCriteria.andEqualTo("studentId", studentId);
-        aCriteria.andEqualTo("calendarId", calendarId);
-        List<ElectionApply> electionApplys = electionApplyDao.selectByExample(aExample);
-        elecApplyCourses.addAll(electionApplys);
     }
     
     /**

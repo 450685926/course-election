@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 
@@ -44,9 +43,6 @@ public class ElecContext implements IElecContext
     
     /**申请课程*/
     private Set<String> applyCourse;
-    
-    /**选课申请课程*/
-    private Set<ElectionApply> elecApplyCourses;
     
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
@@ -90,8 +86,7 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = ElecContextUtil.getApplyCourse(calendarId);
-        elecApplyCourses = this.contextUtil.getSet("elecApplyCourses", ElectionApply.class);
+        applyCourse = new HashSet<>();
     }
     
     /**
@@ -114,7 +109,6 @@ public class ElecContext implements IElecContext
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
-        this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -144,7 +138,6 @@ public class ElecContext implements IElecContext
         this.getRespose().getFailedReasons().clear();
         this.getRespose().getSuccessCourses().clear();
         this.getApplyCourse().clear();
-        this.getElecApplyCourses().clear();
     }
     
     
@@ -240,18 +233,7 @@ public class ElecContext implements IElecContext
 
 	public Set<String> getApplyCourse()
     {
-        
-        if (applyCourse == null)
-        {
-            applyCourse =
-                new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-        }
         return applyCourse;
-    }
-    
-    public Set<ElectionApply> getElecApplyCourses()
-    {
-        return elecApplyCourses;
     }
     
 	public Map<String, Object> getElecResult() {
