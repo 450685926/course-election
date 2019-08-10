@@ -50,6 +50,14 @@ public class ElcStudentLimitDto extends ElcStudentLimit {
     
     private List<Long> ids;
     
+    private Integer mode;
+    
+	public Integer getMode() {
+		return mode;
+	}
+	public void setMode(Integer mode) {
+		this.mode = mode;
+	}
 	public List<Long> getIds() {
 		return ids;
 	}
