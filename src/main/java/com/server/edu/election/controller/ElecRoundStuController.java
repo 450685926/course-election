@@ -39,6 +39,7 @@ import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
@@ -197,7 +198,10 @@ public class ElecRoundStuController
                     codes.add(studentId);
                 }
             }
-            return this.add(roundId, codes, mode);
+            if (CollectionUtil.isNotEmpty(codes)) {
+            	return this.add(roundId, codes, mode);
+			}
+            return RestResult.success("common.saveSuccess","");
         }
         catch (Exception e)
         {

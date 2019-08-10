@@ -236,6 +236,14 @@ public class ElecContext implements IElecContext
 	public void setSelectedCourses(Set<SelectedCourse> selectedCourses) {
 		this.selectedCourses = selectedCourses;
 	}
+	
+	public void setCompletedCourses(Set<CompletedCourse> completedCourses) {
+		this.completedCourses = completedCourses;
+	}
+
+	public void setFailedCourse(Set<CompletedCourse> failedCourse) {
+		this.failedCourse = failedCourse;
+	}
 
 	public Set<String> getApplyCourse()
     {
