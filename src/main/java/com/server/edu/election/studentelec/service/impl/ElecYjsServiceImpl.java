@@ -243,6 +243,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
+            	LOG.info("==================doElec=================start===================");
+            	
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION);
                 // 判断是否有重修课
                 if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
@@ -250,6 +252,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 {
                     hasRetakeCourse = true;
                 }
+                LOG.info("==================doElec=================end===================");
             }
         }
         // 判断学生是否要重修缴费
@@ -338,6 +341,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     public void saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
     {
+    	LOG.info("==================agentElec=======agentElec======agentElec======agentElec=================");
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
@@ -348,16 +352,29 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         Long teachClassId = teachClass.getTeachClassId();
         Long roundId = request.getRoundId();
         ElectionRounds round = new ElectionRounds();
+        
+        LOG.info("==================agentElec=======agentElec======studentId======: "+studentId);
+        LOG.info("==================agentElec=======agentElec======teachClassId======: "+teachClassId);
+        LOG.info("==================agentElec=======agentElec======teachClassId======: "+teachClassId);
+        
         if (roundId != null) {
         	round = dataProvider.getRound(roundId);
 		}else {
 			// 通过教学班ID查询轮次
-			ElectionRoundsDto electionRoundsDto = elecRoundsDao.getRoundByTeachClassId(teachClassId);
-			BeanUtil.copyProperties(round, electionRoundsDto);
+			List<ElectionRoundsDto> electionRounds = elecRoundsDao.getRoundByTeachClassId(teachClassId);
+			if (!CollectionUtil.isEmpty(electionRounds) && electionRounds.size() == 1) {
+				BeanUtil.copyProperties(round, electionRounds);
+			}
+			LOG.info("==================agentElec=======agentElec======electionRoundsDto======: "+electionRounds.size());
+			LOG.info("==================agentElec=======agentElec======calendarId======: "+request.getCalendarId());
 		}
+        
+        
         String TeachClassCode = teachClass.getTeachClassCode();
         String courseCode = teachClass.getCourseCode();
         String courseName = teachClass.getCourseName();
+        
+        LOG.info("==================agentElec=======agentElec======AAAAAAAAAAA======: "+TeachClassCode+"-->"+courseCode+"-->"+courseName);
         
         Integer logType = ElcLogVo.TYPE_1;
         
@@ -370,6 +387,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         {
             // 增加选课人数
             int count = classDao.increElcNumberAtomic(teachClassId);
+            
+            LOG.info("==================agentElec=======agentElec count============: "+count);
+            
             if (count == 0)
             {
                 respose.getFailedReasons()
@@ -378,6 +398,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 return;
             }
             
+            LOG.info("==================agentElec=======add elect data into elc_course_takes_t_0 ============:start");
+            
             ElcCourseTake take = new ElcCourseTake();
             take.setChooseObj(request.getChooseObj());
             take.setCourseCode(courseCode);
@@ -385,35 +407,38 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
-        	take.setCalendarId(round.getCalendarId());
-        	take.setMode(round.getMode());
-        	take.setTurn(round.getTurn());
+            if (round.getId() == null) {
+            	take.setCalendarId(request.getCalendarId());
+            	take.setMode(1);
+            	take.setTurn(0);
+			}else {
+				take.setCalendarId(round.getCalendarId());
+				take.setMode(round.getMode());
+				take.setTurn(round.getTurn());
+			}
             courseTakeDao.insertSelective(take);
+            LOG.info("==================agentElec=======add elect data into elc_course_takes_t_0 ============:end");
         }
         else
         {
             logType = ElcLogVo.TYPE_2;
             ElcCourseTake take = new ElcCourseTake();
-            take.setCalendarId(round.getCalendarId());
+            take.setCalendarId(round.getCalendarId()==null?request.getCalendarId():round.getCalendarId());
             take.setCourseCode(courseCode);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
-            
-            if (round.getTurn() != Constants.THIRD_TURN
-                && round.getTurn() != Constants.FOURTH_TURN)
+
+            int count = classDao.decrElcNumber(teachClassId);
+            if (count > 0)
             {
-                int count = classDao.decrElcNumber(teachClassId);
-                if (count > 0)
-                {
-                    dataProvider.decrElcNumber(teachClassId);
-                }
+                dataProvider.decrElcNumber(teachClassId);
             }
         }
         
         // 添加选课日志
+        LOG.info("==================agentElec=======add elect data into election_log_t_0 ============:start");
         ElcLog log = new ElcLog();
-        log.setCalendarId(round.getCalendarId());
         log.setCourseCode(courseCode);
         log.setCourseName(courseName);
         log.setCreateBy(request.getCreateBy());
@@ -424,9 +449,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 : ElcLogVo.MODE_2);
         log.setStudentId(studentId);
         log.setTeachingClassCode(TeachClassCode);
-        log.setTurn(round.getTurn());
         log.setType(logType);
+        if (round.getId() == null) {
+			log.setCalendarId(request.getCalendarId());
+	        log.setTurn(0);
+		}else {
+			log.setCalendarId(round.getCalendarId());
+	        log.setTurn(round.getTurn());
+		}
         this.elcLogDao.insertSelective(log);
+        LOG.info("==================agentElec=======add elect data into election_log_t_0 ============:end");
         
         if (ElectRuleType.ELECTION.equals(type))
         {
@@ -440,11 +472,13 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             respose.getSuccessCourses().add(teachClassId);
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTeachClassId(teachClassId);
-            course.setTurn(round.getTurn());
+            course.setTurn(round.getTurn()==null?0:round.getTurn());
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
             course.setCalendarName(year);
             context.getSelectedCourses().add(course);
+            
+            LOG.info("==================agentElec=======SelectedCourses ============"+teachClassId);
         }
     }
     
@@ -452,12 +486,63 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     public ElecContext setData(String studentId, ElecContext c, Long roundId,
         Long calendarId)
     {
+    	List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
+    	List<AbstractWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
+    	// 研究生的管理员代选是没有轮次和规则的
+        if (roundId != null)
+        {
+            List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+            
+            // 获取执行规则
+            Map<String, AbstractRuleExceutor> map =
+                applicationContext.getBeansOfType(AbstractRuleExceutor.class);
+            
+            for (ElectionRuleVo ruleVo : rules)
+            {
+                AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
+                if (null != excetor)
+                {
+                    excetor.setProjectId(ruleVo.getManagerDeptId());
+                    ElectRuleType type =
+                        ElectRuleType.valueOf(ruleVo.getType());
+                    excetor.setType(type);
+                    excetor.setDescription(ruleVo.getName());
+                    if (ElectRuleType.WITHDRAW.equals(type))
+                    {
+                        cancelExceutors
+                            .add((AbstractWithdrwRuleExceutor)excetor);
+                    }
+                    else
+                    {
+                        elecExceutors.add((AbstractElecRuleExceutor)excetor);
+                    }
+                }
+            }
+        }
+    	
+    	//获取学生培养计划中的课程
+    	Set<PlanCourse> planCourses = c.getPlanCourses();
+    	//已完成课程
+    	Set<CompletedCourse> setCompletedCourses = c.getCompletedCourses();
+    	Set<CompletedCourse> failedCourses = c.getFailedCourse();
         
+    	for (CompletedCourse completedCourse : setCompletedCourses) {
+			for (PlanCourse planCourse : planCourses) {
+				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), completedCourse.getCourseCode())) {
+					completedCourse.setLabelName(planCourse.getLabelName());
+				}
+			}
+		}
+    	for (CompletedCourse failedCourse : failedCourses) {
+    		for (PlanCourse planCourse : planCourses) {
+				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), failedCourse.getCourseCode())) {
+					failedCourse.setLabelName(planCourse.getLabelName());
+				}
+			}
+		}
         //每门课上课信息集合
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
         
-        //获取学生培养计划中的课程
-        Set<PlanCourse> planCourses = c.getPlanCourses();
         
         //获取学生本学期已经选取的课程
         Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
@@ -774,6 +859,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         { // 管理员
             elecResult = getAdminElectResultCount(studentId, c, calendarId);
         }
+        c.setCompletedCourses(setCompletedCourses);
+        c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseSet);
         c.setOptionalCourses(completedCourses);
         c.setElecResult(elecResult);
