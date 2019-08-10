@@ -326,95 +326,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     		}
 
         }
-		return this.graduateAddCourse(value);
+		return this.add(value);
 	}
-    @Transactional
-    private String graduateAddCourse(ElcCourseTakeAddDto add)
-    {
-        StringBuilder sb = new StringBuilder();
-        Date date = new Date();
-        Long calendarId = add.getCalendarId();
-        List<String> studentIds = add.getStudentIds();
-        List<Long> teachingClassIds = add.getTeachingClassIds();
-        Integer mode = add.getMode();
-        for (String studentId : studentIds)
-        {
-            for (int i = 0; i < teachingClassIds.size(); i++)
-            {
-                Long teachingClassId = teachingClassIds.get(i);
-                ElcCourseTakeVo vo = courseTakeDao
-                    .getTeachingClassInfo(calendarId, teachingClassId, null);
-                if (null != vo && vo.getCourseCode() != null)
-                {
-                	graduateAddCourseTake(date, calendarId, studentId, vo, mode);
-                }
-                else
-                {
-                    String code = teachingClassId.toString();
-                    if (vo != null)
-                    {
-                        code = vo.getTeachingClassCode();
-                    }
-                    sb.append("教学班[" + code + "]对应的课程不存在,");
-                }
-            }
-        }
-        
-        if (sb.length() > 0)
-        {
-            return sb.substring(0, sb.length() - 1);
-        }
-        return StringUtils.EMPTY;
-    }
-    
-    @Transactional
-    private void graduateAddCourseTake(Date date, Long calendarId, String studentId,
-        ElcCourseTakeVo vo, Integer mode)
-    {
-        String courseCode = vo.getCourseCode();
-        Long teachingClassId = vo.getTeachingClassId();
-        String courseName = vo.getCourseName();
-        String teachingClassCode = vo.getTeachingClassCode();
-        
-        ElcCourseTake record = new ElcCourseTake();
-        record.setStudentId(studentId);
-        record.setCourseCode(courseCode);
-        int selectCount = courseTakeDao.selectCount(record);
-        if (selectCount == 0)
-        {
-            ElcCourseTake take = new ElcCourseTake();
-            take.setCalendarId(calendarId);
-            take.setChooseObj(ChooseObj.ADMIN.type());
-            take.setCourseCode(courseCode);
-            take.setCourseTakeType(CourseTakeType.NORMAL.type());
-            take.setCreatedAt(date);
-            take.setStudentId(studentId);
-            take.setTeachingClassId(teachingClassId);
-            take.setMode(mode);
-            take.setTurn(0);
-            courseTakeDao.insertSelective(take);
-            // 增加选课人数
-            classDao.increElcNumber(teachingClassId);
-            // 添加选课日志
-            ElcLog log = new ElcLog();
-            log.setCalendarId(calendarId);
-            log.setCourseCode(courseCode);
-            log.setCourseName(courseName);
-            Session currentSession = SessionUtils.getCurrentSession();
-            log.setCreateBy(currentSession.getUid());
-            log.setCreatedAt(date);
-            log.setCreateIp(currentSession.getIp());
-            log.setMode(ElcLogVo.MODE_2);
-            log.setStudentId(studentId);
-            log.setTeachingClassCode(teachingClassCode);
-            log.setTurn(0);
-            log.setType(ElcLogVo.TYPE_1);
-            this.elcLogDao.insertSelective(log);
-            
-            applicationContext
-                .publishEvent(new ElectLoadEvent(calendarId, studentId));
-        }
-    }
 
     
     @Transactional
@@ -534,88 +447,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         	elcCourseTake.setTeachingClassId(value.getTeachingClassId());
         	values.add(elcCourseTake);
 		}
-		this.graduateWithdrawCourse(values);
+		this.withdraw(values);
 	}
-    @Transactional
-    private void graduateWithdrawCourse(List<ElcCourseTake> value)
-    {
-        Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
-        
-        List<ElcLog> logList = new ArrayList<>();
-        Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
-        for (ElcCourseTake take : value)
-        {
-            Long calendarId = take.getCalendarId();
-            String studentId = take.getStudentId();
-            Long teachingClassId = take.getTeachingClassId();
-            //删除选课记录
-            Example example = new Example(ElcCourseTake.class);
-            example.createCriteria()
-                .andEqualTo("calendarId", calendarId)
-                .andEqualTo("studentId", studentId)
-                .andEqualTo("teachingClassId", teachingClassId);
-            courseTakeDao.deleteByExample(example);
-            //减少选课人数
-            classDao.decrElcNumber(teachingClassId);
-            
-            ElcCourseTakeVo vo = null;
-            String key = calendarId + "-" + teachingClassId;
-            if (!classInfoMap.containsKey(key))
-            {
-                vo = this.courseTakeDao
-                    .getTeachingClassInfo(calendarId, teachingClassId, null);
-                classInfoMap.put(key, vo);
-            }
-            else
-            {
-                vo = classInfoMap.get(key);
-            }
-            
-            // 记录退课日志
-            if (null != vo)
-            {
-                String teachingClassCode = vo.getTeachingClassCode();
-                ElcLog log = new ElcLog();
-                log.setCalendarId(calendarId);
-                log.setCourseCode(vo.getCourseCode());
-                log.setCourseName(vo.getCourseName());
-                Session currentSession = SessionUtils.getCurrentSession();
-                log.setCreateBy(currentSession.getUid());
-                log.setCreatedAt(new Date());
-                log.setCreateIp(currentSession.getIp());
-                log.setMode(ElcLogVo.MODE_2);
-                log.setStudentId(studentId);
-                log.setTeachingClassCode(teachingClassCode);
-                log.setTurn(0);
-                log.setType(ElcLogVo.TYPE_2);
-                logList.add(log);
-                
-                vo.setCalendarId(calendarId);
-                vo.setStudentId(studentId);
-                withdrawMap.put(
-                    String
-                        .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),
-                    vo);
-            }
-            else
-            {
-                logger.warn(
-                    "not find teachingClassInfo calendarId={},teachingClassId={}",
-                    calendarId,
-                    teachingClassId);
-            }
-        }
-        if (CollectionUtil.isNotEmpty(logList))
-        {
-            this.elcLogDao.insertList(logList);
-            for (Entry<String, ElcCourseTake> entry : withdrawMap.entrySet())
-            {
-                ElcCourseTake take = entry.getValue();
-                applicationContext.publishEvent(new ElectLoadEvent(
-                    take.getCalendarId(), take.getStudentId()));
-            }
-        }
-    }
+    
 
 	@Override
 	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
@@ -822,8 +656,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (logCount != count) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
-        applicationContext.publishEvent(new ElectLoadEvent(
-        		courseDto.getCalendarId(), courseDto.getStudentId()));
         return count;
     }
 
@@ -880,12 +712,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Integer logCount = elcLogDao.saveCourseLog(elcLogs);
         if (logCount != count) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
-        }
-        Map<String, Long> collect = value.stream().collect(Collectors.toMap(ElcCourseTake::getStudentId, ElcCourseTake::getCalendarId));
-        for (Entry<String, Long> entry : collect.entrySet())
-        {
-            applicationContext.publishEvent(new ElectLoadEvent(
-            		entry.getValue(),entry.getKey()));
         }
         return count;
     }

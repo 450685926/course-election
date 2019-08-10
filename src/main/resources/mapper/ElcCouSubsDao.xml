@@ -8,18 +8,16 @@
     <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
     <result column="PROJECT_ID_" jdbcType="VARCHAR" property="projectId" />
-    <result column="ORIGS_COURSE_ID_" jdbcType="BIGINT" property="origsCourseId" />
-    <result column="SUB_COURSE_ID_" jdbcType="BIGINT" property="subCourseId" />
+    <result column="ORIGS_COURSE_ID_" jdbcType="VARCHAR" property="origsCourseId" />
+    <result column="SUB_COURSE_ID_" jdbcType="VARCHAR" property="subCourseId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="CREATED_AT_" jdbcType="DATE" property="createdAt" />
     <result column="UPDATED_AT" jdbcType="DATE" property="updatedAt" />
   </resultMap>
   
   <resultMap id="subsMap" type="com.server.edu.election.vo.ElcCouSubsVo" extends="com.server.edu.election.dao.ElcCouSubsDao.BaseResultMap">
-    <result column="origsCourseCode" jdbcType="VARCHAR" property="origsCourseCode" />
     <result column="origsCourseName" jdbcType="VARCHAR" property="origsCourseName" />
     <result column="origsCredits" jdbcType="INTEGER" property="origsCredits" />
-    <result column="subCourseCode" jdbcType="VARCHAR" property="subCourseCode" />
     <result column="subCourseName" jdbcType="VARCHAR" property="subCourseName" />
     <result column="subCredits" jdbcType="INTEGER" property="subCredits" />
     <result column="NAME_" jdbcType="VARCHAR" property="studentName" />
