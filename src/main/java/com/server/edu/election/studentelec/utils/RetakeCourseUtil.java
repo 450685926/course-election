@@ -7,13 +7,13 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.entity.ElcCouSubs;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
+import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -76,8 +76,8 @@ public class RetakeCourseUtil {
         Set<com.server.edu.election.studentelec.context.bk.PlanCourse> planCourses = context.getPlanCourses();
         /** 学生信息 */
         StudentInfoCache studentInfo = context.getStudentInfo();
-        Set<ElcNoGradCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
-        ElcNoGradCouSubs elcNoGradCouSubs = noGradCouSubsCourses.stream()
+        Set<ElcCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
+        ElcCouSubs elcCouSubs = noGradCouSubsCourses.stream()
                 .filter(c -> courseCode.equals(c.getSubCourseId())).findFirst().orElse(null);
         List<com.server.edu.election.studentelec.context.bk.CompletedCourse> list = new ArrayList<>();
         list.addAll(completedCourses);
@@ -85,10 +85,10 @@ public class RetakeCourseUtil {
         long count = 0L;
         if (CollectionUtil.isNotEmpty(list)) {
             if (studentInfo.isGraduate()) {
-                if (elcNoGradCouSubs != null) {
+                if (elcCouSubs != null) {
                     count = list.stream()
                             .filter(vo -> vo.getCourseCode().equals(courseCode))
-                            .filter(c -> elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode())).count();
+                            .filter(c -> elcCouSubs.getOrigsCourseId().equals(c.getCourseCode())).count();
                 }
             } else {
                 if (CollectionUtil.isNotEmpty(planCourses)) {

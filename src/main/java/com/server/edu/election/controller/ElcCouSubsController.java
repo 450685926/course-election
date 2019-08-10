@@ -16,74 +16,78 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.ElcNoGradCouSubsDto;
-import com.server.edu.election.entity.ElcNoGradCouSubs;
-import com.server.edu.election.service.ElcNoGradCouSubsService;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
+import com.server.edu.election.dto.ElcCouSubsDto;
+import com.server.edu.election.entity.ElcCouSubs;
+import com.server.edu.election.service.ElcCouSubsService;
+import com.server.edu.election.vo.ElcCouSubsVo;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
+
 @SwaggerDefinition(info = @Info(title = "替代课程", version = ""))
-@RestSchema(schemaId = "ElcNoGradCouSubsController")
+@RestSchema(schemaId = "ElcCouSubsController")
 @RequestMapping("elcNoGradCouSubs")
-public class ElcNoGradCouSubsController {
-	private static Logger LOG =
-	        LoggerFactory.getLogger(ElcNoGradCouSubsController.class);
-	@Autowired
-	private ElcNoGradCouSubsService elcNoGradCouSubsService;
-	 /**
-     * 替代课程列表
-     * 
-     * @param condition
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
+public class ElcCouSubsController
+{
+    private static Logger LOG =
+        LoggerFactory.getLogger(ElcCouSubsController.class);
+    
+    @Autowired
+    private ElcCouSubsService elcNoGradCouSubsService;
+    
+    /**
+    * 替代课程列表
+    * 
+    * @param condition
+    * @return
+    * @see [类、类#方法、类#成员]
+    */
     @ApiOperation(value = "替代课程列表")
     @PostMapping("/page")
-    public RestResult<PageInfo<ElcNoGradCouSubsVo>> page(
-        @RequestBody PageCondition<ElcNoGradCouSubsDto> condition)
+    public RestResult<PageInfo<ElcCouSubsVo>> page(
+        @RequestBody PageCondition<ElcCouSubsDto> condition)
         throws Exception
     {
         LOG.info("page.start");
-        PageInfo<ElcNoGradCouSubsVo> list =elcNoGradCouSubsService.page(condition);
+        PageInfo<ElcCouSubsVo> list =
+            elcNoGradCouSubsService.page(condition);
         return RestResult.successData(list);
     }
     
     /**
      * 新增
      * 
-     * @param elcNoGradCouSubs
+     * @param elcCouSubs
      * @return
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "新增")
     @PostMapping("/add")
     public RestResult<Integer> add(
-    		@RequestBody  @Valid ElcNoGradCouSubs elcNoGradCouSubs)
+        @RequestBody @Valid ElcCouSubs elcCouSubs)
         throws Exception
     {
         LOG.info("start.start");
-        int result =elcNoGradCouSubsService.add(elcNoGradCouSubs);
+        int result = elcNoGradCouSubsService.add(elcCouSubs);
         return RestResult.successData(result);
     }
-	
-	
+    
     /**
      * 修改
      * 
-     * @param elcNoGradCouSubs
+     * @param elcCouSubs
      * @return
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "修改")
     @PostMapping("/update")
     public RestResult<Integer> update(
-    		@RequestBody  @Valid ElcNoGradCouSubs elcNoGradCouSubs)
+        @RequestBody @Valid ElcCouSubs elcCouSubs)
         throws Exception
     {
         LOG.info("update.start");
-        int result =elcNoGradCouSubsService.update(elcNoGradCouSubs);
+        int result = elcNoGradCouSubsService.update(elcCouSubs);
         return RestResult.successData(result);
     }
     
@@ -96,14 +100,12 @@ public class ElcNoGradCouSubsController {
      */
     @ApiOperation(value = "修改")
     @PostMapping("/delete")
-    public RestResult<Integer> delete(
-    		@RequestBody  @NotEmpty List<Long> ids)
+    public RestResult<Integer> delete(@RequestBody @NotEmpty List<Long> ids)
         throws Exception
     {
         LOG.info("update.start");
-        int result =elcNoGradCouSubsService.delete(ids);
+        int result = elcNoGradCouSubsService.delete(ids);
         return RestResult.successData(result);
     }
     
-	
 }

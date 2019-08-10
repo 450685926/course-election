@@ -2,18 +2,22 @@ package com.server.edu.election.vo;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
-import com.server.edu.election.entity.ElcNoGradCouSubs;
+import com.server.edu.election.entity.ElcCouSubs;
 
 @CodeI18n
-public class ElcNoGradCouSubsVo extends ElcNoGradCouSubs
+public class ElcCouSubsVo extends ElcCouSubs
 {
     private static final long serialVersionUID = 1L;
+    
+    private String origsCourseCode;
     
     private String origsCourseName;
     
     private Integer origsCredits;
     
     private String subCourseName;
+    
+    private String subCourseCode;
     
     private Integer subCredits;
     
@@ -131,6 +135,26 @@ public class ElcNoGradCouSubsVo extends ElcNoGradCouSubs
     public void setSubCourseInfo(String subCourseInfo)
     {
         this.subCourseInfo = subCourseInfo;
+    }
+    
+    public String getOrigsCourseCode()
+    {
+        return origsCourseCode;
+    }
+    
+    public void setOrigsCourseCode(String origsCourseCode)
+    {
+        this.origsCourseCode = origsCourseCode;
+    }
+    
+    public String getSubCourseCode()
+    {
+        return subCourseCode;
+    }
+    
+    public void setSubCourseCode(String subCourseCode)
+    {
+        this.subCourseCode = subCourseCode;
     }
     
 }
