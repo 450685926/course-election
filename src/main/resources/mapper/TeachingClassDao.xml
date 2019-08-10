@@ -486,4 +486,12 @@
         </foreach>
     </select>
 
+    <select id="findTrainingLevel" resultType="java.lang.String">
+        select co.TRAINING_LEVEL_
+        from course_open_t co
+        join teaching_task_t ts on ts.COURSE_OPEN_ID_ = co.ID_
+        join teaching_class_t tc on tc.TASK_ID_ = ts.ID_
+        where tc.ID_ = #{teachingClassId}
+    </select>
+
 </mapper>

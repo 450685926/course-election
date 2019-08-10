@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dao.TeachingClassDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -81,7 +80,6 @@ import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
-import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
 import freemarker.template.Template;
 
@@ -105,6 +103,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
     @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
+
+    @Autowired
+    private TeachingClassDao teachingClassDao;
 
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -344,6 +345,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(condition.getCondition());
+        if (!schoolTimetab.isEmpty()) {
+            List<StudentVo> result = schoolTimetab.getResult();
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
+            for (StudentVo studentVo : result) {
+                studentVo.setCalendarName(schoolCalendar.getFullName());
+            }
+        }
         return new PageResult<>(schoolTimetab);
     }
 
@@ -571,15 +579,17 @@ public class ReportManagementServiceImpl implements ReportManagementService
     @Override
     public PreViewRollDto previewGraduteRollBook(Long teachingClassId) {
         PreViewRollDto pre=new PreViewRollDto();
+        String trainingLevel = teachingClassDao.findTrainingLevel(teachingClassId);
         List<StudentVo> student = courseTakeDao.findStudentByTeachingClassId(teachingClassId);
         if(CollectionUtil.isNotEmpty(student)) {
             for(StudentVo vo:student) {
                 String exportName = vo.getName();
                 Integer courseTakeType = vo.getCourseTakeType();
                 if (courseTakeType != null && courseTakeType.intValue() == 2) {
-                    exportName ="(重)"+vo.getName();
-                } else if (!StringUtils.equals(vo.getTrainingLevel(), "1")) {
-                    exportName ="(#)"+vo.getName();
+                    exportName ="(重)" + exportName;
+                }
+                if (trainingLevel.equals(vo.getTrainingLevel())) {
+                    exportName = "(#)" + exportName;
                 }
                 vo.setExportName(exportName);
             }

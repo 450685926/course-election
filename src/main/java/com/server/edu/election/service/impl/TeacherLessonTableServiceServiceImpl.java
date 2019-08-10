@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.ctc.wstx.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -577,7 +576,7 @@ public class TeacherLessonTableServiceServiceImpl
     
     @Override
     public RestResult<String> exportTeacherTimetabPdf(Long calendarId,
-        String calendarName, String teacherCode, String teacherName)
+                                                      String calendarName, String teacherCode,String teacherName, String faculty)
         throws DocumentException, IOException
     {
         //检查目录是否存在

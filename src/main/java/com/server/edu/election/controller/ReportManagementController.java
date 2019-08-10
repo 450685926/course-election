@@ -9,6 +9,7 @@ import java.util.List;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -144,6 +145,9 @@ public class ReportManagementController
             throws Exception
     {
         ValidatorUtil.validateAndThrow(condition);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
         RestResult<PageResult<RollBookList>> graduteRollBookList = findGraduteRollBookList(condition);
         GeneralExcelDesigner design = graduteRollBookList();
         PageResult<RollBookList> data = graduteRollBookList.getData();
@@ -153,7 +157,9 @@ public class ReportManagementController
         }
         design.setDatas(list);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        return ExportUtil.exportExcel(excelUtil, cacheDirectory, "graduateRollBookList.xls");
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, uid + ".xls");
     }
 
     @ApiOperation(value = "研究生点名册（学生名单）详情")
