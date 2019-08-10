@@ -115,12 +115,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     private ElecResultSwitchService elecResultSwitchService;
 
     @Autowired
-    private DictionaryService dictionaryService;
-
-    @Autowired
-    private ExcelStoreConfig excelStoreConfig;
-
-    @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
 
     @Value("${cache.directory}")
@@ -674,9 +668,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (teachingClassIds.size() != count ) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
-        int decr = teachingClassDao.decrElcNumberList(teachingClassIds);
-        if (decr != count) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        for (Long teachingClassId : teachingClassIds) {
+            int decrElcNumber = teachingClassDao.decrElcNumber(teachingClassId);
+            if (decrElcNumber != 1) {
+                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",teachingClassId + "")));
+            }
         }
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
         if (elcStudentVos.size() != count) {

@@ -54,6 +54,7 @@ public interface ReportManagementService {
 
     String exportPreRollBookList(ExportPreCondition condition) throws Exception;
 
+    String exportGraduteRollBook(ExportPreCondition condition) throws Exception;
 
 	/**
 	 * 导出学生课表pdf--研究生
