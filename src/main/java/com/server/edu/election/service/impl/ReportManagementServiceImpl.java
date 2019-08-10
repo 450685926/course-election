@@ -595,6 +595,12 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 if (conflict) {
                     list.add("*");
                 }
+                String exportName = "";
+                if (CollectionUtil.isNotEmpty(list)) {
+                    exportName = "(" + String.join(",",list) + ")";
+                }
+                exportName = exportName + vo.getName();
+                vo.setExportName(exportName);
                 vo.setPrefix(list);
             }
         }
