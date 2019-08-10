@@ -37,23 +37,11 @@ public class RetakeCourseUtil {
 		Set<CompletedCourse> failedCourse = context.getFailedCourse();
 		/** 培养计划课程 */
 		Set<PlanCourse> planCourses = context.getPlanCourses();
-		/** 学生信息 */
-		StudentInfoCache studentInfo = context.getStudentInfo();
-		List<ElcNoGradCouSubsVo> noGradCouSubsCourses = ElecContextUtil.getNoGradCouSubs(
-				studentInfo.getStudentId());
-		ElcNoGradCouSubs elcNoGradCouSubs = noGradCouSubsCourses.stream()
-				.filter(c -> courseCode.equals(c.getSubCourseId())).findFirst().orElse(null);
 		List<CompletedCourse> list = new ArrayList<>();
 		list.addAll(completedCourses);
 		list.addAll(failedCourse);
 		long count = 0L;
 		if (CollectionUtil.isNotEmpty(list)) {
-			if (studentInfo.isGraduate()) {
-				if (elcNoGradCouSubs != null) {
-					count = list.stream().filter(vo -> vo.getCourseCode().equals(courseCode))
-							.filter(c -> elcNoGradCouSubs.getOrigsCourseId().equals(c.getCourseCode())).count();
-				}
-			} else {
 				if (CollectionUtil.isNotEmpty(planCourses)) {
 					List<PlanCourse> subCourseCodes = planCourses.stream()
 							.filter(c -> StringUtils.isNotBlank(c.getSubCourseCode())).collect(Collectors.toList());
@@ -67,7 +55,6 @@ public class RetakeCourseUtil {
 						}
 					}
 				}
-			}
 		}
 
 		return count > 0;
@@ -89,8 +76,7 @@ public class RetakeCourseUtil {
         Set<com.server.edu.election.studentelec.context.bk.PlanCourse> planCourses = context.getPlanCourses();
         /** 学生信息 */
         StudentInfoCache studentInfo = context.getStudentInfo();
-        List<ElcNoGradCouSubsVo> noGradCouSubsCourses = ElecContextUtil.getNoGradCouSubs(
-                studentInfo.getStudentId());
+        Set<ElcNoGradCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
         ElcNoGradCouSubs elcNoGradCouSubs = noGradCouSubsCourses.stream()
                 .filter(c -> courseCode.equals(c.getSubCourseId())).findFirst().orElse(null);
         List<com.server.edu.election.studentelec.context.bk.CompletedCourse> list = new ArrayList<>();

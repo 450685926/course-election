@@ -65,7 +65,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		ElcNoGradCouSubsDto dto = new ElcNoGradCouSubsDto();
 		dto.setStudentId(elcNoGradCouSubs.getStudentId());
 		List<ElcNoGradCouSubsVo> list = elcNoGradCouSubsDao.selectElcNoGradCouSubs(dto);
-		ElecContextUtil.setNoGradCouSubs(elcNoGradCouSubs.getStudentId(), list);
+		ElecContextUtil.setReplaceCourses(elcNoGradCouSubs.getStudentId(), list);
 		return result;
 	}
 
@@ -95,7 +95,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		ElcNoGradCouSubsDto dto = new ElcNoGradCouSubsDto();
 		dto.setStudentId(elcNoGradCouSubs.getStudentId());
 		List<ElcNoGradCouSubsVo> list = elcNoGradCouSubsDao.selectElcNoGradCouSubs(dto);
-		ElecContextUtil.setNoGradCouSubs(elcNoGradCouSubs.getStudentId(), list);
+		ElecContextUtil.setReplaceCourses(elcNoGradCouSubs.getStudentId(), list);
 		return result;
 	}
 	
@@ -120,7 +120,7 @@ public class ElcNoGradCouSubsServiceImpl implements ElcNoGradCouSubsService {
 		if(CollectionUtil.isNotEmpty(elcNoGradCouSubsList)) {
 			for(String studentId:studentIds) {
 				List<ElcNoGradCouSubsVo> stuCous = elcNoGradCouSubsList.stream().filter(c->studentId.equals(c.getStudentId())).collect(Collectors.toList());
-				ElecContextUtil.setNoGradCouSubs(studentId, stuCous);
+				ElecContextUtil.setReplaceCourses(studentId, stuCous);
 			}
 		}
 		return result;

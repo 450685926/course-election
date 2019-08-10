@@ -3,7 +3,9 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,19 +97,25 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionApply.electionApplyCourses")));
 		}
+		
+		setToCache(dto.getCalendarId());
+		return result;
+	}
+
+	public void setToCache(Long calendarId) {
 		Example applyExample = new Example(ElectionApplyCourses.class);
 		Example.Criteria applyCriteria = applyExample.createCriteria();
-		applyCriteria.andEqualTo("calendarId", dto.getCalendarId());
+		applyCriteria.andEqualTo("calendarId", calendarId);
 		List<ElectionApplyCourses> electionApplyCourseList = electionApplyCoursesDao.selectByExample(applyExample);
 		Set<String> applyCourses = new HashSet<>();
 		if(CollectionUtil.isNotEmpty(electionApplyCourseList)) {
-			for(ElectionApplyCourses electionApplyCourses:electionApplyCourseList) {
-				applyCourses.add(electionApplyCourses.getCourseCode());
-			}
+			applyCourses = electionApplyCourseList.stream()
+					.map(ElectionApplyCourses::getCourseCode)
+					.filter(Objects::nonNull)
+					.collect(Collectors.toSet());
 		}
 		//存入redis
-		ElecContextUtil.setApplyCourse(dto.getCalendarId(), applyCourses);
-		return result;
+		ElecContextUtil.setApplyCourse(calendarId, applyCourses);
 	}
 	
 	@Override
@@ -125,18 +133,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.failSuccess",I18nUtil.getMsg("electionApply.electionApplyCourses")));
 		}
-		Example applyExample = new Example(ElectionApplyCourses.class);
-		Example.Criteria applyCriteria = applyExample.createCriteria();
-		applyCriteria.andEqualTo("calendarId", calendarId);
-		List<ElectionApplyCourses> electionApplyCourseList = electionApplyCoursesDao.selectByExample(applyExample);
-		Set<String> applyCourses = new HashSet<>();
-		if(CollectionUtil.isNotEmpty(electionApplyCourseList)) {
-			for(ElectionApplyCourses electionApplyCourses:electionApplyCourseList) {
-				applyCourses.add(electionApplyCourses.getCourseCode());
-			}
-		}
-		//存入redis
-		ElecContextUtil.setApplyCourse(calendarId, applyCourses);
+		setToCache(calendarId);
 		return result;
 	}
 

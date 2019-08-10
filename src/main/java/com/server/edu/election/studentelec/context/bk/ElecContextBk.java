@@ -3,7 +3,6 @@ package com.server.edu.election.studentelec.context.bk;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -49,11 +48,12 @@ public class ElecContextBk implements IElecContext
     /**未通過課程*/
     private Set<CompletedCourse> failedCourse;
     
-    /**申请课程*/
+    /**所有申请课程*/
     private Set<String> applyCourse;
     
-    /**选课申请课程*/
-    private Set<ElectionApply> elecApplyCourses;
+    /**学生的选课申请课程*/
+    private Set<String> elecApplyCourses;
+       
     
     private ElecRequest request;
     
@@ -83,9 +83,9 @@ public class ElecContextBk implements IElecContext
         completedCourses =
             this.contextUtil.getSet("CompletedCourses", CompletedCourse.class);
         selectedCourses =
-            this.contextUtil.getSet("SelectedCourses", SelectedCourse.class);
+            this.contextUtil.getSet(SELECTED_COURSES, SelectedCourse.class);
         applyForDropCourses =
-            this.contextUtil.getSet("ApplyForDropCourses", ElecCourse.class);
+            this.contextUtil.getSet(APPLY_FOR_DROP_COURSES, ElecCourse.class);
         planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
         publicCourses =
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
@@ -93,10 +93,9 @@ public class ElecContextBk implements IElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-        elecApplyCourses = this.contextUtil.getElecApplyCourse();
-        replaceCourses =
-            new HashSet<>(ElecContextUtil.getNoGradCouSubs(studentId));
+        applyCourse = ElecContextUtil.getApplyCourse(calendarId);
+        elecApplyCourses =this.contextUtil.getSet("elecApplyCourses", String.class);
+        replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcNoGradCouSubsVo.class);
     }
     
     /**
@@ -113,15 +112,15 @@ public class ElecContextBk implements IElecContext
         this.contextUtil.updateMem(ElecRespose.class.getSimpleName(),
             this.respose);
         this.contextUtil.updateMem("CompletedCourses", this.completedCourses);
-        this.contextUtil.updateMem("SelectedCourses", this.selectedCourses);
-        this.contextUtil.updateMem("ApplyForDropCourses",
+        this.contextUtil.updateMem(SELECTED_COURSES, this.selectedCourses);
+        this.contextUtil.updateMem(APPLY_FOR_DROP_COURSES,
             this.applyForDropCourses);
         this.contextUtil.updateMem("PlanCourses", this.planCourses);
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
-        this.contextUtil.updateMem("replaceCourses", this.replaceCourses);
+        this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -239,7 +238,7 @@ public class ElecContextBk implements IElecContext
         return applyCourse;
     }
     
-    public Set<ElectionApply> getElecApplyCourses()
+    public Set<String> getElecApplyCourses()
     {
         return elecApplyCourses;
     }

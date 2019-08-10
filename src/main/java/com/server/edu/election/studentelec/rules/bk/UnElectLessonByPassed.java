@@ -17,7 +17,6 @@ import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
-import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -40,8 +39,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
     {
         /** 学生信息 */
         StudentInfoCache studentInfo = context.getStudentInfo();
-        List<ElcNoGradCouSubsVo> noGradCouSubsCourses =
-            ElecContextUtil.getNoGradCouSubs(studentInfo.getStudentId());
+        Set<ElcNoGradCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
         /** 已完成课程 */
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         /**培养计划课程 */

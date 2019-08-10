@@ -12,8 +12,6 @@ public class Keys
     /** 学生状态锁  format参数 roundid studentid*/
     public static final String STD_STATUS_LOCK = "elec-stdlock-%s_%s";
     
-    public static final String STD_STATUS_LOCK_PATTERN = "elec-stdlock-*";
-    
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
     public static final String STD_STATUS = "elec-stdstatus-%s_%s";
     
@@ -40,9 +38,6 @@ public class Keys
     
     /**选课申请管理课程 elec-calendarId-%s-applyCourse*/
     private static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
-    
-    /**替代课程 elec-projectId-calendarId-%s-replaceCourse*/
-    private static final String REPLACE_COURSE = "elec-studentId-%s-replaceCourse";
     
     /**轮次上一学期 elec-roundPreSemester-%s */
     private static final String ROUND_PRESEMESTER = "elec-roundPreSemester-%s";
@@ -117,8 +112,4 @@ public class Keys
         return String.format(Keys.ROUND_PRESEMESTER, roundId);
     }
     
-    public static String getReplaceCourseKey(String studentId)
-    {
-        return String.format(Keys.REPLACE_COURSE, studentId);
-    }
 }

@@ -24,10 +24,12 @@ import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcNoGradCouSubsDao;
 import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dto.ElcNoGradCouSubsDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.Student;
@@ -42,6 +44,7 @@ import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -76,6 +79,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     
     @Autowired
     private CourseOpenDao courseOpenDao;
+    
+    @Autowired
+    private ElcNoGradCouSubsDao elcNoGradCouSubsDao;
     
     @Override
     public int getOrder()
@@ -184,15 +190,22 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         applyForDropCourses.addAll(applyRecord);
         // 4. 非本学期的选课并且没有成功的
         
-        //5.保存选课申请
-        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
+        //5.保存学生选课申请课程
+        Set<String> elecApplyCourses = context.getElecApplyCourses();
         Example aExample = new Example(ElectionApply.class);
         Example.Criteria aCriteria = aExample.createCriteria();
         aCriteria.andEqualTo("studentId", studentId);
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
-        elecApplyCourses.addAll(electionApplys);
+        if(CollectionUtil.isNotEmpty(electionApplys)) {
+        	elecApplyCourses.addAll(electionApplys.stream().filter(c->c!=null).map(ElectionApply::getCourseCode).collect(Collectors.toList()));
+        }
+        //6. 替代课程
+        ElcNoGradCouSubsDto dto = new ElcNoGradCouSubsDto();
+        dto.setStudentId(studentId);
+        List<ElcNoGradCouSubsVo> list = elcNoGradCouSubsDao.selectElcNoGradCouSubs(dto);
+        context.getReplaceCourses().addAll(list);
     }
     
     /**
