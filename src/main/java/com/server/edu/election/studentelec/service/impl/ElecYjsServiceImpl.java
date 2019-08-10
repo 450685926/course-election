@@ -13,6 +13,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
@@ -40,11 +43,6 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
@@ -104,7 +102,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
-    
+
     @Autowired
     private StudentDao stuDao;
     
@@ -118,6 +116,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     private ElecRoundsDao elecRoundsDao;
     
     private RestTemplate restTemplate = RestTemplateBuilder.create();
+
+    private String year;
     
     @SuppressWarnings("rawtypes")
     @Override
@@ -341,6 +341,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
+        Long calendarId = context.getCalendarId();
         Date date = new Date();
         String studentId = stu.getStudentId();
         
@@ -431,13 +432,18 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         {
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
-            
+            if (year == null || "".equals(year)) {
+                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                // 获取学历年
+                year = schoolCalendar.getYear() + "";
+            }
             respose.getSuccessCourses().add(teachClassId);
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTeachClassId(teachClassId);
             course.setTurn(round.getTurn());
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
+            course.setCalendarName(year);
             context.getSelectedCourses().add(course);
         }
     }
@@ -455,7 +461,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         //获取学生本学期已经选取的课程
         Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
-        
+        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        // 获取学历年
+        year = schoolCalendar.getYear() + "";
         List<SelectedCourse> selectedCourses = new ArrayList<>();
         for (SelectedCourse selected : selectedCourseSet)
         {
@@ -479,7 +487,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 .setAssessmentMode(selected.getAssessmentMode());
             elcCourseResult.setPublicElec(selected.isPublicElec());
             elcCourseResult.setCalendarId(selected.getCalendarId());
-            elcCourseResult.setCalendarName(selected.getCalendarName());
+            elcCourseResult.setCalendarName(year);
             elcCourseResult.setTerm(selected.getTerm());
             List<TeachingClassCache> teachClasss =
                     dataProvider.getTeachClasssbyCalendarId(calendarId,
@@ -617,7 +625,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     dataProvider.getTeachClasssbyCalendarId(calendarId,
                         completedCourse.getCourseCode());
             }
-            
             if (CollectionUtil.isNotEmpty(teachClasss))
             {
                 for (TeachingClassCache teachClass : teachClasss)

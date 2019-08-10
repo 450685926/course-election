@@ -255,9 +255,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
     {
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
-        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        // 获取学历年
-        String year = schoolCalendar.getYear() + "";
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
             List<Long> teachClassIds = courseTakes.stream()
@@ -267,7 +264,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
-                course.setCalendarName(year);
                 course.setTerm(c.getTerm());
                 course.setTeachClassMsg(c.getTeachingClassId());
                 course.setNature(c.getNature());
