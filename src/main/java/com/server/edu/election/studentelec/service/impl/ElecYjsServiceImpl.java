@@ -446,12 +446,63 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     public ElecContext setData(String studentId, ElecContext c, Long roundId,
         Long calendarId)
     {
+    	List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
+    	List<AbstractWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
+    	// 研究生的管理员代选是没有轮次和规则的
+        if (roundId != null)
+        {
+            List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+            
+            // 获取执行规则
+            Map<String, AbstractRuleExceutor> map =
+                applicationContext.getBeansOfType(AbstractRuleExceutor.class);
+            
+            for (ElectionRuleVo ruleVo : rules)
+            {
+                AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
+                if (null != excetor)
+                {
+                    excetor.setProjectId(ruleVo.getManagerDeptId());
+                    ElectRuleType type =
+                        ElectRuleType.valueOf(ruleVo.getType());
+                    excetor.setType(type);
+                    excetor.setDescription(ruleVo.getName());
+                    if (ElectRuleType.WITHDRAW.equals(type))
+                    {
+                        cancelExceutors
+                            .add((AbstractWithdrwRuleExceutor)excetor);
+                    }
+                    else
+                    {
+                        elecExceutors.add((AbstractElecRuleExceutor)excetor);
+                    }
+                }
+            }
+        }
+    	
+    	//获取学生培养计划中的课程
+    	Set<PlanCourse> planCourses = c.getPlanCourses();
+    	//已完成课程
+    	Set<CompletedCourse> setCompletedCourses = c.getCompletedCourses();
+    	Set<CompletedCourse> failedCourses = c.getFailedCourse();
         
+    	for (CompletedCourse completedCourse : setCompletedCourses) {
+			for (PlanCourse planCourse : planCourses) {
+				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), completedCourse.getCourseCode())) {
+					completedCourse.setLabelName(planCourse.getLabelName());
+				}
+			}
+		}
+    	for (CompletedCourse failedCourse : failedCourses) {
+    		for (PlanCourse planCourse : planCourses) {
+				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), failedCourse.getCourseCode())) {
+					failedCourse.setLabelName(planCourse.getLabelName());
+				}
+			}
+		}
         //每门课上课信息集合
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
         
-        //获取学生培养计划中的课程
-        Set<PlanCourse> planCourses = c.getPlanCourses();
         
         //获取学生本学期已经选取的课程
         Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
@@ -777,6 +828,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         { // 管理员
             elecResult = getAdminElectResultCount(studentId, c, calendarId);
         }
+        c.setCompletedCourses(setCompletedCourses);
+        c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseSet);
         c.setOptionalCourses(completedCourses);
         c.setElecResult(elecResult);
