@@ -8,7 +8,6 @@ import java.util.Set;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -36,9 +35,6 @@ public class ElecContext implements IElecContext
     
     /** 个人计划内课程 */
     private Set<PlanCourse> planCourses;
-    
-    /** 个人替代课程 */
-    private Set<ElcNoGradCouSubsVo> replaceCourses;
     
     /** 通识选修课程 */
     private Set<ElecCourse> publicCourses;
@@ -96,7 +92,6 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
         elecApplyCourses = this.contextUtil.getElecApplyCourse();
-        replaceCourses = new HashSet<>(ElecContextUtil.getNoGradCouSubs(studentId));
     }
     
     /**
@@ -120,7 +115,6 @@ public class ElecContext implements IElecContext
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
-        this.contextUtil.updateMem("replaceCourses", this.replaceCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -151,7 +145,6 @@ public class ElecContext implements IElecContext
         this.getRespose().getSuccessCourses().clear();
         this.getApplyCourse().clear();
         this.getElecApplyCourses().clear();
-        this.getReplaceCourses().clear();
     }
     
     
@@ -253,11 +246,6 @@ public class ElecContext implements IElecContext
         return elecApplyCourses;
     }
     
-    public Set<ElcNoGradCouSubsVo> getReplaceCourses()
-    {
-        return replaceCourses;
-    }
-
 	public Map<String, Object> getElecResult() {
 		return elecResult;
 	}

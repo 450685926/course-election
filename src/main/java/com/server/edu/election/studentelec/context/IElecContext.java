@@ -6,6 +6,12 @@ package com.server.edu.election.studentelec.context;
  */
 public interface IElecContext
 {
+    /** 免修申请课程 */
+    public static final String APPLY_FOR_DROP_COURSES = "ApplyForDropCourses";
+    /** 个人替代课程 */
+    public static final String REPLACE_COURSES = "replaceCourses";
+    /** 本学期已选择课程 */
+    public static final String SELECTED_COURSES = "SelectedCourses";
 
     /**
      * 保存到redis中

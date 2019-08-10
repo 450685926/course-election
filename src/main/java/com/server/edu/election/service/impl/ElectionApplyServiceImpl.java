@@ -246,6 +246,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
         ElecContextUtil
-            .setElecApplyCourse(studentId, calendarId, electionApplys);
+            .setElecApplyCourse(studentId, electionApplys);
     }
 }
