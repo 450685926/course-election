@@ -636,7 +636,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
             }
             pre.setTimeTabelList(timeTableMessages);
         }
-        Integer max = Collections.max(number);
+        Integer max = 0;
+        if (CollectionUtil.isNotEmpty(number)) {
+            max = Collections.max(number);
+        }
         pre.setRowNumber(max);
         pre.setLineNumber(days.size());
         return pre;

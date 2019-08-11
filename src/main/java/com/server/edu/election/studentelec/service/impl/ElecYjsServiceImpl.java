@@ -117,8 +117,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
     private RestTemplate restTemplate = RestTemplateBuilder.create();
 
-    private String year;
-    
     @SuppressWarnings("rawtypes")
     @Override
     public IElecContext doELec(ElecRequest request)
@@ -464,18 +462,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         {
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
-            if (year == null || "".equals(year)) {
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                // 获取学历年
-                year = schoolCalendar.getYear() + "";
-            }
             respose.getSuccessCourses().add(teachClassId);
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTeachClassId(teachClassId);
             course.setTurn(round.getTurn()==null?0:round.getTurn());
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
-            course.setCalendarName(year);
             context.getSelectedCourses().add(course);
             
             LOG.info("==================agentElec=======SelectedCourses ============"+teachClassId);
@@ -525,7 +517,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	//已完成课程
     	Set<CompletedCourse> setCompletedCourses = c.getCompletedCourses();
     	Set<CompletedCourse> failedCourses = c.getFailedCourse();
-        
+
     	for (CompletedCourse completedCourse : setCompletedCourses) {
 			for (PlanCourse planCourse : planCourses) {
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), completedCourse.getCourseCode())) {
@@ -546,9 +538,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         //获取学生本学期已经选取的课程
         Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
-        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        // 获取学历年
-        year = schoolCalendar.getYear() + "";
+
         List<SelectedCourse> selectedCourses = new ArrayList<>();
         for (SelectedCourse selected : selectedCourseSet)
         {
@@ -572,7 +562,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 .setAssessmentMode(selected.getAssessmentMode());
             elcCourseResult.setPublicElec(selected.isPublicElec());
             elcCourseResult.setCalendarId(selected.getCalendarId());
-            elcCourseResult.setCalendarName(year);
+            elcCourseResult.setCalendarName(selected.getCalendarName());
             elcCourseResult.setTerm(selected.getTerm());
             List<TeachingClassCache> teachClasss =
                     dataProvider.getTeachClasssbyCalendarId(calendarId,
