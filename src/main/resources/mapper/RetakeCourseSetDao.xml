@@ -8,6 +8,7 @@
         <result column="BEGIN_AT_" property="start" />
         <result column="END_AT_" property="end" />
         <result column="PROJ_ID_" property="projectId" />
+        <result column="CREATED_AT_" property="createAt" />
     </resultMap>
 
 
@@ -40,6 +41,11 @@
 
     <select id="findRetakeSet" resultMap="BaseResultMap">
         select * from elc_retake_set where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projectId}
+    </select>
+    
+    <select id="findRetakeSet2" resultMap="BaseResultMap">
+        select * from elc_retake_set where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projectId}
+        order by CREATED_AT_ desc
     </select>
 
     <select id="findRuleIds" resultType="java.lang.Long">

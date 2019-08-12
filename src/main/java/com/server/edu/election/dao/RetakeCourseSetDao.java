@@ -16,6 +16,7 @@ public interface RetakeCourseSetDao {
     int deleteByCalendarId(Long calendarId);
 
     ElcRetakeSetVo findRetakeSet(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
+    List<ElcRetakeSetVo> findRetakeSet2(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
 
     List<Long> findRuleIds(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
 }

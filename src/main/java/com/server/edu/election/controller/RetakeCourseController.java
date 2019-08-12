@@ -9,6 +9,8 @@ import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
 import com.server.edu.election.vo.RetakeCourseCountVo;
+import com.server.edu.util.CollectionUtil;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
@@ -48,6 +50,16 @@ public class RetakeCourseController {
     public RestResult<ElcRetakeSetVo> getRetakeSet(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
         ElcRetakeSetVo elcRetakeSetVo = retakeCourseService.getRetakeSet(calendarId, projectId);
         return RestResult.successData(elcRetakeSetVo);
+    }
+    
+    @ApiOperation(value = "查询重修选课开关状态")
+    @GetMapping("/getRetakeRule2")
+    public RestResult<ElcRetakeSetVo> getRetakeRule2(@RequestBody @Valid ElcRetakeSetVo elcRetakeSetVo) {
+    	List<ElcRetakeSetVo> elcRetakeSetList = retakeCourseService.getRetakeSet2(elcRetakeSetVo.getCalendarId(), elcRetakeSetVo.getProjectId());
+    	if (CollectionUtil.isNotEmpty(elcRetakeSetList)) {
+    		return RestResult.successData(elcRetakeSetList.get(0));
+		}
+    	return RestResult.successData(null);
     }
 
     @ApiOperation(value = "查询重修选课开关状态")
