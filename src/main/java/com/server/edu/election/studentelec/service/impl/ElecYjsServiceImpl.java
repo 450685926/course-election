@@ -241,8 +241,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
-            	LOG.info("==================doElec=================start===================");
-            	
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION);
                 // 判断是否有重修课
                 if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
@@ -250,7 +248,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 {
                     hasRetakeCourse = true;
                 }
-                LOG.info("==================doElec=================end===================");
             }
         }
         // 判断学生是否要重修缴费
