@@ -568,8 +568,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     
             if (roundId != null)
             { // 教务员
-            	 ElectionRounds round = dataProvider.getRound(roundId);
-                teachClasss = dataProvider.getTeachClasssbyCalendarId(round.getCalendarId(),
+                teachClasss = dataProvider.getTeachClasss(roundId,
                 		selected.getCourseCode());
             }
             else
