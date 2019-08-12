@@ -53,7 +53,7 @@ public class RetakeCourseController {
     }
     
     @ApiOperation(value = "查询重修选课开关状态")
-    @GetMapping("/getRetakeRule2")
+    @PostMapping("/getRetakeRule2")
     public RestResult<ElcRetakeSetVo> getRetakeRule2(@RequestBody @Valid ElcRetakeSetVo elcRetakeSetVo) {
     	List<ElcRetakeSetVo> elcRetakeSetList = retakeCourseService.getRetakeSet2(elcRetakeSetVo.getCalendarId(), elcRetakeSetVo.getProjectId());
     	if (CollectionUtil.isNotEmpty(elcRetakeSetList)) {
