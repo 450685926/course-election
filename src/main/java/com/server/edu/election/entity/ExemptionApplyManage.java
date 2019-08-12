@@ -35,13 +35,6 @@ public class ExemptionApplyManage implements Serializable {
     @Column(name = "STUDENT_CODE_")
     private String studentCode;
 
-    
-    /**
-     * 学生学号（后续删除）
-     */
-    @Transient
-    private String studentId;
-    
     /**
      * 学生姓名
      */
@@ -352,14 +345,6 @@ public class ExemptionApplyManage implements Serializable {
         this.materialIp = materialIp == null ? null : materialIp.trim();
     }
     
-    public String getStudentId() {
-		return studentId;
-	}
-
-	public void setStudentId(String studentId) {
-		this.studentId = studentId;
-	}
-
 	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
