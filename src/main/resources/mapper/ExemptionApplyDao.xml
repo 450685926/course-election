@@ -167,7 +167,7 @@
     </select>
       <select id="exemptionCount" parameterType="com.server.edu.election.query.ExemptionQuery" resultMap="ApplyCountMap">
 		SELECT IFNULL(t3.CONDITIONS_,'优秀线申请') EXEMPTION_TYPE_,t1.COURSE_CODE_,t1.COURSE_NAME_,t2.TRAINING_LEVEL_,
-		t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_
+		t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_,COUNT(*) applyNum
 		FROM exemption_apply_manage_t t1
 		LEFT JOIN student_t t2
 		ON t1.STUDENT_CODE_ = t2.STUDENT_CODE_
