@@ -1018,7 +1018,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			}
 		}else{
 			Example applyExample = new Example(ExemptionApplyManage.class);
-			applyExample.createCriteria().andEqualTo("deleteStatus",1).andEqualTo("studentCode",studentId).andEqualTo("calendarId",calendarId);
+			applyExample.createCriteria().andEqualTo("deleteStatus",0).andEqualTo("studentCode",studentId).andEqualTo("calendarId",calendarId);
 			List<ExemptionApplyManage>  applyList = applyDao.selectByExample(applyExample);
 			for (ExemptionApplyManage exemptionApplyManage : applyList) {
 				ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
