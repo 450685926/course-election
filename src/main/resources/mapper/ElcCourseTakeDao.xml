@@ -65,7 +65,6 @@
     left join course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_
     join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
     where t1.STUDENT_ID_ = #{studentId}
-    group by t1.TEACHING_CLASS_ID_
   </select>
 
   <select id="listPage" resultMap="VoResultMap">
@@ -1250,7 +1249,7 @@
             </foreach>
         and a.CALENDAR_ID_ = #{calendarId}
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-            and (d.CODE_ like concat('%',#{keyWord},'%') or a.COURSE_NAME_ like concat('%',#{keyWord},'%'))
+            and (a.COURSE_CODE_ like concat('%',#{keyWord},'%') or a.COURSE_NAME_ like concat('%',#{keyWord},'%'))
         </if>
         group by d.ID_
     </select>
