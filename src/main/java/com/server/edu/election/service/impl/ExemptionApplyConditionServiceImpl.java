@@ -130,8 +130,12 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 
 	@Override
 	public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode, String studentId) {
-		String studentCode = studentId;
-		Student student = studentDao.findStudentByCode(studentCode);
+		String studentCode = "";
+		Student student = new Student();
+		if (StringUtils.isNotBlank(studentId)) {
+			studentCode = studentId;
+			student = studentDao.findStudentByCode(studentCode);
+		}
 		logger.info("==========================ExemptionApply=====================start=====");
 		
 		logger.info("==========================courseCode==========================:"+courseCode);
@@ -143,31 +147,32 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
     	condition.setCourseCode(courseCode);
     	
-    	String trainingLevel = "";
-    	if (StringUtils.isNotBlank(student.getTrainingLevel())) {
-    		trainingLevel = String.valueOf(Integer.parseInt(student.getTrainingLevel()));
-    		condition.setTrainingLevels(trainingLevel==null?"":trainingLevel);
-		}
-    	String trainingCategory = "";
-    	if (StringUtils.isNotBlank(student.getTrainingCategory())) {
-    		trainingCategory = String.valueOf(Integer.parseInt(student.getTrainingCategory()));
-    		condition.setTrainingCategorys(trainingCategory==null?"":trainingCategory);
-		}
-    	String degreeType = "";
-    	if (StringUtils.isNotBlank(student.getDegreeType())) {
-    		degreeType = String.valueOf(Integer.parseInt(student.getDegreeType()));
-    		condition.setDegreeTypes(degreeType==null?"":degreeType);
-		}
-    	String formLearning = "";
-    	if (StringUtils.isNotBlank(student.getFormLearning())) {
-    		formLearning = String.valueOf(Integer.parseInt(student.getFormLearning()));
-    		condition.setFormLearnings(formLearning==null?"":formLearning);
-		}
-    	logger.info("==========================trainingLevel==========================:"+trainingLevel);
-    	logger.info("==========================trainingCategory==========================:"+trainingCategory);
-    	logger.info("==========================degreeType==========================:"+degreeType);
-    	logger.info("==========================formLearning==========================:"+formLearning);
-    	
+    	if (StringUtils.isNotBlank(studentId) || student != null) {
+	    	String trainingLevel = "";
+	    	if (StringUtils.isNotBlank(student.getTrainingLevel())) {
+	    		trainingLevel = String.valueOf(Integer.parseInt(student.getTrainingLevel()));
+	    		condition.setTrainingLevels(trainingLevel==null?"":trainingLevel);
+			}
+	    	String trainingCategory = "";
+	    	if (StringUtils.isNotBlank(student.getTrainingCategory())) {
+	    		trainingCategory = String.valueOf(Integer.parseInt(student.getTrainingCategory()));
+	    		condition.setTrainingCategorys(trainingCategory==null?"":trainingCategory);
+			}
+	    	String degreeType = "";
+	    	if (StringUtils.isNotBlank(student.getDegreeType())) {
+	    		degreeType = String.valueOf(Integer.parseInt(student.getDegreeType()));
+	    		condition.setDegreeTypes(degreeType==null?"":degreeType);
+			}
+	    	String formLearning = "";
+	    	if (StringUtils.isNotBlank(student.getFormLearning())) {
+	    		formLearning = String.valueOf(Integer.parseInt(student.getFormLearning()));
+	    		condition.setFormLearnings(formLearning==null?"":formLearning);
+			}
+	    	logger.info("==========================trainingLevel==========================:"+trainingLevel);
+	    	logger.info("==========================trainingCategory==========================:"+trainingCategory);
+	    	logger.info("==========================degreeType==========================:"+degreeType);
+	    	logger.info("==========================formLearning==========================:"+formLearning);
+    	}
 		return exemptionApplyConditionDao.queryApplyConditionByCourseCodeAndStudentId(condition);
 	}
 
