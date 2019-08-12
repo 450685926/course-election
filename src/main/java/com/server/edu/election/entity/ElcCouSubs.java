@@ -8,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -36,14 +35,14 @@ public class ElcCouSubs implements Serializable {
     /**
      * 原课程ID
      */
-    @NotNull
+    @NotBlank
     @Column(name = "ORIGS_COURSE_ID_")
     private Long origsCourseId;
 
     /**
      * 替代课程ID
      */
-    @NotNull
+    @NotBlank
     @Column(name = "SUB_COURSE_ID_")
     private Long subCourseId;
 
