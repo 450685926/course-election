@@ -364,6 +364,14 @@
         </foreach>
   </update>
 
+   <update id="decrElcNumberList" >
+    update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - 1 where id_ in
+        <foreach collection="teachingClassIds" item="item" open="(" close=")" separator=",">
+          #{item}
+        </foreach>
+    and ELC_NUMBER_ > 0
+    </update>
+
   <select id="selectOversize" resultMap="BaseResultMap">
   	select * from teaching_class_t where id_ = #{teachingClassId} and ELC_NUMBER_ > NUMBER_
   </select>

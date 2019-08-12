@@ -813,64 +813,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
     }
 
     /**
-     *@Description: 导出预览点名册
-     *@Param:
-     *@return:
-     *@Author: bear
-     *@date: 2019/5/8 16:14
-     */
-    @Override
-    public String exportPreRollBookList(ExportPreCondition condition)
-            throws Exception
-    {
-        PreViewRollDto preViewRollDto = findPreviewRollBookListById(condition.getTeachingClassId(), condition.getCalendarId());
-        List<StudentVo> studentsList = preViewRollDto.getStudentsList();
-        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
-                .getSchoolCalendarById(condition.getCalendarId());
-        String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
-        Integer lineNumber = preViewRollDto.getLineNumber();
-        Integer rowNumber = preViewRollDto.getRowNumber();
-        List<Integer> lineList = new ArrayList<>();
-        if (lineNumber > 1)
-        {
-            for (int i = 0; i < lineNumber - 1; i++)
-            {
-                lineList.add(i);
-            }
-        }
-        FileUtil.mkdirs(cacheDirectory);
-        FileUtil.deleteFile(cacheDirectory, 2);
-        String fileName =
-                "preRollBookList-" + System.currentTimeMillis() + ".xls";
-        String path = cacheDirectory + fileName;
-        Map<String, Object> map = new HashMap<>();
-        map.put("list", studentsList);
-        map.put("calendar", calendarName);
-        map.put("lineNumber", lineNumber - 1);
-        map.put("rowNumber", rowNumber);
-        map.put("lineList", lineList);
-        map.put("item", condition);
-        Template tpl = freeMarkerConfigurer.getConfiguration()
-                .getTemplate("preRollBookList1.ftl");
-        // 将模板和数据模型合并生成文件
-        Writer out = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
-        tpl.process(map, out);
-        // 关闭流
-        out.flush();
-        out.close();
-        return path;
-    }
-
-    /**
-    *@Description: 导出研究生点名册详情
+    *@Description: 导出预览点名册
     *@Param:
     *@return:
     *@Author: bear
-    *@date: 2019/8/10
+    *@date: 2019/5/8 16:14
     */
     @Override
-    public String exportGraduteRollBook(ExportPreCondition condition)
+    public String exportPreRollBookList(ExportPreCondition condition)
         throws Exception
     {
         PreViewRollDto preViewRollDto =
@@ -892,7 +842,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         FileUtil.mkdirs(cacheDirectory);
         FileUtil.deleteFile(cacheDirectory, 2);
         String fileName =
-            "GraduteRollBook-" + System.currentTimeMillis() + ".xls";
+            "preRollBookList-" + System.currentTimeMillis() + ".xls";
         String path = cacheDirectory + fileName;
         Map<String, Object> map = new HashMap<>();
         map.put("list", studentsList);
