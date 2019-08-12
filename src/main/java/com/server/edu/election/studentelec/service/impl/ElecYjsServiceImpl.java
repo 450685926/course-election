@@ -783,7 +783,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 										}
                                     	for (int i = 0; i <= classTimeUnit.getTimeEnd() - classTimeUnit.getTimeStart(); i++) {
                                     		if (classTimeUnit.getTimeStart() + i <= classTimeUnit.getTimeEnd()) {
-                                    			thisClassTime.add(classTimeUnit.getTimeStart()+i);
+                                    			classTime.add(classTimeUnit.getTimeStart()+i);
                                     		}
                                     	}
                                     	
