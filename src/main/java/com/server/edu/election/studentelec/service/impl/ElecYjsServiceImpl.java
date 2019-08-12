@@ -565,7 +565,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             if (roundId != null)
             { // 教务员
             	HashOperations<String, String, TeachingClassCache> hashOperations = strTemplate.opsForHash();
-            	TeachingClassCache teachingClassCache = hashOperations.get(Keys.getClassKey(),selected.getTeachClassMsg());
+            	TeachingClassCache teachingClassCache = hashOperations.get(Keys.getClassKey(),selected.getTeachClassMsg()+"");
             	Integer elecNumber =
     					dataProvider.getElecNumber(selected.getTeachClassMsg());
             	teachingClassCache.setCurrentNumber(elecNumber);
