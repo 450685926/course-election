@@ -559,42 +559,46 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 .setAssessmentMode(selected.getAssessmentMode());
             elcCourseResult.setPublicElec(selected.isPublicElec());
             elcCourseResult.setCalendarId(selected.getCalendarId());
-//            elcCourseResult.setCalendarName(selected.getCalendarName());
-//            elcCourseResult.setTerm(selected.getTerm());
-            List<TeachingClassCache> teachClasss = new ArrayList<TeachingClassCache>();
+            elcCourseResult.setCalendarName(selected.getCalendarName());
+            elcCourseResult.setTerm(selected.getTerm());
                     
             if (roundId != null)
             { // 教务员
-                teachClasss = dataProvider.getTeachClasss(roundId,
-                		selected.getCourseCode());
+            	HashOperations<String, String, TeachingClassCache> hashOperations = strTemplate.opsForHash();
+            	TeachingClassCache teachingClassCache = hashOperations.get(Keys.getClassKey(),selected.getTeachClassMsg());
+            	Integer elecNumber =
+    					dataProvider.getElecNumber(selected.getTeachClassMsg());
+            	teachingClassCache.setCurrentNumber(elecNumber);
+    			setClassCache(elcCourseResult, teachingClassCache);
+    			classTimeLists.add(teachingClassCache);
             }
             else
             { // 管理员
-                teachClasss =
+            	List<TeachingClassCache> teachClasss =
                 		dataProvider.getTeachClasssbyCalendarId(calendarId,
                         		selected.getCourseCode());
-            }
-            
-            if (CollectionUtil.isNotEmpty(teachClasss))
-            {
-                for (TeachingClassCache teachClass : teachClasss)
+                if (CollectionUtil.isNotEmpty(teachClasss))
                 {
-                    Long teachClassId = teachClass.getTeachClassId();
-                    if (teachClassId.longValue() == selected
-                        .getTeachClassMsg()
-                        .longValue())
-                    {
-                        
-                        Integer elecNumber =
-                            dataProvider.getElecNumber(teachClassId);
-                        teachClass.setCurrentNumber(elecNumber);
-                        setClassCache(elcCourseResult, teachClass);
-                        classTimeLists.add(teachClass);
-                    }
+                	for (TeachingClassCache teachClass : teachClasss)
+                	{
+                		Long teachClassId = teachClass.getTeachClassId();
+                		if (teachClassId.longValue() == selected
+                				.getTeachClassMsg()
+                				.longValue())
+                		{
+                			
+                			Integer elecNumber =
+                					dataProvider.getElecNumber(teachClassId);
+                			teachClass.setCurrentNumber(elecNumber);
+                			setClassCache(elcCourseResult, teachClass);
+                			classTimeLists.add(teachClass);
+                		}
+                	}
                 }
             }
             selectedCourses.add(elcCourseResult);
         }
+            
         selectedCourseSet.clear();
         selectedCourseSet.addAll(selectedCourses);
         //获取学生已完成的课程
@@ -772,12 +776,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                                     	List<Integer> classTime = new ArrayList<>();
                                     	for (int i = 0; i <= thisClassTimeUnit.getTimeEnd() - thisClassTimeUnit.getTimeStart(); i++) {
                                     		if (thisClassTimeUnit.getTimeStart() + i <= thisClassTimeUnit.getTimeEnd()) {
-                                    			thisClassTime.add(thisClassTimeUnit.getTimeEnd()+1);
+                                    			thisClassTime.add(thisClassTimeUnit.getTimeStart()+i);
 											}
 										}
                                     	for (int i = 0; i <= classTimeUnit.getTimeEnd() - classTimeUnit.getTimeStart(); i++) {
                                     		if (classTimeUnit.getTimeStart() + i <= classTimeUnit.getTimeEnd()) {
-                                    			thisClassTime.add(classTimeUnit.getTimeEnd()+1);
+                                    			thisClassTime.add(classTimeUnit.getTimeStart()+i);
                                     		}
                                     	}
                                     	
