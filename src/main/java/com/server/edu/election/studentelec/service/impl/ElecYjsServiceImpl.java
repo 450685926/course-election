@@ -577,8 +577,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				}
             	if (teachingClassCache != null) {
             		setClassCache(elcCourseResult, teachingClassCache);
+            		classTimeLists.add(teachingClassCache);
 				}
-    			classTimeLists.add(teachingClassCache);
             }
             else
             { // 管理员
