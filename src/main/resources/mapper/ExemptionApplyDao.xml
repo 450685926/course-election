@@ -138,6 +138,13 @@
         select
         <include refid="Base_Column_List"></include>
         from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ not in (2)
+    </select>
+    
+    <select id="applyRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
         where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0
     </select>
 
