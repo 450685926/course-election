@@ -766,51 +766,28 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                                         .getDayOfWeek() == classTimeUnit
                                             .getDayOfWeek())
                                     {
-                                        //判断上课时间
-                                        if ((thisClassTimeUnit
-                                            .getTimeStart() <= classTimeUnit
-                                                .getTimeStart()
-                                            && thisClassTimeUnit
-                                                .getTimeEnd() >= thisClassTimeUnit
-                                                    .getTimeEnd())
-                                            || (classTimeUnit
-                                                .getTimeStart() <= thisClassTimeUnit
-                                                    .getTimeStart()
-                                                && classTimeUnit
-                                                    .getTimeEnd() >= classTimeUnit
-                                                        .getTimeEnd())
-                                            || (classTimeUnit
-                                                .getTimeStart() <= thisClassTimeUnit
-                                                    .getTimeStart()
-                                                && classTimeUnit
-                                                    .getTimeStart() >= thisClassTimeUnit
-                                                        .getTimeEnd())
-                                            || (classTimeUnit
-                                                .getTimeEnd() <= thisClassTimeUnit
-                                                    .getTimeStart()
-                                                && classTimeUnit
-                                                    .getTimeEnd() >= thisClassTimeUnit
-                                                        .getTimeEnd())
-                                            || (thisClassTimeUnit
-                                                .getTimeStart() <= classTimeUnit
-                                                    .getTimeStart()
-                                                && thisClassTimeUnit
-                                                    .getTimeStart() >= classTimeUnit
-                                                        .getTimeEnd())
-                                            || (thisClassTimeUnit
-                                                .getTimeEnd() <= classTimeUnit
-                                                    .getTimeStart()
-                                                && thisClassTimeUnit
-                                                    .getTimeEnd() >= classTimeUnit
-                                                        .getTimeEnd()))
-                                        {
-                                            flag = false;
-                                            conflictCourse = teachingClass.getCourseCode();
-                                            break;
-                                        }
-                                        else
+                                    	//判断上课时间
+                                        //获取学生上课时间
+                                    	List<Integer> thisClassTime = new ArrayList<>();
+                                    	List<Integer> classTime = new ArrayList<>();
+                                    	for (int i = 0; i <= thisClassTimeUnit.getTimeEnd() - thisClassTimeUnit.getTimeStart(); i++) {
+                                    		if (thisClassTimeUnit.getTimeStart() + i <= thisClassTimeUnit.getTimeEnd()) {
+                                    			thisClassTime.add(thisClassTimeUnit.getTimeEnd()+1);
+											}
+										}
+                                    	for (int i = 0; i <= classTimeUnit.getTimeEnd() - classTimeUnit.getTimeStart(); i++) {
+                                    		if (classTimeUnit.getTimeStart() + i <= classTimeUnit.getTimeEnd()) {
+                                    			thisClassTime.add(classTimeUnit.getTimeEnd()+1);
+                                    		}
+                                    	}
+                                    	
+                                    	thisClassTime.retainAll(classTime);
+                                    	if (CollectionUtil.isEmpty(thisClassTime))
                                         {
                                             flag = true;
+                                        }else{
+                                        	flag = false;
+                                            conflictCourse = teachingClass.getCourseCode(); 
                                         }
                                     }
                                     else
