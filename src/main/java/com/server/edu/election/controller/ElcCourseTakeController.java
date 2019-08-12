@@ -199,7 +199,7 @@ public class ElcCourseTakeController
             throws Exception
     {
         List<String> id = condition.getCondition();
-        if (CollectionUtil.isNotEmpty(id))
+        if (CollectionUtil.isEmpty(id))
         {
             throw new ParameterValidateException("studentId not be empty");
         }
