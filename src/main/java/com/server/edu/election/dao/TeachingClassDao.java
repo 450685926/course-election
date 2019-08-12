@@ -74,15 +74,6 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     int increElcNumberList(@Param("teachingClassIds") List<Long> teachingClassIds);
 
     /**
-     * 对教学班选课人数批量自减，选课人数需要大于0
-     *
-     * @param teachingClassIds
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
-    int decrElcNumberList(@Param("teachingClassIds") List<Long> teachingClassIds);
-
-    /**
      *
      * 对选课人数进行自增，只有在限制人数大于选课人数时才增加
      * @param teachingClassId
