@@ -824,10 +824,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	for (Long id : ids) {
 				//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		int code = saveExemptionScore(applyRecord, applyRecord.getCourseCode(),applyRecord.getCourseName());
-        		if(code != 200){
-        			return "common.editError";
-        		}
+        		int code = saveExemptionScore(applyRecord, applyRecord.getCourseCode());
+//        		if(code != 200){
+//        			return "common.editError";
+//        		}
 			}
             
         }else{
@@ -1198,11 +1198,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				if (courseCodes.length == courseNames.length) {
 					applyManage.setCourseCode(courseCodes[i]);
 					applyManage.setCourseName(courseNames[i]);
-					saveExemptionScore(applyManage, courseCodes[i],courseNames[i]);
-					int code = saveExemptionScore(applyManage, courseCodes[i],courseNames[i]);
-	        		if(code != 200){
-	        			return RestResult.fail("common.editError","");
-	        		}
+					saveExemptionScore(applyManage, courseCodes[i]);
+					int code = saveExemptionScore(applyManage, courseCodes[i]);
+//	        		if(code != 200){
+//	        			return RestResult.fail("common.editError","");
+//	        		}
 					applyDao.insertSelective(applyManage);
 				}
 			}
@@ -1227,14 +1227,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param courseCodes
 	 * @return 
 	 */
-	private int saveExemptionScore(ExemptionApplyManage applyManage, String courseCode, String courseName) {
+	private int saveExemptionScore(ExemptionApplyManage applyManage, String courseCode) {
 		
 		
 		logger.info("save score start -----------------------------");
 		//调用成绩接口，向成绩中添加数据
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("studentId", applyManage.getStudentCode());
-		jsonObject.put("studentName", courseName);
+		jsonObject.put("studentName", applyManage.getName());
 		jsonObject.put("calendarId", applyManage.getCalendarId());
 		jsonObject.put("courseCode", courseCode);
 		jsonObject.put("recoredType", 9);

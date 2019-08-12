@@ -570,7 +570,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             	TeachingClassCache teachingClassCache = hash.get(Keys.getClassKey(),selected.getTeachClassMsg()+"");
             	Integer elecNumber =
     					dataProvider.getElecNumber(selected.getTeachClassMsg());
-            	teachingClassCache.setCurrentNumber(elecNumber);
+            	if (elecNumber != null) {
+            		teachingClassCache.setCurrentNumber(elecNumber);
+				}else{
+					teachingClassCache.setCurrentNumber(teachingClassCache.getCurrentNumber());
+				}
     			setClassCache(elcCourseResult, teachingClassCache);
     			classTimeLists.add(teachingClassCache);
             }
@@ -783,7 +787,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 										}
                                     	for (int i = 0; i <= classTimeUnit.getTimeEnd() - classTimeUnit.getTimeStart(); i++) {
                                     		if (classTimeUnit.getTimeStart() + i <= classTimeUnit.getTimeEnd()) {
-                                    			thisClassTime.add(classTimeUnit.getTimeStart()+i);
+                                    			classTime.add(classTimeUnit.getTimeStart()+i);
                                     		}
                                     	}
                                     	
