@@ -176,17 +176,6 @@ public class ReportManagementController
         return RestResult.successData(previewRollBookList);
     }
 
-    @ApiOperation(value = "导出研究生点名册详情")
-    @PostMapping("/exportGraduteRollBook")
-    public RestResult<String> exportGraduteRollBook(
-            @RequestBody ExportPreCondition condition)
-            throws Exception
-    {
-        LOG.info("exportGraduteRollBook.start");
-        String fileName = managementService.exportGraduteRollBook(condition);
-        return RestResult.successData(fileName);
-    }
-
     @ApiOperation(value = "预览点名册")
     @PostMapping("/previewRollBookList2")
     public RestResult<PreviewRollBookList> findPreviewRollBookList2(
