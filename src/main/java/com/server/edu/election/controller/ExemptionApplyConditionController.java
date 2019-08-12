@@ -188,7 +188,7 @@ public class ExemptionApplyConditionController {
     	logger.info("matchedConditions by CourseCode and studentId start");
     	
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.
-    			queryApplyConditionByCourseCodeAndStudentId(applyManage.getCourseCode(),applyManage.getStudentCode());
+    			queryApplyConditionByCourseCodeAndStudentId(applyManage.getCourseCode(),applyManage.getStudentId());
     	return RestResult.successData(list);
     }
     
