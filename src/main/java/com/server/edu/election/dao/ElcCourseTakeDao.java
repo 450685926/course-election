@@ -25,6 +25,9 @@ public interface ElcCourseTakeDao
     /**研究生课程维护模块分页查询选课记录*/
     Page<ElcCourseTakeVo> graduatePage(@Param("query") ElcCourseTakeQuery take);
 
+    /**研究生课程维护模块分页查询选课记录导出查询*/
+    List<ElcCourseTakeVo> getExportGraduatePage(@Param("ids") List<Long> ids);
+
     /**
      * 根据教学班ID，教学班code查询课程id与教学班id
      * 

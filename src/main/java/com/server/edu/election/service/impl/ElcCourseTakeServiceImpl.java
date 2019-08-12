@@ -150,10 +150,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
 
     @Override
-    public PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition)
+    public List<ElcCourseTakeVo> getExportGraduatePage(
+            List<Long> ids)
+    {
+        List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.getExportGraduatePage(ids);
+        setTeachingArrange(elcCourseTakeVos);
+        return elcCourseTakeVos;
+    }
+
+    @Override
+    public PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<Student> condition)
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(condition.getCondition());
+        Student student = condition.getCondition();
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(student.getStudentCode());
         setTeachingArrange(listPage);
         return new PageResult<>(listPage);
     }
@@ -784,7 +794,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
 
-    private void setTeachingArrange(Page<ElcCourseTakeVo> elcCourseTakeVos) {
+    private void setTeachingArrange(List<ElcCourseTakeVo> elcCourseTakeVos) {
         if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
             List<Long> ids = elcCourseTakeVos.stream().map(ElcCourseTakeVo::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);

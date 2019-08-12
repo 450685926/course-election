@@ -170,12 +170,6 @@
         left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         <where>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.ids)">
-                 t1.ID_ in
-                <foreach item="id" collection="query.ids" index="index" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
                 and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
             </if>
@@ -223,7 +217,25 @@
             </if>
             </where>
     </select>
-  
+
+    <select id="getExportGraduatePage" resultMap="VoResultMap">
+    select
+    t1.*,
+    t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
+    t3.NAME_ as courseName, t3.NATURE_ NATURE,t3.CREDITS_,
+    t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
+    t4.CAMPUS_
+    from elc_course_takes_t t1
+    left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+    left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+    join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+    where
+        t1.ID_ in
+        <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
   <select id="getTeachingClassInfo" resultMap="VoResultMap">
   	select 
   		class.id_ as TEACHING_CLASS_ID_ , class.code_ as teachingClassCode, 
