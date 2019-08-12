@@ -808,10 +808,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 String roomID = tableMessage.getRoomId();
                 String teacherCode = tableMessage.getTeacherCode();
                 Long teachingClassId = tableMessage.getTeachingClassId();
-                String teacherName = "";
                 if (teacherCode != null) {
-                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
-                    nameMap.add(teachingClassId,teacherName);
+                    String[] split = teacherCode.split(",");
+                    for (String s : split) {
+                        String name = teachingClassTeacherDao.findTeacherName(s);
+                        nameMap.add(teachingClassId, name);
+                    }
                 }
                 String[] str = tableMessage.getWeekNum().split(",");
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
@@ -827,9 +829,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 Long teachingClassId = elcCourseTakeVo.getTeachingClassId();
                 List<String> arr = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(arr)) {
-                    Set<String> set = new HashSet<>(arr.size());
-                    set.addAll(arr);
-                    elcCourseTakeVo.setCourseArrange(String.join(",", set));
+                    elcCourseTakeVo.setCourseArrange(String.join(",", arr));
                 }
                 List<String> names = nameMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
@@ -855,10 +855,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 String roomID = tableMessage.getRoomId();
                 String teacherCode = tableMessage.getTeacherCode();
                 Long teachingClassId = tableMessage.getTeachingClassId();
-                String teacherName = "";
                 if (teacherCode != null) {
-                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
-                    nameMap.add(teachingClassId,teacherName);
+                    String[] split = teacherCode.split(",");
+                    for (String s : split) {
+                        String name = teachingClassTeacherDao.findTeacherName(s);
+                        nameMap.add(teachingClassId, name);
+                    }
                 }
                 String[] str = tableMessage.getWeekNum().split(",");
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
@@ -872,9 +874,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 Long teachingClassId = elcStudentVo.getTeachingClassId();
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
-                    Set<String> set = new HashSet<>(times.size());
-                    set.addAll(times);
-                    elcStudentVo.setCourseArrange(String.join(",", set));
+                    elcStudentVo.setCourseArrange(String.join(",", times));
                 }
                 List<String> names = nameMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
