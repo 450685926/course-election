@@ -564,9 +564,20 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             elcCourseResult.setCalendarId(selected.getCalendarId());
 //            elcCourseResult.setCalendarName(selected.getCalendarName());
 //            elcCourseResult.setTerm(selected.getTerm());
-            List<TeachingClassCache> teachClasss =
-                    dataProvider.getTeachClasssbyCalendarId(calendarId,
-                    		selected.getCourseCode());
+            List<TeachingClassCache> teachClasss = new ArrayList<TeachingClassCache>();
+                    
+            if (roundId != null)
+            { // 教务员
+            	ElectionRounds round = dataProvider.getRound(roundId);
+                teachClasss = dataProvider.getTeachClasssbyCalendarId(round.getCalendarId(),
+                		selected.getCourseCode());
+            }
+            else
+            { // 管理员
+                teachClasss =
+                		dataProvider.getTeachClasssbyCalendarId(calendarId,
+                        		selected.getCourseCode());
+            }
             
             if (CollectionUtil.isNotEmpty(teachClasss))
             {
