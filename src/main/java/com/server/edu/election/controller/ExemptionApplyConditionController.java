@@ -38,6 +38,7 @@ import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.service.ExemptionApplyConditionService;
+import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
@@ -184,7 +185,7 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "根据课程编号和学籍信息查询所有符合的申请条件")
     @PostMapping("/matchedConditions")
     public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
-    		@RequestBody ExemptionApplyManage  applyManage){
+    		@RequestBody(required=false) ExemptionApplyManageVo applyManage){
     	logger.info("matchedConditions by CourseCode and studentId start");
     	
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.
