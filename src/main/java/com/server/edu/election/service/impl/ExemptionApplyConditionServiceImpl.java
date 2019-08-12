@@ -123,7 +123,8 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 
 	@Override
 	public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode, String studentId) {
-		Student student = studentDao.findStudentByCode(studentId);
+		String studentCode = studentId;
+		Student student = studentDao.findStudentByCode(studentCode);
 		
 		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
     	condition.setCourseCode(courseCode);
