@@ -22,6 +22,7 @@ public interface RetakeCourseService {
     Boolean getRetakeRule(Long calendarId, String projectId);
 
     ElcRetakeSetVo getRetakeSet(Long calendarId, String projectId);
+    List<ElcRetakeSetVo> getRetakeSet2(Long calendarId, String projectId);
 
     List<FailedCourseVo> failedCourseList(Long calendarId);
 
