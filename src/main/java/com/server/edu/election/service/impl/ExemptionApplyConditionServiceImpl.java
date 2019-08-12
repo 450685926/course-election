@@ -2,6 +2,8 @@ package com.server.edu.election.service.impl;
 
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
@@ -129,14 +131,26 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
     	condition.setCourseCode(courseCode);
     	
-    	String trainingLevel = String.valueOf(Integer.valueOf(student.getTrainingLevel()));
-    	String trainingCategory = String.valueOf(Integer.valueOf(student.getTrainingCategory()));
-    	String degreeType = String.valueOf(Integer.valueOf(student.getDegreeType()));
-    	String formLearning = String.valueOf(Integer.valueOf(student.getFormLearning()));
-    	condition.setTrainingLevels(trainingLevel==null?"":trainingLevel);
-    	condition.setTrainingCategorys(trainingCategory==null?"":trainingCategory);
-    	condition.setDegreeTypes(degreeType==null?"":degreeType);
-    	condition.setFormLearnings(formLearning==null?"":formLearning);
+    	String trainingLevel = "";
+    	if (StringUtils.isNotBlank(student.getTrainingLevel())) {
+    		trainingLevel = String.valueOf(Integer.valueOf(student.getTrainingLevel()));
+    		condition.setTrainingLevels(trainingLevel==null?"":trainingLevel);
+		}
+    	String trainingCategory = "";
+    	if (StringUtils.isNotBlank(student.getTrainingCategory())) {
+    		trainingCategory = String.valueOf(Integer.valueOf(student.getTrainingCategory()));
+    		condition.setTrainingCategorys(trainingCategory==null?"":trainingCategory);
+		}
+    	String degreeType = "";
+    	if (StringUtils.isNotBlank(student.getDegreeType())) {
+    		degreeType = String.valueOf(Integer.valueOf(student.getDegreeType()));
+    		condition.setDegreeTypes(degreeType==null?"":degreeType);
+		}
+    	String formLearning = "";
+    	if (StringUtils.isNotBlank(student.getFormLearning())) {
+    		formLearning = String.valueOf(Integer.valueOf(student.getFormLearning()));
+    		condition.setFormLearnings(formLearning==null?"":formLearning);
+		}
 		
 		return exemptionApplyConditionDao.queryApplyConditionByCourseCodeAndStudentId(condition);
 	}
