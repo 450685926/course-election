@@ -42,7 +42,15 @@ public interface ElcCourseTakeService
      */
     PageResult<ElcCourseTakeVo> graduatePage(
             PageCondition<ElcCourseTakeQuery> page);
-    
+
+    /***
+     * 研究生课程维护模块学生选课记录列表导出查询专用
+     * @param ids
+     * @return
+     */
+    List<ElcCourseTakeVo> getExportGraduatePage(List<Long> ids);
+
+
     /**
      * 为指定学生加课
      * 
@@ -126,7 +134,7 @@ public interface ElcCourseTakeService
      * @param condition
      * @return
      */
-    PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition);
+    PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<Student> condition);
 
     /**
      * 课程维护研究生加课查询研究生可以添加的课程

@@ -145,12 +145,12 @@ public class TeacherLessonTableServiceServiceImpl
         if (CollectionUtil.isNotEmpty(teacherTimeTable)) {
             List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
             if (CollectionUtil.isNotEmpty(result)) {
-//                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
                 for (ClassCodeToTeacher toTeacher : result) {
-//                    toTeacher.setCalendarName(schoolCalendar.getFullName());
                     TeachingClassTeacher teacher = teachingClassTeacherDao.findTeacher(toTeacher.getTeacherCode());
-                    toTeacher.setTeacherName(teacher.getTeacherName());
-                    teacher.setSex(teacher.getSex());
+                    if (teacher != null) {
+                        toTeacher.setTeacherName(teacher.getTeacherName());
+                        teacher.setSex(teacher.getSex());
+                    }
                 }
             }
         }
