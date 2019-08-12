@@ -20,11 +20,12 @@ import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseOpenDao;
-import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcCouSubsDao;
+import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
@@ -43,8 +44,8 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
-import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcCouSubsVo;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -219,10 +220,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     {
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
-        SchoolCalendarVo schoolCalendar =
-            BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        String name = SchoolCalendarCacheUtil.getName(calendarId);
         // 获取学历年
-        String year = schoolCalendar.getYear() + "";
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
             List<Long> teachClassIds = courseTakes.stream()
@@ -233,7 +232,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             {
                 SelectedCourse course = new SelectedCourse();
                 TeachingClassCache lesson = new TeachingClassCache();
-                lesson.setCalendarName(year);
+                lesson.setCalendarName(name);
                 lesson.setNature(c.getNature());
                 lesson.setApply(c.getApply());
                 lesson.setCampus(c.getCampus());

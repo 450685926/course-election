@@ -115,11 +115,6 @@ public class ElecContextUtil
     
     public <T> Set<T> getSet(String type, Class<T> clazz)
     {
-        // 本学期已选择课程是跟学期关联的，需要带上学期
-        if (IElecContext.SELECTED_COURSES.equals(type))
-        {
-            type = type + "-" + calendarId;
-        }
         List<T> list = getList(type, clazz);
         return new HashSet<>(list);
     }
@@ -146,6 +141,11 @@ public class ElecContextUtil
     
     private String getByType(String type)
     {
+        // 本学期已选择课程是跟学期关联的，需要带上学期
+        if (IElecContext.SELECTED_COURSES.equals(type))
+        {
+            type = type + "-" + calendarId;
+        }
         String value = null;
         if (null != this.cacheData)
         {
@@ -163,6 +163,11 @@ public class ElecContextUtil
      */
     public void updateMem(String type, Object value)
     {
+        // 本学期已选择课程是跟学期关联的，需要带上学期
+        if (IElecContext.SELECTED_COURSES.equals(type))
+        {
+            type = type + "-" + calendarId;
+        }
         String jsonString = JSON.toJSONString(value);
         this.cacheData.put(type, jsonString);
     }
@@ -384,7 +389,7 @@ public class ElecContextUtil
         ValueOperations<String, String> opsForValue =
             getRedisTemplate().opsForValue();
         String redisKey = Keys.getApplyCourseKey(calendarId);
-
+        
         opsForValue.set(redisKey, JSON.toJSONString(courses));
     }
     
@@ -421,7 +426,7 @@ public class ElecContextUtil
     }
     
     public static void setElecApplyCourse(String studentId,
-    		List<ElectionApply> courseCods)
+        List<ElectionApply> courseCods)
     {
         String key = getKey(studentId);
         if (getRedisTemplate().hasKey(key))

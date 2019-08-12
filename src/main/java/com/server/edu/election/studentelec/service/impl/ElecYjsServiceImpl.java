@@ -241,8 +241,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
-            	LOG.info("==================doElec=================start===================");
-            	
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION);
                 // 判断是否有重修课
                 if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
@@ -250,7 +248,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 {
                     hasRetakeCourse = true;
                 }
-                LOG.info("==================doElec=================end===================");
             }
         }
         // 判断学生是否要重修缴费
@@ -478,10 +475,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     public ElecContext setData(String studentId, ElecContext c, Long roundId,
         Long calendarId)
     {
-    	List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
-    	List<AbstractWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
+//    	List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
+//    	List<AbstractWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
     	// 研究生的管理员代选是没有轮次和规则的
-        if (roundId != null)
+/*        if (roundId != null)
         {
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
@@ -510,7 +507,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     }
                 }
             }
-        }
+        }*/
     	
     	//获取学生培养计划中的课程
     	Set<PlanCourse> planCourses = c.getPlanCourses();
@@ -518,20 +515,20 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	Set<CompletedCourse> setCompletedCourses = c.getCompletedCourses();
     	Set<CompletedCourse> failedCourses = c.getFailedCourse();
 
-    	for (CompletedCourse completedCourse : setCompletedCourses) {
-			for (PlanCourse planCourse : planCourses) {
-				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), completedCourse.getCourseCode())) {
-					completedCourse.setLabelName(planCourse.getLabelName());
-				}
-			}
-		}
-    	for (CompletedCourse failedCourse : failedCourses) {
-    		for (PlanCourse planCourse : planCourses) {
-				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), failedCourse.getCourseCode())) {
-					failedCourse.setLabelName(planCourse.getLabelName());
-				}
-			}
-		}
+//    	for (CompletedCourse completedCourse : setCompletedCourses) {
+//			for (PlanCourse planCourse : planCourses) {
+//				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), completedCourse.getCourseCode())) {
+//					completedCourse.setLabelName(planCourse.getLabelName());
+//				}
+//			}
+//		}
+//    	for (CompletedCourse failedCourse : failedCourses) {
+//    		for (PlanCourse planCourse : planCourses) {
+//				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), failedCourse.getCourseCode())) {
+//					failedCourse.setLabelName(planCourse.getLabelName());
+//				}
+//			}
+//		}
         //每门课上课信息集合
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
         
@@ -562,8 +559,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 .setAssessmentMode(selected.getAssessmentMode());
             elcCourseResult.setPublicElec(selected.isPublicElec());
             elcCourseResult.setCalendarId(selected.getCalendarId());
-            elcCourseResult.setCalendarName(selected.getCalendarName());
-            elcCourseResult.setTerm(selected.getTerm());
+//            elcCourseResult.setCalendarName(selected.getCalendarName());
+//            elcCourseResult.setTerm(selected.getTerm());
             List<TeachingClassCache> teachClasss =
                     dataProvider.getTeachClasssbyCalendarId(calendarId,
                     		selected.getCourseCode());
