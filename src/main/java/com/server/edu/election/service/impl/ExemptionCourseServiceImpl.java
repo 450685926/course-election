@@ -429,7 +429,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     	}
     	//查询是否重复申请
     	ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
-    	if(exemptionApplyManageVo!=null){
+    	if(exemptionApplyManageVo!=null && exemptionApplyManageVo.getExamineResult() == 1){
     		return "common.exist";
     	}
 		applyManage.setScore("免修");
@@ -1178,13 +1178,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	    }
 	    //查询是否重复申请
 	    ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
-	    if(exemptionApplyManageVo!=null){
+	    if(exemptionApplyManageVo!=null && exemptionApplyManageVo.getExamineResult() == 1){
 	    	return RestResult.fail("common.exist",applyManage.getCourseCode());
 	    }
 	    String[] codes = applyManage.getCourseCode().split(",");
 	    for (String code : codes) {
 	    	ExemptionApplyManage exemptionApplyManage = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), code);
-	    	if(exemptionApplyManage!=null){
+	    	if(exemptionApplyManage!=null  && exemptionApplyManage.getExamineResult() == 1){
 	    		return RestResult.fail("common.exist",applyManage.getCourseCode());
 	    	}
 		}
@@ -1254,6 +1254,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
 				//调用成绩接口，查看是否有成绩
 				StudentScore findViolationStu = ScoreServiceInvoker.findViolationStu(applyRecord.getStudentCode(), applyRecord.getCourseCode(), applyRecord.getCalendarId());
+				logger.info("======================="+findViolationStu);
 				if (findViolationStu != null) {
 					noEffectiveIds.add(applyRecord.getStudentCode());
 				}else{
