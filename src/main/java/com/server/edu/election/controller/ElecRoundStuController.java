@@ -105,10 +105,12 @@ public class ElecRoundStuController
         if ((mode == 1 || mode == 2) && StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在";
+            return RestResult.fail(add);
         }
         else if (StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在,或与是否留学身份不匹配";
+            return RestResult.fail(add);
         }
         
         return RestResult.success(add);
