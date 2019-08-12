@@ -150,10 +150,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
 
     @Override
-    public PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition)
+    public List<ElcCourseTakeVo> getExportGraduatePage(
+            List<Long> ids)
+    {
+        List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.getExportGraduatePage(ids);
+        setTeachingArrange(elcCourseTakeVos);
+        return elcCourseTakeVos;
+    }
+
+    @Override
+    public PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<Student> condition)
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(condition.getCondition());
+        Student student = condition.getCondition();
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(student.getStudentCode());
         setTeachingArrange(listPage);
         return new PageResult<>(listPage);
     }
@@ -622,7 +632,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                             int end = selectTable.getTimeEnd().intValue();
                             // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                             if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                                throw new ParameterValidateException(I18nUtil.getMsg("ruleCheck.timeConflict"));
+                                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("ruleCheck.timeConflict",addTable.getTeachingClassId() + "")));
                             }
                         }
                     }
@@ -784,7 +794,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
 
-    private void setTeachingArrange(Page<ElcCourseTakeVo> elcCourseTakeVos) {
+    private void setTeachingArrange(List<ElcCourseTakeVo> elcCourseTakeVos) {
         if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
             List<Long> ids = elcCourseTakeVos.stream().map(ElcCourseTakeVo::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
