@@ -117,9 +117,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
     @Autowired
-    private ExcelStoreConfig excelStoreConfig;
-    
-    @Autowired
     private TeacherLessonTableServiceServiceImpl teacherLessonTableServiceServiceImpl;
 
     private static final String[] setTimeListTitle =

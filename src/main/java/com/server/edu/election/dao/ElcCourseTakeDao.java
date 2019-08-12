@@ -205,7 +205,7 @@ public interface ElcCourseTakeDao
 
     List<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
 
-    Page<ElcCourseTakeVo> allSelectedCourse(String condition);
+    Page<ElcCourseTakeVo> allSelectedCourse(@Param("studentId") String studentId);
 
     int courseCount(@Param("courseCode") String courseCode, @Param("studentId") String studentId);
 
