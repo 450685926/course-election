@@ -336,6 +336,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     public void saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
     {
+    	LOG.info("==================agentElec=======agentElec======agentElec======agentElec=================");
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
@@ -346,6 +347,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         Long teachClassId = teachClass.getTeachClassId();
         Long roundId = request.getRoundId();
         ElectionRounds round = new ElectionRounds();
+        
+        LOG.info("==================agentElec=======agentElec======studentId======: "+studentId);
+        LOG.info("==================agentElec=======agentElec======teachClassId======: "+teachClassId);
+        LOG.info("==================agentElec=======agentElec======teachClassId======: "+teachClassId);
+        
         if (roundId != null) {
         	round = dataProvider.getRound(roundId);
 		}else {
@@ -354,11 +360,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			if (!CollectionUtil.isEmpty(electionRounds) && electionRounds.size() == 1) {
 				BeanUtil.copyProperties(round, electionRounds);
 			}
+			LOG.info("==================agentElec=======agentElec======electionRoundsDto======: "+electionRounds.size());
+			LOG.info("==================agentElec=======agentElec======calendarId======: "+request.getCalendarId());
 		}
+        
         
         String TeachClassCode = teachClass.getTeachClassCode();
         String courseCode = teachClass.getCourseCode();
         String courseName = teachClass.getCourseName();
+        
+        LOG.info("==================agentElec=======agentElec======AAAAAAAAAAA======: "+TeachClassCode+"-->"+courseCode+"-->"+courseName);
         
         Integer logType = ElcLogVo.TYPE_1;
         
@@ -372,6 +383,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             // 增加选课人数
             int count = classDao.increElcNumberAtomic(teachClassId);
             
+            LOG.info("==================agentElec=======agentElec count============: "+count);
+            
             if (count == 0)
             {
                 respose.getFailedReasons()
@@ -379,6 +392,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                         I18nUtil.getMsg("ruleCheck.limitCount"));
                 return;
             }
+            
+            LOG.info("==================agentElec=======add elect data into elc_course_takes_t_0 ============:start");
             
             ElcCourseTake take = new ElcCourseTake();
             take.setChooseObj(request.getChooseObj());
@@ -397,6 +412,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				take.setTurn(round.getTurn());
 			}
             courseTakeDao.insertSelective(take);
+            LOG.info("==================agentElec=======add elect data into elc_course_takes_t_0 ============:end");
         }
         else
         {
@@ -416,6 +432,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
         
         // 添加选课日志
+        LOG.info("==================agentElec=======add elect data into election_log_t_0 ============:start");
         ElcLog log = new ElcLog();
         log.setCourseCode(courseCode);
         log.setCourseName(courseName);
@@ -436,6 +453,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 	        log.setTurn(round.getTurn());
 		}
         this.elcLogDao.insertSelective(log);
+        LOG.info("==================agentElec=======add elect data into election_log_t_0 ============:end");
         
         if (ElectRuleType.ELECTION.equals(type))
         {
@@ -448,6 +466,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
+            
+            LOG.info("==================agentElec=======SelectedCourses ============"+teachClassId);
         }
     }
     

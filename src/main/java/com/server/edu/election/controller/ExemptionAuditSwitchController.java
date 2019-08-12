@@ -17,12 +17,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ExemptionApplyAuditSwitch;
 import com.server.edu.election.service.ExemptionAuditSwitchService;
-import com.server.edu.exception.ParameterValidateException;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -42,9 +40,6 @@ public class ExemptionAuditSwitchController {
     public RestResult<?> addExemptionAuditSwitch(@RequestBody @NotNull @Valid ExemptionApplyAuditSwitch applyAuditSwitch){
     	logger.info("add applySwitch start");
     	
-    	if (applyAuditSwitch.getExcellentScore() != null && applyAuditSwitch.getExcellentScore().doubleValue() < 0) {
-    		 throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.excellentScore.error"));
-		}
     	exemptionAuditSwitchService.addExemptionAuditSwitch(applyAuditSwitch);
     	return RestResult.success();
     }
@@ -72,9 +67,6 @@ public class ExemptionAuditSwitchController {
     public RestResult<?> updateExemptionAuditSwitch(@RequestBody @NotNull @Valid ExemptionApplyAuditSwitch applyAuditSwitch){
     	logger.error("update applySwitch start");
     	
-    	if (applyAuditSwitch.getExcellentScore() != null && applyAuditSwitch.getExcellentScore().doubleValue() < 0) {
-   		 throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.excellentScore.error"));
-		}
     	exemptionAuditSwitchService.updateExemptionAuditSwitch(applyAuditSwitch);
     	return RestResult.success();
     }
