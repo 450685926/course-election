@@ -21,7 +21,7 @@
     <resultMap id="ApplyCountMap" type="com.server.edu.election.vo.ExemptionStudentCountVo">
        <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
       <result column="EXEMPTION_TYPE_" jdbcType="VARCHAR" property="applyCondition" />
-      <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseName" />
+      <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
       <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
       <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
       <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
@@ -166,15 +166,15 @@
         
     </select>
       <select id="exemptionCount" parameterType="com.server.edu.election.query.ExemptionQuery" resultMap="ApplyCountMap">
-		SELECT t3.CONDITIONS_ EXEMPTION_TYPE_,t1.COURSE_CODE_ ,t1.COURSE_NAME_,t2.TRAINING_LEVEL_,
-		t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_,COUNT(*) applyNum
+		SELECT IFNULL(t3.CONDITIONS_,'优秀线申请') EXEMPTION_TYPE_,t1.COURSE_CODE_,t1.COURSE_NAME_,t2.TRAINING_LEVEL_,
+		t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_
 		FROM exemption_apply_manage_t t1
 		LEFT JOIN student_t t2
 		ON t1.STUDENT_CODE_ = t2.STUDENT_CODE_
-		left join exemption_apply_graduate_condition_t t3
-		on t3.ID_ = t1.EXEMPTION_TYPE_
+		LEFT JOIN exemption_apply_graduate_condition_t t3
+		ON t3.ID_ = t1.EXEMPTION_TYPE_
 	<where>
-		t1.APPLY_TYPE_ = 1 and t2.MANAGER_DEPT_ID_=  #{query.projectId}  and t1.DELETE_STATUS_ = 0
+		t2.MANAGER_DEPT_ID_=  2  AND t1.DELETE_STATUS_ = 0 AND t1.EXAMINE_RESULT_ = 1 AND t1.MANAGER_DEPT_ID_ = 2
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
 	        and t2.GRADE_  = #{query.grade}
 	    </if>
@@ -200,6 +200,6 @@
 		    and t1.COURSE_NAME_= #{query.courseName} 
 		</if>
 	</where>
-		GROUP BY t1.EXEMPTION_TYPE_ ,t1.COURSE_CODE_ ,t2.TRAINING_LEVEL_,t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_
+		GROUP BY t1.EXEMPTION_TYPE_ ,t1.COURSE_CODE_ ,t1.COURSE_NAME_ ,t2.TRAINING_LEVEL_,t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_
   </select>
 </mapper>
