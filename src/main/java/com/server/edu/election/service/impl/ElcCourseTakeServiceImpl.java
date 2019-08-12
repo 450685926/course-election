@@ -13,22 +13,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
-import com.server.edu.util.ExportUtil;
-import com.server.edu.util.FileUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelCell;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
@@ -36,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -53,7 +41,6 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.StudentScoreVo;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
@@ -113,12 +100,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private ElecResultSwitchService elecResultSwitchService;
-
-    @Autowired
-    private DictionaryService dictionaryService;
-
-    @Autowired
-    private ExcelStoreConfig excelStoreConfig;
 
     @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
@@ -842,9 +823,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (teachingClassIds.size() != count ) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
-        int decr = teachingClassDao.decrElcNumberList(teachingClassIds);
-        if (decr != count) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        for (Long teachingClassId : teachingClassIds) {
+            int decrElcNumber = teachingClassDao.decrElcNumber(teachingClassId);
+            if (decrElcNumber != 1) {
+                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",teachingClassId + "")));
+            }
         }
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
         if (elcStudentVos.size() != count) {

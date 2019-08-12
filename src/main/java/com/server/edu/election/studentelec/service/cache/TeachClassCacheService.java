@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -86,13 +88,16 @@ public class TeachClassCacheService extends AbstractCacheService
     public void cacheAllTeachClass(Long calendarId)
     {
         PageInfo<CourseOpenDto> page = new PageInfo<>();
+        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        // 获取学历年
+        String year = schoolCalendar.getYear() + "";
         page.setNextPage(1);
         page.setHasNextPage(true);
         while (page.isHasNextPage())
         {
             PageHelper.startPage(page.getNextPage(), 300);
             List<CourseOpenDto> lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
-            this.cacheTeachClass(100, lessons);
+            this.cacheTeachClass(100, lessons, year);
             page = new PageInfo<>(lessons);
         }
     }
@@ -112,7 +117,7 @@ public class TeachClassCacheService extends AbstractCacheService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss)
+    public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss, String year)
     {
         if (CollectionUtil.isEmpty(teachClasss))
         {
@@ -151,6 +156,10 @@ public class TeachClassCacheService extends AbstractCacheService
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
+            //设置研究生学年跟开课学期，勿删
+            tc.setTerm(lesson.getTerm());
+            tc.setCalendarName(year);
+
             numMap.put(teachingClassId.toString(),
                 tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);
