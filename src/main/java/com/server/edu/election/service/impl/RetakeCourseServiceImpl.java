@@ -12,6 +12,7 @@ import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -86,37 +87,57 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public PageResult<RetakeCourseCountVo> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition) {
+    public PageResult<RetakeCourseCountDto> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RetakeCourseCountVo> retakeCourseCountVos = retakeCourseCountDao.findRetakeCourseCountList(condition.getCondition());
+        RetakeCourseCountDto retakeCourseCountDto = getRetakeCourseCountDto(condition.getCondition());
+        Page<RetakeCourseCountDto> retakeCourseCountVos = retakeCourseCountDao.findRetakeCourseCountList(retakeCourseCountDto);
         return new PageResult<>(retakeCourseCountVos);
     }
 
     @Override
     public void updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo) {
         Long id = retakeCourseCountVo.getId();
-        retakeCourseCountVo.setStatus(Constants.DELETE_FALSE);
+        RetakeCourseCountDto retakeCourseCountDto = getRetakeCourseCountDto(retakeCourseCountVo);
+        // 判断这条数据是否与数据库现有数据重复重复
+        RetakeCourseCountDto retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountDto);
         if (id == null) {
-            // 判断这条数据是否重复
-            RetakeCourseCountVo retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountVo);
             if (retakeCourseCount != null) {
                 throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
             }
-//            Session currentSession = SessionUtils.getCurrentSession();
-//            String uid = currentSession.getUid();
-//            retakeCourseCountVo.setCreateBy(uid);
-            retakeCourseCountVo.setCreateBy("cssc");
-            retakeCourseCountVo.setCreateAt(new Date());
-            retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountVo);
+            Session currentSession = SessionUtils.getCurrentSession();
+            String uid = currentSession.getUid();
+            retakeCourseCountDto.setCreateBy(uid);
+            retakeCourseCountDto.setCreateAt(new Date());
+            retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountDto);
         } else {
             // 判断修改后的数据是否与数据库已有数据重复
-            RetakeCourseCountVo retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountVo);
             if (retakeCourseCount != null && id.intValue() != retakeCourseCount.getId().intValue()) {
                 throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
             }
-            retakeCourseCountVo.setUpdatedAt(new Date());
-            retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountVo);
+            retakeCourseCountDto.setId(id);
+            retakeCourseCountDto.setUpdatedAt(new Date());
+            retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountDto);
         }
+    }
+
+    private RetakeCourseCountDto getRetakeCourseCountDto(RetakeCourseCountVo retakeCourseCountVo) {
+        List<String> trainingLevel = retakeCourseCountVo.getTrainingLevel();
+        String trainingLevels = String.join(",",trainingLevel);
+        List<String> trainingCategory = retakeCourseCountVo.getTrainingCategory();
+        String trainingCategories = String.join(",",trainingCategory);
+        List<String> degreeType = retakeCourseCountVo.getDegreeType();
+        String degreeTypes = String.join(",",degreeType);
+        List<String> formLearning = retakeCourseCountVo.getFormLearning();
+        String formLearnings = String.join(",",formLearning);
+        RetakeCourseCountDto retakeCourseCountDto = new RetakeCourseCountDto();
+        retakeCourseCountDto.setTrainingLevel(trainingLevels);
+        retakeCourseCountDto.setTrainingCategory(trainingCategories);
+        retakeCourseCountDto.setDegreeType(degreeTypes);
+        retakeCourseCountDto.setFormLearning(formLearnings);
+        retakeCourseCountDto.setStatus(Constants.DELETE_FALSE);
+        retakeCourseCountDto.setProjectName(retakeCourseCountVo.getProjectName());
+        retakeCourseCountDto.setRetakeCount(retakeCourseCountVo.getRetakeCount());
+        return retakeCourseCountDto;
     }
 
     @Override
