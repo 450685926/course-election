@@ -8,6 +8,7 @@
         <result column="BEGIN_AT_" property="start" />
         <result column="END_AT_" property="end" />
         <result column="PROJ_ID_" property="projectId" />
+        <result column="CREATED_AT_" property="createAt" />
     </resultMap>
 
 
