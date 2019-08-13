@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.server.edu.election.entity.ElcCouSubs;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -32,7 +31,6 @@ public class RetakeCourseUtil {
 	 * @see [类、类#方法、类#成员]
 	 */
 	public static boolean isRetakeCourse(ElecContext context, String courseCode) {
-		// 替代课程待做
 		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
 		Set<CompletedCourse> failedCourse = context.getFailedCourse();
 		/** 培养计划课程 */
@@ -42,19 +40,26 @@ public class RetakeCourseUtil {
 		list.addAll(failedCourse);
 		long count = 0L;
 		if (CollectionUtil.isNotEmpty(list)) {
-				if (CollectionUtil.isNotEmpty(planCourses)) {
-					List<PlanCourse> subCourseCodes = planCourses.stream()
-							.filter(c -> StringUtils.isNotBlank(c.getSubCourseCode())).collect(Collectors.toList());
-					if (CollectionUtil.isNotEmpty(subCourseCodes)) {
-						List<String> subCourses = subCourseCodes.stream()
-								.filter(c -> courseCode.equals(c.getSubCourseCode())).map(PlanCourse::getCourseCode)
-								.collect(Collectors.toList());
-						if (CollectionUtil.isNotEmpty(subCourses)) {
-							count = list.stream().filter(vo -> vo.getCourseCode().equals(courseCode))
-									.filter(vo -> subCourses.contains(vo.getCourseCode())).count();
-						}
+		    // 判断课程是否是已经考过试的成绩
+		    count = list.stream().filter(vo -> courseCode.equals(vo.getCourseCode())).count();
+			if (count == 0 && CollectionUtil.isNotEmpty(planCourses)) {
+			    // 判断是否为替代课程并且考过试
+				List<PlanCourse> subCourseCodes = planCourses.stream()
+						.filter(c -> StringUtils.isNotBlank(c.getSubCourseCode()))
+						.collect(Collectors.toList());
+				if (CollectionUtil.isNotEmpty(subCourseCodes)) {
+					List<String> subCourses = subCourseCodes.stream()
+							.filter(c -> courseCode.equals(c.getSubCourseCode()))
+							.map(PlanCourse::getCourseCode)
+							.collect(Collectors.toList());
+					if (CollectionUtil.isNotEmpty(subCourses)) {
+						count = list.stream()
+						        .filter(vo -> courseCode.equals(vo.getCourseCode()))
+								.filter(vo -> subCourses.contains(vo.getCourseCode()))
+								.count();
 					}
 				}
+			}
 		}
 
 		return count > 0;
@@ -77,8 +82,8 @@ public class RetakeCourseUtil {
         /** 学生信息 */
         StudentInfoCache studentInfo = context.getStudentInfo();
         Set<ElcCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
-        ElcCouSubs elcCouSubs = noGradCouSubsCourses.stream()
-                .filter(c -> courseCode.equals(c.getSubCourseId())).findFirst().orElse(null);
+        ElcCouSubsVo elcCouSubs = noGradCouSubsCourses.stream()
+                .filter(c -> courseCode.equals(c.getSubCourseCode())).findFirst().orElse(null);
         List<com.server.edu.election.studentelec.context.bk.CompletedCourse> list = new ArrayList<>();
         list.addAll(completedCourses);
         list.addAll(failedCourse);
@@ -88,7 +93,7 @@ public class RetakeCourseUtil {
                 if (elcCouSubs != null) {
                     count = list.stream()
                             .filter(vo -> vo.getCourseCode().equals(courseCode))
-                            .filter(c -> elcCouSubs.getOrigsCourseId().equals(c.getCourseCode())).count();
+                            .filter(c -> elcCouSubs.getSubCourseCode().equals(c.getCourseCode())).count();
                 }
             } else {
                 if (CollectionUtil.isNotEmpty(planCourses)) {
