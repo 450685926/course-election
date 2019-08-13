@@ -882,6 +882,19 @@
         GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_
     </select>
 
+    <select id="getExportGraduteRollBookList" resultType="com.server.edu.election.vo.RollBookList">
+    SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,
+    t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,
+    t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,
+    t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature
+    from elc_course_takes_t t1
+    join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
+    join course_t t3 on t1.COURSE_CODE_=t3.CODE_
+    where t1.ID_ in
+        <foreach item="id" collection="ids"  index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <select id="findStudentTable" resultType="com.server.edu.election.dto.StudnetTimeTable">
         SELECT 

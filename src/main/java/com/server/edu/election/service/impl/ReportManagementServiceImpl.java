@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,16 +54,6 @@ import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ExportPreCondition;
-import com.server.edu.election.dto.PreViewRollDto;
-import com.server.edu.election.dto.PreviewRollBookList;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudentSelectCourseList;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
@@ -502,6 +493,73 @@ public class ReportManagementServiceImpl implements ReportManagementService
             }
         }
         return new PageResult<>(rollBookList);
+    }
+
+    /**
+     *@Description: 查询研究生点名册
+     *@Param:
+     *@return:
+     *@Author: bear
+     *@date: 2019/8/13
+     */
+    @Override
+    public PageResult<RollBookList> findGraduteRollBookList(
+            PageCondition<RollBookConditionDto> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<RollBookList> rollBookList =
+                courseTakeDao.findClassByTeacherCode(condition.getCondition());
+        if (rollBookList != null)
+        {
+            List<RollBookList> result = rollBookList.getResult();
+            setTeacherNames(result);
+        }
+        return new PageResult<>(rollBookList);
+    }
+
+    private void setTeacherNames(List<RollBookList> result) {
+        if (CollectionUtil.isNotEmpty(result))
+        {
+            List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
+            //获取老师id
+            List<TeacherClassTimeRoom> teacherClassTimeRooms = teachingClassDao.findTeacherCodes(list);
+            if (CollectionUtil.isNotEmpty(teacherClassTimeRooms)) {
+                Map<Long, String> map = teacherClassTimeRooms.stream().
+                        collect(Collectors.toMap(TeacherClassTimeRoom::getTeachClassId, TeacherClassTimeRoom::getTeacherCode));
+                for (RollBookList bookList : result)
+                {
+                    String codes = map.get(bookList.getTeachingClassId());
+                    if (codes != null) {
+                        String[] split = codes.split(",");
+                        Set<String> set = new HashSet<>(Arrays.asList(split));
+                        List<String> names = new ArrayList<>();
+                        for (String s : set) {
+                            String teacherName = teachingClassTeacherDao.findTeacherName(s);
+                            names.add(teacherName);
+                        }
+                        String teacherNames = String.join(",", names);
+                        bookList.setTeacherName(teacherNames);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *@Description: 查询研究生点名册
+     *@Param:
+     *@return:
+     *@Author: bear
+     *@date: 2019/8/13
+     */
+    @Override
+    public List<RollBookList> getExportGraduteRollBookList(
+            List<Long> ids)
+    {
+        List<RollBookList> rollBookList =
+                courseTakeDao.getExportGraduteRollBookList(ids);
+         setTeacherNames(rollBookList);
+        return rollBookList;
     }
 
     /**

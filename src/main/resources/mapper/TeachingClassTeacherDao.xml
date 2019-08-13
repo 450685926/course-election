@@ -21,7 +21,7 @@
   </select>
 
   <select id="findTeacher" resultMap="BaseResultMap">
-    select * from teaching_class_teacher_t where TEACHER_CODE_ = #{teacherCode} limit 1, 1
+    select * from teaching_class_teacher_t where TEACHER_CODE_ = #{teacherCode} limit 1
   </select>
 
   <select id="findTeacherNames" resultType="java.lang.String">
