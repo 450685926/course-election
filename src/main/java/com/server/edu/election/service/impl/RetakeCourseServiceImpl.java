@@ -125,11 +125,6 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     public ElcRetakeSetVo getRetakeSet(Long calendarId, String projectId) {
         return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
     }
-    
-    @Override
-    public List<ElcRetakeSetVo> getRetakeSet2(Long calendarId, String projectId) {
-    	return retakeCourseSetDao.findRetakeSet2(calendarId, projectId);
-    }
 
     @Override
     public Boolean getRetakeRule(Long calendarId, String projectId) {
