@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +38,7 @@ import com.server.edu.election.dao.ElcInvincibleStdsDao;
 import com.server.edu.election.dao.ElcResultCountDao;
 import com.server.edu.election.dao.ElcScreeningLabelDao;
 import com.server.edu.election.dao.ElcTeachingClassBindDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
@@ -138,6 +140,9 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private TeachingClassDao teachingClassDao;
     
+    @Autowired
+    private ElectionConstantsDao constantsDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -151,6 +156,26 @@ public class ElcResultServiceImpl implements ElcResultService
         		condition.setMode(mode);
         		listPage = classDao.listScreeningPage(condition);
         	}else {
+                List<String> includeCodes = new ArrayList<>();
+                // 1体育课
+                if (Objects.equals(condition.getCourseType(), 1))
+                {
+                    String findPECourses = constantsDao.findPECourses();
+                    if (StringUtils.isNotBlank(findPECourses))
+                    {
+                        includeCodes.addAll(Arrays.asList(findPECourses.split(",")));
+                    }
+                }
+                else if (Objects.equals(condition.getCourseType(), 2))
+                {// 2英语课
+                    String findEnglishCourses = constantsDao.findEnglishCourses();
+                    if (StringUtils.isNotBlank(findEnglishCourses))
+                    {
+                        includeCodes
+                            .addAll(Arrays.asList(findEnglishCourses.split(",")));
+                    }
+                }
+                condition.setIncludeCodes(includeCodes);
         		listPage = classDao.listPage(condition);
 			}
 		}
