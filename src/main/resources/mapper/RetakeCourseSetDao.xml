@@ -42,11 +42,6 @@
     <select id="findRetakeSet" resultMap="BaseResultMap">
         select * from elc_retake_set where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projectId}
     </select>
-    
-    <select id="findRetakeSet2" resultMap="BaseResultMap">
-        select * from elc_retake_set where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projectId}
-        order by CREATED_AT_ desc
-    </select>
 
     <select id="findRuleIds" resultType="java.lang.Long">
         select a.RULE_ID_ from retake_set_ref_rule_t a
