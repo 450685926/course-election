@@ -4,6 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
@@ -60,9 +61,9 @@ public class RetakeCourseController {
 
     @ApiOperation(value = "查询重修选课门数上限列表")
     @PostMapping("/findRetakeCourseCountList")
-    public RestResult<PageResult<RetakeCourseCountVo>> findRetakeCourseCountList(
+    public RestResult<PageResult<RetakeCourseCountDto>> findRetakeCourseCountList(
             @RequestBody PageCondition<RetakeCourseCountVo> condition) {
-        PageResult<RetakeCourseCountVo> result = retakeCourseService.findRetakeCourseCountList(condition);
+        PageResult<RetakeCourseCountDto> result = retakeCourseService.findRetakeCourseCountList(condition);
         return RestResult.successData(result);
     }
 

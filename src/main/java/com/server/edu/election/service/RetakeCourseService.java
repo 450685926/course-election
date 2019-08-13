@@ -3,6 +3,7 @@ package com.server.edu.election.service;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface RetakeCourseService {
     void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo);
 
-    PageResult<RetakeCourseCountVo> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition);
+    PageResult<RetakeCourseCountDto> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition);
 
     void updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo);
 

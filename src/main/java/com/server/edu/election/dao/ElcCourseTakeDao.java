@@ -138,6 +138,9 @@ public interface ElcCourseTakeDao
     /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
 
+    /**点名册导出查询*/
+    List<RollBookList> getExportGraduteRollBookList(@Param("ids") List<Long> ids);
+
     /**查询学生课表*/
     List<StudnetTimeTable> findStudentTable(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 

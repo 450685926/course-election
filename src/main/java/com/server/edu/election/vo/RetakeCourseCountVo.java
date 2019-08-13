@@ -3,76 +3,33 @@ package com.server.edu.election.vo;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
 @CodeI18n
 public class RetakeCourseCountVo {
     private Long id;
 
-    @NotBlank
-    @Code2Text(transformer = "X_PYCC")
-    private String trainingLevel;
+    @NotEmpty
+    private List<String> trainingLevel;
 
-    @NotBlank
-    @Code2Text(transformer = "X_PYLB")
-    private String trainingCategory;
+    @NotEmpty
+    private List<String> trainingCategory;
 
-    @NotBlank
-    @Code2Text(transformer = "X_XWLX")
-    private String degreeType;
+    @NotEmpty
+    private List<String> degreeType;
 
-    @NotBlank
-    @Code2Text(transformer = "X_XXXS")
-    private String formLearning;
+    @NotEmpty
+    private List<String> formLearning;
 
     @NotNull
     private Integer retakeCount;
 
     @NotBlank
     private String projectName;
-
-    private String createBy;
-
-    private Date createAt;
-
-    private Date updatedAt;
-
-    /**删除状态，0未删除，1删除*/
-    private Integer status;
-
-    public Date getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Date getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(Date createAt) {
-        this.createAt = createAt;
-    }
-
-    public String getCreateBy() {
-        return createBy;
-    }
-
-    public void setCreateBy(String createBy) {
-        this.createBy = createBy;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
 
     public Long getId() {
         return id;
@@ -82,35 +39,35 @@ public class RetakeCourseCountVo {
         this.id = id;
     }
 
-    public String getTrainingLevel() {
+    public List<String> getTrainingLevel() {
         return trainingLevel;
     }
 
-    public void setTrainingLevel(String trainingLevel) {
+    public void setTrainingLevel(List<String> trainingLevel) {
         this.trainingLevel = trainingLevel;
     }
 
-    public String getTrainingCategory() {
+    public List<String> getTrainingCategory() {
         return trainingCategory;
     }
 
-    public void setTrainingCategory(String trainingCategory) {
+    public void setTrainingCategory(List<String> trainingCategory) {
         this.trainingCategory = trainingCategory;
     }
 
-    public String getDegreeType() {
+    public List<String> getDegreeType() {
         return degreeType;
     }
 
-    public void setDegreeType(String degreeType) {
+    public void setDegreeType(List<String> degreeType) {
         this.degreeType = degreeType;
     }
 
-    public String getFormLearning() {
+    public List<String> getFormLearning() {
         return formLearning;
     }
 
-    public void setFormLearning(String formLearning) {
+    public void setFormLearning(List<String> formLearning) {
         this.formLearning = formLearning;
     }
 

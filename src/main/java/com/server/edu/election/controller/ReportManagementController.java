@@ -126,13 +126,13 @@ public class ReportManagementController
         Session session = SessionUtils.getCurrentSession();
         PageResult<RollBookList> bookList = null;
         if (session.isAdmin()) {
-            bookList = managementService.findRollBookList(condition);
+            bookList = managementService.findGraduteRollBookList(condition);
         }else if (session.isAcdemicDean()) {
             rollBookConditionDto.setFaculty(session.getFaculty());
-            bookList = managementService.findRollBookList(condition);
+            bookList = managementService.findGraduteRollBookList(condition);
         }else if (session.isTeacher()) {
             rollBookConditionDto.setTeacherCode(session.realUid());
-            bookList = managementService.findRollBookList(condition);
+            bookList = managementService.findGraduteRollBookList(condition);
         }
         return RestResult.successData(bookList);
     }
@@ -141,20 +141,15 @@ public class ReportManagementController
             @ApiResponse(code = 200, response = File.class, message = "导出")})
     @PostMapping("/exportGraduteRollBookList")
     public ResponseEntity<Resource> exportGraduteRollBookList(
-            @RequestBody PageCondition<RollBookConditionDto> condition)
+            @RequestBody List<Long> ids)
             throws Exception
     {
-        ValidatorUtil.validateAndThrow(condition);
+        ValidatorUtil.validateAndThrow(ids);
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 2);
-        RestResult<PageResult<RollBookList>> graduteRollBookList = findGraduteRollBookList(condition);
+        List<RollBookList> list = managementService.getExportGraduteRollBookList(ids);
         GeneralExcelDesigner design = graduteRollBookList();
-        PageResult<RollBookList> data = graduteRollBookList.getData();
-        List<RollBookList> list = new ArrayList<>();
-        if (data != null) {
-            list = data.getList();
-        }
         design.setDatas(list);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         Session currentSession = SessionUtils.getCurrentSession();

@@ -44,6 +44,10 @@ public interface ReportManagementService {
 
     PageResult<RollBookList> findRollBookList(PageCondition<RollBookConditionDto> condition);
 
+    PageResult<RollBookList> findGraduteRollBookList(PageCondition<RollBookConditionDto> condition);
+
+    List<RollBookList> getExportGraduteRollBookList(List<Long> ids);
+
     PreViewRollDto findPreviewRollBookListById(Long teachingClassId,Long calendarId);
 
     PreViewRollDto previewGraduteRollBook(Long teachingClassId);
