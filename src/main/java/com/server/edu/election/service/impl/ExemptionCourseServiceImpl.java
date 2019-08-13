@@ -397,7 +397,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     */
     @Override
     public String addExemptionApply(ExemptionApplyManage applyManage) {//材料上传todo
-        if("".equals(applyManage.getApplyType())){
+        if(applyManage.getApplyType() == null){
             return "common.parameterError";
         }
         //查询是否重复申请
@@ -424,7 +424,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
      */
     @Override
     public String adminAddApply(ExemptionApplyManage applyManage) {
-    	if("".equals(applyManage.getApplyType())){
+    	if(applyManage.getApplyType() == null){
     		return "common.parameterError";
     	}
     	//查询是否重复申请
