@@ -247,11 +247,15 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+            // 获取学历年
+            String year = schoolCalendar.getYear() + "";
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (ElcCourseTakeVo c : courseTakes)
             {
                 SelectedCourse course = new SelectedCourse();
                 course.setTerm(c.getTerm());
+                course.setCalendarName(year);
                 course.setTeachClassMsg(c.getTeachingClassId());
                 course.setNature(c.getNature());
                 course.setApply(c.getApply());

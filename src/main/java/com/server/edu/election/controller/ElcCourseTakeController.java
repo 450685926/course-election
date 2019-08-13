@@ -133,7 +133,7 @@ public class ElcCourseTakeController
     /**
      * 研究生课程维护模块学生选课列表导出
      *
-     * @param condition
+     * @param ids
      * @return
      * @see [类、类#方法、类#成员]
      */
@@ -141,19 +141,14 @@ public class ElcCourseTakeController
             @ApiResponse(code = 200, response = File.class, message = "导出")})
     @PostMapping(value = "/exportGraduatePage")
     public ResponseEntity<Resource> exportGraduatePage(
-            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+            @RequestBody List<Long> ids)
             throws Exception
     {
-        ValidatorUtil.validateAndThrow(condition);
+        ValidatorUtil.validateAndThrow(ids);
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 2);
-        RestResult<PageResult<ElcCourseTakeVo>> pageResultRestResult = graduatePage(condition);
-        PageResult<ElcCourseTakeVo> data = pageResultRestResult.getData();
-        List<ElcCourseTakeVo> list = new ArrayList<>();
-        if (data != null) {
-            list = data.getList();
-        }
+        List<ElcCourseTakeVo> list = courseTakeService.getExportGraduatePage(ids);;
         GeneralExcelDesigner design = graduatePage();
         design.setDatas(list);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
@@ -172,10 +167,11 @@ public class ElcCourseTakeController
     @ApiOperation(value = "课程维护模块学生个人全部选课信息")
     @PostMapping("/allSelectedCourse")
     public RestResult<PageResult<ElcCourseTakeVo>> allSelectedCourse(
-            @RequestBody PageCondition<String> condition)
+            @RequestBody PageCondition<Student> condition)
             throws Exception
     {
-        if (StringUtils.isBlank(condition.getCondition()))
+        Student student = condition.getCondition();
+        if (student == null || student.getStudentCode() == null)
         {
             throw new ParameterValidateException("studentId not be empty");
         }
@@ -188,7 +184,7 @@ public class ElcCourseTakeController
     /**
      * 研究生课程维护模块学生个人全部选课信息导出
      *
-     * @param condition
+     * @param student
      * @return
      * @see [类、类#方法、类#成员]
      */
@@ -196,16 +192,18 @@ public class ElcCourseTakeController
             @ApiResponse(code = 200, response = File.class, message = "导出")})
     @PostMapping(value = "/exportAllSelectedCourse")
     public ResponseEntity<Resource> exportAllSelectedCourse(
-            @RequestBody PageCondition<String> condition)
+            @RequestBody Student student)
             throws Exception
     {
-        ValidatorUtil.validateAndThrow(condition);
+        ValidatorUtil.validateAndThrow(student);
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 2);
         List<ElcCourseTakeVo> list = new ArrayList<>();
+        PageCondition<Student> condition = new PageCondition<>();
         condition.setPageNum_(1);
         condition.setPageSize_(200);
+        condition.setCondition(student);
         RestResult<PageResult<ElcCourseTakeVo>> pageResultRestResult = allSelectedCourse(condition);
         PageResult<ElcCourseTakeVo> data = pageResultRestResult.getData();
         long total_ = data.getTotal_();
@@ -218,7 +216,7 @@ public class ElcCourseTakeController
         GeneralExcelDesigner design = allSelectedCourseExcel();
         design.setDatas(list);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        return ExportUtil.exportExcel(excelUtil, cacheDirectory, condition.getCondition() + ".xls");
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, student.getStudentCode() + ".xls");
     }
 
     /**

@@ -154,6 +154,26 @@ public class ElcResultQuery
     
     private Integer mode;
     
+    private Integer courseType;
+    
+    private List<String> includeCodes;
+    
+	public List<String> getIncludeCodes() {
+		return includeCodes;
+	}
+
+	public void setIncludeCodes(List<String> includeCodes) {
+		this.includeCodes = includeCodes;
+	}
+
+	public Integer getCourseType() {
+		return courseType;
+	}
+
+	public void setCourseType(Integer courseType) {
+		this.courseType = courseType;
+	}
+
 	public Integer getMode() {
 		return mode;
 	}

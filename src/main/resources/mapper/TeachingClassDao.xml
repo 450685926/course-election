@@ -145,7 +145,13 @@
       <if test="credits!=null and credits!=0">
         and t3.CREDITS_ = #{credits}
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(includeCodes)">
+  		and t3.COURSE_CODE_ in 
+  		<foreach collection="includeCodes" open="(" separator="," close=")" item="courseCode">
+            #{courseCode}
+         </foreach>
+  	  </if>
+  	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
   	  </if>
   	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
@@ -363,14 +369,6 @@
           #{item}
         </foreach>
   </update>
-
-   <update id="decrElcNumberList" >
-    update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - 1 where id_ in
-        <foreach collection="teachingClassIds" item="item" open="(" close=")" separator=",">
-          #{item}
-        </foreach>
-    and ELC_NUMBER_ > 0
-    </update>
 
   <select id="selectOversize" resultMap="BaseResultMap">
   	select * from teaching_class_t where id_ = #{teachingClassId} and ELC_NUMBER_ > NUMBER_

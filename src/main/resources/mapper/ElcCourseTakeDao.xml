@@ -56,13 +56,13 @@
     <select id="allSelectedCourse" resultMap="VoResultMap">
     select
     t1.*,
-    t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.FACULTY_,
-    t3.COURSE_NAME_ as courseName, t3.NATURE_ NATURE,t3.CREDITS_,t3.TRAINING_LEVEL_,
-    t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
+    t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,
+    t3.NAME_ courseName, t3.NATURE_ NATURE,t3.CREDITS_,t3.TRAINING_LEVEL_,
+    t4.CODE_ teachingClassCode,t4.NAME_ teachingClassName,
     t4.CAMPUS_
     from elc_course_takes_t t1
     left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-    left join course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_
+    left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
     join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
     where t1.STUDENT_ID_ = #{studentId}
   </select>
@@ -75,8 +75,8 @@
       t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
       t4.CAMPUS_
       from elc_course_takes_t t1
-      left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-      left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+      join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+      join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
       join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
@@ -170,12 +170,6 @@
         left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         <where>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.ids)">
-                 t1.ID_ in
-                <foreach item="id" collection="query.ids" index="index" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
                 and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
             </if>
@@ -223,7 +217,25 @@
             </if>
             </where>
     </select>
-  
+
+    <select id="getExportGraduatePage" resultMap="VoResultMap">
+    select
+    t1.*,
+    t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
+    t3.NAME_ as courseName, t3.NATURE_ NATURE,t3.CREDITS_,
+    t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
+    t4.CAMPUS_
+    from elc_course_takes_t t1
+    left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+    left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+    join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+    where
+        t1.ID_ in
+        <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
   <select id="getTeachingClassInfo" resultMap="VoResultMap">
   	select 
   		class.id_ as TEACHING_CLASS_ID_ , class.code_ as teachingClassCode, 
@@ -404,7 +416,7 @@
             te.DAY_OF_WEEK_ dayOfWeek,te.TIME_START_ timeStart, te.TIME_END_ timeEnd,ro.ROOM_ID_ roomId,
             GROUP_CONCAT(ro.WEEK_NUMBER_ ORDER BY ro.WEEK_NUMBER_ asc) weekNum
         from teaching_class_t tc
-        join teaching_class_arrange_time_t te on te.TEACHING_CLASS_ID_ = tc.ID_
+        join teaching_class_arrange_time_t te on (te.TEACHING_CLASS_ID_ = tc.ID_ and te.TYPE_ =2)
         join teaching_class_arrange_room_t ro ON te.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
         tc.ID_ = #{teachingClassId}
@@ -931,10 +943,10 @@
         from course_open_t op
         join teaching_task_t tk ON tk.COURSE_OPEN_ID_ = op.ID_
         join teaching_class_t tc ON tc.TASK_ID_ = tk.ID_
-        join teaching_class_arrange_time_t ta ON ta.TEACHING_CLASS_ID_ = tc.ID_
+        join teaching_class_arrange_time_t ta ON (ta.TEACHING_CLASS_ID_ = tc.ID_ and ta.TYPE_ = 2)
         join teaching_class_arrange_room_t tr ON tr.ARRANGE_TIME_ID_ = ta.ID_
         <where>
-            ta.TYPE_ = 2 and op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and op.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
@@ -1249,7 +1261,7 @@
             </foreach>
         and a.CALENDAR_ID_ = #{calendarId}
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-            and (a.COURSE_CODE_ like concat('%',#{keyWord},'%') or a.COURSE_NAME_ like concat('%',#{keyWord},'%'))
+            and (a.COURSE_NAME_ like concat('%',#{keyWord},'%') or d.CODE_ like concat('%',#{keyWord},'%'))
         </if>
         group by d.ID_
     </select>

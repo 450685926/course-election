@@ -119,9 +119,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
     @Autowired
-    private ExcelStoreConfig excelStoreConfig;
-    
-    @Autowired
     private TeacherLessonTableServiceServiceImpl teacherLessonTableServiceServiceImpl;
 
     private static final String[] setTimeListTitle =
@@ -281,8 +278,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 arrangeMap.add(teachingClassId, timeStr);
                 String teacherName = "";
                 if (teacherCode != null) {
-                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
-                    nameMap.add(teachingClassId,teacherName);
+                    String[] split = teacherCode.split(",");
+                    List<String> names = new ArrayList<>(split.length);
+                    for (String s : split) {
+                        String name = teachingClassTeacherDao.findTeacherName(s);
+                        names.add(name);
+                        nameMap.add(teachingClassId,name);
+                    }
+                    teacherName = String.join(",",names);
                 }
                 TimeTable time = new TimeTable();
                 time.setDayOfWeek(dayOfWeek);
@@ -301,9 +304,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
-                    Set<String> set = new HashSet<>(times.size());
-                    set.addAll(times);
-                    studentSchoolTimetab.setTime(String.join(",", set));
+                    studentSchoolTimetab.setTime(String.join(",", times));
                 }
                 List<String> names = nameMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
@@ -638,7 +639,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
             }
             pre.setTimeTabelList(timeTableMessages);
         }
-        Integer max = Collections.max(number);
+        Integer max = 0;
+        if (CollectionUtil.isNotEmpty(number)) {
+            max = Collections.max(number);
+        }
         pre.setRowNumber(max);
         pre.setLineNumber(days.size());
         return pre;
@@ -812,14 +816,64 @@ public class ReportManagementServiceImpl implements ReportManagementService
     }
 
     /**
-    *@Description: 导出预览点名册
+     *@Description: 导出预览点名册
+     *@Param:
+     *@return:
+     *@Author: bear
+     *@date: 2019/5/8 16:14
+     */
+    @Override
+    public String exportPreRollBookList(ExportPreCondition condition)
+            throws Exception
+    {
+        PreViewRollDto preViewRollDto = findPreviewRollBookListById(condition.getTeachingClassId(), condition.getCalendarId());
+        List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
+                .getSchoolCalendarById(condition.getCalendarId());
+        String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
+        Integer lineNumber = preViewRollDto.getLineNumber();
+        Integer rowNumber = preViewRollDto.getRowNumber();
+        List<Integer> lineList = new ArrayList<>();
+        if (lineNumber > 1)
+        {
+            for (int i = 0; i < lineNumber - 1; i++)
+            {
+                lineList.add(i);
+            }
+        }
+        FileUtil.mkdirs(cacheDirectory);
+        FileUtil.deleteFile(cacheDirectory, 2);
+        String fileName =
+                "preRollBookList-" + System.currentTimeMillis() + ".xls";
+        String path = cacheDirectory + fileName;
+        Map<String, Object> map = new HashMap<>();
+        map.put("list", studentsList);
+        map.put("calendar", calendarName);
+        map.put("lineNumber", lineNumber - 1);
+        map.put("rowNumber", rowNumber);
+        map.put("lineList", lineList);
+        map.put("item", condition);
+        Template tpl = freeMarkerConfigurer.getConfiguration()
+                .getTemplate("preRollBookList1.ftl");
+        // 将模板和数据模型合并生成文件
+        Writer out = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+        tpl.process(map, out);
+        // 关闭流
+        out.flush();
+        out.close();
+        return path;
+    }
+
+    /**
+    *@Description: 导出研究生点名册详情
     *@Param:
     *@return:
     *@Author: bear
-    *@date: 2019/5/8 16:14
+    *@date: 2019/8/10
     */
     @Override
-    public String exportPreRollBookList(ExportPreCondition condition)
+    public String exportGraduteRollBook(ExportPreCondition condition)
         throws Exception
     {
         PreViewRollDto preViewRollDto =
@@ -841,7 +895,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         FileUtil.mkdirs(cacheDirectory);
         FileUtil.deleteFile(cacheDirectory, 2);
         String fileName =
-            "preRollBookList-" + System.currentTimeMillis() + ".xls";
+            "GraduteRollBook-" + System.currentTimeMillis() + ".xls";
         String path = cacheDirectory + fileName;
         Map<String, Object> map = new HashMap<>();
         map.put("list", studentsList);

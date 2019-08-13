@@ -13,22 +13,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
-import com.server.edu.util.ExportUtil;
-import com.server.edu.util.FileUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelCell;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
@@ -36,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -53,7 +41,6 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.StudentScoreVo;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
@@ -115,12 +102,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     private ElecResultSwitchService elecResultSwitchService;
 
     @Autowired
-    private DictionaryService dictionaryService;
-
-    @Autowired
-    private ExcelStoreConfig excelStoreConfig;
-
-    @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
 
     @Value("${cache.directory}")
@@ -169,10 +150,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
 
     @Override
-    public PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition)
+    public List<ElcCourseTakeVo> getExportGraduatePage(
+            List<Long> ids)
+    {
+        List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.getExportGraduatePage(ids);
+        setTeachingArrange(elcCourseTakeVos);
+        return elcCourseTakeVos;
+    }
+
+    @Override
+    public PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<Student> condition)
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(condition.getCondition());
+        Student student = condition.getCondition();
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.allSelectedCourse(student.getStudentCode());
         setTeachingArrange(listPage);
         return new PageResult<>(listPage);
     }
@@ -641,7 +632,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                             int end = selectTable.getTimeEnd().intValue();
                             // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                             if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                                throw new ParameterValidateException(I18nUtil.getMsg("ruleCheck.timeConflict"));
+                                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("ruleCheck.timeConflict",addTable.getTeachingClassId() + "")));
                             }
                         }
                     }
@@ -674,9 +665,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (teachingClassIds.size() != count ) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
-        int decr = teachingClassDao.decrElcNumberList(teachingClassIds);
-        if (decr != count) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        for (Long teachingClassId : teachingClassIds) {
+            int decrElcNumber = teachingClassDao.decrElcNumber(teachingClassId);
+            if (decrElcNumber != 1) {
+                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",teachingClassId + "")));
+            }
         }
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
         if (elcStudentVos.size() != count) {
@@ -801,7 +794,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
 
-    private void setTeachingArrange(Page<ElcCourseTakeVo> elcCourseTakeVos) {
+    private void setTeachingArrange(List<ElcCourseTakeVo> elcCourseTakeVos) {
         if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
             List<Long> ids = elcCourseTakeVos.stream().map(ElcCourseTakeVo::getTeachingClassId).collect(Collectors.toList());
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
@@ -815,10 +808,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 String roomID = tableMessage.getRoomId();
                 String teacherCode = tableMessage.getTeacherCode();
                 Long teachingClassId = tableMessage.getTeachingClassId();
-                String teacherName = "";
                 if (teacherCode != null) {
-                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
-                    nameMap.add(teachingClassId,teacherName);
+                    String[] split = teacherCode.split(",");
+                    for (String s : split) {
+                        String name = teachingClassTeacherDao.findTeacherName(s);
+                        nameMap.add(teachingClassId, name);
+                    }
                 }
                 String[] str = tableMessage.getWeekNum().split(",");
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
@@ -834,9 +829,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 Long teachingClassId = elcCourseTakeVo.getTeachingClassId();
                 List<String> arr = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(arr)) {
-                    Set<String> set = new HashSet<>(arr.size());
-                    set.addAll(arr);
-                    elcCourseTakeVo.setCourseArrange(String.join(",", set));
+                    elcCourseTakeVo.setCourseArrange(String.join(",", arr));
                 }
                 List<String> names = nameMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
@@ -862,10 +855,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 String roomID = tableMessage.getRoomId();
                 String teacherCode = tableMessage.getTeacherCode();
                 Long teachingClassId = tableMessage.getTeachingClassId();
-                String teacherName = "";
                 if (teacherCode != null) {
-                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
-                    nameMap.add(teachingClassId,teacherName);
+                    String[] split = teacherCode.split(",");
+                    for (String s : split) {
+                        String name = teachingClassTeacherDao.findTeacherName(s);
+                        nameMap.add(teachingClassId, name);
+                    }
                 }
                 String[] str = tableMessage.getWeekNum().split(",");
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
@@ -879,9 +874,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 Long teachingClassId = elcStudentVo.getTeachingClassId();
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
-                    Set<String> set = new HashSet<>(times.size());
-                    set.addAll(times);
-                    elcStudentVo.setCourseArrange(String.join(",", set));
+                    elcStudentVo.setCourseArrange(String.join(",", times));
                 }
                 List<String> names = nameMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
