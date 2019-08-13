@@ -943,10 +943,10 @@
         from course_open_t op
         join teaching_task_t tk ON tk.COURSE_OPEN_ID_ = op.ID_
         join teaching_class_t tc ON tc.TASK_ID_ = tk.ID_
-        join teaching_class_arrange_time_t ta ON ta.TEACHING_CLASS_ID_ = tc.ID_
+        join teaching_class_arrange_time_t ta ON (ta.TEACHING_CLASS_ID_ = tc.ID_ and ta.TYPE_ = 2)
         join teaching_class_arrange_room_t tr ON tr.ARRANGE_TIME_ID_ = ta.ID_
         <where>
-            ta.TYPE_ = 2 and op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and op.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
