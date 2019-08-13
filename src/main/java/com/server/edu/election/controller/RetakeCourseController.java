@@ -9,6 +9,8 @@ import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
 import com.server.edu.election.vo.RetakeCourseCountVo;
+import com.server.edu.util.CollectionUtil;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;

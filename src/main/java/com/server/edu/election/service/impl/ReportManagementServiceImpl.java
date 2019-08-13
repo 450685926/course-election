@@ -117,9 +117,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private FreeMarkerConfigurer freeMarkerConfigurer;
 
     @Autowired
-    private ExcelStoreConfig excelStoreConfig;
-    
-    @Autowired
     private TeacherLessonTableServiceServiceImpl teacherLessonTableServiceServiceImpl;
 
     private static final String[] setTimeListTitle =
@@ -279,8 +276,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 arrangeMap.add(teachingClassId, timeStr);
                 String teacherName = "";
                 if (teacherCode != null) {
-                    teacherName = teachingClassTeacherDao.findTeacherName(teacherCode);
-                    nameMap.add(teachingClassId,teacherName);
+                    String[] split = teacherCode.split(",");
+                    List<String> names = new ArrayList<>(split.length);
+                    for (String s : split) {
+                        String name = teachingClassTeacherDao.findTeacherName(s);
+                        names.add(name);
+                        nameMap.add(teachingClassId,name);
+                    }
+                    teacherName = String.join(",",names);
                 }
                 TimeTable time = new TimeTable();
                 time.setDayOfWeek(dayOfWeek);
@@ -299,9 +302,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
-                    Set<String> set = new HashSet<>(times.size());
-                    set.addAll(times);
-                    studentSchoolTimetab.setTime(String.join(",", set));
+                    studentSchoolTimetab.setTime(String.join(",", times));
                 }
                 List<String> names = nameMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
