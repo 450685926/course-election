@@ -24,5 +24,12 @@ public interface ElecResultSwitchService {
 	 * @return
 	 */
 	ElcResultSwitch getSwitch(Long calendarId);
+
+	/**
+	 * 根据学期号获取选课结果开关状态
+	 * @param calendarId
+	 * @return
+	 */
+	boolean getSwitchStatus(Long calendarId);
 	
 }
