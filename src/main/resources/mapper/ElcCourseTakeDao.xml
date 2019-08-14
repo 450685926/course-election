@@ -1497,5 +1497,91 @@
     <select id="findRetakeCount" resultType="java.lang.String">
         select COURSE_CODE_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and COURSE_TAKE_TYPE_ = 2
     </select>
+    
+   <resultMap id="RebuildFeeMap" type="com.server.edu.election.vo.StudentRebuildFeeVo" extends="BaseResultMap">
+    <result column="BILL_NUM_" jdbcType="VARCHAR" property="billNum" />
+    <result column="AMOUNT_" jdbcType="DOUBLE" property="amount" />
+    <result column="PAY_" jdbcType="DOUBLE" property="pay" />
+    <result column="payTime" jdbcType="TIMESTAMP" property="payTime" />
+    <result column="studentName" jdbcType="VARCHAR" property="studentName" />
+    <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+    <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+    <result column="courseName" jdbcType="VARCHAR" property="courseName" />
+    <result column="teachingClassCode" jdbcType="VARCHAR" property="teachingClassCode" />
+    <result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+    <result column="couCalendarId" jdbcType="BIGINT" property="couCalendarId" />
+    <result column="nature" jdbcType="VARCHAR" property="nature" />
+  </resultMap>
+  <select id="getStudentRebuildFeeList" parameterType="com.server.edu.election.dto.StudentRebuildFeeDto" resultMap="RebuildFeeMap">
+		SELECT
+		  t1.ID_, 
+		  t1.STUDENT_ID_,
+		  t1.`CALENDAR_ID_`,
+		  t1.`COURSE_CODE_`,
+		  t1.`PAID_`,
+		  t1.`MODE_`,
+		  t1.`BILL_ID_`,
+		  t2.BILL_NUM_,
+		  t2.`AMOUNT_`,
+		  t2.`PAY_`,
+		  t2.`CREATED_AT_` payTime,
+		  t3.`NAME_` studentName,
+		  t3.`FACULTY_`,
+		  t3.`PROFESSION_`,
+		  t5.`CODE_` teachingClassCode,
+		  t7.`COURSE_NAME_` courseName,
+          t7.`CREDITS_`,
+          t7.`CALENDAR_ID_` couCalendarId,
+          t7.NATURE_ nature
+		FROM
+		  elc_course_takes_t_${mode} t1 
+		  JOIN elc_bills_t t2 
+		    ON t1.BILL_ID_ = t2.ID_ 
+		  JOIN student_t t3 
+		    ON t1.`STUDENT_ID_` = t3.`STUDENT_CODE_` 
+		  JOIN `teaching_class_t` t5 
+		    ON t1.`TEACHING_CLASS_ID_` = t5.`ID_`
+		  JOIN `teaching_task_t` t6 
+            ON t5.`TASK_ID_` = t6.`ID_` 
+          JOIN `course_open_t` t7 
+            ON t6.`COURSE_OPEN_ID_` = t7.`ID_` 
+		  <where>
+		    t1.`CALENDAR_ID_` = #{calendarId} 
+		    AND t1.`COURSE_TAKE_TYPE_` = 2
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+                and t5.CODE_ = #{teachingClassCode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+                and t7.COURSE_NAME_ = #{courseName}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and t3.FACULTY_ = #{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                and t3.PROFESSION_ = #{profession}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                and t3.PROFESSION_ = #{profession}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+                and t7.NATURE_ = #{nature}
+            </if>
+            <if test="paId !=null and paId !=0">
+                and t1.PAID_ = #{paId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(couCalendarId)">
+                and t7.CALENDAR_ID_ = #{couCalendarId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (t1.STUDENT_ID_ like concat('%',#{keyword},'%') OR t3.`NAME_` like concat('%',#{keyword},'%'))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+                and t1.ID_ in 
+		        <foreach item="item" collection="ids" separator="," open="(" close=")" >
+		            #{item}
+		        </foreach>
+            </if>                                                                 
+		  </where>
+  </select>
 
 </mapper>

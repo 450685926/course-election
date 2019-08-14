@@ -52,10 +52,6 @@ public class YJSCalendarCourseLoad extends DataProLoad<ElecContext>
     @Override
     public void load(ElecContext context)
     {
-    	if (context.getRequest().getChooseObj() == null || context.getRequest().getChooseObj() != Constants.THREE) {
-			return;
-		}
-    	
         // 加载学年学期所有教学班与课程数据到缓存中
     	Long calendarId = context.getRequest().getCalendarId();
     	List<CourseOpenDto> lessons = roundCourseDao.selectCorseGraduteByCalendarId(calendarId);

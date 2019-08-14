@@ -440,6 +440,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	    	}
 		}
 	  //查找申请信息
+	    Student student = studentDao.findStudentByCode(applyManage.getStudentCode());
+	    applyManage.setName(student.getName());
 		String[] courseCodes = applyManage.getCourseCode().split(",");
 		String[] courseNames = applyManage.getCourseName().split(",");
 		applyManage.setScore("免修");
@@ -844,7 +846,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if(CollectionUtil.isEmpty(ids)){
             return "common.parameterError";
         }
-        JSONObject jsonObject = new JSONObject();
         String score="";
         if(status==1){
         	score="免修";
