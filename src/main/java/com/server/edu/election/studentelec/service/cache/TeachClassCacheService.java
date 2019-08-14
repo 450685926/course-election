@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,7 +32,7 @@ import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
-import com.server.edu.election.studentelec.preload.CourseGradeLoad;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
@@ -56,7 +58,7 @@ public class TeachClassCacheService extends AbstractCacheService
     private ElcCourseTakeDao courseTakeDao;
     
     @Autowired
-    private CourseGradeLoad gradeLoad;
+    private BKCourseGradeLoad gradeLoad;
     
     @Autowired
     private RoundCacheService roundCacheService;
@@ -86,13 +88,16 @@ public class TeachClassCacheService extends AbstractCacheService
     public void cacheAllTeachClass(Long calendarId)
     {
         PageInfo<CourseOpenDto> page = new PageInfo<>();
+        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        // 获取学历年
+        String year = schoolCalendar.getYear() + "";
         page.setNextPage(1);
         page.setHasNextPage(true);
         while (page.isHasNextPage())
         {
             PageHelper.startPage(page.getNextPage(), 300);
             List<CourseOpenDto> lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
-            this.cacheTeachClass(100, lessons);
+            this.cacheTeachClass(100, lessons, year);
             page = new PageInfo<>(lessons);
         }
     }
@@ -112,7 +117,7 @@ public class TeachClassCacheService extends AbstractCacheService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss)
+    public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss, String year)
     {
         if (CollectionUtil.isEmpty(teachClasss))
         {
@@ -151,6 +156,10 @@ public class TeachClassCacheService extends AbstractCacheService
             List<ClassTimeUnit> times =
                 gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
+            //设置研究生学年跟开课学期，勿删
+            tc.setTerm(lesson.getTerm());
+            tc.setCalendarName(year);
+
             numMap.put(teachingClassId.toString(),
                 tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);
@@ -267,7 +276,7 @@ public class TeachClassCacheService extends AbstractCacheService
     /**
      * 获取指定教学班信息
      * 
-     * @param calendarId 校历
+     * @param roundId 轮次ID
      * @param teachClassId 教学班ID
      * @return
      */
@@ -285,6 +294,40 @@ public class TeachClassCacheService extends AbstractCacheService
         List<Long> teachClassIds =
             this.roundCacheService.getTeachClassIds(roundId, courseCode);
         
+        if (CollectionUtil.isEmpty(teachClassIds)
+            || !teachClassIds.contains(teachClassId))
+        {
+            return null;
+        }
+        HashOperations<String, String, TeachingClassCache> hash =
+            opsTeachClass();
+        
+        TeachingClassCache lesson =
+            hash.get(Keys.getClassKey(), teachClassId.toString());
+        return lesson;
+    }
+    
+    /**
+     * 获取指定教学班信息
+     * 
+     * @param calendarId 校历
+     * @param teachClassId 教学班ID
+     * @return
+     */
+    public TeachingClassCache getTeachClassByCalendarId(Long calendarId, String courseCode,
+        Long teachClassId)
+    {
+        if (calendarId == null || StringUtils.isBlank(courseCode)
+            || teachClassId == null)
+        {
+            logger.warn(
+                "---- calendarId, courseCode and teachClassId can not be null ----");
+            return null;
+        }
+        
+        List<Long> teachClassIds =
+            this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
+                                   
         if (CollectionUtil.isEmpty(teachClassIds)
             || !teachClassIds.contains(teachClassId))
         {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
@@ -12,7 +13,10 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 
 /**
  * 已选课名单
@@ -28,7 +32,25 @@ public interface ElcCourseTakeService
      */
     PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page);
-    
+
+    /**
+     * 研究生课程维护模块学生选课记录列表
+     *
+     * @param page
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<ElcCourseTakeVo> graduatePage(
+            PageCondition<ElcCourseTakeQuery> page);
+
+    /***
+     * 研究生课程维护模块学生选课记录列表导出查询专用
+     * @param ids
+     * @return
+     */
+    List<ElcCourseTakeVo> getExportGraduatePage(List<Long> ids);
+
+
     /**
      * 为指定学生加课
      * 
@@ -112,7 +134,7 @@ public interface ElcCourseTakeService
      * @param condition
      * @return
      */
-    PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<String> condition);
+    PageResult<ElcCourseTakeVo> allSelectedCourse(PageCondition<Student> condition);
 
     /**
      * 课程维护研究生加课查询研究生可以添加的课程
@@ -136,10 +158,4 @@ public interface ElcCourseTakeService
     Integer removedCourse(List<ElcCourseTake> value);
 
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
-
-    /**课程维护导出学生选课信息*/
-    ExcelResult exportElcStudentInfo(PageCondition<ElcCourseTakeQuery> condition) throws Exception;
-
-    /**课程维护导出学生个人全部选课信息*/
-    ExcelResult exportElcPersonalInfo(PageCondition<String> condition);
 }

@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.ChooseObj;
-import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -20,21 +21,22 @@ import com.server.edu.util.CollectionUtil;
  * AssignedWithdrawPrepare
  */
 @Component("AssignedWithdrawRule")
-public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutor
+public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutorBk
 {
+    
     @Override
-    public boolean checkRule(ElecContext context,
-        SelectedCourse courseClass)
+    public boolean checkRule(ElecContextBk context, SelectedCourse course)
     {
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        if (courseClass.getTeachClassId() != null
-            && StringUtils.isNotBlank(courseClass.getCourseCode())
+        TeachingClassCache tClass = course.getCourse();
+        String courseCode = tClass.getCourseCode();
+        if (tClass.getTeachClassId() != null
+            && StringUtils.isNotBlank(courseCode)
             && CollectionUtil.isNotEmpty(selectedCourses))
         {
             List<SelectedCourse> list = selectedCourses.stream()
                 .filter(c -> ChooseObj.STU.type() != c.getChooseObj())
-                .filter(
-                    c -> courseClass.getCourseCode().equals(c.getCourseCode()))
+                .filter(c -> courseCode.equals(c.getCourse().getCourseCode()))
                 .collect(Collectors.toList());
             if (CollectionUtil.isEmpty(list))
             {
@@ -44,7 +46,7 @@ public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutor
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(courseClass.getCourseCodeAndClassCode(),
+                    .put(tClass.getCourseCodeAndClassCode(),
                         I18nUtil.getMsg("ruleCheck.assignedWithdrawRule"));
                 return false;
             }

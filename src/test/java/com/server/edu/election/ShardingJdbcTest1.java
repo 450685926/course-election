@@ -2,6 +2,8 @@ package com.server.edu.election;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.servicecomb.foundation.common.utils.JsonUtils;
 import org.junit.Test;
@@ -9,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.CourseTakeTableCreateDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 
 @ActiveProfiles("dev")
@@ -26,6 +29,9 @@ public class ShardingJdbcTest1 extends ApplicationTest
     
     @Autowired
     private ElcCourseTakeService courseTakeService;
+    
+    @Autowired
+    private BKCourseGradeLoad bkCourseGradeLoad;
     
     @Test
     public void test()
@@ -68,5 +74,13 @@ public class ShardingJdbcTest1 extends ApplicationTest
     @Test
     public void test1() {
         takeDao.editStudyType(3, Arrays.asList(337234878019928065L), 107L);
+    }
+    
+    @Test
+    public void test2() {
+        Set<SelectedCourse> selectedCourses = new HashSet<>();
+        bkCourseGradeLoad.loadSelectedCourses("1856002", selectedCourses , 107L);
+        
+        System.out.println(selectedCourses.size());
     }
 }

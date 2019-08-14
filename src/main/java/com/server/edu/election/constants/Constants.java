@@ -54,5 +54,10 @@ public interface Constants
     /** 数据库逻辑删除标识  1-已删除;0-未删除 */
     public static final Integer DELETE_TRUE = 1;
     public static final Integer DELETE_FALSE = 0;
+    
+    public static final Integer IS = 1;
+    
+    /** 选课规则--在可选课名单内才能选课 */
+    public static final long RULE_NAME_LIST = 608;
 
 }

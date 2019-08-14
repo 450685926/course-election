@@ -12,11 +12,11 @@ import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.PlanCourse;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.util.CollectionUtil;
 
@@ -25,14 +25,14 @@ import com.server.edu.util.CollectionUtil;
  * SJTermChecker
  */
 @Component("SJTermCheckerRule")
-public class SJTermCheckerRule extends AbstractElecRuleExceutor
+public class SJTermCheckerRule extends AbstractElecRuleExceutorBk
 {
     
     @Autowired
     private RoundDataProvider dataProvider;
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
@@ -101,7 +101,7 @@ public class SJTermCheckerRule extends AbstractElecRuleExceutor
         boolean flag = false;
         for (PlanCourse planCourseTypeDto : collect)
         {
-            String code = planCourseTypeDto.getCourseCode();//培养课程
+            String code = planCourseTypeDto.getCourse().getCourseCode();//培养课程
             String semes = planCourseTypeDto.getSemester();//培养课程的学期
             int i = (","+semes+",").indexOf(","+semester+",");//判断是否有该学期
             if (courseCode.equals(code) && i !=-1)

@@ -3,6 +3,8 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -24,6 +26,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.log.LogRecord;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dmskafka.entity.AuditType;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.RebuildCourseDto;
@@ -174,14 +177,10 @@ public class RebuildCourseController
     @ApiOperation(value = "查询未缴费的课程名单")
     @PostMapping("/findCourseNoChargeList")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(
-        @RequestBody PageCondition<RebuildCourseDto> condition)
+        @RequestBody @NotNull PageCondition<RebuildCourseDto> condition)
     {
-        if (condition.getCondition().getCalendarId() == null
-            || condition.getCondition().getMode() == null)
-        {
-            return RestResult
-                .fail(I18nUtil.getMsg("baseresservice.parameterError"));
-        }
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+        
         PageResult<RebuildCourseNoChargeList> noChargeType =
             service.findCourseNoChargeList(condition);
         return RestResult.successData(noChargeType);
@@ -190,14 +189,10 @@ public class RebuildCourseController
     @ApiOperation(value = "查询学生的未缴费课程数")
     @PostMapping("/findCourseNoChargeStudentList")
     public RestResult<PageResult<StudentVo>> findCourseNoChargeStudentList(
-        @RequestBody PageCondition<RebuildCourseDto> condition)
+        @RequestBody @NotNull PageCondition<RebuildCourseDto> condition)
     {
-        if (condition.getCondition().getCalendarId() == null
-            || condition.getCondition().getMode() == null)
-        {
-            return RestResult
-                .fail(I18nUtil.getMsg("baseresservice.parameterError"));
-        }
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+        
         PageResult<StudentVo> noChargeType =
             service.findCourseNoChargeStudentList(condition);
         return RestResult.successData(noChargeType);
@@ -215,14 +210,10 @@ public class RebuildCourseController
     @ApiOperation(value = "查询回收站")
     @PostMapping("/findRecycleCourse")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(
-        @RequestBody PageCondition<RebuildCourseDto> condition)
+        @RequestBody @NotNull PageCondition<RebuildCourseDto> condition)
     {
-        if (condition.getCondition().getCalendarId() == null
-            || condition.getCondition().getMode() == null)
-        {
-            return RestResult
-                .fail(I18nUtil.getMsg("baseresservice.parameterError"));
-        }
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+        
         PageResult<RebuildCourseNoChargeList> noChargeType =
             service.findRecycleCourse(condition);
         return RestResult.successData(noChargeType);

@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +35,8 @@ public class SelectedCourse extends TeachingClassCache
 
     @Code2Text(DictTypeEnum.X_KCFL)
     private String label;
+    
+    private String labelName;
 
     @Code2Text(transformer=" X_KSLX")
     private String assessmentMode;
@@ -89,7 +90,6 @@ public class SelectedCourse extends TeachingClassCache
     
     public SelectedCourse(ElecCourse course)
     {
-        this.setCampus(course.getCampus());
         this.setCourseCode(course.getCourseCode());
         this.setCourseName(course.getCourseName());
         this.setCredits(course.getCredits());
@@ -115,6 +115,8 @@ public class SelectedCourse extends TeachingClassCache
         this.setCurrentNumber(course.getCurrentNumber());
         this.setTeacherName(course.getTeacherName());
         this.setTimes(course.getTimes());
+        this.setTerm(course.getTerm());
+        this.setCalendarName(course.getCalendarName());
     }
     
     public Integer getChooseObj()
@@ -153,6 +155,14 @@ public class SelectedCourse extends TeachingClassCache
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public String getLabelName() {
+		return labelName;
+	}
+
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
 	}
 
 	@Override

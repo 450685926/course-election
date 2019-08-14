@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.SelectedCourse;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -20,7 +20,7 @@ import com.server.edu.util.CollectionUtil;
  * TimeConflictChecker
  */
 @Component("TimeConflictCheckerRule")
-public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
+public class TimeConflictCheckerRule extends AbstractElecRuleExceutorBk
 {
     
     public static final Boolean CHECK_CONFLICT = true;
@@ -28,7 +28,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
     public static final Boolean CHECK_UN_CONFLICT = false;
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         Long teachClassId = courseClass.getTeachClassId();//通过teachingClassId查询时间
@@ -45,7 +45,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
                 {
                     for (SelectedCourse selectedCours : selectedCourses)
                     {
-                        List<ClassTimeUnit> times = selectedCours.getTimes();
+                        List<ClassTimeUnit> times = selectedCours.getCourse().getTimes();
                         for (ClassTimeUnit v0 : teachingClassTime)
                         {
                             for (ClassTimeUnit v1 : times)

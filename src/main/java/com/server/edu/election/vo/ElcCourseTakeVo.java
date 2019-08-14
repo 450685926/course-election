@@ -57,6 +57,17 @@ public class ElcCourseTakeVo extends ElcCourseTake
     @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
 
+    @Code2Text(transformer="X_YX")
+    private String faculty;
+
+    @Code2Text(transformer="X_KCFL")
+    private String label;
+
+    /**考试方式*/
+    private String assessmentMode;
+
+    private String term;
+
     public String getTrainingLevel() {
         return trainingLevel;
     }
@@ -72,17 +83,6 @@ public class ElcCourseTakeVo extends ElcCourseTake
     public void setCalendarName(String calendarName) {
         this.calendarName = calendarName;
     }
-
-    @Code2Text(transformer="X_YX")
-    private String faculty;
-
-    @Code2Text(transformer="X_KCFL")
-    private String label;
-
-    /**考试方式*/
-    private String assessmentMode;
-
-    private String term;
 
     public String getTerm() {
         return term;

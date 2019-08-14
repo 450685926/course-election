@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +35,7 @@ import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.service.ExemptionApplyConditionService;
+import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
@@ -182,11 +182,11 @@ public class ExemptionApplyConditionController {
     @ApiOperation(value = "根据课程编号和学籍信息查询所有符合的申请条件")
     @PostMapping("/matchedConditions")
     public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
-    		@RequestParam("courseCode") @NotNull String courseCode,
-    		@RequestParam("studentId") @NotNull String studentId) throws Exception{
+    		@RequestBody(required=false) ExemptionApplyManageVo applyManage){
     	logger.info("matchedConditions by CourseCode and studentId start");
     	
-    	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
+    	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.
+    			queryApplyConditionByCourseCodeAndStudentId(applyManage.getCourseCode(),applyManage.getStudentId());
     	return RestResult.successData(list);
     }
     

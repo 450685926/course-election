@@ -36,7 +36,7 @@ public class Student implements Serializable
     /**
      * 学习形式(全日制,非全日制,其他)
      */
-    @Code2Text(transformer = "G_XXXS")
+    @Code2Text(transformer = "X_XXXS")
     @Column(name = "FORM_LEARNING_")
     private String formLearning;
     

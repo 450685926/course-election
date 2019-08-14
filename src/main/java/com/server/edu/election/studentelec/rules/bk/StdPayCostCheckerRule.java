@@ -5,20 +5,20 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 
 /**
  * 检查学生是否缴费，未缴费的不能进入选课
  * StdPayCostChecker
  */
 @Component("StdPayCostCheckerRule")
-public class StdPayCostCheckerRule extends AbstractElecRuleExceutor
+public class StdPayCostCheckerRule extends AbstractElecRuleExceutorBk
 {
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();

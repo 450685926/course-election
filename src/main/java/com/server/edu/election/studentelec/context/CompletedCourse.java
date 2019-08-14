@@ -1,10 +1,10 @@
 package com.server.edu.election.studentelec.context;
 
-import java.util.List;
 import java.util.Objects;
 
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
+
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 
 /**
  * 已完成课程
@@ -34,6 +34,8 @@ public class CompletedCourse extends TeachingClassCache {
      * 课程分类
      */
     private Long courseLabelId;
+    
+    private String labelName;
 
     private Integer isPass;
 
@@ -83,6 +85,14 @@ public class CompletedCourse extends TeachingClassCache {
 
 	public void setCourseLabelId(Long courseLabelId) {
 		this.courseLabelId = courseLabelId;
+	}
+
+	public String getLabelName() {
+		return labelName;
+	}
+
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
 	}
 
 	@Override

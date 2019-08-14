@@ -1,10 +1,17 @@
 package com.server.edu.election.studentelec.context;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
+
+@CodeI18n
 public class PlanCourse extends ElecCourse
 {
 
     /**课程分类*/
     private Long label;
+    
+    /**课程分类名称*/
+    private String labelName;
     
     /**开课学院*/
     private String faculty;
@@ -49,12 +56,18 @@ public class PlanCourse extends ElecCourse
         this.label = label;
     }
 
-	@Override
+	public String getLabelName() {
+		return labelName;
+	}
+
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
+	}
+
 	public String getFaculty() {
 		return faculty;
 	}
 
-	@Override
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}

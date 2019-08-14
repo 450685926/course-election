@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -20,20 +20,21 @@ import com.server.edu.util.CollectionUtil;
  * 
  */
 @Component("ExemptionCourseNotTake")
-public class ExemptionCourseNotTake extends AbstractElecRuleExceutor
+public class ExemptionCourseNotTake extends AbstractElecRuleExceutorBk
 {
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         // 免修申请课程
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
-        if (StringUtils.isNotBlank(courseClass.getCourseCode())
+        String courseCode = courseClass.getCourseCode();
+        if (StringUtils.isNotBlank(courseCode)
             && CollectionUtil.isNotEmpty(applyForDropCourses))
         {
             List<ElecCourse> list = applyForDropCourses.stream()
-                .filter(elecCourse -> courseClass.getCourseCode()
-                    .equals(elecCourse.getCourseCode()))
+                .filter(
+                    elecCourse -> courseCode.equals(elecCourse.getCourseCode()))
                 .collect(Collectors.toList());
             
             if (CollectionUtil.isEmpty(list))

@@ -84,6 +84,34 @@ public class TeachingClassVo extends TeachingClass
      */
     private String roomId;
     
+    private Integer firstTurnNum;
+    
+    private Integer secondTurnNum;
+    /**
+     *  选课统计筛选标签
+     */
+    private String labelName;
+    
+    
+    
+	public String getLabelName() {
+		return labelName;
+	}
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
+	}
+	public Integer getFirstTurnNum() {
+		return firstTurnNum;
+	}
+	public void setFirstTurnNum(Integer firstTurnNum) {
+		this.firstTurnNum = firstTurnNum;
+	}
+	public Integer getSecondTurnNum() {
+		return secondTurnNum;
+	}
+	public void setSecondTurnNum(Integer secondTurnNum) {
+		this.secondTurnNum = secondTurnNum;
+	}
 	public String getProportion() {
 		return proportion;
 	}

@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -26,6 +28,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.entity.StudentScore;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -94,6 +97,7 @@ import tk.mybatis.mapper.entity.Example;
 @Primary
 public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
+	Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private ExemptionCourseDao exemptionCourseDao;
     
@@ -393,12 +397,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     */
     @Override
     public String addExemptionApply(ExemptionApplyManage applyManage) {//材料上传todo
-        if("".equals(applyManage.getApplyType())){
+        if(applyManage.getApplyType() == null){
             return "common.parameterError";
         }
         //查询是否重复申请
-        ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
-        if(exemptionApplyManageVo!=null){
+        List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
+        if(exemptionApplyManageVo!=null && exemptionApplyManageVo.size() > 0){
             return "common.exist";
         }
         if(applyManage.getApplyType()==0){//成绩申请
@@ -420,17 +424,46 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
      */
     @Override
     public String adminAddApply(ExemptionApplyManage applyManage) {
-    	if("".equals(applyManage.getApplyType())){
+    	if(applyManage.getApplyType() == null){
     		return "common.parameterError";
     	}
     	//查询是否重复申请
-    	ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
-    	if(exemptionApplyManageVo!=null){
+    	List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
+    	if(exemptionApplyManageVo!=null && exemptionApplyManageVo.size() > 0){
     		return "common.exist";
     	}
+	    String[] codes = applyManage.getCourseCode().split(",");
+	    for (String code : codes) {
+	    	List<ExemptionApplyManage> exemptionApplyManage = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), code);
+	    	if(exemptionApplyManage!=null  && exemptionApplyManage.size() > 0){
+	    		return "common.exist";
+	    	}
+		}
+	  //查找申请信息
+	    Student student = studentDao.findStudentByCode(applyManage.getStudentCode());
+	    applyManage.setName(student.getName());
+		String[] courseCodes = applyManage.getCourseCode().split(",");
+		String[] courseNames = applyManage.getCourseName().split(",");
 		applyManage.setScore("免修");
 		applyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
-    	applyDao.insertSelective(applyManage);
+		for (int i = 0; i < courseCodes.length; i++) {
+			if (courseCodes.length == courseNames.length) {
+				applyManage.setCourseCode(courseCodes[i]);
+//				Example example = new Example(Course.class);
+//				example.createCriteria().andEqualTo("code", courseCodes[i]);
+//				Course course = courseDao.selectOneByExample(example);
+//				if (course != null) {
+//					applyManage.setCourseName(course.getName());
+//				}
+				applyManage.setCourseName(courseNames[i]);
+				saveExemptionScore(applyManage, courseCodes[i]);
+				int code = saveExemptionScore(applyManage, courseCodes[i]);
+        		if(code != 200){
+        			return "common.editError";
+        		}
+				applyDao.insertSelective(applyManage);
+			}
+		}
     	return "common.addsuccess";
     }
 
@@ -522,19 +555,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if(CollectionUtil.isEmpty(ids)){
             return "common.parameterError";
         }
-        Session session = SessionUtils.getCurrentSession();
-        String currentManageDptId = session.getCurrentManageDptId();
-        if (!StringUtils.equalsIgnoreCase(currentManageDptId, Constants.PROJ_UNGRADUATE)) {
-        	for (Long id : ids) {
-        		//查找申请信息
-        		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		String[] courseCodes = applyRecord.getCourseCode().split(",");
-        		for (String courseCode : courseCodes) {
-        			//调用成绩接口，向成绩中添加数据
-        			ScoreServiceInvoker.deleteExemptionScore(applyRecord.getStudentCode(),applyRecord.getCalendarId(),courseCode);
-        		}
-			}
-		}
         applyDao.deleteExemptionApply(ids);
         return "common.deleteSuccess";
     }
@@ -679,8 +699,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         for (ExemptionApplyManage data : datas) {
             data.setCalendarId(calendarId);
             //查询是否重复申请
-            ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(data.getCalendarId(), data.getStudentCode(), data.getCourseCode());
-            if(exemptionApplyManageVo!=null){
+            List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeat(data.getCalendarId(), data.getStudentCode(), data.getCourseCode());
+            if(exemptionApplyManageVo!=null && exemptionApplyManageVo.size() > 0){
                 list.add(data.getStudentCode());
             }else{
                 if(data.getApplyType()==0){//成绩申请
@@ -767,9 +787,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public PageResult<ExemptionStudentCountVo> exemptionCount(PageCondition<ExemptionQuery> page) {
-		Session currentSession = SessionUtils.getCurrentSession();
-        String dptId = currentSession.getCurrentManageDptId();
-        page.getCondition().setProjectId(dptId);
+
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ExemptionStudentCountVo> countResult = applyDao.exemptionCount(page.getCondition());
         
@@ -806,7 +824,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         			excelStoreConfig.getExemptionCountExportKey(),
         			excelStoreConfig.getExemptionCountExportTitle(),
         			cacheDirectory);
-        	path = excelExport.exportExcelToCacheDirectory("研究生为选课学生名单");
+        	path = excelExport.exportExcelToCacheDirectory("研究生免修免考统计");
         }catch (Exception e){
             return RestResult.failData("minor.export.fail");
         }
@@ -820,6 +838,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     *@Author: bear
     *@date: 2019/2/13 11:21
     */
+	@Transactional
     @Override
     public String approvalGraduateExemptionApply(List<Long> ids,Integer status) {
     	Session session = SessionUtils.getCurrentSession();
@@ -827,14 +846,16 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         if(CollectionUtil.isEmpty(ids)){
             return "common.parameterError";
         }
-        JSONObject jsonObject = new JSONObject();
         String score="";
         if(status==1){
         	score="免修";
         	for (Long id : ids) {
 				//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		saveExemptionScore(applyRecord, applyRecord.getCourseCode(),applyRecord.getCourseName());
+        		int code = saveExemptionScore(applyRecord, applyRecord.getCourseCode());
+        		if(code != 200){
+        			return "common.editError";
+        		}
 			}
             
         }else{
@@ -851,15 +872,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	ids.clear();
         	ids.addAll(optList);
         }
-        applyDao.approvalExemptionApply(ids,status,score,auditor);
+        if (CollectionUtil.isNotEmpty(ids)) {
+        	applyDao.approvalExemptionApply(ids,status,score,auditor);
+		}
         return "common.editSuccess";
     }
 
 	@Override
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
-		Session currentSession = SessionUtils.getCurrentSession();
-		String dptId = currentSession.getCurrentManageDptId();
-		condition.getCondition().setProjectId(dptId);
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
 		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
@@ -873,26 +893,31 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	public RestResult<String> findGraduateExemptionApplyExport(ExemptionQuery page) {
 		String path="";
         try {
-        	 PageCondition<ExemptionQuery> pageCondition = new PageCondition<ExemptionQuery>();
-             pageCondition.setCondition(page);
-             pageCondition.setPageSize_(100);
-             int pageNum = 0;
-             pageCondition.setPageNum_(pageNum);
-             List<ExemptionApplyManageVo> list = new ArrayList<>();
-             while (true)
-             {
-                 pageNum++;
-                 pageCondition.setPageNum_(pageNum);
-                 PageResult<ExemptionApplyManageVo> applyResult = findGraduateExemptionApply(pageCondition);
-                 
-                 list.addAll(applyResult.getList());
+        	PageCondition<ExemptionQuery> pageCondition = new PageCondition<ExemptionQuery>();
+            pageCondition.setCondition(page);
+            pageCondition.setPageSize_(100);
+            int pageNum = 0;
+            pageCondition.setPageNum_(pageNum);
+            List<ExemptionApplyManageVo> list = new ArrayList<>();
+            while (true)
+            {
+                pageNum++;
+                pageCondition.setPageNum_(pageNum);
+                PageResult<ExemptionApplyManageVo> applyResult = findGraduateExemptionApply(pageCondition);
+                
+                list.addAll(applyResult.getList());
 
-                 if (applyResult.getTotal_() <= list.size())
-                 {
-                     break;
-                 }
-             }
-             list = SpringUtils.convert(list);
+                if (applyResult.getTotal_() <= list.size())
+                {
+                    break;
+                }
+            }
+            for (ExemptionApplyManageVo exemptionApplyManageVo : list) {
+            	exemptionApplyManageVo.setStudentId(exemptionApplyManageVo.getStudentCode());
+            	exemptionApplyManageVo.setResult(exemptionApplyManageVo.getExamineResult().toString());
+            	exemptionApplyManageVo.setStudentName(exemptionApplyManageVo.getName());
+			}
+            list = SpringUtils.convert(list);
         	@SuppressWarnings("unchecked")
 			ExcelEntityExport<ExemptionApplyManageVo> excelExport = new ExcelEntityExport(list,
         			excelStoreConfig.getGraduateExemptionApplyExportKey(),
@@ -1021,7 +1046,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			}
 		}else{
 			Example applyExample = new Example(ExemptionApplyManage.class);
-			applyExample.createCriteria().andEqualTo("deleteStatus",1).andEqualTo("studentCode",studentId).andEqualTo("calendarId",calendarId);
+			applyExample.createCriteria().andEqualTo("deleteStatus",0).andEqualTo("studentCode",studentId).andEqualTo("calendarId",calendarId);
 			List<ExemptionApplyManage>  applyList = applyDao.selectByExample(applyExample);
 			for (ExemptionApplyManage exemptionApplyManage : applyList) {
 				ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
@@ -1046,11 +1071,19 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	//根据学号和课程code查找是否已有申请记录
 	private Integer getGraduteExemptionApplyRecord(Long calendarId ,String studentCode,String courseCode){
 		//查询是否重复申请
-	    ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(calendarId, studentCode, courseCode);
-		if (exemptionApplyManageVo != null) {
-			return exemptionApplyManageVo.getExamineResult();
+		Integer examineResult = null;
+	    List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRecord(calendarId, studentCode, courseCode);
+	    for (ExemptionApplyManage exemptionApplyManage : exemptionApplyManageVo) {
+			
+	    	if (exemptionApplyManage.getExamineResult() != null && exemptionApplyManage.getExamineResult() == 1) {
+	    		return exemptionApplyManage.getExamineResult();
+	    	}else if (exemptionApplyManage.getExamineResult() != null && exemptionApplyManage.getExamineResult() == 0) {
+	    		return exemptionApplyManage.getExamineResult();
+	    	}else{
+	    		examineResult=exemptionApplyManage.getExamineResult();
+	    	}
 		}
-		return null;
+		return examineResult;
 	}
 	
 	private ExemptionApplyAuditSwitch getStudentExemptionSwitch(Student student, List<ExemptionApplyAuditSwitch> applySwitchs) {
@@ -1078,7 +1111,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 */
 	private Set<PlanCourse> getStudentExemptionCouses(Student student, ExemptionApplyAuditSwitch applySwitch, Long calendarId) {
 		//获取学生培养计划课程
-		List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(student.getStudentCode());
+		List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(student.getStudentCode());
 		Set<PlanCourse> planCourses = new HashSet<>();//培养课程
 		if (CollectionUtil.isNotEmpty(courseType)) {
 			for (PlanCourseDto planCourse : courseType) {
@@ -1172,28 +1205,22 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         }
         return source.contains(taget);
     }
-	/**
-	*@Description: 新增免修免考
-	*@Param:
-	*@return: 
-	*@Author: bear
-	*@date: 2019/2/12 10:44
-	*/
+
+    @Transactional
+	@Override
 	public RestResult<?> addGraduateExemptionApply(ExemptionApplyManage applyManage) {
-	   Session session = SessionUtils.getCurrentSession();
 		if("".equals(applyManage.getApplyType())){
 	        return RestResult.fail("common.parameterError");
 	    }
-		applyManage.setManagerDeptId(session.getCurrentManageDptId());
 	    //查询是否重复申请
-	    ExemptionApplyManage exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
-	    if(exemptionApplyManageVo!=null){
+	    List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), applyManage.getCourseCode());
+	    if(exemptionApplyManageVo!=null && exemptionApplyManageVo.size() > 0){
 	    	return RestResult.fail("common.exist",applyManage.getCourseCode());
 	    }
 	    String[] codes = applyManage.getCourseCode().split(",");
 	    for (String code : codes) {
-	    	ExemptionApplyManage exemptionApplyManage = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), code);
-	    	if(exemptionApplyManage!=null){
+	    	List<ExemptionApplyManage> exemptionApplyManage = applyDao.applyRepeat(applyManage.getCalendarId(), applyManage.getStudentCode(), code);
+	    	if(exemptionApplyManage!=null && exemptionApplyManage.size() > 0){
 	    		return RestResult.fail("common.exist",applyManage.getCourseCode());
 	    	}
 		}
@@ -1207,8 +1234,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				if (courseCodes.length == courseNames.length) {
 					applyManage.setCourseCode(courseCodes[i]);
 					applyManage.setCourseName(courseNames[i]);
+					saveExemptionScore(applyManage, courseCodes[i]);
+					int code = saveExemptionScore(applyManage, courseCodes[i]);
+	        		if(code != 200){
+	        			return RestResult.fail("common.editError","");
+	        		}
 					applyDao.insertSelective(applyManage);
-					saveExemptionScore(applyManage, courseCodes[i],courseNames[i]);
 				}
 			}
 	    }else{
@@ -1223,21 +1254,58 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				}
 			}
 	    }
-	    return RestResult.success("common.addsuccess");
+	    return RestResult.success("common.addsuccess","");
 	}
 
 	/**
 	 * 向成绩模块添加记录
 	 * @param applyManage
 	 * @param courseCodes
+	 * @return 
 	 */
-	private void saveExemptionScore(ExemptionApplyManage applyManage, String courseCode, String courseName) {
+	private int saveExemptionScore(ExemptionApplyManage applyManage, String courseCode) {
+		
+		
+		logger.info("save score start -----------------------------");
 		//调用成绩接口，向成绩中添加数据
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("studentId", applyManage.getStudentCode());
-		jsonObject.put("studentName", courseName);
+		jsonObject.put("studentName", applyManage.getName());
 		jsonObject.put("calendarId", applyManage.getCalendarId());
 		jsonObject.put("courseCode", courseCode);
-		ScoreServiceInvoker.saveExemptionScore(jsonObject);
+		jsonObject.put("recoredType", 9);
+		RestResult saveExemptionScore = ScoreServiceInvoker.saveExemptionScore(jsonObject);
+		logger.info("save score end -----------------------------"+saveExemptionScore.getCode());
+		return saveExemptionScore.getCode();
+	}
+
+
+	@Override
+	public RestResult<?> deleteGraduteExemptionApply(List<Long> ids) {
+		List<Long> effectiveIds = new ArrayList<>();
+		List<String> noEffectiveIds = new ArrayList<>();
+		for (Long id : ids) {
+			//查找申请信息
+			ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
+			if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
+				//调用成绩接口，查看是否有成绩
+				StudentScore findViolationStu = ScoreServiceInvoker.findViolationStu(applyRecord.getStudentCode(), applyRecord.getCourseCode(), applyRecord.getCalendarId());
+				logger.info("======================="+findViolationStu);
+				if (findViolationStu != null) {
+					noEffectiveIds.add(applyRecord.getStudentCode());
+				}else{
+					effectiveIds.add(id);
+				}
+			}else{
+				effectiveIds.add(id);
+			}
+		}
+		if (CollectionUtil.isNotEmpty(effectiveIds)) {
+			applyDao.deleteExemptionApply(effectiveIds);
+		}
+		if (CollectionUtil.isNotEmpty(noEffectiveIds)) {
+			return RestResult.fail("common.faild",StringUtils.join(noEffectiveIds,","));
+		}
+		return RestResult.success("common.deleteSuccess",StringUtils.join(effectiveIds,","));
 	}
 }

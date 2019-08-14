@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -55,14 +55,11 @@ public class ElectionConfig
         return template;
     }
     
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory factory)
+//    @Bean
+    public CacheManager cacheManager()
     {
-        RedisCacheManager cacheManager =
-            new RedisCacheManager(redisTemplate2(factory));
-        cacheManager.setDefaultExpiration(300);
-        cacheManager.setLoadRemoteCachesOnStartup(true); // 启动时加载远程缓存
-        cacheManager.setUsePrefix(true); //是否使用前缀生成器
+        JCacheCacheManager cacheManager =
+            new JCacheCacheManager();
         return cacheManager;
     }
 }
