@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -72,18 +71,10 @@ public class ElecAgentController
                 && StringUtils.equals(electionObj, round.getElectionObj())
                 && Objects.equals(mode, round.getMode())
                 && date.after(round.getBeginTime())
-                && date.before(round.getEndTime()))
+                && date.before(round.getEndTime())
+                && dataProvider.containsStu(round.getId(), studentId)
+                && dataProvider.containsStuCondition(round.getId(),studentId,projectId))
             {
-                // 研究生(研究生只有教务员代理选课需要查询轮次信息)
-                if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)
-                    && (!dataProvider.containsStu(round.getId(), studentId)
-                        || !dataProvider.containsStuCondition(round.getId(),
-                            studentId,
-                            projectId)))
-                {
-                    continue;
-                }
-                
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules =
                     dataProvider.getRules(round.getId());
