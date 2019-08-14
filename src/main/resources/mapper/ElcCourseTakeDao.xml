@@ -1551,9 +1551,15 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(couCalendarId)">
                 and t7.CALENDAR_ID_ = #{couCalendarId}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyCode)">
-                and (t1.STUDENT_ID_ like concat('%',#{keyCode},'%') OR t3.`NAME_` like concat('%',#{keyCode},'%'))
-            </if>                                                       
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (t1.STUDENT_ID_ like concat('%',#{keyword},'%') OR t3.`NAME_` like concat('%',#{keyword},'%'))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+                and t1.ID_ in 
+		        <foreach item="item" collection="ids" separator="," open="(" close=")" >
+		            #{item}
+		        </foreach>
+            </if>                                                                 
 		  </where>
   </select>
 
