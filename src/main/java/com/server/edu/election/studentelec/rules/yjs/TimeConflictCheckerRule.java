@@ -58,7 +58,7 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
                                             courseClass
                                                 .getCourseCodeAndClassCode(),
                                             I18nUtil.getMsg(
-                                                "ruleCheck.timeConflict"));
+                                                "ruleCheck.timeConflict",teachClassId));
                                     return false;
                                 }
                             }
