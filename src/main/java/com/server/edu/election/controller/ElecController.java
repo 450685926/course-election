@@ -67,11 +67,11 @@ public class ElecController
         for (ElectionRounds round : allRound)
         {
             Long roundId = round.getId();
-            if (StringUtils.equals(round.getProjectId(), projectId) //
-                && StringUtils.equals(Constants.STU, round.getElectionObj()) //
-                && date.after(round.getBeginTime()) //
-                && date.before(round.getEndTime()) //
-                && dataProvider.containsStu(roundId, studentId) //
+            if (StringUtils.equals(round.getProjectId(), projectId)
+                && StringUtils.equals(Constants.STU, round.getElectionObj())
+                && date.after(round.getBeginTime())
+                && date.before(round.getEndTime())
+                && dataProvider.containsStu(roundId, studentId)
                 && dataProvider
                     .containsStuCondition(roundId, studentId, projectId))
             {
