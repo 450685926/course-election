@@ -2,6 +2,7 @@ package com.server.edu.election.service;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.vo.ElcNoSelectReasonVo;
@@ -26,6 +27,9 @@ public interface NoSelectStudentService
     /**研究生导出未选课学生名单*/
     String exportStudentNoCourseListGradute(NoSelectCourseStdsDto condition) throws Exception;
     
+    RestResult<String> exportStudentNoCourseListGradute2(NoSelectCourseStdsDto condition);
+    
     /**异步导出*/
     ExcelResult export(NoSelectCourseStdsDto condition);
+	
 }
