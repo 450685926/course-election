@@ -664,9 +664,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			           }
 			       }
 			}else{
-				for (String courseCode : roundsCoursesIdsList) {
+				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, roundsCoursesIdsList);
+				for (String courseCode : optionalCourses) {
 					List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 							courseCode);
+					
 					if (CollectionUtil.isNotEmpty(teachClasss))
 					{
 						for (TeachingClassCache teachClass : teachClasss)
@@ -797,8 +799,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}else{//管理员选课
 			key = Keys.getCalendarCourseKey(calendarId); // 管理员代理选课
 			List<String> calendarCoursesIdsList = CoursesList(ops, key);
-
-			for (String courseCode : calendarCoursesIdsList) {
+			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, calendarCoursesIdsList);
+			for (String courseCode : optionalCourses) {
 				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 						courseCode);
 				if (CollectionUtil.isNotEmpty(teachClasss))
@@ -1021,6 +1023,70 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
 		return lastCourse;
 	}
+	private List<String> getOptionalCourses2(ElecContext c, 
+			Set<CompletedCourse> setCompletedCourses, Set<SelectedCourse> selectedCourseSet,
+			List<String> centerCourse) {
+		List<String> lastCourse = new ArrayList<>();
+		
+		//从中间变量中剔除本学期已经选过的课
+		List<String> optionalGraduateCoursesList = new ArrayList<>();
+		for (String centerCourseModel : centerCourse)
+		{
+			Boolean flag = true;
+			for (SelectedCourse selectedCourseModel : selectedCourseSet)
+			{
+				if (selectedCourseModel.getCourseCode()
+						.equals(centerCourseModel))
+				{
+					flag = false;
+					break;
+				}
+			}
+			if (flag)
+			{
+				optionalGraduateCoursesList.add(centerCourseModel);
+			}
+		}
+		//从中间变量中剔除已完成的课，得到可选课程
+		List<String> optionalGraduateCourses = new ArrayList<>();
+		for (String centerCourses : optionalGraduateCoursesList)
+		{
+			Boolean flag = true;
+			for (CompletedCourse selectedCourseModel : setCompletedCourses)
+			{
+				if (selectedCourseModel.getCourseCode()
+						.equals(centerCourses))
+				{
+					flag = false;
+					break;
+				}
+			}
+			if (flag)
+			{
+				optionalGraduateCourses.add(centerCourses);
+			}
+		}
+		//可选课程中去除免修免考课程
+		Set<String> applyCourses = c.getApplyCourse();
+		for (String centerCourses : optionalGraduateCoursesList)
+		{
+			Boolean flag = true;
+			for (String courseCode : applyCourses)
+			{
+				if (centerCourses
+						.equals(courseCode))
+				{
+					flag = false;
+					break;
+				}
+			}
+			if (flag)
+			{
+				lastCourse.add(centerCourses);
+			}
+		}
+		return lastCourse;
+	}
 
     //课程code集合
 	private List<String> CoursesList(HashOperations<String, String, String> ops, String key) {
@@ -1079,8 +1145,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 						dataProvider.getElecNumber(selected.getTeachClassMsg());
 	        	if (elecNumber != null) {
 	        		teachingClassCache.setCurrentNumber(elecNumber);
-				}else{
-	//				teachingClassCache.setCurrentNumber(teachingClassCache.getCurrentNumber());
 				}
 	        	if (teachingClassCache != null) {
 	        		setClassCache(elcCourseResult, teachingClassCache);
