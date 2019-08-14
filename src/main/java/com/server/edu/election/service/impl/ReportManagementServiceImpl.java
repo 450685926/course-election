@@ -1091,7 +1091,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
     @Override
     public RestResult<String> exportStudentTimetabPdf(Long calendarId,
-        String calendarName, String studentCode, String studentName)
+        String studentCode, String studentName)
         throws Exception
     {
         //检查目录是否存在
@@ -1136,7 +1136,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
         document.add(title);
         
         //---2 副标题---
-        Paragraph subtitle = new Paragraph(calendarName, subtitleChinese);
+        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
+                .getSchoolCalendarById(calendarId);
+        Paragraph subtitle = new Paragraph(schoolCalendarVo.getFullName(), subtitleChinese);
         subtitle.setAlignment(Element.ALIGN_CENTER);
         //设置行间距
         subtitle.setLeading(10);
@@ -1160,9 +1162,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
         PdfPCell cell2 = TeacherLessonTableServiceServiceImpl.createNoBorderCell("学生姓名：" + studentName, name2, 20f);
         table1.addCell(cell2);
-        
-        PdfPCell cell3 = TeacherLessonTableServiceServiceImpl.createNoBorderCell("所属班级：" + studentName, name2, 20f);
-        table1.addCell(cell3);
         
         PdfPCell cell4 =
             TeacherLessonTableServiceServiceImpl.createNoBorderCell("总学分：" + studentTimetab.getTotalCredits(),

@@ -595,7 +595,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
                 .collect(Collectors.toList());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+        Session session = SessionUtils.getCurrentSession();
+        Page<ElcStudentVo> elcStudentVos;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+        } else {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+        }
+
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }
@@ -604,11 +613,28 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Transactional
     public Integer addCourse(AddCourseDto courseDto) {
         List<Long> teachingClassIds = courseDto.getTeachingClassId();
+        Long calendarId = courseDto.getCalendarId();
+        Session session = SessionUtils.getCurrentSession();
+        String uid = session.getUid();
+        String name = session.getName();
+        Integer chooseObj = null;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            chooseObj = 3;
+        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            chooseObj = 2;
+            boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId);
+            if (!switchStatus) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+            }
+        } else {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+        }
         List<TimeTableMessage> addCourseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
-        // 查询已选课程上课时间
-        List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(courseDto.getStudentId(), courseDto.getCalendarId());
+        // 查询已选课程上课时间,判断上课时间是否冲突
+        List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(courseDto.getStudentId(), calendarId);
         if (CollectionUtil.isNotEmpty(ids)) {
             List<TimeTableMessage> selectCourseArrange = courseTakeDao.findCourseArrange(ids);
+
             for (TimeTableMessage addTable : addCourseArrange) {
                 String[] split = addTable.getWeekNum().split(",");
                 Set<String> addWeeks = new HashSet<>(Arrays.asList(split));
@@ -642,8 +668,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
         List<ElcCourseTake> elcCourseTakes = new ArrayList<>();
         List<ElcLog> elcLogs = new ArrayList<>();
-        // 保存数据，并判断当前角色
-        addToList(courseDto, elcStudentVos, elcCourseTakes, elcLogs);
+        // 保存数据
+        addToList(uid, name, chooseObj, courseDto, elcStudentVos, elcCourseTakes, elcLogs);
         Integer count = courseTakeDao.saveCourseTask(elcCourseTakes);
         if (count.intValue() != teachingClassIds.size()) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
@@ -659,6 +685,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     @Transactional
     public Integer removedCourse(List<ElcCourseTake> value) {
+        Session session = SessionUtils.getCurrentSession();
+        String id = session.getUid();
+        String name = session.getName();
+        //判断是否是教务员
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            boolean switchStatus = elecResultSwitchService.getSwitchStatus(value.get(0).getCalendarId());
+            if (!switchStatus) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+            }
+        }
+        // 判断如果不是管理员
+        else if (!(StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin())) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError"));
+        }
         int count = courseTakeDao.deleteByCourseTask(value);
         List<Long> teachingClassIds = value.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
         int delSize = teachingClassIds.size();
@@ -674,16 +714,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
         if (elcStudentVos.size() != count) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.teachingTaskError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
-        }
-        Session session = SessionUtils.getCurrentSession();
-        String id = session.getUid();
-        String name = session.getName();
-        // 判断是管理员还是教务员
-        Integer chooseObj = null;
-        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
-            chooseObj = 3;
-        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            chooseObj = 2;
         }
         List<ElcLog> elcLogs = new ArrayList<>();
         int size = elcStudentVos.size();
@@ -722,18 +752,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         return new PageResult<>(elcStudentVos);
     }
 
-    private void addToList(AddCourseDto courseDto, List<ElcStudentVo> elcStudentVos, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {
-        Session session = SessionUtils.getCurrentSession();
-        String uid = session.getUid();
-        String name = session.getName();
-        Integer chooseObj = null;
-        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
-            chooseObj = 3;
-        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            chooseObj = 2;
-        } else {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
-        }
+    private void addToList(String uid, String name, Integer chooseObj, AddCourseDto courseDto, List<ElcStudentVo> elcStudentVos, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {
         String studentId = courseDto.getStudentId();
         Long calendarId = courseDto.getCalendarId();
         // 避免有多门重修课程循环查询数据库

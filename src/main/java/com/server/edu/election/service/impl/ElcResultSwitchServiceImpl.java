@@ -55,5 +55,26 @@ public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 		createCriteria.andEqualTo("calendarId",calendarId);
 		return elecResultSwitchDao.selectOneByExample(example);
 	}
+
+	@Override
+	public boolean getSwitchStatus(Long calendarId) {
+		Example example = new Example(ElcResultSwitch.class);
+		Criteria createCriteria = example.createCriteria();
+		createCriteria.andEqualTo("calendarId",calendarId);
+		ElcResultSwitch elcResultSwitch = elecResultSwitchDao.selectOneByExample(example);
+		if (elcResultSwitch != null && elcResultSwitch.getStatus().intValue() == 1) {
+			Date start = elcResultSwitch.getOpenTimeStart();
+			Date end = elcResultSwitch.getOpenTimeEnd();
+			if (start != null && end != null) {
+				long startTime = start.getTime();
+				long endTime = end.getTime();
+				long nowTime = System.currentTimeMillis();
+				if (startTime < nowTime && nowTime < endTime ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	
 }
