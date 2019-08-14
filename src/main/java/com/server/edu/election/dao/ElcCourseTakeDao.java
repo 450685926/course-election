@@ -3,15 +3,35 @@ package com.server.edu.election.dao;
 import java.util.List;
 import java.util.Set;
 
-import com.server.edu.election.dto.*;
-import com.server.edu.election.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseLimitDto;
+import com.server.edu.election.dto.ElcStudentCourseDto;
+import com.server.edu.election.dto.ElcStudentDto;
+import com.server.edu.election.dto.LoserStuElcCourse;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.dto.StudentRebuildFeeDto;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentRebuildFeeVo;
+import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
@@ -234,4 +254,11 @@ public interface ElcCourseTakeDao
 
     /**根据学生id查询学生已重修的门数*/
     Set<String> findRetakeCount(String studentId);
+    
+    /**
+	 *学生重修缴费信息列表
+	 * @param dto
+	 * @return
+	 */
+	List<StudentRebuildFeeVo> getStudentRebuildFeeList(StudentRebuildFeeDto dto);
 }

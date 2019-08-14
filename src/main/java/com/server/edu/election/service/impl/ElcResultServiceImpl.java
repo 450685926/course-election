@@ -640,7 +640,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setCalendarId(condition.getCalendarId());
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
-				elcNumber += numberOfelectedPersons;
+				elcNumber = elcNumber + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
 				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
@@ -679,7 +679,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
-				elcNumberByFaculty += numberOfelectedPersons;
+				elcNumberByFaculty = elcNumberByFaculty + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
 				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
