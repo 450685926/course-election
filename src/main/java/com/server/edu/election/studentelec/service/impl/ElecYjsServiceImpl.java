@@ -13,9 +13,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
@@ -38,11 +35,18 @@ import com.server.edu.common.entity.BeanUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
@@ -114,6 +118,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
     @Autowired
     private ElecRoundsDao elecRoundsDao;
+    
+    @Autowired
+    private DictionaryService dictionaryService;
     
     private RestTemplate restTemplate = RestTemplateBuilder.create();
     
@@ -493,7 +500,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
         
         //本学年已选课程组装
-        List<SelectedCourse> selectedCourses = packagingSelectedCourse(roundId, calendarId, planCourses,
+        Set<SelectedCourse> selectedCourses = packagingSelectedCourse(roundId, calendarId, planCourses,
 				selectedCourseSet, classTimeLists);
         selectedCourseSet.addAll(selectedCourses);
         
@@ -924,7 +931,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
-        c.setSelectedCourses(selectedCourseSet);
+        c.setSelectedCourses(selectedCourses);
         c.setOptionalCourses(setOptionalCourses);
         c.setElecResult(elecResult);
         return c;
@@ -1020,7 +1027,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 	}
 
     //组装可选课程信息
-	private List<SelectedCourse> packagingSelectedCourse(Long roundId, Long calendarId, Set<PlanCourse> planCourses,
+	private Set<SelectedCourse> packagingSelectedCourse(Long roundId, Long calendarId, Set<PlanCourse> planCourses,
 			Set<SelectedCourse> selectedCourseSet, List<TeachingClassCache> classTimeLists) {
 		List<SelectedCourse> selectedCourses = new ArrayList<>();
         for (SelectedCourse selected : selectedCourseSet)
@@ -1032,6 +1039,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					 elcCourseResult.setLabelName(planCourse.getLabelName());
 					 break;
 				}
+			}
+            if (StringUtils.isEmpty( elcCourseResult.getLabelName())) {
+            	String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),selected.getNature());
+            	elcCourseResult.setLabelName(dict);
 			}
             elcCourseResult.setChooseObj(selected.getChooseObj());
             elcCourseResult.setTurn(selected.getTurn());
@@ -1086,7 +1097,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
             
         selectedCourseSet.clear();
-		return selectedCourses;
+        selectedCourseSet.addAll(selectedCourses);
+		return selectedCourseSet;
 	}
     
     private void setClassCache(TeachingClassCache newClassCache,
