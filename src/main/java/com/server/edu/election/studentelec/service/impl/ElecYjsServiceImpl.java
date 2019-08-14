@@ -500,7 +500,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
         
         //本学年已选课程组装
-        Set<SelectedCourse> selectedCourses = packagingSelectedCourse(roundId, calendarId, planCourses,
+        List<SelectedCourse> selectedCourses = packagingSelectedCourse(roundId, calendarId, planCourses,
 				selectedCourseSet, classTimeLists);
         selectedCourseSet.addAll(selectedCourses);
         
@@ -677,6 +677,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 								elcCourseResult.setLabel(planCourse2.get(0).getLabel());
 								elcCourseResult.setLabelName(planCourse2.get(0).getLabelName());
 							}
+							 if (StringUtils.isEmpty(elcCourseResult.getLabelName())) {
+					            	String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachClass.getNature());
+					            	elcCourseResult.setLabelName(dict);
+							}
 							elcCourseResult.setNature(teachClass.getNature());
 							elcCourseResult.setCourseCode(teachClass.getCourseCode());
 							elcCourseResult.setCourseName(teachClass.getCourseName());
@@ -807,6 +811,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setLabel(planCourse2.get(0).getLabel());
 							elcCourseResult.setLabelName(planCourse2.get(0).getLabelName());
 						}
+						 if (StringUtils.isEmpty(elcCourseResult.getLabelName())) {
+				            	String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachClass.getNature());
+				            	elcCourseResult.setLabelName(dict);
+						}
 						elcCourseResult.setNature(teachClass.getNature());
 						elcCourseResult.setCourseCode(teachClass.getCourseCode());
 						elcCourseResult.setCourseName(teachClass.getCourseName());
@@ -931,7 +939,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
-        c.setSelectedCourses(selectedCourses);
+        c.setSelectedCourses(selectedCourseSet);
         c.setOptionalCourses(setOptionalCourses);
         c.setElecResult(elecResult);
         return c;
@@ -1027,7 +1035,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 	}
 
     //组装可选课程信息
-	private Set<SelectedCourse> packagingSelectedCourse(Long roundId, Long calendarId, Set<PlanCourse> planCourses,
+	private List<SelectedCourse> packagingSelectedCourse(Long roundId, Long calendarId, Set<PlanCourse> planCourses,
 			Set<SelectedCourse> selectedCourseSet, List<TeachingClassCache> classTimeLists) {
 		List<SelectedCourse> selectedCourses = new ArrayList<>();
         for (SelectedCourse selected : selectedCourseSet)
@@ -1040,7 +1048,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					 break;
 				}
 			}
-            if (StringUtils.isEmpty( elcCourseResult.getLabelName())) {
+            if (StringUtils.isEmpty(elcCourseResult.getLabelName())) {
             	String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),selected.getNature());
             	elcCourseResult.setLabelName(dict);
 			}
@@ -1097,8 +1105,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
             
         selectedCourseSet.clear();
-        selectedCourseSet.addAll(selectedCourses);
-		return selectedCourseSet;
+		return selectedCourses;
 	}
     
     private void setClassCache(TeachingClassCache newClassCache,
