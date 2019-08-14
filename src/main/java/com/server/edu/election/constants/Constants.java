@@ -56,5 +56,8 @@ public interface Constants
     public static final Integer DELETE_FALSE = 0;
     
     public static final Integer IS = 1;
+    
+    /** 选课规则--在可选课名单内才能选课 */
+    public static final long RULE_NAME_LIST = 608;
 
 }
