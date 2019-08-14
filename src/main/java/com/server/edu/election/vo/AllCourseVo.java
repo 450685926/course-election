@@ -30,7 +30,10 @@ public class AllCourseVo {
 	
 	/** 学生学籍所在校区 */
 	private String campu;
-
+	
+	/** 学生学号  */
+	private String studentCode;
+	
 	public Long getRoundId() {
 		return roundId;
 	}
@@ -110,5 +113,12 @@ public class AllCourseVo {
 	public void setTeacherName(String teacherName) {
 		this.teacherName = teacherName;
 	}
-	
+
+	public String getStudentCode() {
+		return studentCode;
+	}
+
+	public void setStudentCode(String studentCode) {
+		this.studentCode = studentCode;
+	}
 }
