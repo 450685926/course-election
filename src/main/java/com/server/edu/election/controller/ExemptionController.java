@@ -720,6 +720,7 @@ public class ExemptionController {
     	Session session = SessionUtils.getCurrentSession();
     	applyManage.setManagerDeptId(session.getCurrentManageDptId());
     	applyManage.setStudentCode(session.realUid());
+    	applyManage.setName(session.realName());
     	RestResult<?> result = exemptionCourseService.addGraduateExemptionApply(applyManage);
         return result;
     }
