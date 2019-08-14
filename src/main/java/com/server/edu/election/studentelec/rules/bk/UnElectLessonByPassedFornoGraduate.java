@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.CompletedCourse;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.util.CollectionUtil;
 
@@ -20,7 +20,8 @@ import com.server.edu.util.CollectionUtil;
  * 结业生通过课程不能重修
  */
 @Component("UnElectLessonByPassedFornoGraduate")
-public class UnElectLessonByPassedFornoGraduate extends AbstractElecRuleExceutor
+public class UnElectLessonByPassedFornoGraduate
+    extends AbstractElecRuleExceutorBk
 {
     @Override
     public int getOrder()
@@ -29,7 +30,7 @@ public class UnElectLessonByPassedFornoGraduate extends AbstractElecRuleExceutor
     }
     
     @Override
-    public boolean checkRule(ElecContext context,
+    public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
@@ -44,7 +45,7 @@ public class UnElectLessonByPassedFornoGraduate extends AbstractElecRuleExceutor
                 {
                     List<CompletedCourse> list = completedCourses.stream()
                         .filter(temp -> courseClass.getCourseCode()
-                            .equals(temp.getCourseCode()))
+                            .equals(temp.getCourse().getCourseCode()))
                         .collect(Collectors.toList());
                     if (CollectionUtil.isNotEmpty(list))
                     {

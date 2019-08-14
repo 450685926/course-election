@@ -1,7 +1,5 @@
 package com.server.edu.election.studentelec.preload;
 
-import com.server.edu.election.studentelec.context.ElecContext;
-
 /**
  * 选课数据加载
  * 
@@ -11,7 +9,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public abstract class DataProLoad implements Comparable<DataProLoad>
+public abstract class DataProLoad<EC> implements Comparable<DataProLoad<?>>
 {
     /**执行优先级，越小越先执行*/
     public abstract int getOrder();
@@ -19,11 +17,11 @@ public abstract class DataProLoad implements Comparable<DataProLoad>
     public abstract String getProjectIds();
     
     @Override
-    public int compareTo(DataProLoad rule)
+    public int compareTo(DataProLoad<?> rule)
     {
         return this.getOrder() - rule.getOrder();
     }
     
     /**加载数据*/
-    public abstract void load(ElecContext context);
+    public abstract void load(EC context);
 }

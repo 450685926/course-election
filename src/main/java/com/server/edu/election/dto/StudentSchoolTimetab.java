@@ -43,7 +43,6 @@ public class StudentSchoolTimetab  {
     private Long teachingClassId;
     private String classCode;
     
-    private String classRoom;
     private String className;
     private String teacherCode;
     

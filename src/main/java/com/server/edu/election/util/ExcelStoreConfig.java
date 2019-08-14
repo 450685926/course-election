@@ -35,7 +35,7 @@ public class ExcelStoreConfig
     private List<String> graduateExemptionApplyExportTitle;
     
     private List<String> graduateExemptionApplyExportKey;
-    
+
 	public List<String> getElcResultCountExportByStudentTitle() {
 		return elcResultCountExportByStudentTitle;
 	}

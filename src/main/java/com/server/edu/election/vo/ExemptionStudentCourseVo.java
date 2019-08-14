@@ -1,5 +1,6 @@
 package com.server.edu.election.vo;
 
+import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
 /**
@@ -24,8 +25,10 @@ public class ExemptionStudentCourseVo{
     
     private String applyCourse;
     
+    @Code2Text(transformer = "X_MXSQLX")
     private Integer applyType;
     
+    @Code2Text(transformer = "X_SHZT")
     private Integer examineResult;
 
 	public String getCourseNameAndCode() {

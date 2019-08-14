@@ -142,6 +142,86 @@ public class ElcResultQuery
     
     private Integer isHaveLimit;
     
+    private Integer minFirstTurnNum;
+    
+    private Integer maxFirstTurnNum;
+    
+    private Integer minSecondTurnNum;
+    
+    private Integer maxSecondTurnNum;
+    
+    private Integer isScreening;
+    
+    private Integer mode;
+    
+    private Integer courseType;
+    
+    private List<String> includeCodes;
+    
+	public List<String> getIncludeCodes() {
+		return includeCodes;
+	}
+
+	public void setIncludeCodes(List<String> includeCodes) {
+		this.includeCodes = includeCodes;
+	}
+
+	public Integer getCourseType() {
+		return courseType;
+	}
+
+	public void setCourseType(Integer courseType) {
+		this.courseType = courseType;
+	}
+
+	public Integer getMode() {
+		return mode;
+	}
+
+	public void setMode(Integer mode) {
+		this.mode = mode;
+	}
+
+	public Integer getIsScreening() {
+		return isScreening;
+	}
+
+	public void setIsScreening(Integer isScreening) {
+		this.isScreening = isScreening;
+	}
+
+	public Integer getMinFirstTurnNum() {
+		return minFirstTurnNum;
+	}
+
+	public void setMinFirstTurnNum(Integer minFirstTurnNum) {
+		this.minFirstTurnNum = minFirstTurnNum;
+	}
+
+	public Integer getMaxFirstTurnNum() {
+		return maxFirstTurnNum;
+	}
+
+	public void setMaxFirstTurnNum(Integer maxFirstTurnNum) {
+		this.maxFirstTurnNum = maxFirstTurnNum;
+	}
+
+	public Integer getMinSecondTurnNum() {
+		return minSecondTurnNum;
+	}
+
+	public void setMinSecondTurnNum(Integer minSecondTurnNum) {
+		this.minSecondTurnNum = minSecondTurnNum;
+	}
+
+	public Integer getMaxSecondTurnNum() {
+		return maxSecondTurnNum;
+	}
+
+	public void setMaxSecondTurnNum(Integer maxSecondTurnNum) {
+		this.maxSecondTurnNum = maxSecondTurnNum;
+	}
+
 	public Integer getIsHaveLimit() {
 		return isHaveLimit;
 	}

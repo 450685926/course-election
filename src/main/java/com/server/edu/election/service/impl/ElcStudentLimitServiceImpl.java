@@ -24,6 +24,7 @@ import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.ElcStudentLimit;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcStudentLimitService;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcStudentLimitVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -80,6 +81,9 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	@Override
 	public PageInfo<ElcStudentLimitVo> getLimitStudents(PageCondition<ElcStudentLimitDto> condition) {
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+		ElcStudentLimitDto dto  = condition.getCondition();
+		int mode = TableIndexUtil.getMode(dto.getCalendarId());
+		dto.setMode(mode);
 		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(condition.getCondition());
 		PageInfo<ElcStudentLimitVo> pageInfo =new PageInfo<>(list);
 		return pageInfo;

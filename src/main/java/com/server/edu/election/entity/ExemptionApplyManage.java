@@ -344,8 +344,8 @@ public class ExemptionApplyManage implements Serializable {
     public void setMaterialIp(String materialIp) {
         this.materialIp = materialIp == null ? null : materialIp.trim();
     }
-
-    @Override
+    
+	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());

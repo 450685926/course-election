@@ -3,6 +3,8 @@ package com.server.edu.election.dto;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
+import java.util.List;
+
 /**
  * @description: 老师课表
  * @author: bear
@@ -24,7 +26,25 @@ public class ClassCodeToTeacher {
     @Code2Text(transformer = "X_KCXZ")
     private String nature;
     private Long teachingClassId;
+    private Integer elcNumber;
     private String keyWord;//查询条件
+    private List<String> teacherCodes;//根据查询条件获取的教师集合
+
+    public List<String> getTeacherCodes() {
+        return teacherCodes;
+    }
+
+    public void setTeacherCodes(List<String> teacherCodes) {
+        this.teacherCodes = teacherCodes;
+    }
+
+    public Integer getElcNumber() {
+        return elcNumber;
+    }
+
+    public void setElcNumber(Integer elcNumber) {
+        this.elcNumber = elcNumber;
+    }
 
     public Long getTeachingClassId() {
         return teachingClassId;

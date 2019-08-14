@@ -7,10 +7,13 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.dto.*;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.util.ExportUtil;
+import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelCell;
+import com.server.edu.util.excel.GeneralExcelDesigner;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -24,13 +27,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,8 +37,11 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.dictionary.DictTypeEnum;
-import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.dto.AddCourseDto;
+import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -56,12 +56,7 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.ExportUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelCell;
-import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
-import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
 
@@ -83,10 +78,10 @@ public class ElcCourseTakeController
     
     @Autowired
     private ElecRoundCourseService roundCourseService;
-    
+
     @Autowired
     private DictionaryService dictionaryService;
-    
+
     @Value("${cache.directory}")
     private String cacheDirectory;
     
@@ -95,7 +90,7 @@ public class ElcCourseTakeController
     private static Logger LOG = LoggerFactory.getLogger(ExemptionController.class);
     
     /**
-     * 上课名单列表(研究生课程维护模块学生选课列表)
+     * 上课名单列表
      * 
      * @param condition
      * @return
@@ -116,6 +111,53 @@ public class ElcCourseTakeController
     }
 
     /**
+     * 研究生课程维护模块学生选课列表
+     *
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "学生选课列表")
+    @PostMapping("/graduatePage")
+    public RestResult<PageResult<ElcCourseTakeVo>> graduatePage(
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+    {
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+
+        PageResult<ElcCourseTakeVo> list =
+                courseTakeService.graduatePage(condition);
+
+        return RestResult.successData(list);
+    }
+
+    /**
+     * 研究生课程维护模块学生选课列表导出
+     *
+     * @param ids
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出")})
+    @PostMapping(value = "/exportGraduatePage")
+    public ResponseEntity<Resource> exportGraduatePage(
+            @RequestBody List<Long> ids)
+            throws Exception
+    {
+        ValidatorUtil.validateAndThrow(ids);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
+        List<ElcCourseTakeVo> list = courseTakeService.getExportGraduatePage(ids);;
+        GeneralExcelDesigner design = graduatePage();
+        design.setDatas(list);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        Session currentSession = SessionUtils.getCurrentSession();
+        String uid = currentSession.getUid();
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, uid + ".xls");
+    }
+
+    /**
      * 学生个人全部选课信息
      *
      * @param condition
@@ -125,10 +167,11 @@ public class ElcCourseTakeController
     @ApiOperation(value = "课程维护模块学生个人全部选课信息")
     @PostMapping("/allSelectedCourse")
     public RestResult<PageResult<ElcCourseTakeVo>> allSelectedCourse(
-            @RequestBody PageCondition<String> condition)
+            @RequestBody PageCondition<Student> condition)
             throws Exception
     {
-        if (StringUtils.isBlank(condition.getCondition()))
+        Student student = condition.getCondition();
+        if (student == null || student.getStudentCode() == null)
         {
             throw new ParameterValidateException("studentId not be empty");
         }
@@ -136,6 +179,44 @@ public class ElcCourseTakeController
                 courseTakeService.allSelectedCourse(condition);
 
         return RestResult.successData(list);
+    }
+
+    /**
+     * 研究生课程维护模块学生个人全部选课信息导出
+     *
+     * @param student
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出")})
+    @PostMapping(value = "/exportAllSelectedCourse")
+    public ResponseEntity<Resource> exportAllSelectedCourse(
+            @RequestBody Student student)
+            throws Exception
+    {
+        ValidatorUtil.validateAndThrow(student);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
+        List<ElcCourseTakeVo> list = new ArrayList<>();
+        PageCondition<Student> condition = new PageCondition<>();
+        condition.setPageNum_(1);
+        condition.setPageSize_(200);
+        condition.setCondition(student);
+        RestResult<PageResult<ElcCourseTakeVo>> pageResultRestResult = allSelectedCourse(condition);
+        PageResult<ElcCourseTakeVo> data = pageResultRestResult.getData();
+        long total_ = data.getTotal_();
+        list.addAll(data.getList());
+        while (list.size() < total_) {
+            condition.setPageNum_(condition.getPageNum_() + 1);
+            data = allSelectedCourse(condition).getData();
+            list.addAll(data.getList());
+        }
+        GeneralExcelDesigner design = allSelectedCourseExcel();
+        design.setDatas(list);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        return ExportUtil.exportExcel(excelUtil, cacheDirectory, student.getStudentCode() + ".xls");
     }
 
     /**
@@ -186,28 +267,6 @@ public class ElcCourseTakeController
             @RequestBody PageCondition<ElcCourseTakeQuery> condition) {
         PageResult<ElcStudentVo> page = courseTakeService.removedCourseList(condition);
         return RestResult.successData(page);
-    }
-
-    @ApiOperation(value = "课程维护模块导出学生选课信息")
-    @PostMapping("/exportElcStudentInfo")
-    public RestResult<ExcelResult> exportElcStudentInfo(
-            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
-            throws Exception
-    {
-        LOG.info("exportElcStudentInfo.start");
-        ExcelResult export = courseTakeService.exportElcStudentInfo(condition);
-        return RestResult.successData(export);
-    }
-
-    @ApiOperation(value = "课程维护模块导出学生个人全部选课信息")
-    @PostMapping("/exportElcPersonalInfo")
-    public RestResult<ExcelResult> exportElcPersonalInfo(
-            @RequestBody PageCondition<String> condition)
-            throws Exception
-    {
-        LOG.info("exportStudentInfo.start");
-        ExcelResult export = courseTakeService.exportElcPersonalInfo(condition);
-        return RestResult.successData(export);
     }
 
     /**
@@ -441,91 +500,6 @@ public class ElcCourseTakeController
             .body(resource);
     }
     
-    @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "导出")})
-    @PostMapping(value = "/export")
-    public ResponseEntity<Resource> export(
-        @RequestBody ElcCourseTakeQuery query)
-        throws Exception
-    {
-        ValidatorUtil.validateAndThrow(query);
-        
-        PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
-        page.setCondition(query);
-        page.setPageNum_(1);
-        page.setPageSize_(1000);
-        
-        List<ElcCourseTakeVo> datas = new ArrayList<>();
-        
-        PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
-        while (datas.size() < res.getTotal_())
-        {
-            datas.addAll(res.getList());
-            page.setPageNum_(page.getPageNum_() + 1);
-            if (datas.size() < res.getTotal_())
-            {
-                res = courseTakeService.listPage(page);
-            }
-        }
-        
-        GeneralExcelDesigner design = new GeneralExcelDesigner();
-        design.addCell("学号", "studentId");
-        design.addCell("姓名", "studentName");
-        design.addCell("课程序号", "teachingClassCode");
-        design.addCell("课程代码", "courseCode");
-        design.addCell("课程名称", "courseName");
-        design.addCell("专业", "profession")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.G_ZY.getType(), value);
-                    return dict;
-                });
-        design.addCell("校区", "campus")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_XQ.getType(), value);
-                    return dict;
-                });
-        design.addCell("学分", "credits");
-        design.addCell("修读类别", "courseTakeType")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    if ("1".equals(value))
-                    {
-                        return "正常修读";
-                    }
-                    else if ("2".equals(value))
-                    {
-                        return "重修";
-                    }
-                    else if ("3".equals(value))
-                    {
-                        return "免修不免考";
-                    }
-                    else if ("4".equals(value))
-                    {
-                        return "免修";
-                    }
-                    return value;
-                });
-        design.setDatas(datas);
-        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        
-        return ExportUtil
-            .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
-    }
-    
-    @ApiOperation(value = "修改修读类别")
-    @PostMapping("/editStudyType")
-    public RestResult<Integer> editStudyType(
-        @RequestBody ElcCourseTakeDto elcCourseTakeDto)
-    {
-        int result =courseTakeService.editStudyType(elcCourseTakeDto);
-        return RestResult.successData(result);
-    }
-
     @ApiOperation(value = "学生选课列表")
     @GetMapping(value = "/findTeachingClassId")
     public RestResult<?> findTeachingClassIdByStudentId(String studentId){
@@ -541,4 +515,67 @@ public class ElcCourseTakeController
         }
     }
 
+    /**
+     * 点名册excel拼装返回
+     * @return
+     */
+    private GeneralExcelDesigner graduatePage() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell("学号", "studentId");
+        design.addCell("姓名", "studentName");
+        design.addCell("年级", "grade");
+        design.addCell("学院", "faculty").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    return dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                });
+        design.addCell("专业", "profession").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query(DictTypeEnum.G_ZY.getType(), value);
+                });
+        design.addCell("课程序号", "teachingClassCode");
+        design.addCell("课程名称", "courseName");
+        design.addCell("教学班", "teachingClassName");
+        design.addCell("课程性质", "nature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query(DictTypeEnum.X_KCXZ.getType(), value);
+                });
+        design.addCell("教学安排", "courseArrange");
+        design.addCell("学分", "credits");
+        design.addCell("修读类别", "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query(DictTypeEnum.X_XDLX.getType(), value);
+                });
+        return design;
+    }
+
+    private GeneralExcelDesigner allSelectedCourseExcel() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell("学年学期", "calendarName");
+        design.addCell("学号", "studentId");
+        design.addCell("姓名", "studentName");
+        design.addCell("培养层次", "trainingLevel").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query(DictTypeEnum.X_PYCC.getType(), value);
+                });
+        design.addCell("课程序号", "teachingClassCode");
+        design.addCell("课程名称", "courseName");
+        design.addCell("课程性质", "nature").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query(DictTypeEnum.X_KCXZ.getType(), value);
+                });
+        design.addCell("开课学院", "faculty").setValueHandler(
+                (String value, Object rawData, GeneralExcelCell cell) -> {
+                    return dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                });
+        design.addCell("学分", "credits");
+        design.addCell("修读类别", "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query(DictTypeEnum.X_XDLX.getType(), value);
+                });
+        return design;
+    }
 }

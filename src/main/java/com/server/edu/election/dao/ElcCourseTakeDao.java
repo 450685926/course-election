@@ -21,7 +21,13 @@ public interface ElcCourseTakeDao
 {
     /**分页查询选课名单*/
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
-    
+
+    /**研究生课程维护模块分页查询选课记录*/
+    Page<ElcCourseTakeVo> graduatePage(@Param("query") ElcCourseTakeQuery take);
+
+    /**研究生课程维护模块分页查询选课记录导出查询*/
+    List<ElcCourseTakeVo> getExportGraduatePage(@Param("ids") List<Long> ids);
+
     /**
      * 根据教学班ID，教学班code查询课程id与教学班id
      * 
@@ -54,9 +60,8 @@ public interface ElcCourseTakeDao
     List<ClassTeacherDto> findTeacherByClassCode(Long teachingClassId);
     
     /**查询点名册中学生信息*/
-    
     List<StudentVo> findStudentByTeachingClassId(Long id);
-    
+
     /** 查询教学班时间地点*/
     List<ClassTeacherDto> findClassTimeAndRoom(List<Long> list);
 
@@ -64,7 +69,10 @@ public interface ElcCourseTakeDao
     List<TimeTableMessage> findClassTime(List<Long> list);
 
     /** 查询教学安排*/
-    List<ClassTeacherDto> findClassTimeAndRoomStr(Long list);
+    List<ClassTeacherDto> findClassTimeAndRoomStr(Long teachingClassId);
+
+    /** 以教学班为单位查询教学安排*/
+    List<TimeTableMessage> findClassTimeAndRoomById(Long teachingClassId);
     
     /**查询学生课表*/
     List<StudentSchoolTimetab> findSchoolTimetab(
@@ -130,11 +138,15 @@ public interface ElcCourseTakeDao
     /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
 
+    /**点名册导出查询*/
+    List<RollBookList> getExportGraduteRollBookList(@Param("ids") List<String> ids);
+
     /**查询学生课表*/
     List<StudnetTimeTable> findStudentTable(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
+    /**研究生教师课表查询*/
     Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
@@ -197,9 +209,9 @@ public interface ElcCourseTakeDao
 
     List<String> findCourseCode(@Param("list") List<String> teachingClassIds);
 
-    Page<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
+    List<ElcStudentCourseDto> findElcStudentCourse(ElcCourseTakeQuery condition);
 
-    Page<ElcCourseTakeVo> allSelectedCourse(String condition);
+    Page<ElcCourseTakeVo> allSelectedCourse(@Param("studentId") String studentId);
 
     int courseCount(@Param("courseCode") String courseCode, @Param("studentId") String studentId);
 

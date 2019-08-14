@@ -26,7 +26,7 @@ import com.server.edu.election.studentelec.utils.Keys;
  * 
  */
 @Component
-public class YJSCalendarCourseLoad extends DataProLoad
+public class YJSCalendarCourseLoad extends DataProLoad<ElecContext>
 {
     Logger log = LoggerFactory.getLogger(getClass());
     
@@ -52,10 +52,6 @@ public class YJSCalendarCourseLoad extends DataProLoad
     @Override
     public void load(ElecContext context)
     {
-    	if (context.getRequest().getChooseObj() == null || context.getRequest().getChooseObj() != Constants.THREE) {
-			return;
-		}
-    	
         // 加载学年学期所有教学班与课程数据到缓存中
     	Long calendarId = context.getRequest().getCalendarId();
     	List<CourseOpenDto> lessons = roundCourseDao.selectCorseGraduteByCalendarId(calendarId);

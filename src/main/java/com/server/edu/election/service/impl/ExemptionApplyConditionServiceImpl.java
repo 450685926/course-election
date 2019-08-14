@@ -2,6 +2,10 @@ package com.server.edu.election.service.impl;
 
 import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
@@ -10,6 +14,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.controller.ExemptionApplyConditionController;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ExemptionApplyConditionDao;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
@@ -24,6 +29,8 @@ import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditionService {
+	static Logger logger = LoggerFactory.getLogger(ExemptionApplyConditionController.class);
+	
 	@Autowired
 	ExemptionApplyConditionDao exemptionApplyConditionDao;
 	
@@ -123,15 +130,49 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 
 	@Override
 	public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode, String studentId) {
-		Student student = studentDao.findStudentByCode(studentId);
+		String studentCode = "";
+		Student student = new Student();
+		if (StringUtils.isNotBlank(studentId)) {
+			studentCode = studentId;
+			student = studentDao.findStudentByCode(studentCode);
+		}
+		logger.info("==========================ExemptionApply=====================start=====");
+		
+		logger.info("==========================courseCode==========================:"+courseCode);
+		logger.info("==========================studentId==========================:"+studentId);
+		logger.info("==========================studentCode==========================:"+studentCode);
+
+		logger.info("==========================student==========================:"+student);
 		
 		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
     	condition.setCourseCode(courseCode);
-    	condition.setTrainingLevels(String.valueOf(Integer.valueOf(student.getTrainingLevel())));
-    	condition.setTrainingCategorys(String.valueOf(Integer.valueOf(student.getTrainingCategory())));
-    	condition.setDegreeTypes(String.valueOf(Integer.valueOf(student.getDegreeType())));
-    	condition.setFormLearnings(String.valueOf(Integer.valueOf(student.getFormLearning())));
-		
+    	
+    	if (StringUtils.isNotBlank(studentId) || student != null) {
+	    	String trainingLevel = "";
+	    	if (StringUtils.isNotBlank(student.getTrainingLevel())) {
+	    		trainingLevel = String.valueOf(Integer.parseInt(student.getTrainingLevel()));
+	    		condition.setTrainingLevels(trainingLevel==null?"":trainingLevel);
+			}
+	    	String trainingCategory = "";
+	    	if (StringUtils.isNotBlank(student.getTrainingCategory())) {
+	    		trainingCategory = String.valueOf(Integer.parseInt(student.getTrainingCategory()));
+	    		condition.setTrainingCategorys(trainingCategory==null?"":trainingCategory);
+			}
+	    	String degreeType = "";
+	    	if (StringUtils.isNotBlank(student.getDegreeType())) {
+	    		degreeType = String.valueOf(Integer.parseInt(student.getDegreeType()));
+	    		condition.setDegreeTypes(degreeType==null?"":degreeType);
+			}
+	    	String formLearning = "";
+	    	if (StringUtils.isNotBlank(student.getFormLearning())) {
+	    		formLearning = String.valueOf(Integer.parseInt(student.getFormLearning()));
+	    		condition.setFormLearnings(formLearning==null?"":formLearning);
+			}
+	    	logger.info("==========================trainingLevel==========================:"+trainingLevel);
+	    	logger.info("==========================trainingCategory==========================:"+trainingCategory);
+	    	logger.info("==========================degreeType==========================:"+degreeType);
+	    	logger.info("==========================formLearning==========================:"+formLearning);
+    	}
 		return exemptionApplyConditionDao.queryApplyConditionByCourseCodeAndStudentId(condition);
 	}
 

@@ -2,7 +2,6 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
-import com.server.edu.election.vo.ElcStudentVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -13,6 +12,7 @@ import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.election.vo.TeachingClassVo;
 
 import tk.mybatis.mapper.common.Mapper;
@@ -63,8 +63,18 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     int decrElcNumber(@Param("teachingClassId") Long teachingClassId);
+
     /**
-     * 
+     *
+     * 对教学班选课人数批量自增
+     * @param teachingClassIds
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int increElcNumberList(@Param("teachingClassIds") List<Long> teachingClassIds);
+
+    /**
+     *
      * 对选课人数进行自增，只有在限制人数大于选课人数时才增加
      * @param teachingClassId
      * @return
@@ -106,11 +116,9 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      */
     List<ElecCourse> selectSuggestCourse(@Param("stu") StudentInfoCache stu);
 
+    /**通过teachingClassId查询教师id*/
+    List<TeacherClassTimeRoom> findTeacherCodes(@Param("teachingClassIds") List<Long> teachingClassIds);
 
-    /**通过teachingClassId查询时间*/
-    List<TeacherClassTimeRoom> findTeachingClassIdTime(Long teachingClassId);
-
-    
     /**获取上课时间*/
     List<TeacherClassTimeRoom> getClassTimes(List<Long> list);
     
@@ -123,5 +131,17 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     int updateReserveProportion(List<TeachingClass> list);
 
     List<ElcStudentVo> findClassCodeAndFaculty(@Param("teachingClassIds") List<Long> ids);
+    
+    /**
+     * 分页查询统计筛选(本科生)
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<TeachingClassVo> listScreeningPage(ElcResultQuery condition);
+
+    String findTrainingLevel(@Param("teachingClassId") Long teachingClassId);
+
 
 }

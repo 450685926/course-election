@@ -245,7 +245,8 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
+        
         ElecContextUtil
-            .setElecApplyCourse(studentId, calendarId, electionApplys);
+            .setElecApplyCourse(studentId, electionApplys);
     }
 }

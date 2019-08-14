@@ -22,7 +22,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -37,10 +36,10 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
@@ -106,10 +105,12 @@ public class ElecRoundStuController
         if ((mode == 1 || mode == 2) && StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在";
+            return RestResult.fail(add);
         }
         else if (StringUtils.isNotBlank(add))
         {
             add = "学号" + add + "已经添加或不存在,或与是否留学身份不匹配";
+            return RestResult.fail(add);
         }
         
         return RestResult.success(add);
@@ -199,7 +200,10 @@ public class ElecRoundStuController
                     codes.add(studentId);
                 }
             }
-            return this.add(roundId, codes, mode);
+            if (CollectionUtil.isNotEmpty(codes)) {
+            	return this.add(roundId, codes, mode);
+			}
+            return RestResult.success("common.saveSuccess","");
         }
         catch (Exception e)
         {

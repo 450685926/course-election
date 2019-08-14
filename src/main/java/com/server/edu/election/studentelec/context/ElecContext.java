@@ -5,16 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
-import com.server.edu.election.vo.ElcNoGradCouSubsVo;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
  *
  */
-public class ElecContext
+public class ElecContext implements IElecContext
 {
     /**学期*/
     private Long calendarId;
@@ -37,9 +35,6 @@ public class ElecContext
     /** 个人计划内课程 */
     private Set<PlanCourse> planCourses;
     
-    /** 个人替代课程 */
-    private Set<ElcNoGradCouSubsVo> replaceCourses;
-    
     /** 通识选修课程 */
     private Set<ElecCourse> publicCourses;
     
@@ -48,9 +43,6 @@ public class ElecContext
     
     /**申请课程*/
     private Set<String> applyCourse;
-    
-    /**选课申请课程*/
-    private Set<ElectionApply> elecApplyCourses;
     
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
@@ -94,15 +86,14 @@ public class ElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-        elecApplyCourses = this.contextUtil.getElecApplyCourse();
-        replaceCourses = new HashSet<>(ElecContextUtil.getNoGradCouSubs(studentId));
+        applyCourse = new HashSet<>();
     }
     
     /**
      * 保存到redis中
      * 
      */
+    @Override
     public void saveToCache()
     {
         this.contextUtil.updateMem(StudentInfoCache.class.getSimpleName(),
@@ -118,12 +109,11 @@ public class ElecContext
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
-        this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
-        this.contextUtil.updateMem("replaceCourses", this.replaceCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
     
+    @Override
     public void saveResponse()
     {
         this.respose.setStatus(null);
@@ -135,6 +125,7 @@ public class ElecContext
      * 清空CompletedCourses,SelectedCourses,ApplyForDropCourses,PlanCourses,courseGroups,publicCourses,failedCourse
      * 
      */
+    @Override
     public void clear()
     {
         this.getCompletedCourses().clear();
@@ -147,10 +138,15 @@ public class ElecContext
         this.getRespose().getFailedReasons().clear();
         this.getRespose().getSuccessCourses().clear();
         this.getApplyCourse().clear();
-        this.getElecApplyCourses().clear();
-        this.getReplaceCourses().clear();
     }
     
+    
+    @Override
+    public Long getCalendarId()
+    {
+        return calendarId;
+    }
+
     public StudentInfoCache getStudentInfo()
     {
         return studentInfo;
@@ -197,11 +193,13 @@ public class ElecContext
         return request;
     }
     
+    @Override
     public void setRequest(ElecRequest request)
     {
         this.request = request;
     }
     
+    @Override
     public ElecRespose getRespose()
     {
         return respose;
@@ -224,28 +222,20 @@ public class ElecContext
 	public void setSelectedCourses(Set<SelectedCourse> selectedCourses) {
 		this.selectedCourses = selectedCourses;
 	}
+	
+	public void setCompletedCourses(Set<CompletedCourse> completedCourses) {
+		this.completedCourses = completedCourses;
+	}
+
+	public void setFailedCourse(Set<CompletedCourse> failedCourse) {
+		this.failedCourse = failedCourse;
+	}
 
 	public Set<String> getApplyCourse()
     {
-        
-        if (applyCourse == null)
-        {
-            applyCourse =
-                new HashSet<>(ElecContextUtil.getApplyCourse(calendarId));
-        }
         return applyCourse;
     }
     
-    public Set<ElectionApply> getElecApplyCourses()
-    {
-        return elecApplyCourses;
-    }
-    
-    public Set<ElcNoGradCouSubsVo> getReplaceCourses()
-    {
-        return replaceCourses;
-    }
-
 	public Map<String, Object> getElecResult() {
 		return elecResult;
 	}

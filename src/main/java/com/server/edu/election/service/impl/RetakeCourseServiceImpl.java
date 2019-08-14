@@ -12,6 +12,7 @@ import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -61,6 +62,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Autowired
     private ElcLogDao elcLogDao;
 
+    @Autowired
+    private TeachingClassDao teachingClassDao;
+
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDao;
+
     @Override
     @Transactional
     public void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo) {
@@ -80,30 +87,67 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     }
 
     @Override
-    public PageResult<RetakeCourseCountVo> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition) {
+    public PageResult<RetakeCourseCountDto> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RetakeCourseCountVo> retakeCourseCountVos = retakeCourseCountDao.findRetakeCourseCountList(condition.getCondition());
+        RetakeCourseCountDto retakeCourseCountDto = getRetakeCourseCountDto(condition.getCondition());
+        Page<RetakeCourseCountDto> retakeCourseCountVos = retakeCourseCountDao.findRetakeCourseCountList(retakeCourseCountDto);
         return new PageResult<>(retakeCourseCountVos);
     }
 
     @Override
     public void updateRetakeCourseCount(RetakeCourseCountVo retakeCourseCountVo) {
         Long id = retakeCourseCountVo.getId();
-        retakeCourseCountVo.setStatus(Constants.DELETE_FALSE);
+        RetakeCourseCountDto retakeCourseCountDto = getRetakeCourseCountDto(retakeCourseCountVo);
+        // 判断这条数据是否与数据库现有数据重复重复
+        RetakeCourseCountDto retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountDto);
         if (id == null) {
-            String projectName = retakeCourseCountDao.findProjectName(retakeCourseCountVo);
-            if (projectName != null) {
-                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",projectName));
+            if (retakeCourseCount != null) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
             }
-            retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountVo);
+            Session currentSession = SessionUtils.getCurrentSession();
+            String uid = currentSession.getUid();
+            retakeCourseCountDto.setCreateBy(uid);
+            retakeCourseCountDto.setCreateAt(new Date());
+            retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountDto);
         } else {
-            retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountVo);
+            // 判断修改后的数据是否与数据库已有数据重复
+            if (retakeCourseCount != null && id.intValue() != retakeCourseCount.getId().intValue()) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
+            }
+            retakeCourseCountDto.setId(id);
+            retakeCourseCountDto.setUpdatedAt(new Date());
+            retakeCourseCountDao.updateRetakeCourseCount(retakeCourseCountDto);
         }
+    }
+
+    private RetakeCourseCountDto getRetakeCourseCountDto(RetakeCourseCountVo retakeCourseCountVo) {
+        List<String> trainingLevel = retakeCourseCountVo.getTrainingLevel();
+        String trainingLevels = String.join(",",trainingLevel);
+        List<String> trainingCategory = retakeCourseCountVo.getTrainingCategory();
+        String trainingCategories = String.join(",",trainingCategory);
+        List<String> degreeType = retakeCourseCountVo.getDegreeType();
+        String degreeTypes = String.join(",",degreeType);
+        List<String> formLearning = retakeCourseCountVo.getFormLearning();
+        String formLearnings = String.join(",",formLearning);
+        RetakeCourseCountDto retakeCourseCountDto = new RetakeCourseCountDto();
+        retakeCourseCountDto.setTrainingLevel(trainingLevels);
+        retakeCourseCountDto.setTrainingCategory(trainingCategories);
+        retakeCourseCountDto.setDegreeType(degreeTypes);
+        retakeCourseCountDto.setFormLearning(formLearnings);
+        retakeCourseCountDto.setStatus(Constants.DELETE_FALSE);
+        retakeCourseCountDto.setProjectName(retakeCourseCountVo.getProjectName());
+        retakeCourseCountDto.setRetakeCount(retakeCourseCountVo.getRetakeCount());
+        return retakeCourseCountDto;
     }
 
     @Override
     public void deleteRetakeCourseCount(List<Long> retakeCourseCountIds) {
         retakeCourseCountDao.deleteRetakeCourseCount(retakeCourseCountIds);
+    }
+
+    @Override
+    public ElcRetakeSetVo getRetakeSet(Long calendarId, String projectId) {
+        return retakeCourseSetDao.findRetakeSet(calendarId, projectId);
     }
 
     @Override
@@ -189,6 +233,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             take.setTurn(0);
             take.setMode(1);
             courseTakeDao.insertSelective(take);
+            teachingClassDao.increElcNumber(teachingClassId);
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
             elcLogDao.insertSelective(log);
@@ -197,6 +242,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             List<Long> list = new ArrayList<>(1);
             list.add(id);
             courseTakeDao.deleteCourseTask(list, studentId);
+            teachingClassDao.decrElcNumber(teachingClassId);
             // 添加选课日志
             log.setType(ElcLogVo.TYPE_2);
             elcLogDao.insertSelective(log);
@@ -228,8 +274,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                 selectTimeTables = courseTakeDao.findCourseArrange(ids);
             }
             // 获取重修课程教学安排
-            List<Long> teachingClassIds = page.stream().map(RebuildCourseVo::getTeachingClassId).collect(Collectors.toList());
-            List<TimeTableMessage> timeTableMessages = getTimeById(teachingClassIds);
+            List<TimeTableMessage> timeTableMessages = getTimeById(page);
             Map<Long, List<TimeTableMessage>> map = timeTableMessages.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
             // 获取重修规则
             List<Integer> courseRole = getCourseRole(calendarId, currentManageDptId);
@@ -476,11 +521,28 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     /**
      * 通过教学班id获取课程安排
      *
-     * @param teachingClassId
+     * @param page
      * @return
      */
-    private List<TimeTableMessage> getTimeById(List<Long> teachingClassId) {
-            List<TimeTableMessage> courseArrange = courseTakeDao.findCourseArrange(teachingClassId);
+    private List<TimeTableMessage> getTimeById(Page<RebuildCourseVo> page) {
+        List<Long> teachingClassIds = new ArrayList<>(page.size());
+        //添加教师名
+        for (RebuildCourseVo rebuildCourseVo : page) {
+            String teacherCode = rebuildCourseVo.getTeacherName();
+            Long teachingClassId = rebuildCourseVo.getTeachingClassId();
+            teachingClassIds.add(teachingClassId);
+            if (teacherCode != null) {
+                String[] split = teacherCode.split(",");
+                Set<String> set = new HashSet(Arrays.asList(split));
+                List<String> names = new ArrayList<>(set.size());
+                for (String s : set) {
+                    String teacherName = teachingClassTeacherDao.findTeacherName(s);
+                    names.add(teacherName);
+                }
+            rebuildCourseVo.setTeacherName(String.join(",",names));
+            }
+        }
+        List<TimeTableMessage> courseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
             if (CollectionUtil.isNotEmpty(courseArrange)) {
                 for (TimeTableMessage timeTableMessage : courseArrange) {
                     Integer dayOfWeek = timeTableMessage.getDayOfWeek();
@@ -488,7 +550,6 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     Integer timeEnd = timeTableMessage.getTimeEnd();
                     String weekNumber = timeTableMessage.getWeekNum();
                     String[] str = weekNumber.split(",");
-                    // 避免同一门课程同一时间多个老师导致周次重复
                     Set<String> weeksSet = new HashSet<>(Arrays.asList(str));
                     List<Integer> weeks = weeksSet.stream().map(Integer::parseInt).collect(Collectors.toList());
                     List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[]{}));

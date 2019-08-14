@@ -4,15 +4,20 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.vo.ElcRetakeSetVo;
 import com.server.edu.election.vo.FailedCourseVo;
 import com.server.edu.election.vo.RebuildCourseVo;
 import com.server.edu.election.vo.RetakeCourseCountVo;
+import com.server.edu.util.CollectionUtil;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +37,8 @@ public class RetakeCourseController {
     @Autowired
     private RetakeCourseService retakeCourseService;
 
+    private static Logger LOG = LoggerFactory.getLogger("com.server.edu.election.Timer.LogToDBTimer");
+
     @ApiOperation(value = "设定重修选课的时间和规则")
     @PutMapping("/setRetakeRules")
     public RestResult setRetakeRules(@RequestBody @Valid ElcRetakeSetVo elcRetakeSetVo) {
@@ -40,6 +47,13 @@ public class RetakeCourseController {
     }
 
     @ApiOperation(value = "查询重修选课开关")
+    @GetMapping("/getRetakeSet")
+    public RestResult<ElcRetakeSetVo> getRetakeSet(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
+        ElcRetakeSetVo elcRetakeSetVo = retakeCourseService.getRetakeSet(calendarId, projectId);
+        return RestResult.successData(elcRetakeSetVo);
+    }
+
+    @ApiOperation(value = "查询重修选课开关状态")
     @GetMapping("/getRetakeRule")
     public RestResult<Boolean> getRetakeRule(@RequestParam("calendarId") Long calendarId, @RequestParam("projectId") String projectId) {
         return RestResult.successData(retakeCourseService.getRetakeRule(calendarId, projectId));
@@ -47,15 +61,16 @@ public class RetakeCourseController {
 
     @ApiOperation(value = "查询重修选课门数上限列表")
     @PostMapping("/findRetakeCourseCountList")
-    public RestResult<PageResult<RetakeCourseCountVo>> findRetakeCourseCountList(
+    public RestResult<PageResult<RetakeCourseCountDto>> findRetakeCourseCountList(
             @RequestBody PageCondition<RetakeCourseCountVo> condition) {
-        PageResult<RetakeCourseCountVo> result = retakeCourseService.findRetakeCourseCountList(condition);
+        PageResult<RetakeCourseCountDto> result = retakeCourseService.findRetakeCourseCountList(condition);
         return RestResult.successData(result);
     }
 
     @ApiOperation(value = "添加修改选课门数上限")
     @PostMapping("/updateRetakeCourseCount")
     public RestResult updateRetakeCourseCount(@RequestBody @Valid RetakeCourseCountVo retakeCourseCountVo) {
+        LOG.info("updateRetakeCourseCount.start");
         retakeCourseService.updateRetakeCourseCount(retakeCourseCountVo);
         return RestResult.success();
     }

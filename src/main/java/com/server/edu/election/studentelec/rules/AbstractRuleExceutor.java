@@ -3,11 +3,10 @@ package com.server.edu.election.studentelec.rules;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 
-public abstract class AbstractRuleExceutor<T extends TeachingClassCache>
-    implements RuleExecutor<T>, Comparable<RuleExecutor<?>>
+public abstract class AbstractRuleExceutor<EC,T>
+    implements RuleExecutor<EC,T>, Comparable<RuleExecutor<?,?>>
 {
     @Autowired
     protected RoundDataProvider dataProvider;
@@ -19,7 +18,7 @@ public abstract class AbstractRuleExceutor<T extends TeachingClassCache>
     }
     
     @Override
-    public int compareTo(RuleExecutor<?> rule)
+    public int compareTo(RuleExecutor<?,?> rule)
     {
         return this.getOrder() - rule.getOrder();
     }

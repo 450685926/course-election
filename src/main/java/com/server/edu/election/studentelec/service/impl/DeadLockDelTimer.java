@@ -18,6 +18,6 @@ public class DeadLockDelTimer
     @Scheduled(cron = "0 0/10 * * * *")
     public void load()
     {
-        ElecContextUtil.delDeadLock();
+        ElecContextUtil.updateLockTime();
     }
 }
