@@ -1075,7 +1075,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             	TeachingClassCache teachingClassCache = hashOperations.get(Keys.getClassKey(),selected.getTeachClassMsg()+"");
             	Integer elecNumber =
     					dataProvider.getElecNumber(selected.getTeachClassMsg());
-            	teachingClassCache.setCurrentNumber(elecNumber);
+            	if (elecNumber != null) {
+            		teachingClassCache.setCurrentNumber(elecNumber);
+				}
+            	if (teachingClassCache != null) {
+            		setClassCache(elcCourseResult, teachingClassCache);
+				}
     			setClassCache(elcCourseResult, teachingClassCache);
     			classTimeLists.add(teachingClassCache);
             }
