@@ -556,7 +556,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
      */
     @Override
     public List<RollBookList> getExportGraduteRollBookList(
-            List<Long> ids)
+            List<String> ids)
     {
         List<RollBookList> rollBookList =
                 courseTakeDao.getExportGraduteRollBookList(ids);
@@ -702,7 +702,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
             max = Collections.max(number);
         }
         pre.setRowNumber(max);
-        pre.setLineNumber(days.size());
+        int size = days.size();
+        if (size < 1) {
+            size = 1;
+        }
+        pre.setLineNumber(size);
         return pre;
     }
 

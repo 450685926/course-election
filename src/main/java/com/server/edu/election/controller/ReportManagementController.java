@@ -141,7 +141,7 @@ public class ReportManagementController
             @ApiResponse(code = 200, response = File.class, message = "导出")})
     @PostMapping("/exportGraduteRollBookList")
     public ResponseEntity<Resource> exportGraduteRollBookList(
-            @RequestBody List<Long> ids)
+            @RequestBody List<String> ids)
             throws Exception
     {
         ValidatorUtil.validateAndThrow(ids);

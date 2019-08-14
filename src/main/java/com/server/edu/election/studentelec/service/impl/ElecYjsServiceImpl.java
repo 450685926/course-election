@@ -340,7 +340,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
-        Long calendarId = context.getCalendarId();
         Date date = new Date();
         String studentId = stu.getStudentId();
         
