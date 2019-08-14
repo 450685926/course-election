@@ -1,14 +1,18 @@
 package com.server.edu.election.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +39,11 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.AllCourseVo;
+import com.server.edu.election.vo.ElectionRoundsVo;
+import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -66,6 +73,45 @@ public class ElecYjsController
     
     @Autowired
     private ElecYjsService yjsService;
+    
+    @ApiOperation(value = "研究生选课获取生效的轮次")
+    @PostMapping("/getGraduateRounds")
+    public RestResult<List<ElectionRoundsVo>> getGraduateRounds(
+        @RequestParam("projectId") @NotBlank String projectId)
+    {
+        Session session = SessionUtils.getCurrentSession();
+        List<ElectionRoundsVo> data = new ArrayList<>();
+        List<ElectionRounds> allRound = dataProvider.getAllRound();
+        Date date = new Date();
+        String studentId = session.realUid();
+        for (ElectionRounds round : allRound)
+        {
+            Long roundId = round.getId();
+            if (StringUtils.equals(round.getProjectId(), projectId) 
+                && StringUtils.equals(Constants.STU, round.getElectionObj())
+                && date.after(round.getBeginTime()) 
+                && date.before(round.getEndTime()) 
+                && dataProvider.containsStuCondition(roundId, studentId, projectId))
+            {
+            	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+            	boolean flag = true;
+            	if (CollectionUtil.isNotEmpty(rules)) {
+            		List<ElectionRuleVo> nameList = rules.stream().filter(vo->vo.getId().longValue()==Constants.RULE_NAME_LIST).collect(Collectors.toList());
+            		if (CollectionUtil.isNotEmpty(nameList)) {
+            			if (!dataProvider.containsStu(roundId, studentId) ) {
+            				flag = false;
+    					}
+					}
+				}
+            	if (flag) {
+            		ElectionRoundsVo vo = new ElectionRoundsVo(round);
+                    vo.setRuleVos(rules);
+                    data.add(vo);
+				}
+            }
+        }
+        return RestResult.successData(data);
+    }
     
     @ApiOperation(value = "获取研究生选课数据")
     @PostMapping("/{roundId}/getData")
