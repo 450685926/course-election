@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,7 +76,7 @@ public class ElcRebuildChargeTimeSetController {
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "查询缴费设置")
-    @PostMapping("/getRebuildChargeTimeSet")
+    @GetMapping("/getRebuildChargeTimeSet")
     public RestResult<ElcRebuildChargeTimeSet> getRebuildChargeTimeSet(
     		@RequestParam("calendarId") @NotNull Long calendarId,@RequestParam("projId") @NotBlank String projId)
         throws Exception
