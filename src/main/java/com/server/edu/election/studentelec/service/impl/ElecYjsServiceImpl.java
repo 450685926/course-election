@@ -1071,35 +1071,37 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     
             if (roundId != null)
             { // 教务员
-            	ElectionRounds round = 
-            			dataProvider.getRound(roundId);
-            	teachClasss =
-                		dataProvider.getTeachClasssbyCalendarId(round.getCalendarId(),
-                        		selected.getCourseCode());
+            	HashOperations<String, String, TeachingClassCache> hashOperations = strTemplate.opsForHash();
+            	TeachingClassCache teachingClassCache = hashOperations.get(Keys.getClassKey(),selected.getTeachClassMsg()+"");
+            	Integer elecNumber =
+    					dataProvider.getElecNumber(selected.getTeachClassMsg());
+            	teachingClassCache.setCurrentNumber(elecNumber);
+    			setClassCache(elcCourseResult, teachingClassCache);
+    			classTimeLists.add(teachingClassCache);
             }
             else
             { // 管理员
             	teachClasss =
                 		dataProvider.getTeachClasssbyCalendarId(calendarId,
                         		selected.getCourseCode());
-            }
-            if (CollectionUtil.isNotEmpty(teachClasss))
-            {
-            	for (TeachingClassCache teachClass : teachClasss)
-            	{
-            		Long teachClassId = teachClass.getTeachClassId();
-            		if (teachClassId.longValue() == selected
-            				.getTeachClassMsg()
-            				.longValue())
-            		{
-            			
-            			Integer elecNumber =
-            					dataProvider.getElecNumber(teachClassId);
-            			teachClass.setCurrentNumber(elecNumber);
-            			setClassCache(elcCourseResult, teachClass);
-            			classTimeLists.add(teachClass);
-            		}
-            	}
+                if (CollectionUtil.isNotEmpty(teachClasss))
+                {
+                	for (TeachingClassCache teachClass : teachClasss)
+                	{
+                		Long teachClassId = teachClass.getTeachClassId();
+                		if (teachClassId.longValue() == selected
+                				.getTeachClassMsg()
+                				.longValue())
+                		{
+                			
+                			Integer elecNumber =
+                					dataProvider.getElecNumber(teachClassId);
+                			teachClass.setCurrentNumber(elecNumber);
+                			setClassCache(elcCourseResult, teachClass);
+                			classTimeLists.add(teachClass);
+                		}
+                	}
+                }
             }
             selectedCourses.add(elcCourseResult);
         }
