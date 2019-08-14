@@ -1071,18 +1071,21 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     
             if (roundId != null)
             { // 教务员
-            	HashOperations<String, String, TeachingClassCache> hashOperations = strTemplate.opsForHash();
-            	TeachingClassCache teachingClassCache = hashOperations.get(Keys.getClassKey(),selected.getTeachClassMsg()+"");
-            	Integer elecNumber =
-    					dataProvider.getElecNumber(selected.getTeachClassMsg());
-            	if (elecNumber != null) {
-            		teachingClassCache.setCurrentNumber(elecNumber);
+            	HashOperations<String, String, TeachingClassCache> hash =
+        	            opsTeachClass();
+        	        
+	        	TeachingClassCache teachingClassCache = hash.get(Keys.getClassKey(),selected.getTeachClassMsg()+"");
+	        	Integer elecNumber =
+						dataProvider.getElecNumber(selected.getTeachClassMsg());
+	        	if (elecNumber != null) {
+	        		teachingClassCache.setCurrentNumber(elecNumber);
+				}else{
+	//				teachingClassCache.setCurrentNumber(teachingClassCache.getCurrentNumber());
 				}
-            	if (teachingClassCache != null) {
-            		setClassCache(elcCourseResult, teachingClassCache);
+	        	if (teachingClassCache != null) {
+	        		setClassCache(elcCourseResult, teachingClassCache);
+	        		classTimeLists.add(teachingClassCache);
 				}
-    			setClassCache(elcCourseResult, teachingClassCache);
-    			classTimeLists.add(teachingClassCache);
             }
             else
             { // 管理员
