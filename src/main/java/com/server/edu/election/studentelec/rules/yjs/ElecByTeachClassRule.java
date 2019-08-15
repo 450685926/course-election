@@ -114,7 +114,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         			//培养层次
                     String trainingLevel = restrictAttr.getTrainingLevel();
                   //培养层次校验
-                    if (trainingLevel != null) {
+                    if (trainingLevel != null && trainingLevel != "" ) {
                     	resultFlag = trainingLevel.equals(studentInfo.getTrainingLevel());
                     }
         		 }
@@ -170,13 +170,13 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                String formLearning = restrictAttr.getFormLearning();
 	                
 	                //学生类别校验
-	                if (trainingCategory != null ) {
+	                if (trainingCategory != null  && trainingCategory != "" ) {
 	                	trainingCategoryFlag = trainingCategory.equals(student.getTrainingCategory());
 	                }
-	                if (degreeType != null ) {
+	                if (degreeType != null && degreeType != "" ) {
 	                	degreeTypeFlag = degreeType.equals(student.getDegreeType());
 	                }
-	                if (formLearning != null ) {
+	                if (formLearning != null && formLearning != "" ) {
 	                	formLearningFlag = degreeType.equals(student.getDegreeType());
 	                }
         		}
@@ -219,7 +219,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         			//男女班
         	        String isDivsex = restrictAttr.getIsDivsex();
         	        String sex = String.valueOf(studentInfo.getSex());
-        	        if (isDivsex != null) {
+        	        if (isDivsex != null && isDivsex != "") {
 						if (StringUtils.equalsIgnoreCase(isDivsex, Constants.ZERO+"")) {
 							resultFlag = true;
 						}else{
@@ -246,7 +246,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                String faculty = restrictAttr.getFaculty();
 	                
 	                //学生类别校验
-	                if (faculty != null ) {
+	                if (faculty != null && faculty != "") {
 	                	resultFlag = faculty.equals(studentInfo.getFaculty());
 	                }
         		}
