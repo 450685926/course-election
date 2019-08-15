@@ -81,50 +81,12 @@
   	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
   		and t3.COURSE_LABEL_ID_ = #{query.label}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+  		and (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+  		</if>
   	</where>
   		GROUP BY t3.ID_
 	  	order by t3.ID_
-  </select>
-  
-  <select id="listPageGraduate" resultMap="CourseOpenDtoMap">
-  	select 
-  		t1.CALENDAR_ID_,
-    	t4.CODE_ id,
-		t1.COURSE_CODE_,
-		t1.COURSE_NAME_,
-		t1.NATURE_,
-		t4.NAME_ teachingClassName,
-		t1.TRAINING_LEVEL_,
-		t1.FACULTY_,
-		t4.CAMPUS_ campus,
-		t4.ID_ teachingClassId,
-		t4.CODE_ teachingClassCode
-  	from course_open_t t1 
-  		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
-  		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
-  		JOIN election_rounds_cour_t t2 ON t2.TEACHING_CLASS_ID_ = t4.ID_
-  	<where>
-	  	t1.CALENDAR_ID_ = #{query.calendarId} 
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
-  			and t2.ROUNDS_ID_ = #{query.roundId}
-  		</if>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
-  			and t1.PROJ_ID_ = #{query.projectId}
-  		</if>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-  			and t1.FACULTY_ = #{query.faculty}
-  		</if>
-	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
-  			and t1.NATURE_ = #{query.nature}
-  		</if>
-	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  			and  (t4.CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
-  		</if>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
-	  		and t4.CAMPUS_ = #{query.campus}
-  		</if>
-  	</where>
-  		order by t4.CODE_
   </select>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
@@ -176,9 +138,53 @@
 	  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
 	  		and t4.COURSE_LABEL_ID_ = #{query.label}
 	  		</if>
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+	  		and (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+	  		</if>
 	  	</where>
 	  	GROUP BY t4.ID_
 	  	order by t4.ID_
+  </select>
+  
+  <select id="listPageGraduate" resultMap="CourseOpenDtoMap">
+  	select 
+  		t1.CALENDAR_ID_,
+    	t4.CODE_ id,
+		t1.COURSE_CODE_,
+		t1.COURSE_NAME_,
+		t1.NATURE_,
+		t4.NAME_ teachingClassName,
+		t1.TRAINING_LEVEL_,
+		t1.FACULTY_,
+		t4.CAMPUS_ campus,
+		t4.ID_ teachingClassId,
+		t4.CODE_ teachingClassCode
+  	from course_open_t t1 
+  		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
+  		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
+  		JOIN election_rounds_cour_t t2 ON t2.TEACHING_CLASS_ID_ = t4.ID_
+  	<where>
+	  	t1.CALENDAR_ID_ = #{query.calendarId} 
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
+  			and t2.ROUNDS_ID_ = #{query.roundId}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
+  			and t1.PROJ_ID_ = #{query.projectId}
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+  			and t1.FACULTY_ = #{query.faculty}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+  			and t1.NATURE_ = #{query.nature}
+  		</if>
+	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+  			and  (t4.CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+  		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
+	  		and t4.CAMPUS_ = #{query.campus}
+  		</if>
+  	</where>
+  		order by t4.CODE_
   </select>
   
     <select id="listUnAddPageGraduate" resultMap="CourseOpenDtoMap">
