@@ -1069,7 +1069,6 @@
                 and (t1.STUDENT_CODE_ like concat('%',#{keyword},'%') or t1.NAME_ like concat('%',#{keyword},'%') )
             </if>
         </where>
-
     </select>
     <!-- 查询未选课学生名单(研究生) -->
     <select id="findNoSelectCourseGraduteStds" parameterType="com.server.edu.election.dto.NoSelectCourseStdsDto" resultType="com.server.edu.election.dto.NoSelectCourseStdsDto">
