@@ -23,7 +23,7 @@ public class ElecResultSwitchController {
 	@Autowired
 	private ElecResultSwitchService elecResultSwitchService;
 
-	@ApiOperation(value = "添加选课结果设置开关")
+	@ApiOperation(value = "添加选课维护设置开关")
 	@PutMapping
     public RestResult<Integer> add(
     		  @RequestBody @NotNull @Valid ElcResultSwitch resultSwitch){
@@ -31,7 +31,7 @@ public class ElecResultSwitchController {
         return RestResult.success();
     }
 	
-	@ApiOperation(value = "查询选课结果设置开关")
+	@ApiOperation(value = "查询选课维护设置开关")
 	@GetMapping("/{id}")
 	public RestResult<ElcResultSwitch> get(
 			@PathVariable("id") Long id){
