@@ -31,7 +31,8 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
     		.andEqualTo("trainingCategorys", applyAuditSwitch.getTrainingCategorys())
     	    .andEqualTo("degreeTypes", applyAuditSwitch.getDegreeTypes())
     		.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason())
-    		.andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE));
+    		.andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE))
+    		.andEqualTo("projId", applyAuditSwitch.getProjId());
     	
 	    int count = exemptionAuditSwitchDao.selectCountByExample(example);
 	    if (count > 0)
@@ -76,6 +77,7 @@ public class ExemptionAuditSwitchServiceImpl implements ExemptionAuditSwitchServ
 			.andEqualTo("degreeTypes", applyAuditSwitch.getDegreeTypes())
 			.andEqualTo("enrolSeason", applyAuditSwitch.getEnrolSeason())
 			.andEqualTo("deleteStatus",String.valueOf(Constants.DELETE_FALSE))
+			.andEqualTo("projId", applyAuditSwitch.getProjId())
             .andNotEqualTo("id", applyAuditSwitch.getId());
         int count = exemptionAuditSwitchDao.selectCountByExample(example);
         if (count > 0)
