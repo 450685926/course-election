@@ -59,5 +59,11 @@ public interface Constants
     
     /** 选课规则--在可选课名单内才能选课 */
     public static final long RULE_NAME_LIST = 608;
+    /** 已缴费 */
+    public static final Integer PAID = 1;
+    
+    /** 未缴费 */
+    public static final Integer UN_PAID = 0;
+    
 
 }

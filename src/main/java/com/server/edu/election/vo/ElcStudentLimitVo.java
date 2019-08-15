@@ -36,17 +36,6 @@ public class ElcStudentLimitVo extends ElcStudentLimit {
     private double selectedCredits;
     
     private int selectedRebuild;
-    
-    private String calendarName;
-    
-    
-	public String getCalendarName() {
-		return calendarName;
-	}
-
-	public void setCalendarName(String calendarName) {
-		this.calendarName = calendarName;
-	}
 
 	public double getSelectedCredits() {
 		return selectedCredits;

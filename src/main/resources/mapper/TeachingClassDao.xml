@@ -154,13 +154,12 @@
   	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
   	  </if>
-  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-  	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4
-  	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
-  	  </if>
     </where>
-       GROUP BY
-			t1.ID_
+       GROUP BY t1.ID_
+ 	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+ 	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4
+ 	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
+ 	  </if>
   </select>
 
     <select id="listScreeningPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
@@ -253,13 +252,12 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
   	  </if>
+    </where>
+       GROUP BY t1.ID_
   	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
   	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4
   	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
   	  </if>
-    </where>
-       GROUP BY
-			t1.ID_
 	 )t8
 	 <where>
 	  <if test="minFirstTurnNum !=null and minFirstTurnNum !=0">

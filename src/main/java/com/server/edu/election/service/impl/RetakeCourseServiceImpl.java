@@ -491,7 +491,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      * @param manageDptId
      * @return
      */
-    private List<Integer> getCourseRole(Long calendarId, String manageDptId) {
+    public List<Integer> getCourseRole(Long calendarId, String manageDptId) {
         List<Long> ruleIds = retakeCourseSetDao.findRuleIds(calendarId, manageDptId);
         if (ruleIds.isEmpty()) {
             return new ArrayList<>();
@@ -500,21 +500,19 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Example.Criteria criteria = example.createCriteria();
         criteria.andIn("id", ruleIds);
         List<ElectionRule> electionRules = electionRuleDao.selectByExample(example);
-        List<Integer> list = new ArrayList<>();
+        List<Integer> list = new ArrayList<>(3);
+        Set<Integer> set = new HashSet<>(electionRules.size());
         for (ElectionRule electionRule : electionRules) {
             String name = electionRule.getName();
             if ("不能跨校区选课".equals(name)) {
-                list.add(1);
-            }
-            if ("不能超出人数上限".equals(name)) {
-                list.add(2);
-                continue;
-            }
-            if ("不允许时间冲突".equals(name)) {
-                list.add(3);
-                continue;
+                set.add(1);
+            } else if ("不能超出人数上限".equals(name)) {
+                set.add(2);
+            }else if ("不允许时间冲突".equals(name)) {
+                set.add(3);
             }
         }
+        list.addAll(set);
         return list;
     }
 
