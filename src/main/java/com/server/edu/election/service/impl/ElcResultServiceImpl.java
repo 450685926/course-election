@@ -638,6 +638,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setTrainingCategory(elcResultDto.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
 				query.setTrainingLevel(elcResultDto.getTrainingLevel() == null ? "" : condition.getTrainingLevel());
 				query.setCalendarId(condition.getCalendarId());
+				query.setManagerDeptId("1");
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
 				elcNumber = elcNumber + numberOfelectedPersons;
@@ -676,6 +677,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setTrainingCategory(condition.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
 				query.setTrainingLevel(condition.getTrainingLevel() == null ? "" : condition.getTrainingLevel());
 				query.setCalendarId(condition.getCalendarId());
+				query.setManagerDeptId("1");
 				
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);

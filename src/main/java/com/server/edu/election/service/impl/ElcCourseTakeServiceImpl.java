@@ -1004,7 +1004,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                         int end = selectTable.getTimeEnd().intValue();
                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                         if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                            throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("ruleCheck.timeConflict",teachingClassId + "",selectTableTeachingClassId + "")));
+                            throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.timeConflict",teachingClassId + "",selectTableTeachingClassId + "")));
                         }
                     }
                 }

@@ -419,7 +419,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                         if (t == null)
                             return "";
                         return String
-                            .format("%s(%s)", t.getName(), t.getCode());
+                            .format("%s", t.getName());
                     }).collect(Collectors.toList());
                     
                     tName = StringUtils.join(names, ",");
@@ -455,7 +455,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 String tCode = codes[i];
                 String tName = names.get(i);
                 // 老师名称(老师编号)
-                sb.append(String.format("%s(%s) ", tName, tCode));
+                sb.append(String.format("%s ", tName));
             }        
         }
         return sb.toString();
