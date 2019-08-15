@@ -2,8 +2,12 @@ package com.server.edu.election.rpc;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.entity.AbnormalTypeElection;
 import com.server.edu.common.entity.TeacherInfo;
 import com.server.edu.common.query.TeacherInfoQuery;
 import com.server.edu.common.rest.BaseUser;
@@ -85,6 +89,17 @@ public class StudentServiceInvoker {
         }
         @SuppressWarnings("unchecked")
         RestResult<List<String>> list = ServicePathEnum.STUDENT.postForObject(String.format("/studentInfo/getNationalPreStudentInfo?enrolCategory=%s", enrolCategory), studentIds, RestResult.class);
+        return list.getData();
+    }
+
+    /**
+     * 根据学生学号集合查询对应的学籍异动大类
+     * @author luoxiaoli
+     * @date 2019/8/15
+     */
+    public static List<AbnormalTypeElection> getAbnormalTypeByStudentCode(List<String> studentCodes) {
+        @SuppressWarnings("unchecked")
+        RestResult<List<AbnormalTypeElection>> list = ServicePathEnum.STUDENT.postForObject("/applyType/getAbnormalTypeByStudentCode",JSONArray.parseArray(JSON.toJSONString(studentCodes)), RestResult.class);
         return list.getData();
     }
 }

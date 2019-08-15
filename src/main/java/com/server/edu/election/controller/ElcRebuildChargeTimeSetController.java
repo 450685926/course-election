@@ -39,7 +39,7 @@ public class ElcRebuildChargeTimeSetController {
      * @return
      * @see [类、类#方法、类#成员]
      */
-    @ApiOperation(value = "添加限制学生")
+    @ApiOperation(value = "新增选课重修缴费设置")
     @PostMapping("/add")
     public RestResult<Integer> add(
     		@RequestBody @Valid ElcRebuildChargeTimeSet elcRebuildChargeTimeSet)
@@ -57,7 +57,7 @@ public class ElcRebuildChargeTimeSetController {
      * @return
      * @see [类、类#方法、类#成员]
      */
-    @ApiOperation(value = "添加限制学生")
+    @ApiOperation(value = "修改选课重修缴费设置")
     @PostMapping("/update")
     public RestResult<Integer> update(
     		@RequestBody @Valid ElcRebuildChargeTimeSet elcRebuildChargeTimeSet)

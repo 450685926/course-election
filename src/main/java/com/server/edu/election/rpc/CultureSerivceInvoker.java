@@ -7,7 +7,9 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.dto.PlanCourseDto;
@@ -18,6 +20,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.vo.CoursesVo;
+import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -234,6 +237,18 @@ public class CultureSerivceInvoker
                         RestResult.class,
                         studentId);
         return list.getData();
+    }
+    
+    /**查询研究生关联的第一外国语*/
+    public static RestResult<List<ElecFirstLanguageContrastVo>> getStudentFirstForeignLanguage(String managerDeptId,Integer pageNum_,Integer pageSize_)
+    {
+    	@SuppressWarnings("unchecked")
+    	RestResult<List<ElecFirstLanguageContrastVo>> restResult =
+        ServicePathEnum.CULTURESERVICE.getForObject(
+                "/firstLanguageContrast/page?managerDeptId={managerDeptId}&pageSize_={pageSize_}&pageNum_={pageNum_}",
+                 RestResult.class,managerDeptId,pageNum_,pageSize_);
+    			
+    	return restResult;
     }
 
 

@@ -33,15 +33,6 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
     Page<CourseOpenDto> listPage(@Param("query") ElecRoundCourseQuery query);
     
     /**
-     * 分页查询已添加的教学任务(研究生)
-     * 
-     * @param query
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
-    Page<CourseOpenDto> listPageGraduate(@Param("query") ElecRoundCourseQuery query);
-    
-    /**
      * 查询未添加的教学任务(本科生)
      * 
      * @param query
@@ -51,6 +42,16 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
     Page<CourseOpenDto> listUnAddPage(
         @Param("query") ElecRoundCourseQuery query,
         @Param("list") List<String> list);
+    
+    /**
+     * 分页查询已添加的教学任务(研究生)
+     * 
+     * @param query
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    Page<CourseOpenDto> listPageGraduate(@Param("query") ElecRoundCourseQuery query);
+    
     
     /**
      * 查询未添加的教学任务(研究生)

@@ -1,10 +1,13 @@
 package com.server.edu.election.controller;
 
+import java.io.File;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +17,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcNoSelectReason;
 import com.server.edu.election.service.NoSelectStudentService;
@@ -22,6 +26,8 @@ import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
@@ -76,7 +82,7 @@ public class NoSelectStudentController
         return RestResult.successData(noSelectReason);
     }
     
-    @ApiOperation(value = "导出未选课学生名单研究生")
+    @ApiOperation(value = "导出未选课学生名单研究生(按查询条件筛选)")
     @PostMapping("/exportStudentNoCourseListGradute")
     public RestResult<String> exportStudentNoCourseListGradute(
             @RequestBody NoSelectCourseStdsDto condition)
@@ -85,6 +91,29 @@ public class NoSelectStudentController
         LOG.info("export.gradute.start");
         String export = noSelectStudentService.exportStudentNoCourseListGradute(condition);
         return RestResult.successData(export);
+    }
+    
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "导出未选课学生名单研究生(按学生ID)")})
+    @GetMapping("/exportStudentNoCourseListGradute2")
+    public File exportStudentNoCourseListGradute2(@ModelAttribute NoSelectCourseStdsDto condition)
+    {
+        LOG.info("exportStudentNoCourseListGradute2");
+        try {
+            RestResult<String> restResult = noSelectStudentService.exportStudentNoCourseListGradute2(condition);
+            if (restResult.getCode() == ResultStatus.SUCCESS.code()
+                    && !"".equals(restResult.getData()))
+            {
+            	return new File(restResult.getData());
+            }
+            else
+            {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+       return null;
     }
     
     @ApiOperation(value = "导出未选课学生名单")
@@ -96,5 +125,5 @@ public class NoSelectStudentController
         LOG.info("export.start");
         ExcelResult result = noSelectStudentService.export(condition);
         return RestResult.successData(result);
-    }
+    }   
 }

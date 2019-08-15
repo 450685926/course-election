@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dao.StudentDao;
@@ -55,13 +54,8 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
     private ElectionParameterDao electionParameterDao;
 
     @Autowired
-    private ElcCourseTakeDao takeDao;
-    
-    @Autowired
     private StudentDao studentDao;
-
-    private static final String IS_OVERSEAS_ = "1";
-    private static final String IS_NOT_OVERSEAS_ = "0";
+    
 //    private static final String NOT_DISTINGYISH_SEX = "0";//不区分性别
     private static final String MALE = "1";//男性
     private static final String FEMALE = "2";//女性
@@ -114,12 +108,16 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         			//培养层次
                     String trainingLevel = restrictAttr.getTrainingLevel();
                   //培养层次校验
-                    if (trainingLevel != null) {
+                    if (trainingLevel != null && trainingLevel != "" ) {
                     	resultFlag = trainingLevel.equals(studentInfo.getTrainingLevel());
                     }
         		 }
         		if (!resultFlag) {
-        			break;
+        			 ElecRespose respose = context.getRespose();
+        	            respose.getFailedReasons()
+        	                    .put(courseClass.getCourseCodeAndClassCode(),
+        	                            I18nUtil.getMsg("ruleCheck.classLimit.trainingLevel"));
+    	            return false;
         		}
 			}
         	
@@ -147,7 +145,11 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         			}
         		}
         		if (!resultFlag) {
-					break;
+        			ElecRespose respose = context.getRespose();
+    	            respose.getFailedReasons()
+    	                    .put(courseClass.getCourseCodeAndClassCode(),
+    	                            I18nUtil.getMsg("ruleCheck.classLimit.major"));
+    	            return false;
 				}
         	}
         	//学生类别限制项
@@ -162,37 +164,47 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                String formLearning = restrictAttr.getFormLearning();
 	                
 	                //学生类别校验
-	                if (trainingCategory != null ) {
+	                if (trainingCategory != null  && trainingCategory != "" ) {
 	                	trainingCategoryFlag = trainingCategory.equals(student.getTrainingCategory());
 	                }
-	                if (degreeType != null ) {
+	                if (degreeType != null && degreeType != "" ) {
 	                	degreeTypeFlag = degreeType.equals(student.getDegreeType());
 	                }
-	                if (formLearning != null ) {
+	                if (formLearning != null && formLearning != "" ) {
 	                	formLearningFlag = degreeType.equals(student.getDegreeType());
 	                }
         		}
         		resultFlag = trainingCategoryFlag && degreeTypeFlag && formLearningFlag;
                 if (!resultFlag) {
-					break;
+                	ElecRespose respose = context.getRespose();
+    	            respose.getFailedReasons()
+    	                    .put(courseClass.getCourseCodeAndClassCode(),
+    	                            I18nUtil.getMsg("ruleCheck.classLimit.stdtype"));
+    	            return false;
 				}
         	}
         	//如果年级校验开放，校验学生年级
         	if (Boolean.parseBoolean(electionParameter.getValue()) && StringUtils.equals("GRADE", electionParameter.getName()) ) {
-        		if (CollectionUtil.isNotEmpty(suggestProfessionDtos)) {
-        			Integer grade = studentInfo.getGrade();
-        			for (SuggestProfessionDto suggestProfessionDto : suggestProfessionDtos) {
-        				if (suggestProfessionDto.getGrade().intValue() == grade
-        						.intValue()) {
-        					resultFlag = true;
-        				}else{
-        					resultFlag = false;
-        					break;
-        				}
-        			}
+        		
+        		if (restrictAttr != null) {
+	        		//年级
+	                Integer grade = restrictAttr.getGrade();
+	                Integer stugrade = studentInfo.getGrade();
+	                //学生类别校验
+	                if (grade != null && grade.intValue() != 0 && grade.intValue() == stugrade
+    						.intValue()) {
+	                	resultFlag = true;
+    				}else{
+    					resultFlag = false;
+    				}
         		}
+        		
         		if (!resultFlag) {
-					break;
+        			ElecRespose respose = context.getRespose();
+    	            respose.getFailedReasons()
+    	                    .put(courseClass.getCourseCodeAndClassCode(),
+    	                            I18nUtil.getMsg("ruleCheck.classLimit.grade"));
+    	            return false;
 				}
         	}
         	//教学班性别要求校验
@@ -201,7 +213,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         			//男女班
         	        String isDivsex = restrictAttr.getIsDivsex();
         	        String sex = String.valueOf(studentInfo.getSex());
-        	        if (isDivsex != null) {
+        	        if (isDivsex != null && isDivsex != "") {
 						if (StringUtils.equalsIgnoreCase(isDivsex, Constants.ZERO+"")) {
 							resultFlag = true;
 						}else{
@@ -210,7 +222,11 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 					}
         		 }
         		 if (!resultFlag) {
- 					break;
+        			 ElecRespose respose = context.getRespose();
+     	            respose.getFailedReasons()
+     	                    .put(courseClass.getCourseCodeAndClassCode(),
+     	                            I18nUtil.getMsg("ruleCheck.classLimit.isDivsex"));
+     	            return false;
  				}
         	}
         	//学生学生方向限制项
@@ -224,12 +240,16 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                String faculty = restrictAttr.getFaculty();
 	                
 	                //学生类别校验
-	                if (faculty != null ) {
+	                if (faculty != null && faculty != "") {
 	                	resultFlag = faculty.equals(studentInfo.getFaculty());
 	                }
         		}
                 if (!resultFlag) {
-					break;
+                	ElecRespose respose = context.getRespose();
+    	            respose.getFailedReasons()
+    	                    .put(courseClass.getCourseCodeAndClassCode(),
+    	                            I18nUtil.getMsg("ruleCheck.classLimit.faculty"));
+    	            return false;
 				}
         	}
         	//学生行政班限制项

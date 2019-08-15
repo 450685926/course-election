@@ -67,8 +67,18 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String assessmentMode;
 
     private String term;
+    
+    private Long medWithdrawId;
+    
+    public Long getMedWithdrawId() {
+		return medWithdrawId;
+	}
 
-    public String getTrainingLevel() {
+	public void setMedWithdrawId(Long medWithdrawId) {
+		this.medWithdrawId = medWithdrawId;
+	}
+
+	public String getTrainingLevel() {
         return trainingLevel;
     }
 

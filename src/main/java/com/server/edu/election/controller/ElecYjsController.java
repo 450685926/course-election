@@ -150,24 +150,31 @@ public class ElecYjsController
         logger.info("election getAllCourse start !!!");
         
         Session session = SessionUtils.getCurrentSession();
-        String uid = "";
-        if (session.getMock().booleanValue())
-        {
-            uid = session.getMockUid();
-        }
-        else
-        {
-            uid = session.getUid();
-        }
-        RestResult<Student> studentMessage =
-            exemptionCourseServiceImpl.findStudentMessage(uid);
+        
+        /** 学生 */
+        boolean isStudent = session.isStudent();
+        /** 管理员 */
+        boolean isAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+        						&& session.isAdmin();
+        /** 教务员  */
+        boolean isDepartAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+				                && !session.isAdmin() && session.isAcdemicDean();
+        
+        RestResult<Student> studentMessage = new RestResult<Student>();
+        if (isStudent) {
+        	studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
+		}else if (isAdmin || isDepartAdmin) {
+			studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getStudentCode());
+		}
         Student student = studentMessage.getData();
         allCourseVo.setTrainingLevel(student.getTrainingLevel());
         allCourseVo.setCampu(student.getCampus());
         
-        ElectionRoundsDto roundsDto =
-            electionRoundService.get(allCourseVo.getRoundId());
-        allCourseVo.setCalendarId(roundsDto.getCalendarId());
+        if (isStudent || isDepartAdmin) {
+        	ElectionRoundsDto roundsDto =
+        			electionRoundService.get(allCourseVo.getRoundId());
+        	allCourseVo.setCalendarId(roundsDto.getCalendarId());
+		}
         
         List<TeachingClassCache> restResult =
             yjsService.arrangementCourses(allCourseVo);
