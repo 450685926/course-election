@@ -26,15 +26,20 @@ public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 		Example example = new Example(ElcResultSwitch.class);
     	example.createCriteria()
     		.andEqualTo("calendarId", resultSwitch.getCalendarId())
-    	    .andEqualTo("projectId",resultSwitch.getProjectId());
+    	    .andEqualTo("projectId",resultSwitch.getProjectId())
+    		.andEqualTo("status",resultSwitch.getStatus())
+    		.andEqualTo("openTimeStart",resultSwitch.getOpenTimeStart())
+    		.andEqualTo("openTimeEnd",resultSwitch.getOpenTimeEnd());
 
 		ElcResultSwitch elcResultSwitch = elecResultSwitchDao.selectOneByExample(example);
 		int result;
 		if (elcResultSwitch != null) {
+			Date date = new Date();
 			elcResultSwitch.setStatus(resultSwitch.getStatus());
 			elcResultSwitch.setOpenTimeStart(resultSwitch.getOpenTimeStart());
 			elcResultSwitch.setOpenTimeEnd(resultSwitch.getOpenTimeEnd());
-			elcResultSwitch.setOpenTimeEnd(resultSwitch.getOpenTimeEnd());
+			elcResultSwitch.setCalendarId(resultSwitch.getCalendarId());
+			elcResultSwitch.setCreateAt(date);
 			result = elecResultSwitchDao.updateByPrimaryKey(elcResultSwitch);
 		} else {
 			Date date = new Date();

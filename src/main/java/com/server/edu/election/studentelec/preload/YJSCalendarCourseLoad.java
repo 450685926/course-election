@@ -15,7 +15,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.studentelec.context.ElecContext;
