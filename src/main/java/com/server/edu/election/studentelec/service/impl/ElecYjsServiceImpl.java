@@ -501,10 +501,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
         
         //本学年已选课程组装
-        List<SelectedCourse> selectedCourses = packagingSelectedCourse(roundId, calendarId, planCourses,
+        List<SelectedCourse> selectedCoursess = packagingSelectedCourse(roundId, calendarId, planCourses,
 				selectedCourseSet, classTimeLists);
-        sortSelectedCourses(selectedCourses);
-        selectedCourseSet.addAll(selectedCourses);
+        List<SelectedCourse> sortSelectedCourses = sortSelectedCourses(selectedCoursess);
+        selectedCourseSet.addAll(sortSelectedCourses);
         
         //已完成课程组装
     	for (CompletedCourse completedCourse : setCompletedCourses) {
@@ -944,24 +944,32 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             elecResult = getAdminElectResultCount(studentId, c, calendarId);
         }
        
-        sortOptionalCourses(setOptionalCourses);
+        List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseSet);
-        c.setOptionalCourses(setOptionalCourses);
+        c.setOptionalCourses(sortOptionalCourses);
         c.setElecResult(elecResult);
         return c;
     }
     
     //对课程进行排序
-    private static void sortSelectedCourses(List<SelectedCourse> list){
-    	List<String> collect = list.stream().map(SelectedCourse::getLabel).collect(Collectors.toList());
-    	Collections.sort(collect);
+    private static List<SelectedCourse> sortSelectedCourses(List<SelectedCourse> list){
+    	Map<String, List<SelectedCourse>> collect = list.stream().collect(Collectors.groupingBy(SelectedCourse::getLabel));
+    	List<SelectedCourse> list2 = new ArrayList<>();
+    	for (Entry<String, List<SelectedCourse>> entry : collect.entrySet()){
+    		list2.addAll(entry.getValue());
+    	}
+    	return list2;
     }
     //对可选课程进行排序
-	private static void sortOptionalCourses(List<ElcCourseResult> list){
-    	List<Long> collect = list.stream().map(ElcCourseResult::getLabel).collect(Collectors.toList());
-    	Collections.sort(collect);
+	private static List<ElcCourseResult> sortOptionalCourses(List<ElcCourseResult> list){
+		Map<Long, List<ElcCourseResult>> collect = list.stream().collect(Collectors.groupingBy(ElcCourseResult::getLabel));
+    	List<ElcCourseResult> list2 = new ArrayList<>();
+    	for (Entry<Long, List<ElcCourseResult>> entry : collect.entrySet()){
+    		list2.addAll(entry.getValue());
+    	}
+    	return list2;
     }
 
 	private List<PlanCourse> getOptionalCourses(ElecContext c, Set<PlanCourse> planCourses,
