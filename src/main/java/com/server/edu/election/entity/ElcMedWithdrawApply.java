@@ -2,9 +2,14 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.*;
 
-@Table(name = "elc_med_withdraw_apply_t")
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Table(name = "elc_med_withdraw_t")
 public class ElcMedWithdrawApply implements Serializable {
     /**
      * 主键（自增）

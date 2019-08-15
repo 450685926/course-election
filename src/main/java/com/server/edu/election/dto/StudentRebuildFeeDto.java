@@ -1,10 +1,11 @@
 package com.server.edu.election.dto;
 
+import java.util.List;
+
 import com.server.edu.election.entity.ElcCourseTake;
 
 public class StudentRebuildFeeDto extends ElcCourseTake {
     private static final long serialVersionUID = 1L;
-    private String courseCode;
     private String courseName;
     //是否缴费
     private Integer paId;
@@ -13,7 +14,7 @@ public class StudentRebuildFeeDto extends ElcCourseTake {
     
     private String teachingClassCode;
     
-    private String keyCode;
+    private String keyword;
     
     private String faculty;
     
@@ -23,6 +24,15 @@ public class StudentRebuildFeeDto extends ElcCourseTake {
     
     private Integer mode;
     
+    private List<Long> ids;
+    
+    
+	public List<Long> getIds() {
+		return ids;
+	}
+	public void setIds(List<Long> ids) {
+		this.ids = ids;
+	}
 	@Override
 	public Integer getMode() {
 		return mode;
@@ -43,19 +53,12 @@ public class StudentRebuildFeeDto extends ElcCourseTake {
 	public void setTeachingClassCode(String teachingClassCode) {
 		this.teachingClassCode = teachingClassCode;
 	}
-	public String getKeyCode() {
-		return keyCode;
+	
+	public String getKeyword() {
+		return keyword;
 	}
-	public void setKeyCode(String keyCode) {
-		this.keyCode = keyCode;
-	}
-	@Override
-	public String getCourseCode() {
-		return courseCode;
-	}
-	@Override
-	public void setCourseCode(String courseCode) {
-		this.courseCode = courseCode;
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
 	}
 	public String getCourseName() {
 		return courseName;

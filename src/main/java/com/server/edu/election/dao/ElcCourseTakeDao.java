@@ -212,7 +212,12 @@ public interface ElcCourseTakeDao
 
     Page<ElcStudentVo> findElcStudentInfo(ElcStudentDto elcStudentDto);
 
+    /**管理员查询学生可加课程*/
     Page<ElcStudentVo> findAddCourseList(
+            @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
+
+    /**教务员查询学生可加课程*/
+    Page<ElcStudentVo> findAddCourseListByNature(
             @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
 
     Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
@@ -261,4 +266,8 @@ public interface ElcCourseTakeDao
 	 * @return
 	 */
 	List<StudentRebuildFeeVo> getStudentRebuildFeeList(StudentRebuildFeeDto dto);
+	
+    /**期中退课列表*/
+	List<ElcCourseTakeVo> getElcMedWithdraw(String studentId,Long calendarId);
+	
 }
