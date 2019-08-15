@@ -35,6 +35,10 @@ public class ExcelStoreConfig
     private List<String> graduateExemptionApplyExportTitle;
     
     private List<String> graduateExemptionApplyExportKey;
+    
+    private List<String> graduateNoSelectStudenExportTitle; // 研究生未选课学生名单
+    
+    private List<String> graduateNoSelectStudenExportKey;   // 研究生未选课学生名单
 
 	public List<String> getElcResultCountExportByStudentTitle() {
 		return elcResultCountExportByStudentTitle;
@@ -116,4 +120,20 @@ public class ExcelStoreConfig
 		this.graduateExemptionApplyExportKey = graduateExemptionApplyExportKey;
 	}
 
+	public List<String> getGraduateNoSelectStudenExportTitle() {
+		return graduateNoSelectStudenExportTitle;
+	}
+
+	public void setGraduateNoSelectStudenExportTitle(List<String> graduateNoSelectStudenExportTitle) {
+		this.graduateNoSelectStudenExportTitle = graduateNoSelectStudenExportTitle;
+	}
+
+	public List<String> getGraduateNoSelectStudenExportKey() {
+		return graduateNoSelectStudenExportKey;
+	}
+
+	public void setGraduateNoSelectStudenExportKey(List<String> graduateNoSelectStudenExportKey) {
+		this.graduateNoSelectStudenExportKey = graduateNoSelectStudenExportKey;
+	}
+	
 }

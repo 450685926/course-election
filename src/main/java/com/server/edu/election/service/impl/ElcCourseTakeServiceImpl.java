@@ -16,6 +16,7 @@ import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
@@ -44,11 +45,6 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
-import com.server.edu.election.entity.Course;
-import com.server.edu.election.entity.ElcCourseTake;
-import com.server.edu.election.entity.ElcLog;
-import com.server.edu.election.entity.ElcResultSwitch;
-import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
@@ -99,10 +95,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     private ApplicationContext applicationContext;
 
     @Autowired
-    private ElecResultSwitchService elecResultSwitchService;
+    private TeachingClassTeacherDao teachingClassTeacherDao;
 
     @Autowired
-    private TeachingClassTeacherDao teachingClassTeacherDao;
+    private ElectionRuleDao electionRuleDao;
+
+    @Autowired
+    private RetakeCourseSetDao retakeCourseSetDao;
+
+    @Autowired
+    private ElecResultSwitchService elecResultSwitchService;
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -446,7 +448,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		}
 		this.withdraw(values);
 	}
-    
 
 	@Override
 	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
@@ -529,8 +530,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
 
-
-    
     @Override
     @Transactional
 	public int editStudyType(ElcCourseTakeDto elcCourseTakeDto) {
@@ -595,7 +594,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
                 .collect(Collectors.toList());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ElcStudentVo> elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+        Session session = SessionUtils.getCurrentSession();
+        Page<ElcStudentVo> elcStudentVos;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+        } else {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
+        }
+
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }
@@ -603,55 +611,67 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     @Transactional
     public Integer addCourse(AddCourseDto courseDto) {
+        Session session = SessionUtils.getCurrentSession();
+        String uid = session.getUid();
+        String name = session.getName();
+        Long calendarId = courseDto.getCalendarId();
+        // 判断登录角色及选课维护开关状态
+        Integer chooseObj = getChooseObj(session, calendarId);
+        // 查询要添加教学班的课程信息
         List<Long> teachingClassIds = courseDto.getTeachingClassId();
-        List<TimeTableMessage> addCourseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
-        // 查询已选课程上课时间
-        List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(courseDto.getStudentId(), courseDto.getCalendarId());
-        if (CollectionUtil.isNotEmpty(ids)) {
-            List<TimeTableMessage> selectCourseArrange = courseTakeDao.findCourseArrange(ids);
-            for (TimeTableMessage addTable : addCourseArrange) {
-                String[] split = addTable.getWeekNum().split(",");
-                Set<String> addWeeks = new HashSet<>(Arrays.asList(split));
-                int dayOfWeek = addTable.getDayOfWeek().intValue();
-                int timeStart = addTable.getTimeStart().intValue();
-                int timeEnd = addTable.getTimeEnd().intValue();
-                int addSize = addWeeks.size();
-                for (TimeTableMessage selectTable : selectCourseArrange) {
-                    String[] week = selectTable.getWeekNum().split(",");
-                    Set<String> selectWeeks = new HashSet<>(Arrays.asList(week));
-                    int selectSize = selectWeeks.size();
-                    Set<String> weeks = new HashSet<>(addSize + selectSize);
-                    weeks.addAll(addWeeks);
-                    weeks.addAll(selectWeeks);
-                    // 判断上课周是否冲突
-                    if (addSize + selectSize > weeks.size()) {
-                        //上课周冲突，判断上课天
-                        if (dayOfWeek == selectTable.getDayOfWeek().intValue()) {
-                            // 上课天相同，比价上课节次
-                            int start = selectTable.getTimeStart().intValue();
-                            int end = selectTable.getTimeEnd().intValue();
-                            // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
-                            if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("ruleCheck.timeConflict",addTable.getTeachingClassId() + "")));
-                            }
-                        }
-                    }
-                }
+        List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
+        int size = elcStudentVos.size();
+        // 重修课程集合
+        List<ElcStudentVo> failedClass = new ArrayList<>(size);
+        // 正常修读课程集合
+        List<ElcStudentVo> normalClass = new ArrayList<>(size);
+        String studentId = courseDto.getStudentId();
+        for (ElcStudentVo elcStudentVo : elcStudentVos) {
+            String courseCode = elcStudentVo.getCourseCode();
+            int count = courseTakeDao.courseCount(courseCode, studentId);
+            int i = 0;
+            if(count != 0) {
+                elcStudentVo.setCourseTakeType(2);
+                failedClass.add(elcStudentVo);
+            }else {
+                elcStudentVo.setCourseTakeType(1);
+                normalClass.add(elcStudentVo);
             }
         }
-        List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
+        // 查询已选课程上课时间,判断上课时间是否冲突
+        List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(courseDto.getStudentId(), calendarId);
+        List<TimeTableMessage> selectCourseArrange = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(ids)) {
+            selectCourseArrange = courseTakeDao.findCourseArrange(ids);
+        }
+        // 如果含有重修课程且代选课对象为教务员，则需根据重修规则对课程进行判断
+        if (CollectionUtil.isNotEmpty(failedClass) && chooseObj.intValue() == 2) {
+            Student student = studentDao.findStudentByCode(studentId);
+            List<Integer> courseRole = getCourseRole(calendarId, session.getCurrentManageDptId());
+            failedClassCompare(failedClass, selectCourseArrange, courseRole, student);
+            Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
+            if (maxCount == null) {
+                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError"));
+            }
+            Set<String> retakeCount = courseTakeDao.findRetakeCount(studentId);
+            if (retakeCount.size() + failedClass.size() > maxCount) {
+                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit"));
+            }
+        }
+        // 正常修读课程上课时间冲突判断
+        getConflict(normalClass, selectCourseArrange);
         List<ElcCourseTake> elcCourseTakes = new ArrayList<>();
         List<ElcLog> elcLogs = new ArrayList<>();
-        // 保存数据，并判断当前角色
-        addToList(courseDto, elcStudentVos, elcCourseTakes, elcLogs);
+        // 保存数据
+        addToList(uid, name, chooseObj, courseDto, elcStudentVos, elcCourseTakes, elcLogs);
         Integer count = courseTakeDao.saveCourseTask(elcCourseTakes);
         if (count.intValue() != teachingClassIds.size()) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseError"));
         }
         teachingClassDao.increElcNumberList(teachingClassIds);
         Integer logCount = elcLogDao.saveCourseLog(elcLogs);
         if (logCount != count) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError"));
         }
         return count;
     }
@@ -659,11 +679,17 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     @Transactional
     public Integer removedCourse(List<ElcCourseTake> value) {
+        Session session = SessionUtils.getCurrentSession();
+        String id = session.getUid();
+        String name = session.getName();
+        // 验证选课维护开关状态
+        getChooseObj(session, value.get(0).getCalendarId());
+
         int count = courseTakeDao.deleteByCourseTask(value);
         List<Long> teachingClassIds = value.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
         int delSize = teachingClassIds.size();
-        if (teachingClassIds.size() != count ) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        if (delSize != count ) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError"));
         }
         for (Long teachingClassId : teachingClassIds) {
             int decrElcNumber = teachingClassDao.decrElcNumber(teachingClassId);
@@ -672,24 +698,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
-        if (elcStudentVos.size() != count) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.teachingTaskError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
-        }
-        Session session = SessionUtils.getCurrentSession();
-        String id = session.getUid();
-        String name = session.getName();
-        // 判断是管理员还是教务员
-        Integer chooseObj = null;
-        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
-            chooseObj = 3;
-        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            chooseObj = 2;
-        }
-        List<ElcLog> elcLogs = new ArrayList<>();
         int size = elcStudentVos.size();
-        if ( delSize != size) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dropCourseError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        if (elcStudentVos.size() != delSize) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.teachingTaskError"));
         }
+        List<ElcLog> elcLogs = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             ElcStudentVo elcStudentVo = elcStudentVos.get(i);
             ElcCourseTake elcCourseTake = value.get(i);
@@ -707,10 +720,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcLogs.add(elcLog);
         }
         Integer logCount = elcLogDao.saveCourseLog(elcLogs);
-        if (logCount != count) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+        if (logCount != delSize) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError"));
         }
-        return count;
+        return delSize;
     }
 
     @Override
@@ -720,78 +733,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Page<ElcStudentVo> elcStudentVos = courseTakeDao.findRemovedCourseList(elcCourseTakeQuery.getCalendarId(), elcCourseTakeQuery.getStudentId());
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
-    }
-
-    private void addToList(AddCourseDto courseDto, List<ElcStudentVo> elcStudentVos, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {
-        Session session = SessionUtils.getCurrentSession();
-        String uid = session.getUid();
-        String name = session.getName();
-        Integer chooseObj = null;
-        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
-            chooseObj = 3;
-        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            chooseObj = 2;
-        } else {
-            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
-        }
-        String studentId = courseDto.getStudentId();
-        Long calendarId = courseDto.getCalendarId();
-        // 避免有多门重修课程循环查询数据库
-        Student student = null;
-        Integer maxCount = null;
-        Set<String> set = null;
-        for (ElcStudentVo elcStudentVo : elcStudentVos) {
-            ElcCourseTake elcCourseTake = new ElcCourseTake();
-            elcCourseTake.setStudentId(studentId);
-            elcCourseTake.setCalendarId(calendarId);
-            String courseCode = elcStudentVo.getCourseCode();
-            elcCourseTake.setCourseCode(courseCode);
-            elcCourseTake.setTeachingClassId(elcStudentVo.getTeachingClassId());
-            elcCourseTake.setMode(2);
-            elcCourseTake.setChooseObj(chooseObj);
-            elcCourseTake.setCreatedAt(new Date());
-            int count = courseTakeDao.courseCount(courseCode, studentId);
-            int i = 0;
-            if(count != 0) {
-                // 选课集合中重修课程数量
-                i++;
-                // 教务员受重修门数上限限制
-                if (chooseObj == 2) {
-                    if (student == null) {
-                        student = studentDao.findStudentByCode(studentId);
-                    }
-                    if (maxCount == null) {
-                        maxCount = retakeCourseCountDao.findRetakeCount(student);
-                        if (maxCount == null) {
-                            throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
-                        }
-                    }
-                    if (set == null) {
-                        set =courseTakeDao.findRetakeCount(studentId);
-                    }
-                    if (set.size() + i >= maxCount.intValue()) {
-                        throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
-                    }
-                }
-                elcCourseTake.setCourseTakeType(2);
-            } else {
-                elcCourseTake.setCourseTakeType(1);
-            }
-            elcCourseTake.setTurn(0);
-            elcCourseTakes.add(elcCourseTake);
-            ElcLog elcLog = new ElcLog();
-            elcLog.setStudentId(studentId);
-            elcLog.setCourseCode(elcStudentVo.getCourseCode());
-            elcLog.setCourseName(elcStudentVo.getCourseName());
-            elcLog.setTeachingClassCode(elcStudentVo.getClassCode());
-            elcLog.setCalendarId(calendarId);
-            elcLog.setType(1);
-            elcLog.setMode(2);
-            elcLog.setCreateBy(uid);
-            elcLog.setCreateName(name);
-            elcLog.setCreatedAt(new Date());
-            elcLogs.add(elcLog);
-        }
     }
 
     private void setTeachingArrange(List<ElcCourseTakeVo> elcCourseTakeVos) {
@@ -885,4 +826,264 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
     }
+
+    /**
+     * 判断当前用户角色及选课维护开关状态
+     * @param session
+     * @param calendarId
+     * @return
+     */
+    private Integer getChooseObj(Session session, Long calendarId) {
+        Integer chooseObj;
+        if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
+            chooseObj = 3;
+        } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            chooseObj = 2;
+            boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, "2");
+            // 教务员需判断选课开关是否开启
+            if (!switchStatus) {
+                throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
+            }
+        } else {
+            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError"));
+        }
+        boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, session.getCurrentManageDptId());
+        // 教务员需判断选课开关是否开启
+        if (!switchStatus) {
+            throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
+        }
+        return chooseObj;
+    }
+
+    /**
+     * 判断添加的重修课程是否符合规则
+     * @param failedClass
+     * @param selectCourseArrange
+     * @param courseRole
+     * @param student
+     */
+    private void failedClassCompare(List<ElcStudentVo> failedClass,
+                                    List<TimeTableMessage> selectCourseArrange,
+                                    List<Integer> courseRole,
+                                    Student student){
+        if (courseRole.isEmpty()) {
+            return;
+        }
+        if (courseRole.size() == 1) {
+            Integer i = courseRole.get(0);
+            // 不能跨校区选课
+            if (i == 1) {
+                String campus = student.getCampus();
+                for (ElcStudentVo elcStudentVo : failedClass) {
+                    if (!campus.equals(elcStudentVo.getCampus())) {
+                        throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.campusError", elcStudentVo.getTeachingClassId()));
+                    }
+                }
+            }
+            // 不能超出人数上限
+            else if (i == 2) {
+                for (ElcStudentVo elcStudentVo : failedClass) {
+                    if (elcStudentVo.getElcNumber().intValue() >= elcStudentVo.getNumber().intValue()) {
+                        throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.elcNumberError", elcStudentVo.getTeachingClassId()));
+                    }
+                }
+            }
+            // 不允许时间冲突
+            else if (i == 3) {
+                getConflict(failedClass, selectCourseArrange);
+            }
+        } else if (courseRole.size() == 2) {
+            if (courseRole.contains(1) && courseRole.contains(2)) {
+                String campus = student.getCampus();
+                for (ElcStudentVo elcStudentVo : failedClass) {
+                    if (campus.equals(elcStudentVo.getCampus())) {
+                        if (elcStudentVo.getElcNumber().intValue() >= elcStudentVo.getNumber().intValue()) {
+                            throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.elcNumberError", elcStudentVo.getTeachingClassId()));
+                        }
+                    }else {
+                        throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.campusError", elcStudentVo.getTeachingClassId()));
+                    }
+                }
+            } else if (courseRole.contains(1) && courseRole.contains(3)) {
+                String campus = student.getCampus();
+                for (ElcStudentVo elcStudentVo : failedClass) {
+                    if (campus.equals(elcStudentVo.getCampus())) {
+                        getConflict(failedClass, selectCourseArrange);
+                    }else {
+                        throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.campusError", elcStudentVo.getTeachingClassId()));
+                    }
+                }
+            } else if (courseRole.contains(2) && courseRole.contains(3)) {
+                for (ElcStudentVo elcStudentVo : failedClass) {
+                    if (elcStudentVo.getElcNumber().intValue() >= elcStudentVo.getNumber().intValue()) {
+                        throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.elcNumberError", elcStudentVo.getTeachingClassId()));
+                    } else {
+                        getConflict(failedClass, selectCourseArrange);
+                    }
+                }
+            }
+        } else {
+            String campus = student.getCampus();
+            for (ElcStudentVo elcStudentVo : failedClass) {
+                if (campus.equals(elcStudentVo.getCampus())) {
+                    if (elcStudentVo.getElcNumber().intValue() >= elcStudentVo.getNumber().intValue()) {
+                        throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.elcNumberError", elcStudentVo.getTeachingClassId()));
+                    } else {
+                        getConflict(failedClass, selectCourseArrange);
+                    }
+                }else {
+                    throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.campusError", elcStudentVo.getTeachingClassId()));
+                }
+            }
+        }
+    }
+
+    /**
+     * 判断要添加的课程上课时间是否冲突
+     * @param addClass 要添加的教学班课程信息
+     * @param selectCourseArrange 学生已选课程教学安排
+     */
+    private void getConflict(List<ElcStudentVo> addClass, List<TimeTableMessage> selectCourseArrange) {
+        List<Long> ids = addClass.stream().map(ElcStudentVo::getTeachingClassId).collect(Collectors.toList());
+        // 要添加的教学班课程安排
+        List<TimeTableMessage> rebuildCourseArrange = courseTakeDao.findCourseArrange(ids);
+        // 判断要添加的课程集合上课时间是否冲突
+        getParamCourseConflict(rebuildCourseArrange);
+        // 判断要添加的课程集合与已选课程集合上课时间是否冲突
+        getCourseConflict(rebuildCourseArrange, selectCourseArrange);
+    }
+
+    /**
+     * 判断要添加的课程集合上课时间是否冲突
+     * @param addCourseArrange
+     */
+    private void getParamCourseConflict(List<TimeTableMessage> addCourseArrange) {
+        if (CollectionUtil.isNotEmpty(addCourseArrange)) {
+            Map<Long, List<TimeTableMessage>> map = addCourseArrange.stream().collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+            Set<Long> ids = map.keySet();
+            if (ids.size() > 1) {
+                for (Long id : ids) {
+                    List<TimeTableMessage> timeTableMessages = map.get(id);
+                    getCourseConflict(timeTableMessages, addCourseArrange);
+                }
+            }
+        }
+    }
+
+    /**
+     * 判断两个教学安排集合是否冲突
+     * @param courseArrange1 教学班教学安排
+     * @param courseArrange2 教学班教学安排
+     */
+    private void getCourseConflict(List<TimeTableMessage> courseArrange1, List<TimeTableMessage> courseArrange2){
+        for (TimeTableMessage addTable : courseArrange1) {
+            String[] split = addTable.getWeekNum().split(",");
+            Set<String> addWeeks = new HashSet<>(Arrays.asList(split));
+            int dayOfWeek = addTable.getDayOfWeek().intValue();
+            int timeStart = addTable.getTimeStart().intValue();
+            int timeEnd = addTable.getTimeEnd().intValue();
+            int addSize = addWeeks.size();
+            Long teachingClassId = addTable.getTeachingClassId();
+            for (TimeTableMessage selectTable : courseArrange2) {
+                Long selectTableTeachingClassId = selectTable.getTeachingClassId();
+                if (teachingClassId.intValue() == selectTableTeachingClassId.intValue()) {
+                    continue;
+                }
+                String[] week = selectTable.getWeekNum().split(",");
+                Set<String> selectWeeks = new HashSet<>(Arrays.asList(week));
+                int selectSize = selectWeeks.size();
+                Set<String> weeks = new HashSet<>(addSize + selectSize);
+                weeks.addAll(addWeeks);
+                weeks.addAll(selectWeeks);
+                // 判断上课周是否冲突
+                if (addSize + selectSize > weeks.size()) {
+                    //上课周冲突，判断上课天
+                    if (dayOfWeek == selectTable.getDayOfWeek().intValue()) {
+                        // 上课天相同，比价上课节次
+                        int start = selectTable.getTimeStart().intValue();
+                        int end = selectTable.getTimeEnd().intValue();
+                        // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
+                        if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                            throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.timeConflict",teachingClassId + "",selectTableTeachingClassId + "")));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 返回选课规则
+     *
+     * @param calendarId
+     * @param manageDptId
+     * @return
+     */
+    public List<Integer> getCourseRole(Long calendarId, String manageDptId) {
+        List<Long> ruleIds = retakeCourseSetDao.findRuleIds(calendarId, manageDptId);
+        if (ruleIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Example example = new Example(ElectionRule.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andIn("id", ruleIds);
+        List<ElectionRule> electionRules = electionRuleDao.selectByExample(example);
+        List<Integer> list = new ArrayList<>(3);
+        Set<Integer> set = new HashSet<>(electionRules.size());
+        for (ElectionRule electionRule : electionRules) {
+            String name = electionRule.getName();
+            if ("不能跨校区选课".equals(name)) {
+                set.add(1);
+            } else if ("不能超出人数上限".equals(name)) {
+                set.add(2);
+            }else if ("不允许时间冲突".equals(name)) {
+                set.add(3);
+            }
+        }
+        list.addAll(set);
+        return list;
+    }
+
+    /**
+     * 保存选课数据
+     * @param uid
+     * @param name
+     * @param chooseObj
+     * @param courseDto
+     * @param elcStudentVos
+     * @param elcCourseTakes
+     * @param elcLogs
+     */
+    private void addToList(String uid, String name, Integer chooseObj, AddCourseDto courseDto, List<ElcStudentVo> elcStudentVos, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {
+        String studentId = courseDto.getStudentId();
+        Long calendarId = courseDto.getCalendarId();
+        for (ElcStudentVo elcStudentVo : elcStudentVos) {
+            ElcCourseTake elcCourseTake = new ElcCourseTake();
+            elcCourseTake.setStudentId(studentId);
+            elcCourseTake.setCalendarId(calendarId);
+            String courseCode = elcStudentVo.getCourseCode();
+            elcCourseTake.setCourseCode(courseCode);
+            elcCourseTake.setTeachingClassId(elcStudentVo.getTeachingClassId());
+            elcCourseTake.setMode(2);
+            elcCourseTake.setChooseObj(chooseObj);
+            elcCourseTake.setCreatedAt(new Date());
+            elcCourseTake.setTurn(0);
+            elcCourseTake.setCourseTakeType(elcStudentVo.getCourseTakeType());
+            elcCourseTakes.add(elcCourseTake);
+            ElcLog elcLog = new ElcLog();
+            elcLog.setStudentId(studentId);
+            elcLog.setCourseCode(elcStudentVo.getCourseCode());
+            elcLog.setCourseName(elcStudentVo.getCourseName());
+            elcLog.setTeachingClassCode(elcStudentVo.getClassCode());
+            elcLog.setCalendarId(calendarId);
+            elcLog.setType(1);
+            elcLog.setMode(2);
+            elcLog.setCreateBy(uid);
+            elcLog.setCreateName(name);
+            elcLog.setCreatedAt(new Date());
+            elcLogs.add(elcLog);
+        }
+    }
+
 }

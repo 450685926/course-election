@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.server.edu.dictionary.DictTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -576,7 +577,7 @@ public class TeacherLessonTableServiceServiceImpl
     
     @Override
     public RestResult<String> exportTeacherTimetabPdf(Long calendarId,
-                                                      String calendarName, String teacherCode,String teacherName, String faculty)
+                                                      String teacherCode,String teacherName, String faculty)
         throws DocumentException, IOException
     {
         //检查目录是否存在
@@ -621,7 +622,8 @@ public class TeacherLessonTableServiceServiceImpl
         document.add(title);
         
         //---2 副标题---
-        Paragraph subtitle = new Paragraph(calendarName, subtitleChinese);
+        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        Paragraph subtitle = new Paragraph(schoolCalendar.getFullName());
         subtitle.setAlignment(Element.ALIGN_CENTER);
         //设置行间距
         subtitle.setLeading(10);
@@ -645,9 +647,10 @@ public class TeacherLessonTableServiceServiceImpl
         
         PdfPCell cell2 = createNoBorderCell("姓名：" + teacherName, name2, 20f);
         table1.addCell(cell2);
-        
+        String facultyStr = dictionaryService.query(DictTypeEnum.X_YX.getType(), faculty);
+
         PdfPCell cell3 =
-            createNoBorderCell("学院：" + teacherTimetab.getFaculty(), name2, 20f);
+            createNoBorderCell("学院：" + facultyStr, name2, 20f);
         table1.addCell(cell3);
         
         PdfPCell cell4 = createNoBorderCell("", name2, 20f);
