@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
+import org.mockito.internal.matchers.CompareTo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -502,6 +504,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         //本学年已选课程组装
         List<SelectedCourse> selectedCourses = packagingSelectedCourse(roundId, calendarId, planCourses,
 				selectedCourseSet, classTimeLists);
+        sortSelectedCourses(selectedCourses);
         selectedCourseSet.addAll(selectedCourses);
         
         //已完成课程组装
@@ -626,7 +629,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                                           flag = true;
 			                                       }else{
 			                                       	flag = false;
-			                                           conflictCourse = teachingClass.getCourseCode(); 
+			                                           conflictCourse = String.format("%(%)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
 			                                       }
 			                                   }
 			                                   else
@@ -757,7 +760,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					                               flag = true;
 					                           }else{
 					                           	flag = false;
-					                               conflictCourse = teachingClass.getCourseCode(); 
+					                               conflictCourse = String.format("%(%)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
 					                           }
 					                       }
 					                       else
@@ -891,7 +894,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				                               flag = true;
 				                           }else{
 				                           	flag = false;
-				                               conflictCourse = teachingClass.getCourseCode(); 
+				                               conflictCourse = String.format("%(%)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
 				                           }
 				                       }
 				                       else
@@ -939,12 +942,54 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         { // 管理员
             elecResult = getAdminElectResultCount(studentId, c, calendarId);
         }
+       
+        sortOptionalCourses(setOptionalCourses);
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseSet);
         c.setOptionalCourses(setOptionalCourses);
         c.setElecResult(elecResult);
         return c;
+    }
+    
+    //对课程进行排序
+    @SuppressWarnings("unchecked")
+    private static void sortSelectedCourses(List<SelectedCourse> list){
+    	Collections.sort(list, new Comparator() {
+    		@Override
+    		public int compare(Object o1, Object o2) {
+    			SelectedCourse selectedCourse1 = (SelectedCourse)o1;
+    			SelectedCourse selectedCourse2 = (SelectedCourse)o2;
+    			//先按照课程label排序
+    			if (StringUtils.isNotEmpty(selectedCourse1.getLabel())&&StringUtils.isNotEmpty(selectedCourse2.getLabel())) {
+					return selectedCourse1.getLabel().compareTo(selectedCourse2.getLabel());
+				}else{//按照课程课程性质排序
+					return selectedCourse1.getNature().compareTo(selectedCourse2.getNature());
+				}
+    			
+    		}
+    		
+    	});
+    }
+    //对可选课程进行排序
+    @SuppressWarnings("unchecked")
+	private static void sortOptionalCourses(List<ElcCourseResult> list){
+    	Collections.sort(list, new Comparator() {
+
+			@Override
+			public int compare(Object o1, Object o2) {
+				ElcCourseResult OptionalCourse1 = (ElcCourseResult)o1;
+				ElcCourseResult OptionalCourse2 = (ElcCourseResult)o2;
+				//先按照课程label排序
+    			if (OptionalCourse1.getLabel() != null &&OptionalCourse2.getLabel()  != null) {
+					return OptionalCourse1.getLabel().compareTo(OptionalCourse2.getLabel());
+				}else{//按照课程课程性质排序
+					return OptionalCourse1.getNature().compareTo(OptionalCourse2.getNature());
+				}
+				
+			}
+    		
+		});
     }
 
 	private List<PlanCourse> getOptionalCourses(ElecContext c, Set<PlanCourse> planCourses,
