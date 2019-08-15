@@ -599,7 +599,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
             elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
         } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+            elcStudentVos = courseTakeDao.findAddCourseListByNature(elcCourses, calendarId, keyword);
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
         }
@@ -846,11 +846,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError"));
-        }
-        boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, session.getCurrentManageDptId());
-        // 教务员需判断选课开关是否开启
-        if (!switchStatus) {
-            throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
         }
         return chooseObj;
     }
