@@ -684,6 +684,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							 if (StringUtils.isEmpty(elcCourseResult.getLabelName())) {
 					            	String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachClass.getNature());
 					            	elcCourseResult.setLabelName(dict);
+					            	elcCourseResult.setLabel(StringUtils.isNotEmpty(teachClass.getNature())?Long.parseLong(teachClass.getNature()):0l);
 							}
 							elcCourseResult.setNature(teachClass.getNature());
 							elcCourseResult.setCourseCode(teachClass.getCourseCode());
@@ -818,6 +819,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 						 if (StringUtils.isEmpty(elcCourseResult.getLabelName())) {
 				            	String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachClass.getNature());
 				            	elcCourseResult.setLabelName(dict);
+				            	elcCourseResult.setLabel(StringUtils.isNotEmpty(teachClass.getNature())?Long.parseLong(teachClass.getNature()):0l);
 						}
 						elcCourseResult.setNature(teachClass.getNature());
 						elcCourseResult.setCourseCode(teachClass.getCourseCode());
@@ -952,43 +954,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     }
     
     //对课程进行排序
-    @SuppressWarnings("unchecked")
     private static void sortSelectedCourses(List<SelectedCourse> list){
-    	Collections.sort(list, new Comparator() {
-    		@Override
-    		public int compare(Object o1, Object o2) {
-    			SelectedCourse selectedCourse1 = (SelectedCourse)o1;
-    			SelectedCourse selectedCourse2 = (SelectedCourse)o2;
-    			//先按照课程label排序
-    			if (StringUtils.isNotEmpty(selectedCourse1.getLabel())&&StringUtils.isNotEmpty(selectedCourse2.getLabel())) {
-					return selectedCourse1.getLabel().compareTo(selectedCourse2.getLabel());
-				}else{//按照课程课程性质排序
-					return selectedCourse1.getNature().compareTo(selectedCourse2.getNature());
-				}
-    			
-    		}
-    		
-    	});
+    	List<String> collect = list.stream().map(SelectedCourse::getLabel).collect(Collectors.toList());
+    	Collections.sort(collect);
     }
     //对可选课程进行排序
-    @SuppressWarnings("unchecked")
 	private static void sortOptionalCourses(List<ElcCourseResult> list){
-    	Collections.sort(list, new Comparator() {
-
-			@Override
-			public int compare(Object o1, Object o2) {
-				ElcCourseResult OptionalCourse1 = (ElcCourseResult)o1;
-				ElcCourseResult OptionalCourse2 = (ElcCourseResult)o2;
-				//先按照课程label排序
-    			if (OptionalCourse1.getLabel() != null &&OptionalCourse2.getLabel()  != null) {
-					return OptionalCourse1.getLabel().compareTo(OptionalCourse2.getLabel());
-				}else{//按照课程课程性质排序
-					return OptionalCourse1.getNature().compareTo(OptionalCourse2.getNature());
-				}
-				
-			}
-    		
-		});
+    	List<Long> collect = list.stream().map(ElcCourseResult::getLabel).collect(Collectors.toList());
+    	Collections.sort(collect);
     }
 
 	private List<PlanCourse> getOptionalCourses(ElecContext c, Set<PlanCourse> planCourses,
@@ -1161,6 +1134,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             if (StringUtils.isEmpty(elcCourseResult.getLabelName())) {
             	String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),selected.getNature());
             	elcCourseResult.setLabelName(dict);
+            	elcCourseResult.setLabel(StringUtils.isNotEmpty(selected.getNature())?selected.getNature():"0");
 			}
             elcCourseResult.setChooseObj(selected.getChooseObj());
             elcCourseResult.setTurn(selected.getTurn());
