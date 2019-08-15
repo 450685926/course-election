@@ -9,7 +9,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.SchoolCalendarTranslator;
 @CodeI18n
 @Table(name = "elc_student_limit_t")
 public class ElcStudentLimit implements Serializable {
@@ -30,6 +32,7 @@ public class ElcStudentLimit implements Serializable {
     /**
      * 学期
      */
+    @Code2Text(translator=SchoolCalendarTranslator.class)
     @Column(name = "CALENDAR_ID_")
     private Long calendarId;
 

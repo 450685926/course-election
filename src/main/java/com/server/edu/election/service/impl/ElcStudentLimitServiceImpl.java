@@ -15,7 +15,6 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcStudentLimitDao;
 import com.server.edu.election.dao.StudentDao;
@@ -103,19 +102,6 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 		return result;
 	}
 	
-	@Override
-	public ElcStudentLimitVo getElcStudentLimit(Long calendarId,Long id) {
-		ElcStudentLimitDto elcStudentLimitDto = new ElcStudentLimitDto();
-		elcStudentLimitDto.setCalendarId(calendarId);
-		elcStudentLimitDto.setId(id);
-		ElcStudentLimitVo elcStudentLimitVo = new ElcStudentLimitVo();
-		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(elcStudentLimitDto);
-		if(CollectionUtil.isNotEmpty(list)) {
-			elcStudentLimitVo = list.get(0);
-			elcStudentLimitVo.setCalendarName(SchoolCalendarCacheUtil.getName(id));
-		}
-		return elcStudentLimitVo;
-	}
 	@Transactional
 	@Override
 	public int delete(List<Long> ids) {
@@ -133,6 +119,8 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	@Override
 	public int deleteAll(ElcStudentLimitDto elcStudentLimitDto) {
 		int result = 0;
+		int mode = TableIndexUtil.getMode(elcStudentLimitDto.getCalendarId());
+		elcStudentLimitDto.setMode(mode);
 		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(elcStudentLimitDto);
 		if(CollectionUtil.isNotEmpty(list)) {
 			List<Long> ids = list.stream().map(ElcStudentLimitVo::getId).collect(Collectors.toList());
