@@ -20,8 +20,6 @@ public interface ElcStudentLimitService {
 	
 	int update(ElcStudentLimitDto elcStudentLimitDto);
 	
-	ElcStudentLimitVo getElcStudentLimit(Long calendarId,Long id);
-	
 	int delete(List<Long> ids);
 	
 	int deleteAll(ElcStudentLimitDto elcStudentLimitDto);
