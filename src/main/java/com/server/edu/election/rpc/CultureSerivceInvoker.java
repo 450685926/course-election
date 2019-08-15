@@ -244,7 +244,7 @@ public class CultureSerivceInvoker
     {
     	@SuppressWarnings("unchecked")
     	RestResult<List<ElecFirstLanguageContrastVo>> restResult =
-        ServicePathEnum.SCORESERVICE.getForObject(
+        ServicePathEnum.CULTURESERVICE.getForObject(
                 "/firstLanguageContrast/page?managerDeptId={managerDeptId}&pageSize_={pageSize_}&pageNum_={pageNum_}",
                  RestResult.class,managerDeptId,pageNum_,pageSize_);
     			
