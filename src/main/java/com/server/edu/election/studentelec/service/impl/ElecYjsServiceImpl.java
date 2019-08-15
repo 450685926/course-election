@@ -628,7 +628,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                                           flag = true;
 			                                       }else{
 			                                       	flag = false;
-			                                           conflictCourse = String.format("%(%)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
+			                                           conflictCourse = String.format("%s(%s)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
 			                                       }
 			                                   }
 			                                   else
@@ -759,7 +759,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					                               flag = true;
 					                           }else{
 					                           	flag = false;
-					                               conflictCourse = String.format("%(%)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
+					                               conflictCourse = String.format("%s(%s)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
 					                           }
 					                       }
 					                       else
@@ -893,7 +893,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				                               flag = true;
 				                           }else{
 				                           	flag = false;
-				                               conflictCourse = String.format("%(%)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
+				                               conflictCourse = String.format("%s(%s)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
 				                           }
 				                       }
 				                       else
