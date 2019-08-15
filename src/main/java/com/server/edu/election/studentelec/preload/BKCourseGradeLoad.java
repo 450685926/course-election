@@ -410,7 +410,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         if (t == null)
                             return "";
                         return String
-                            .format("%s(%s)", t.getName(), t.getCode());
+                            .format("%s", t.getName());
                     }).collect(Collectors.toList());
                     
                     tName = StringUtils.join(names, ",");

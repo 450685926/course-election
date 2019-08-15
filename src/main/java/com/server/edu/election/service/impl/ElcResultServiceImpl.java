@@ -633,16 +633,17 @@ public class ElcResultServiceImpl implements ElcResultService
 				}
 				query.setFaculty(condition.getFaculty() == null ? "" : condition.getFaculty());
 				query.setEnrolSeason(condition.getEnrolSeason()  == null ? "" : condition.getEnrolSeason());
-				query.setDegreeType(elcResultDto.getDegreeType() == null ? "" : condition.getDegreeType());
-				query.setFormLearning(elcResultDto.getFormLearning() == null ? "" : condition.getFormLearning());
-				query.setTrainingCategory(elcResultDto.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
-				query.setTrainingLevel(elcResultDto.getTrainingLevel() == null ? "" : condition.getTrainingLevel());
 				query.setCalendarId(condition.getCalendarId());
+				query.setManagerDeptId("1");
+				query.setDegreeType(elcResultDto.getDegreeType() == null ? "" : elcResultDto.getDegreeType());
+				query.setFormLearning(elcResultDto.getFormLearning() == null ? "" : elcResultDto.getFormLearning());
+				query.setTrainingCategory(elcResultDto.getTrainingCategory() == null ? "" : elcResultDto.getTrainingCategory());
+				query.setTrainingLevel(elcResultDto.getTrainingLevel() == null ? "" : elcResultDto.getTrainingLevel());
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
 				elcNumber = elcNumber + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
@@ -668,20 +669,21 @@ public class ElcResultServiceImpl implements ElcResultService
 				}else{
 					elcResultDto.setGrade("全部");
 				}
-				query.setFaculty(elcResultDto.getFaculty() == null ? "" : condition.getFaculty());
+				query.setFaculty(elcResultDto.getFaculty() == null ? "" : elcResultDto.getFaculty());
+				query.setProfession(elcResultDto.getProfession() == null ? "" : elcResultDto.getProfession());
 				query.setEnrolSeason(condition.getEnrolSeason() == null ? "" : condition.getEnrolSeason());
-				query.setProfession(elcResultDto.getProfession() == null ? "" : condition.getProfession());
 				query.setDegreeType(condition.getDegreeType() == null ? "" : condition.getDegreeType());
 				query.setFormLearning(condition.getFormLearning() == null ? "" : condition.getFormLearning());
 				query.setTrainingCategory(condition.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
 				query.setTrainingLevel(condition.getTrainingLevel() == null ? "" : condition.getTrainingLevel());
 				query.setCalendarId(condition.getCalendarId());
+				query.setManagerDeptId("1");
 				
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
 				elcNumberByFaculty = elcNumberByFaculty + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);

@@ -2,8 +2,11 @@ package com.server.edu.election.service.impl;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -11,15 +14,21 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.AbnormalTypeElection;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
+import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcNoSelectReason;
+import com.server.edu.election.rpc.StudentServiceInvoker;
 import com.server.edu.election.service.NoSelectStudentService;
+import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.vo.ElcNoSelectReasonVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.FileUtil;
@@ -29,6 +38,7 @@ import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
 /**
  * 
@@ -50,6 +60,9 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
     @Autowired
     private DictionaryService dictionaryService;
     
+    @Autowired
+    private ExcelStoreConfig excelStoreConfig;
+    
     /**
      *@Description: 查询学生未选课名单
      *@Param:
@@ -68,6 +81,19 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
              electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
          }else {
              electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
+             List<String> studentCodes = electCourseList.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
+             
+             List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(studentCodes);
+             
+             Iterator<NoSelectCourseStdsDto> iterator = electCourseList.iterator();
+             while (iterator.hasNext()) {
+            	 NoSelectCourseStdsDto stdsDto = iterator.next();
+            	 for (AbnormalTypeElection abnormalTypeElection : list) {
+					if (StringUtils.equals(stdsDto.getStudentCode(), abnormalTypeElection.getStudentCode())) {
+						stdsDto.setStdStatusChanges(abnormalTypeElection.getTypeName());
+					}
+				 }
+			}
          }
          return new PageResult<>(electCourseList);
      }
@@ -116,6 +142,46 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
           }
           return "";
       }
+    
+    /*
+     * 研究生导出未选课学生名单
+     */
+  	@Override
+  	public RestResult<String> exportStudentNoCourseListGradute2(NoSelectCourseStdsDto condition) {
+  		String path="";
+        try {
+        	 PageCondition<NoSelectCourseStdsDto> pageCondition = new PageCondition<NoSelectCourseStdsDto>();
+             pageCondition.setCondition(condition);
+             pageCondition.setPageSize_(1000);
+             int pageNum = 0;
+             pageCondition.setPageNum_(pageNum);
+             List<NoSelectCourseStdsDto> list = new ArrayList<NoSelectCourseStdsDto>();
+             while (true)
+             {
+                 pageNum++;
+                 pageCondition.setPageNum_(pageNum);
+                 PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
+                 list.addAll(electCourseList.getList());
+
+                 if (electCourseList.getList().size() <= list.size())
+                 {
+                     break;
+                 }
+             }
+            list = SpringUtils.convert(list);
+            
+        	@SuppressWarnings("unchecked")
+			ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
+        			excelStoreConfig.getGraduateNoSelectStudenExportKey(),
+        			excelStoreConfig.getGraduateNoSelectStudenExportTitle(),
+        			cacheDirectory);
+        	path = excelExport.exportExcelToCacheDirectory("未选课学生名单");
+			
+        }catch (Exception e){
+            return RestResult.failData("minor.export.fail");
+        }
+        return RestResult.successData("minor.export.success",path);
+  	}
       
       /**
        *@Description: 导出未选课名单

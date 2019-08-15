@@ -1069,22 +1069,26 @@
                 and (t1.STUDENT_CODE_ like concat('%',#{keyword},'%') or t1.NAME_ like concat('%',#{keyword},'%') )
             </if>
         </where>
-
     </select>
     <!-- 查询未选课学生名单(研究生) -->
     <select id="findNoSelectCourseGraduteStds" parameterType="com.server.edu.election.dto.NoSelectCourseStdsDto" resultType="com.server.edu.election.dto.NoSelectCourseStdsDto">
         SELECT STUDENT_CODE_ studentCode,NAME_ studentName,GRADE_ grade,
 			   FACULTY_ faculty,PROFESSION_ major,TRAINING_LEVEL_ trainingLevel,
-			   TRAINING_CATEGORY_ trainingCategory,DEGREE_CATEGORY_ degreeType,
+			   TRAINING_CATEGORY_ trainingCategory,DEGREE_TYPE_ degreeType,
 			   FORM_LEARNING_ formLearning
 		FROM student_t
         <where>
              STUDENT_CODE_ not in (select STUDENT_ID_ from elc_course_takes_t where CALENDAR_ID_=#{calendarId} group by STUDENT_ID_)
+             and MANAGER_DEPT_ID_ <![CDATA[<>]]> '1'
+             and LEAVE_SCHOOL_ = '1'
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and FACULTY_ =#{faculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
                 and PROFESSION_ =#{major}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and GRADE_ =#{grade}
             </if>
            <!--  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
                 and STUDENT_CODE_ like concat('%',#{studentCode},'%')
@@ -1103,9 +1107,6 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
                and FORM_LEARNING_ =#{formLearning}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
-               and MANAGER_DEPT_ID_ =#{deptId}
             </if>
           	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
                 and (STUDENT_CODE_ like concat('%',#{keyword},'%') or NAME_ like concat('%',#{keyword},'%') )

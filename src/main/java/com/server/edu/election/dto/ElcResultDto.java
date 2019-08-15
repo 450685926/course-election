@@ -2,6 +2,7 @@ package com.server.edu.election.dto;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.ibm.icu.math.BigDecimal;
 import com.server.edu.dictionary.DictTypeEnum;
 
 /**
@@ -71,7 +72,7 @@ public class ElcResultDto
     /**
      * 已选人数百分比
      */
-    private Double numberOfelectedPersonsPoint;
+    private BigDecimal numberOfelectedPersonsPoint;
 
 	public String getGrade() {
 		return grade;
@@ -137,11 +138,11 @@ public class ElcResultDto
 		this.numberOfNonCandidates = numberOfNonCandidates;
 	}
 
-	public Double getNumberOfelectedPersonsPoint() {
+	public BigDecimal getNumberOfelectedPersonsPoint() {
 		return numberOfelectedPersonsPoint;
 	}
 
-	public void setNumberOfelectedPersonsPoint(Double numberOfelectedPersonsPoint) {
+	public void setNumberOfelectedPersonsPoint(BigDecimal numberOfelectedPersonsPoint) {
 		this.numberOfelectedPersonsPoint = numberOfelectedPersonsPoint;
 	}
 
