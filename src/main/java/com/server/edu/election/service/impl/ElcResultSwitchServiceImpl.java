@@ -2,6 +2,8 @@ package com.server.edu.election.service.impl;
 
 import java.util.Date;
 
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.server.edu.common.locale.I18nUtil;
@@ -24,20 +26,21 @@ public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 		Example example = new Example(ElcResultSwitch.class);
     	example.createCriteria()
     		.andEqualTo("calendarId", resultSwitch.getCalendarId())
-    		.andEqualTo("status", resultSwitch.getStatus())
-    		.andEqualTo("openTimeStart", resultSwitch.getOpenTimeStart())
-    		.andEqualTo("openTimeEnd", resultSwitch.getOpenTimeEnd())
     	    .andEqualTo("projectId",resultSwitch.getProjectId());
-    	
-	    int count = elecResultSwitchDao.selectCountByExample(example);
-	    if (count > 0)
-	    {
-	        return;
-	    }
-	    
-	    Date date = new Date();
-	    resultSwitch.setCreateAt(date);
-		int result = elecResultSwitchDao.insertSelective(resultSwitch);
+
+		ElcResultSwitch elcResultSwitch = elecResultSwitchDao.selectOneByExample(example);
+		int result;
+		if (elcResultSwitch != null) {
+			elcResultSwitch.setStatus(resultSwitch.getStatus());
+			elcResultSwitch.setOpenTimeStart(resultSwitch.getOpenTimeStart());
+			elcResultSwitch.setOpenTimeEnd(resultSwitch.getOpenTimeEnd());
+			elcResultSwitch.setOpenTimeEnd(resultSwitch.getOpenTimeEnd());
+			result = elecResultSwitchDao.updateByPrimaryKey(elcResultSwitch);
+		} else {
+			Date date = new Date();
+			resultSwitch.setCreateAt(date);
+			result = elecResultSwitchDao.insertSelective(resultSwitch);
+		}
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.addError",I18nUtil.getMsg("elecResultSwitch.addError")));
 		}
@@ -57,10 +60,11 @@ public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 	}
 
 	@Override
-	public boolean getSwitchStatus(Long calendarId) {
+	public boolean getSwitchStatus(Long calendarId, String projectId) {
 		Example example = new Example(ElcResultSwitch.class);
 		Criteria createCriteria = example.createCriteria();
 		createCriteria.andEqualTo("calendarId",calendarId);
+		createCriteria.andEqualTo("projectId",projectId);
 		ElcResultSwitch elcResultSwitch = elecResultSwitchDao.selectOneByExample(example);
 		if (elcResultSwitch != null && elcResultSwitch.getStatus().intValue() == 1) {
 			Date start = elcResultSwitch.getOpenTimeStart();

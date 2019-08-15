@@ -1301,7 +1301,8 @@
     </select>
 
     <select id="findCourseInfo" resultType="com.server.edu.election.vo.ElcStudentVo">
-        select a.ID_ teachingClassId,a.CODE_ classCode,
+        select a.ID_ teachingClassId,a.CODE_ classCode,a.CAMPUS_ campus,
+        a.ELC_NUMBER_ elcNumber,a.NUMBER_ number,
         c.CALENDAR_ID_ calendarId,c.COURSE_CODE_ courseCode,c.COURSE_NAME_ courseName
         from teaching_class_t a
         join teaching_task_t b on  b.ID_ = a.TASK_ID_

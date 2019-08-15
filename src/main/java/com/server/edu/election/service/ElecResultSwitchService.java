@@ -30,6 +30,6 @@ public interface ElecResultSwitchService {
 	 * @param calendarId
 	 * @return
 	 */
-	boolean getSwitchStatus(Long calendarId);
+	boolean getSwitchStatus(Long calendarId,  String projectId);
 	
 }
