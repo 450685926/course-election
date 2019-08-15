@@ -412,45 +412,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
         return excelResult;
     }
 
-//    /**
-//     *@Description: 导出研究生点名册
-//     *@Param:
-//     *@return:
-//     *@Author:
-//     *@date: 2019/7/4
-//     * @param rollBookConditionDto
-//     */
-//    @Override
-//    public ResponseEntity<Resource> exportGraduteRollBookList(RollBookConditionDto rollBookConditionDto) throws Exception{
-//        FileUtil.mkdirs(cacheDirectory);
-//        //删除超过30天的文件
-//        FileUtil.deleteFile(cacheDirectory, 30);
-//        List<Long> ids = rollBookConditionDto.getIds();
-//        Page<RollBookList> classToExport;
-//        if (CollectionUtil.isNotEmpty(ids)) {
-//            classToExport = courseTakeDao.findClassToExport(ids);
-//        } else {
-//            PageCondition<RollBookConditionDto> condition = PageConditionUtil.getPageCondition(rollBookConditionDto);
-//            classToExport = findRollBookList(condition);
-//        }
-//
-//        PageResult<RollBookList> rollBookList = findRollBookList(condition);
-//        String path="";
-//        if (rollBookList != null) {
-//            List<RollBookList> list = rollBookList.getList();
-//            if (CollectionUtil.isNotEmpty(list)) {
-//                list = SpringUtils.convert(list);
-//                ExcelEntityExport<RollBookList> excelExport = new ExcelEntityExport<RollBookList>(list,
-//                        excelStoreConfig.getGraduteRollBookListKey(),
-//                        excelStoreConfig.getGraduteRollBookListTitle(),
-//                        cacheDirectory);
-//                path = excelExport.exportExcelToCacheDirectory("研究生点名册");
-//            }
-//        }
-//        return RestResult.successData("minor.export.success",path);
-//    }
-
-
     /**
     *@Description: 查询点名册
     *@Param:
@@ -649,7 +610,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 if (courseTakeType != null && courseTakeType.intValue() == 2) {
                     list.add("重");
                 }
-                if (trainingLevel.equals(vo.getTrainingLevel())) {
+                if (!trainingLevel.equals(vo.getTrainingLevel())) {
                     list.add("#");
                 }
                 boolean conflict = getConflict(vo.getCalendarId(), vo.getStudentCode(), teachingClassId);
