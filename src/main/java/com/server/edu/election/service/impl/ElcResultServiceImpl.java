@@ -643,7 +643,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
 				elcNumber = elcNumber + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
@@ -670,8 +670,8 @@ public class ElcResultServiceImpl implements ElcResultService
 					elcResultDto.setGrade("全部");
 				}
 				query.setFaculty(elcResultDto.getFaculty() == null ? "" : elcResultDto.getFaculty());
-				query.setEnrolSeason(condition.getEnrolSeason() == null ? "" : condition.getEnrolSeason());
 				query.setProfession(elcResultDto.getProfession() == null ? "" : elcResultDto.getProfession());
+				query.setEnrolSeason(condition.getEnrolSeason() == null ? "" : condition.getEnrolSeason());
 				query.setDegreeType(condition.getDegreeType() == null ? "" : condition.getDegreeType());
 				query.setFormLearning(condition.getFormLearning() == null ? "" : condition.getFormLearning());
 				query.setTrainingCategory(condition.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
@@ -683,7 +683,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
 				elcNumberByFaculty = elcNumberByFaculty + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(Double.parseDouble((numberOfelectedPersons/elcResultDto.getStudentNum() + "")));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
