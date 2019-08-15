@@ -27,10 +27,19 @@ public class ElcStudentVo {
     private String nature;
     private Double credits;
     @Code2Text(transformer="X_XDLX")
-    private String courseTakeType;
+    private Integer courseTakeType;
     private Integer elcNumber;
     private Integer number;
     private String courseArrange;
+    private String campus;
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
 
     public String getCourseArrange() {
         return courseArrange;
@@ -176,11 +185,11 @@ public class ElcStudentVo {
         this.credits = credits;
     }
 
-    public String getCourseTakeType() {
+    public Integer getCourseTakeType() {
         return courseTakeType;
     }
 
-    public void setCourseTakeType(String courseTakeType) {
+    public void setCourseTakeType(Integer courseTakeType) {
         this.courseTakeType = courseTakeType;
     }
 }
