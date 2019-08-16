@@ -8,8 +8,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.stringtemplate.v4.compiler.CodeGenerator.list_return;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.dto.PlanCourseDto;
@@ -240,15 +244,17 @@ public class CultureSerivceInvoker
     }
     
     /**查询研究生关联的第一外国语*/
-    public static RestResult<List<ElecFirstLanguageContrastVo>> getStudentFirstForeignLanguage(String managerDeptId,Integer pageNum_,Integer pageSize_)
+    public static List<ElecFirstLanguageContrastVo> getStudentFirstForeignLanguage(String managerDeptId,Integer pageNum_,Integer pageSize_)
     {
     	@SuppressWarnings("unchecked")
-    	RestResult<List<ElecFirstLanguageContrastVo>> restResult =
+    	RestResult<PageResult<ElecFirstLanguageContrastVo>> restResult =
         ServicePathEnum.CULTURESERVICE.getForObject(
                 "/firstLanguageContrast/page?managerDeptId={managerDeptId}&pageSize_={pageSize_}&pageNum_={pageNum_}",
                  RestResult.class,managerDeptId,pageNum_,pageSize_);
-    			
-    	return restResult;
+    	Map<String, Object> json = (Map<String, Object>)JSONObject.toJSON(restResult.getData());
+    	String object = json.get("list").toString();
+    	List<ElecFirstLanguageContrastVo> parseArray = JSON.parseArray(object,ElecFirstLanguageContrastVo.class);
+    	return parseArray;
     }
 
 
