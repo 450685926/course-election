@@ -1529,8 +1529,9 @@
   </select>
   
   <select id="getElcMedWithdraw" parameterType="com.server.edu.election.dto.ElcMedWithdrawDto" resultMap="VoResultMap">
-		  SELECT 
+		SELECT 
 		  t1.`ID_`,
+		  0 AS medWithdrawId,
 		  t1.`TEACHING_CLASS_ID_`,
 		  t2.`CODE_` teachingClassCode,
 		  t3.`COURSE_NAME_` courseName,
@@ -1545,14 +1546,16 @@
 		    ON (
 		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
 		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
-		    ) 
+		    )
+		  JOIN elc_med_withdraw_rule_ref_cour_t t4 
+           ON t4.TEACHING_CLASS_ID_ = t2.`ID_` 
 		WHERE t1.`STUDENT_ID_` = #{studentId}
 		  AND t1.`CALENDAR_ID_` = #{calendarId} 
-  </select>
-  
-  <select id="getCancelElcMedWithdraw" parameterType="com.server.edu.election.dto.ElcMedWithdrawDto" resultMap="VoResultMap">
-		  SELECT 
-		  t1.`ID_`,
+		UNION
+		ALL 
+		SELECT 
+		  0 AS id,
+		  t1.`ID_` medWithdrawId,
 		  t1.`TEACHING_CLASS_ID_`,
 		  t2.`CODE_` teachingClassCode,
 		  t3.`COURSE_NAME_` courseName,
@@ -1571,5 +1574,4 @@
 		WHERE t1.`STUDENT_ID_` = #{studentId}
 		  AND t1.`CALENDAR_ID_` = #{calendarId} 
   </select>
-
 </mapper>
