@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 
@@ -47,6 +48,9 @@ public class ElecContext implements IElecContext
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
     
+    /**学生第一外国语课程 */
+    private List<StudentCultureRel> firstForeignCourses;
+    
     private Map<String, Object> elecResult;
     
     private ElecRequest request;
@@ -87,6 +91,8 @@ public class ElecContext implements IElecContext
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         applyCourse = new HashSet<>();
+        	this.contextUtil.getSet("firstForeignCourses", StudentCultureRel.class);
+        applyCourse = new HashSet<>();
     }
     
     /**
@@ -109,6 +115,8 @@ public class ElecContext implements IElecContext
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
+        this.contextUtil.updateMem("firstForeignCourses", this.firstForeignCourses);
+        applyCourse = new HashSet<>();
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -138,6 +146,7 @@ public class ElecContext implements IElecContext
         this.getRespose().getFailedReasons().clear();
         this.getRespose().getSuccessCourses().clear();
         this.getApplyCourse().clear();
+        this.getFirstForeignCourses().clear();
     }
     
     
@@ -242,6 +251,14 @@ public class ElecContext implements IElecContext
 
 	public void setElecResult(Map<String, Object> elecResult) {
 		this.elecResult = elecResult;
+	}
+
+	public List<StudentCultureRel> getFirstForeignCourses() {
+		return firstForeignCourses;
+	}
+
+	public void setFirstForeignCourses(List<StudentCultureRel> firstForeignCourses) {
+		this.firstForeignCourses = firstForeignCourses;
 	}
     
 }

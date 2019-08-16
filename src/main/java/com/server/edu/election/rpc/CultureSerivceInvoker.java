@@ -7,19 +7,15 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.stringtemplate.v4.compiler.CodeGenerator.list_return;
-
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.Page;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.entity.CourseLabelRelation;
 import com.server.edu.common.entity.Courses;
 import com.server.edu.common.entity.CultureScheme;
+import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
@@ -256,5 +252,20 @@ public class CultureSerivceInvoker
     	List<ElecFirstLanguageContrastVo> parseArray = JSON.parseArray(object,ElecFirstLanguageContrastVo.class);
     	return parseArray;
     }
+    
+    /** 根据学生学号查询研究生关联的第一外国语 */
+    public static List<StudentCultureRel> findStudentCultureRelList(StudentCultureRel studentCultureRel)
+    {
+    	@SuppressWarnings("unchecked")
+    	RestResult<PageResult<StudentCultureRel>> restResult =
+        ServicePathEnum.CULTURESERVICE.postForObject("/studentCultureRel/findStudentCultureRelList",
+        		studentCultureRel,RestResult.class);
+    	Map<String, Object> json = (Map<String, Object>)JSONObject.toJSON(restResult.getData());
+    	String object = json.get("list").toString();
+    	List<StudentCultureRel> parseArray = JSON.parseArray(object,StudentCultureRel.class);
+    	
+    	return parseArray;
+    }
 
 }
+
