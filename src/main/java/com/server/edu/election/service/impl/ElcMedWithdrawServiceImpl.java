@@ -2,12 +2,14 @@ package com.server.edu.election.service.impl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -91,6 +93,7 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
         return pageInfo;
 	}
 
+	@Transactional
 	@Override
 	public int medWithdraw(Long id, String projectId) {
 		//1.查询选课信息
@@ -111,6 +114,7 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
                     I18nUtil.getMsg("elcMedWithdraw.teachingClassError"));
         }
         TeachingClassVo teachingClassVo = teachingClassList.get(0);
+        //校验期中退课规则
 		medWithdrawCheck(projectId,elcCourseTake,teachingClassVo);
 		//保存期中退课日志
         ElcLog elcLog = new ElcLog();
@@ -122,25 +126,50 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
         elcLog.setType(Constants.THREE);
         String ip  = SessionUtils.getCurrentSession().getIp();
         elcLog.setCreateIp(ip);
-        int result = elcLogDao.insert(elcLog);
-        if(result<0) {
+        int result = elcLogDao.insertSelective(elcLog);
+        if(result<Constants.ZERO) {
             throw new ParameterValidateException(
-                    I18nUtil.getMsg("elec.elcMedWithdrawFail"));
+                    I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.elcLog")));
         }
         ElcMedWithdraw elcMedWithdraw = new ElcMedWithdraw();
         BeanUtils.copyProperties(elcCourseTake, elcMedWithdraw);
-        result = elcMedWithdrawDao.insert(elcMedWithdraw);
-        if(result<0) {
+        result = elcMedWithdrawDao.insertSelective(elcMedWithdraw);
+        if(result<Constants.ZERO) {
             throw new ParameterValidateException(
-                    I18nUtil.getMsg("elec.elcMedWithdrawFail"));
+                    I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.info")));
         }
+        result = elcCourseTakeDao.deleteByPrimaryKey(id);
 		return result;
 	}
 
+	@Transactional
 	@Override
-	public int cancelMedWithdraw(Long id, String projectId) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int cancelMedWithdraw(Long medWithdrawId,String projectId) {
+		ElcMedWithdraw elcMedWithdraw = elcMedWithdrawDao.selectByPrimaryKey(medWithdrawId);
+		if(elcMedWithdraw==null) {
+			 throw new ParameterValidateException(
+	                    I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("elcMedWithdraw.info")));
+		}
+		Date date = new Date();
+		ElcMedWithdrawRules elcMedWithdrawRules = getMedWithdrawRules(projectId, elcMedWithdraw.getCalendarId());
+        if(elcMedWithdrawRules==null) {
+			 throw new ParameterValidateException(
+	                    I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("elcMedWithdraw.rule")));
+        }
+        if(elcMedWithdrawRules.getBeginTime().getTime()>=date.getTime()||date.getTime()>=elcMedWithdrawRules.getEndTime().getTime()) {
+        	 throw new ParameterValidateException(
+	                    I18nUtil.getMsg("elcMedWithdraw.outRuleTime"));
+        }
+		ElcCourseTake elcCourseTake = new ElcCourseTake();
+		BeanUtils.copyProperties(elcMedWithdraw, elcCourseTake);
+		int result = elcCourseTakeDao.insertSelective(elcCourseTake);
+		if(result<Constants.ZERO) {
+            throw new ParameterValidateException(
+                    I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.elcinfo")));
+		}
+		result = elcMedWithdrawDao.deleteByPrimaryKey(medWithdrawId);
+		
+		return result;
 	}
 	
     //期中退课规则校验
@@ -162,12 +191,11 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
                     I18nUtil.getMsg("elcMedWithdraw.courseExist"));
         }
         //获取期中退课规则
-        Example elcExample = new Example(ElcMedWithdrawRules.class);
-        Example.Criteria elcCriteria = elcExample.createCriteria();
-        elcCriteria.andEqualTo("projectId", projectId);
-        elcCriteria.andEqualTo("calendarId", elcCourseTake.getCalendarId());
-        ElcMedWithdrawRules elcMedWithdrawRules =
-            elcMedWithdrawRulesDao.selectOneByExample(elcExample);
+        ElcMedWithdrawRules elcMedWithdrawRules = getMedWithdrawRules(projectId, elcCourseTake.getCalendarId());
+        if(elcMedWithdrawRules==null) {
+			 throw new ParameterValidateException(
+	                    I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("elcMedWithdraw.rule")));
+        }
         //规则启用
         if (elcMedWithdrawRules.getOpenFlag())
         {
@@ -283,5 +311,15 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
             }
         }
     }
+
+	private ElcMedWithdrawRules getMedWithdrawRules(String projectId,Long calendarId) {
+		Example elcExample = new Example(ElcMedWithdrawRules.class);
+        Example.Criteria elcCriteria = elcExample.createCriteria();
+        elcCriteria.andEqualTo("projectId", projectId);
+        elcCriteria.andEqualTo("calendarId", calendarId);
+        ElcMedWithdrawRules elcMedWithdrawRules =
+            elcMedWithdrawRulesDao.selectOneByExample(elcExample);
+		return elcMedWithdrawRules;
+	}
 
 }
