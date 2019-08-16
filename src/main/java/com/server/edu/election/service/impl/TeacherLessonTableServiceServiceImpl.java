@@ -146,10 +146,19 @@ public class TeacherLessonTableServiceServiceImpl
             List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
             if (CollectionUtil.isNotEmpty(result)) {
                 for (ClassCodeToTeacher toTeacher : result) {
-                    TeachingClassTeacher teacher = teachingClassTeacherDao.findTeacher(toTeacher.getTeacherCode());
+                    String teacherCode = toTeacher.getTeacherCode();
+                    TeachingClassTeacher teacher = teachingClassTeacherDao.findTeacher(teacherCode);
                     if (teacher != null) {
                         toTeacher.setTeacherName(teacher.getTeacherName());
                         teacher.setSex(teacher.getSex());
+                    } else {
+                        String[] split = teacherCode.split(",");
+                        List<String> list = new ArrayList<>();
+                        for (String s : split) {
+                            TeachingClassTeacher th = teachingClassTeacherDao.findTeacher(teacherCode);
+                            list.add(th.getTeacherName());
+                        }
+                        toTeacher.setTeacherName(String.join(",",list));
                     }
                 }
             }
