@@ -214,7 +214,7 @@ public class RoundCacheService extends AbstractCacheService
         if (con != null)
         {
         	boolean matchConditionFlag = contains(con.getCampus(), student.getCampus())
-        			&& contains(con.getFacultys(), student.getFaculty())
+        			&& (contains(con.getFacultys(), student.getFaculty()) || contains(con.getFacultys(), "99999")) // 全校
         			&& contains(con.getGrades(), student.getGrade().toString())
         			&& contains(con.getMajors(), student.getProfession())
         			&& contains(con.getTrainingLevels(),student.getTrainingLevel());

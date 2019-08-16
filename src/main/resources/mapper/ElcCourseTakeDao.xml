@@ -1412,7 +1412,7 @@
         <foreach item="item" collection="teachingClassIds" separator="," open="(" close=")" >
             #{item}
         </foreach>
-        AND t2.TEACHER_CODE_ = #{teacherCode}
+        AND t2.TEACHER_CODE_ like concat('%',#{teacherCode},'%')
         group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
         order by t1.DAY_OF_WEEK_,t1.TIME_START_,t1.TIME_END_
     </select>
