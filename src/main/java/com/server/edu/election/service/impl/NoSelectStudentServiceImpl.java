@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.controller.NoSelectStudentController;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
 import com.server.edu.election.dto.ElcResultDto;
@@ -48,6 +51,9 @@ import com.server.edu.welcomeservice.util.ExcelEntityExport;
 @Service
 public class NoSelectStudentServiceImpl implements NoSelectStudentService
 {
+	private static Logger LOG =
+	        LoggerFactory.getLogger(NoSelectStudentServiceImpl.class);
+	
     @Autowired
     private ElcNoSelectReasonDao reasonDao;
     
@@ -82,6 +88,8 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
          }else {
              electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
              List<String> studentCodes = electCourseList.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
+             
+             LOG.info("==================studentCodes==================:" + studentCodes.size());
              
              List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(studentCodes);
              
