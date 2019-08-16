@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ElcResultSwitch;
 import com.server.edu.election.service.ElecResultSwitchService;
@@ -40,10 +42,11 @@ public class ElecResultSwitchController {
 	}
 	
 	@ApiOperation(value = "根据学历学期号查询开关结果")
-	@GetMapping("/{calendarId}")
+	@GetMapping("/getSwitch")
 	public RestResult<ElcResultSwitch> getSwitch(
-			@PathVariable("calendarId") Long calendarId){
-		ElcResultSwitch result = elecResultSwitchService.getSwitch(calendarId);
+			@RequestParam("calendarId") Long calendarId,
+			@RequestParam("projectId") String projectId){
+		ElcResultSwitch result = elecResultSwitchService.getSwitch(calendarId,projectId);
 		return RestResult.successData(result);
 	}
 }
