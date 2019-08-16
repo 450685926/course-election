@@ -1021,7 +1021,7 @@
 		FROM student_t
         <where>
              STUDENT_CODE_ not in (select STUDENT_ID_ from elc_course_takes_t where CALENDAR_ID_=#{calendarId} group by STUDENT_ID_)
-             and MANAGER_DEPT_ID_ <![CDATA[<>]]> '1'
+             and MANAGER_DEPT_ID_ = #{deptId}
              and LEAVE_SCHOOL_ = '1'
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and FACULTY_ =#{faculty}
