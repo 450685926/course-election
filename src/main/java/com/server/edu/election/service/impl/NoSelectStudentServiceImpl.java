@@ -23,7 +23,6 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.controller.NoSelectStudentController;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcNoSelectReasonDao;
 import com.server.edu.election.dto.ElcResultDto;
@@ -87,10 +86,8 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
              electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
          }else {
              electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
+
              List<String> studentCodes = electCourseList.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
-             
-             LOG.info("==================studentCodes==================:" + studentCodes.size());
-             
              List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(studentCodes);
              
              Iterator<NoSelectCourseStdsDto> iterator = electCourseList.iterator();
