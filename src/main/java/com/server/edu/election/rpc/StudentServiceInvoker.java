@@ -105,8 +105,6 @@ public class StudentServiceInvoker {
      * @date 2019/8/15
      */
     public static List<AbnormalTypeElection> getAbnormalTypeByStudentCode(List<String> studentCodes) {
-    	LOG.info("===============getAbnormalTypeByStudentCode==============="+studentCodes.size());
-    	
         @SuppressWarnings("unchecked")
         RestResult<List<AbnormalTypeElection>> list = ServicePathEnum.STUDENT.postForObject("/applyType/getAbnormalTypeByStudentCode",JSONArray.parseArray(JSON.toJSONString(studentCodes)), RestResult.class);
         return list.getData();
