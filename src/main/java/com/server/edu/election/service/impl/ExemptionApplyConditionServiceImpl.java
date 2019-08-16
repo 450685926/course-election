@@ -136,13 +136,6 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 			studentCode = studentId;
 			student = studentDao.findStudentByCode(studentCode);
 		}
-		logger.info("==========================ExemptionApply=====================start=====");
-		
-		logger.info("==========================courseCode==========================:"+courseCode);
-		logger.info("==========================studentId==========================:"+studentId);
-		logger.info("==========================studentCode==========================:"+studentCode);
-
-		logger.info("==========================student==========================:"+student);
 		
 		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
     	condition.setCourseCode(courseCode);
@@ -168,10 +161,6 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	    		formLearning = String.valueOf(Integer.parseInt(student.getFormLearning()));
 	    		condition.setFormLearnings(formLearning==null?"":formLearning);
 			}
-	    	logger.info("==========================trainingLevel==========================:"+trainingLevel);
-	    	logger.info("==========================trainingCategory==========================:"+trainingCategory);
-	    	logger.info("==========================degreeType==========================:"+degreeType);
-	    	logger.info("==========================formLearning==========================:"+formLearning);
     	}
 		return exemptionApplyConditionDao.queryApplyConditionByCourseCodeAndStudentId(condition);
 	}
