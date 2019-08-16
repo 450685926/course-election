@@ -1173,16 +1173,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		//培养计划与第一外语的交集
 		Set<PlanCourse> studentlanguageCourse = new HashSet<>();
-		for (PlanCourse planCourse : planCourses) {
-			boolean flag = true;
-			for (ElecFirstLanguageContrastVo code : collect) {
+		for (ElecFirstLanguageContrastVo code : collect) {
+			for (PlanCourse planCourse : planCourses) {
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), code.getCourseCode())) {
-					flag = false;
-					break;
+					studentlanguageCourse.add(planCourse);
 				}
-			}
-			if (flag) {
-				studentlanguageCourse.add(planCourse);
 			}
 		}
 		Set<String> courseCodes = new HashSet<>();
