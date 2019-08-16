@@ -307,7 +307,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (realType == UserTypeEnum.TEACHER.getValue())
         {
         	//判断选课结果开关状态
-    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId());
+    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),Constants.PROJ_GRADUATE);
     		if (elcResultSwitch.getStatus() == Constants.ZERO) {
     			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
     		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
@@ -506,7 +506,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (realType == UserTypeEnum.TEACHER.getValue())
         {
         	//判断选课结果开关状态
-    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId());
+    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),Constants.PROJ_GRADUATE);
     		if (elcResultSwitch.getStatus() == Constants.ZERO) {
     			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
     		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
