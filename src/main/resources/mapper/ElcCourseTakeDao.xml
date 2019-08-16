@@ -887,6 +887,7 @@
         op.CALENDAR_ID_ calendarId,
         tr.TEACHER_CODE_ teacherCode,
         tc.CODE_ classCode,
+        tc.NAME_ className,
         tc.ELC_NUMBER_ elcNumber,
         op.COURSE_CODE_ courseCode,
         op.COURSE_NAME_ courseName,
@@ -917,7 +918,7 @@
                 and te.TEACHER_CODE_ =#{teacherCode,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
-                and tc.CODE_ =#{classCode,jdbcType=VARCHAR}
+                and tc.CODE_ = #{classCode,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCodes)">
                 and tr.TEACHER_CODE_ in

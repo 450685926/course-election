@@ -17,6 +17,7 @@ public class ClassCodeToTeacher {
     private String teacherCode;
     private String teacherName;
     private String classCode;
+    private String className;
     private String courseCode;
     private String courseName;
     @Code2Text(transformer="X_YX")
@@ -29,6 +30,14 @@ public class ClassCodeToTeacher {
     private Integer elcNumber;
     private String keyWord;//查询条件
     private List<String> teacherCodes;//根据查询条件获取的教师集合
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
     public List<String> getTeacherCodes() {
         return teacherCodes;
