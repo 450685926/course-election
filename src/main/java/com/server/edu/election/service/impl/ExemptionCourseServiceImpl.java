@@ -458,9 +458,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				applyManage.setCourseName(courseNames[i]);
 				saveExemptionScore(applyManage, courseCodes[i]);
 				int code = saveExemptionScore(applyManage, courseCodes[i]);
-        		if(code != 200){
-        			return "common.editError";
-        		}
+//        		if(code != 200){
+//        			return "common.editError";
+//        		}
 				applyDao.insertSelective(applyManage);
 			}
 		}
@@ -853,9 +853,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
         		int code = saveExemptionScore(applyRecord, applyRecord.getCourseCode());
-        		if(code != 200){
-        			return "common.editError";
-        		}
+//        		if(code != 200){
+//        			return "common.editError";
+//        		}
 			}
             
         }else{
@@ -1236,9 +1236,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					applyManage.setCourseName(courseNames[i]);
 					saveExemptionScore(applyManage, courseCodes[i]);
 					int code = saveExemptionScore(applyManage, courseCodes[i]);
-	        		if(code != 200){
-	        			return RestResult.fail("common.editError","");
-	        		}
+//	        		if(code != 200){
+//	        			return RestResult.fail("common.editError","");
+//	        		}
 					applyDao.insertSelective(applyManage);
 				}
 			}
