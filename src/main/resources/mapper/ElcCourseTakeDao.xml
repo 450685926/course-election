@@ -51,6 +51,7 @@
   	<result column="TERM_" jdbcType="VARCHAR" property="term" />
   	<result column="GRADE_" jdbcType="VARCHAR" property="grade" />
   	<result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+  	<result column="medWithdrawId" jdbcType="BIGINT" property="medWithdrawId" />
   </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
