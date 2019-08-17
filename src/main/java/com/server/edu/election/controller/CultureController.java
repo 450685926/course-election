@@ -29,7 +29,7 @@ public class CultureController {
     @ApiOperation(value = "查询学生入学第一外国语国标")
     @PostMapping ("/findStudentFirstLanguageCode")
     @ResponseBody
-    public RestResult<Map<String,String>> findStudentFirstLanguageCode(@RequestBody List<String> studentIds){
+    public RestResult<?> findStudentFirstLanguageCode(@RequestBody List<String> studentIds){
         if(studentIds==null || studentIds.size()==0){
             return RestResult.fail(I18nUtil.getMsg("baseresservice.parameterError"));
         }
