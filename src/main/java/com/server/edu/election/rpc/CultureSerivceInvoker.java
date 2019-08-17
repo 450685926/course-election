@@ -260,8 +260,8 @@ public class CultureSerivceInvoker
     	RestResult<StudentCultureRel> restResult =
         ServicePathEnum.CULTURESERVICE.getForObject("/studentCultureRel/findStudentCultureRelByStudentId?stuid={stuid}",
         		RestResult.class,studentCultureRel.getStudentId());
-    	String json = restResult.getData().toString();
-    	LOG.info(json);
+    	String json =JSONObject.toJSON(restResult.getData()).toString();
+    	LOG.info("----------------------------------------------"+json);
     	StudentCultureRel parseObject = JSON.parseObject(json,StudentCultureRel.class);
 //    	String object = json.get("list").toString();
 //    	List<StudentCultureRel> parseArray = JSON.parseArray(object,StudentCultureRel.class);
