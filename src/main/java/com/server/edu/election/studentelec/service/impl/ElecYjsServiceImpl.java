@@ -61,6 +61,7 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
@@ -1028,14 +1029,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		    }
 		}
 		//可选课程中去除免修免考课程
-		Set<String> applyCourses = c.getApplyCourse();
+		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
 		for (PlanCourse centerCourses : optionalGraduateCoursesList)
 		{
 		    Boolean flag = true;
-		    for (String courseCode : applyCourses)
+		    for (ElecCourse courseCode : applyCourses)
 		    {
 		        if (centerCourses.getCourseCode()
-		            .equals(courseCode))
+		            .equals(courseCode.getCourseCode()))
 		        {
 		            flag = false;
 		            break;
@@ -1092,14 +1093,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
 		//可选课程中去除免修免考课程
-		Set<String> applyCourses = c.getApplyCourse();
+		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
 		for (String centerCourses : optionalGraduateCoursesList)
 		{
 			Boolean flag = true;
-			for (String courseCode : applyCourses)
+			for (ElecCourse courseCode : applyCourses)
 			{
 				if (centerCourses
-						.equals(courseCode))
+						.equals(courseCode.getCourseCode()))
 				{
 					flag = false;
 					break;

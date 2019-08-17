@@ -107,18 +107,21 @@ public interface ElcCourseTakeService
 
 	/**
      * 为指定学研究生退课
+	 * @param b 
      * 
      * @param teachingClassIds
      * @param studentId
      */
-	void graduateWithdraw(ElcCourseTakeWithDrawDto value, int realType);
+	void graduateWithdraw(ElcCourseTakeWithDrawDto value, String currentRole, boolean adminFlag, String projId);
 
 	/**
      * 为指定学研究生加退课
+	 * @param projId 
+	 * @param isTeacher 
 	 * @param teachingClassIds
      * @param studentId
      */
-	String graduateAdd(ElcCourseTakeAddDto value, int realType);
+	String graduateAdd(ElcCourseTakeAddDto value,String currentRole, boolean adminFlag, String projId);
 
 	/**
 	 * 个人培养计划中有该课程且又没有选课的学生名单

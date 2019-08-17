@@ -222,14 +222,21 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         //3.学生免修课程
-        List<ElecCourse> applyRecord = applyDao.findApplyRecord(calendarId, studentId);
-            
         Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
-        applyForDropCourses.addAll(applyRecord);
+        this.loadApplyRecord(calendarId, studentId,applyForDropCourses);
+        
         // 4. 非本学期的选课并且没有成功的
     }
     
-    /**
+    public void loadApplyRecord(Long calendarId, String studentId, Set<ElecCourse> applyForDropCourses) {
+    	List<ElecCourse> applyRecord = applyDao.findApplyRecord(calendarId, studentId);
+    	if (CollectionUtil.isNotEmpty(applyRecord)) {
+    		applyForDropCourses.addAll(applyRecord);
+		}
+		
+	}
+
+	/**
      * 加载本学期已选课课程数据
      * 
      * @param studentId

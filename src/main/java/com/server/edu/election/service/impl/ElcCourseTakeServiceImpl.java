@@ -298,16 +298,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
 
 	@Override
-	public String graduateAdd(ElcCourseTakeAddDto value, int realType) {
+	public String graduateAdd(ElcCourseTakeAddDto value, String currentRole, boolean adminFlag, String projId) {
 		Date date = new Date();
 		if (CollectionUtil.isEmpty(value.getStudentIds())) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.noStudent",I18nUtil.getMsg("elecResultSwitch.noStudent")));
 		}
     	//如果当前操作人是老师
-        if (realType == UserTypeEnum.TEACHER.getValue())
+        if ("1".equals(currentRole)&&!adminFlag)
         {
         	//判断选课结果开关状态
-    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),Constants.PROJ_GRADUATE);
+    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),projId);
     		if (elcResultSwitch.getStatus() == Constants.ZERO) {
     			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
     		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
@@ -499,14 +499,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
     
     @Override
-	public void graduateWithdraw(ElcCourseTakeWithDrawDto value, int realType) {
+	public void graduateWithdraw(ElcCourseTakeWithDrawDto value,String currentRole, boolean adminFlag, String projId) {
     	
     	Date date = new Date();
     	//如果当前操作人是老师
-        if (realType == UserTypeEnum.TEACHER.getValue())
+        if ("1".equals(currentRole)&&!adminFlag)
         {
         	//判断选课结果开关状态
-    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),Constants.PROJ_GRADUATE);
+    		ElcResultSwitch elcResultSwitch = elecResultSwitchService.getSwitch(value.getCalendarId(),projId);
     		if (elcResultSwitch.getStatus() == Constants.ZERO) {
     			throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled",I18nUtil.getMsg("elecResultSwitch.notEnabled")));
     		} else if(date.getTime() > elcResultSwitch.getOpenTimeEnd().getTime() ||  date.getTime() < elcResultSwitch.getOpenTimeStart().getTime()){
@@ -619,6 +619,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
 		ElcResultQuery cond = page.getCondition();
+		Session currentSession = SessionUtils.getCurrentSession();
+		cond.setProjectId(currentSession.getCurrentManageDptId());
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);

@@ -124,5 +124,12 @@ public interface ExemptionCourseService {
 	 * @return
 	 */
 	RestResult<?> deleteGraduteExemptionApply(List<Long> ids);
+	
+	/**
+	 * 查看审核开关是否开启
+	 * @param projId 
+	 * @return
+	 */
+	Boolean getIsOpenAuditAuthority(String projId);
 }
 

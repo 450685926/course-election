@@ -23,6 +23,8 @@ import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 @Service
@@ -47,6 +49,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         
         ElecRoundStuQuery stu = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        stu.setProjectId(session.getCurrentManageDptId());
         Page<Student4Elc> listPage =
             elecRoundStuDao.listPage(stu, stu.getRoundId());
         
@@ -63,7 +67,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         {
             throw new ParameterValidateException("选课轮次不存在");
         }
-        List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes);
+        Session session = SessionUtils.getCurrentSession();
+       
+        List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes, session.getCurrentManageDptId());
         List<String> listAddedStu =
             elecRoundStuDao.listAddedStu(roundId, studentCodes);
         List<String> notExistStu = new ArrayList<>();
@@ -108,6 +114,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void addByCondition(ElecRoundStuQuery stu)
     {
+    	Session session = SessionUtils.getCurrentSession();
+        stu.setProjectId(session.getCurrentManageDptId());
         if(stu.getMode()==1||stu.getMode()==2){//来源学生
 
             List<Student4Elc> listStudent =
@@ -144,6 +152,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void deleteByCondition(ElecRoundStuQuery stu)
     {
+    	Session session = SessionUtils.getCurrentSession();
+        stu.setProjectId(session.getCurrentManageDptId());
         Page<Student4Elc> listStudent =
             elecRoundStuDao.listPage(stu, stu.getRoundId());
         

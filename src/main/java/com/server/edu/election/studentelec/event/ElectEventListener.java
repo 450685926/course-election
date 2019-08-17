@@ -55,6 +55,7 @@ public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
                 yjsCourseGradeLoad.loadSelectedCourses(studentId,
                     context.getSelectedCourses(),
                     calendarId);
+                yjsCourseGradeLoad.loadApplyRecord(calendarId, studentId, context.getApplyForDropCourses());
                 context.saveToCache();
             }
             

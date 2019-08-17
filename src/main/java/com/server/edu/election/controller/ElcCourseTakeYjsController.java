@@ -260,8 +260,9 @@ public class ElcCourseTakeYjsController
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
         Session session = SessionUtils.getCurrentSession();
-    	
-        String msg = courseTakeService.graduateAdd(value,session.realType());
+        String currentRole = session.getCurrentRole();
+        boolean adminFlag = session.isAdmin();
+        String msg = courseTakeService.graduateAdd(value,currentRole,adminFlag,session.getCurrentManageDptId());
         return RestResult.success(msg);
     }   
     
@@ -295,8 +296,9 @@ public class ElcCourseTakeYjsController
     public RestResult<?> graduateWithdraw(@RequestBody ElcCourseTakeWithDrawDto value)
     {
     	Session session = SessionUtils.getCurrentSession();
-        
-    	courseTakeService.graduateWithdraw(value,session.realType());
+    	String currentRole = session.getCurrentRole();
+        boolean adminFlag = session.isAdmin();
+    	courseTakeService.graduateWithdraw(value,currentRole,adminFlag,session.getCurrentManageDptId());
     	
     	return RestResult.success();
     }
