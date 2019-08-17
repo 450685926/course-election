@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.entity.ElcMedWithdraw;
+import com.server.edu.election.dto.ElcMedWithdrawDto;
 import com.server.edu.election.service.ElcMedWithdrawService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 
@@ -40,7 +40,7 @@ public class ElcMedWithdrawController {
     @ApiOperation(value = "期中退课列表")
     @PostMapping("/page")
     public RestResult<PageInfo<ElcCourseTakeVo>> page(
-        @RequestBody PageCondition<ElcMedWithdraw> condition)
+        @RequestBody PageCondition<ElcMedWithdrawDto> condition)
         throws Exception
     {
         LOG.info("list.start");
