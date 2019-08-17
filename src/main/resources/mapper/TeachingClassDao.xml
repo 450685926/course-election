@@ -320,8 +320,9 @@
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
 	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
     <where>
+     t1.DEPLOY_FLAG_ &gt; 0
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-        t3.CALENDAR_ID_ = #{calendarId}
+        and t3.CALENDAR_ID_ = #{calendarId}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassId)">
         and t1.ID_ = #{teachingClassId}

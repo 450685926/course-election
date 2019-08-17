@@ -70,7 +70,18 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     private Long medWithdrawId;
     
-    public Long getMedWithdrawId() {
+    private String elcMedWithdrawStatus;
+    
+    
+    public String getElcMedWithdrawStatus() {
+		return elcMedWithdrawStatus;
+	}
+
+	public void setElcMedWithdrawStatus(String elcMedWithdrawStatus) {
+		this.elcMedWithdrawStatus = elcMedWithdrawStatus;
+	}
+
+	public Long getMedWithdrawId() {
 		return medWithdrawId;
 	}
 
