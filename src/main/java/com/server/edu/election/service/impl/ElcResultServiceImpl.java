@@ -619,7 +619,6 @@ public class ElcResultServiceImpl implements ElcResultService
 		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
-			condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
 			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
 			Integer elcNumber = 0;
 			for (ElcResultDto elcResultDto : elcResultList) {
@@ -634,7 +633,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setFaculty(condition.getFaculty() == null ? "" : condition.getFaculty());
 				query.setEnrolSeason(condition.getEnrolSeason()  == null ? "" : condition.getEnrolSeason());
 				query.setCalendarId(condition.getCalendarId());
-				query.setManagerDeptId("1");
+				query.setManagerDeptId(condition.getManagerDeptId());
 				query.setDegreeType(elcResultDto.getDegreeType() == null ? "" : elcResultDto.getDegreeType());
 				query.setFormLearning(elcResultDto.getFormLearning() == null ? "" : elcResultDto.getFormLearning());
 				query.setTrainingCategory(elcResultDto.getTrainingCategory() == null ? "" : elcResultDto.getTrainingCategory());
@@ -643,21 +642,20 @@ public class ElcResultServiceImpl implements ElcResultService
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
 				elcNumber = elcNumber + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
 			Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
-			elcResultCountVo.setElcNumberByStudent(elcNumber);
 			PageResult<ElcResultDto> elceResultByStudent = new PageResult<>(elcResultList);
 			elcResultCountVo.setPageNum_(elceResultByStudent.getPageNum_());
 			elcResultCountVo.setPageSize_(elceResultByStudent.getPageSize_());
 			elcResultCountVo.setTotal_(elceResultByStudent.getTotal_());
 			elcResultCountVo.setList(elceResultByStudent.getList());
+			elcResultCountVo.setElcNumberByStudent(elcNumber);
 			elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
 			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
 		}else{
-			condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
 			//从学院维度查询
 			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
 			Integer elcNumberByFaculty = 0;
@@ -677,23 +675,23 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setTrainingCategory(condition.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
 				query.setTrainingLevel(condition.getTrainingLevel() == null ? "" : condition.getTrainingLevel());
 				query.setCalendarId(condition.getCalendarId());
-				query.setManagerDeptId("1");
+				query.setManagerDeptId(condition.getManagerDeptId());
 				
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
 				elcNumberByFaculty = elcNumberByFaculty + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4));
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
 			Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
-			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
 			PageResult<ElcResultDto> elceResultByFaculty = new PageResult<>(eleResultByFacultyList);
 			elcResultCountVo.setPageNum_(elceResultByFaculty.getPageNum_());
 			elcResultCountVo.setPageSize_(elceResultByFaculty.getPageSize_());
 			elcResultCountVo.setTotal_(elceResultByFaculty.getTotal_());
 			elcResultCountVo.setList(elceResultByFaculty.getList());
+			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
 			elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
 			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
 		}
@@ -709,7 +707,6 @@ public class ElcResultServiceImpl implements ElcResultService
 	public PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page ) {
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		//查询该条件下未选课学生名单
-		page.getCondition().setManagerDeptId(Constants.ONE+"");
 		Page<Student4Elc> result = new Page<Student4Elc>();
 		if(page.getCondition().getDimension().intValue() == Constants.ONE){
 			result = studentDao.getAllNonSelectedCourseStudent(page.getCondition());
