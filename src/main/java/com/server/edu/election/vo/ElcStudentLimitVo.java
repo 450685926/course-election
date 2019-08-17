@@ -36,6 +36,21 @@ public class ElcStudentLimitVo extends ElcStudentLimit {
     private double selectedCredits;
     
     private int selectedRebuild;
+    
+    /**
+     * 性别(根据数据字典统一使用)
+     */
+    @Code2Text(transformer = "G_XBIE")
+    private Integer sex;
+    
+
+	public Integer getSex() {
+		return sex;
+	}
+
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
 
 	public double getSelectedCredits() {
 		return selectedCredits;
