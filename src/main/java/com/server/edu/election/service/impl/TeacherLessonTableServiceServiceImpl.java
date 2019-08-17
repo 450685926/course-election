@@ -163,6 +163,7 @@ public class TeacherLessonTableServiceServiceImpl
                     classToTeacher.setFaculty(toTeacher.getFaculty());
                     classToTeacher.setTeachingClassId(toTeacher.getTeachingClassId());
                     classToTeacher.setClassName(toTeacher.getClassName());
+                    classCodeToTeacher.setCalendarId(toTeacher.getCalendarId());
                     list.add(classToTeacher);
                 }
             }

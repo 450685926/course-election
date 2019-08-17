@@ -71,7 +71,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     @Transactional
     public void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo) {
-        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId(), elcRetakeSetVo.getProjectId());
+        Session currentSession = SessionUtils.getCurrentSession();
+        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId(), currentSession.getCurrentManageDptId());
         if (retakeSetId == null) {
             elcRetakeSetVo.setCreateAt(new Date());
             retakeCourseSetDao.insertRetakeCourseSet(elcRetakeSetVo);
