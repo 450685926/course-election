@@ -29,7 +29,6 @@ public class ClassCodeToTeacher {
     private Long teachingClassId;
     private Integer elcNumber;
     private String keyWord;//查询条件
-    private List<String> teacherCodes;//根据查询条件获取的教师集合
 
     public String getClassName() {
         return className;
@@ -37,14 +36,6 @@ public class ClassCodeToTeacher {
 
     public void setClassName(String className) {
         this.className = className;
-    }
-
-    public List<String> getTeacherCodes() {
-        return teacherCodes;
-    }
-
-    public void setTeacherCodes(List<String> teacherCodes) {
-        this.teacherCodes = teacherCodes;
     }
 
     public Integer getElcNumber() {

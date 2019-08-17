@@ -813,12 +813,6 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseNature)">
             and t3.NATURE_ =#{courseNature,jdbcType=VARCHAR}
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
-            and t1.ID_ in
-            <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
-                #{id}
-            </foreach>
-        </if>
         </where>
         GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_
     </select>
@@ -885,7 +879,7 @@
     <select id="findTeacherTimeTableByRole" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         select
         op.CALENDAR_ID_ calendarId,
-        tr.TEACHER_CODE_ teacherCode,
+        GROUP_CONCAT(tr.TEACHER_CODE_) teacherCode,
         tc.CODE_ classCode,
         tc.NAME_ className,
         tc.ELC_NUMBER_ elcNumber,
@@ -914,17 +908,11 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
                 and op.COURSE_NAME_ =#{courseName,jdbcType=VARCHAR}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-                and te.TEACHER_CODE_ =#{teacherCode,jdbcType=VARCHAR}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
+                and tr.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
                 and tc.CODE_ = #{classCode,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCodes)">
-                and tr.TEACHER_CODE_ in
-                <foreach item="item" collection="teacherCodes" index="index" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
             </if>
         </where>
         group by tc.ID_,tr.TEACHER_CODE_

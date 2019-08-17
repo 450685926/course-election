@@ -167,7 +167,7 @@ public interface ElcCourseTakeDao
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
     /**研究生教师课表查询*/
-    Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
+    List<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
     
@@ -257,7 +257,7 @@ public interface ElcCourseTakeDao
     /**根据教学班id查询学生是否选课*/
     int findCount(@Param("studentId")String studentId,  @Param("calendarId") Long calendarId,  @Param("teachingClassId") Long teachingClassId);
 
-    /**根据学生id查询学生已重修的门数*/
+    /**根据学生id查询学生已重修的课程*/
     Set<String> findRetakeCount(String studentId);
     
     /**
