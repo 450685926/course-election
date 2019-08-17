@@ -150,7 +150,9 @@ public interface ElcCourseTakeService
      * @param courseDto
      * @return
      */
-    Integer addCourse(AddCourseDto courseDto);
+    String addCourse(AddCourseDto courseDto);
+
+    void forceAdd(AddCourseDto courseDto);
 
     /**
      * 课程维护研究生退课

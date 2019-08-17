@@ -31,14 +31,17 @@
         <if test="retakeCount != null">
             and RETAKE_COUNT_ = #{retakeCount}
         </if>
+        <if test="projectId != null">
+            and PROJECT_ID_ = #{projectId}
+        </if>
         </where>
     </select>
 
     <insert id = "saveRetakeCourseCount" parameterType="com.server.edu.election.dto.RetakeCourseCountDto">
         insert into elc_retake_course_count
-              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,PROJECT_NAME_,CREATE_BY_,CREATED_AT_,DELETE_STATUS_)
+              (TRAINING_LEVEL_,TRAINING_CATEGORY_,DEGREE_TYPE_,FORM_LEARNING_,RETAKE_COUNT_,PROJECT_NAME_,PROJECT_ID_,CREATE_BY_,CREATED_AT_,DELETE_STATUS_)
         values
-              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{projectName},#{createBy},#{createAt},#{status})
+              (#{trainingLevel},#{trainingCategory},#{degreeType},#{formLearning},#{retakeCount},#{projectName},#{projectId},#{createBy},#{createAt},#{status})
     </insert>
 
     <update id="updateRetakeCourseCount" parameterType="com.server.edu.election.dto.RetakeCourseCountDto">
@@ -72,6 +75,7 @@
          select RETAKE_COUNT_ from elc_retake_course_count
          where
             DELETE_STATUS_ = 0
+         and PROJECT_ID_ = #{managerDeptId}
          and TRAINING_LEVEL_ like concat('%',#{trainingLevel},'%')
          and TRAINING_CATEGORY_ like concat('%',#{trainingCategory},'%')
          and DEGREE_TYPE_ like concat('%',#{degreeType},'%')

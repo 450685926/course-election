@@ -135,35 +135,58 @@ public class TeacherLessonTableServiceServiceImpl
     @Override
     public PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition) {
         ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
+        List<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(classCodeToTeacher);
+        int size = teacherTimeTable.size();
+        List<ClassCodeToTeacher> list = new ArrayList<>(size * 2);
         String keyWord = classCodeToTeacher.getKeyWord();
-        if (keyWord != null && keyWord != "") {
-            List<String> teacherCodes = teachingClassTeacherDao.findTeacherCodes(keyWord);
-            classCodeToTeacher.setTeacherCodes(teacherCodes);
-        }
-        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(classCodeToTeacher);
-        if (CollectionUtil.isNotEmpty(teacherTimeTable)) {
-            List<ClassCodeToTeacher> result = teacherTimeTable.getResult();
-            if (CollectionUtil.isNotEmpty(result)) {
-                for (ClassCodeToTeacher toTeacher : result) {
-                    String teacherCode = toTeacher.getTeacherCode();
-                    TeachingClassTeacher teacher = teachingClassTeacherDao.findTeacher(teacherCode);
-                    if (teacher != null) {
-                        toTeacher.setTeacherName(teacher.getTeacherName());
-                        teacher.setSex(teacher.getSex());
-                    } else {
-                        String[] split = teacherCode.split(",");
-                        List<String> list = new ArrayList<>();
-                        for (String s : split) {
-                            TeachingClassTeacher th = teachingClassTeacherDao.findTeacher(teacherCode);
-                            list.add(th.getTeacherName());
-                        }
-                        toTeacher.setTeacherName(String.join(",",list));
+        for (ClassCodeToTeacher toTeacher : teacherTimeTable) {
+            String teacherCode = toTeacher.getTeacherCode();
+            if (teacherCode != null) {
+                String[] split = teacherCode.split(",");
+                Set<String> teacherCodes = new HashSet<>(Arrays.asList(split));
+                for (String s : teacherCodes) {
+                    if ("".equals(s)) {
+                        continue;
                     }
+                    if (keyWord != null) {
+                        boolean contains = s.contains(keyWord);
+                        if (!contains) {
+                            continue;
+                        }
+                    }
+                    ClassCodeToTeacher classToTeacher = new ClassCodeToTeacher();
+                    classToTeacher.setTeacherCode(s);
+                    classToTeacher.setCourseCode(toTeacher.getCourseCode());
+                    classToTeacher.setClassCode(toTeacher.getClassCode());
+                    classToTeacher.setCourseName(toTeacher.getCourseName());
+                    classToTeacher.setNature(toTeacher.getNature());
+                    classToTeacher.setFaculty(toTeacher.getFaculty());
+                    classToTeacher.setTeachingClassId(toTeacher.getTeachingClassId());
+                    classToTeacher.setClassName(toTeacher.getClassName());
+                    classCodeToTeacher.setCalendarId(toTeacher.getCalendarId());
+                    list.add(classToTeacher);
                 }
             }
         }
-        return new PageResult<>(teacherTimeTable);
+        int totalSize = list.size();
+        Integer pageNum_ = condition.getPageNum_();
+        Integer pageSize_ = condition.getPageSize_();
+        int start = (pageNum_ - 1) * pageSize_;
+        int end = pageNum_ * pageSize_;
+        if (end < totalSize) {
+            list = list.subList(start, end);
+        } else {
+            list = list.subList(start, totalSize);
+        }
+        for (ClassCodeToTeacher codeToTeacher : list) {
+            String teacherCode = codeToTeacher.getTeacherCode();
+            TeachingClassTeacher teacher = teachingClassTeacherDao.findTeacher(teacherCode);
+            if (teacher != null) {
+                codeToTeacher.setTeacherName(teacher.getTeacherName());
+                codeToTeacher.setSex(teacher.getSex());
+            }
+        }
+        return new PageResult<ClassCodeToTeacher>(pageNum_,pageSize_,totalSize,list);
     }
 
     /**
