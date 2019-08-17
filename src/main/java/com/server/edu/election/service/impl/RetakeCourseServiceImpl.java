@@ -71,7 +71,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     @Transactional
     public void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo) {
-        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId(), elcRetakeSetVo.getProjectId());
+        Session currentSession = SessionUtils.getCurrentSession();
+        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId(), currentSession.getCurrentManageDptId());
         if (retakeSetId == null) {
             elcRetakeSetVo.setCreateAt(new Date());
             retakeCourseSetDao.insertRetakeCourseSet(elcRetakeSetVo);
@@ -121,14 +122,19 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         }
     }
 
+    /**
+     * 重修门数上限参数转换
+     * @param retakeCourseCountVo
+     * @return
+     */
     private RetakeCourseCountDto getRetakeCourseCountDto(RetakeCourseCountVo retakeCourseCountVo) {
-        List<String> trainingLevel = retakeCourseCountVo.getTrainingLevel();
+        List<String> trainingLevel = getList(retakeCourseCountVo.getTrainingLevel());
         String trainingLevels = String.join(",",trainingLevel);
-        List<String> trainingCategory = retakeCourseCountVo.getTrainingCategory();
+        List<String> trainingCategory = getList(retakeCourseCountVo.getTrainingCategory());
         String trainingCategories = String.join(",",trainingCategory);
-        List<String> degreeType = retakeCourseCountVo.getDegreeType();
+        List<String> degreeType = getList(retakeCourseCountVo.getDegreeType());
         String degreeTypes = String.join(",",degreeType);
-        List<String> formLearning = retakeCourseCountVo.getFormLearning();
+        List<String> formLearning = getList(retakeCourseCountVo.getFormLearning());
         String formLearnings = String.join(",",formLearning);
         RetakeCourseCountDto retakeCourseCountDto = new RetakeCourseCountDto();
         retakeCourseCountDto.setTrainingLevel(trainingLevels);
@@ -141,6 +147,22 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Session session = SessionUtils.getCurrentSession();
         retakeCourseCountDto.setProjectId(session.getCurrentManageDptId());
         return retakeCourseCountDto;
+    }
+
+    /**
+     * 去除集合中的空字符串
+     * @param list
+     * @return
+     */
+    private List<String> getList(List<String> list) {
+        List<String> newList = new ArrayList<>(list.size());
+        for (String s : list) {
+            if ("".equals(s)) {
+                continue;
+            }
+            newList.add(s);
+        }
+        return newList;
     }
 
     @Override
