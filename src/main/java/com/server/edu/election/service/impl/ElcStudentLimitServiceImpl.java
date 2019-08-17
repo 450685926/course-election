@@ -98,9 +98,9 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 		   ||elcStudentLimitDto.getRebuildLimitNumber()<elcStudentLimitDto.getSelectedRebuild()) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcStudentLimit.parameterError")); 
 		}
-		BeanUtils.copyProperties(elcStudentLimit, elcStudentLimitDto);
+		BeanUtils.copyProperties(elcStudentLimitDto, elcStudentLimit);
 		int result = elcStudentLimitDao.updateByPrimaryKeySelective(elcStudentLimit);
-		if(result<=Constants.ZERO) {
+		if(result<Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("election.elcStudentLimit")));
 		}
 		return result;
