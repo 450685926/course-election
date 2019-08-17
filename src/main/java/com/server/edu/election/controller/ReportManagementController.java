@@ -280,6 +280,11 @@ public class ReportManagementController
         return RestResult.successData(allSchoolTimetab);
     }
 
+    /**
+     * 研究生查询学生课表
+     * @param condition
+     * @return
+     */
     @ApiOperation(value = "根据用户角色查询学生课表")
     @PostMapping("/findStudentTimeTableByRole")
     public RestResult<PageResult<StudentVo>> findStudentTimeTableByRole(

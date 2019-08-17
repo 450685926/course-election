@@ -149,12 +149,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
         String studentId = elecRequest.getStudentId();
         Long calendarId = elecRequest.getCalendarId();
         
-        // 研究生
-        if (null == roundId && null != calendarId)
-        {
-        }
-        else
-        {
+        // 本科生/研究生教务员
+        if (roundId != null) {
             ElectionRounds round = dataProvider.getRound(roundId);
             Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();

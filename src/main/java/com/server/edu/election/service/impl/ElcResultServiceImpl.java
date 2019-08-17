@@ -827,6 +827,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
 		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
 		if(teachingClassAttr!=null) {
+			attr.setCreatedAt(teachingClassAttr.getCreatedAt());
 			attr.setUpdatedAt(new Date());
 			attrDao.updateByExampleSelective(attr, example);
 		}else {
@@ -844,7 +845,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		TeachingClassElectiveRestrictProfession elcProfession = professionDao.selectOneByExample(pExample);
 		if(elcProfession!=null) {
 			profession.setUpdatedAt(new Date());
-			professionDao.updateByExample(profession, pExample);
+			professionDao.updateByExampleSelective(profession, pExample);
 		}else {
 			profession.setCreatedAt(new Date());
 			professionDao.insertSelective(profession);
@@ -877,13 +878,8 @@ public class ElcResultServiceImpl implements ElcResultService
 		Example example = new Example(ElcScreeningLabel.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("calendarId", elcScreeningLabel.getCalendarId());
-		criteria.andEqualTo("labelName", elcScreeningLabel.getLabelName());
-		ElcScreeningLabel label = elcScreeningLabelDao.selectOneByExample(example);
-		if(label!=null) {
-            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
-                    I18nUtil.getMsg("election.elcScreeningLabel")));
-		}
-		elcScreeningLabelDao.insert(elcScreeningLabel);
+		elcScreeningLabelDao.deleteByExample(example);
+		elcScreeningLabelDao.insertSelective(elcScreeningLabel);
 	}
 	
 	@Override
@@ -902,7 +898,7 @@ public class ElcResultServiceImpl implements ElcResultService
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
                     I18nUtil.getMsg("election.elcTeachingClassBind")));
 		}
-		bindDao.insert(bind);
+		bindDao.insertSelective(bind);
 	}
 	@Override
 	@Transactional

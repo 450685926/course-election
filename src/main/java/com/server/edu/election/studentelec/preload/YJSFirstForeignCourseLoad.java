@@ -7,9 +7,10 @@ import org.slf4j.LoggerFactory;
 import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
 
 /**
- * 研究生第一外国语课程
+ * 研究生全部第一外国语课程
  * @author xlluoc
  */
 public class YJSFirstForeignCourseLoad extends DataProLoad<ElecContext>{
@@ -31,7 +32,8 @@ public class YJSFirstForeignCourseLoad extends DataProLoad<ElecContext>{
 		StudentCultureRel studentCultureRel = new StudentCultureRel();
 		studentCultureRel.setStudentId(studentId);
 		
-		List<StudentCultureRel> list = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
+		List<ElecFirstLanguageContrastVo> list = CultureSerivceInvoker.getStudentFirstForeignLanguage("2",0,999);
+		//List<StudentCultureRel> list = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
 		context.setFirstForeignCourses(list);
 	}
 

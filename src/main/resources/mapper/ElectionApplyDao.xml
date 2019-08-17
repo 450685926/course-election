@@ -44,13 +44,19 @@
 	        and t1.MODE_  = #{mode}
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-	        and t1.STUDENT_ID_  like concat(#{studentId},'%')
+	        and t1.STUDENT_ID_  =  #{studentId}
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
-	        and t3.NAME_  like concat(#{studentName},'%')
+	        and t3.NAME_  = #{studentName}
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyCode)">
 	        and (t1.COURSE_CODE_  like concat(#{keyCode},'%') or t2.NAME_ like concat(#{keyCode},'%') )
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+	        and t1.COURSE_CODE_  = #{courseCode}
+	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+	        and t2.NAME_  = #{courseName}
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 	        and t3.PROFESSION_ = #{profession}

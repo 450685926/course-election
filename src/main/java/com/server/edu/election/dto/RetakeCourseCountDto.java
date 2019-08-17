@@ -17,6 +17,8 @@ public class RetakeCourseCountDto {
 
     private String projectName;
 
+    private String projectId;
+
     private String createBy;
 
     private Date createAt;
@@ -25,6 +27,14 @@ public class RetakeCourseCountDto {
 
     /**删除状态，0未删除，1删除*/
     private Integer status;
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
 
     public Date getUpdatedAt() {
         return updatedAt;
