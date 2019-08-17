@@ -22,7 +22,10 @@
   <select id="listPage" parameterType="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" resultMap="BaseResultMap">
   	select * from exemption_apply_graduate_condition_t 
   	<where>
-  		MANAGER_DEPT_ID_ = '2' and DELETE_STATUS_ = 0
+  		DELETE_STATUS_ = 0
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.projId)">
+  			and MANAGER_DEPT_ID_ = #{condition.projId}
+  		</if>
    		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingLevels)">
   			and TRAINING_LEVELS_ like concat('%',#{condition.trainingLevels},'%')
   		</if>
@@ -44,7 +47,10 @@
   <select id="queryApplyConditionByCourseCodeAndStudentId" parameterType="com.server.edu.election.dao.ExemptionApplyGraduteConditionDto" resultMap="BaseResultMap">
   	select ID_,CONDITIONS_ from exemption_apply_graduate_condition_t 
   	<where>
-  		MANAGER_DEPT_ID_ = '2' and DELETE_STATUS_ = 0
+  		DELETE_STATUS_ = 0
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.projId)">
+  			and MANAGER_DEPT_ID_ = #{condition.projId}
+  		</if>
    		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.trainingLevels)">
   			and TRAINING_LEVELS_ like concat('%',#{condition.trainingLevels},'%')
   		</if>
