@@ -56,7 +56,7 @@ public class ElcMedWithdrawController {
      * @return
      * @see [类、类#方法、类#成员]
      */
-    @ApiOperation(value = "期中退课申请")
+    @ApiOperation(value = "期中退课")
     @PostMapping("/medWithdraw")
     public RestResult<Integer> medWithdraw(
     		@RequestParam("id") @NotNull Long id,@RequestParam("projectId") @NotBlank String projectId)

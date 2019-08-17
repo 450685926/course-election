@@ -89,6 +89,15 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
             elcCourseTakes =
                 elcCourseTakeDao.getElcMedWithdraw(uid, dto.getCalendarId());
         }
+        if(CollectionUtil.isNotEmpty(elcCourseTakes)) {
+        	for(ElcCourseTakeVo elcCourseTakeVo:elcCourseTakes) {
+        		String elcMedWithdrawStatus = "未退课";
+        		if(elcCourseTakeVo.getMedWithdrawId()>0) {
+        			elcMedWithdrawStatus = "已退课";
+        		}
+        		elcCourseTakeVo.setElcMedWithdrawStatus(elcMedWithdrawStatus);
+        	}
+        }
         PageInfo<ElcCourseTakeVo> pageInfo = new PageInfo<>(elcCourseTakes);
         return pageInfo;
 	}

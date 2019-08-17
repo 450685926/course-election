@@ -262,7 +262,7 @@ public class RoundCacheService extends AbstractCacheService
     	if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE)) {
     		lessons = roundCourseDao.selectCorseRefTeachClassByRoundId(roundId, calendarId);
 		}else {
-			lessons = roundCourseDao.selectCorseRefTeachClassGraduteByRoundId(roundId, calendarId);
+			lessons = roundCourseDao.selectCorseRefTeachClassGraduteByRoundId(roundId, calendarId, manageDptId);
 		}
         Map<String, Set<Long>> courseClassMap = new HashMap<>();
         for (CourseOpenDto teachClasss : lessons)
