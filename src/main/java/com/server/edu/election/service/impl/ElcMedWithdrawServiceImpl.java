@@ -27,6 +27,7 @@ import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.dto.ElcMedWithdrawDto;
 import com.server.edu.election.dto.ElcMedWithdrawRuleRefCourDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
@@ -73,10 +74,10 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
     @Autowired
     private ElcMedWithdrawDao elcMedWithdrawDao;
 	@Override
-	public PageInfo<ElcCourseTakeVo> page(PageCondition<ElcMedWithdraw> condition) {
+	public PageInfo<ElcCourseTakeVo> page(PageCondition<ElcMedWithdrawDto> condition) {
 		// TODO Auto-generated method stub
         List<ElcCourseTakeVo> elcCourseTakes = new ArrayList<>();
-        ElcMedWithdraw dto = condition.getCondition();
+        ElcMedWithdrawDto dto = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
         String uid = session.realUid();
         int userType = session.realType();
