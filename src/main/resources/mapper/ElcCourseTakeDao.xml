@@ -117,10 +117,10 @@
      and t2.RESEARCH_DIRECTION_ = #{query.researchDirection}
      </if>
 	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-     and t2.DEGREE_TYPE_= #{elcResult.degreeType}
+     and t2.DEGREE_TYPE_= #{query.degreeType}
      </if>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
-     and t2.FORM_LEARNING_= #{elcResult.formLearning} 
+     and t2.FORM_LEARNING_= #{query.formLearning} 
      </if>
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
       and t2.FACULTY_ = #{query.faculty}

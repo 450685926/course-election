@@ -205,6 +205,7 @@ public class ElcResultController
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
+    	condition.getCondition().setProjectId(session.getCurrentManageDptId());
     	ElcResultCountVo result = elcResultService.elcResultCount(condition);
     	return RestResult.successData(result);
     }
@@ -243,7 +244,7 @@ public class ElcResultController
     {
     	ValidatorUtil.validateAndThrow(condition.getCondition());
     	Session session = SessionUtils.getCurrentSession();
-        
+    	condition.getCondition().setProjectId(session.getCurrentManageDptId());
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
@@ -258,6 +259,8 @@ public class ElcResultController
     public File export(
     		@ModelAttribute ElcResultQuery condition)
     {
+    	Session session = SessionUtils.getCurrentSession();
+    	condition.setProjectId(session.getCurrentManageDptId());
     	try {
             RestResult<String> restResult = elcResultService.exportOfNonSelectedCourse(condition);
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
