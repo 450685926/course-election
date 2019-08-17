@@ -88,8 +88,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Override
     public PageResult<RetakeCourseCountDto> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition) {
-        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         RetakeCourseCountDto retakeCourseCountDto = getRetakeCourseCountDto(condition.getCondition());
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RetakeCourseCountDto> retakeCourseCountVos = retakeCourseCountDao.findRetakeCourseCountList(retakeCourseCountDto);
         return new PageResult<>(retakeCourseCountVos);
     }
@@ -106,6 +106,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             }
             Session currentSession = SessionUtils.getCurrentSession();
             String uid = currentSession.getUid();
+            retakeCourseCountDto.setProjectId(currentSession.getCurrentManageDptId());
             retakeCourseCountDto.setCreateBy(uid);
             retakeCourseCountDto.setCreateAt(new Date());
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountDto);
@@ -137,6 +138,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         retakeCourseCountDto.setStatus(Constants.DELETE_FALSE);
         retakeCourseCountDto.setProjectName(retakeCourseCountVo.getProjectName());
         retakeCourseCountDto.setRetakeCount(retakeCourseCountVo.getRetakeCount());
+        Session session = SessionUtils.getCurrentSession();
+        retakeCourseCountDto.setProjectId(session.getCurrentManageDptId());
         return retakeCourseCountDto;
     }
 

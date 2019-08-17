@@ -199,15 +199,31 @@ public class ElcCourseTakeYjsController
     }
 
     /**
-     * 课程维护模块研究生加课
+     * 课程维护模块研究生加课,如果课程冲突则返回提示
      * @param courseDto
      * @return
      */
     @ApiOperation(value = "课程维护模块研究生加课")
     @PostMapping("/addCourse")
-    public RestResult<Integer> addCourse(@RequestBody AddCourseDto courseDto) {
-        Integer count = courseTakeService.addCourse(courseDto);
-        return RestResult.successData(count);
+    public RestResult<String> addCourse(@RequestBody AddCourseDto courseDto) {
+        String result = courseTakeService.addCourse(courseDto);
+        if ("".equals(result)) {
+            return new RestResult<>(200,"加课成功", "");
+        } else {
+            return new RestResult<>(200,"课程冲突", result);
+        }
+    }
+
+    /**
+     * 课程维护模块研究生提示课程冲突后加课接口
+     * @param courseDto
+     * @return
+     */
+    @ApiOperation(value = "课程维护模块研究生加课")
+    @PostMapping("/forceAdd")
+    public RestResult forceAdd(@RequestBody AddCourseDto courseDto) {
+       courseTakeService.forceAdd(courseDto);
+        return RestResult.success();
     }
 
     /**
