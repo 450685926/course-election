@@ -50,6 +50,24 @@ public class ElectionApplyController {
         return RestResult.successData(list);
     }
     
+	 /**
+     * 学生选课申请结果列表
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "学生选课申请结果列表")
+    @PostMapping("/stuApplyCourseList")
+    public RestResult<PageInfo<ElectionApplyVo>> stuApplyCourseList(
+        @RequestBody PageCondition<ElectionApplyDto> condition)
+        throws Exception
+    {
+        LOG.info("stuApplyCourseList.start");
+        PageInfo<ElectionApplyVo> list =electionApplyService.stuApplyCourseList(condition);
+        return RestResult.successData(list);
+    }
+    
     
     /**
      * 回复

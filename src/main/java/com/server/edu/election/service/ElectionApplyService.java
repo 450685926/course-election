@@ -16,8 +16,25 @@ import com.server.edu.election.vo.ElectionApplyVo;
  */
 public interface ElectionApplyService
 {
+    /**
+     * 选课申请管理列表
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
     PageInfo<ElectionApplyVo> applyList(
         PageCondition<ElectionApplyDto> condition);
+    
+    /**
+     * 学生选课申请结果列表
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageInfo<ElectionApplyVo> stuApplyCourseList(
+            PageCondition<ElectionApplyDto> condition);
     
     /**
      * 回复
