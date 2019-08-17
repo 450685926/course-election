@@ -1015,12 +1015,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public StudentAndCourseVo findStudentApplyCourse(String studentId,Long calendarId) {
-		Session session = SessionUtils.getCurrentSession();
+//		Session session = SessionUtils.getCurrentSession();
 		Student student = studentDao.findStudentByCode(studentId);
 		Boolean isAchievement = false;
 		//查找本次开通的免修免考课程
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
-		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",session.getCurrentManageDptId());
+		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",2);
 		
 		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
 		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
@@ -1059,7 +1059,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		}
 		final String  languageCode = firstForeignLanguageCode;
 		
-		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,languageCode,scoreFlag,session);
+		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,languageCode,scoreFlag,null);
 		
 		
 		
@@ -1158,9 +1158,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		StudentCultureRel studentCultureRel = new StudentCultureRel();
 		studentCultureRel.setPageNum_(1);
 		studentCultureRel.setPageSize_(100);
-		studentCultureRel.setProjId(session.getCurrentManageDptId());
+		studentCultureRel.setProjId("2");
 		studentCultureRel.setStudentId(student.getStudentCode());
-		List<StudentCultureRel> findStudentCultureRelList = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
+		StudentCultureRel findStudentCultureRelList = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
 		
 		
 		//培养计划课程
@@ -1182,12 +1182,15 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		//培养计划与第一外语的交集
 		Set<PlanCourse> studentlanguageCourse = new HashSet<>();
-		for (StudentCultureRel code : findStudentCultureRelList) {
-			for (PlanCourse planCourse : planCourses) {
-				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), code.getCourseCode())) {
-					studentlanguageCourse.add(planCourse);
+		if (findStudentCultureRelList != null) {
+			String courseCode = findStudentCultureRelList.getCourseCode();
+//			for (StudentCultureRel code : findStudentCultureRelList) {
+				for (PlanCourse planCourse : planCourses) {
+					if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(),courseCode)) {
+						studentlanguageCourse.add(planCourse);
+					}
 				}
-			}
+//			}
 		}
 		return studentlanguageCourse;
 	}
