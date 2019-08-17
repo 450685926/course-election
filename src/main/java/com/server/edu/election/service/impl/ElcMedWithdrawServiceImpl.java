@@ -87,8 +87,9 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
                 condition.getPageSize_());
         	int mode = TableIndexUtil.getMode(dto.getCalendarId());
     		dto.setMode(mode);
+    		dto.setStudentId(uid);
             elcCourseTakes =
-                elcCourseTakeDao.getElcMedWithdraw(uid, dto.getCalendarId());
+                elcCourseTakeDao.getElcMedWithdraw(dto);
         }
         if(CollectionUtil.isNotEmpty(elcCourseTakes)) {
         	for(ElcCourseTakeVo elcCourseTakeVo:elcCourseTakes) {
