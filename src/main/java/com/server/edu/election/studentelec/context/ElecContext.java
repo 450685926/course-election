@@ -8,6 +8,7 @@ import java.util.Set;
 import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -48,8 +49,8 @@ public class ElecContext implements IElecContext
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
     
-    /**学生第一外国语课程 */
-    private List<StudentCultureRel> firstForeignCourses;
+    /**研究生所有的第一外国语课程 */
+    private List<ElecFirstLanguageContrastVo> firstForeignCourses;
     
     private Map<String, Object> elecResult;
     
@@ -253,11 +254,11 @@ public class ElecContext implements IElecContext
 		this.elecResult = elecResult;
 	}
 
-	public List<StudentCultureRel> getFirstForeignCourses() {
+	public List<ElecFirstLanguageContrastVo> getFirstForeignCourses() {
 		return firstForeignCourses;
 	}
 
-	public void setFirstForeignCourses(List<StudentCultureRel> firstForeignCourses) {
+	public void setFirstForeignCourses(List<ElecFirstLanguageContrastVo> firstForeignCourses) {
 		this.firstForeignCourses = firstForeignCourses;
 	}
     

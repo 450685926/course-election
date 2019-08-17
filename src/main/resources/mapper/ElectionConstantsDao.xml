@@ -34,5 +34,9 @@
     SELECT VALUE_ from election_constants_t where MANAGER_DEPT_ID_=1 and KEY_='MAXFAILCREDITS'
   </select>
   
-  
+  <select id="getAllGraduateConstants" resultType="BaseResultMap">
+    SELECT ID_,MANAGER_DEPT_ID_,TRAINING_LEVEL_,KEY_,NAME_,REMARK_,VALUE_ 
+    from election_constants_t 
+    where MANAGER_DEPT_ID_= #{projectId}
+    </select>
 </mapper>
