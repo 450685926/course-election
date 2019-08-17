@@ -9,6 +9,7 @@ import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElcCourseLimitDto;
+import com.server.edu.election.dto.ElcMedWithdrawDto;
 import com.server.edu.election.dto.ElcStudentCourseDto;
 import com.server.edu.election.dto.ElcStudentDto;
 import com.server.edu.election.dto.LoserStuElcCourse;
@@ -268,6 +269,6 @@ public interface ElcCourseTakeDao
 	List<StudentRebuildFeeVo> getStudentRebuildFeeList(StudentRebuildFeeDto dto);
 	
     /**期中退课列表*/
-	List<ElcCourseTakeVo> getElcMedWithdraw(String studentId,Long calendarId);
+	List<ElcCourseTakeVo> getElcMedWithdraw(ElcMedWithdrawDto dto);
 	
 }

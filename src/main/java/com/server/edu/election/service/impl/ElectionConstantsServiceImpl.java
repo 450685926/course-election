@@ -121,5 +121,11 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
             electionConstantsDao.selectByPrimaryKey(id);
         return electionConstants;
     }
+
+	@Override
+	public List<ElectionConstants> getAllGraduateConstants(String projectId) {
+		List<ElectionConstants> list = electionConstantsDao.getAllGraduateConstants(projectId);
+		return list;
+	}
     
 }

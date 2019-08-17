@@ -82,6 +82,19 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         return pageInfo;
     }
     
+    
+    @Override
+	public PageInfo<ElectionApplyVo> stuApplyCourseList(
+            PageCondition<ElectionApplyDto> condition)
+        {
+            ElectionApplyDto dto = condition.getCondition();
+            Session session = SessionUtils.getCurrentSession();
+            dto.setStudentId(session.realUid());
+            List<ElectionApplyVo> applylist = electionApplyDao.selectApplys(dto);
+            PageInfo<ElectionApplyVo> pageInfo = new PageInfo<>(applylist);
+            return pageInfo;
+        }
+    
     @Override
     @Transactional
     public int reply(ElectionApply electionApply)
