@@ -254,18 +254,18 @@ public class CultureSerivceInvoker
     }
     
     /** 根据学生学号查询研究生关联的第一外国语 */
-    public static List<StudentCultureRel> findStudentCultureRelList(StudentCultureRel studentCultureRel)
+    public static StudentCultureRel findStudentCultureRelList(StudentCultureRel studentCultureRel)
     {
     	@SuppressWarnings("unchecked")
-    	RestResult<PageResult<StudentCultureRel>> restResult =
-        ServicePathEnum.CULTURESERVICE.postForObject("/studentCultureRel/findStudentCultureRelList",
-        		studentCultureRel,RestResult.class);
-//    	Map<String, Object> json = (Map<String, Object>)JSONObject.toJSON(restResult.getData());
-//    	String object = json.get("list").toString();
-//    	List<StudentCultureRel> parseArray = JSON.parseArray(object,StudentCultureRel.class);
-    	List<StudentCultureRel> parseArray = restResult.getData().getList();
+    	RestResult<StudentCultureRel> restResult =
+        ServicePathEnum.CULTURESERVICE.getForObject("/studentCultureRel/findStudentCultureRelByStudentId?stuid={stuid}",
+        		RestResult.class,studentCultureRel.getStudentId());
+    	Map<String, Object> json = (Map<String, Object>)JSONObject.toJSON(restResult.getData());
+    	String object = json.get("list").toString();
+    	List<StudentCultureRel> parseArray = JSON.parseArray(object,StudentCultureRel.class);
+//    	List<StudentCultureRel> parseArray = restResult.getData().getList();
     	
-    	return parseArray;
+    	return restResult.getData();
     }
 
 }
