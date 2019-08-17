@@ -142,8 +142,6 @@ public class ElecAgentController
     public RestResult<ElecRespose> getElect(
         @RequestBody ElecRequest elecRequest)
     {
-        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
-        
         ElecRespose response = elecService.getElectResult(elecRequest);
         return RestResult.successData(response);
     }
