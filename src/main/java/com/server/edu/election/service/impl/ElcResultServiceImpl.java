@@ -742,7 +742,7 @@ public class ElcResultServiceImpl implements ElcResultService
                      break;
                  }
              }
-//             list = SpringUtils.convert(list);
+             list = SpringUtils.convert(list);
             if (condition.getDimension().intValue() == Constants.ONE) {
             	@SuppressWarnings("unchecked")
 				ExcelEntityExport<ElcResultDto> excelExport = new ExcelEntityExport(list,
