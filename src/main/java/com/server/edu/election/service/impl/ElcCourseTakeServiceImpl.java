@@ -844,6 +844,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (logCount != count) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError"));
         }
+        logger.info("++++++++++++++++++++++publishEvent and event start");
         applicationContext.publishEvent(new ElectLoadEvent(
                 courseDto.getCalendarId(), courseDto.getStudentId()));
     }
