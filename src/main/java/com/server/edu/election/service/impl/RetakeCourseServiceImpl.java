@@ -221,6 +221,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     public void updateRebuildCourse(RebuildCourseVo rebuildCourseVo) {
         Session currentSession = SessionUtils.getCurrentSession();
         String studentId = currentSession.realUid();
+        String ip = currentSession.getIp();
         String courseCode = rebuildCourseVo.getCourseCode();
         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
         String courseName = rebuildCourseVo.getCourseName();
@@ -237,6 +238,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         log.setTurn(0);
         log.setCreateBy(studentId);
         log.setCreatedAt(date);
+        log.setCreateIp(ip);
         if (rebuildCourseVo.getStatus() == 0) {
             Student student = studentDao.findStudentByCode(studentId);
             Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
