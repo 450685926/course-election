@@ -899,6 +899,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         }
         if (CollectionUtil.isNotEmpty(ids)) {
         	applyDao.approvalExemptionApply(ids,status,score,auditor);
+        	for (Long id : ids) {
+				ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
+				if (applyRecord != null) {
+					applicationContext
+					.publishEvent(new ElectLoadEvent(applyRecord.getCalendarId(), applyRecord.getStudentCode()));
+				}
+        	}  
 		}
         return "common.editSuccess";
     }
@@ -1268,6 +1275,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					applyDao.insertSelective(applyManage);
 				}
 			}
+    		applicationContext
+            .publishEvent(new ElectLoadEvent(applyManage.getCalendarId(), applyManage.getStudentCode()));
 	    }
 	    return RestResult.success("common.addsuccess","");
 	}
@@ -1317,6 +1326,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		}
 		if (CollectionUtil.isNotEmpty(effectiveIds)) {
 			applyDao.deleteExemptionApply(effectiveIds);
+			for (Long id : effectiveIds) {
+				ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
+				if (applyRecord != null) {
+					applicationContext
+					.publishEvent(new ElectLoadEvent(applyRecord.getCalendarId(), applyRecord.getStudentCode()));
+				}
+        	}  
 		}
 		if (CollectionUtil.isNotEmpty(noEffectiveIds)) {
 			return RestResult.fail("common.faild",StringUtils.join(noEffectiveIds,","));
