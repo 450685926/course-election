@@ -133,17 +133,16 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         	
         	//如果专业校验为true，校验专业
         	if (Boolean.parseBoolean(electionParameter.getValue()) && StringUtils.equals("MAJOR", electionParameter.getName()) ) {
-        		if (CollectionUtil.isNotEmpty(suggestProfessionDtos)) {
-        			String major = studentInfo.getMajor();
-        			for (SuggestProfessionDto suggestProfessionDto : suggestProfessionDtos) {
-        				if ( suggestProfessionDto.getProfession().equals(major)) {
-        					resultFlag = true;
-        				}else{
-        					resultFlag = false;
-        					break;
-        				}
-        			}
-        		}
+        		
+        		if (restrictAttr != null) {
+        			//培养层次
+                    String profession = restrictAttr.getProfession();
+                    String major = studentInfo.getMajor();
+                  //培养层次校验
+                    if (profession != null && profession != "" ) {
+                    	resultFlag = (profession.contains(major));
+                    }
+        		 }
         		if (!resultFlag) {
         			ElecRespose respose = context.getRespose();
     	            respose.getFailedReasons()
@@ -171,7 +170,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                	degreeTypeFlag = degreeType.equals(student.getDegreeType());
 	                }
 	                if (formLearning != null && formLearning != "" ) {
-	                	formLearningFlag = degreeType.equals(student.getDegreeType());
+	                	formLearningFlag = formLearning.equals(student.getFormLearning());
 	                }
         		}
         		resultFlag = trainingCategoryFlag && degreeTypeFlag && formLearningFlag;
@@ -191,8 +190,8 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                Integer grade = restrictAttr.getGrade();
 	                Integer stugrade = studentInfo.getGrade();
 	                //学生类别校验
-	                if (grade != null && grade.intValue() != 0 && grade.intValue() == stugrade
-    						.intValue()) {
+	                if ((grade != null && grade.intValue() != 0 && grade.intValue() == stugrade
+    						.intValue()) || grade == null || grade.intValue() == 0) {
 	                	resultFlag = true;
     				}else{
     					resultFlag = false;
