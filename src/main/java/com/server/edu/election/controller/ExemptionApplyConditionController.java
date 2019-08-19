@@ -124,9 +124,9 @@ public class ExemptionApplyConditionController {
         }
         
         String originalFilename = file.getOriginalFilename();
-        if (!originalFilename.endsWith(".xls") || !originalFilename.endsWith(".xlsx"))
+        if (!originalFilename.endsWith(".xls"))
         {
-            return RestResult.error("请使用Excel类型的文件");
+            return RestResult.error("请使用1999-2003(.xls)类型的Excel");
         }
     	
         try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream())){
