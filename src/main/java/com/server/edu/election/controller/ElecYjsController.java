@@ -150,6 +150,7 @@ public class ElecYjsController
         logger.info("election getAllCourse start !!!");
         
         Session session = SessionUtils.getCurrentSession();
+        allCourseVo.setProjectId(session.getCurrentManageDptId());
         
         /** 学生 */
         boolean isStudent = session.isStudent();
