@@ -948,11 +948,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (logCount != delSize) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseLogError"));
         }
-        Map<String, Long> collect = value.stream().collect(Collectors.toMap(ElcCourseTake::getStudentId, ElcCourseTake::getCalendarId));
-        for (Entry<String, Long> entry : collect.entrySet())
+        for (ElcCourseTake entry : value)
         {
             applicationContext.publishEvent(new ElectLoadEvent(
-            		entry.getValue(),entry.getKey()));
+            		entry.getCalendarId(),entry.getStudentId()));
         }
         return delSize;
     }
