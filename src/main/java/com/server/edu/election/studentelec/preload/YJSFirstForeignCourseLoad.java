@@ -3,8 +3,6 @@ package com.server.edu.election.studentelec.preload;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
@@ -28,13 +26,9 @@ public class YJSFirstForeignCourseLoad extends DataProLoad<ElecContext>{
 
 	@Override
 	public void load(ElecContext context) {
-		String studentId = context.getRequest().getStudentId();
-		StudentCultureRel studentCultureRel = new StudentCultureRel();
-		studentCultureRel.setStudentId(studentId);
-		
-		List<ElecFirstLanguageContrastVo> list = CultureSerivceInvoker.getStudentFirstForeignLanguage("2",0,999);
+		String prijectId = context.getStudentInfo().getManagerDeptId();
+		List<ElecFirstLanguageContrastVo> list = CultureSerivceInvoker.getStudentFirstForeignLanguage(prijectId,0,999);
 		//List<StudentCultureRel> list = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
 		context.setFirstForeignCourses(list);
 	}
-
 }

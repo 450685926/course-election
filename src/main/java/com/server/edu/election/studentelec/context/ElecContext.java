@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
@@ -91,8 +89,8 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = new HashSet<>();
-        	this.contextUtil.getSet("firstForeignCourses", StudentCultureRel.class);
+        firstForeignCourses = 	
+        	this.contextUtil.getList("firstForeignCourses", ElecFirstLanguageContrastVo.class);
         applyCourse = new HashSet<>();
     }
     
