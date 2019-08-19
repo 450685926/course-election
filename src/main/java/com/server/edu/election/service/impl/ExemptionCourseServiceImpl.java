@@ -1188,13 +1188,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		Set<PlanCourse> studentlanguageCourse = new HashSet<>();
 		if (findStudentCultureRelList != null) {
 			String courseCode = findStudentCultureRelList.getCourseCode();
-//			for (StudentCultureRel code : findStudentCultureRelList) {
+			String[]  codes = courseCode.split(",");
+			for (String code : codes) {
 				for (PlanCourse planCourse : planCourses) {
-					if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(),courseCode)) {
+					if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(),code)) {
 						studentlanguageCourse.add(planCourse);
 					}
 				}
-//			}
+			}
 		}
 		return studentlanguageCourse;
 	}
