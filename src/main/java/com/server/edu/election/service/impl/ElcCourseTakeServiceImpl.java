@@ -937,6 +937,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcLog.setCalendarId(elcCourseTake.getCalendarId());
             elcLog.setType(2);
             elcLog.setMode(2);
+            elcLog.setTurn(0);
             elcLog.setCreateBy(id);
             elcLog.setCreateIp(ip);
             elcLog.setCreateName(name);
@@ -1157,6 +1158,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcLog.setCalendarId(calendarId);
             elcLog.setType(1);
             elcLog.setMode(2);
+            elcLog.setTurn(0);
             elcLog.setCreateBy(uid);
             elcLog.setCreateName(name);
             elcLog.setCreateIp(ip);

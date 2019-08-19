@@ -83,7 +83,7 @@
 
     <insert id="saveCourseLog" parameterType="com.server.edu.election.entity.ElcLog">
         insert into election_log_t
-        (STUDENT_ID_, CALENDAR_ID_,COURSE_CODE_,COURSE_NAME_,TEACHING_CLASS_CODE_,TYPE_,MODE_,CREATE_BY_,CREATE_IP_,CREATE_NAME_,CREATED_AT_)
+        (STUDENT_ID_, CALENDAR_ID_,COURSE_CODE_,COURSE_NAME_,TEACHING_CLASS_CODE_,TYPE_,MODE_,TURN_,CREATE_BY_,CREATE_IP_,CREATE_NAME_,CREATED_AT_)
         values
         <foreach collection="list" item="item" index="index" separator=",">
             (
@@ -94,6 +94,7 @@
             #{item.teachingClassCode},
             #{item.type},
             #{item.mode},
+            #{item.turn},
             #{item.createBy},
             #{item.createIp},
             #{item.createName},
