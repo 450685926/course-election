@@ -805,8 +805,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			List<String> calendarCoursesIdsList = CoursesList(ops, key);
 			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, calendarCoursesIdsList);
 			for (String courseCode : optionalCourses) {
-				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
-						courseCode);
+				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasssbyCalendarId(calendarId,courseCode);
 				if (CollectionUtil.isNotEmpty(teachClasss))
 				{
 					for (TeachingClassCache teachClass : teachClasss)
@@ -1094,7 +1093,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
 		//可选课程中去除免修免考课程
 		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
-		for (String centerCourses : optionalGraduateCoursesList)
+		for (String centerCourses : optionalGraduateCourses)
 		{
 			Boolean flag = true;
 			for (ElecCourse courseCode : applyCourses)
