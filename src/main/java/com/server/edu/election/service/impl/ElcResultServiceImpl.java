@@ -642,7 +642,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
 				elcNumber = elcNumber + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
@@ -681,7 +681,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
 				elcNumberByFaculty = elcNumberByFaculty + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
