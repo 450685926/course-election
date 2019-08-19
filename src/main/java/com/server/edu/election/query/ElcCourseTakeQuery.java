@@ -82,7 +82,9 @@ public class ElcCourseTakeQuery
 
     /**导出功能选中的id集合*/
     private List<Long> ids;
-
+    
+    private String isOverseas;
+    
     public List<Long> getIds() {
         return ids;
     }
@@ -318,6 +320,16 @@ public class ElcCourseTakeQuery
 	public void setIncludeCourseCode(String includeCourseCode) {
 		this.includeCourseCode = includeCourseCode;
 	}
+
+    public String getIsOverseas()
+    {
+        return isOverseas;
+    }
+
+    public void setIsOverseas(String isOverseas)
+    {
+        this.isOverseas = isOverseas;
+    }
     
     
 }

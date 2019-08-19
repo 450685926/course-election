@@ -641,15 +641,21 @@
 		    DISTINCT
 			st.STUDENT_CODE_ studentCode,
 			st.NAME_ NAME,
+			st.SEX_ sex,
+			st.IS_OVERSEAS_ isOverseas,
 			st.TRAINING_LEVEL_ trainingLevel,
 			st.FACULTY_ faculty,
-			st.PROFESSION_ profession
+			st.PROFESSION_ profession,
+			st.GRADE_ grade
 		FROM
 			student_t st
 		JOIN election_rounds_stu_t t2 ON (
 			st.STUDENT_CODE_ = t2.STUDENT_ID_
 			AND t2.ROUNDS_ID_ IN (
-				SELECT ID_ FROM election_rounds_t WHERE CALENDAR_ID_=#{calendarId} AND MODE_=#{mode}
+				SELECT ID_ FROM election_rounds_t WHERE CALENDAR_ID_=#{calendarId}
+				<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+				  AND MODE_=#{mode}
+	            </if>
 			)
 		)
 		<where>
@@ -664,6 +670,12 @@
            </if>
            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
                and st.PROFESSION_ =#{profession}
+           </if>
+           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+               and st.GRADE_ =#{grade}
+           </if>
+           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+               and st.IS_OVERSEAS_ =#{isOverseas}
            </if>
         </where>
     </select>
