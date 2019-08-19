@@ -260,8 +260,8 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
             and course.NATURE_ =#{nature,jdbcType=VARCHAR}
         </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-            and course.COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachClassCode)">
+            and class.CODE_ like concat('%',#{teachClassCode},'%')
         </if>
         order by nature
    </select>
