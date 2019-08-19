@@ -183,6 +183,9 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
 	  		and t4.CAMPUS_ = #{query.campus}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+	  		and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
+	  	</if>
   	</where>
   		order by t4.CODE_
   </select>
@@ -220,6 +223,9 @@
 	  		</if>
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
 	  			and t4.CAMPUS_ = #{query.campus}
+	  		</if>
+		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+	  			and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
 	  		</if>
 	    	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
 	  		 	and  (t4.CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
