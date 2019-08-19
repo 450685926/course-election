@@ -242,9 +242,11 @@
 	         left join teaching_class_arrange_time_t time ON class.ID_ = time.TEACHING_CLASS_ID_
 		where 
 		     time.TYPE_ = '2' and 
-		     course.PROJ_ID_ = '2' and 
 		     course.CALENDAR_ID_ = #{calendarId} and
              course.TRAINING_LEVEL_ = #{trainingLevel}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+            and course.PROJ_ID_ = #{projectId,jdbcType=VARCHAR} 
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campu)">
             and class.CAMPUS_ =#{campu,jdbcType=VARCHAR}
         </if>
