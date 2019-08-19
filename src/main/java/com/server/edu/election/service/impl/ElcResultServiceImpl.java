@@ -620,7 +620,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
 			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
-			Integer elcNumber = 0;
+			Integer elcNumber = elcResultCountDao.getElcNumber(condition);
 			for (ElcResultDto elcResultDto : elcResultList) {
 				
 				//该年级、培养层次、培养类别、学位类型、学习形式查询条件
@@ -640,7 +640,6 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setTrainingLevel(elcResultDto.getTrainingLevel() == null ? "" : elcResultDto.getTrainingLevel());
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
-				elcNumber = elcNumber + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
 				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
@@ -658,7 +657,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		}else{
 			//从学院维度查询
 			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
-			Integer elcNumberByFaculty = 0;
+			Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
 			for (ElcResultDto elcResultDto : eleResultByFacultyList) {
 				//该学院该专业查询条件
 				ElcResultQuery query = new ElcResultQuery();
@@ -679,7 +678,6 @@ public class ElcResultServiceImpl implements ElcResultService
 				
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
-				elcNumberByFaculty = elcNumberByFaculty + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
 				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
