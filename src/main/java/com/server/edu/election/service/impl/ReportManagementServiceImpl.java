@@ -1213,7 +1213,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         list.add(timeTable.getAssessmentMode());
         list.add(String.valueOf(timeTable.getCredits()));
         list.add(timeTable.getTeacherName());
-        list.add(timeTable.getTime() + timeTable.getRoom());
+        list.add(timeTable.getTime());
         list.add(timeTable.getRemark());
         return list;
     }
