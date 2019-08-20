@@ -547,7 +547,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 			if (isPlanElection) {
 				//培养计划与排课信息的交集（中间变量）
-				List<PlanCourse> optionalCourses = getOptionalCourses(c, planCourses, setCompletedCourses, selectedCourseSet, roundsCoursesIdsList);
+				List<PlanCourse> optionalCourses = getOptionalCourses(c, planCourses, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
 				for (PlanCourse completedCourse : optionalCourses)
 			       {
 			           List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
@@ -670,7 +670,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			           }
 			       }
 			}else{
-				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, roundsCoursesIdsList);
+				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
 				for (String courseCode : optionalCourses) {
 					List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 							courseCode);
@@ -806,7 +806,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}else{//管理员选课
 			key = Keys.getCalendarCourseKey(calendarId); // 管理员代理选课
 			List<String> calendarCoursesIdsList = CoursesList(ops, key);
-			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, calendarCoursesIdsList);
+			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseTreeSet, calendarCoursesIdsList);
 			for (String courseCode : optionalCourses) {
 				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasssbyCalendarId(calendarId,courseCode);
 				if (CollectionUtil.isNotEmpty(teachClasss))
@@ -1032,7 +1032,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
 		//可选课程中去除免修免考课程
 		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
-		for (PlanCourse centerCourses : optionalGraduateCoursesList)
+		for (PlanCourse centerCourses : optionalGraduateCourses)
 		{
 		    Boolean flag = true;
 		    for (ElecCourse courseCode : applyCourses)
