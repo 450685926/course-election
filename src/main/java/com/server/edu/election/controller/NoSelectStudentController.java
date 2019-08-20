@@ -117,7 +117,7 @@ public class NoSelectStudentController
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "导出未选课学生名单研究生(按学生ID)")})
     @PostMapping(value = "/exportStudentNoCourseListGradute2")
-    public ResponseEntity<Resource> exportStudentNoCourseListGradute2(@RequestBody String ids) throws Exception
+    public ResponseEntity<Resource> exportStudentNoCourseListGradute2(@RequestBody List<String> ids) throws Exception
     {
 //        LOG.info("exportStudentNoCourseListGradute2");
 //        try {
