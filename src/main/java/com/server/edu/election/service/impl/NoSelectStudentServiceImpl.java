@@ -2,6 +2,7 @@ package com.server.edu.election.service.impl;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -288,4 +289,25 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
            design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
            return design;
        }
+
+	@Override
+	public List<NoSelectCourseStdsDto> findElectCourseListByIds(String ids) {
+		List<NoSelectCourseStdsDto> electCourseList = courseTakeDao.findElectCourseListByIds(ids);
+		
+		String[] strings = ids.split(",");
+		List<String> studentCodes = Arrays.asList(strings);
+		//List<String> studentCodes = electCourseList.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
+        List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(studentCodes);
+        
+        //Iterator<NoSelectCourseStdsDto> iterator = electCourseList.iterator();
+        for (NoSelectCourseStdsDto stdsDto : electCourseList) {
+       	 //NoSelectCourseStdsDto stdsDto = iterator.next();
+       	 for (AbnormalTypeElection abnormalTypeElection : list) {
+				if (StringUtils.equals(stdsDto.getStudentCode(), abnormalTypeElection.getStudentCode())) {
+					stdsDto.setStdStatusChanges(abnormalTypeElection.getTypeName());
+				}
+			 }
+		}
+		return electCourseList;
+	}
 }
