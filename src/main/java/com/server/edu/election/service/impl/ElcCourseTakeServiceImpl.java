@@ -779,21 +779,23 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Override
     @Transactional
-    public String addCourse(AddCourseDto courseDto) {
+    public CourseConflictVo addCourse(AddCourseDto courseDto) {
         Session session = SessionUtils.getCurrentSession();
         Long calendarId = courseDto.getCalendarId();
         // 判断登录角色及选课维护开关状态
         Integer chooseObj = getChooseObj(session, calendarId);
         // 查询要添加教学班的课程信息
         List<Long> teachingClassIds = courseDto.getTeachingClassId();
-        // 判断重修课程是否满足重修门数上限
+        // 查询要添加教学班的课程信息
         List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
         int size = elcStudentVos.size();
         // 重修课程集合
         List<ElcStudentVo> failedClass = new ArrayList<>(size);
         String studentId = courseDto.getStudentId();
+        Map<Long, String> addMap = new HashMap<>(size);
         for (ElcStudentVo elcStudentVo : elcStudentVos) {
             String courseCode = elcStudentVo.getCourseCode();
+            addMap.put(elcStudentVo.getTeachingClassId(), courseCode + elcStudentVo.getCourseName());
             int count = courseTakeDao.courseCount(courseCode, studentId);
             if(count != 0) {
                 elcStudentVo.setCourseTakeType(2);
@@ -815,21 +817,38 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
         // 查询已选课程上课时间
-        List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(courseDto.getStudentId(), calendarId);
-        List<TimeTableMessage> selectCourseArrange = courseTakeDao.findCourseArrange(ids);
-        // 查询要添加课程的上课时间
-        List<TimeTableMessage> addCourseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
-        List<Long> courseConflict = getCourseConflict(addCourseArrange, selectCourseArrange);
-        if (CollectionUtil.isNotEmpty(courseConflict)) {
-            List<String> codes = elcStudentVos.stream().filter(s -> courseConflict.contains(s.getTeachingClassId())).map(ElcStudentVo::getClassCode).collect(Collectors.toList());
-            return String.join(",", codes);
+        List<ElcCourseTakeVo> elcCourseTakeVos = courseTakeDao.findElcCourseTakeByStudentId(courseDto.getStudentId(), calendarId);
+        if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+            Map<Long, String> selectedMap = elcCourseTakeVos.stream().collect(Collectors.toMap(ElcCourseTakeVo::getTeachingClassId, s -> s.getCourseCode() + s.getCourseName()));
+            Set<Long> set = selectedMap.keySet();
+            List<Long> ids = new ArrayList<>(set);
+            List<TimeTableMessage> selectCourseArrange = courseTakeDao.findCourseArrange(ids);
+            // 查询要添加课程的上课时间
+            List<TimeTableMessage> addCourseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
+            Map<Long, Long> map = getCourseConflict(addCourseArrange, selectCourseArrange);
+            if (!map.isEmpty()) {
+                int sz = map.size();
+                List<String> addCourses = new ArrayList<>(sz);
+                List<String> selectedCourses = new ArrayList<>(sz);
+                for (Entry<Long, Long> entry : map.entrySet()) {
+                    String addCourse = addMap.get(entry.getKey());
+                    String selectedCourse = selectedMap.get(entry.getValue());
+                    addCourses.add(addCourse);
+                    selectedCourses.add(selectedCourse);
+                }
+                CourseConflictVo courseConflictVo = new CourseConflictVo();
+                courseConflictVo.setAddCourse(addCourses);
+                courseConflictVo.setSelectedCourse(selectedCourses);
+                return courseConflictVo;
+            }
         }
+
         List<ElcCourseTake> elcCourseTakes = new ArrayList<>(size);
         List<ElcLog> elcLogs = new ArrayList<>(size);
         // 保存数据
         addToList(session, chooseObj, courseDto, elcStudentVos, elcCourseTakes, elcLogs);
         saveCourse(courseDto, elcCourseTakes, elcLogs);
-        return "";
+        return null;
     }
 
     private void saveCourse(AddCourseDto courseDto, List<ElcCourseTake> elcCourseTakes, List<ElcLog> elcLogs) {
@@ -1086,8 +1105,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
      * @param addCourseArrange
      * @param selectedCourseArrange
      */
-    private List<Long> getCourseConflict(List<TimeTableMessage> addCourseArrange, List<TimeTableMessage> selectedCourseArrange){
-        List<Long> list = new ArrayList<>(addCourseArrange.size());
+    private Map<Long, Long> getCourseConflict(List<TimeTableMessage> addCourseArrange, List<TimeTableMessage> selectedCourseArrange){
+        Map<Long, Long> map = new HashMap<>(addCourseArrange.size());
         loop: for (TimeTableMessage addTable : addCourseArrange) {
             String[] split = addTable.getWeekNum().split(",");
             Set<String> addWeeks = new HashSet<>(Arrays.asList(split));
@@ -1112,14 +1131,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                         int end = selectTable.getTimeEnd().intValue();
                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                         if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                            list.add(teachingClassId);
+                            map.put(teachingClassId, selectTable.getTeachingClassId());
                             continue loop;
                         }
                     }
                 }
             }
         }
-        return list;
+        return map;
     }
 
     /**

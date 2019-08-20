@@ -243,6 +243,7 @@ public interface ElcCourseTakeDao
 
     List<Long> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
+    List<ElcCourseTakeVo> findElcCourseTakeByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
     /**
      * 研究生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
      * @param list

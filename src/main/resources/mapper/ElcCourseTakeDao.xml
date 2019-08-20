@@ -904,16 +904,16 @@
                 and op.NATURE_ =#{nature,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-                and op.COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+                and op.COURSE_CODE_ like CONCAT( '%', #{courseCode}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-                and op.COURSE_NAME_ =#{courseName,jdbcType=VARCHAR}
+                and op.COURSE_NAME_ like CONCAT( '%', #{courseName}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
                 and tr.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
-                and tc.CODE_ = #{classCode,jdbcType=VARCHAR}
+                and tc.CODE_ like CONCAT( '%', #{classCode}, '%')
             </if>
         </where>
         group by tc.ID_,tr.TEACHER_CODE_
@@ -1376,6 +1376,15 @@
 
     <select id="findTeachingClassIdByStudentId" resultType="java.lang.Long">
         select TEACHING_CLASS_ID_ from elc_course_takes_t where STUDENT_ID_ = #{studentId} and CALENDAR_ID_ = #{calendarId}
+    </select>
+
+    <select id="findElcCourseTakeByStudentId" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
+        select
+          ec.TEACHING_CLASS_ID_ teachingClassId,ec.COURSE_CODE_ courseCode,co.NAME_ courseName
+        from elc_course_takes_t ec
+        join course_t co on ec.COURSE_CODE_ = co.CODE_
+        where STUDENT_ID_ = #{studentId}
+        and CALENDAR_ID_ = #{calendarId}
     </select>
 
     <select id="findCourseArrange" resultType="com.server.edu.election.dto.TimeTableMessage">
