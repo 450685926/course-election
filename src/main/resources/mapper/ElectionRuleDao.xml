@@ -38,11 +38,11 @@
 		INNER JOIN election_rule_t t2 ON t1.RULE_ID_ = t2.ID_
   </select> 
   <select id="listAllByProjectId" resultMap="VoBaseResultMap">
-  	select * from election_rule_t where MANAGER_DEPT_ID_ = #{projectId}
+  	select * from election_rule_t where MANAGER_DEPT_ID_ = #{projectId} and STATUS_ = 1
   </select>
   
   <select id="listAll" resultMap="VoBaseResultMap">
-  	select * from election_rule_t
+  	select * from election_rule_t where STATUS_ = 1 
   </select>
   
   <update id="batchUpdate" parameterType="com.server.edu.election.dto.ElectionRuleDto">
