@@ -99,8 +99,7 @@
 		    </if>
 		    </where>
 		GROUP BY
-			t1.STUDENT_ID_,
-			t2.COURSE_TAKE_TYPE_
+			t1.STUDENT_ID_
 		) t5 
 		<where>
 		 	<if test="minSelectedCredits != null and minSelectedCredits !=0">
