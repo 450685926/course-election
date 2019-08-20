@@ -26,6 +26,8 @@ public class ElcCourseResult{
 
 	/** 教学班编号（课程序号） */
 	private String  teachClassCode;
+	/** 教学班名称 */
+	private String  teachClassName;
 	
 	/**课程代码*/
     private String courseCode;
@@ -212,5 +214,15 @@ public class ElcCourseResult{
 	public void setConflictCourse(String conflictCourse) {
 		this.conflictCourse = conflictCourse;
 	}
+
+	public String getTeachClassName() {
+		return teachClassName;
+	}
+
+	public void setTeachClassName(String teachClassName) {
+		this.teachClassName = teachClassName;
+	}
+	
+	
 	
 }
