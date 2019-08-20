@@ -47,6 +47,9 @@ public class ElecContext implements IElecContext
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
     
+    /**研究生已修读课程*/
+    private List<CompletedCourse> takenCourses;
+    
     /**研究生所有的第一外国语课程 */
     private List<ElecFirstLanguageContrastVo> firstForeignCourses;
     
@@ -264,6 +267,14 @@ public class ElecContext implements IElecContext
 
 	public void setFirstForeignCourses(List<ElecFirstLanguageContrastVo> firstForeignCourses) {
 		this.firstForeignCourses = firstForeignCourses;
+	}
+
+	public List<CompletedCourse> getTakenCourses() {
+		return takenCourses;
+	}
+
+	public void setTakenCourses(List<CompletedCourse> takenCourses) {
+		this.takenCourses = takenCourses;
 	}
     
 }
