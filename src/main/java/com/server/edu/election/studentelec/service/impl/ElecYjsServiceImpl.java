@@ -141,18 +141,15 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         Long calendarId = request.getCalendarId();
         Integer chooseObj = request.getChooseObj();
         String projectId = request.getProjectId();
-        LOG.info("=======================projectId========================: "+ projectId);
         
         Assert.notNull(calendarId, "calendarId must be not null");
         
         List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
         List<AbstractWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
-        LOG.info("=======================cancelExceutors========================"+ cancelExceutors.size());
         // 研究生的管理员代选是没有轮次和规则的
         if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE) || 
         		(!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE) && ChooseObj.ADMIN.type() != chooseObj.intValue()))
         {
-        	LOG.info("=======================ADMIN GET RULES=====================start===");
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
             // 获取执行规则
@@ -181,7 +178,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 }
             }
         }
-        LOG.info("=======================ADMIN GET RULES=====================end==="+elecExceutors.size());
         
         ElecContext context = new ElecContext(studentId, calendarId, request);
         

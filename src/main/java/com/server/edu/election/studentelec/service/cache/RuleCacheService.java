@@ -42,7 +42,7 @@ public class RuleCacheService extends AbstractCacheService
     private StringRedisTemplate redisTemplate;
     
     /**
-     * 设置选课規則，把所有规则都放到缓存中本科生26个，研究生9个
+     * 设置选课規則，把所有启用的规则都放到缓存中（本科生26个，研究生8个）
      */
     public void cacheAllRule()
     {
