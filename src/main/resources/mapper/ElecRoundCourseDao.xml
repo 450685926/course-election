@@ -34,6 +34,8 @@
   	<result column="COURSE_LABEL_ID_" jdbcType="BIGINT" property="courseLabelId" />
   	<result column="teacherCode" jdbcType="VARCHAR" property="teacherCode" />
   	<result column="reserveNumber" jdbcType="VARCHAR" property="reserveNumber" />
+  	<result column="remark" jdbcType="VARCHAR" property="teachingClassRemark" />
+  	<result column="teachClassName" jdbcType="VARCHAR" property="teachingClassName" />
   </resultMap>
   
   <select id="listPage" resultMap="CourseOpenDtoMap">
@@ -322,7 +324,7 @@
   <select id="selectTeachingClassByCalendarId" resultMap="CourseOpenDtoMap">
   	  select 
   	  	op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,
-  	  	cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber,cl.REMARK_ AS remark,cl.RESERVE_NUMBER_ AS reserveNumber
+  	  	cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber,cl.REMARK_ AS remark,cl.RESERVE_NUMBER_ AS reserveNumber,ta.REMARK_ AS remark,NAME_ AS teachClassName
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0 and cl.DELETE_STATUS_ =0)
@@ -336,7 +338,7 @@
 		cl1.CLASS_TYPE_ AS teachClassType,
 		cl1.NUMBER_ AS maxNumber,
 		cl1.ELC_NUMBER_ AS currentNumber,
-		cl1.REMARK_ AS remark,cl1.RESERVE_NUMBER_ AS reserveNumber
+		cl1.REMARK_ AS remark,cl1.RESERVE_NUMBER_ AS reserveNumber,ta.REMARK_ AS remark,NAME_ AS teachClassName
 	FROM
 		course_open_t op1
 	JOIN teaching_task_t ta ON op1.ID_ = ta.COURSE_OPEN_ID_

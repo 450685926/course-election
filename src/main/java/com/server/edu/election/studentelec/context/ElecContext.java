@@ -147,6 +147,12 @@ public class ElecContext implements IElecContext
         this.getApplyCourse().clear();
         this.getFirstForeignCourses().clear();
     }
+    public void courseClear()
+    {
+    	this.getSelectedCourses().clear();
+    	this.getApplyForDropCourses().clear();
+    }
+    
     
     
     @Override
