@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.entity.ElectionParameter;
@@ -71,19 +72,25 @@ public class RuleCacheService extends AbstractCacheService
     public void cacheRoundRule(Long roundId, long timeout)
     {
         ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        
+        List<ElectionRuleVo> ruleList = new ArrayList<ElectionRuleVo>();
         List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
+        for (ElectionRuleVo electionRuleVo : rules) {
+			if (electionRuleVo.getStatus().intValue() == Constants.ONE) {
+				ruleList.add(electionRuleVo);
+			}
+		}
         List<String> serviceNames = null;
         String key = Keys.getRoundRuleKey(roundId);
-        if (null != rules)
+        if (CollectionUtil.isNotEmpty(ruleList))
         {
-            serviceNames = rules.stream()
+            serviceNames = ruleList.stream()
                 .map(ElectionRuleVo::getServiceName)
                 .collect(Collectors.toList());
         }
         else
         {
             serviceNames = new ArrayList<>();
-            
         }
         ops.set(key,
             JSON.toJSONString(serviceNames),
