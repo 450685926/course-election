@@ -98,6 +98,12 @@
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.trainingCategory)">
 	    and t1.TRAINING_CATEGORY_= #{stu.trainingCategory} 
 	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.spcialPlan)">
+	    and t1.SPCIAL_PLAN_= #{stu.spcialPlan} 
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.enrolMethods)">
+	    and t1.ENROL_METHODS_= #{stu.enrolMethods} 
+	    </if>
   		and t1.STUDENT_CODE_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
   	</where>
   </select>
