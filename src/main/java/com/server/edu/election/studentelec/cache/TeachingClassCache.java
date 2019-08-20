@@ -24,6 +24,8 @@ public class TeachingClassCache extends ElecCourse
     
     private String teachClassCode;
     
+    private String teachClassName;
+    
     private String teachClassType;
     
     /** 是否实践课*/
@@ -201,7 +203,15 @@ public class TeachingClassCache extends ElecCourse
         this.faculty = faculty;
     }
     
-    @JsonIgnore
+    public String getTeachClassName() {
+		return teachClassName;
+	}
+
+	public void setTeachClassName(String teachClassName) {
+		this.teachClassName = teachClassName;
+	}
+
+	@JsonIgnore
     public String getCourseCodeAndClassCode()
     {
         return String

@@ -46,6 +46,8 @@ public class CourseOpenDto extends CourseOpen
     
     private String projectId;
     
+    private String teachingClassRemark;
+    
     private Long courseLabelId;
     
     @Code2Text(translator=TeacherTranslator.class)
@@ -179,5 +181,13 @@ public class CourseOpenDto extends CourseOpen
 	public void setTeachingClassName(String teachingClassName) {
 		this.teachingClassName = teachingClassName;
 	}
-    
+
+	public String getTeachingClassRemark() {
+		return teachingClassRemark;
+	}
+
+	public void setTeachingClassRemark(String teachingClassRemark) {
+		this.teachingClassRemark = teachingClassRemark;
+	}
+
 }
