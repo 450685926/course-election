@@ -1022,6 +1022,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		completedCourse.setTimeTableList(selectedCourse.getTimeTableList());
     		completedCourse.setTimes(selectedCourse.getTimes());
     		completedCourse.setRemark(selectedCourse.getRemark());
+    		completedCourse.setFaculty(selectedCourse.getFaculty());
     		takenCourse.add(completedCourse);
 		}
     	Map<Long, List<CompletedCourse>> collect = takenCourse.stream().collect(Collectors.groupingBy(CompletedCourse::getCourseLabelId));
