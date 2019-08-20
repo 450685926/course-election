@@ -273,6 +273,6 @@ public interface ElcCourseTakeDao
 	List<ElcCourseTakeVo> getElcMedWithdraw(ElcMedWithdrawDto dto);
 	
 	/** 研究生查询未选课名单(ids)  */
-	List<NoSelectCourseStdsDto> findElectCourseListByIds(@Param("ids") String ids);
+	List<NoSelectCourseStdsDto> findElectCourseListByIds(@Param("ids") List<String> ids);
 	
 }

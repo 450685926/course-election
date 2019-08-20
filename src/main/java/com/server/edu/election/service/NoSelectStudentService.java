@@ -35,6 +35,6 @@ public interface NoSelectStudentService
     ExcelResult export(NoSelectCourseStdsDto condition);
     
     /** 研究生查询未选课名单(ids) */
-	List<NoSelectCourseStdsDto> findElectCourseListByIds(String ids);
+	List<NoSelectCourseStdsDto> findElectCourseListByIds(List<String> ids);
 	
 }
