@@ -447,7 +447,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	    	}
 		}
 	    
-	    if (applyManage.getApplyType() == 1 && StringUtils.isNotEmpty(applyManage.getExemptionType())) {
+	    if (applyManage.getApplyType() == 1 && StringUtils.isEmpty(applyManage.getExemptionType())) {
     		return "Please.select";
 		}
 	    //判断本门可是否已经选课或者完成
@@ -1263,7 +1263,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     		 applicationContext
              .publishEvent(new ElectLoadEvent(applyManage.getCalendarId(), applyManage.getStudentCode()));
 	    }else{
-	    	if (StringUtils.isNotEmpty(applyManage.getExemptionType())) {
+	    	if (StringUtils.isEmpty(applyManage.getExemptionType())) {
 	    		return RestResult.fail("Please.select");
 			}
 	        applyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
