@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.server.edu.election.vo.CourseConflictVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
@@ -205,12 +206,12 @@ public class ElcCourseTakeYjsController
      */
     @ApiOperation(value = "课程维护模块研究生加课")
     @PostMapping("/addCourse")
-    public RestResult<String> addCourse(@RequestBody AddCourseDto courseDto) {
-        String result = courseTakeService.addCourse(courseDto);
-        if ("".equals(result)) {
-            return new RestResult<>(200,"加课成功", "");
+    public RestResult<CourseConflictVo> addCourse(@RequestBody AddCourseDto courseDto) {
+        CourseConflictVo vo = courseTakeService.addCourse(courseDto);
+        if (vo == null) {
+            return new RestResult<>(200,"加课成功", vo);
         } else {
-            return new RestResult<>(200,"课程冲突", result);
+            return new RestResult<>(200,"课程冲突", vo);
         }
     }
 
