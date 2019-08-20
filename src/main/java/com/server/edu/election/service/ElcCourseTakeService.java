@@ -13,6 +13,7 @@ import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElcResultQuery;
+import com.server.edu.election.vo.CourseConflictVo;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
@@ -150,7 +151,7 @@ public interface ElcCourseTakeService
      * @param courseDto
      * @return
      */
-    String addCourse(AddCourseDto courseDto);
+    CourseConflictVo addCourse(AddCourseDto courseDto);
 
     void forceAdd(AddCourseDto courseDto);
 
