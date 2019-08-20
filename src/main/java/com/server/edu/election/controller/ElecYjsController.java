@@ -74,6 +74,8 @@ public class ElecYjsController
     @Autowired
     private ElecYjsService yjsService;
     
+    private static final String LIST_RULE = "yjsMustInElectableListRule";
+    
     @ApiOperation(value = "研究生选课获取生效的轮次")
     @PostMapping("/getGraduateRounds")
     public RestResult<List<ElectionRoundsVo>> getGraduateRounds(
@@ -96,7 +98,7 @@ public class ElecYjsController
             	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             	boolean flag = true;
             	if (CollectionUtil.isNotEmpty(rules)) {
-            		List<ElectionRuleVo> nameList = rules.stream().filter(vo->vo.getId().longValue()==Constants.RULE_NAME_LIST).collect(Collectors.toList());
+            		List<ElectionRuleVo> nameList = rules.stream().filter(vo->StringUtils.equals(vo.getServiceName(), LIST_RULE)).collect(Collectors.toList());
             		if (CollectionUtil.isNotEmpty(nameList)) {
             			if (!dataProvider.containsStu(roundId, studentId) ) {
             				flag = false;
