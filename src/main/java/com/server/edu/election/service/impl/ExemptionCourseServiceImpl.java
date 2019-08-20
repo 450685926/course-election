@@ -1068,7 +1068,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,languageCode,scoreFlag,session);
 		
-		
+		if (scoreModel == null) {
+			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+			studentAndCourseVo.setStudent(student);
+			studentAndCourseVo.setApplyCourse(null);
+			return studentAndCourseVo;
+		}
 		
 		//满足优线生申请条件
 		if (CollectionUtil.isNotEmpty(optCourses)) {
@@ -1188,11 +1193,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		Set<PlanCourse> studentlanguageCourse = new HashSet<>();
 		if (findStudentCultureRelList != null) {
 			String courseCode = findStudentCultureRelList.getCourseCode();
-			String[]  codes = courseCode.split(",");
-			for (String code : codes) {
-				for (PlanCourse planCourse : planCourses) {
-					if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(),code)) {
-						studentlanguageCourse.add(planCourse);
+			if (StringUtils.isNotEmpty(courseCode)) {
+				String[]  codes = courseCode.split(",");
+				for (String code : codes) {
+					for (PlanCourse planCourse : planCourses) {
+						if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(),code)) {
+							studentlanguageCourse.add(planCourse);
+						}
 					}
 				}
 			}
