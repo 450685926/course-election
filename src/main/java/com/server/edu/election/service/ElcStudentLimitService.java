@@ -23,10 +23,17 @@ public interface ElcStudentLimitService {
 	int delete(List<Long> ids);
 	
 	int deleteAll(ElcStudentLimitDto elcStudentLimitDto);
-	
+	/**
+	 * 导出学生限制名单
+	 * @param elcStudentLimitDto
+	 * @return
+	 */
 	ExcelResult export(ElcStudentLimitDto elcStudentLimitDto) throws Exception;
+	/**
+	 * 导出未限制名单
+	 * @param elcStudentLimitDto
+	 * @return
+	 */
+	ExcelResult exportUnLimit(StudentDto studentDto) throws Exception;
 	
-	
-	
-
 }
