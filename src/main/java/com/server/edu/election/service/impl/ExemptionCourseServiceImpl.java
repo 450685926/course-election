@@ -1068,7 +1068,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,languageCode,scoreFlag,session);
 		
-		
+		if (scoreModel == null) {
+			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+			studentAndCourseVo.setStudent(student);
+			studentAndCourseVo.setApplyCourse(null);
+			return studentAndCourseVo;
+		}
 		
 		//满足优线生申请条件
 		if (CollectionUtil.isNotEmpty(optCourses)) {
