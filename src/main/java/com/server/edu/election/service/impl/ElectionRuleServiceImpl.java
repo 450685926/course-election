@@ -29,6 +29,9 @@ import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
 
+/**
+ * 选课规则在职研究生使用普研的，特此说明
+ */
 @Service
 @Primary
 public class ElectionRuleServiceImpl implements ElectionRuleService
@@ -51,10 +54,14 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         {
             criteria.andEqualTo("type", electionRuleDto.getType());
         }
-        if (StringUtils.isNotBlank(electionRuleDto.getManagerDeptId()))
+        String managerDeptId = electionRuleDto.getManagerDeptId();
+        if (StringUtils.isNotBlank(managerDeptId))
         {
+            if ("4".equals(managerDeptId)) {
+                managerDeptId = "2";
+            }
             criteria.andEqualTo("managerDeptId",
-                electionRuleDto.getManagerDeptId());
+                    managerDeptId);
         }
         if (electionRuleDto.getStatus() != null)
         {
@@ -68,6 +75,11 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         return list;
     }
 
+    /**
+     * 在职研究生使用普研规则，部门写死
+     * @param managerDeptId
+     * @return
+     */
     @Override
     public List<ElectionRuleVo> retakeRuleList(String managerDeptId)
     {
@@ -83,10 +95,8 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         list.add("不能跨校区选课");
         list.add("不能超出人数上限");
         criteria.andIn("name", list);
-        if (StringUtils.isNotBlank(managerDeptId)) {
-            criteria.andEqualTo("managerDeptId",
-                    managerDeptId);
-        }
+        criteria.andEqualTo("managerDeptId",
+                2);
         List<ElectionRule> electionRules = electionRuleDao.selectByExample(example);
         List<ElectionRuleVo> ruleVos = new ArrayList<>(electionRules.size());
         for (ElectionRule electionRule : electionRules) {
@@ -213,6 +223,9 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
     @Override
     public List<ElectionRuleVo> listAll(String projectId)
     {
+        if ("4".equals(projectId)) {
+            projectId = "2";
+        }
         List<ElectionRuleVo> rules =
             electionRuleDao.listAllByProjectId(projectId);
         
