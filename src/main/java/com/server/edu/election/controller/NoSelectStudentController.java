@@ -117,7 +117,7 @@ public class NoSelectStudentController
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "导出未选课学生名单研究生(按学生ID)")})
     @PostMapping(value = "/exportStudentNoCourseListGradute2")
-    public ResponseEntity<Resource> exportStudentNoCourseListGradute2(@RequestBody NoSelectCourseStdsDto condition) throws Exception
+    public ResponseEntity<Resource> exportStudentNoCourseListGradute2(@RequestBody String ids) throws Exception
     {
 //        LOG.info("exportStudentNoCourseListGradute2");
 //        try {
@@ -134,22 +134,22 @@ public class NoSelectStudentController
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-    	PageCondition<NoSelectCourseStdsDto> page = new PageCondition<NoSelectCourseStdsDto>();
-    	page.setCondition(condition);
-    	page.setPageNum_(1);
-    	page.setPageSize_(1000);
+//    	PageCondition<NoSelectCourseStdsDto> page = new PageCondition<NoSelectCourseStdsDto>();
+//    	page.setCondition(condition);
+//    	page.setPageNum_(1);
+//    	page.setPageSize_(1000);
     	
-    	List<NoSelectCourseStdsDto> datas = new ArrayList<NoSelectCourseStdsDto>();
-    	PageResult<NoSelectCourseStdsDto> list = noSelectStudentService.findElectCourseList(page);
-    	while (datas.size() < list.getTotal_())
-    	{
-    		datas.addAll(list.getList());
-    		page.setPageNum_(page.getPageNum_() + 1);
-    		if (datas.size() < list.getTotal_())
-    		{
-    			list = noSelectStudentService.findElectCourseList(page);
-    		}
-    	}
+//    	List<NoSelectCourseStdsDto> datas = new ArrayList<NoSelectCourseStdsDto>();
+    	List<NoSelectCourseStdsDto> list = noSelectStudentService.findElectCourseListByIds(ids);
+//    	while (datas.size() < list.getTotal_())
+//    	{
+//    		datas.addAll(list.getList());
+//    		page.setPageNum_(page.getPageNum_() + 1);
+//    		if (datas.size() < list.getTotal_())
+//    		{
+//    			list = noSelectStudentService.findElectCourseList(page);
+//    		}
+//    	}
     	
     	GeneralExcelDesigner design = new GeneralExcelDesigner();
     	design.addCell("学号", "studentCode");
@@ -192,7 +192,7 @@ public class NoSelectStudentController
     				return dict;
     			});
     	design.addCell("学籍变动信息", "stdStatusChanges");
-    	design.setDatas(datas);
+    	design.setDatas(list);
     	ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
     	
     	return ExportUtil
