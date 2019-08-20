@@ -7,11 +7,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -497,6 +499,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	
     	 //获取学生本学期已经选取的课程
         Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
+        
     	
         //每门课上课信息集合
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
@@ -505,7 +508,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<SelectedCourse> selectedCoursess = packagingSelectedCourse(roundId, calendarId, planCourses,
 				selectedCourseSet, classTimeLists);
         List<SelectedCourse> sortSelectedCourses = sortSelectedCourses(selectedCoursess);
-        selectedCourseSet.addAll(sortSelectedCourses);
+        Set<SelectedCourse> selectedCourseTreeSet = new LinkedHashSet<>(sortSelectedCourses);
         
         //已完成课程组装
     	for (CompletedCourse completedCourse : setCompletedCourses) {
@@ -544,7 +547,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 			if (isPlanElection) {
 				//培养计划与排课信息的交集（中间变量）
-				List<PlanCourse> optionalCourses = getOptionalCourses(c, planCourses, setCompletedCourses, selectedCourseSet, roundsCoursesIdsList);
+				List<PlanCourse> optionalCourses = getOptionalCourses(c, planCourses, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
 				for (PlanCourse completedCourse : optionalCourses)
 			       {
 			           List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
@@ -667,7 +670,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			           }
 			       }
 			}else{
-				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, roundsCoursesIdsList);
+				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
 				for (String courseCode : optionalCourses) {
 					List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 							courseCode);
@@ -803,10 +806,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}else{//管理员选课
 			key = Keys.getCalendarCourseKey(calendarId); // 管理员代理选课
 			List<String> calendarCoursesIdsList = CoursesList(ops, key);
-			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, calendarCoursesIdsList);
+			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseTreeSet, calendarCoursesIdsList);
 			for (String courseCode : optionalCourses) {
-				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
-						courseCode);
+				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasssbyCalendarId(calendarId,courseCode);
 				if (CollectionUtil.isNotEmpty(teachClasss))
 				{
 					for (TeachingClassCache teachClass : teachClasss)
@@ -948,7 +950,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
-        c.setSelectedCourses(selectedCourseSet);
+        c.setSelectedCourses(selectedCourseTreeSet);
         c.setOptionalCourses(sortOptionalCourses);
         c.setElecResult(elecResult);
         return c;
@@ -1030,7 +1032,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
 		//可选课程中去除免修免考课程
 		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
-		for (PlanCourse centerCourses : optionalGraduateCoursesList)
+		for (PlanCourse centerCourses : optionalGraduateCourses)
 		{
 		    Boolean flag = true;
 		    for (ElecCourse courseCode : applyCourses)
@@ -1094,7 +1096,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
 		//可选课程中去除免修免考课程
 		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
-		for (String centerCourses : optionalGraduateCoursesList)
+		for (String centerCourses : optionalGraduateCourses)
 		{
 			Boolean flag = true;
 			for (ElecCourse courseCode : applyCourses)
@@ -1277,13 +1279,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     selectedCourse.setLabelName(course.getLabelName());
                 }
             }
-            //获取本次选课信息
-            if ( round.getTurn() == selectedCourse.getTurn().intValue())
-            {
-                //已完成课程数
-                thisSelectedCourses.add(selectedCourse);
+            thisSelectedCourses.add(selectedCourse);
                 
-            }
         }
         LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG");
         Map<String, Object> minNumMap = new HashMap<String, Object>();

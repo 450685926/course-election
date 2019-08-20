@@ -20,7 +20,10 @@
   <select id="listPage" parameterType="com.server.edu.election.entity.ExemptionApplyAuditSwitch" resultMap="BaseResultMap">
   	select * from exemption_apply_audit_switch_t 
   	<where>
-  		PROJ_ID_ = '2' and DELETE_STATUS_ = 0
+  		DELETE_STATUS_ = 0
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.projId)">
+  			and PROJ_ID_ = #{condition.projId}
+  		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.grades)">
   			and GRADES_ like concat('%',#{condition.grades},'%')
   		</if>
