@@ -682,7 +682,7 @@ public class TeacherLessonTableServiceServiceImpl
         String facultyStr = dictionaryService.query(DictTypeEnum.X_YX.getType(), faculty);
 
         PdfPCell cell3 =
-            createNoBorderCell("学院：" + facultyStr, name2, 20f);
+            createNoBorderCell("学院：" + facultyStr, name2, 60f);
         table1.addCell(cell3);
         
         PdfPCell cell4 = createNoBorderCell("", name2, 20f);
