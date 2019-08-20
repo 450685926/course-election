@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class ElcCourseTakeQuery
 {
     /**
@@ -83,7 +85,8 @@ public class ElcCourseTakeQuery
     /**导出功能选中的id集合*/
     private List<Long> ids;
     
-    private String isOverseas;
+    /**是否留学生*/
+    private String overseas;
     
     public List<Long> getIds() {
         return ids;
@@ -321,15 +324,14 @@ public class ElcCourseTakeQuery
 		this.includeCourseCode = includeCourseCode;
 	}
 
-    public String getIsOverseas()
+    public String getOverseas()
     {
-        return isOverseas;
+        return overseas;
     }
 
-    public void setIsOverseas(String isOverseas)
+    public void setOverseas(String overseas)
     {
-        this.isOverseas = isOverseas;
+        this.overseas = StringUtils.trim(overseas);
     }
-    
     
 }

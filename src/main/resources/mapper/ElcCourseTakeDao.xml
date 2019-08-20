@@ -674,8 +674,8 @@
            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
                and st.GRADE_ =#{grade}
            </if>
-           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
-               and st.IS_OVERSEAS_ =#{isOverseas}
+           <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(overseas)">
+               and st.IS_OVERSEAS_ =#{overseas}
            </if>
         </where>
     </select>
