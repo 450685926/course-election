@@ -80,81 +80,81 @@
       join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
       join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
       <where>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
-      t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=BIGINT}
-     </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
-      and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
-     </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
-  	 and t1.STUDENT_ID_ = #{query.studentId}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
-  	 and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
-  	 and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
-  	 and t2.NAME_ = #{query.stuName}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
-  	 and t2.GRADE_ = #{query.grade}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
-         and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
-     </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
-          and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
-     </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  	 and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
-  	 and t2.PROFESSION_ = #{query.profession}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.researchDirection)">
-     and t2.RESEARCH_DIRECTION_ = #{query.researchDirection}
-     </if>
-	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-     and t2.DEGREE_TYPE_= #{query.degreeType}
-     </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
-     and t2.FORM_LEARNING_= #{query.formLearning} 
-     </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-      and t2.FACULTY_ = #{query.faculty}
-     </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
-  	 and t3.CODE_ = #{query.courseCode}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
-      and t3.COLLEGE_ = #{courseFaculty}
-     </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
-  	  and t3.NAME_ = #{query.courseName}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
-      and t3.NATURE_ = #{query.nature}
-     </if>
-     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
-      and t3.CODE_ = #{query.courseCode}
-     </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
-  	  and t3.LABEL_ = #{query.label}
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
-  	 and t3.CODE_ IN
-  	 	<foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">
-            #{code}
-        </foreach>
-  	 </if>
-  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
-  	 and t4.CODE_ = #{query.teachingClassCode}
-  	 </if>
-     <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
-     and t1.MODE_ = #{query.mode}
-     </if>-->
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
+	      and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+	     </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
+	  	  and t1.STUDENT_ID_ = #{query.studentId}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
+	  	  and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
+	  	  and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
+	  	 </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
+	      and t1.MODE_ = #{query.mode}
+	     </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
+	      and t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=BIGINT}
+	     </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
+	  	  and t2.NAME_ = #{query.stuName}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+	  	  and t2.GRADE_ = #{query.grade}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+	      and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+	     </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+	      and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
+	     </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+	  	  and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
+	  	  and t2.PROFESSION_ = #{query.profession}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.researchDirection)">
+	      and t2.RESEARCH_DIRECTION_ = #{query.researchDirection}
+	     </if>
+		 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+	      and t2.DEGREE_TYPE_= #{query.degreeType}
+	     </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+	      and t2.FORM_LEARNING_= #{query.formLearning} 
+	     </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+	      and t2.FACULTY_ = #{query.faculty}
+	     </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+	  	  and t3.CODE_ = #{query.courseCode}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
+	      and t3.COLLEGE_ = #{courseFaculty}
+	     </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+	  	  and t3.NAME_ = #{query.courseName}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+	      and t3.NATURE_ = #{query.nature}
+	     </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+	      and t3.CODE_ = #{query.courseCode}
+	     </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
+	  	  and t3.LABEL_ = #{query.label}
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
+	  	  and t3.CODE_ IN
+	  	 	<foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">
+	            #{code}
+	        </foreach>
+	  	 </if>
+	  	 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
+	  	  and t4.CODE_ = #{query.teachingClassCode}
+	  	 </if>
       </where>
   	order by CREATED_AT_ DESC, t1.STUDENT_ID_
   </select>
