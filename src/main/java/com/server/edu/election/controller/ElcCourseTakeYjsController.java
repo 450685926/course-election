@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.server.edu.election.vo.CourseConflictVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
@@ -199,15 +200,31 @@ public class ElcCourseTakeYjsController
     }
 
     /**
-     * 课程维护模块研究生加课
+     * 课程维护模块研究生加课,如果课程冲突则返回提示
      * @param courseDto
      * @return
      */
     @ApiOperation(value = "课程维护模块研究生加课")
     @PostMapping("/addCourse")
-    public RestResult<Integer> addCourse(@RequestBody AddCourseDto courseDto) {
-        Integer count = courseTakeService.addCourse(courseDto);
-        return RestResult.successData(count);
+    public RestResult<CourseConflictVo> addCourse(@RequestBody AddCourseDto courseDto) {
+        CourseConflictVo vo = courseTakeService.addCourse(courseDto);
+        if (vo == null) {
+            return new RestResult<>(200,"加课成功", vo);
+        } else {
+            return new RestResult<>(200,"课程冲突", vo);
+        }
+    }
+
+    /**
+     * 课程维护模块研究生提示课程冲突后加课接口
+     * @param courseDto
+     * @return
+     */
+    @ApiOperation(value = "课程维护模块研究生加课")
+    @PostMapping("/forceAdd")
+    public RestResult forceAdd(@RequestBody AddCourseDto courseDto) {
+       courseTakeService.forceAdd(courseDto);
+        return RestResult.success();
     }
 
     /**
@@ -260,8 +277,9 @@ public class ElcCourseTakeYjsController
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
         Session session = SessionUtils.getCurrentSession();
-    	
-        String msg = courseTakeService.graduateAdd(value,session.realType());
+        String currentRole = session.getCurrentRole();
+        boolean adminFlag = session.isAdmin();
+        String msg = courseTakeService.graduateAdd(value,currentRole,adminFlag,session.getCurrentManageDptId());
         return RestResult.success(msg);
     }   
     
@@ -295,8 +313,9 @@ public class ElcCourseTakeYjsController
     public RestResult<?> graduateWithdraw(@RequestBody ElcCourseTakeWithDrawDto value)
     {
     	Session session = SessionUtils.getCurrentSession();
-        
-    	courseTakeService.graduateWithdraw(value,session.realType());
+    	String currentRole = session.getCurrentRole();
+        boolean adminFlag = session.isAdmin();
+    	courseTakeService.graduateWithdraw(value,currentRole,adminFlag,session.getCurrentManageDptId());
     	
     	return RestResult.success();
     }

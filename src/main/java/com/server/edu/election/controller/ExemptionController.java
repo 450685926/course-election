@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern.Flag;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -219,6 +220,9 @@ public class ExemptionController {
     public RestResult<?> deleteExemptionApply(@RequestBody List<Long>  ids){
     	Session session = SessionUtils.getCurrentSession();
     	if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), Constants.PROJ_UNGRADUATE)) {
+    		if (!session.isAdmin()) {
+    			return RestResult.fail("elec.mustBeAdmin");
+    		}
     		RestResult<?> result= exemptionCourseService.deleteGraduteExemptionApply(ids);
     		return result;
 		}else{
@@ -452,12 +456,23 @@ public class ExemptionController {
      * @throws Exception 
      * 免修免考
      */
-    @LogRecord(title="研究生审批免修免考申请",type = AuditType.UPDATE)
-    @ApiOperation(value = "研究生审批免修免考申请")
+    @LogRecord(title="研究生审批免修免考",type = AuditType.UPDATE)
+    @ApiOperation(value = "研究生审批免修免考")
     @PostMapping("/approvalGraduteExemptionApply")
     public RestResult<String> approvalGraduateExemptionApply(@RequestBody List<Long>  ids,@RequestParam Integer status){
-        String s= exemptionCourseService.approvalGraduateExemptionApply(ids,status);
-        return RestResult.success(I18nUtil.getMsg(s,""));
+    	Session session = SessionUtils.getCurrentSession();
+    	String currentRole = session.getCurrentRole();
+        boolean adminFlag = session.isAdmin();
+        Boolean flag = true;
+        if("1".equals(currentRole)&&!adminFlag){
+        	flag = exemptionCourseService.getIsOpenAuditAuthority(session.getCurrentManageDptId());
+        }
+        if (flag) {
+        	 String s= exemptionCourseService.approvalGraduateExemptionApply(ids,status);
+             return RestResult.success(I18nUtil.getMsg(s,""));
+		}else{
+	         return RestResult.fail("audit.authority.is.not.open");
+		}
     }
     
     /**
@@ -477,32 +492,7 @@ public class ExemptionController {
         return RestResult.successData(exemptionCourse);
     }
     
-//    @ApiOperation(value = "研究生免修免考统计导出")
-//    @PostMapping("/exemptionCountExport")
-//    public File exemptionCountExport(
-//    		@RequestBody ExemptionQuery page)
-//    {
-//    	try {
-//    		ValidatorUtil.validateAndThrow(page);
-//    		LOG.info("export.start");
-//    		RestResult<String> restResult = exemptionCourseService.exemptionCountExport(page);
-//    		
-//    		if (restResult.getCode() == ResultStatus.SUCCESS.code()
-//    				&& !"".equals(restResult.getData()))
-//    		{
-//    			return new File(restResult.getData());
-//    		}
-//    		else
-//    		{
-//    			return null;
-//    		}
-//    		
-//    	} catch (Exception e) {
-//    		e.printStackTrace();
-//    	}
-//    	return null;
-//    	
-//    }
+
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "研究生免修免考统计导出")})
     @PostMapping(value = "/exemptionCountExport")
@@ -511,8 +501,8 @@ public class ExemptionController {
         throws Exception
     {
     	Session currentSession = SessionUtils.getCurrentSession();
-//		String dptId = currentSession.getCurrentManageDptId();
-    	condition.setProjectId("2");
+		String dptId = currentSession.getCurrentManageDptId();
+    	condition.setProjectId(dptId);
         
         PageCondition<ExemptionQuery> page = new PageCondition<>();
         page.setCondition(condition);
@@ -569,34 +559,6 @@ public class ExemptionController {
             .exportExcel(excelUtil, cacheDirectory, "MianXiuMianKaoTongJi.xls");
     }
     
-//    @ApiOperation(value = "研究生审批免修免考导出")
-//    @GetMapping("/findGraduateExemptionApplyExport")
-//    public File findGraduateExemptionApplyExport(
-//    		@ModelAttribute ExemptionQuery page)
-//    {
-//    	Session currentSession = SessionUtils.getCurrentSession();
-////		String dptId = currentSession.getCurrentManageDptId();
-//		page.setProjectId("2");
-//    	try {
-//    		ValidatorUtil.validateAndThrow(page);
-//        	LOG.info("export.start");
-//        	RestResult<String> restResult = exemptionCourseService.findGraduateExemptionApplyExport(page);
-//
-//            if (restResult.getCode() == ResultStatus.SUCCESS.code()
-//                    && !"".equals(restResult.getData()))
-//            {
-//            	return new File(restResult.getData());
-//            }
-//            else
-//            {
-//                return null;
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//       return null;
-//    }
     
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "研究生审批免修免考导出")})
@@ -605,71 +567,134 @@ public class ExemptionController {
         @RequestBody ExemptionQuery condition)
         throws Exception
     {
-    	Session currentSession = SessionUtils.getCurrentSession();
-//		String dptId = currentSession.getCurrentManageDptId();
-    	condition.setProjectId("2");
-        
-        PageCondition<ExemptionQuery> page = new PageCondition<>();
-        page.setCondition(condition);
-        page.setPageNum_(1);
-        page.setPageSize_(1000);
-        
-        List<ExemptionApplyManageVo> datas = new ArrayList<>();
-        
-        PageResult<ExemptionApplyManageVo> res = exemptionCourseService.findGraduateExemptionApply(page);
-        while (datas.size() < res.getTotal_())
-        {
-            datas.addAll(res.getList());
-            page.setPageNum_(page.getPageNum_() + 1);
-            if (datas.size() < res.getTotal_())
-            {
-                res = exemptionCourseService.findGraduateExemptionApply(page);
-            }
+    	Session session = SessionUtils.getCurrentSession();
+    	String dptId = session.getCurrentManageDptId();
+    	String currentRole = session.getCurrentRole();
+        boolean adminFlag = session.isAdmin();
+        condition.setProjectId(dptId);
+        boolean flag = true;
+        if("1".equals(currentRole)&&!adminFlag){
+        	flag = exemptionCourseService.getIsOpenAuditAuthority(session.getCurrentManageDptId());
         }
+        if (flag) {
+        	PageCondition<ExemptionQuery> page = new PageCondition<>();
+        	page.setCondition(condition);
+        	page.setPageNum_(1);
+        	page.setPageSize_(1000);
+        	
+        	List<ExemptionApplyManageVo> datas = new ArrayList<>();
+        	
+        	PageResult<ExemptionApplyManageVo> res = exemptionCourseService.findGraduateExemptionApply(page);
+        	while (datas.size() < res.getTotal_())
+        	{
+        		datas.addAll(res.getList());
+        		page.setPageNum_(page.getPageNum_() + 1);
+        		if (datas.size() < res.getTotal_())
+        		{
+        			res = exemptionCourseService.findGraduateExemptionApply(page);
+        		}
+        	}
+        	
+        	GeneralExcelDesigner design = new GeneralExcelDesigner();
+        	design.addCell("学号", "studentCode");
+        	design.addCell("姓名", "name");
+        	design.addCell("学院", "faculty").setValueHandler(
+        			(String value, Object rawData, GeneralExcelCell cell) -> {
+        				String dict = dictionaryService
+        						.query(DictTypeEnum.X_YX.getType(), value);
+        				return dict;
+        			});
+        	design.addCell("专业", "profession").setValueHandler(
+        			(String value, Object rawData, GeneralExcelCell cell) -> {
+        				String dict = dictionaryService
+        						.query(DictTypeEnum.G_ZY.getType(), value);
+        				return dict;
+        			});
+        	design.addCell("培养层次", "trainingLevel").setValueHandler(
+        			(String value, Object rawData, GeneralExcelCell cell) -> {
+        				String dict = dictionaryService
+        						.query(DictTypeEnum.X_PYCC.getType(), value);
+        				return dict;
+        			});
+        	design.addCell("申请课程", "applyCourse");
+        	design.addCell("审核状态", "examineResult").setValueHandler(
+        			(String value, Object rawData, GeneralExcelCell cell) -> {
+        				if ("0".equals(value))
+        				{
+        					return "未审核";
+        				}
+        				else if ("1".equals(value))
+        				{
+        					return "审核通过";
+        				}
+        				else if ("2".equals(value))
+        				{
+        					return "审核未通过";
+        				}
+        				return value;
+        			});
+        	design.setDatas(datas);
+        	ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        	
+        	return ExportUtil
+        			.exportExcel(excelUtil, cacheDirectory, "YanJiuShengMianXiuMianKaoShenHeLieBiao.xls");
+		}else{
+			PageCondition<ExemptionQuery> page = new PageCondition<>();
+			page.setCondition(condition);
+			page.setPageNum_(1);
+			page.setPageSize_(1000);
+			
+			List<ExemptionApplyManageVo> datas = new ArrayList<>();
+			
+			PageResult<ExemptionApplyManageVo> res = exemptionCourseService.findGraduateExemptionApply(page);
+			res.getList().clear();
+			datas.addAll(res.getList());
+			
+			GeneralExcelDesigner design = new GeneralExcelDesigner();
+			design.addCell("学号", "studentCode");
+			design.addCell("姓名", "name");
+			design.addCell("学院", "faculty").setValueHandler(
+					(String value, Object rawData, GeneralExcelCell cell) -> {
+						String dict = dictionaryService
+								.query(DictTypeEnum.X_YX.getType(), value);
+						return dict;
+					});
+			design.addCell("专业", "profession").setValueHandler(
+					(String value, Object rawData, GeneralExcelCell cell) -> {
+						String dict = dictionaryService
+								.query(DictTypeEnum.G_ZY.getType(), value);
+						return dict;
+					});
+			design.addCell("培养层次", "trainingLevel").setValueHandler(
+					(String value, Object rawData, GeneralExcelCell cell) -> {
+						String dict = dictionaryService
+								.query(DictTypeEnum.X_PYCC.getType(), value);
+						return dict;
+					});
+			design.addCell("申请课程", "applyCourse");
+			design.addCell("审核状态", "examineResult").setValueHandler(
+					(String value, Object rawData, GeneralExcelCell cell) -> {
+						if ("0".equals(value))
+						{
+							return "未审核";
+						}
+						else if ("1".equals(value))
+						{
+							return "审核通过";
+						}
+						else if ("2".equals(value))
+						{
+							return "审核未通过";
+						}
+						return value;
+					});
+			design.setDatas(datas);
+			ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+			
+			return ExportUtil
+					.exportExcel(excelUtil, cacheDirectory, "YanJiuShengMianXiuMianKaoShenHeLieBiao.xls");
+		}
         
-        GeneralExcelDesigner design = new GeneralExcelDesigner();
-        design.addCell("学号", "studentCode");
-        design.addCell("姓名", "name");
-        design.addCell("学院", "faculty").setValueHandler(
-        		(String value, Object rawData, GeneralExcelCell cell) -> {
-        			String dict = dictionaryService
-        					.query(DictTypeEnum.X_YX.getType(), value);
-        			return dict;
-        		});
-        design.addCell("专业", "profession").setValueHandler(
-        		(String value, Object rawData, GeneralExcelCell cell) -> {
-        			String dict = dictionaryService
-        					.query(DictTypeEnum.G_ZY.getType(), value);
-        			return dict;
-        		});
-        design.addCell("培养层次", "trainingLevel").setValueHandler(
-        		(String value, Object rawData, GeneralExcelCell cell) -> {
-        			String dict = dictionaryService
-        					.query(DictTypeEnum.X_PYCC.getType(), value);
-        			return dict;
-        		});
-        design.addCell("申请课程", "applyCourse");
-        design.addCell("审核状态", "examineResult").setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    if ("0".equals(value))
-                    {
-                        return "未审核";
-                    }
-                    else if ("1".equals(value))
-                    {
-                        return "审核通过";
-                    }
-                    else if ("2".equals(value))
-                    {
-                        return "审核未通过";
-                    }
-                    return value;
-                });
-        design.setDatas(datas);
-        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        
-        return ExportUtil
-            .exportExcel(excelUtil, cacheDirectory, "YanJiuShengMianXiuMianKaoShenHeLieBiao.xls");
     }
     /**
      * 根据学生Id与课程编码找出学生课程
@@ -691,6 +716,9 @@ public class ExemptionController {
     public RestResult<String> adminAddApply(
     		@RequestBody ExemptionApplyManage applyManage){
     	Session session = SessionUtils.getCurrentSession();
+    	if (!session.isAdmin()) {
+    		return RestResult.fail("elec.mustBeAdmin");
+		}
     	applyManage.setManagerDeptId(session.getCurrentManageDptId());
     	String s = exemptionCourseService.adminAddApply(applyManage);
         return RestResult.success(I18nUtil.getMsg(s,""));

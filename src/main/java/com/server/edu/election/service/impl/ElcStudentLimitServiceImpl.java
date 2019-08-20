@@ -98,9 +98,9 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 		   ||elcStudentLimitDto.getRebuildLimitNumber()<elcStudentLimitDto.getSelectedRebuild()) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcStudentLimit.parameterError")); 
 		}
-		BeanUtils.copyProperties(elcStudentLimit, elcStudentLimitDto);
+		BeanUtils.copyProperties(elcStudentLimitDto, elcStudentLimit);
 		int result = elcStudentLimitDao.updateByPrimaryKeySelective(elcStudentLimit);
-		if(result<=Constants.ZERO) {
+		if(result<Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.editError",I18nUtil.getMsg("election.elcStudentLimit")));
 		}
 		return result;
@@ -197,5 +197,37 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 			design.addCell(I18nUtil.getMsg("elcStudentLimit.selectedRebuild"), "selectedRebuild");
 			return design;
 		}
-	
+	@Override
+	public ExcelResult exportUnLimit(StudentDto studentDto) throws Exception{
+		// 使用使用ExportExcelUtils默认缓存地址
+		ExcelResult excelResult = ExportExcelUtils.submitTask("elcUnStudentLimit", new ExcelExecuter() {
+			@Override
+			public GeneralExcelDesigner getExcelDesigner() {
+				ExcelResult result = this.getResult();
+				// 需要生产excel的数据
+				PageCondition<StudentDto> pageCondition = new PageCondition<StudentDto>();
+				pageCondition.setCondition(studentDto);
+				pageCondition.setPageSize_(100);
+				int pageNum = Constants.ZERO;
+				List<Student> resultList = new ArrayList<>();
+				while(true) {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageInfo<Student> pageResult = getUnLimitStudents(pageCondition);
+                    resultList.addAll(pageResult.getList());
+                    result.setTotal((int)pageResult.getTotal());
+                    Double count = resultList.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+                    if(pageResult.getTotal() <= resultList.size()) {
+                        break;
+                    }
+                }
+				GeneralExcelDesigner design = getDesign();
+				design.setDatas(resultList);
+				return design;
+			}
+		});
+		return excelResult;
+	}
 }

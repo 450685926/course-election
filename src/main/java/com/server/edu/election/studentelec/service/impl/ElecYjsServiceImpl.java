@@ -7,11 +7,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +63,7 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
@@ -126,6 +129,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     private RestTemplate restTemplate = RestTemplateBuilder.create();
     
     private static final String PLAN_COURSE_RULE = "yjsPlanCourseGroupCreditsRule";
+    
+    private static final String CAMPUS_RULE = "yjsCampusRule";
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -135,15 +140,19 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         String studentId = request.getStudentId();
         Long calendarId = request.getCalendarId();
         Integer chooseObj = request.getChooseObj();
+        String projectId = request.getProjectId();
+        LOG.info("=======================projectId========================: "+ projectId);
         
         Assert.notNull(calendarId, "calendarId must be not null");
         
         List<AbstractElecRuleExceutor> elecExceutors = new ArrayList<>();
         List<AbstractWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
-        
+        LOG.info("=======================cancelExceutors========================"+ cancelExceutors.size());
         // 研究生的管理员代选是没有轮次和规则的
-        if (!Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
+        if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE) || 
+        		(!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE) && ChooseObj.ADMIN.type() != chooseObj.intValue()))
         {
+        	LOG.info("=======================ADMIN GET RULES=====================start===");
             List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
             
             // 获取执行规则
@@ -172,6 +181,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 }
             }
         }
+        LOG.info("=======================ADMIN GET RULES=====================end==="+elecExceutors.size());
+        
         ElecContext context = new ElecContext(studentId, calendarId, request);
         
         ElecRespose respose = context.getRespose();
@@ -182,20 +193,13 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         doWithdraw(context, cancelExceutors, request.getWithdrawClassList());
         
         // 研究生的管理员代选是没有轮次和规则的
-        if (Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
+        if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE) && ChooseObj.ADMIN.type() == chooseObj.intValue())
         {
-            // 选课
-//            List<ElectionRounds> elecRounds =
-//                elecRoundsDao.selectWillBeStartByCalendarId(calendarId);
-//            for (ElectionRounds round : elecRounds)
-//            {
-                doElec(context,elecExceutors,request.getElecClassList(),null,calendarId);
-//            }
+            doElec(context,elecExceutors,request.getElecClassList(),null,calendarId);
         }
         else
         {
             ElectionRounds round = dataProvider.getRound(roundId);
-            // 选课
             doElec(context, elecExceutors, request.getElecClassList(), round,null);
         }
         
@@ -496,6 +500,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	
     	 //获取学生本学期已经选取的课程
         Set<SelectedCourse> selectedCourseSet = c.getSelectedCourses();
+        
     	
         //每门课上课信息集合
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
@@ -504,14 +509,20 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<SelectedCourse> selectedCoursess = packagingSelectedCourse(roundId, calendarId, planCourses,
 				selectedCourseSet, classTimeLists);
         List<SelectedCourse> sortSelectedCourses = sortSelectedCourses(selectedCoursess);
-        selectedCourseSet.addAll(sortSelectedCourses);
+        Set<SelectedCourse> selectedCourseTreeSet = new LinkedHashSet<>(sortSelectedCourses);
         
         //已完成课程组装
     	for (CompletedCourse completedCourse : setCompletedCourses) {
 			for (PlanCourse planCourse : planCourses) {
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), completedCourse.getCourseCode())) {
 					completedCourse.setLabelName(planCourse.getLabelName());
+					completedCourse.setCourseLabelId(planCourse.getLabel());
 				}
+			}
+			if (completedCourse.getCourseLabelId() == null) {
+				String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),completedCourse.getNature());
+				completedCourse.setCourseLabelId(Long.parseLong(completedCourse.getNature()));
+				completedCourse.setLabelName(dict);
 			}
 		}
     	//失败课程组装
@@ -519,7 +530,13 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		for (PlanCourse planCourse : planCourses) {
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), failedCourse.getCourseCode())) {
 					failedCourse.setLabelName(planCourse.getLabelName());
+					failedCourse.setCourseLabelId(planCourse.getLabel());
 				}
+			}
+    		if (failedCourse.getCourseLabelId() == null) {
+				String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),failedCourse.getNature());
+				failedCourse.setCourseLabelId(Long.parseLong(failedCourse.getNature()));
+				failedCourse.setLabelName(dict);
 			}
 		}
         
@@ -535,30 +552,40 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
     		//判断本轮规则中是否含有按照培养计划选课
     		Boolean isPlanElection = false;
+    		Boolean isCampus = false;
     		for (ElectionRuleVo electionRuleVo : rules) {
-				if (StringUtils.equalsIgnoreCase(electionRuleVo.getName(), PLAN_COURSE_RULE)) {
+				if (StringUtils.equalsIgnoreCase(electionRuleVo.getServiceName(), PLAN_COURSE_RULE)) {
 					isPlanElection = true;
 					break;
 				}
 			}
+    		for (ElectionRuleVo electionRuleVo : rules) {
+    			if (StringUtils.equalsIgnoreCase(electionRuleVo.getServiceName(), CAMPUS_RULE)) {
+    				isCampus = true;
+    				break;
+    			}
+    		}
 			if (isPlanElection) {
 				//培养计划与排课信息的交集（中间变量）
-				List<PlanCourse> optionalCourses = getOptionalCourses(c, planCourses, setCompletedCourses, selectedCourseSet, roundsCoursesIdsList);
+				List<PlanCourse> optionalCourses = getOptionalCourses(c, planCourses, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
 				for (PlanCourse completedCourse : optionalCourses)
 			       {
 			           List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 			                   completedCourse.getCourseCode());
+			           if (isCampus) {
+			        	   exclusionOfCampus(teachClasss,c);
+			           }
 			           if (CollectionUtil.isNotEmpty(teachClasss))
 			           {
 			               for (TeachingClassCache teachClass : teachClasss)
 			               {
-			               	ElcCourseResult elcCourseResult = new ElcCourseResult();
-			               	elcCourseResult.setLabel(completedCourse.getLabel());
-			               	elcCourseResult.setLabelName(completedCourse.getLabelName());
-			               	elcCourseResult.setNature(completedCourse.getNature());
-			               	elcCourseResult.setCourseCode(completedCourse.getCourseCode());
-			               	elcCourseResult.setCourseName(completedCourse.getCourseName());
-			               	elcCourseResult.setCredits(completedCourse.getCredits());
+				               ElcCourseResult elcCourseResult = new ElcCourseResult();
+				               elcCourseResult.setLabel(completedCourse.getLabel());
+				               elcCourseResult.setLabelName(completedCourse.getLabelName());
+				               elcCourseResult.setNature(completedCourse.getNature());
+				               elcCourseResult.setCourseCode(completedCourse.getCourseCode());
+				               elcCourseResult.setCourseName(completedCourse.getCourseName());
+				               elcCourseResult.setCredits(completedCourse.getCredits());
 			                   Long teachClassId = teachClass.getTeachClassId();
 			                   Integer elecNumber =
 			                       dataProvider.getElecNumber(teachClassId);
@@ -576,6 +603,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   elcCourseResult
 			                       .setTimeTableList(teachClass.getTimeTableList());
 			                   elcCourseResult.setTimes(teachClass.getTimes());
+			                   elcCourseResult.setRemark(teachClass.getRemark());
+			                   elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 			                   
 			                   Boolean flag = true;
 			                   String conflictCourse = null;
@@ -666,11 +695,13 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			           }
 			       }
 			}else{
-				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, roundsCoursesIdsList);
+				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
 				for (String courseCode : optionalCourses) {
 					List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 							courseCode);
-					
+					if (isCampus) {
+			        	   exclusionOfCampus(teachClasss,c);
+			           }
 					if (CollectionUtil.isNotEmpty(teachClasss))
 					{
 						for (TeachingClassCache teachClass : teachClasss)
@@ -708,6 +739,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult
 							    .setTimeTableList(teachClass.getTimeTableList());
 							elcCourseResult.setTimes(teachClass.getTimes());
+							elcCourseResult.setRemark(teachClass.getRemark());
+		                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 							
 							Boolean flag = true;
 							String conflictCourse = null;
@@ -802,10 +835,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}else{//管理员选课
 			key = Keys.getCalendarCourseKey(calendarId); // 管理员代理选课
 			List<String> calendarCoursesIdsList = CoursesList(ops, key);
-			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseSet, calendarCoursesIdsList);
+			List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseTreeSet, calendarCoursesIdsList);
 			for (String courseCode : optionalCourses) {
-				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
-						courseCode);
+				List<TeachingClassCache> teachClasss = dataProvider.getTeachClasssbyCalendarId(calendarId,courseCode);
 				if (CollectionUtil.isNotEmpty(teachClasss))
 				{
 					for (TeachingClassCache teachClass : teachClasss)
@@ -843,6 +875,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 						elcCourseResult
 						    .setTimeTableList(teachClass.getTimeTableList());
 						elcCourseResult.setTimes(teachClass.getTimes());
+						elcCourseResult.setRemark(teachClass.getRemark());
+	                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 						
 						Boolean flag = true;
 						String conflictCourse = null;
@@ -945,15 +979,70 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
        
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
+        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
-        c.setSelectedCourses(selectedCourseSet);
+        c.setSelectedCourses(selectedCourseTreeSet);
         c.setOptionalCourses(sortOptionalCourses);
+        c.setTakenCourses(takenCourse);
         c.setElecResult(elecResult);
         return c;
     }
     
-    //对课程进行排序
+    /**
+     * 已修读课程组装排序
+     * @param setCompletedCourses
+     * @param failedCourses
+     * @param selectedCourseTreeSet
+     * @return
+     */
+    private List<CompletedCourse> packagingTakenCourse(Set<CompletedCourse> setCompletedCourses,
+			Set<CompletedCourse> failedCourses, Set<SelectedCourse> selectedCourseTreeSet) {
+    	List<CompletedCourse> takenCourse = new ArrayList<>();
+    	takenCourse.addAll(failedCourses);
+    	takenCourse.addAll(setCompletedCourses);
+    	for (SelectedCourse selectedCourse : selectedCourseTreeSet) {
+    		CompletedCourse completedCourse = new CompletedCourse();
+    		completedCourse.setCalendarId(selectedCourse.getCalendarId());
+    		completedCourse.setCalendarName(selectedCourse.getCalendarName());
+    		completedCourse.setLabelName(selectedCourse.getLabelName());
+    		completedCourse.setCourseLabelId(Long.parseLong(selectedCourse.getLabel()));
+    		completedCourse.setNature(selectedCourse.getNature());
+    		completedCourse.setTeachClassCode(selectedCourse.getTeachClassCode());
+    		completedCourse.setTerm(selectedCourse.getTerm());
+    		completedCourse.setTeachClassId(selectedCourse.getTeachClassId());
+    		completedCourse.setTeachClassName(selectedCourse.getTeachClassName());
+    		completedCourse.setTeachClassCode(selectedCourse.getTeachClassCode());
+    		completedCourse.setCourseCode(selectedCourse.getCourseCode());
+    		completedCourse.setCourseName(selectedCourse.getCourseName());
+    		completedCourse.setCredits(selectedCourse.getCredits());
+    		completedCourse.setTeacherName(selectedCourse.getTeacherName());
+    		completedCourse.setCampus(selectedCourse.getCampus());
+    		completedCourse.setTimeTableList(selectedCourse.getTimeTableList());
+    		completedCourse.setTimes(selectedCourse.getTimes());
+    		completedCourse.setRemark(selectedCourse.getRemark());
+    		takenCourse.add(completedCourse);
+		}
+    	Map<Long, List<CompletedCourse>> collect = takenCourse.stream().collect(Collectors.groupingBy(CompletedCourse::getCourseLabelId));
+    	List<CompletedCourse> takenCourse2 = new ArrayList<>();
+    	for (Entry<Long, List<CompletedCourse>> entry : collect.entrySet()){
+    		takenCourse2.addAll(entry.getValue());
+    	}
+    	return takenCourse2;
+	}
+
+	/**
+     * 去除跨校区选课
+     * @param teachClasss
+     * @param c
+     */
+    private void exclusionOfCampus(List<TeachingClassCache> teachClasss, ElecContext c) {
+		StudentInfoCache studentInfo = c.getStudentInfo(); 
+		String campus = studentInfo.getCampus();
+		teachClasss = teachClasss.stream().filter(vo->StringUtils.equalsIgnoreCase(vo.getCampus(), campus)).collect(Collectors.toList());
+	}
+
+	//对课程进行排序
     private static List<SelectedCourse> sortSelectedCourses(List<SelectedCourse> list){
     	Map<String, List<SelectedCourse>> collect = list.stream().collect(Collectors.groupingBy(SelectedCourse::getLabel));
     	List<SelectedCourse> list2 = new ArrayList<>();
@@ -1028,14 +1117,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		    }
 		}
 		//可选课程中去除免修免考课程
-		Set<String> applyCourses = c.getApplyCourse();
-		for (PlanCourse centerCourses : optionalGraduateCoursesList)
+		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
+		for (PlanCourse centerCourses : optionalGraduateCourses)
 		{
 		    Boolean flag = true;
-		    for (String courseCode : applyCourses)
+		    for (ElecCourse courseCode : applyCourses)
 		    {
 		        if (centerCourses.getCourseCode()
-		            .equals(courseCode))
+		            .equals(courseCode.getCourseCode()))
 		        {
 		            flag = false;
 		            break;
@@ -1092,14 +1181,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
 		//可选课程中去除免修免考课程
-		Set<String> applyCourses = c.getApplyCourse();
-		for (String centerCourses : optionalGraduateCoursesList)
+		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
+		for (String centerCourses : optionalGraduateCourses)
 		{
 			Boolean flag = true;
-			for (String courseCode : applyCourses)
+			for (ElecCourse courseCode : applyCourses)
 			{
 				if (centerCourses
-						.equals(courseCode))
+						.equals(courseCode.getCourseCode()))
 				{
 					flag = false;
 					break;
@@ -1221,6 +1310,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         newClassCache.setTimes(oldClassCache.getTimes());
         newClassCache.setTimeTableList(oldClassCache.getTimeTableList());
         newClassCache.setRemark(oldClassCache.getRemark());
+        newClassCache.setTeachClassName(oldClassCache.getTeachClassName());
     }
     
     @Override
@@ -1276,13 +1366,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     selectedCourse.setLabelName(course.getLabelName());
                 }
             }
-            //获取本次选课信息
-            if ( round.getTurn() == selectedCourse.getTurn().intValue())
-            {
-                //已完成课程数
-                thisSelectedCourses.add(selectedCourse);
+            thisSelectedCourses.add(selectedCourse);
                 
-            }
         }
         LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG");
         Map<String, Object> minNumMap = new HashMap<String, Object>();

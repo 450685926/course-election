@@ -619,9 +619,8 @@ public class ElcResultServiceImpl implements ElcResultService
 		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
-			condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
 			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
-			Integer elcNumber = 0;
+			Integer elcNumber = elcResultCountDao.getElcNumber(condition);
 			for (ElcResultDto elcResultDto : elcResultList) {
 				
 				//该年级、培养层次、培养类别、学位类型、学习形式查询条件
@@ -634,33 +633,31 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setFaculty(condition.getFaculty() == null ? "" : condition.getFaculty());
 				query.setEnrolSeason(condition.getEnrolSeason()  == null ? "" : condition.getEnrolSeason());
 				query.setCalendarId(condition.getCalendarId());
-				query.setManagerDeptId("1");
+				query.setManagerDeptId(condition.getManagerDeptId());
 				query.setDegreeType(elcResultDto.getDegreeType() == null ? "" : elcResultDto.getDegreeType());
 				query.setFormLearning(elcResultDto.getFormLearning() == null ? "" : elcResultDto.getFormLearning());
 				query.setTrainingCategory(elcResultDto.getTrainingCategory() == null ? "" : elcResultDto.getTrainingCategory());
 				query.setTrainingLevel(elcResultDto.getTrainingLevel() == null ? "" : elcResultDto.getTrainingLevel());
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersons(query);
-				elcNumber = elcNumber + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
 			Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
-			elcResultCountVo.setElcNumberByStudent(elcNumber);
 			PageResult<ElcResultDto> elceResultByStudent = new PageResult<>(elcResultList);
 			elcResultCountVo.setPageNum_(elceResultByStudent.getPageNum_());
 			elcResultCountVo.setPageSize_(elceResultByStudent.getPageSize_());
 			elcResultCountVo.setTotal_(elceResultByStudent.getTotal_());
 			elcResultCountVo.setList(elceResultByStudent.getList());
+			elcResultCountVo.setElcNumberByStudent(elcNumber);
 			elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
 			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
 		}else{
-			condition.setManagerDeptId(Constants.PROJ_UNGRADUATE);
 			//从学院维度查询
 			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
-			Integer elcNumberByFaculty = 0;
+			Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
 			for (ElcResultDto elcResultDto : eleResultByFacultyList) {
 				//该学院该专业查询条件
 				ElcResultQuery query = new ElcResultQuery();
@@ -677,23 +674,22 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setTrainingCategory(condition.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
 				query.setTrainingLevel(condition.getTrainingLevel() == null ? "" : condition.getTrainingLevel());
 				query.setCalendarId(condition.getCalendarId());
-				query.setManagerDeptId("1");
+				query.setManagerDeptId(condition.getManagerDeptId());
 				
 				//根据条件查询查询已将选课学生人数
 				Integer numberOfelectedPersons = elcResultCountDao.getNumberOfelectedPersonsByFaculty(query);
-				elcNumberByFaculty = elcNumberByFaculty + numberOfelectedPersons;
 				elcResultDto.setNumberOfelectedPersons(numberOfelectedPersons);
-				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0):new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),2));
+				elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(numberOfelectedPersons).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
 				elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - numberOfelectedPersons);
 			}
 			Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
 			Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
-			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
 			PageResult<ElcResultDto> elceResultByFaculty = new PageResult<>(eleResultByFacultyList);
 			elcResultCountVo.setPageNum_(elceResultByFaculty.getPageNum_());
 			elcResultCountVo.setPageSize_(elceResultByFaculty.getPageSize_());
 			elcResultCountVo.setTotal_(elceResultByFaculty.getTotal_());
 			elcResultCountVo.setList(elceResultByFaculty.getList());
+			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
 			elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
 			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
 		}
@@ -709,7 +705,6 @@ public class ElcResultServiceImpl implements ElcResultService
 	public PageResult<Student4Elc> getStudentPage(PageCondition<ElcResultQuery> page ) {
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		//查询该条件下未选课学生名单
-		page.getCondition().setManagerDeptId(Constants.ONE+"");
 		Page<Student4Elc> result = new Page<Student4Elc>();
 		if(page.getCondition().getDimension().intValue() == Constants.ONE){
 			result = studentDao.getAllNonSelectedCourseStudent(page.getCondition());
@@ -827,6 +822,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
 		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
 		if(teachingClassAttr!=null) {
+			attr.setCreatedAt(teachingClassAttr.getCreatedAt());
 			attr.setUpdatedAt(new Date());
 			attrDao.updateByExampleSelective(attr, example);
 		}else {
@@ -844,7 +840,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		TeachingClassElectiveRestrictProfession elcProfession = professionDao.selectOneByExample(pExample);
 		if(elcProfession!=null) {
 			profession.setUpdatedAt(new Date());
-			professionDao.updateByExample(profession, pExample);
+			professionDao.updateByExampleSelective(profession, pExample);
 		}else {
 			profession.setCreatedAt(new Date());
 			professionDao.insertSelective(profession);
@@ -877,13 +873,8 @@ public class ElcResultServiceImpl implements ElcResultService
 		Example example = new Example(ElcScreeningLabel.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("calendarId", elcScreeningLabel.getCalendarId());
-		criteria.andEqualTo("labelName", elcScreeningLabel.getLabelName());
-		ElcScreeningLabel label = elcScreeningLabelDao.selectOneByExample(example);
-		if(label!=null) {
-            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
-                    I18nUtil.getMsg("election.elcScreeningLabel")));
-		}
-		elcScreeningLabelDao.insert(elcScreeningLabel);
+		elcScreeningLabelDao.deleteByExample(example);
+		elcScreeningLabelDao.insertSelective(elcScreeningLabel);
 	}
 	
 	@Override
@@ -902,7 +893,7 @@ public class ElcResultServiceImpl implements ElcResultService
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
                     I18nUtil.getMsg("election.elcTeachingClassBind")));
 		}
-		bindDao.insert(bind);
+		bindDao.insertSelective(bind);
 	}
 	@Override
 	@Transactional

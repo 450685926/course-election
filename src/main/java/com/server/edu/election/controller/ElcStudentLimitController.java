@@ -163,6 +163,17 @@ public class ElcStudentLimitController {
         ExcelResult export = elcStudentLimitService.export(elcStudentLimitDto);
         return RestResult.successData(export);
     }
+   
+    @ApiOperation(value = "导出未限制名单")
+    @PostMapping("/exportUnLimit")
+    public RestResult<ExcelResult> exportUnLimit (
+            @RequestBody StudentDto studentDto)
+            throws Exception
+    {
+        LOG.info("exportUnLimit.start");
+        ExcelResult export = elcStudentLimitService.exportUnLimit(studentDto);
+        return RestResult.successData(export);
+    }
     
     @GetMapping("result/{key}")
     public RestResult<?> getResultByKey(@PathVariable("key") @NotBlank String key) {

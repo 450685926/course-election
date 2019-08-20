@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -47,6 +47,12 @@ public class ElecContext implements IElecContext
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
     
+    /**研究生已修读课程*/
+    private List<CompletedCourse> takenCourses;
+    
+    /**研究生所有的第一外国语课程 */
+    private List<ElecFirstLanguageContrastVo> firstForeignCourses;
+    
     private Map<String, Object> elecResult;
     
     private ElecRequest request;
@@ -86,6 +92,8 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
+        firstForeignCourses = 	
+        	this.contextUtil.getList("firstForeignCourses", ElecFirstLanguageContrastVo.class);
         applyCourse = new HashSet<>();
     }
     
@@ -109,6 +117,8 @@ public class ElecContext implements IElecContext
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
+        this.contextUtil.updateMem("firstForeignCourses", this.firstForeignCourses);
+        applyCourse = new HashSet<>();
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -138,7 +148,14 @@ public class ElecContext implements IElecContext
         this.getRespose().getFailedReasons().clear();
         this.getRespose().getSuccessCourses().clear();
         this.getApplyCourse().clear();
+        this.getFirstForeignCourses().clear();
     }
+    public void courseClear()
+    {
+    	this.getSelectedCourses().clear();
+    	this.getApplyForDropCourses().clear();
+    }
+    
     
     
     @Override
@@ -242,6 +259,22 @@ public class ElecContext implements IElecContext
 
 	public void setElecResult(Map<String, Object> elecResult) {
 		this.elecResult = elecResult;
+	}
+
+	public List<ElecFirstLanguageContrastVo> getFirstForeignCourses() {
+		return firstForeignCourses;
+	}
+
+	public void setFirstForeignCourses(List<ElecFirstLanguageContrastVo> firstForeignCourses) {
+		this.firstForeignCourses = firstForeignCourses;
+	}
+
+	public List<CompletedCourse> getTakenCourses() {
+		return takenCourses;
+	}
+
+	public void setTakenCourses(List<CompletedCourse> takenCourses) {
+		this.takenCourses = takenCourses;
 	}
     
 }

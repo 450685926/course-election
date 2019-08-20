@@ -27,7 +27,7 @@
 		FROM
 			student_t t1 
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
+			t1.MANAGER_DEPT_ID_ = #{elcResult.managerDeptId} and t1.LEAVE_SCHOOL_ = 1
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.faculty)">
 		        and t1.FACULTY_ = #{elcResult.faculty}
 		    </if>
@@ -66,7 +66,7 @@
 		FROM
 			student_t t1 
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN (#{elcResult.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
+			t1.MANAGER_DEPT_ID_ = #{elcResult.managerDeptId} and t1.LEAVE_SCHOOL_ = 1
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.faculty)">
 		        and t1.FACULTY_ = #{elcResult.faculty}
 		    </if>
@@ -101,14 +101,14 @@
 	  		(SELECT 
 	  			STUDENT_ID_
 			FROM 
-				election_log_t t2 
+				elc_course_takes_t t2 
 			WHERE 
 				CALENDAR_ID_ = #{query.calendarId} 
 				GROUP BY t2.STUDENT_ID_) t3
 			ON 
 				t1.STUDENT_CODE_ = t3.STUDENT_ID_
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN(#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
+			t1.MANAGER_DEPT_ID_ =#{query.managerDeptId} and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t1.FACULTY_ = #{query.faculty}
 		    </if>
@@ -144,6 +144,46 @@
 		    </if>
 		</where>
     </select>
+    <select id="getElcNumber" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+		SELECT  
+			COUNT(*)
+		FROM
+	  		student_t t1 
+	  	RIGHT JOIN 
+	  		(SELECT 
+	  			STUDENT_ID_
+			FROM 
+				elc_course_takes_t t2 
+			WHERE 
+				CALENDAR_ID_ = #{query.calendarId} 
+				GROUP BY t2.STUDENT_ID_) t3
+			ON 
+				t1.STUDENT_CODE_ = t3.STUDENT_ID_
+		<where>
+			t1.MANAGER_DEPT_ID_ =#{query.managerDeptId} and t1.LEAVE_SCHOOL_ = 1
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t1.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t1.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t1.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t1.DEGREE_TYPE_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t1.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t1.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+		</where>
+    </select>
     
     <select id="getNumberOfelectedPersonsByFaculty" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
 		SELECT  
@@ -161,7 +201,50 @@
 			ON 
 				t1.STUDENT_CODE_ = t3.STUDENT_ID_
 		<where>
-			t1.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t1.LEAVE_SCHOOL_ = 1
+			t1.MANAGER_DEPT_ID_ =#{query.managerDeptId} and t1.LEAVE_SCHOOL_ = 1
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+		        and t1.FACULTY_ = #{query.faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+		        and t1.GRADE_ = #{query.grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.enrolSeason)">
+		        and t1.ENROL_SEASON_ = #{query.enrolSeason}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+		        and t1.DEGREE_TYPE_= #{query.degreeType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+		        and t1.FORM_LEARNING_ = #{query.formLearning}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+		        and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+		        and t1.TRAINING_CATEGORY_ = #{query.trainingCategory}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
+		        and t1.PROFESSION_ = #{query.profession}
+		    </if>
+		</where>
+    </select>
+    <select id="getElcNumberByFaculty" parameterType="com.server.edu.election.query.ElcResultQuery" resultType="Integer">
+		SELECT  
+			COUNT(*)
+		FROM
+	  		student_t t1 
+	  	RIGHT JOIN 
+	  		(SELECT 
+	  			STUDENT_ID_
+			FROM 
+				elc_course_takes_t t2 
+			WHERE 
+				CALENDAR_ID_ = #{query.calendarId} 
+				GROUP BY t2.STUDENT_ID_) t3
+			ON 
+				t1.STUDENT_CODE_ = t3.STUDENT_ID_
+		<where>
+			t1.MANAGER_DEPT_ID_ =#{query.managerDeptId} and t1.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t1.FACULTY_ = #{query.faculty}
 		    </if>
@@ -192,14 +275,14 @@
 	 	SELECT COUNT(*) 
 	 		FROM (
 				SELECT 
-					t1.*
+					t1.COURSE_CODE_
 		  		FROM 
 		  			elc_course_takes_t t1
 		  		LEFT JOIN  student_t t2
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t2.LEAVE_SCHOOL_ = 1
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ = #{query.managerDeptId} and t2.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>
@@ -229,14 +312,14 @@
 	 	SELECT COUNT(*) 
 	 		FROM (
 				SELECT 
-					t1.*
+					t1.ID_
 		  		FROM 
-		  			elc_course_takes_t t1
+		  			election_log_t t1
 		  		LEFT JOIN  student_t t2
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t2.LEAVE_SCHOOL_ = 1
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t1.TYPE_ = 1 and t2.MANAGER_DEPT_ID_ = #{query.managerDeptId} and t2.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>
@@ -265,14 +348,14 @@
 	 	SELECT COUNT(*) 
 	 		FROM (
 				SELECT 
-					t1.*
+					t1.COURSE_CODE_
 		  		FROM 
 		  			elc_course_takes_t t1
 		  		LEFT JOIN  student_t t2
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t2.LEAVE_SCHOOL_ = 1
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ = #{query.managerDeptId} and t2.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>
@@ -309,7 +392,7 @@
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
 		<where>
-		  t1.CALENDAR_ID_ = #{query.calendarId} and t2.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t2.LEAVE_SCHOOL_ = 1
+		  t1.CALENDAR_ID_ = #{query.calendarId} and t1.TYPE_ = 1 and t2.MANAGER_DEPT_ID_ = #{query.managerDeptId} and t2.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t2.FACULTY_ = #{query.faculty}
 		    </if>

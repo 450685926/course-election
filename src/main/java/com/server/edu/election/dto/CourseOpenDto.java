@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.TeacherTranslator;
 import com.server.edu.election.entity.CourseOpen;
 
 @CodeI18n
@@ -45,9 +46,11 @@ public class CourseOpenDto extends CourseOpen
     
     private String projectId;
     
+    private String teachingClassRemark;
     
     private Long courseLabelId;
     
+    @Code2Text(translator=TeacherTranslator.class)
     private String teacherCode;
     //教学班预留人数
     private Integer reserveNumber;
@@ -178,5 +181,13 @@ public class CourseOpenDto extends CourseOpen
 	public void setTeachingClassName(String teachingClassName) {
 		this.teachingClassName = teachingClassName;
 	}
-    
+
+	public String getTeachingClassRemark() {
+		return teachingClassRemark;
+	}
+
+	public void setTeachingClassRemark(String teachingClassRemark) {
+		this.teachingClassRemark = teachingClassRemark;
+	}
+
 }

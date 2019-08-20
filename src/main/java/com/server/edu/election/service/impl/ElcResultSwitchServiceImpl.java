@@ -2,8 +2,6 @@ package com.server.edu.election.service.impl;
 
 import java.util.Date;
 
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.server.edu.common.locale.I18nUtil;
@@ -31,10 +29,11 @@ public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 		ElcResultSwitch elcResultSwitch = elecResultSwitchDao.selectOneByExample(example);
 		int result;
 		if (elcResultSwitch != null) {
+			Date date = new Date();
 			elcResultSwitch.setStatus(resultSwitch.getStatus());
 			elcResultSwitch.setOpenTimeStart(resultSwitch.getOpenTimeStart());
 			elcResultSwitch.setOpenTimeEnd(resultSwitch.getOpenTimeEnd());
-			elcResultSwitch.setOpenTimeEnd(resultSwitch.getOpenTimeEnd());
+			elcResultSwitch.setCreateAt(date);
 			result = elecResultSwitchDao.updateByPrimaryKey(elcResultSwitch);
 		} else {
 			Date date = new Date();
@@ -52,10 +51,11 @@ public class ElcResultSwitchServiceImpl implements ElecResultSwitchService{
 	}
 
 	@Override
-	public ElcResultSwitch getSwitch(Long calendarId) {
+	public ElcResultSwitch getSwitch(Long calendarId, String projectId) {
 		Example example = new Example(ElcResultSwitch.class);
 		Criteria createCriteria = example.createCriteria();
 		createCriteria.andEqualTo("calendarId",calendarId);
+		createCriteria.andEqualTo("projectId",projectId);
 		return elecResultSwitchDao.selectOneByExample(example);
 	}
 

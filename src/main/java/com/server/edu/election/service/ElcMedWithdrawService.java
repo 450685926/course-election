@@ -2,7 +2,7 @@ package com.server.edu.election.service;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
-import com.server.edu.election.entity.ElcMedWithdraw;
+import com.server.edu.election.dto.ElcMedWithdrawDto;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 public interface ElcMedWithdrawService {
     /**
@@ -12,7 +12,7 @@ public interface ElcMedWithdrawService {
      * @return
      * @see [类、类#方法、类#成员]
      */
-	PageInfo<ElcCourseTakeVo> page(PageCondition<ElcMedWithdraw> condition);
+	PageInfo<ElcCourseTakeVo> page(PageCondition<ElcMedWithdrawDto> condition);
     /**
      * 期中退课
      * 

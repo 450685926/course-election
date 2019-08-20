@@ -15,12 +15,11 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 @CodeI18n
 public class Student4Elc
 {
-    
     private String studentId;
     
     private String name;
     
-    @Code2Text(transformer = "G_XBIE")
+    @Code2Text(DictTypeEnum.G_XBIE)
     private String sex;
     
     /**学院*/
@@ -48,7 +47,7 @@ public class Student4Elc
     private String registerStatus;
     
     /**入学季节*/
-    @Code2Text(transformer = "X_RXJJ")
+    @Code2Text(DictTypeEnum.X_RXJJ)
     private String enrolSeason;
     
     /**培养类别*/
@@ -56,25 +55,26 @@ public class Student4Elc
     private String trainingCategory;
     
     /**学位类型*/
-    @Code2Text(transformer = "X_XWLX")
+    @Code2Text(DictTypeEnum.X_XWLX)
     private String degreeType;
     
     /**学位类别*/
-    @Code2Text(transformer = "X_XWLB")
+    @Code2Text(DictTypeEnum.X_XWLB)
     private String degreeCategory;
     
     /**学习形式*/
-    @Code2Text(transformer = "X_XXXS")
+    @Code2Text(DictTypeEnum.X_XXXS)
     private String formLearning;
     
     /**专项计划*/
+    @Code2Text(DictTypeEnum.X_ZXJH)
     private String spcialPlan;
     
     /**在读状态*/
     private String leaveSchool;
     
     /**校区*/
-    @Code2Text(transformer = "X_XQ")
+    @Code2Text(DictTypeEnum.X_XQ)
     private String campus;
     
     private String projectId;
@@ -82,116 +82,12 @@ public class Student4Elc
     /**
      * 研究方向
      */
-    @Code2Text(transformer = "X_YJFX")
+    @Code2Text(DictTypeEnum.X_YJFX)
     private String researchDirection;
     
-    public String getResearchDirection() {
-		return researchDirection;
-	}
-
-	public void setResearchDirection(String researchDirection) {
-		this.researchDirection = researchDirection;
-	}
-
-	public String getCampus()
-    {
-        return campus;
-    }
-    
-    public void setCampus(String campus)
-    {
-        this.campus = campus;
-    }
-    
-    public String getLeaveSchool()
-    {
-        return leaveSchool;
-    }
-    
-    public void setLeaveSchool(String leaveSchool)
-    {
-        this.leaveSchool = leaveSchool;
-    }
-    
-    public String getTrainingCategory()
-    {
-        return trainingCategory;
-    }
-    
-    public void setTrainingCategory(String trainingCategory)
-    {
-        this.trainingCategory = trainingCategory;
-    }
-    
-    public String getDegreeType()
-    {
-        return degreeType;
-    }
-    
-    public void setDegreeType(String degreeType)
-    {
-        this.degreeType = degreeType;
-    }
-    
-    public String getDegreeCategory()
-    {
-        return degreeCategory;
-    }
-    
-    public void setDegreeCategory(String degreeCategory)
-    {
-        this.degreeCategory = degreeCategory;
-    }
-    
-    public String getFormLearning()
-    {
-        return formLearning;
-    }
-    
-    public void setFormLearning(String formLearning)
-    {
-        this.formLearning = formLearning;
-    }
-    
-    public String getSpcialPlan()
-    {
-        return spcialPlan;
-    }
-    
-    public void setSpcialPlan(String spcialPlan)
-    {
-        this.spcialPlan = spcialPlan;
-    }
-    
-    public String getRegistrationStatus()
-    {
-        return registrationStatus;
-    }
-    
-    public void setRegistrationStatus(String registrationStatus)
-    {
-        this.registrationStatus = registrationStatus;
-    }
-    
-    public String getEnrolSeason()
-    {
-        return enrolSeason;
-    }
-    
-    public void setEnrolSeason(String enrolSeason)
-    {
-        this.enrolSeason = enrolSeason;
-    }
-    
-    public String getRegisterStatus()
-    {
-        return registerStatus;
-    }
-    
-    public void setRegisterStatus(String registerStatus)
-    {
-        this.registerStatus = registerStatus;
-    }
+    /**入学方式*/
+    @Code2Text(DictTypeEnum.X_RXFS)
+    private String enrolMethods;
     
     public String getStudentId()
     {
@@ -253,16 +149,6 @@ public class Student4Elc
         this.trainingLevel = trainingLevel;
     }
     
-    public String getGrade()
-    {
-        return grade;
-    }
-    
-    public void setGrade(String grade)
-    {
-        this.grade = grade;
-    }
-    
     public String getIsOverseas()
     {
         return isOverseas;
@@ -273,6 +159,116 @@ public class Student4Elc
         this.isOverseas = isOverseas;
     }
     
+    public String getGrade()
+    {
+        return grade;
+    }
+    
+    public void setGrade(String grade)
+    {
+        this.grade = grade;
+    }
+    
+    public String getRegistrationStatus()
+    {
+        return registrationStatus;
+    }
+    
+    public void setRegistrationStatus(String registrationStatus)
+    {
+        this.registrationStatus = registrationStatus;
+    }
+    
+    public String getRegisterStatus()
+    {
+        return registerStatus;
+    }
+    
+    public void setRegisterStatus(String registerStatus)
+    {
+        this.registerStatus = registerStatus;
+    }
+    
+    public String getEnrolSeason()
+    {
+        return enrolSeason;
+    }
+    
+    public void setEnrolSeason(String enrolSeason)
+    {
+        this.enrolSeason = enrolSeason;
+    }
+    
+    public String getTrainingCategory()
+    {
+        return trainingCategory;
+    }
+    
+    public void setTrainingCategory(String trainingCategory)
+    {
+        this.trainingCategory = trainingCategory;
+    }
+    
+    public String getDegreeType()
+    {
+        return degreeType;
+    }
+    
+    public void setDegreeType(String degreeType)
+    {
+        this.degreeType = degreeType;
+    }
+    
+    public String getDegreeCategory()
+    {
+        return degreeCategory;
+    }
+    
+    public void setDegreeCategory(String degreeCategory)
+    {
+        this.degreeCategory = degreeCategory;
+    }
+    
+    public String getFormLearning()
+    {
+        return formLearning;
+    }
+    
+    public void setFormLearning(String formLearning)
+    {
+        this.formLearning = formLearning;
+    }
+    
+    public String getSpcialPlan()
+    {
+        return spcialPlan;
+    }
+    
+    public void setSpcialPlan(String spcialPlan)
+    {
+        this.spcialPlan = spcialPlan;
+    }
+    
+    public String getLeaveSchool()
+    {
+        return leaveSchool;
+    }
+    
+    public void setLeaveSchool(String leaveSchool)
+    {
+        this.leaveSchool = leaveSchool;
+    }
+    
+    public String getCampus()
+    {
+        return campus;
+    }
+    
+    public void setCampus(String campus)
+    {
+        this.campus = campus;
+    }
+    
     public String getProjectId()
     {
         return projectId;
@@ -281,6 +277,26 @@ public class Student4Elc
     public void setProjectId(String projectId)
     {
         this.projectId = projectId;
+    }
+    
+    public String getResearchDirection()
+    {
+        return researchDirection;
+    }
+    
+    public void setResearchDirection(String researchDirection)
+    {
+        this.researchDirection = researchDirection;
+    }
+    
+    public String getEnrolMethods()
+    {
+        return enrolMethods;
+    }
+    
+    public void setEnrolMethods(String enrolMethods)
+    {
+        this.enrolMethods = enrolMethods;
     }
     
 }

@@ -3,10 +3,6 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.server.edu.election.dao.ElcNoGraduateStdsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.ElcNoGraduateStds;
-import com.server.edu.election.entity.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,13 +12,20 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.RoundMode;
+import com.server.edu.election.dao.ElcNoGraduateStdsDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 @Service
@@ -47,6 +50,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         
         ElecRoundStuQuery stu = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        stu.setProjectId(session.getCurrentManageDptId());
         Page<Student4Elc> listPage =
             elecRoundStuDao.listPage(stu, stu.getRoundId());
         
@@ -63,7 +68,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         {
             throw new ParameterValidateException("选课轮次不存在");
         }
-        List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes);
+        Session session = SessionUtils.getCurrentSession();
+       
+        List<String> listExistStu = elecRoundStuDao.listExistStu(studentCodes, session.getCurrentManageDptId());
         List<String> listAddedStu =
             elecRoundStuDao.listAddedStu(roundId, studentCodes);
         List<String> notExistStu = new ArrayList<>();
@@ -72,16 +79,16 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             if (listExistStu.contains(code) && !listAddedStu.contains(code))
             {
                 Student studentByCode = studentDao.findStudentByCode(code);
-                if(mode==3&&"0".equals(studentByCode.getIsOverseas())){//结业生
+                if(RoundMode.JieYe.eq(mode) && "0".equals(studentByCode.getIsOverseas())){//结业生
                     ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
                     if(student!=null){
                         elecRoundStuDao.add(roundId, code);
                     }else{
-                            //添加学生不再结业表中
+                        //添加学生不再结业表中
                         notExistStu.add(code);
                     }
 
-                }else if(mode==4&&"1".equals(studentByCode.getIsOverseas())){//留学结业生
+                }else if(RoundMode.LiuXueJieYe.eq(mode) && "1".equals(studentByCode.getIsOverseas())){//留学结业生
                     ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
                     if(student!=null){
                         elecRoundStuDao.add(roundId, code);
@@ -90,7 +97,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                         notExistStu.add(code);
                     }
 
-                }else if (mode==1||mode==2){
+                }else if (RoundMode.NORMAL.eq(mode) || RoundMode.ShiJian.eq(mode)){
                     elecRoundStuDao.add(roundId, code);
                 }else {
                     notExistStu.add(code);
@@ -108,7 +115,10 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void addByCondition(ElecRoundStuQuery stu)
     {
-        if(stu.getMode()==1||stu.getMode()==2){//来源学生
+    	Session session = SessionUtils.getCurrentSession();
+        stu.setProjectId(session.getCurrentManageDptId());
+        // 1普通选课 2实践选课
+        if(RoundMode.NORMAL.eq(stu.getMode()) || RoundMode.ShiJian.eq(stu.getMode())){ //来源学生
 
             List<Student4Elc> listStudent =
                     elecRoundStuDao.listNotExistStudent(stu);
@@ -144,6 +154,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     @Override
     public void deleteByCondition(ElecRoundStuQuery stu)
     {
+    	Session session = SessionUtils.getCurrentSession();
+        stu.setProjectId(session.getCurrentManageDptId());
         Page<Student4Elc> listStudent =
             elecRoundStuDao.listPage(stu, stu.getRoundId());
         

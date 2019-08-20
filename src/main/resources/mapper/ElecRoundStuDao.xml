@@ -98,12 +98,18 @@
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.trainingCategory)">
 	    and t1.TRAINING_CATEGORY_= #{stu.trainingCategory} 
 	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.spcialPlan)">
+	    and t1.SPCIAL_PLAN_= #{stu.spcialPlan} 
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.enrolMethods)">
+	    and t1.ENROL_METHODS_= #{stu.enrolMethods} 
+	    </if>
   		and t1.STUDENT_CODE_ Not In (select STUDENT_ID_ from election_rounds_stu_t where ROUNDS_ID_ = #{stu.roundId})
   	</where>
   </select>
   
   <select id="listExistStu" resultType="string">
-  	select STUDENT_CODE_ from student_t where STUDENT_CODE_ IN
+  	select STUDENT_CODE_ from student_t where MANAGER_DEPT_ID_ = #{projectId} and STUDENT_CODE_ IN
   	<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">  
        #{id}  
     </foreach>

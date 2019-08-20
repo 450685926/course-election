@@ -59,8 +59,7 @@ public class ElecAgentController
     public RestResult<List<ElectionRoundsVo>> getRounds(
         @RequestParam("electionObj") @NotBlank String electionObj,
         @RequestParam("projectId") @NotBlank String projectId,
-        @RequestParam(name = "mode") @NotNull Integer mode,
-        @RequestParam(name = "studentId", required = false) String studentId)
+        @RequestParam(name = "mode") @NotNull Integer mode)
     {
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
@@ -71,9 +70,7 @@ public class ElecAgentController
                 && StringUtils.equals(electionObj, round.getElectionObj())
                 && Objects.equals(mode, round.getMode())
                 && date.after(round.getBeginTime())
-                && date.before(round.getEndTime())
-                && dataProvider.containsStu(round.getId(), studentId)
-                && dataProvider.containsStuCondition(round.getId(),studentId,projectId))
+                && date.before(round.getEndTime()))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules =
@@ -145,8 +142,6 @@ public class ElecAgentController
     public RestResult<ElecRespose> getElect(
         @RequestBody ElecRequest elecRequest)
     {
-        ValidatorUtil.validateAndThrow(elecRequest, AgentElcGroup.class);
-        
         ElecRespose response = elecService.getElectResult(elecRequest);
         return RestResult.successData(response);
     }

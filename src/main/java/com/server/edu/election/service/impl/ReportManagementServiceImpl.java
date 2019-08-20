@@ -272,6 +272,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     String[] split = teacherCode.split(",");
                     List<String> names = new ArrayList<>(split.length);
                     for (String s : split) {
+                        if ("".equals(s)) {
+                            continue;
+                        }
                         String name = teachingClassTeacherDao.findTeacherName(s);
                         names.add(name);
                         nameMap.add(teachingClassId,name);
@@ -498,7 +501,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         List<String> names = new ArrayList<>();
                         for (String s : set) {
                             String teacherName = teachingClassTeacherDao.findTeacherName(s);
-                            names.add(teacherName);
+                            if (teacherName != null) {
+                                names.add(teacherName);
+                            }
                         }
                         String teacherNames = String.join(",", names);
                         bookList.setTeacherName(teacherNames);

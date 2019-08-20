@@ -71,7 +71,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Override
     @Transactional
     public void setRetakeRules(ElcRetakeSetVo elcRetakeSetVo) {
-        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId(), elcRetakeSetVo.getProjectId());
+        Session currentSession = SessionUtils.getCurrentSession();
+        Long retakeSetId = retakeCourseSetDao.findRetakeSetId(elcRetakeSetVo.getCalendarId(), currentSession.getCurrentManageDptId());
         if (retakeSetId == null) {
             elcRetakeSetVo.setCreateAt(new Date());
             retakeCourseSetDao.insertRetakeCourseSet(elcRetakeSetVo);
@@ -88,8 +89,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Override
     public PageResult<RetakeCourseCountDto> findRetakeCourseCountList(PageCondition<RetakeCourseCountVo> condition) {
-        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         RetakeCourseCountDto retakeCourseCountDto = getRetakeCourseCountDto(condition.getCondition());
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RetakeCourseCountDto> retakeCourseCountVos = retakeCourseCountDao.findRetakeCourseCountList(retakeCourseCountDto);
         return new PageResult<>(retakeCourseCountVos);
     }
@@ -106,6 +107,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             }
             Session currentSession = SessionUtils.getCurrentSession();
             String uid = currentSession.getUid();
+            retakeCourseCountDto.setProjectId(currentSession.getCurrentManageDptId());
             retakeCourseCountDto.setCreateBy(uid);
             retakeCourseCountDto.setCreateAt(new Date());
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountDto);
@@ -120,14 +122,19 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         }
     }
 
+    /**
+     * 重修门数上限参数转换
+     * @param retakeCourseCountVo
+     * @return
+     */
     private RetakeCourseCountDto getRetakeCourseCountDto(RetakeCourseCountVo retakeCourseCountVo) {
-        List<String> trainingLevel = retakeCourseCountVo.getTrainingLevel();
+        List<String> trainingLevel = getList(retakeCourseCountVo.getTrainingLevel());
         String trainingLevels = String.join(",",trainingLevel);
-        List<String> trainingCategory = retakeCourseCountVo.getTrainingCategory();
+        List<String> trainingCategory = getList(retakeCourseCountVo.getTrainingCategory());
         String trainingCategories = String.join(",",trainingCategory);
-        List<String> degreeType = retakeCourseCountVo.getDegreeType();
+        List<String> degreeType = getList(retakeCourseCountVo.getDegreeType());
         String degreeTypes = String.join(",",degreeType);
-        List<String> formLearning = retakeCourseCountVo.getFormLearning();
+        List<String> formLearning = getList(retakeCourseCountVo.getFormLearning());
         String formLearnings = String.join(",",formLearning);
         RetakeCourseCountDto retakeCourseCountDto = new RetakeCourseCountDto();
         retakeCourseCountDto.setTrainingLevel(trainingLevels);
@@ -137,7 +144,25 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         retakeCourseCountDto.setStatus(Constants.DELETE_FALSE);
         retakeCourseCountDto.setProjectName(retakeCourseCountVo.getProjectName());
         retakeCourseCountDto.setRetakeCount(retakeCourseCountVo.getRetakeCount());
+        Session session = SessionUtils.getCurrentSession();
+        retakeCourseCountDto.setProjectId(session.getCurrentManageDptId());
         return retakeCourseCountDto;
+    }
+
+    /**
+     * 去除集合中的空字符串
+     * @param list
+     * @return
+     */
+    private List<String> getList(List<String> list) {
+        List<String> newList = new ArrayList<>(list.size());
+        for (String s : list) {
+            if ("".equals(s)) {
+                continue;
+            }
+            newList.add(s);
+        }
+        return newList;
     }
 
     @Override
@@ -196,6 +221,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     public void updateRebuildCourse(RebuildCourseVo rebuildCourseVo) {
         Session currentSession = SessionUtils.getCurrentSession();
         String studentId = currentSession.realUid();
+        String ip = currentSession.getIp();
         String courseCode = rebuildCourseVo.getCourseCode();
         Long teachingClassId = rebuildCourseVo.getTeachingClassId();
         String courseName = rebuildCourseVo.getCourseName();
@@ -212,6 +238,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         log.setTurn(0);
         log.setCreateBy(studentId);
         log.setCreatedAt(date);
+        log.setCreateIp(ip);
         if (rebuildCourseVo.getStatus() == 0) {
             Student student = studentDao.findStudentByCode(studentId);
             Integer maxCount = retakeCourseCountDao.findRetakeCount(student);

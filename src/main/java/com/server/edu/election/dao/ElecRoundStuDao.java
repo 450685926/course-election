@@ -43,10 +43,11 @@ public interface ElecRoundStuDao
      * 查询存在的学号
      * 
      * @param studentCodes
+     * @param projectId 
      * @return
      * @see [类、类#方法、类#成员]
      */
-    List<String> listExistStu(@Param("studentCodes") List<String> studentCodes);
+    List<String> listExistStu(@Param("studentCodes") List<String> studentCodes, @Param("projectId") String projectId);
     
     /**
      * 查询已经增加过的学号

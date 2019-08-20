@@ -34,6 +34,12 @@ public class AllCourseVo {
 	/** 学生学号  */
 	private String studentCode;
 	
+	/** 教学班编号（课程序号） */
+    private String teachClassCode;
+    
+	/** 用户管理部门ID */
+    private String projectId;
+	
 	public Long getRoundId() {
 		return roundId;
 	}
@@ -121,4 +127,21 @@ public class AllCourseVo {
 	public void setStudentCode(String studentCode) {
 		this.studentCode = studentCode;
 	}
+
+	public String getTeachClassCode() {
+		return teachClassCode;
+	}
+
+	public void setTeachClassCode(String teachClassCode) {
+		this.teachClassCode = teachClassCode;
+	}
+
+	public String getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
+	}
+	
 }

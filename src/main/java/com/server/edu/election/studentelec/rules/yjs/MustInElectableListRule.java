@@ -32,7 +32,7 @@ public class MustInElectableListRule extends AbstractElecRuleExceutor{
 		ElecRespose respose = context.getRespose();
 		respose.getFailedReasons()
 		.put(courseClass.getCourseCodeAndClassCode(),
-				I18nUtil.getMsg("ruleCheck.isLoserStu"));
+				I18nUtil.getMsg("ruleCheck.isNotElcList"));
 		return false;
 	}
 }

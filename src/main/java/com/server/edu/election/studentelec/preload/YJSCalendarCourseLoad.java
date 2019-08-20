@@ -15,7 +15,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -54,7 +53,7 @@ public class YJSCalendarCourseLoad extends DataProLoad<ElecContext>
     {
         // 加载学年学期所有教学班与课程数据到缓存中
     	Long calendarId = context.getRequest().getCalendarId();
-    	List<CourseOpenDto> lessons = roundCourseDao.selectCorseGraduteByCalendarId(calendarId);
+    	List<CourseOpenDto> lessons = roundCourseDao.selectCorseGraduteByCalendarId(calendarId,context.getRequest().getProjectId());
 
 		Map<String, Set<Long>> courseClassMap = new HashMap<>();
         for (CourseOpenDto teachClasss : lessons)
