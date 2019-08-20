@@ -1177,7 +1177,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         for (int j = 0; j < list.size(); j++)
         {
             List<String> timeTableList = getTimeTableList(list.get(j));
-            for (int i = 0; i < setTimeListTitle.length - 1; i++)
+            for (int i = 0; i < setTimeListTitle.length ; i++)
             {
                 PdfPCell cell = new PdfPCell();
                 if (i == 0)
@@ -1205,6 +1205,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
         if (isElective != null)
         {
             list.add(isElective == 1 ? "选修" : "必修");
+        } else {
+            list.add("");
         }
         list.add(timeTable.getAssessmentMode());
         list.add(String.valueOf(timeTable.getCredits()));
