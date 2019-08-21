@@ -17,7 +17,7 @@ public class ExemptionCourseScoreGradute implements Serializable {
      * 学生学号
      */
     @Column(name = "STUDENT_CODE_")
-    private String studentCode;
+    private Integer studentCode;
 
     /**
      * 课程代码
@@ -56,7 +56,7 @@ public class ExemptionCourseScoreGradute implements Serializable {
      *
      * @return STUDENT_CODE_ - 学生学号
      */
-    public String getStudentCode() {
+    public Integer getStudentCode() {
         return studentCode;
     }
 
@@ -65,8 +65,8 @@ public class ExemptionCourseScoreGradute implements Serializable {
      *
      * @param studentCode 学生学号
      */
-    public void setStudentCode(String studentCode) {
-        this.studentCode = studentCode == null ? null : studentCode.trim();
+    public void setStudentCode(Integer studentCode) {
+        this.studentCode = studentCode;
     }
 
 
