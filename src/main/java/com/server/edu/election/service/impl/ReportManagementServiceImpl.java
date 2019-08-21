@@ -1211,6 +1211,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
         String assessmentMode = timeTable.getAssessmentMode();
         if (assessmentMode != null) {
             assessmentMode = dictionaryService.query("X_XQ", assessmentMode);
+        } else {
+            assessmentMode = "";
         }
         list.add(assessmentMode);
         list.add(String.valueOf(timeTable.getCredits()));
