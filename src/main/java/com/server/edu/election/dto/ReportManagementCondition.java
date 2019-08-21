@@ -5,32 +5,55 @@ package com.server.edu.election.dto;
  * @author: bear
  * @create: 2019-02-14 15:18
  */
-public class ReportManagementCondition extends ExemptionCourseScoreDto {
-    private Integer electCourseStatus;//选课状态0,1
+public class ReportManagementCondition extends ExemptionCourseScoreDto
+{
+    /**选课状态0,1*/
+    private Integer electCourseStatus;
+    
     private String nature;
-    private Integer isRebuildCourse;//是否重修
-
-    public Integer getElectCourseStatus() {
+    
+    /**是否重修*/
+    private Integer isRebuildCourse;
+    
+    private String projectId;
+    
+    public Integer getElectCourseStatus()
+    {
         return electCourseStatus;
     }
-
-    public void setElectCourseStatus(Integer electCourseStatus) {
+    
+    public void setElectCourseStatus(Integer electCourseStatus)
+    {
         this.electCourseStatus = electCourseStatus;
     }
-
-    public String getNature() {
+    
+    public String getNature()
+    {
         return nature;
     }
-
-    public void setNature(String nature) {
+    
+    public void setNature(String nature)
+    {
         this.nature = nature;
     }
-
-    public Integer getIsRebuildCourse() {
+    
+    public Integer getIsRebuildCourse()
+    {
         return isRebuildCourse;
     }
-
-    public void setIsRebuildCourse(Integer isRebuildCourse) {
+    
+    public void setIsRebuildCourse(Integer isRebuildCourse)
+    {
         this.isRebuildCourse = isRebuildCourse;
+    }
+    
+    public String getProjectId()
+    {
+        return projectId;
+    }
+    
+    public void setProjectId(String projectId)
+    {
+        this.projectId = projectId;
     }
 }
