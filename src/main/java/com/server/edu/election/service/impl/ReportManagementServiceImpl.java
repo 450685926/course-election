@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.*;
+import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -341,7 +342,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
     @Override
     public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(condition.getCondition());
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session currentSession = SessionUtils.getCurrentSession();
+        String currentManageDptId = currentSession.getCurrentManageDptId();
+        reportManagementCondition.setProjectId(currentManageDptId);
+        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(reportManagementCondition);
         if (!schoolTimetab.isEmpty()) {
             List<StudentVo> result = schoolTimetab.getResult();
             SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
@@ -1217,7 +1222,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
             assessmentMode = "";
         }
         list.add(assessmentMode);
-        list.add(String.valueOf(timeTable.getCredits()));
+        Double credits = timeTable.getCredits();
+        String credit;
+        if (credits == null) {
+            credit = "";
+        } else {
+            credit = String.valueOf(credits);
+        }
+        list.add(credit);
         list.add(timeTable.getTeacherName());
         list.add(timeTable.getTime());
         list.add(timeTable.getRemark());
