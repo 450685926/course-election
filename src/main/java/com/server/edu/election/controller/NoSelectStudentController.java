@@ -105,21 +105,10 @@ public class NoSelectStudentController
         return RestResult.successData(noSelectReason);
     }
     
-    @ApiOperation(value = "导出未选课学生名单研究生(按查询条件筛选)")
-    @PostMapping("/exportStudentNoCourseListGradute")
-    public RestResult<String> exportStudentNoCourseListGradute(
-            @RequestBody NoSelectCourseStdsDto condition)
-                    throws Exception
-    {
-        LOG.info("export.gradute.start");
-        String export = noSelectStudentService.exportStudentNoCourseListGradute(condition);
-        return RestResult.successData(export);
-    }
-    
     @ApiResponses({
         @ApiResponse(code = 200, response = File.class, message = "导出未选课学生名单研究生(按学生ID)")})
-    @PostMapping(value = "/exportStudentNoCourseListGradute2")
-    public ResponseEntity<Resource> exportStudentNoCourseListGradute2(@RequestBody List<String> ids) throws Exception
+    @PostMapping(value = "/exportStudentNoCourseListGradute")
+    public ResponseEntity<Resource> exportStudentNoCourseListGradute(@RequestBody List<String> ids) throws Exception
     {
         LOG.info("exportStudentNoCourseListGradute2 start");
         ValidatorUtil.validateAndThrow(ids);
