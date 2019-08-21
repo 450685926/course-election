@@ -74,6 +74,7 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
+import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.util.WeekUtil;
@@ -522,7 +523,17 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		key = Keys.getRoundCourseKey(roundId); // 学生选课或者教务员代理选课
     		List<String> roundsCoursesIdsList = CoursesList(ops, key);
     		//获取本轮次的选课规则
-    		List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+    		List<ElectionRuleVo> rules = new ArrayList<ElectionRuleVo>();
+
+    		RuleCacheService ruleCacheService = new RuleCacheService();
+    		List<ElectionRuleVo> rulesList = dataProvider.getRules(roundId);
+    		for (ElectionRuleVo electionRuleVo : rulesList) {
+    			ElectionRuleVo ruleVo = ruleCacheService.getRule(electionRuleVo.getServiceName());
+    			if (ruleVo != null) {
+    				rules.add(electionRuleVo);
+				}
+			}
+    		LOG.info("------------rules----------"+rules.size());
     		//判断本轮规则中是否含有按照培养计划选课
     		Boolean isPlanElection = false;
     		Boolean isCampus = false;
