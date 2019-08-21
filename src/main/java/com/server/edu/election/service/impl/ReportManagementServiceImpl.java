@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.*;
+import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -339,7 +340,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
     @Override
     public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(condition.getCondition());
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session currentSession = SessionUtils.getCurrentSession();
+        String currentManageDptId = currentSession.getCurrentManageDptId();
+        reportManagementCondition.setProjectId(currentManageDptId);
+        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(reportManagementCondition);
         if (!schoolTimetab.isEmpty()) {
             List<StudentVo> result = schoolTimetab.getResult();
             SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
@@ -1200,7 +1205,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         List<String> list = new ArrayList<String>();
         list.add(timeTable.getCourseCode());
         list.add(timeTable.getCourseName());
-        list.add("2".equals(timeTable.getCourseType()) ? "是" : "");
+        list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
         Integer isElective = timeTable.getIsElective();
         if (isElective != null)
         {
@@ -1208,8 +1213,21 @@ public class ReportManagementServiceImpl implements ReportManagementService
         } else {
             list.add("");
         }
-        list.add(timeTable.getAssessmentMode());
-        list.add(String.valueOf(timeTable.getCredits()));
+        String assessmentMode = timeTable.getAssessmentMode();
+        if (assessmentMode != null) {
+            assessmentMode = dictionaryService.query("X_XQ", assessmentMode);
+        } else {
+            assessmentMode = "";
+        }
+        list.add(assessmentMode);
+        Double credits = timeTable.getCredits();
+        String credit;
+        if (credits == null) {
+            credit = "";
+        } else {
+            credit = String.valueOf(credits);
+        }
+        list.add(credit);
         list.add(timeTable.getTeacherName());
         list.add(timeTable.getTime());
         list.add(timeTable.getRemark());

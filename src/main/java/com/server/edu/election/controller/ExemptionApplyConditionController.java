@@ -183,10 +183,10 @@ public class ExemptionApplyConditionController {
     @PostMapping("/matchedConditions")
     public RestResult<?> queryApplyConditionByCourseCodeAndStudentId(
     		@RequestBody(required=false) ExemptionApplyManageVo applyManage){
-    	logger.info("matchedConditions by CourseCode and studentId start");
+    	logger.info("matchedConditions by CourseCode and studentCode start:"+applyManage.getStudentCode());
     	
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.
-    			queryApplyConditionByCourseCodeAndStudentId(applyManage.getCourseCode(),applyManage.getStudentId());
+    			queryApplyConditionByCourseCodeAndStudentId(applyManage.getCourseCode(),applyManage.getStudentCode());
     	return RestResult.successData(list);
     }
     

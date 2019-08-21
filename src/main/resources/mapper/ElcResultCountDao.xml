@@ -77,7 +77,7 @@
 		        and t1.ENROL_SEASON_= #{elcResult.enrolSeason} 
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.degreeType)">
-		        and t1.DEGREE_CATEGORY_= #{elcResult.degreeType} 
+		        and t1.DEGREE_TYPE_= #{elcResult.degreeType} 
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(elcResult.formLearning)">
 		        and t1.FORM_LEARNING_= #{elcResult.formLearning} 
