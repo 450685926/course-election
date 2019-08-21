@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.Constants;
@@ -28,8 +30,6 @@ import com.server.edu.election.vo.ElcStudentLimitVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.excel.CellValueHandler;
-import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -160,7 +160,8 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
                     }
                 }
 				GeneralExcelDesigner design = getDesign();
-				design.setDatas(resultList);
+				List<JSONObject> convertList = JacksonUtil.convertList(resultList);
+				design.setDatas(convertList);
 				return design;
 			}
 		});
@@ -174,22 +175,8 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 			design.addCell(I18nUtil.getMsg("elcStudentLimit.studentId"), "studentId");
 			design.addCell(I18nUtil.getMsg("elcStudentLimit.name"), "name");
 			design.addCell(I18nUtil.getMsg("elcStudentLimit.grade"), "grade");
-			design.addCell(I18nUtil.getMsg("elcStudentLimit.faculty"), "faculty")
-					.setValueHandler(new CellValueHandler() {
-						@Override
-						public String handler(String value, Object rawData, GeneralExcelCell cell) {
-							String faculty = dictionaryService.query("X_YX", value, SessionUtils.getLang());
-							return faculty;
-						}
-					});
-			design.addCell(I18nUtil.getMsg("elcStudentLimit.profession"), "profession")
-			.setValueHandler(new CellValueHandler() {
-				@Override
-				public String handler(String value, Object rawData, GeneralExcelCell cell) {
-					String profession = dictionaryService.query("G_ZY", value, SessionUtils.getLang());
-					return profession;
-				}
-			});
+			design.addCell(I18nUtil.getMsg("elcStudentLimit.faculty"), "facultyI18n");
+			design.addCell(I18nUtil.getMsg("elcStudentLimit.profession"), "professionI18n");
 			design.addCell(I18nUtil.getMsg("elcStudentLimit.newLimitCredits"), "newLimitCredits");
 			design.addCell(I18nUtil.getMsg("elcStudentLimit.selectedCredits"), "selectedCredits");
 			design.addCell(I18nUtil.getMsg("elcStudentLimit.totalLimitCredits"), "totalLimitCredits");
@@ -223,8 +210,15 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
                         break;
                     }
                 }
-				GeneralExcelDesigner design = getDesign();
-				design.setDatas(resultList);
+				GeneralExcelDesigner design = new GeneralExcelDesigner();
+				design.setNullCellValue("");
+				design.addCell(I18nUtil.getMsg("elcStudentLimit.studentId"), "studentCode");
+				design.addCell(I18nUtil.getMsg("elcStudentLimit.name"), "name");
+				design.addCell(I18nUtil.getMsg("elcStudentLimit.grade"), "grade");
+				design.addCell(I18nUtil.getMsg("elcStudentLimit.faculty"), "facultyI18n");
+				design.addCell(I18nUtil.getMsg("elcStudentLimit.profession"), "professionI18n");
+				List<JSONObject> convertList = JacksonUtil.convertList(resultList);
+				design.setDatas(convertList);
 				return design;
 			}
 		});
