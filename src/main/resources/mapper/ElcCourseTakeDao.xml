@@ -449,6 +449,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+                and st.MANAGER_DEPT_ID_ =#{projectId,jdbcType=VARCHAR}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
                 and (st.STUDENT_CODE_ like concat('%',#{keyWord},'%') or st.NAME_ like concat('%',#{keyWord},'%') )
             </if>

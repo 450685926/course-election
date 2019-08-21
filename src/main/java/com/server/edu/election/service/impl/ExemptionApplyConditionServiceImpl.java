@@ -129,18 +129,16 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	}
 
 	@Override
-	public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode, String studentId) {
-		String studentCode = "";
+	public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode, String studentCode) {
 		Student student = new Student();
-		if (StringUtils.isNotBlank(studentId)) {
-			studentCode = studentId;
+		if (StringUtils.isNotBlank(studentCode)) {
 			student = studentDao.findStudentByCode(studentCode);
 		}
 		
 		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
     	condition.setCourseCode(courseCode);
     	
-    	if (StringUtils.isNotBlank(studentId) || student != null) {
+    	if (StringUtils.isNotBlank(studentCode) || student != null) {
 	    	String trainingLevel = "";
 	    	if (StringUtils.isNotBlank(student.getTrainingLevel())) {
 	    		trainingLevel = String.valueOf(Integer.parseInt(student.getTrainingLevel()));

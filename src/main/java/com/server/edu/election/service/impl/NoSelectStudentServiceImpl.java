@@ -294,17 +294,14 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
 	public List<NoSelectCourseStdsDto> findElectCourseListByIds(List<String> ids) {
 		List<NoSelectCourseStdsDto> electCourseList = courseTakeDao.findElectCourseListByIds(ids);
 		
-		//List<String> studentCodes = electCourseList.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
         List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(ids);
         
-        //Iterator<NoSelectCourseStdsDto> iterator = electCourseList.iterator();
         for (NoSelectCourseStdsDto stdsDto : electCourseList) {
-       	 //NoSelectCourseStdsDto stdsDto = iterator.next();
-       	 for (AbnormalTypeElection abnormalTypeElection : list) {
+       	 	for (AbnormalTypeElection abnormalTypeElection : list) {
 				if (StringUtils.equals(stdsDto.getStudentCode(), abnormalTypeElection.getStudentCode())) {
 					stdsDto.setStdStatusChanges(abnormalTypeElection.getTypeName());
 				}
-			 }
+			}
 		}
 		return electCourseList;
 	}
