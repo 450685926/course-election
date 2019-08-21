@@ -16,9 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.dto.*;
-import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -52,21 +47,33 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ExportPreCondition;
+import com.server.edu.election.dto.PreViewRollDto;
+import com.server.edu.election.dto.PreviewRollBookList;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudentSelectCourseList;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherClassTimeRoom;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
-import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.FileUtil;
@@ -273,12 +280,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     String[] split = teacherCode.split(",");
                     List<String> names = new ArrayList<>(split.length);
                     for (String s : split) {
-                        if ("".equals(s)) {
-                            continue;
+                        if (!"".equals(s)) {
+                            String name = teachingClassTeacherDao.findTeacherName(s);
+                            if (name != null) {
+                                names.add(name);
+                                nameMap.add(teachingClassId,name);
+                            }
                         }
-                        String name = teachingClassTeacherDao.findTeacherName(s);
-                        names.add(name);
-                        nameMap.add(teachingClassId,name);
                     }
                     teacherName = String.join(",",names);
                 }
@@ -561,7 +569,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 vo.setExportName(exportName);
             }
             pre.setStudentsList(student);
-            pre.setSize(student.size());
+            //星期多行展示
+            //pre.setSize(student.size());
+            pre.setSize(Constants.ONE);
         }
         //        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
         //        pre.setCalendarName(schoolCalendarVo.getFullName());
@@ -861,6 +871,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
     {
         PreViewRollDto preViewRollDto = findPreviewRollBookListById(condition.getTeachingClassId(), condition.getCalendarId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+        setSexAndFaculty(studentsList);
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
                 .getSchoolCalendarById(condition.getCalendarId());
         String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
@@ -912,6 +923,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         PreViewRollDto preViewRollDto =
             previewGraduteRollBook(condition.getTeachingClassId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+        setSexAndFaculty(studentsList);
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
             .getSchoolCalendarById(condition.getCalendarId());
         String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
@@ -947,6 +959,18 @@ public class ReportManagementServiceImpl implements ReportManagementService
         out.flush();
         out.close();
         return path;
+    }
+
+    private void setSexAndFaculty(List<StudentVo> studentsList) {
+        for (StudentVo studentVo : studentsList) {
+            Integer studentSex = studentVo.getSex();
+            if (studentSex != null) {
+                String sex = studentSex == 1 ? "男":"女";
+                studentVo.setSexStr(sex);
+            }
+            String faculty = dictionaryService.query("X_YX", studentVo.getFaculty());
+            studentVo.setFaculty(faculty);
+        }
     }
 
     private GeneralExcelDesigner getDesignTwo()
