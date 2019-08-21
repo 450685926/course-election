@@ -85,7 +85,6 @@ public class TeachingClass extends BaseEntity
     /**
      * 课程类别ID
      */
-    @Code2Text(DictTypeEnum.X_KCFL)
     @Column(name = "COURSE_LABEL_ID_")
     private Long courseLabelId;
     
