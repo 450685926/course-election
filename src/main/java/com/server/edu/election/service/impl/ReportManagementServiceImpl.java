@@ -271,12 +271,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     String[] split = teacherCode.split(",");
                     List<String> names = new ArrayList<>(split.length);
                     for (String s : split) {
-                        if ("".equals(s)) {
-                            continue;
+                        if (!"".equals(s)) {
+                            String name = teachingClassTeacherDao.findTeacherName(s);
+                            if (name != null) {
+                                names.add(name);
+                                nameMap.add(teachingClassId,name);
+                            }
                         }
-                        String name = teachingClassTeacherDao.findTeacherName(s);
-                        names.add(name);
-                        nameMap.add(teachingClassId,name);
                     }
                     teacherName = String.join(",",names);
                 }
@@ -859,6 +860,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
     {
         PreViewRollDto preViewRollDto = findPreviewRollBookListById(condition.getTeachingClassId(), condition.getCalendarId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+        setSexAndFaculty(studentsList);
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
                 .getSchoolCalendarById(condition.getCalendarId());
         String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
@@ -910,6 +912,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         PreViewRollDto preViewRollDto =
             previewGraduteRollBook(condition.getTeachingClassId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
+        setSexAndFaculty(studentsList);
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
             .getSchoolCalendarById(condition.getCalendarId());
         String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
@@ -945,6 +948,18 @@ public class ReportManagementServiceImpl implements ReportManagementService
         out.flush();
         out.close();
         return path;
+    }
+
+    private void setSexAndFaculty(List<StudentVo> studentsList) {
+        for (StudentVo studentVo : studentsList) {
+            Integer studentSex = studentVo.getSex();
+            if (studentSex != null) {
+                String sex = studentSex == 1 ? "男":"女";
+                studentVo.setSexStr(sex);
+            }
+            String faculty = dictionaryService.query("X_YX", studentVo.getFaculty());
+            studentVo.setFaculty(faculty);
+        }
     }
 
     private GeneralExcelDesigner getDesignTwo()

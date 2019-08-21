@@ -932,7 +932,7 @@
                 and tc.CODE_ like CONCAT( '%', #{classCode}, '%')
             </if>
         </where>
-        group by tc.ID_,tr.TEACHER_CODE_
+        group by tc.ID_
     </select>
 
 
