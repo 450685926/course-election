@@ -39,6 +39,8 @@ import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -177,7 +179,7 @@ public class ElecRoundStuController
         String originalFilename = file.getOriginalFilename();
         if (!originalFilename.endsWith(".xls"))
         {
-            return RestResult.error("请使用1999-2003(.xls)类型的Excle");
+            return RestResult.error("请使用1999-2003(.xls)类型的Excel");
         }
         
         try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
@@ -202,8 +204,9 @@ public class ElecRoundStuController
             }
             if (CollectionUtil.isNotEmpty(codes)) {
             	return this.add(roundId, codes, mode);
+			}else{
+				return RestResult.fail("file.notEmpty");
 			}
-            return RestResult.success("common.saveSuccess","");
         }
         catch (Exception e)
         {
@@ -248,7 +251,8 @@ public class ElecRoundStuController
         throws Exception
     {
         ValidatorUtil.validateAndThrow(query);
-        
+        Session session = SessionUtils.getCurrentSession();
+        query.setProjectId(session.getCurrentManageDptId());
         PageCondition<ElecRoundStuQuery> page = new PageCondition<>();
         page.setCondition(query);
         page.setPageNum_(1);

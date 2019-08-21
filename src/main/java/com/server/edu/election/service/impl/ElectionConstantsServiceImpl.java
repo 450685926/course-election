@@ -38,7 +38,12 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
         Example example = new Example(ElectionConstants.class);
         ElectionConstantsDto quer = condition.getCondition();
         Criteria createCriteria = example.createCriteria();
-        createCriteria.andEqualTo("managerDeptId", quer.getManagerDeptId());
+        
+        String managerDeptId = quer.getManagerDeptId();
+        if (StringUtils.equals(quer.getManagerDeptId(), Constants.PROJ_LINE_GRADUATE)) {
+        	managerDeptId = "2";
+		}
+        createCriteria.andEqualTo("managerDeptId", managerDeptId);
         if (StringUtils.isNotBlank(quer.getName()))
         {
             createCriteria.andLike("name", "%" + quer.getName() + "%");
@@ -52,7 +57,6 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
             electionConstantsDao.selectByExample(example);
         PageInfo<ElectionConstants> pageInfo = new PageInfo<>(list);
         return pageInfo;
-        
     }
     
     @Override
@@ -121,5 +125,14 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
             electionConstantsDao.selectByPrimaryKey(id);
         return electionConstants;
     }
+
+	@Override
+	public List<ElectionConstants> getAllGraduateConstants(String projectId) {
+		if (org.apache.commons.lang.StringUtils.equals(projectId, Constants.PROJ_LINE_GRADUATE)) {
+			projectId = "2";
+		}
+		List<ElectionConstants> list = electionConstantsDao.getAllGraduateConstants(projectId);
+		return list;
+	}
     
 }

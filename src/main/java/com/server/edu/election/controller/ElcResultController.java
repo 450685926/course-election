@@ -84,8 +84,6 @@ public class ElcResultController
         @RequestBody PageCondition<ElcResultQuery> condition)
         throws Exception
     {
-        ValidatorUtil.validateAndThrow(condition.getCondition());
-        
         PageResult<TeachingClassVo> list = elcResultService.graduatePage(condition);
         
         return RestResult.successData(list);
@@ -207,6 +205,7 @@ public class ElcResultController
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
+    	condition.getCondition().setManagerDeptId(session.getCurrentManageDptId());
     	ElcResultCountVo result = elcResultService.elcResultCount(condition);
     	return RestResult.successData(result);
     }
@@ -219,6 +218,8 @@ public class ElcResultController
     		@ModelAttribute ElcResultQuery condition)
     {
     	try {
+    		Session session = SessionUtils.getCurrentSession();
+        	condition.setManagerDeptId(session.getCurrentManageDptId());
             RestResult<String> restResult = elcResultService.elcResultCountsExport(condition);
             if (restResult.getCode() == ResultStatus.SUCCESS.code()
                     && !"".equals(restResult.getData()))
@@ -245,7 +246,7 @@ public class ElcResultController
     {
     	ValidatorUtil.validateAndThrow(condition.getCondition());
     	Session session = SessionUtils.getCurrentSession();
-        
+    	condition.getCondition().setManagerDeptId(session.getCurrentManageDptId());
     	if (!session.isAdmin()) {
     		return RestResult.fail("elec.mustBeAdmin");
         }
@@ -260,6 +261,8 @@ public class ElcResultController
     public File export(
     		@ModelAttribute ElcResultQuery condition)
     {
+    	Session session = SessionUtils.getCurrentSession();
+    	condition.setManagerDeptId(session.getCurrentManageDptId());
     	try {
             RestResult<String> restResult = elcResultService.exportOfNonSelectedCourse(condition);
             if (restResult.getCode() == ResultStatus.SUCCESS.code()

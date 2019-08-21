@@ -112,7 +112,7 @@
 		  	and t1.PROFESSION_ = #{query.profession}
 		  	</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		    and t1.DEGREE_CATEGORY_= #{query.degreeType} 
+		    and t1.DEGREE_TYPE_= #{query.degreeType} 
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		    and t1.FORM_LEARNING_= #{query.formLearning} 
@@ -242,9 +242,11 @@
 	         left join teaching_class_arrange_time_t time ON class.ID_ = time.TEACHING_CLASS_ID_
 		where 
 		     time.TYPE_ = '2' and 
-		     course.PROJ_ID_ = '2' and 
 		     course.CALENDAR_ID_ = #{calendarId} and
              course.TRAINING_LEVEL_ = #{trainingLevel}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+            and course.PROJ_ID_ = #{projectId,jdbcType=VARCHAR} 
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campu)">
             and class.CAMPUS_ =#{campu,jdbcType=VARCHAR}
         </if>
@@ -260,14 +262,17 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
             and course.NATURE_ =#{nature,jdbcType=VARCHAR}
         </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachClassCode)">
+            and class.CODE_ like concat('%',#{teachClassCode},'%')
+        </if>
         order by nature
    </select>
    
     <select id="getAllNonSelectedCourseStudent" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
        SELECT t4.* FROM student_t t4 
         <where>
-        	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
-        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t4.LEAVE_SCHOOL_ = 1
+        	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId})
+        	and t4.MANAGER_DEPT_ID_ = #{query.managerDeptId} and t4.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t4.FACULTY_ = #{query.faculty}
 		    </if>
@@ -345,8 +350,8 @@
     <select id="getAllNonSelectedCourseStudent1" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
        SELECT t4.* FROM student_t t4 
         <where>
-        	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} GROUP BY t2.STUDENT_ID_)
-        	and t4.MANAGER_DEPT_ID_ NOT IN (#{query.managerDeptId}) and t4.LEAVE_SCHOOL_ = 1
+        	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId})
+        	and t4.MANAGER_DEPT_ID_= #{query.managerDeptId} and t4.LEAVE_SCHOOL_ = 1
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
 		        and t4.FACULTY_ = #{query.faculty}
 		    </if>

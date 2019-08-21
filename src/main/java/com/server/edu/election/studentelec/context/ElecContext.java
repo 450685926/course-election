@@ -4,10 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -48,8 +47,11 @@ public class ElecContext implements IElecContext
     /**研究生可选课程*/
     private List<ElcCourseResult> optionalCourses;
     
-    /**学生第一外国语课程 */
-    private List<StudentCultureRel> firstForeignCourses;
+    /**研究生已修读课程*/
+    private List<CompletedCourse> takenCourses;
+    
+    /**研究生所有的第一外国语课程 */
+    private List<ElecFirstLanguageContrastVo> firstForeignCourses;
     
     private Map<String, Object> elecResult;
     
@@ -90,8 +92,8 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = new HashSet<>();
-        	this.contextUtil.getSet("firstForeignCourses", StudentCultureRel.class);
+        firstForeignCourses = 	
+        	this.contextUtil.getList("firstForeignCourses", ElecFirstLanguageContrastVo.class);
         applyCourse = new HashSet<>();
     }
     
@@ -148,6 +150,12 @@ public class ElecContext implements IElecContext
         this.getApplyCourse().clear();
         this.getFirstForeignCourses().clear();
     }
+    public void courseClear()
+    {
+    	this.getSelectedCourses().clear();
+    	this.getApplyForDropCourses().clear();
+    }
+    
     
     
     @Override
@@ -253,12 +261,20 @@ public class ElecContext implements IElecContext
 		this.elecResult = elecResult;
 	}
 
-	public List<StudentCultureRel> getFirstForeignCourses() {
+	public List<ElecFirstLanguageContrastVo> getFirstForeignCourses() {
 		return firstForeignCourses;
 	}
 
-	public void setFirstForeignCourses(List<StudentCultureRel> firstForeignCourses) {
+	public void setFirstForeignCourses(List<ElecFirstLanguageContrastVo> firstForeignCourses) {
 		this.firstForeignCourses = firstForeignCourses;
+	}
+
+	public List<CompletedCourse> getTakenCourses() {
+		return takenCourses;
+	}
+
+	public void setTakenCourses(List<CompletedCourse> takenCourses) {
+		this.takenCourses = takenCourses;
 	}
     
 }

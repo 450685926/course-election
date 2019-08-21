@@ -51,10 +51,12 @@ public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
             else
             {
                 ElecContext context = new ElecContext(studentId, calendarId);
+                context.courseClear();
                 // 重新加载学生缓存数据
                 yjsCourseGradeLoad.loadSelectedCourses(studentId,
                     context.getSelectedCourses(),
                     calendarId);
+                yjsCourseGradeLoad.loadApplyRecord(calendarId, studentId, context.getApplyForDropCourses());
                 context.saveToCache();
             }
             

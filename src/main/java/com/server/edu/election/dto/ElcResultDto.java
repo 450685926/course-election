@@ -72,7 +72,7 @@ public class ElcResultDto
     /**
      * 已选人数百分比
      */
-    private BigDecimal numberOfelectedPersonsPoint;
+    private Double numberOfelectedPersonsPoint;
 
 	public String getGrade() {
 		return grade;
@@ -138,11 +138,11 @@ public class ElcResultDto
 		this.numberOfNonCandidates = numberOfNonCandidates;
 	}
 
-	public BigDecimal getNumberOfelectedPersonsPoint() {
+	public Double getNumberOfelectedPersonsPoint() {
 		return numberOfelectedPersonsPoint;
 	}
 
-	public void setNumberOfelectedPersonsPoint(BigDecimal numberOfelectedPersonsPoint) {
+	public void setNumberOfelectedPersonsPoint(Double numberOfelectedPersonsPoint) {
 		this.numberOfelectedPersonsPoint = numberOfelectedPersonsPoint;
 	}
 

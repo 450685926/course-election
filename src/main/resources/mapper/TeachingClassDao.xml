@@ -54,6 +54,7 @@
   	<result column="firstTurnNum" jdbcType="INTEGER" property="firstTurnNum" />
   	<result column="secondTurnNum" jdbcType="INTEGER" property="secondTurnNum" />
   	<result column="LABEL_NAME_" jdbcType="VARCHAR" property="labelName" />
+  	<result column="NATURE_" jdbcType="VARCHAR" property="nature" />
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct
@@ -308,8 +309,8 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT('%', #{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT('%', #{keyword}, '%') OR t3.COURSE_CODE_ like CONCAT('%', #{keyword}, '%'))
   	  </if>
-  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherName)">
-  	    and t4.TEACHER_NAME_ like CONCAT('%', #{teacherName}, '%')
+  	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+  	    and t4.TEACHER_CODE_ = #{teacherCode}
   	  </if>
     </where>
   </select>

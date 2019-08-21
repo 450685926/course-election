@@ -168,7 +168,7 @@ public interface ElcCourseTakeDao
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
     /**研究生教师课表查询*/
-    Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
+    List<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
     
@@ -243,6 +243,7 @@ public interface ElcCourseTakeDao
 
     List<Long> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
+    List<ElcCourseTakeVo> findElcCourseTakeByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
     /**
      * 研究生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
      * @param list
@@ -258,7 +259,7 @@ public interface ElcCourseTakeDao
     /**根据教学班id查询学生是否选课*/
     int findCount(@Param("studentId")String studentId,  @Param("calendarId") Long calendarId,  @Param("teachingClassId") Long teachingClassId);
 
-    /**根据学生id查询学生已重修的门数*/
+    /**根据学生id查询学生已重修的课程*/
     Set<String> findRetakeCount(String studentId);
     
     /**
@@ -270,5 +271,8 @@ public interface ElcCourseTakeDao
 	
     /**期中退课列表*/
 	List<ElcCourseTakeVo> getElcMedWithdraw(ElcMedWithdrawDto dto);
+	
+	/** 研究生查询未选课名单(ids)  */
+	List<NoSelectCourseStdsDto> findElectCourseListByIds(@Param("ids") List<String> ids);
 	
 }

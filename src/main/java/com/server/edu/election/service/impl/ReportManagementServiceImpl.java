@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.*;
+import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -272,6 +273,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     String[] split = teacherCode.split(",");
                     List<String> names = new ArrayList<>(split.length);
                     for (String s : split) {
+                        if ("".equals(s)) {
+                            continue;
+                        }
                         String name = teachingClassTeacherDao.findTeacherName(s);
                         names.add(name);
                         nameMap.add(teachingClassId,name);
@@ -338,7 +342,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
     @Override
     public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(condition.getCondition());
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session currentSession = SessionUtils.getCurrentSession();
+        String currentManageDptId = currentSession.getCurrentManageDptId();
+        reportManagementCondition.setProjectId(currentManageDptId);
+        Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(reportManagementCondition);
         if (!schoolTimetab.isEmpty()) {
             List<StudentVo> result = schoolTimetab.getResult();
             SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(condition.getCondition().getCalendarId());
@@ -498,7 +506,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         List<String> names = new ArrayList<>();
                         for (String s : set) {
                             String teacherName = teachingClassTeacherDao.findTeacherName(s);
-                            names.add(teacherName);
+                            if (teacherName != null) {
+                                names.add(teacherName);
+                            }
                         }
                         String teacherNames = String.join(",", names);
                         bookList.setTeacherName(teacherNames);
@@ -1174,7 +1184,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         for (int j = 0; j < list.size(); j++)
         {
             List<String> timeTableList = getTimeTableList(list.get(j));
-            for (int i = 0; i < setTimeListTitle.length - 1; i++)
+            for (int i = 0; i < setTimeListTitle.length ; i++)
             {
                 PdfPCell cell = new PdfPCell();
                 if (i == 0)
@@ -1197,16 +1207,31 @@ public class ReportManagementServiceImpl implements ReportManagementService
         List<String> list = new ArrayList<String>();
         list.add(timeTable.getCourseCode());
         list.add(timeTable.getCourseName());
-        list.add("2".equals(timeTable.getCourseType()) ? "是" : "");
+        list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
         Integer isElective = timeTable.getIsElective();
         if (isElective != null)
         {
             list.add(isElective == 1 ? "选修" : "必修");
+        } else {
+            list.add("");
         }
-        list.add(timeTable.getAssessmentMode());
-        list.add(String.valueOf(timeTable.getCredits()));
+        String assessmentMode = timeTable.getAssessmentMode();
+        if (assessmentMode != null) {
+            assessmentMode = dictionaryService.query("X_XQ", assessmentMode);
+        } else {
+            assessmentMode = "";
+        }
+        list.add(assessmentMode);
+        Double credits = timeTable.getCredits();
+        String credit;
+        if (credits == null) {
+            credit = "";
+        } else {
+            credit = String.valueOf(credits);
+        }
+        list.add(credit);
         list.add(timeTable.getTeacherName());
-        list.add(timeTable.getTime() + timeTable.getRoom());
+        list.add(timeTable.getTime());
         list.add(timeTable.getRemark());
         return list;
     }

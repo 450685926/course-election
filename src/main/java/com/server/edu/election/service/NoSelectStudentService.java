@@ -1,5 +1,7 @@
 package com.server.edu.election.service;
 
+import java.util.List;
+
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -31,5 +33,8 @@ public interface NoSelectStudentService
     
     /**异步导出*/
     ExcelResult export(NoSelectCourseStdsDto condition);
+    
+    /** 研究生查询未选课名单(ids) */
+	List<NoSelectCourseStdsDto> findElectCourseListByIds(List<String> ids);
 	
 }
