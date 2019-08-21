@@ -1069,9 +1069,28 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,languageCode,scoreFlag,session);
 		
 		if (scoreModel == null) {
+			ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
+			String courseNameAndCode = " ";
+			List<String> courseCode = new ArrayList<>();
+			List<String> courseName = new ArrayList<>();
+			for (PlanCourse course : optCourses) {
+				courseNameAndCode = courseNameAndCode + course.getCourseCode() + course.getCourseName() + " ";
+				applyCourse.setFirstForeignLanguageCode(null);
+				applyCourse.setFirstForeignLanguageScore(null);
+				courseCode.add(course.getCourseCode());
+				courseName.add(course.getCourseName());
+				applyCourse.setApplyType(Constants.ONE);
+			}
+			applyCourse.setFirstForeignLanguageName(null);
+			applyCourse.setCourseNameAndCode(courseNameAndCode);
+			applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
+			applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
+			Integer examineResult = getGraduteExemptionApplyRecord(calendarId ,studentId,StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
+			applyCourse.setExamineResult(examineResult);
+			applyCourses.add(applyCourse);
 			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 			studentAndCourseVo.setStudent(student);
-			studentAndCourseVo.setApplyCourse(null);
+			studentAndCourseVo.setApplyCourse(applyCourses);
 			return studentAndCourseVo;
 		}
 		

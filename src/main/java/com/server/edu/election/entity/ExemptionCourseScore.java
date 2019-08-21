@@ -14,12 +14,6 @@ public class ExemptionCourseScore implements Serializable {
     private Long id;
 
     /**
-     * 校历ID
-     */
-    @Column(name = "CALENDAR_ID_")
-    private Long calendarId;
-
-    /**
      * 学生学号
      */
     @Column(name = "STUDENT_CODE_")
@@ -55,24 +49,6 @@ public class ExemptionCourseScore implements Serializable {
      */
     public void setId(Long id) {
         this.id = id;
-    }
-
-    /**
-     * 获取校历ID
-     *
-     * @return CALENDAR_ID_ - 校历ID
-     */
-    public Long getCalendarId() {
-        return calendarId;
-    }
-
-    /**
-     * 设置校历ID
-     *
-     * @param calendarId 校历ID
-     */
-    public void setCalendarId(Long calendarId) {
-        this.calendarId = calendarId;
     }
 
     /**
@@ -137,7 +113,6 @@ public class ExemptionCourseScore implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", calendarId=").append(calendarId);
         sb.append(", studentCode=").append(studentCode);
         sb.append(", courseCode=").append(courseCode);
         sb.append(", score=").append(score);
