@@ -24,6 +24,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
+import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
@@ -34,6 +35,7 @@ import com.server.edu.election.vo.ElcNoSelectReasonVo;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
+import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -119,37 +121,13 @@ public class NoSelectStudentController
     @PostMapping(value = "/exportStudentNoCourseListGradute2")
     public ResponseEntity<Resource> exportStudentNoCourseListGradute2(@RequestBody List<String> ids) throws Exception
     {
-//        LOG.info("exportStudentNoCourseListGradute2");
-//        try {
-//            RestResult<String> restResult = noSelectStudentService.exportStudentNoCourseListGradute2(condition);
-//            if (restResult.getCode() == ResultStatus.SUCCESS.code()
-//                    && !"".equals(restResult.getData()))
-//            {
-//            	return new File(restResult.getData());
-//            }
-//            else
-//            {
-//                return null;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    	PageCondition<NoSelectCourseStdsDto> page = new PageCondition<NoSelectCourseStdsDto>();
-//    	page.setCondition(condition);
-//    	page.setPageNum_(1);
-//    	page.setPageSize_(1000);
-    	
-//    	List<NoSelectCourseStdsDto> datas = new ArrayList<NoSelectCourseStdsDto>();
+        LOG.info("exportStudentNoCourseListGradute2 start");
+        ValidatorUtil.validateAndThrow(ids);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
+        
     	List<NoSelectCourseStdsDto> list = noSelectStudentService.findElectCourseListByIds(ids);
-//    	while (datas.size() < list.getTotal_())
-//    	{
-//    		datas.addAll(list.getList());
-//    		page.setPageNum_(page.getPageNum_() + 1);
-//    		if (datas.size() < list.getTotal_())
-//    		{
-//    			list = noSelectStudentService.findElectCourseList(page);
-//    		}
-//    	}
     	
     	GeneralExcelDesigner design = new GeneralExcelDesigner();
     	design.addCell("学号", "studentCode");
@@ -161,7 +139,7 @@ public class NoSelectStudentController
     						.query(DictTypeEnum.X_YX.getType(), value);
     				return dict;
     			});
-    	design.addCell("专业", "profession").setValueHandler(
+    	design.addCell("专业", "major").setValueHandler(
     			(String value, Object rawData, GeneralExcelCell cell) -> {
     				String dict = dictionaryService
     						.query(DictTypeEnum.G_ZY.getType(), value);
