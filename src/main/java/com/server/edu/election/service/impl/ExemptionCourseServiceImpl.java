@@ -49,6 +49,7 @@ import com.server.edu.election.dao.ExemptionCourseDao;
 import com.server.edu.election.dao.ExemptionCourseMaterialDao;
 import com.server.edu.election.dao.ExemptionCourseRuleDao;
 import com.server.edu.election.dao.ExemptionCourseScoreDao;
+import com.server.edu.election.dao.ExemptionCourseScoreGraduteDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.dto.ExemptionApplyCondition;
@@ -60,6 +61,7 @@ import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseMaterial;
 import com.server.edu.election.entity.ExemptionCourseScore;
+import com.server.edu.election.entity.ExemptionCourseScoreGradute;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ExemptionQuery;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -110,6 +112,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     @Autowired
     private ExemptionCourseScoreDao scoreDao;
+    
+    @Autowired
+    private ExemptionCourseScoreGraduteDao scoreGraduteDao;
 
     @Autowired
     private ExemptionCourseRuleDao ruleDao;
@@ -984,13 +989,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		ValueOperations<String, List<DictCache>> ops = redisTemplate.opsForValue();
 		List<DictCache> firstForeignLanguageList = ops.get(DictCache.getKey("X_DYWY"));
 		//调取字典表，获取第一外语列表
-		Example scoreexample = new Example(ExemptionCourseScore.class);
+		Example scoreexample = new Example(ExemptionCourseScoreGradute.class);
 		scoreexample.createCriteria().andEqualTo("studentCode",studentId);
-		List<ExemptionCourseScore>  scoreList = scoreDao.selectByExample(scoreexample);
+		List<ExemptionCourseScoreGradute>  scoreList = scoreGraduteDao.selectByExample(scoreexample);
 		boolean scoreFlag = false;
 		String firstForeignLanguageCode = "";
 		
-		for (ExemptionCourseScore exemptionCourseScore : scoreList) {
+		for (ExemptionCourseScoreGradute exemptionCourseScore : scoreList) {
 			for (DictCache firstForeignLanguage : firstForeignLanguageList) {
 				if (StringUtils.equalsIgnoreCase(exemptionCourseScore.getCourseCode(), firstForeignLanguage.getCode())) {
 					firstForeignLanguageCode = firstForeignLanguage.getCode();
@@ -1042,15 +1047,15 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		ValueOperations<String, List<DictCache>> ops = redisTemplate.opsForValue();
 		List<DictCache> firstForeignLanguageList = ops.get(DictCache.getKey("X_DYWY"));
 		//调取字典表，获取第一外语列表
-		Example scoreexample = new Example(ExemptionCourseScore.class);
+		Example scoreexample = new Example(ExemptionCourseScoreGradute.class);
 		scoreexample.createCriteria().andEqualTo("studentCode",studentId);
-		List<ExemptionCourseScore>  scoreList = scoreDao.selectByExample(scoreexample);
+		List<ExemptionCourseScoreGradute>  scoreList = scoreGraduteDao.selectByExample(scoreexample);
 		boolean scoreFlag = false;
 		DictCache dictCache = null;
 		String firstForeignLanguageCode = "";
-		ExemptionCourseScore scoreModel = null;
+		ExemptionCourseScoreGradute scoreModel = null;
 		
-		for (ExemptionCourseScore exemptionCourseScore : scoreList) {
+		for (ExemptionCourseScoreGradute exemptionCourseScore : scoreList) {
 			for (DictCache firstForeignLanguage : firstForeignLanguageList) {
 				if (StringUtils.equalsIgnoreCase(exemptionCourseScore.getCourseCode(), firstForeignLanguage.getCode())) {
 					scoreModel = exemptionCourseScore;
