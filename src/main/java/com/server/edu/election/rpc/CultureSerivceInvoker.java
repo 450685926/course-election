@@ -249,6 +249,7 @@ public class CultureSerivceInvoker
                  RestResult.class,managerDeptId,pageNum_,pageSize_);
     	Map<String, Object> json = (Map<String, Object>)JSONObject.toJSON(restResult.getData());
     	String object = json.get("list").toString();
+    	LOG.info("----------------------------------------------"+object);
     	List<ElecFirstLanguageContrastVo> parseArray = JSON.parseArray(object,ElecFirstLanguageContrastVo.class);
     	return parseArray;
     }
