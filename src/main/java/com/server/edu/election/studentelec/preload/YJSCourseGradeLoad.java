@@ -111,7 +111,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     .collect(Collectors.toList());
             // 获取学院，教师名称
             List<TeachingClassCache> classInfo = courseOpenDao.findClassInfo(teachClassIds);
-            Map<Long, TeachingClassCache> classMap = classInfo.stream().collect(Collectors.toMap(TeachingClassCache::getTeachClassId,s->s));
+            Map<Long, TeachingClassCache> classMap = classInfo.stream().collect(Collectors.toMap(s->s.getTeachClassId(),s->s));
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (StudentScoreVo studentScore : stuScoreBest)
             {
@@ -163,6 +163,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 }
                 // 设置学院，教师名称
                 TeachingClassCache classCache = classMap.get(teachingClassId);
+                if (classCache == null) {
+                    continue;
+                }
                 lesson.setTeachClassCode(classCache.getTeachClassCode());
                 lesson.setRemark(classCache.getRemark());
                 lesson.setFaculty(classCache.getFaculty());
