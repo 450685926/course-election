@@ -932,7 +932,7 @@
                 and tc.CODE_ like CONCAT( '%', #{classCode}, '%')
             </if>
         </where>
-        group by tc.ID_,tr.TEACHER_CODE_
+        group by tc.ID_
     </select>
 
 
@@ -1050,7 +1050,7 @@
                and TRAINING_CATEGORY_ =#{trainingCategory}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
-               and DEGREE_CATEGORY_ =#{degreeType}
+               and DEGREE_TYPE_ =#{degreeType}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
                and FORM_LEARNING_ =#{formLearning}

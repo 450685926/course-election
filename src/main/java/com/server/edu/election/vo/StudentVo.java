@@ -28,8 +28,19 @@ public class StudentVo extends Student {
     
     private String exportName;
 
+    /**学生性别*/
+    private String sexStr;
+
     /**学生重修，冲突前缀*/
     private List<String> prefix;
+
+    public String getSexStr() {
+        return sexStr;
+    }
+
+    public void setSexStr(String sexStr) {
+        this.sexStr = sexStr;
+    }
 
     public List<String> getPrefix() {
         return prefix;

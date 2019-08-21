@@ -70,10 +70,16 @@ public class ElcRoundCondition implements Serializable {
     private String formLearnings;
     
     /**
-     * 入学方式
+     * 入学方式(逗号分隔)
      */
     @Column(name = "ENROL_METHODS_")
     private String enrolMethods;
+    
+    /**
+     * 研究方向(逗号分隔)
+     */
+    @Column(name = "RESEARCH_DIRECTION_")
+    private String researchDirection;
 
     private static final long serialVersionUID = 1L;
 
@@ -267,6 +273,16 @@ public class ElcRoundCondition implements Serializable {
     public void setEnrolMethods(String enrolMethods)
     {
         this.enrolMethods = enrolMethods == null ? null : enrolMethods.trim();
+    }
+    
+    public String getResearchDirection()
+    {
+        return researchDirection;
+    }
+
+    public void setResearchDirection(String researchDirection)
+    {
+        this.researchDirection = researchDirection == null ? null :researchDirection.trim();;
     }
 
     @Override
