@@ -331,6 +331,21 @@
 				WHERE
 					CALENDAR_ID_ = #{calendarId}
 			)
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_CODE_ = #{studentId}
+		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+		        and t1.NAME_ = #{name}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+		        and t1.PROFESSION_ = #{profession}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+		        and t1.FACULTY_ = #{faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+		        and t1.GRADE_ = #{grade}
+		    </if>
 	</select>
     <select id="getAllNonSelectedCourseStudent1" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
        SELECT t4.* FROM student_t t4 
