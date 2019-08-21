@@ -508,6 +508,7 @@
         FROM student_t st
         JOIN elc_course_takes_t el on el.STUDENT_ID_=st.STUDENT_CODE_
         <where>
+            st.MANAGER_DEPT_ID_ = #{projectId}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
