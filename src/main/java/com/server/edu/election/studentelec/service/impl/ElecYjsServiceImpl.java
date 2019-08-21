@@ -546,7 +546,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			           List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 			                   completedCourse.getCourseCode());
 			           if (isCampus) {
-			        	   exclusionOfCampus(teachClasss,c);
+			        	   List<TeachingClassCache> exclusionOfCampus = exclusionOfCampus(teachClasss,c);
+			        	   teachClasss.clear();
+			        	   teachClasss.addAll(exclusionOfCampus);
 			           }
 			           if (CollectionUtil.isNotEmpty(teachClasss))
 			           {
@@ -673,8 +675,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 							courseCode);
 					if (isCampus) {
-			        	   exclusionOfCampus(teachClasss,c);
-			           }
+						List<TeachingClassCache> exclusionOfCampus = exclusionOfCampus(teachClasss,c);
+						teachClasss.clear();
+						teachClasss.addAll(exclusionOfCampus);
+			        }
 					if (CollectionUtil.isNotEmpty(teachClasss))
 					{
 						for (TeachingClassCache teachClass : teachClasss)
@@ -1009,11 +1013,26 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * 去除跨校区选课
      * @param teachClasss
      * @param c
+	 * @return 
      */
-    private void exclusionOfCampus(List<TeachingClassCache> teachClasss, ElecContext c) {
+    private List<TeachingClassCache> exclusionOfCampus(List<TeachingClassCache> teachClasss, ElecContext c) {
 		StudentInfoCache studentInfo = c.getStudentInfo(); 
 		String campus = studentInfo.getCampus();
-		teachClasss = teachClasss.stream().filter(vo->StringUtils.equalsIgnoreCase(vo.getCampus(), campus)).collect(Collectors.toList());
+		List<TeachingClassCache> collect = new ArrayList<>();
+		for (TeachingClassCache teachingClassCache : teachClasss) {
+			 if (StringUtils.isBlank(teachingClassCache.getCampus()))
+		        {
+				 collect.add(teachingClassCache);
+		        }
+		        else
+		        {
+		            if (teachingClassCache.getCampus().equals(campus))
+		            {
+		            	collect.add(teachingClassCache);
+		            }
+		        }
+		}
+		return collect;
 	}
 
 	//对课程进行排序
