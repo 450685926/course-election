@@ -1,7 +1,10 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Table(name = "election_rounds_condition_t")
 public class ElcRoundCondition implements Serializable {
@@ -65,6 +68,12 @@ public class ElcRoundCondition implements Serializable {
      */
     @Column(name = "FORM_LEARNINGS_")
     private String formLearnings;
+    
+    /**
+     * 入学方式
+     */
+    @Column(name = "ENROL_METHODS_")
+    private String enrolMethods;
 
     private static final long serialVersionUID = 1L;
 
@@ -249,8 +258,18 @@ public class ElcRoundCondition implements Serializable {
 	public void setFormLearnings(String formLearnings) {
 		this.formLearnings = formLearnings;
 	}
+	
+	public String getEnrolMethods()
+    {
+        return enrolMethods;
+    }
 
-	@Override
+    public void setEnrolMethods(String enrolMethods)
+    {
+        this.enrolMethods = enrolMethods == null ? null : enrolMethods.trim();
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
