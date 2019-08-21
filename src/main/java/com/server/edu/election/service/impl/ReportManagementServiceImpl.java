@@ -1200,7 +1200,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         List<String> list = new ArrayList<String>();
         list.add(timeTable.getCourseCode());
         list.add(timeTable.getCourseName());
-        list.add("2".equals(timeTable.getCourseType()) ? "是" : "");
+        list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
         Integer isElective = timeTable.getIsElective();
         if (isElective != null)
         {
@@ -1208,7 +1208,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
         } else {
             list.add("");
         }
-        list.add(timeTable.getAssessmentMode());
+        String assessmentMode = timeTable.getAssessmentMode();
+        if (assessmentMode != null) {
+            assessmentMode = dictionaryService.query("X_XQ", assessmentMode);
+        }
+        list.add(assessmentMode);
         list.add(String.valueOf(timeTable.getCredits()));
         list.add(timeTable.getTeacherName());
         list.add(timeTable.getTime());
