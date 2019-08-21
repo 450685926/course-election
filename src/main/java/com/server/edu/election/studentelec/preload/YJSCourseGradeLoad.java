@@ -143,6 +143,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                         Integer timeEnd = classTimeUnit.getTimeEnd();
                         String roomID = classTimeUnit.getRoomId();
                         List<Integer> weeks = classTimeUnit.getWeeks();
+                        if (weeks == null) {
+                            continue;
+                        }
                         List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                         String weekNumStr = weekNums.toString();//周次
                         if ("[1, 3, 5, 7, 9, 11, 13, 15, 17]".equals(weekNumStr)) {
