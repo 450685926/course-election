@@ -1215,7 +1215,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
             assessmentMode = "";
         }
         list.add(assessmentMode);
-        list.add(String.valueOf(timeTable.getCredits()));
+        Double credits = timeTable.getCredits();
+        String credit;
+        if (credits == null) {
+            credit = "";
+        } else {
+            credit = String.valueOf(credits);
+        }
+        list.add(credit);
         list.add(timeTable.getTeacherName());
         list.add(timeTable.getTime());
         list.add(timeTable.getRemark());
