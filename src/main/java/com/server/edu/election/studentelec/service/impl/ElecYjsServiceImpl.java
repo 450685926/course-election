@@ -523,16 +523,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		key = Keys.getRoundCourseKey(roundId); // 学生选课或者教务员代理选课
     		List<String> roundsCoursesIdsList = CoursesList(ops, key);
     		//获取本轮次的选课规则
-    		List<ElectionRuleVo> rules = new ArrayList<ElectionRuleVo>();
+//    		List<ElectionRuleVo> rules = new ArrayList<ElectionRuleVo>();
 
-    		RuleCacheService ruleCacheService = new RuleCacheService();
-    		List<ElectionRuleVo> rulesList = dataProvider.getRules(roundId);
-    		for (ElectionRuleVo electionRuleVo : rulesList) {
-    			ElectionRuleVo ruleVo = ruleCacheService.getRule(electionRuleVo.getServiceName());
-    			if (ruleVo != null) {
-    				rules.add(electionRuleVo);
-				}
-			}
+//    		RuleCacheService ruleCacheService = new RuleCacheService();
+    		List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+//    		for (ElectionRuleVo electionRuleVo : rulesList) {
+//    			ElectionRuleVo ruleVo = ruleCacheService.getRule(electionRuleVo.getServiceName());
+//    			if (ruleVo != null) {
+//    				rules.add(electionRuleVo);
+//				}
+//			}
     		LOG.info("------------rules----------"+rules.size());
     		//判断本轮规则中是否含有按照培养计划选课
     		Boolean isPlanElection = false;
