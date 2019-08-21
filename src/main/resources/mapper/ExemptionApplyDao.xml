@@ -86,7 +86,6 @@
       GROUP_CONCAT(ex.COURSE_CODE_) courseCode,GROUP_CONCAT(ex.COURSE_NAME_) courseName,GROUP_CONCAT(ex.ID_) id,GROUP_CONCAT(CONCAT(ex.COURSE_CODE_,ex.COURSE_NAME_)) applyCourse,ex.CALENDAR_ID_ calendarId,ex.APPLY_TYPE_ applyType,ex.EXAMINE_RESULT_ examineResult
       FROM `exemption_apply_manage_t` ex 
       LEFT JOIN student_t s  ON s.STUDENT_CODE_ = ex.STUDENT_CODE_ 
-      WHERE   ex.DELETE_STATUS_ = 0 AND 
       <where>
       ex.DELETE_STATUS_ = 0 and 
       s.MANAGER_DEPT_ID_ =  #{projectId,jdbcType=VARCHAR}
