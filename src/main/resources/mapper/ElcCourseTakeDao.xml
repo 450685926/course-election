@@ -896,7 +896,8 @@
 
     <select id="findTeacherTimeTableByRole" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         select
-        distinct tt.TEACHER_NAME_ teacherName,
+        distinct tt.TEACHER_CODE_ teacherCode,
+        tt.TEACHER_NAME_ teacherName,
         op.CALENDAR_ID_ calendarId,
         tc.CODE_ classCode,
         tc.NAME_ className,
