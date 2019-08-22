@@ -1277,6 +1277,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     @Transactional
 	@Override
 	public RestResult<?> addGraduateExemptionApply(ExemptionApplyManage applyManage) {
+    	Session session = SessionUtils.getCurrentSession();
 		if("".equals(applyManage.getApplyType())){
 	        return RestResult.fail("common.parameterError");
 	    }
@@ -1318,7 +1319,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setApplyType(applyManage.getApplyType());
 					exemptionApplyManage.setScore("免修");
 					exemptionApplyManage.setCalendarId(applyManage.getCalendarId());
-					exemptionApplyManage.setManagerDeptId(applyManage.getManagerDeptId());
+					exemptionApplyManage.setManagerDeptId(session.getCurrentManageDptId());
 					exemptionApplyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
 					exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 					exemptionApplyManage.setName(applyManage.getName());
@@ -1349,8 +1350,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setApplyType(applyManage.getApplyType());
 					exemptionApplyManage.setScore("免修");
 					exemptionApplyManage.setCalendarId(applyManage.getCalendarId());
-					exemptionApplyManage.setManagerDeptId(applyManage.getManagerDeptId());
-					exemptionApplyManage.setExamineResult(applyManage.getExamineResult());
+					exemptionApplyManage.setManagerDeptId(session.getCurrentManageDptId());
+					exemptionApplyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
 					exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 					exemptionApplyManage.setName(applyManage.getName());
 					exemptionApplyManage.setAuditor(applyManage.getAuditor());
@@ -1360,6 +1361,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					
 					if (exemptionApplyManage1 != null) {
 						exemptionApplyManage1.setExamineResult(ExemptionCourseServiceImpl.STATUS);
+						exemptionApplyManage1.setDeleteStatus("0");
+						exemptionApplyManage1.setManagerDeptId(session.getCurrentManageDptId());
+						
 						applyDao.updateByPrimaryKey(exemptionApplyManage1);
 					}else{
 						applyDao.insertSelective(exemptionApplyManage);
