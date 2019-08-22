@@ -50,6 +50,7 @@ import com.server.edu.election.dao.ExemptionCourseMaterialDao;
 import com.server.edu.election.dao.ExemptionCourseRuleDao;
 import com.server.edu.election.dao.ExemptionCourseScoreDao;
 import com.server.edu.election.dao.ExemptionCourseScoreGraduteDao;
+import com.server.edu.election.dao.FirstLanguageContrastDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.dto.ExemptionApplyCondition;
@@ -62,6 +63,7 @@ import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseMaterial;
 import com.server.edu.election.entity.ExemptionCourseScore;
 import com.server.edu.election.entity.ExemptionCourseScoreGradute;
+import com.server.edu.election.entity.FirstLanguageContrast;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ExemptionQuery;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -142,6 +144,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     
     @Autowired
     private ExcelStoreConfig excelStoreConfig;
+    
+    @Autowired
+    private FirstLanguageContrastDao firstLanguageContrastDao;
     
     @Autowired
     private ApplicationContext applicationContext;
@@ -1025,7 +1030,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		Student student = studentDao.findStudentByCode(studentId);
 		Boolean isAchievement = false;
 		//查找本次开通的免修免考课程
-		List<ElecFirstLanguageContrastVo> findStudentCultureRelList = CultureSerivceInvoker.getStudentFirstForeignLanguage(session.getCurrentManageDptId(),1,1000);
+		List<FirstLanguageContrast> selectAll = firstLanguageContrastDao.selectAll();
+		List<ElecFirstLanguageContrastVo> findStudentCultureRelList = CultureSerivceInvoker.getStudentFirstForeignLanguage(selectAll);
+		
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
 		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",session.getCurrentManageDptId());
 		
