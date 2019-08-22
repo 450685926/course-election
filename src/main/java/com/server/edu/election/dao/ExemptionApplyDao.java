@@ -31,6 +31,11 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
     List<ExemptionApplyManage> applyRepeat(@Param("calendarId") Long calendarId,
                                        @Param("studentCode")String studentCode,
                                        @Param("courseCode")String courseCode);
+    /**查询是否重复申请
+     * @param examineResult */
+    
+    ExemptionApplyManage applyRepeatGradute(@Param("calendarId") Long calendarId,
+    		@Param("studentCode")String studentCode, @Param("courseCode")String courseCode);
     
     List<ExemptionApplyManage> applyRecord(@Param("calendarId") Long calendarId,
     		@Param("studentCode")String studentCode,
@@ -65,4 +70,5 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
 	 * @return
 	 */
 	List<ElecCourse> findApplyCourse(@Param("list") List<String> list);
+
 }

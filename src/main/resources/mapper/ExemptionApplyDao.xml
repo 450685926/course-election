@@ -82,10 +82,10 @@
     </select>
     
     <select id="findGraduteExemptionApply" parameterType="com.server.edu.election.query.ExemptionQuery" resultType="com.server.edu.election.vo.ExemptionApplyManageVo">
-      SELECT ex.STUDENT_CODE_ studentCode,s.NAME_ name,s.FACULTY_ faculty,s.PROFESSION_ profession ,s.TRAINING_LEVEL_ trainingLevel,
-      ex.COURSE_CODE_ courseCode,ex.COURSE_NAME_ courseName,ex.ID_ id,ex.CALENDAR_ID_ calendarId,ex.APPLY_TYPE_ applyType,ex.EXAMINE_RESULT_ examineResult
+ 	  SELECT ex.STUDENT_CODE_ studentCode,s.NAME_ name,s.FACULTY_ faculty,s.PROFESSION_ profession ,s.TRAINING_LEVEL_ trainingLevel,
+      GROUP_CONCAT(ex.COURSE_CODE_) courseCode,GROUP_CONCAT(ex.COURSE_NAME_) courseName,GROUP_CONCAT(ex.ID_) id,GROUP_CONCAT(CONCAT(ex.COURSE_CODE_,ex.COURSE_NAME_)) applyCourse,ex.CALENDAR_ID_ calendarId,ex.APPLY_TYPE_ applyType,ex.EXAMINE_RESULT_ examineResult
       FROM `exemption_apply_manage_t` ex 
-      LEFT JOIN student_t s  on s.STUDENT_CODE_ = ex.STUDENT_CODE_ 
+      LEFT JOIN student_t s  ON s.STUDENT_CODE_ = ex.STUDENT_CODE_ 
       <where>
       ex.DELETE_STATUS_ = 0 and 
       s.MANAGER_DEPT_ID_ =  #{projectId,jdbcType=VARCHAR}
@@ -117,6 +117,7 @@
               and ex.EXAMINE_RESULT_ =#{examineResult,jdbcType=VARCHAR}
           </if>
       </where>
+       	GROUP BY ex.STUDENT_CODE_
         order by ex.ID_ desc
     </select>
 
@@ -139,6 +140,12 @@
         <include refid="Base_Column_List"></include>
         from exemption_apply_manage_t
         where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ not in (2)
+    </select>
+    <select id="applyRepeatGradute" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode}  and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ = 2 
     </select>
     
     <select id="applyRecord" resultMap="BaseResultMap">
