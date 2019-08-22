@@ -428,12 +428,13 @@
     </select>
 
     <select id="findSchoolTimetab" resultType="com.server.edu.election.dto.StudentSchoolTimetab">
-        SELECT el.CALENDAR_ID_ calendarId,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
-        te.CAMPUS_ campus,te.REMARK_ remark,te.CODE_ classCode ,te.NAME_ className,co.IS_ELECTIVE_ isElective
+        SELECT
+            el.CALENDAR_ID_ calendarId,co.CODE_ courseCode,co.NAME_ courseName,el.COURSE_TAKE_TYPE_ courseType,co.CREDITS_ credits,co.ASSESSMENT_MODE_ assessmentMode,el.TEACHING_CLASS_ID_ teachingClassId,
+            te.CAMPUS_ campus,te.REMARK_ remark,te.CODE_ classCode ,te.NAME_ className,co.IS_ELECTIVE_ isElective
         FROM `elc_course_takes_t` el
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
-        LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
-        LEFT JOIN teaching_class_t te on te.ID_=el.TEACHING_CLASS_ID_
+        LEFT JOIN student_t st on el.STUDENT_ID_ = st.STUDENT_CODE_
+        LEFT JOIN teaching_class_t te on el.TEACHING_CLASS_ID_ = te.ID_
         where el.STUDENT_ID_=#{studentCode,jdbcType=VARCHAR}
         and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
     </select>
@@ -895,8 +896,8 @@
 
     <select id="findTeacherTimeTableByRole" parameterType="com.server.edu.election.dto.ClassCodeToTeacher" resultType="com.server.edu.election.dto.ClassCodeToTeacher">
         select
+        distinct tt.TEACHER_NAME_ teacherName,
         op.CALENDAR_ID_ calendarId,
-        GROUP_CONCAT(tr.TEACHER_CODE_) teacherCode,
         tc.CODE_ classCode,
         tc.NAME_ className,
         tc.ELC_NUMBER_ elcNumber,
@@ -904,13 +905,12 @@
         op.COURSE_NAME_ courseName,
         op.FACULTY_ faculty,
         op.NATURE_ nature,
-        ta.ID_,
         tc.ID_ teachingClassId
         from course_open_t op
-        join teaching_task_t tk ON tk.COURSE_OPEN_ID_ = op.ID_
-        join teaching_class_t tc ON tc.TASK_ID_ = tk.ID_
-        join teaching_class_arrange_time_t ta ON (ta.TEACHING_CLASS_ID_ = tc.ID_ and ta.TYPE_ = 2)
-        join teaching_class_arrange_room_t tr ON tr.ARRANGE_TIME_ID_ = ta.ID_
+        join teaching_task_t tk ON op.ID_ = tk.COURSE_OPEN_ID_
+        join teaching_class_t tc ON tk.ID_ = tc.TASK_ID_
+        join teaching_class_arrange_time_t ta ON (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
+        join teaching_class_teacher_t tt ON tc.ID_ = tt.TEACHING_CLASS_ID_
         <where>
             op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
@@ -926,7 +926,7 @@
                 and op.COURSE_NAME_ like CONCAT( '%', #{courseName}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-                and tr.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%')
+                and (tt.TEACHER_CODE_ like CONCAT( '%', #{keyWord}, '%') or tt.TEACHER_NAME_ like CONCAT( '%', #{keyWord}, '%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
                 and tc.CODE_ like CONCAT( '%', #{classCode}, '%')
