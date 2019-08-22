@@ -485,6 +485,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				exemptionApplyManage.setName(applyManage.getName());
 				exemptionApplyManage.setAuditor(applyManage.getAuditor());
 				exemptionApplyManage.setExemptionType(applyManage.getExemptionType());
+				exemptionApplyManage.setDeleteStatus("0");
 				int code = saveExemptionScore(exemptionApplyManage, courseCodes[i]);
         		if(code != 200){
         			return "common.editError";
