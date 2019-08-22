@@ -117,12 +117,12 @@
     <Cell ss:MergeAcross="20" ss:StyleID="s75"><Data ss:Type="String">2018-2019学年第二学期</Data></Cell>
    </Row>-->
    <Row>
-    <Cell ss:MergeAcross="4" ss:StyleID="s74"><Data ss:Type="String">课程序号：${item.classCode!}</Data></Cell>
-    <Cell ss:MergeAcross="15" ss:StyleID="s76"><Data ss:Type="String">课程名称：${item.courseName!}</Data></Cell>
+    <Cell ss:MergeAcross="4" ss:StyleID="s74"><Data ss:Type="String">课程序号：${item.classCode}</Data></Cell>
+    <Cell ss:MergeAcross="15" ss:StyleID="s76"><Data ss:Type="String">课程名称：${item.courseCode}</Data></Cell>
    </Row>
    <Row>
-    <Cell ss:MergeAcross="4" ss:StyleID="s72"><Data ss:Type="String">教师名称：${item.teacherName!}</Data></Cell>
-    <Cell ss:MergeAcross="15" ss:StyleID="s72"><Data ss:Type="String">课程安排：${item.teachingTimeAndRoom!} </Data></Cell>
+    <Cell ss:MergeAcross="4" ss:StyleID="s72"><Data ss:Type="String">教师名称：${item.teacherName}</Data></Cell>
+    <Cell ss:MergeAcross="15" ss:StyleID="s72"><Data ss:Type="String">课程安排：${item.teachingTimeAndRoom} </Data></Cell>
    </Row>
    <Row>
     <Cell ss:MergeDown="1" ss:StyleID="s74"><Data ss:Type="String">说明： </Data></Cell>
@@ -162,11 +162,11 @@
    <#list list as item>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s63"><Data ss:Type="Number">${item_index + 1}</Data></Cell>
-    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.studentCode!}</Data></Cell>
-    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.name!}</Data></Cell>
-    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.sex!}</Data></Cell>
-    <Cell ss:StyleID="s63"><Data ss:Type="Number">${item.grade!}</Data></Cell>
-    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.faculty!}</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.studentCode}</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.name}</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.sex}</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.grade}</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">${item.faculty}</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
     <Cell ss:StyleID="s63"><Data ss:Type="Number">1</Data></Cell>
