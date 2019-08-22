@@ -508,6 +508,7 @@
         FROM student_t st
         JOIN elc_course_takes_t el on el.STUDENT_ID_=st.STUDENT_CODE_
         <where>
+            st.MANAGER_DEPT_ID_ = #{projectId}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
@@ -931,7 +932,7 @@
                 and tc.CODE_ like CONCAT( '%', #{classCode}, '%')
             </if>
         </where>
-        group by tc.ID_,tr.TEACHER_CODE_
+        group by tc.ID_
     </select>
 
 
@@ -1049,7 +1050,7 @@
                and TRAINING_CATEGORY_ =#{trainingCategory}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
-               and DEGREE_CATEGORY_ =#{degreeType}
+               and DEGREE_TYPE_ =#{degreeType}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
                and FORM_LEARNING_ =#{formLearning}

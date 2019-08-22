@@ -3,7 +3,6 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,7 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -76,9 +74,9 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
+import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcLogVo;
@@ -216,7 +214,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
-        boolean hasRetakeCourse = false;
+//        boolean hasRetakeCourse = false;
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
@@ -253,20 +251,20 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             {
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION);
                 // 判断是否有重修课
-                if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
-                    teachClass.getCourseCode()))
-                {
-                    hasRetakeCourse = true;
-                }
+//                if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
+//                    teachClass.getCourseCode()))
+//                {
+//                    hasRetakeCourse = true;
+//                }
             }
         }
         // 判断学生是否要重修缴费
-        String studentId = context.getStudentInfo().getStudentId();
-        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
-        {
-            context.getRespose().setData(new HashMap<>());
-            context.getRespose().getData().put("retakePay", "true");
-        }
+//        String studentId = context.getStudentInfo().getStudentId();
+//        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
+//        {
+//            context.getRespose().setData(new HashMap<>());
+//            context.getRespose().getData().put("retakePay", "true");
+//        }
     }
     
     /**退课*/
@@ -346,7 +344,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     public void saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
     {
-    	LOG.info("==================agentElec=======agentElec======agentElec======agentElec=================");
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
@@ -357,10 +354,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         Long roundId = request.getRoundId();
         ElectionRounds round = new ElectionRounds();
         
-        LOG.info("==================agentElec=======agentElec======studentId======: "+studentId);
-        LOG.info("==================agentElec=======agentElec======teachClassId======: "+teachClassId);
-        LOG.info("==================agentElec=======agentElec======teachClassId======: "+teachClassId);
-        
         if (roundId != null) {
         	round = dataProvider.getRound(roundId);
 		}else {
@@ -369,16 +362,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			if (!CollectionUtil.isEmpty(electionRounds) && electionRounds.size() == 1) {
 				BeanUtil.copyProperties(round, electionRounds);
 			}
-			LOG.info("==================agentElec=======agentElec======electionRoundsDto======: "+electionRounds.size());
-			LOG.info("==================agentElec=======agentElec======calendarId======: "+request.getCalendarId());
 		}
-        
         
         String TeachClassCode = teachClass.getTeachClassCode();
         String courseCode = teachClass.getCourseCode();
         String courseName = teachClass.getCourseName();
-        
-        LOG.info("==================agentElec=======agentElec======AAAAAAAAAAA======: "+TeachClassCode+"-->"+courseCode+"-->"+courseName);
         
         Integer logType = ElcLogVo.TYPE_1;
         
@@ -389,10 +377,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
-            // 增加选课人数
-            int count = classDao.increElcNumberAtomic(teachClassId);
-            
-            LOG.info("==================agentElec=======agentElec count============: "+count);
+            int	count = classDao.increElcNumber(teachClassId);
             
             if (count == 0)
             {
@@ -401,8 +386,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                         I18nUtil.getMsg("ruleCheck.limitCount"));
                 return;
             }
-            
-            LOG.info("==================agentElec=======add elect data into elc_course_takes_t_0 ============:start");
             
             ElcCourseTake take = new ElcCourseTake();
             take.setChooseObj(request.getChooseObj());
@@ -421,7 +404,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				take.setTurn(round.getTurn());
 			}
             courseTakeDao.insertSelective(take);
-            LOG.info("==================agentElec=======add elect data into elc_course_takes_t_0 ============:end");
         }
         else
         {
@@ -441,7 +423,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
         
         // 添加选课日志
-        LOG.info("==================agentElec=======add elect data into election_log_t_0 ============:start");
         ElcLog log = new ElcLog();
         log.setCourseCode(courseCode);
         log.setCourseName(courseName);
@@ -462,7 +443,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 	        log.setTurn(round.getTurn());
 		}
         this.elcLogDao.insertSelective(log);
-        LOG.info("==================agentElec=======add elect data into election_log_t_0 ============:end");
         
         if (ElectRuleType.ELECTION.equals(type))
         {
@@ -475,8 +455,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
-            
-            LOG.info("==================agentElec=======SelectedCourses ============"+teachClassId);
         }
     }
     
@@ -545,7 +523,17 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		key = Keys.getRoundCourseKey(roundId); // 学生选课或者教务员代理选课
     		List<String> roundsCoursesIdsList = CoursesList(ops, key);
     		//获取本轮次的选课规则
+//    		List<ElectionRuleVo> rules = new ArrayList<ElectionRuleVo>();
+
+//    		RuleCacheService ruleCacheService = new RuleCacheService();
     		List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+//    		for (ElectionRuleVo electionRuleVo : rulesList) {
+//    			ElectionRuleVo ruleVo = ruleCacheService.getRule(electionRuleVo.getServiceName());
+//    			if (ruleVo != null) {
+//    				rules.add(electionRuleVo);
+//				}
+//			}
+    		LOG.info("------------rules----------"+rules.size());
     		//判断本轮规则中是否含有按照培养计划选课
     		Boolean isPlanElection = false;
     		Boolean isCampus = false;
@@ -569,7 +557,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			           List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 			                   completedCourse.getCourseCode());
 			           if (isCampus) {
-			        	   exclusionOfCampus(teachClasss,c);
+			        	   List<TeachingClassCache> exclusionOfCampus = exclusionOfCampus(teachClasss,c);
+			        	   teachClasss.clear();
+			        	   teachClasss.addAll(exclusionOfCampus);
 			           }
 			           if (CollectionUtil.isNotEmpty(teachClasss))
 			           {
@@ -696,8 +686,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 							courseCode);
 					if (isCampus) {
-			        	   exclusionOfCampus(teachClasss,c);
-			           }
+						List<TeachingClassCache> exclusionOfCampus = exclusionOfCampus(teachClasss,c);
+						teachClasss.clear();
+						teachClasss.addAll(exclusionOfCampus);
+			        }
 					if (CollectionUtil.isNotEmpty(teachClasss))
 					{
 						for (TeachingClassCache teachClass : teachClasss)
@@ -1032,11 +1024,26 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * 去除跨校区选课
      * @param teachClasss
      * @param c
+	 * @return 
      */
-    private void exclusionOfCampus(List<TeachingClassCache> teachClasss, ElecContext c) {
+    private List<TeachingClassCache> exclusionOfCampus(List<TeachingClassCache> teachClasss, ElecContext c) {
 		StudentInfoCache studentInfo = c.getStudentInfo(); 
 		String campus = studentInfo.getCampus();
-		teachClasss = teachClasss.stream().filter(vo->StringUtils.equalsIgnoreCase(vo.getCampus(), campus)).collect(Collectors.toList());
+		List<TeachingClassCache> collect = new ArrayList<>();
+		for (TeachingClassCache teachingClassCache : teachClasss) {
+			 if (StringUtils.isBlank(teachingClassCache.getCampus()))
+		        {
+				 collect.add(teachingClassCache);
+		        }
+		        else
+		        {
+		            if (teachingClassCache.getCampus().equals(campus))
+		            {
+		            	collect.add(teachingClassCache);
+		            }
+		        }
+		}
+		return collect;
 	}
 
 	//对课程进行排序
