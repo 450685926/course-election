@@ -883,6 +883,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         String score="";
         if(status==1){
         	score="免修";
+        	List<Long> idss = new ArrayList<>();
         	for (Long id : ids) {
 				//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
@@ -894,10 +895,15 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         				return "common.editError";
         			}
 				}
+        		for (ExemptionApplyManage exemptionApplyManage : exemptionApplyManageVo) {
+        			idss.add(exemptionApplyManage.getId());
+        		}
         		applicationContext
                 .publishEvent(new ElectLoadEvent(applyRecord.getCalendarId(), applyRecord.getStudentCode()));
 			}
-            
+        	ids.clear();
+        	ids.addAll(idss);
+        	
         }else{
         	List<Long> optList = new ArrayList<>();
         	//查询申请表，判断是否状态为审批通过，若审批通过，则无法改为其他状态
