@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
@@ -20,6 +22,8 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.vo.CoursesVo;
+import com.server.edu.election.dao.FirstLanguageContrastDao;
+import com.server.edu.election.entity.FirstLanguageContrast;
 import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -33,6 +37,8 @@ import com.server.edu.util.CollectionUtil;
  */
 public class CultureSerivceInvoker
 {
+	@Autowired
+	private static FirstLanguageContrastDao firstLanguageContrastDao;
     private static Logger LOG =
         LoggerFactory.getLogger(CultureSerivceInvoker.class);
     
@@ -242,16 +248,17 @@ public class CultureSerivceInvoker
     /**查询研究生关联的第一外国语*/
     public static List<ElecFirstLanguageContrastVo> getStudentFirstForeignLanguage(String managerDeptId,Integer pageNum_,Integer pageSize_)
     {
-    	@SuppressWarnings("unchecked")
-    	RestResult<PageResult<ElecFirstLanguageContrastVo>> restResult =
-        ServicePathEnum.CULTURESERVICE.getForObject(
-                "/firstLanguageContrast/page?managerDeptId={managerDeptId}&pageSize_={pageSize_}&pageNum_={pageNum_}",
-                 RestResult.class,managerDeptId,pageNum_,pageSize_);
-    	Map<String, Object> json = (Map<String, Object>)JSONObject.toJSON(restResult.getData());
-    	String object = json.get("list").toString();
-    	LOG.info("----------------------------------------------"+object);
-    	List<ElecFirstLanguageContrastVo> parseArray = JSON.parseArray(object,ElecFirstLanguageContrastVo.class);
-    	return parseArray;
+    	List<FirstLanguageContrast> selectAll = firstLanguageContrastDao.selectAll();
+    	List<ElecFirstLanguageContrastVo> elecFirstLanguageContrastList = new ArrayList<>();
+    	for (FirstLanguageContrast firstLanguageContrast : selectAll) {
+    		ElecFirstLanguageContrastVo elecFirstLanguageContrastVo = new ElecFirstLanguageContrastVo();
+    		elecFirstLanguageContrastVo.setId(firstLanguageContrast.getId());
+    		elecFirstLanguageContrastVo.setCourseCode(firstLanguageContrast.getCourseCode());
+    		elecFirstLanguageContrastVo.setLanguageCode(firstLanguageContrast.getLanguageCode());
+    		elecFirstLanguageContrastVo.setLanguageName(firstLanguageContrast.getLanguageName());
+    		elecFirstLanguageContrastList.add(elecFirstLanguageContrastVo);
+    	}
+    	return elecFirstLanguageContrastList;
     }
     
     /** 根据学生学号查询研究生关联的第一外国语 */
