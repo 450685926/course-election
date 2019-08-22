@@ -432,13 +432,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         return "common.addsuccess";
     }
     
-    /**
-     *@Description: 新增免修免考
-     *@Param:
-     *@return: 
-     *@Author: bear
-     *@date: 2019/2/12 10:44
-     */
     @Override
     public String adminAddApply(ExemptionApplyManage applyManage) {
     	if(applyManage.getApplyType() == null){
@@ -487,12 +480,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				exemptionApplyManage.setScore("免修");
 				exemptionApplyManage.setCalendarId(applyManage.getCalendarId());
 				exemptionApplyManage.setManagerDeptId(applyManage.getManagerDeptId());
-				exemptionApplyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
+				exemptionApplyManage.setExamineResult(applyManage.getExamineResult());
 				exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 				exemptionApplyManage.setName(applyManage.getName());
 				exemptionApplyManage.setAuditor(applyManage.getAuditor());
 				exemptionApplyManage.setExemptionType(applyManage.getExemptionType());
-				saveExemptionScore(applyManage, courseCodes[i]);
 				int code = saveExemptionScore(exemptionApplyManage, courseCodes[i]);
         		if(code != 200){
         			return "common.editError";
@@ -1014,14 +1006,34 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		}
 		
 		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student, applySwitch,calendarId,session);
+//		for (PlanCourse course : studentExemptionCouses) {
+//			ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
+//			applyCourse.setCourseNameAndCode(course.getCourseCode() + course.getCourseName() + "");
+//			applyCourse.setApplyType(Constants.ONE);
+//			applyCourse.setCourseCode(course.getCourseCode());
+//			applyCourse.setCourseName(course.getCourseName());
+//			applyCourses.add(applyCourse);
+//		}
+		
+		ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
+		String courseNameAndCode = " ";
+		List<String> courseCode = new ArrayList<>();
+		List<String> courseName = new ArrayList<>();
 		for (PlanCourse course : studentExemptionCouses) {
-			ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
-			applyCourse.setCourseNameAndCode(course.getCourseCode() + course.getCourseName() + "");
+			courseNameAndCode = courseNameAndCode + course.getCourseCode() + course.getCourseName() + " ";
+			applyCourse.setFirstForeignLanguageCode(null);
+			applyCourse.setFirstForeignLanguageScore(null);
+			courseCode.add(course.getCourseCode());
+			courseName.add(course.getCourseName());
 			applyCourse.setApplyType(Constants.ONE);
-			applyCourse.setCourseCode(course.getCourseCode());
-			applyCourse.setCourseName(course.getCourseName());
-			applyCourses.add(applyCourse);
 		}
+		applyCourse.setFirstForeignLanguageName(null);
+		applyCourse.setCourseNameAndCode(courseNameAndCode);
+		applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
+		applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
+		applyCourses.add(applyCourse);
+		
+		
 		StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 		studentAndCourseVo.setStudent(student);
 		studentAndCourseVo.setApplyCourse(applyCourses);
