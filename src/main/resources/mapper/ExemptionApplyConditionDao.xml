@@ -63,9 +63,10 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.degreeTypes)">
   			and DEGREE_TYPES_ like concat('%',#{condition.degreeTypes},'%')
   		</if>
-  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.courseCode)">
-  			and COURSE_CODE_ = #{condition.courseCode}
-  		</if>
+  			and COURSE_CODE_ IN 
+  			<foreach item="courseCode" collection="condition.courseCodes" open="(" close=")" separator=",">
+  			  	#{courseCode}
+  			</foreach>
   	</where>
   </select>
   

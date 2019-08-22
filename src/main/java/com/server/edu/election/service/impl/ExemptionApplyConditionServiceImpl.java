@@ -1,5 +1,6 @@
 package com.server.edu.election.service.impl;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -127,7 +128,7 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	public CourseOpen queryNameAndTrainingLevelByCode(String courseCode) {
 		return courseOpenDao.queryNameAndTrainingLevelByCode(courseCode);
 	}
-
+	
 	@Override
 	public List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode, String studentCode) {
 		Student student = new Student();
@@ -135,8 +136,10 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 			student = studentDao.findStudentByCode(studentCode);
 		}
 		
-		ExemptionApplyGraduteCondition condition = new ExemptionApplyGraduteCondition();
-    	condition.setCourseCode(courseCode);
+		ExemptionApplyGraduteConditionDto condition = new ExemptionApplyGraduteConditionDto();
+		
+		String[] courseCodes = courseCode.split(",");
+		condition.setCourseCodes(Arrays.asList(courseCodes));
     	
     	if (StringUtils.isNotBlank(studentCode) || student != null) {
 	    	String trainingLevel = "";

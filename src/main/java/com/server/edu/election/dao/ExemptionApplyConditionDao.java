@@ -22,5 +22,5 @@ public interface ExemptionApplyConditionDao extends Mapper<ExemptionApplyGradute
 	 * @param ExemptionApplyGraduteCondition
 	 * @return
 	 */
-	List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(@Param("condition") ExemptionApplyGraduteCondition condition);
+	List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(@Param("condition") ExemptionApplyGraduteConditionDto condition);
 }
