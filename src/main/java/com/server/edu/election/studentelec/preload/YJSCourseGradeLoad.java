@@ -77,12 +77,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
     @Autowired
     private CourseOpenDao courseOpenDao;
 
-    @Autowired
-    private TeachingClassTeacherDao teachingClassTeacherDao;
-    
-    @Autowired
-    private TeachClassCacheService teachClassCacheService;
-    
     @Override
     public void load(ElecContext context)
     {
@@ -171,19 +165,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 lesson.setFaculty(classCache.getFaculty());
                 lesson.setTerm(classCache.getTerm());
                 lesson.setTeachClassName(classCache.getTeachClassName());
-                String teacherCode = classCache.getTeacherCode();
-                if (teacherCode != null) {
-                    String[] split = teacherCode.split(",");
-                    Set<String> set = new HashSet<>(Arrays.asList(split));
-                    List<String> list = new ArrayList<>(set.size());
-                    for (String s : set) {
-                        if (!"".equals(s)) {
-                            String teacherName = teachingClassTeacherDao.findTeacherName(s);
-                            list.add(teacherName);
-                        }
-                    }
-                    lesson.setTeacherName(String.join(",",list));
-                }
+                lesson.setTeacherName(classCache.getTeacherName());
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
