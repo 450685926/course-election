@@ -240,7 +240,7 @@
   	select op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode 
   	from course_open_t op
 	  join teaching_task_t ta on op.ID_=ta.COURSE_OPEN_ID_
-	  JOIN teaching_class_t cl on cl.TASK_ID_=ta.ID_
+	  JOIN teaching_class_t cl on cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0
 	  <where>
 		  cl.ID_ in (
 		   SELECT DISTINCT co.TEACHING_CLASS_ID_ 
