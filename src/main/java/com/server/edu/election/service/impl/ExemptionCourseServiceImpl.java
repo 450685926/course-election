@@ -1322,6 +1322,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 					exemptionApplyManage.setName(applyManage.getName());
 					exemptionApplyManage.setAuditor(applyManage.getAuditor());
+					exemptionApplyManage.setDeleteStatus("0");
 					int code = saveExemptionScore(exemptionApplyManage, courseCodes[i]);
 	        		if(code != 200){
 	        			return RestResult.fail("common.editError","");
@@ -1348,11 +1349,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setScore("免修");
 					exemptionApplyManage.setCalendarId(applyManage.getCalendarId());
 					exemptionApplyManage.setManagerDeptId(applyManage.getManagerDeptId());
-					exemptionApplyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
+					exemptionApplyManage.setExamineResult(applyManage.getExamineResult());
 					exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 					exemptionApplyManage.setName(applyManage.getName());
 					exemptionApplyManage.setAuditor(applyManage.getAuditor());
 					exemptionApplyManage.setExemptionType(applyManage.getExemptionType());
+					exemptionApplyManage.setDeleteStatus("0");
 					ExemptionApplyManage exemptionApplyManage1 = applyDao.applyRepeatGradute(exemptionApplyManage.getCalendarId(), exemptionApplyManage.getStudentCode(), courseCodes[i]);
 					
 					if (exemptionApplyManage1 != null) {
