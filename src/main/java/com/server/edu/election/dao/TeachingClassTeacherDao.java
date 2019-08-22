@@ -14,4 +14,6 @@ public interface TeachingClassTeacherDao extends Mapper<TeachingClassTeacher> {
     List<String> findTeacherNames(@Param("teacherCodes") List<String> teacherCodes);
 
     List<String> findTeacherCodes(@Param("keyWord") String keyWord);
+
+    List<String> findNamesByTeachingClassId(Long teachingClassId);
 }
