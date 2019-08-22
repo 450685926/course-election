@@ -246,9 +246,9 @@ public class CultureSerivceInvoker
     }
     
     /**查询研究生关联的第一外国语*/
-    public static List<ElecFirstLanguageContrastVo> getStudentFirstForeignLanguage(String managerDeptId,Integer pageNum_,Integer pageSize_)
+    public static List<ElecFirstLanguageContrastVo> getStudentFirstForeignLanguage(List<FirstLanguageContrast> selectAll)
     {
-    	List<FirstLanguageContrast> selectAll = firstLanguageContrastDao.selectAll();
+    	
     	List<ElecFirstLanguageContrastVo> elecFirstLanguageContrastList = new ArrayList<>();
     	for (FirstLanguageContrast firstLanguageContrast : selectAll) {
     		ElecFirstLanguageContrastVo elecFirstLanguageContrastVo = new ElecFirstLanguageContrastVo();
