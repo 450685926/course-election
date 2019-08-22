@@ -1031,7 +1031,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public StudentAndCourseVo findStudentApplyCourse(String studentId,Long calendarId) {
-//		Session session = SessionUtils.getCurrentSession();
+		Session session = SessionUtils.getCurrentSession();
 		Student student = studentDao.findStudentByCode(studentId);
 		Boolean isAchievement = false;
 		//查找本次开通的免修免考课程
@@ -1039,8 +1039,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		List<ElecFirstLanguageContrastVo> findStudentCultureRelList = CultureSerivceInvoker.getStudentFirstForeignLanguage(selectAll);
 		
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
-//		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",session.getCurrentManageDptId());
-		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",2);
+		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",session.getCurrentManageDptId());
+//		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",2);
 		
 		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
 		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
@@ -1074,7 +1074,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			}
 		}
 		
-		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,null);
+		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,session);
 		
 		logger.info("------------------------------------"+optCourses.size());
 		if (scoreModel == null) {
@@ -1228,7 +1228,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
                 }
             }
 		}
-		
+		logger.info("planCourses========================="+planCourses.size());
 		//培养计划与第一外语的交集
 		Set<PlanCourse> studentlanguageCourse = new HashSet<>();
 		if (findStudentCultureRelList != null) {
