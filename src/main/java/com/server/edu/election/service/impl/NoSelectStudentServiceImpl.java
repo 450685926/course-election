@@ -34,6 +34,7 @@ import com.server.edu.election.service.NoSelectStudentService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.vo.ElcNoSelectReasonVo;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -87,19 +88,21 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
              electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
          }else {
              electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
-
-             List<String> studentCodes = electCourseList.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
-             List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(studentCodes);
-             
-             Iterator<NoSelectCourseStdsDto> iterator = electCourseList.iterator();
-             while (iterator.hasNext()) {
-            	 NoSelectCourseStdsDto stdsDto = iterator.next();
-            	 for (AbnormalTypeElection abnormalTypeElection : list) {
-					if (StringUtils.equals(stdsDto.getStudentCode(), abnormalTypeElection.getStudentCode())) {
-						stdsDto.setStdStatusChanges(abnormalTypeElection.getTypeName());
-					}
-				 }
-			}
+             List<NoSelectCourseStdsDto> result = electCourseList.getResult();
+             if (CollectionUtil.isNotEmpty(result)) {
+	             List<String> studentCodes = result.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
+	             List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(studentCodes);
+	             
+	             Iterator<NoSelectCourseStdsDto> iterator = result.iterator();
+	             while (iterator.hasNext()) {
+	            	 NoSelectCourseStdsDto stdsDto = iterator.next();
+	            	 for (AbnormalTypeElection abnormalTypeElection : list) {
+						if (StringUtils.equals(stdsDto.getStudentCode(), abnormalTypeElection.getStudentCode())) {
+							stdsDto.setStdStatusChanges(abnormalTypeElection.getTypeName());
+						}
+					 }
+				}
+            }
          }
          return new PageResult<>(electCourseList);
      }
