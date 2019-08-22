@@ -731,12 +731,11 @@ public class ExemptionController {
     @GetMapping("/findStudentCourse")
     public RestResult<StudentAndCourseVo> findStudentCourse(@RequestParam Long calendarId){
     	
-//    	Session session = SessionUtils.getCurrentSession();
-//    	if (!session.isStudent()) {
-//    		return RestResult.fail("elec.mustBeStu");
-//		}
-//    	String studentId = session.realUid();
-    	String studentId = "1910030";
+    	Session session = SessionUtils.getCurrentSession();
+    	if (!session.isStudent()) {
+    		return RestResult.fail("elec.mustBeStu");
+		}
+    	String studentId = session.realUid();
     	
     	StudentAndCourseVo result = exemptionCourseService.findStudentApplyCourse(studentId,calendarId);
     	return RestResult.successData(result);
