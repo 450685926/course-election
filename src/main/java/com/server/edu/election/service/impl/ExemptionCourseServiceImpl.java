@@ -49,6 +49,7 @@ import com.server.edu.election.dao.ExemptionCourseDao;
 import com.server.edu.election.dao.ExemptionCourseMaterialDao;
 import com.server.edu.election.dao.ExemptionCourseRuleDao;
 import com.server.edu.election.dao.ExemptionCourseScoreDao;
+import com.server.edu.election.dao.ExemptionCourseScoreGraduteDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.ElcResultDto;
 import com.server.edu.election.dto.ExemptionApplyCondition;
@@ -60,6 +61,7 @@ import com.server.edu.election.entity.ExemptionApplyManage;
 import com.server.edu.election.entity.ExemptionCourse;
 import com.server.edu.election.entity.ExemptionCourseMaterial;
 import com.server.edu.election.entity.ExemptionCourseScore;
+import com.server.edu.election.entity.ExemptionCourseScoreGradute;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ExemptionQuery;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -110,6 +112,9 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
     @Autowired
     private ExemptionCourseScoreDao scoreDao;
+    
+    @Autowired
+    private ExemptionCourseScoreGraduteDao scoreGraduteDao;
 
     @Autowired
     private ExemptionCourseRuleDao ruleDao;
@@ -482,7 +487,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         		if(code != 200){
         			return "common.editError";
         		}
-				applyDao.insertSelective(applyManage);
+        		ExemptionApplyManage exemptionApplyManage = applyDao.applyRepeatGradute(applyManage.getCalendarId(), applyManage.getStudentCode(), courseCodes[i]);
+				if (exemptionApplyManage != null) {
+					exemptionApplyManage.setExamineResult(SUCCESS_STATUS);
+					applyDao.updateByPrimaryKey(exemptionApplyManage);
+				}else{
+					applyDao.insertSelective(applyManage);
+				}
 			}
 		}
 		 applicationContext
@@ -875,10 +886,14 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	for (Long id : ids) {
 				//查找申请信息
         		ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-        		int code = saveExemptionScore(applyRecord, applyRecord.getCourseCode());
-        		if(code != 200){
-        			return "common.editError";
-        		}
+        		//查询是否重复申请
+        	    List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeatByStudent(applyRecord.getCalendarId(), applyRecord.getStudentCode(),applyRecord.getExamineResult());
+        		for (ExemptionApplyManage exemptionApplyManage : exemptionApplyManageVo) {
+        			int code = saveExemptionScore(exemptionApplyManage, exemptionApplyManage.getCourseCode());
+        			if(code != 200){
+        				return "common.editError";
+        			}
+				}
         		applicationContext
                 .publishEvent(new ElectLoadEvent(applyRecord.getCalendarId(), applyRecord.getStudentCode()));
 			}
@@ -889,8 +904,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         	for (Long id : ids) {
 				ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
 				if (applyRecord != null) {
-					if (applyRecord.getExamineResult().intValue() != 1) {
-						optList.add(id);
+					List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeatByStudent(applyRecord.getCalendarId(), applyRecord.getStudentCode(),applyRecord.getExamineResult());
+					for (ExemptionApplyManage exemptionApplyManage : exemptionApplyManageVo) {
+						if (exemptionApplyManage.getExamineResult().intValue() != 1) {
+							optList.add(exemptionApplyManage.getId());
+						}
 					}
 				}
         	}   
@@ -914,9 +932,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	public PageResult<ExemptionApplyManageVo> findGraduateExemptionApply(PageCondition<ExemptionQuery> condition) {
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ExemptionApplyManageVo> exemptionApply = applyDao.findGraduteExemptionApply(condition.getCondition());
-		for (ExemptionApplyManageVo exemptionApplyManageVo : exemptionApply) {
-			exemptionApplyManageVo.setApplyCourse(exemptionApplyManageVo.getCourseCode()+""+exemptionApplyManageVo.getCourseName());
-		}
 		return new PageResult<>(exemptionApply);
 	}
 
@@ -981,30 +996,29 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			studentAndCourseVo.setApplyCourse(applyCourses);
 			return studentAndCourseVo;
 		}
-		ValueOperations<String, List<DictCache>> ops = redisTemplate.opsForValue();
-		List<DictCache> firstForeignLanguageList = ops.get(DictCache.getKey("X_DYWY"));
+//		ValueOperations<String, List<DictCache>> ops = redisTemplate.opsForValue();
+//		List<DictCache> firstForeignLanguageList = ops.get(DictCache.getKey("X_DYWY"));
 		//调取字典表，获取第一外语列表
-		Example scoreexample = new Example(ExemptionCourseScore.class);
-		scoreexample.createCriteria().andEqualTo("studentCode",studentId);
-		List<ExemptionCourseScore>  scoreList = scoreDao.selectByExample(scoreexample);
-		boolean scoreFlag = false;
-		String firstForeignLanguageCode = "";
+//		Example scoreexample = new Example(ExemptionCourseScoreGradute.class);
+//		scoreexample.createCriteria().andEqualTo("studentCode",studentId);
+//		List<ExemptionCourseScoreGradute>  scoreList = scoreGraduteDao.selectByExample(scoreexample);
+//		boolean scoreFlag = false;
+//		String firstForeignLanguageCode = "";
 		
-		for (ExemptionCourseScore exemptionCourseScore : scoreList) {
-			for (DictCache firstForeignLanguage : firstForeignLanguageList) {
-				if (StringUtils.equalsIgnoreCase(exemptionCourseScore.getCourseCode(), firstForeignLanguage.getCode())) {
-					firstForeignLanguageCode = firstForeignLanguage.getCode();
-					scoreFlag = true;
-					break;
-				}
-			}
-			if (scoreFlag) {
-				break;
-			}
-		}
-		final String  languageCode = firstForeignLanguageCode;
+//		for (ExemptionCourseScoreGradute exemptionCourseScore : scoreList) {
+//			for (DictCache firstForeignLanguage : firstForeignLanguageList) {
+//				if (StringUtils.equalsIgnoreCase(exemptionCourseScore.getCourseCode(), firstForeignLanguage.getCode())) {
+//					firstForeignLanguageCode = firstForeignLanguage.getCode();
+//					scoreFlag = true;
+//					break;
+//				}
+//			}
+//			if (scoreFlag) {
+//				break;
+//			}
+//		}
 		
-		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student, applySwitch,calendarId,languageCode,scoreFlag,session);
+		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student, applySwitch,calendarId,session);
 		for (PlanCourse course : studentExemptionCouses) {
 			ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
 			applyCourse.setCourseNameAndCode(course.getCourseCode() + course.getCourseName() + "");
@@ -1039,23 +1053,27 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		}
 		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
 
-		ValueOperations<String, List<DictCache>> ops = redisTemplate.opsForValue();
-		List<DictCache> firstForeignLanguageList = ops.get(DictCache.getKey("X_DYWY"));
-		//调取字典表，获取第一外语列表
-		Example scoreexample = new Example(ExemptionCourseScore.class);
-		scoreexample.createCriteria().andEqualTo("studentCode",studentId);
-		List<ExemptionCourseScore>  scoreList = scoreDao.selectByExample(scoreexample);
-		boolean scoreFlag = false;
-		DictCache dictCache = null;
-		String firstForeignLanguageCode = "";
-		ExemptionCourseScore scoreModel = null;
+//		ValueOperations<String, List<DictCache>> ops = redisTemplate.opsForValue();
+//		List<DictCache> firstForeignLanguageList = ops.get(DictCache.getKey("X_DYWY"));
 		
-		for (ExemptionCourseScore exemptionCourseScore : scoreList) {
-			for (DictCache firstForeignLanguage : firstForeignLanguageList) {
-				if (StringUtils.equalsIgnoreCase(exemptionCourseScore.getCourseCode(), firstForeignLanguage.getCode())) {
+		List<ElecFirstLanguageContrastVo> findStudentCultureRelList = CultureSerivceInvoker.getStudentFirstForeignLanguage(session.getCurrentManageDptId(),1,9999);
+		
+		
+		//调取字典表，获取第一外语列表
+		Example scoreexample = new Example(ExemptionCourseScoreGradute.class);
+		scoreexample.createCriteria().andEqualTo("studentCode",studentId);
+		List<ExemptionCourseScoreGradute>  scoreList = scoreGraduteDao.selectByExample(scoreexample);
+		boolean scoreFlag = false;
+		ElecFirstLanguageContrastVo dictCache = null;
+		String firstForeignLanguageCode = "";
+		ExemptionCourseScoreGradute scoreModel = null;
+		
+		for (ExemptionCourseScoreGradute exemptionCourseScore : scoreList) {
+			for (ElecFirstLanguageContrastVo firstForeignLanguage : findStudentCultureRelList) {
+				if (StringUtils.equalsIgnoreCase(exemptionCourseScore.getCourseCode(), firstForeignLanguage.getLanguageCode())) {
 					scoreModel = exemptionCourseScore;
 					dictCache = firstForeignLanguage;
-					firstForeignLanguageCode = firstForeignLanguage.getCode();
+					firstForeignLanguageCode = firstForeignLanguage.getLanguageCode();
 					scoreFlag = true;
 					break;
 				}
@@ -1064,14 +1082,48 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				break;
 			}
 		}
-		final String  languageCode = firstForeignLanguageCode;
+//		for (ExemptionCourseScore exemptionCourseScore : scoreList) {
+//			for (DictCache firstForeignLanguage : firstForeignLanguageList) {
+//				if (StringUtils.equalsIgnoreCase(exemptionCourseScore.getCourseCode(), firstForeignLanguage.getCode())) {
+//					scoreModel = exemptionCourseScore;
+//					dictCache = firstForeignLanguage;
+//					firstForeignLanguageCode = firstForeignLanguage.getCode();
+//					scoreFlag = true;
+//					break;
+//				}
+//			}
+//			if (scoreFlag) {
+//				break;
+//			}
+//		}
 		
-		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,languageCode,scoreFlag,session);
+		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch,calendarId,session);
 		
 		if (scoreModel == null) {
+			if (CollectionUtil.isNotEmpty(optCourses)) {
+				ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
+				String courseNameAndCode = " ";
+				List<String> courseCode = new ArrayList<>();
+				List<String> courseName = new ArrayList<>();
+				for (PlanCourse course : optCourses) {
+					courseNameAndCode = courseNameAndCode + course.getCourseCode() + course.getCourseName() + " ";
+					applyCourse.setFirstForeignLanguageCode(null);
+					applyCourse.setFirstForeignLanguageScore(null);
+					courseCode.add(course.getCourseCode());
+					courseName.add(course.getCourseName());
+					applyCourse.setApplyType(Constants.ONE);
+				}
+				applyCourse.setFirstForeignLanguageName(null);
+				applyCourse.setCourseNameAndCode(courseNameAndCode);
+				applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
+				applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
+				Integer examineResult = getGraduteExemptionApplyRecord(calendarId ,studentId,StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
+				applyCourse.setExamineResult(examineResult);
+				applyCourses.add(applyCourse);
+			}
 			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 			studentAndCourseVo.setStudent(student);
-			studentAndCourseVo.setApplyCourse(null);
+			studentAndCourseVo.setApplyCourse(applyCourses);
 			return studentAndCourseVo;
 		}
 		
@@ -1091,7 +1143,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					courseName.add(course.getCourseName());
 					applyCourse.setApplyType(Constants.ZERO);
 				}
-				applyCourse.setFirstForeignLanguageName(dictCache.getNameCN());
+				applyCourse.setFirstForeignLanguageName(dictCache.getLanguageName());
 				applyCourse.setCourseNameAndCode(courseNameAndCode);
 				applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
 				applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
@@ -1103,7 +1155,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
 					applyCourse.setCourseNameAndCode(course.getCourseCode() + course.getCourseName() + "");
 					applyCourse.setFirstForeignLanguageCode(scoreModel.getCourseCode());
-					applyCourse.setFirstForeignLanguageName(dictCache.getNameCN());
+					applyCourse.setFirstForeignLanguageName(dictCache.getLanguageName());
 					applyCourse.setFirstForeignLanguageScore(scoreModel.getScore());
 					applyCourse.setApplyType(Constants.ONE);
 					applyCourse.setCourseCode(course.getCourseCode());
@@ -1166,7 +1218,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param collect 
 	 * @return
 	 */
-	private Set<PlanCourse> getStudentExemptionCouses(Student student, ExemptionApplyAuditSwitch applySwitch, Long calendarId, String languageCode, boolean scoreFlag, Session session) {
+	private Set<PlanCourse> getStudentExemptionCouses(Student student, ExemptionApplyAuditSwitch applySwitch, Long calendarId, Session session) {
 		StudentCultureRel studentCultureRel = new StudentCultureRel();
 		studentCultureRel.setStudentId(student.getStudentCode());
 		StudentCultureRel findStudentCultureRelList = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
@@ -1280,7 +1332,13 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				if (courseCodes.length == courseNames.length) {
 					applyManage.setCourseCode(courseCodes[i]);
 					applyManage.setCourseName(courseNames[i]);
-					applyDao.insertSelective(applyManage);
+					ExemptionApplyManage exemptionApplyManage = applyDao.applyRepeatGradute(applyManage.getCalendarId(), applyManage.getStudentCode(), courseCodes[i]);
+					if (exemptionApplyManage != null) {
+						exemptionApplyManage.setExamineResult(STATUS);
+						applyDao.updateByPrimaryKey(exemptionApplyManage);
+					}else{
+						applyDao.insertSelective(applyManage);
+					}
 				}
 			}
     		applicationContext
@@ -1319,17 +1377,20 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		for (Long id : ids) {
 			//查找申请信息
 			ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
-			if (applyRecord.getExamineResult().intValue() == Constants.ONE) {
-				//调用成绩接口，查看是否有成绩
-				StudentScore findViolationStu = ScoreServiceInvoker.findViolationStu(applyRecord.getStudentCode(), applyRecord.getCourseCode(), applyRecord.getCalendarId());
-				logger.info("======================="+findViolationStu);
-				if (findViolationStu != null) {
-					noEffectiveIds.add(applyRecord.getStudentCode());
+			List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeatByStudent(applyRecord.getCalendarId(), applyRecord.getStudentCode(),applyRecord.getExamineResult());
+			for (ExemptionApplyManage exemptionApplyManage : exemptionApplyManageVo) {
+				if (exemptionApplyManage.getExamineResult().intValue() == Constants.ONE) {
+					//调用成绩接口，查看是否有成绩
+					StudentScore findViolationStu = ScoreServiceInvoker.findViolationStu(exemptionApplyManage.getStudentCode(), exemptionApplyManage.getCourseCode(), exemptionApplyManage.getCalendarId());
+					logger.info("======================="+findViolationStu);
+					if (findViolationStu != null) {
+						noEffectiveIds.add(exemptionApplyManage.getStudentCode());
+					}else{
+						effectiveIds.add(id);
+					}
 				}else{
 					effectiveIds.add(id);
 				}
-			}else{
-				effectiveIds.add(id);
 			}
 		}
 		if (CollectionUtil.isNotEmpty(effectiveIds)) {

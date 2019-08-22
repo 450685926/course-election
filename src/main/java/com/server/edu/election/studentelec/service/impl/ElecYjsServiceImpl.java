@@ -74,6 +74,7 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
+import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.util.WeekUtil;
@@ -522,7 +523,17 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		key = Keys.getRoundCourseKey(roundId); // 学生选课或者教务员代理选课
     		List<String> roundsCoursesIdsList = CoursesList(ops, key);
     		//获取本轮次的选课规则
+//    		List<ElectionRuleVo> rules = new ArrayList<ElectionRuleVo>();
+
+//    		RuleCacheService ruleCacheService = new RuleCacheService();
     		List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+//    		for (ElectionRuleVo electionRuleVo : rulesList) {
+//    			ElectionRuleVo ruleVo = ruleCacheService.getRule(electionRuleVo.getServiceName());
+//    			if (ruleVo != null) {
+//    				rules.add(electionRuleVo);
+//				}
+//			}
+    		LOG.info("------------rules----------"+rules.size());
     		//判断本轮规则中是否含有按照培养计划选课
     		Boolean isPlanElection = false;
     		Boolean isCampus = false;
@@ -546,7 +557,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			           List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 			                   completedCourse.getCourseCode());
 			           if (isCampus) {
-			        	   exclusionOfCampus(teachClasss,c);
+			        	   List<TeachingClassCache> exclusionOfCampus = exclusionOfCampus(teachClasss,c);
+			        	   teachClasss.clear();
+			        	   teachClasss.addAll(exclusionOfCampus);
 			           }
 			           if (CollectionUtil.isNotEmpty(teachClasss))
 			           {
@@ -673,8 +686,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 							courseCode);
 					if (isCampus) {
-			        	   exclusionOfCampus(teachClasss,c);
-			           }
+						List<TeachingClassCache> exclusionOfCampus = exclusionOfCampus(teachClasss,c);
+						teachClasss.clear();
+						teachClasss.addAll(exclusionOfCampus);
+			        }
 					if (CollectionUtil.isNotEmpty(teachClasss))
 					{
 						for (TeachingClassCache teachClass : teachClasss)
@@ -1009,11 +1024,26 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * 去除跨校区选课
      * @param teachClasss
      * @param c
+	 * @return 
      */
-    private void exclusionOfCampus(List<TeachingClassCache> teachClasss, ElecContext c) {
+    private List<TeachingClassCache> exclusionOfCampus(List<TeachingClassCache> teachClasss, ElecContext c) {
 		StudentInfoCache studentInfo = c.getStudentInfo(); 
 		String campus = studentInfo.getCampus();
-		teachClasss = teachClasss.stream().filter(vo->StringUtils.equalsIgnoreCase(vo.getCampus(), campus)).collect(Collectors.toList());
+		List<TeachingClassCache> collect = new ArrayList<>();
+		for (TeachingClassCache teachingClassCache : teachClasss) {
+			 if (StringUtils.isBlank(teachingClassCache.getCampus()))
+		        {
+				 collect.add(teachingClassCache);
+		        }
+		        else
+		        {
+		            if (teachingClassCache.getCampus().equals(campus))
+		            {
+		            	collect.add(teachingClassCache);
+		            }
+		        }
+		}
+		return collect;
 	}
 
 	//对课程进行排序
