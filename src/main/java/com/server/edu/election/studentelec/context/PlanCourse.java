@@ -1,6 +1,5 @@
 package com.server.edu.election.studentelec.context;
 
-import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
 @CodeI18n
