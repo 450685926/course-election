@@ -71,4 +71,13 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
 	 */
 	List<ElecCourse> findApplyCourse(@Param("list") List<String> list);
 
+	/**
+	 * 查询到学生所有满足要求的记录
+	 * @param calendarId
+	 * @param studentCode
+	 * @param examineResult
+	 * @return
+	 */
+	List<ExemptionApplyManage> applyRepeatByStudent(@Param("calendarId")Long calendarId, @Param("studentCode")String studentCode, @Param("examineResult")Integer examineResult);
+
 }
