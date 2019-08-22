@@ -1213,6 +1213,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		//培养计划课程
 		List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(student.getStudentCode());
+		logger.info("courseType========================="+courseType.size());
 		Set<PlanCourse> planCourses = new HashSet<>();//培养课程
 		if (CollectionUtil.isNotEmpty(courseType)) {
 			for (PlanCourseDto planCourse : courseType) {
@@ -1339,6 +1340,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 					exemptionApplyManage.setName(applyManage.getName());
 					exemptionApplyManage.setAuditor(applyManage.getAuditor());
+					exemptionApplyManage.setExemptionType(applyManage.getExemptionType());
 					ExemptionApplyManage exemptionApplyManage1 = applyDao.applyRepeatGradute(exemptionApplyManage.getCalendarId(), exemptionApplyManage.getStudentCode(), courseCodes[i]);
 					
 					if (exemptionApplyManage1 != null) {
