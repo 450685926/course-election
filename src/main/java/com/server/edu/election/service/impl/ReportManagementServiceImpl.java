@@ -950,7 +950,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         map.put("lineList", lineList);
         map.put("item", condition);
         Template tpl = freeMarkerConfigurer.getConfiguration()
-            .getTemplate("preRollBookList1.ftl");
+            .getTemplate("graduteRollBookList.ftl");
         // 将模板和数据模型合并生成文件
         Writer out = new BufferedWriter(
             new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
