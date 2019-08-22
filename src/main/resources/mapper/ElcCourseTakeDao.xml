@@ -991,8 +991,9 @@
     </select>
     
     <select id="findNoSelectCourseStds" parameterType="com.server.edu.election.dto.NoSelectCourseStdsDto" resultType="com.server.edu.election.dto.NoSelectCourseStdsDto">
-        select t1.STUDENT_CODE_ studentCode,t1.NAME_ studentName,t1.GRADE_ grade,t1.FACULTY_ faculty,t1.PROFESSION_ major,
-        t1.STUDENT_CATEGORY_ studentCategory,t2.REASON_ noSelectReason
+        select 
+	        t1.STUDENT_CODE_ studentCode,t1.NAME_ studentName,t1.GRADE_ grade,t1.FACULTY_ faculty,t1.PROFESSION_ major,
+	        t1.STUDENT_CATEGORY_ studentCategory,t1.TRAINING_CATEGORY_ trainingCategory, t2.REASON_ noSelectReason
         from student_t t1
         left join elc_no_elect_reason_t t2 on (t1.STUDENT_CODE_=t2.STUDENT_ID_ and t2.CALENDAR_ID_=#{calendarId})
         <where>
