@@ -517,11 +517,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	List<ElcCourseResult> setOptionalCourses = new ArrayList<>();
         //从缓存中拿到本轮次排课信息
         HashOperations<String, String, String> ops = strTemplate.opsForHash();
+//        HashOperations<String, String, List<String>> ops2 = strTemplate.opsForHash();
         String key = "";
         //可选课程组装
     	if (roundId != null) {//如果为学生和教务员选课
     		key = Keys.getRoundCourseKey(roundId); // 学生选课或者教务员代理选课
     		List<String> roundsCoursesIdsList = CoursesList(ops, key);
+//    		List<String> roundseachClassIdList = teachClassIdList(ops2, key);
+    		
     		//获取本轮次的选课规则
 //    		List<ElectionRuleVo> rules = new ArrayList<ElectionRuleVo>();
 
@@ -1217,6 +1220,21 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         }
 		return roundsCoursesIdsList;
 	}
+	
+    //课程教学班ID集合
+	private List<String> teachClassIdList(HashOperations<String, String, List<String>> ops, String key) {
+		List<String> teachClassIdList = new ArrayList<>();
+        Map<String, List<String>> teachClassIdMap = ops.entries(key);
+        for (Entry<String, List<String>> entry : teachClassIdMap.entrySet())
+        {
+            List<String> teachClassValue = entry.getValue();
+            for (String teachClassId : teachClassValue) {
+            	teachClassIdList.add(teachClassId);
+			}
+        }
+		return teachClassIdList;
+	}
+
 
     //组装可选课程信息
 	private List<SelectedCourse> packagingSelectedCourse(Long roundId, Long calendarId, Set<PlanCourse> planCourses,
@@ -1255,7 +1273,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             		new ArrayList<>();
                     
             if (roundId != null)
-            { // 教务员
+            { // 教务员或学生
             	HashOperations<String, String, TeachingClassCache> hash =
         	            opsTeachClass();
         	        

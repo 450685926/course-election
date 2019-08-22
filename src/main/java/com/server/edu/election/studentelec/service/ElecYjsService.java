@@ -57,9 +57,10 @@ public interface ElecYjsService
     
     /**
      * 向上下文中添加可选课程信息
-     * @param c
+     * @param studentId
+     * @param c 
      * @param roundId 
-     * @param calendarId 
+     * @param calendarId
      * @return
      */
     ElecContext setData(String studentId, ElecContext c, Long roundId,
