@@ -360,6 +360,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         tableList.add(timeTable);
                     }
                 }
+            } else {
+                tableList.add(tables.get(0));
             }
         }
         return tableList;
