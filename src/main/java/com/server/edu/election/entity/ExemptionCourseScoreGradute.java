@@ -24,6 +24,11 @@ public class ExemptionCourseScoreGradute implements Serializable {
      */
     @Column(name = "COURSE_CODE_")
     private String courseCode;
+    /**
+     * 课程名称
+     */
+    @Column(name = "COURSE_NAME_")
+    private String courseName;
 
     /**
      * 成绩
@@ -79,7 +84,16 @@ public class ExemptionCourseScoreGradute implements Serializable {
         return courseCode;
     }
 
-    /**
+    
+    public String getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
+
+	/**
      * 设置课程代码
      *
      * @param courseCode 课程代码
@@ -115,6 +129,7 @@ public class ExemptionCourseScoreGradute implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", studentCode=").append(studentCode);
         sb.append(", courseCode=").append(courseCode);
+        sb.append(", courseName=").append(courseName);
         sb.append(", score=").append(score);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

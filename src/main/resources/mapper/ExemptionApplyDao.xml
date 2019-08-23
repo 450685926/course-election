@@ -197,7 +197,7 @@
 		LEFT JOIN exemption_apply_graduate_condition_t t3
 		ON t3.ID_ = t1.EXEMPTION_TYPE_
 	<where>
-		t2.MANAGER_DEPT_ID_=  2  AND t1.DELETE_STATUS_ = 0 AND t1.EXAMINE_RESULT_ = 1 AND t1.MANAGER_DEPT_ID_ = 2
+		t2.MANAGER_DEPT_ID_=  #{query.projectId}  AND t1.DELETE_STATUS_ = 0 AND t1.EXAMINE_RESULT_ = 1 AND t1.MANAGER_DEPT_ID_ = #{query.projectId}
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
 	        and t2.GRADE_  = #{query.grade}
 	    </if>
