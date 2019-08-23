@@ -60,6 +60,11 @@ public class ExemptionApplyConditionController {
     public RestResult<?> addExemptionApplyCondition(@RequestBody @NotNull @Valid ExemptionApplyGraduteCondition applyCondition){
     	logger.info("add applyCondition start");
     	
+    	String conditions = applyCondition.getConditions();
+    	if (StringUtils.isNotBlank(conditions)) {
+    		applyCondition.setConditions(conditions.trim());
+		}
+    	
     	exemptionApplyConditionSerice.addExemptionApplyCondition(applyCondition);
     	return RestResult.success();
     }
@@ -87,6 +92,11 @@ public class ExemptionApplyConditionController {
     @PutMapping
     public RestResult<?> updateExemptionApplyCondition(@RequestBody @NotNull @Valid ExemptionApplyGraduteCondition applyCondition){
     	logger.info("update applyCondition start");
+    	
+    	String conditions = applyCondition.getConditions();
+    	if (StringUtils.isNotBlank(conditions)) {
+    		applyCondition.setConditions(conditions.trim());
+		}
     	
     	exemptionApplyConditionSerice.updateExemptionApplyCondition(applyCondition);
     	return RestResult.success();
