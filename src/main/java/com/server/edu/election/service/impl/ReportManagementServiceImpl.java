@@ -319,6 +319,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<TimeTable> tables = entry.getValue();
             List<String> days = new ArrayList<>(12);
             if (tables.size() > 1) {
+                //按开始节次升序结束节次降序排列
                 tables.sort(Comparator.comparing(TimeTable::getTimeStart).reversed().thenComparing(TimeTable::getTimeEnd).reversed());
                 for (int i = 0; i < tables.size(); i++) {
                     TimeTable timeTable = tables.get(i);
@@ -336,10 +337,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         if (start <= timeStart && timeEnd <= end) {
                             table.setValue(value + table.getValue());
                             if (start < timeStart) {
-                                days.add(start + "," + timeStart);
+                                days.add(start + "," + (timeStart - 1));
                             }
                             if (timeEnd < end) {
-                                days.add(timeEnd + "," + end);
+                                days.add((timeEnd + 1) + "," + end);
                             }
                             days.remove(timeStart + "," + timeEnd);
                             flag = true;
