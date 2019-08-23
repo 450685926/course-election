@@ -34,7 +34,7 @@ public class TeachingClassCache extends ElecCourse
     /** 是否重修班*/
     private Boolean retraining = Boolean.FALSE;
     
-    /** 最大人数 */
+    /** 最大人数（人数上限） */
     private Integer maxNumber;
     
     /** 当前人数 */
