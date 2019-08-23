@@ -15,7 +15,7 @@ import com.server.edu.dictionary.translator.ClassRoomTranslator;
 @CodeI18n
 public class StudnetTimeTable{
     private Long teachingClassId;
-    private Long classCode;
+    private String classCode;
     private String className;
     @Code2Text(transformer = "X_XQ")
     private String campus;
@@ -40,11 +40,11 @@ public class StudnetTimeTable{
         this.teachingClassId = teachingClassId;
     }
 
-    public Long getClassCode() {
+    public String getClassCode() {
         return classCode;
     }
 
-    public void setClassCode(Long classCode) {
+    public void setClassCode(String classCode) {
         this.classCode = classCode;
     }
 
