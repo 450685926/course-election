@@ -120,7 +120,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
                 lesson.setIsPass(studentScore.getIsPass());
-//                lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
@@ -160,6 +159,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 if (classCache == null) {
                     continue;
                 }
+                lesson.setNature(classCache.getNature());
                 lesson.setTeachClassCode(classCache.getTeachClassCode());
                 lesson.setRemark(classCache.getRemark());
                 lesson.setFaculty(classCache.getFaculty());
