@@ -33,6 +33,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.BeanUtil;
+import com.server.edu.common.entity.CulturePlan;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -54,6 +55,7 @@ import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -404,6 +406,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				take.setTurn(round.getTurn());
 			}
             courseTakeDao.insertSelective(take);
+            
+            /*************************选课后修改学生培养计划中课程选课状态************************/
+            //updateSelectCourse(studentId,courseCode,type);
         }
         else
         {
@@ -420,6 +425,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             {
                 dataProvider.decrElcNumber(teachClassId);
             }
+            
+            /*************************选课后修改学生培养计划中课程选课状态************************/
+            //updateSelectCourse(studentId,courseCode,type);
         }
         
         // 添加选课日志
@@ -1821,6 +1829,33 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         resultMap.put("currentElecCredits", thisTimesumCreditsMap);
         resultMap.put("selectedCredits", sumCreditsMap);
         return resultMap;
+    }
+    
+    /**
+     * 选课后跟新学生培养计划课程的选课状态
+     * @param studentId   学号
+     * @param courseCode  课程编号
+     * @param type        类型
+     * @throws Exception 
+     */
+    public void updateSelectCourse(String studentId,String courseCode,ElectRuleType type) throws Exception {
+        // 根据学号查询学生培养计划中的全部课程号
+        List<String> courseCodes = CultureSerivceInvoker.getCourseCodes(studentId);
+        
+        // 如果选课的课程是该学生培养计划中的课程，则修改培养计划课程选课状态（1-已选课;0-未选课）
+        if (CollectionUtil.isNotEmpty(courseCodes) && courseCodes.contains(courseCode)) {
+        	CulturePlan culturePlan = new CulturePlan();
+        	culturePlan.setPageSize_(10);
+        	culturePlan.setPageNum_(0);
+        	culturePlan.setStudentId(studentId);
+        	culturePlan.setCourseCode(courseCode);
+        	if (ElectRuleType.ELECTION.equals(type)) {
+        		culturePlan.setSelCourse("1"); // 1-已选课
+			}else {
+				culturePlan.setSelCourse("0"); // 0-未选课
+			}
+        	CultureSerivceInvoker.updateSelectCourse(culturePlan);
+		}
     }
     
 }

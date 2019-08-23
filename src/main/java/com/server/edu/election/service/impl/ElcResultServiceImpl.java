@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +69,10 @@ import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
+import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcResultCountVo;
@@ -142,6 +147,12 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElectionConstantsDao constantsDao;
+
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+    
+    @Autowired
+    private StringRedisTemplate redisTemplate;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -409,6 +420,18 @@ public class ElcResultServiceImpl implements ElcResultService
         record.setId(teachingClassVo.getId());
         record.setNumber(teachingClassVo.getNumber());
         classDao.updateByPrimaryKeySelective(record);
+        
+        // 更新缓存中教学班人数上限
+        TeachingClassCache teachingClassCache = teachClassCacheService.getTeachClassByTeachClassId(teachingClassVo.getId());
+        if (teachingClassCache != null) {
+        	teachingClassCache.setMaxNumber(teachingClassVo.getNumber());
+        	// 实时获取选课人数
+        	Integer elecNumber = teachClassCacheService.getElecNumber(teachingClassVo.getId());
+        	teachingClassCache.setCurrentNumber(elecNumber);
+        	
+        	HashOperations<String, String, TeachingClassCache> ops = redisTemplate.opsForHash();
+        	ops.put(Keys.getClassKey(), String.valueOf(teachingClassVo.getId()), teachingClassCache);
+		}
     }
     
     @Override
