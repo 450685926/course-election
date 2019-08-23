@@ -108,12 +108,11 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public String deleteCourseCharge(List<Long> ids) {
+    public void deleteCourseCharge(List<Long> ids) {
         if (CollectionUtil.isEmpty(ids)) {
-            return "common.parameterError";
+            throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
         }
         courseChargeDao.deleteCourseCharge(ids);
-        return "common.deleteSuccess";
     }
 
     /**
@@ -125,9 +124,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public String editCourseCharge(RebuildCourseCharge courseCharge) {
+    public void editCourseCharge(RebuildCourseCharge courseCharge) {
         courseChargeDao.updateByPrimaryKeySelective(courseCharge);
-        return "common.editSuccess";
     }
 
     /**
@@ -139,13 +137,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public String addCourseCharge(RebuildCourseCharge courseCharge) {
+    public void addCourseCharge(RebuildCourseCharge courseCharge) {
         RebuildCourseCharge item = courseChargeDao.findPrice(courseCharge.getTrainingLevel(),courseCharge.getFormLearning());
         if (item != null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist"));
         }
         courseChargeDao.insertSelective(courseCharge);
-        return "common.addsuccess";
     }
 
     /**
@@ -174,14 +171,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      * @date: 2019/2/1 14:19
      */
     @Override
-    public String addCourseNoChargeType(RebuildCourseNoChargeType noChargeType) {
+    public void addCourseNoChargeType(RebuildCourseNoChargeType noChargeType) {
 
         RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(noChargeType);
         if (item != null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist"));
         }
         noChargeTypeDao.insertSelective(noChargeType);
-        return "common.addsuccess";
     }
 
     /**
@@ -192,13 +188,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      * @date: 2019/2/1 14:29
      */
     @Override
-    public String deleteCourseNoChargeType(List<Long> ids) {
+    public void deleteCourseNoChargeType(List<Long> ids) {
         if (CollectionUtil.isEmpty(ids)) {
-            return "common.parameterError";
+            throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
         }
 
         noChargeTypeDao.deleteRebuildCourseNoChargeType(ids);
-        return "common.deleteSuccess";
     }
 
     /**
@@ -209,7 +204,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      * @date: 2019/2/1 14:37
      */
     @Override
-    public String editCourseNoChargeType(
+    public void editCourseNoChargeType(
             RebuildCourseNoChargeType courseNoCharge) {
         RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(courseNoCharge);
         if(item!=null){
@@ -218,7 +213,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             }
         }
         noChargeTypeDao.updateByPrimaryKeySelective(courseNoCharge);
-        return "common.editSuccess";
     }
 
     /**
@@ -275,9 +269,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public String moveToRecycle(List<RebuildCourseNoChargeList> list) {
+    public void moveToRecycle(List<RebuildCourseNoChargeList> list) {
         if (CollectionUtil.isEmpty(list)) {
-            return "common.parameterError";
+            throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
         }
         //调用退课接口todo
         List<ElcCourseTake> takes = new ArrayList<>();
@@ -291,7 +285,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         courseTakeService.withdraw(takes);
         /**增加到回收站*/
         courseChargeDao.addCourseStudentToRecycle(list);
-        return "common.deleteSuccess";
     }
 
     /**
@@ -302,7 +295,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      * @date: 2019/2/14 11:32
      */
     @Override
-
     public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
@@ -321,17 +313,16 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public String moveRecycleCourseToNoChargeList(
+    public void moveRecycleCourseToNoChargeList(
             List<RebuildCourseNoChargeList> list) {
         if (CollectionUtil.isEmpty(list)) {
-            return "common.parameterError";
+            throw new ParameterValidateException("common.parameterError");
         }
         for (RebuildCourseNoChargeList noChargeList : list) {
             recoverClass(noChargeList);
         }
         /**从回收站删除*/
         courseChargeDao.recoveryDataFromRecycleCourse(list);
-        return "common.deleteSuccess";
     }
 
     @Transactional
