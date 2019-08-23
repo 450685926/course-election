@@ -42,7 +42,7 @@ public class ScoreServiceInvoker {
         @SuppressWarnings("unchecked")
         List<ScoreStudentResultVo> list =
                 ServicePathEnum.SCORESERVICE.postForObject(
-                        "/studentScoreQuery/getOldScoresNoPaged",student,
+                        "/studentScoreQuery/getOldScoresNoPagedNoMsg",student,
                         List.class
                         );
         return list;
