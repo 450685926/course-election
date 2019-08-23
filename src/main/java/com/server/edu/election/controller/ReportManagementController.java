@@ -365,7 +365,7 @@ public class ReportManagementController
     {
         LOG.info("exportPreRollBookList.start");
         String fileName = managementService.exportPreRollBookList(condition);
-        return ExportExcelUtils.export(fileName);
+        return ExportUtil.export(fileName, "DianMingCe.xls");
     }
 
     @GetMapping(value = "/exportStudentTimetabPdf")
