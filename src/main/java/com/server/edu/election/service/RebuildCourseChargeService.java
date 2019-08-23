@@ -1,34 +1,34 @@
 package com.server.edu.election.service;
 
+import java.util.List;
+
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.RebuildCourseCharge;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.util.excel.export.ExcelResult;
 
-import java.util.List;
-
 public interface RebuildCourseChargeService {
     PageResult<RebuildCourseCharge> findCourseCharge(PageCondition<RebuildCourseCharge> condition);
 
-    String deleteCourseCharge(List<Long> ids);
+    void deleteCourseCharge(List<Long> ids);
 
-    String editCourseCharge(RebuildCourseCharge courseCharge);
+    void editCourseCharge(RebuildCourseCharge courseCharge);
 
-    String addCourseCharge(RebuildCourseCharge courseCharge);
+    void addCourseCharge(RebuildCourseCharge courseCharge);
 
     PageResult<RebuildCourseNoChargeType> findCourseNoChargeType(PageCondition<RebuildCourseNoChargeTypeVo> condition);
 
-    String addCourseNoChargeType(RebuildCourseNoChargeType noChargeType);
+    void addCourseNoChargeType(RebuildCourseNoChargeType noChargeType);
 
-    String deleteCourseNoChargeType(List<Long> ids);
+    void deleteCourseNoChargeType(List<Long> ids);
 
-    String editCourseNoChargeType(RebuildCourseNoChargeType courseNoCharge);
+    void editCourseNoChargeType(RebuildCourseNoChargeType courseNoCharge);
 
     //查询未缴费课程名单
     PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition);
@@ -36,13 +36,13 @@ public interface RebuildCourseChargeService {
     //查询学生未缴费课程门数
     PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto > condition);
     /**移动到回收站*/
-    String moveToRecycle(List<RebuildCourseNoChargeList> list);
+    void moveToRecycle(List<RebuildCourseNoChargeList> list);
 
     /**查询回收站*/
     PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition);
 
     /**从回收站回复数据*/
-    String moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
+    void moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
 
 
     /**导出未缴费重修名单*/

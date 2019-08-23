@@ -37,6 +37,7 @@ import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -78,8 +79,7 @@ public class RebuildCourseController
         String dptId = currentSession.getCurrentManageDptId();
         if (StringUtils.isBlank(dptId))
         {
-            return RestResult
-                .fail(I18nUtil.getMsg("baseresservice.projIdNotExtist"));
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.projIdNotExtist"));
         }
         if (Constants.PROJ_LINE_GRADUATE.equals(dptId))
         {
@@ -96,42 +96,40 @@ public class RebuildCourseController
     @PostMapping("/deleteCourseCharge")
     public RestResult<String> deleteCourseCharge(@RequestBody List<Long> ids)
     {
-        String s = service.deleteCourseCharge(ids);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.deleteCourseCharge(ids);
+        return RestResult.success();
     }
     
     @LogRecord(title = "编辑重修收费信息", type = AuditType.UPDATE)
     @ApiOperation(value = "编辑重修收费信息")
     @PostMapping("/editCourseCharge")
-    public RestResult<String> editCourseCharge(
+    public RestResult<?> editCourseCharge(
         @RequestBody RebuildCourseCharge courseCharge)
     {
         if (StringUtils.isBlank(courseCharge.getFormLearning())
             || StringUtils.isBlank(courseCharge.getTrainingLevel())
             || courseCharge.getIsCharge() == null)
         {
-            return RestResult
-                .fail(I18nUtil.getMsg("baseresservice.parameterError "));
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError "));
         }
-        String s = service.editCourseCharge(courseCharge);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.editCourseCharge(courseCharge);
+        return RestResult.success();
     }
     
     @LogRecord(title = "新增重修收费信息", type = AuditType.INSERT)
     @ApiOperation(value = "新增重修收费信息")
     @PostMapping("/addCourseCharge")
-    public RestResult<String> addCourseCharge(
+    public RestResult<?> addCourseCharge(
         @RequestBody RebuildCourseCharge courseCharge)
     {
         if (StringUtils.isBlank(courseCharge.getFormLearning())
             || StringUtils.isBlank(courseCharge.getTrainingLevel())
             || courseCharge.getIsCharge() == null)
         {
-            return RestResult
-                .fail(I18nUtil.getMsg("baseresservice.parameterError "));
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError "));
         }
-        String s = service.addCourseCharge(courseCharge);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.addCourseCharge(courseCharge);
+        return RestResult.success();
     }
     
     @ApiOperation(value = "查询重修不收费学生类型")
@@ -147,31 +145,31 @@ public class RebuildCourseController
     @LogRecord(title = "新增重修不收费学生类型", type = AuditType.INSERT)
     @ApiOperation(value = "新增重修不收费学生类型")
     @PostMapping("/addCourseNoChargeType")
-    public RestResult<String> addCourseNoChargeType(
+    public RestResult<?> addCourseNoChargeType(
         @RequestBody RebuildCourseNoChargeType condition)
     {
-        String s = service.addCourseNoChargeType(condition);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.addCourseNoChargeType(condition);
+        return RestResult.success();
     }
     
     @LogRecord(title = "删除重修不收费学生类型", type = AuditType.DELETE)
     @ApiOperation(value = "删除重修不收费学生类型")
     @PostMapping("/deleteCourseNoChargeType")
-    public RestResult<String> deleteCourseNoChargeType(
+    public RestResult<?> deleteCourseNoChargeType(
         @RequestBody List<Long> ids)
     {
-        String s = service.deleteCourseNoChargeType(ids);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.deleteCourseNoChargeType(ids);
+        return RestResult.success();
     }
     
     @LogRecord(title = "编辑重修不收费学生类型", type = AuditType.UPDATE)
     @ApiOperation(value = "编辑重修不收费学生类型")
     @PostMapping("/editCourseNoChargeType")
-    public RestResult<String> editCourseNoChargeType(
+    public RestResult<?> editCourseNoChargeType(
         @RequestBody RebuildCourseNoChargeType courseNoCharge)
     {
-        String s = service.editCourseNoChargeType(courseNoCharge);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.editCourseNoChargeType(courseNoCharge);
+        return RestResult.success();
     }
     
     @ApiOperation(value = "查询未缴费的课程名单")
@@ -200,11 +198,11 @@ public class RebuildCourseController
     
     @ApiOperation(value = "移动到回收站")
     @PostMapping("/moveCourseNoChargeListToRecycle")
-    public RestResult<String> moveCourseNoChargeListToRecycle(
+    public RestResult<?> moveCourseNoChargeListToRecycle(
         @RequestBody List<RebuildCourseNoChargeList> list)
     {
-        String s = service.moveToRecycle(list);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.moveToRecycle(list);
+        return RestResult.success();
     }
     
     @ApiOperation(value = "查询回收站")
@@ -221,11 +219,11 @@ public class RebuildCourseController
     
     @ApiOperation(value = "从回收站恢复到未缴费的课程名单")
     @PostMapping("/moveRecycleCourseToNoChargeList")
-    public RestResult<String> moveRecycleCourseToNoChargeList(
+    public RestResult<?> moveRecycleCourseToNoChargeList(
         @RequestBody List<RebuildCourseNoChargeList> list)
     {
-        String s = service.moveRecycleCourseToNoChargeList(list);
-        return RestResult.success(I18nUtil.getMsg(s, ""));
+        service.moveRecycleCourseToNoChargeList(list);
+        return RestResult.success();
     }
     
     @ApiOperation(value = "导出重修汇总名单")
@@ -292,8 +290,7 @@ public class RebuildCourseController
     {
         if (studentRePaymentDto.getCalendarId() == null)
         {
-            return RestResult
-                .fail(I18nUtil.getMsg("baseresservice.parameterError"));
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
         }
         String studentCode = SessionUtils.getCurrentSession().realUid();
         studentRePaymentDto.setStudentCode(studentCode);
