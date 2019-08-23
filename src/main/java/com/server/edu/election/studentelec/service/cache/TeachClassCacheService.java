@@ -343,6 +343,22 @@ public class TeachClassCacheService extends AbstractCacheService
     }
     
     /**
+     * 获取缓存中指定教学班
+     * @param calendarId
+     * @param courseCode
+     * @param teachClassId
+     * @return
+     */
+    public TeachingClassCache getTeachClassByTeachClassId(Long teachClassId){
+        HashOperations<String, String, TeachingClassCache> hash =
+            opsTeachClass();
+        
+        TeachingClassCache lesson =
+            hash.get(Keys.getClassKey(), teachClassId.toString());
+        return lesson;
+    }
+    
+    /**
      * 获取教学班选课人数
      * 
      * @param teachClassId 教学班ID

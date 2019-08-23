@@ -8,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -16,6 +17,7 @@ import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.entity.CourseLabelRelation;
 import com.server.edu.common.entity.Courses;
+import com.server.edu.common.entity.CulturePlan;
 import com.server.edu.common.entity.CultureScheme;
 import com.server.edu.common.entity.StudentCultureRel;
 import com.server.edu.common.rest.PageResult;
@@ -276,6 +278,14 @@ public class CultureSerivceInvoker
 //    	List<StudentCultureRel> parseArray = restResult.getData().getList();
     	
     	return parseObject;
+    }
+    
+    /** 选课后更新学生培养计划课程选课数据 */
+    public static RestResult updateSelectCourse(CulturePlan record) throws Exception{
+    	@SuppressWarnings("unchecked")
+    	RestResult restResult = 
+    		ServicePathEnum.CULTURESERVICE.postForObject("/culturePlan/updateSelectCourse",record,RestResult.class);
+    	return restResult;
     }
 
 }
