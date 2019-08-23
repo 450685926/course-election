@@ -236,5 +236,5 @@ public class ElecYjsController
     {
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
     	return RestResult.successData(list);
-    }
+    }    
 }
