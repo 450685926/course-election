@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.dao.*;
-import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.vo.ScoreStudentResultVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,25 +92,25 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
-        List<StudentScoreVo> stuScoreBest =
-            ScoreServiceInvoker.findStuScoreBest(studentId);
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
+
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
-        if (CollectionUtil.isNotEmpty(stuScoreBest))
+        if (CollectionUtil.isNotEmpty(stuScore))
         {
-            List<Long> teachClassIds = stuScoreBest.stream()
-                    .map(temp -> temp.getTeachingClassId())
+            List<Long> teachClassIds = stuScore.stream()
+                    .map(temp -> Long.parseLong(temp.getTeachingClassId()))
                     .collect(Collectors.toList());
             // 获取学院，教师名称
             List<TeachingClassCache> classInfo = courseOpenDao.findClassInfo(teachClassIds);
             Map<Long, TeachingClassCache> classMap = classInfo.stream().collect(Collectors.toMap(s->s.getTeachClassId(),s->s));
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-            for (StudentScoreVo studentScore : stuScoreBest)
+            for (ScoreStudentResultVo studentScore : stuScore)
             {
                 CompletedCourse lesson = new CompletedCourse();
-                Long teachingClassId = studentScore.getTeachingClassId();
+                Long teachingClassId = Long.parseLong(studentScore.getTeachingClassId());
                 lesson.setTeachClassId(teachingClassId);
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
@@ -120,7 +120,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
                 lesson.setIsPass(studentScore.getIsPass());
-                lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
@@ -160,6 +159,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 if (classCache == null) {
                     continue;
                 }
+                lesson.setNature(classCache.getNature());
                 lesson.setTeachClassCode(classCache.getTeachClassCode());
                 lesson.setRemark(classCache.getRemark());
                 lesson.setFaculty(classCache.getFaculty());
