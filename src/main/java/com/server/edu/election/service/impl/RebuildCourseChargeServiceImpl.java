@@ -38,6 +38,7 @@ import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -141,7 +142,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     public String addCourseCharge(RebuildCourseCharge courseCharge) {
         RebuildCourseCharge item = courseChargeDao.findPrice(courseCharge.getTrainingLevel(),courseCharge.getFormLearning());
         if (item != null) {
-            return "common.exist";
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist"));
         }
         courseChargeDao.insertSelective(courseCharge);
         return "common.addsuccess";
@@ -177,7 +178,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
         RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(noChargeType);
         if (item != null) {
-            return "common.exist";
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist"));
         }
         noChargeTypeDao.insertSelective(noChargeType);
         return "common.addsuccess";
@@ -213,7 +214,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(courseNoCharge);
         if(item!=null){
             if(item.getId().intValue()!=courseNoCharge.getId().intValue()){
-                return "common.exist";
+                throw new ParameterValidateException(I18nUtil.getMsg("common.exist"));
             }
         }
         noChargeTypeDao.updateByPrimaryKeySelective(courseNoCharge);

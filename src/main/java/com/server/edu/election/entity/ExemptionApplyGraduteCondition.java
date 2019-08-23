@@ -2,7 +2,6 @@ package com.server.edu.election.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -92,8 +91,7 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
      */
     @Column(name = "DELETE_STATUS_")
     private Integer deleteStatus;
-
-
+    
 	public Long getId() {
 		return id;
 	}
@@ -101,7 +99,7 @@ public class ExemptionApplyGraduteCondition  implements Serializable{
 	public void setId(Long id) {
 		this.id = id;
 	}
-
+	
 	public String getCourseCode() {
 		return courseCode;
 	}
