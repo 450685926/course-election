@@ -898,10 +898,18 @@ public class ReportManagementServiceImpl implements ReportManagementService
         // 将模板和数据模型合并生成文件
         Writer out = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
-        tpl.process(map, out);
-        // 关闭流
-        out.flush();
-        out.close();
+        try
+        {
+            tpl.process(map, out);
+            out.flush();
+        }
+        finally
+        {
+            // 关闭流
+            if(null != out) {
+                out.close();
+            }
+        }
         return path;
     }
 
