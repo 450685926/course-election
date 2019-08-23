@@ -3,17 +3,8 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.dictionary.DictTypeEnum;
-import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.util.FileUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelCell;
-import com.server.edu.util.excel.GeneralExcelDesigner;
-import com.server.edu.util.excel.GeneralExcelUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -37,6 +28,9 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
+import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.ExportPreCondition;
 import com.server.edu.election.dto.PreViewRollDto;
 import com.server.edu.election.dto.PreviewRollBookList;
@@ -52,6 +46,11 @@ import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.ExportUtil;
+import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import com.server.edu.util.excel.GeneralExcelCell;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 
@@ -358,13 +357,15 @@ public class ReportManagementController
     
     @ApiOperation(value = "导出预览点名册")
     @PostMapping("/exportPreRollBookList")
-    public RestResult<String> exportPreRollBookList(
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> exportPreRollBookList(
         @RequestBody ExportPreCondition condition)
         throws Exception
     {
         LOG.info("exportPreRollBookList.start");
         String fileName = managementService.exportPreRollBookList(condition);
-        return RestResult.successData(fileName);
+        return ExportUtil.export(fileName, "DianMingCe.xls");
     }
 
     @GetMapping(value = "/exportStudentTimetabPdf")
