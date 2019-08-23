@@ -335,7 +335,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         Integer timeEnd = table.getTimeEnd();
                         //如果包含
                         if (start <= timeStart && timeEnd <= end) {
-                            table.setValue(value + table.getValue());
+                            table.setValue(value + ", " + table.getValue());
                             if (start < timeStart) {
                                 days.add(start + "," + (timeStart - 1));
                             }
