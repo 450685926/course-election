@@ -37,4 +37,8 @@
     where TEACHER_CODE_  like concat('%',#{keyWord,jdbcType=VARCHAR},'%') or TEACHER_NAME_ like concat('%',#{keyWord,jdbcType=VARCHAR},'%')
     group by TEACHER_CODE_
   </select>
+
+  <select id="findNamesByTeachingClassId" resultType="java.lang.String">
+    select TEACHER_NAME_ from teaching_class_teacher_t where TEACHING_CLASS_ID_ = #{teachingClassId}
+  </select>
 </mapper>

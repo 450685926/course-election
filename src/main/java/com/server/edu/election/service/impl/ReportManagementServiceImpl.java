@@ -257,7 +257,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
             int size = tableMessages.size();
             MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
             List<TimeTable> list=new ArrayList<>(size);
-            MultiValueMap<Long, String> nameMap = new LinkedMultiValueMap<>(size);
             String lang = SessionUtils.getLang();
             for (TimeTableMessage tableMessage : tableMessages) {
                 Integer dayOfWeek = tableMessage.getDayOfWeek();
@@ -284,7 +283,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
                             String name = teachingClassTeacherDao.findTeacherName(s);
                             if (name != null) {
                                 names.add(name);
-                                nameMap.add(teachingClassId,name);
                             }
                         }
                     }
@@ -309,11 +307,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 if (CollectionUtil.isNotEmpty(times)) {
                     studentSchoolTimetab.setTime(String.join(",", times));
                 }
-                List<String> names = nameMap.get(teachingClassId);
+                List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachingClassId);
                 if (CollectionUtil.isNotEmpty(names)) {
-                    Set<String> set = new HashSet<>(names.size());
-                    set.addAll(names);
-                    studentSchoolTimetab.setTeacherName(String.join(",", set));
+                    studentSchoolTimetab.setTeacherName(String.join(",", names));
                 }
             }
             timetabVo.setTimeTables(list);

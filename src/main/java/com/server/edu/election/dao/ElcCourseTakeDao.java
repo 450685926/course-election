@@ -168,7 +168,7 @@ public interface ElcCourseTakeDao
     Page<ClassCodeToTeacher> findAllTeacherTimeTable(ClassCodeToTeacher condition);
 
     /**研究生教师课表查询*/
-    List<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
+    Page<ClassCodeToTeacher> findTeacherTimeTableByRole(ClassCodeToTeacher condition);
 
     List<TeacherTimeTable> findTeacherTimetable(@Param("calendarId") Long calendarId,@Param("teacherCode") String teacherCode);
     

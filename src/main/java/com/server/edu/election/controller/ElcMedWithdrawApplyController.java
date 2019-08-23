@@ -1,6 +1,5 @@
 package com.server.edu.election.controller;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -16,7 +15,6 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElcMedWithdrawApplyDto;
-import com.server.edu.election.entity.ApprovalInfo;
 import com.server.edu.election.service.ElcMedWithdrawApplyService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcMedWithdrawApplyVo;
@@ -105,23 +103,5 @@ public class ElcMedWithdrawApplyController {
         return RestResult.successData(list);
     }
     
-    /**
-     * 期中退课审批
-     * 
-     * @param ids
-     * @return
-     * @see [类、类#方法、类#成员]
-     */
-    @ApiOperation(value = "期中退课审批")
-    @PostMapping("/approval")
-    public RestResult<Integer> approval(
-    		@RequestBody @Valid ApprovalInfo approvalInfo)
-        throws Exception
-    {
-        LOG.info("approval.start");
-        int result =elcMedWithdrawApplyService.approval(approvalInfo);
-        return RestResult.successData(result);
-    }
-	
 	
 }

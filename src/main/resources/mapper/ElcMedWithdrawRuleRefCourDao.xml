@@ -36,7 +36,7 @@
 	        and t1.MED_WITHDRAW_RULE_ID_= #{medWithdrawRuleId}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-	        and t4.CAMPUS_= #{campus}
+	        and t2.CAMPUS_= #{campus}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 	        and t4.FACULTY_= #{faculty}
@@ -97,7 +97,7 @@
 	        and t4.CALENDAR_ID_= #{calendarId}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-	        and t4.CAMPUS_= #{campus}
+	        and t2.CAMPUS_= #{campus}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 	        and t4.FACULTY_= #{faculty}
