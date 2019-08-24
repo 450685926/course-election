@@ -159,7 +159,17 @@ public class ElcResultQuery
     
     private List<String> includeCodes;
     
-    private String isTake;   
+    private List<String> studentCodes;
+    
+    public List<String> getStudentCodes() {
+		return studentCodes;
+	}
+
+	public void setStudentCodes(List<String> studentCodes) {
+		this.studentCodes = studentCodes;
+	}
+
+	private String isTake;   
 	public List<String> getIncludeCodes() {
 		return includeCodes;
 	}
