@@ -21,7 +21,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.utils.Keys;
 
 /**
- * 本科生培养计划课程查询
+ * 加载研究生学年学期所有的课程
  * 
  */
 @Component

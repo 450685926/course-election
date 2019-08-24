@@ -1188,7 +1188,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
                 .getSchoolCalendarById(calendarId);
         Paragraph subtitle = new Paragraph(schoolCalendarVo.getFullName(), subtitleChinese);
-        subtitle.setAlignment(Element.ALIGN_CENTER);
+        subtitle.setAlignment(Element.ALIGN_CENTER); 
         //设置行间距
         subtitle.setLeading(10);
         //内容距离左边8个单位
