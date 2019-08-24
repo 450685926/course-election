@@ -80,6 +80,8 @@
 		</where>
     </select>
     
+    
+    
     <select id="getStudent4CulturePlan" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="BaseResultMap">
 		SELECT 
 			t1.STUDENT_CODE_,
@@ -98,7 +100,9 @@
 			<foreach item="studentId" collection="query.studentIds" index="index" open="(" separator="," close=")">
 		          #{studentId}
 		    </foreach>
+		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.isTake)">
 			AND t1.STUDENT_CODE_  NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE COURSE_CODE_ = #{query.courseCode})
+		  	</if>
 	      	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
 		  	and t1.GRADE_ = #{query.grade}
 		  	</if>
@@ -381,5 +385,9 @@
 
 	<select id="findCampus" resultType="java.lang.String">
 		select CAMPUS_ from student_t where STUDENT_CODE_=#{studentCode}
+	</select>
+	
+	<select id="findCampus" resultType="java.lang.String">
+		select COUNT(*) from elc_course_takes_t t2 WHERE COURSE_CODE_ = #{query.courseCode}
 	</select>
 </mapper>

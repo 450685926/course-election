@@ -638,6 +638,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		Session currentSession = SessionUtils.getCurrentSession();
 		cond.setProjectId(currentSession.getCurrentManageDptId());
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+		
+		//查询本门课是否有选课
+		Integer isTake = studentDao.isTakeNum(cond.getCourseCode());
+		if (isTake.intValue() > 0) {
+			cond.setIsTake(isTake+"");
+		}else{
+			cond.setIsTake(null);
+		}
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
