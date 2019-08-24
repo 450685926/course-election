@@ -647,13 +647,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
 		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
 		List<String> collect = selectByExample.stream().map(ElcCourseTake::getStudentId).collect(Collectors.toList());
-
-		if (selectByExample.size() > 0) {
-			cond.setIsTake(selectByExample.size()+"");
-			cond.setStudentCodes(collect);
-		}else{
-			cond.setIsTake(null);
-		}
+		collect.add("0");
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
