@@ -55,6 +55,7 @@ public interface StudentDao extends Mapper<Student> {
 	List<Student> getUnLimitStudents(StudentDto studentDto);
 
     String findCampus(String studentCode);
+	Integer isTakeNum(String courseCode);
 
 }
 
