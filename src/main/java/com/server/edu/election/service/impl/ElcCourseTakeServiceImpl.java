@@ -51,6 +51,7 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
+import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.exception.ParameterValidateException;
@@ -645,8 +646,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		Example example = new Example(ElcCourseTake.class);
 		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
 		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
+		List<String> collect = selectByExample.stream().map(ElcCourseTake::getStudentId).collect(Collectors.toList());
+
 		if (selectByExample.size() > 0) {
 			cond.setIsTake(cond.getCourseCode());
+			cond.setStudentCodes(collect);
 		}else{
 			cond.setIsTake(null);
 		}
