@@ -36,6 +36,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.StuCourseLevelQuery;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ElcStuCourseLevelService;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
@@ -130,7 +131,7 @@ public class ElcStuCourseLevelController
     
     @ApiOperation(value = "导入学生课程能力")
     @PostMapping(value = "/upload")
-    public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file)
+    public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file) throws Exception
     {
         if (file == null)
         {
@@ -143,9 +144,13 @@ public class ElcStuCourseLevelController
             return RestResult.error("请使用1999-2003(.xls)类型的Excle");
         }
         
+        List<CourseLevelDto> coursesLevel = CultureSerivceInvoker.getCoursesLevel();
+        if(CollectionUtil.isEmpty(coursesLevel)) {
+            return RestResult.error("系统没有配置课程等级，请先配置");
+        }
+        
         try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
         {
-            List<CourseLevelDto> coursesLevel = CultureSerivceInvoker.getCoursesLevel();
             ExcelParseDesigner designer = new ExcelParseDesigner();
             designer.setDataStartRowIdx(1);
             designer.setConfigs(new ArrayList<>());
