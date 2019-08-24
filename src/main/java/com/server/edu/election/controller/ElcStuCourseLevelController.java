@@ -154,6 +154,7 @@ public class ElcStuCourseLevelController
                 @Override
                 public Object handler(String value)
                 {
+                    value = StringUtils.trim(value);
                     Student stu = studentDao.findStudentByCode(value);
                     if(stu == null) {
                         return null;
@@ -166,8 +167,9 @@ public class ElcStuCourseLevelController
                     @Override
                     public Object handler(String value)
                     {
+                        String value1 = StringUtils.trim(value);
                         CourseLevelDto findFirst = coursesLevel.stream()
-                            .filter(p -> {return StringUtils.equalsIgnoreCase(p.getLevelName(), value);})
+                            .filter(p -> {return StringUtils.equalsIgnoreCase(p.getLevelName(), value1);})
                             .findFirst()
                             .orElse(null);
                         if(null == findFirst) {

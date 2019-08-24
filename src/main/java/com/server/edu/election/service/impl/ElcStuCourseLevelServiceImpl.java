@@ -123,10 +123,13 @@ public class ElcStuCourseLevelServiceImpl implements ElcStuCourseLevelService
         
         sb.append("导入")
             .append(successCount)
-            .append("条;")
-            .append("忽略")
+            .append("条;");
+        int ignore = datas.size() - successCount;
+        if(ignore > 0) {
+            sb.append(" 忽略")
             .append(datas.size() - successCount)
             .append("条");
+        }
         
         return sb.toString();
         
