@@ -3,18 +3,22 @@ package com.server.edu.election.service.impl;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.base.Objects;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ElcStuCouLevelDao;
+import com.server.edu.election.dto.CourseLevelDto;
 import com.server.edu.election.dto.ElcStuCouLevelDto;
 import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.query.StuCourseLevelQuery;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ElcStuCourseLevelService;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -38,10 +42,23 @@ public class ElcStuCourseLevelServiceImpl implements ElcStuCourseLevelService
     
     @Override
     public PageResult<ElcStuCouLevelDto> listPage(
-        PageCondition<StuCourseLevelQuery> page)
+        PageCondition<StuCourseLevelQuery> page) throws Exception
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ElcStuCouLevelDto> listPage = couLevelDao.listPage(page);
+        
+        List<CourseLevelDto> coursesLevel = CultureSerivceInvoker.getCoursesLevel();
+        for (ElcStuCouLevelDto dto : listPage)
+        {
+            CourseLevelDto orElse = coursesLevel.stream()
+                .filter(p -> {return Objects.equal(p.getId(), dto.getCourseCategoryId());})
+                .findFirst()
+                .orElse(null);
+            if(orElse != null) {
+                dto.setCourseCategoryName(orElse.getLevelName());
+            }
+        }
+        
         
         return new PageResult<>(listPage);
     }
@@ -88,6 +105,9 @@ public class ElcStuCourseLevelServiceImpl implements ElcStuCourseLevelService
         int successCount = 0;
         for (ElcStuCouLevel couLevel : datas)
         {
+            if(StringUtils.isBlank(couLevel.getStudentId()) || null == couLevel.getCourseCategoryId()) {
+                continue;
+            }
             Example example = new Example(ElcStuCouLevel.class);
             example.createCriteria()
                 .andEqualTo("studentId", couLevel.getStudentId());

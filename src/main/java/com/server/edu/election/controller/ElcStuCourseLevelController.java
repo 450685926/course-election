@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -27,9 +28,13 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dto.CourseLevelDto;
 import com.server.edu.election.dto.ElcStuCouLevelDto;
 import com.server.edu.election.entity.ElcStuCouLevel;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.StuCourseLevelQuery;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.ElcStuCourseLevelService;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
@@ -58,6 +63,9 @@ public class ElcStuCourseLevelController
     
     @Autowired
     private ElcStuCourseLevelService courseLevelService;
+    
+    @Autowired
+    private StudentDao studentDao;
     
     /**
      * 上课名单列表
@@ -137,13 +145,37 @@ public class ElcStuCourseLevelController
         
         try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
         {
+            List<CourseLevelDto> coursesLevel = CultureSerivceInvoker.getCoursesLevel();
             ExcelParseDesigner designer = new ExcelParseDesigner();
             designer.setDataStartRowIdx(1);
             designer.setConfigs(new ArrayList<>());
             
-            designer.getConfigs().add(new ExcelParseConfig("studentId", 0));
+            designer.getConfigs().add(new ExcelParseConfig("studentId", 0) {
+                @Override
+                public Object handler(String value)
+                {
+                    Student stu = studentDao.findStudentByCode(value);
+                    if(stu == null) {
+                        return null;
+                    }
+                    return value;
+                }
+            });
             designer.getConfigs()
-                .add(new ExcelParseConfig("courseCategoryId", 2));
+                .add(new ExcelParseConfig("courseCategoryId", 2) {
+                    @Override
+                    public Object handler(String value)
+                    {
+                        CourseLevelDto findFirst = coursesLevel.stream()
+                            .filter(p -> {return StringUtils.equalsIgnoreCase(p.getLevelName(), value);})
+                            .findFirst()
+                            .orElse(null);
+                        if(null == findFirst) {
+                            return null;
+                        }
+                        return findFirst.getId();
+                    }
+                });
             
             List<ElcStuCouLevel> datas = GeneralExcelUtil
                 .parseExcel(workbook, designer, ElcStuCouLevel.class);
@@ -157,4 +189,5 @@ public class ElcStuCourseLevelController
             return RestResult.error("解析文件错误" + e.getMessage());
         }
     }
+    
 }
