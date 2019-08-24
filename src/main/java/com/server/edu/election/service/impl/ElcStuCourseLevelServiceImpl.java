@@ -45,7 +45,7 @@ public class ElcStuCourseLevelServiceImpl implements ElcStuCourseLevelService
         PageCondition<StuCourseLevelQuery> page) throws Exception
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        Page<ElcStuCouLevelDto> listPage = couLevelDao.listPage(page);
+        Page<ElcStuCouLevelDto> listPage = couLevelDao.listPage(page.getCondition());
         
         List<CourseLevelDto> coursesLevel = CultureSerivceInvoker.getCoursesLevel();
         for (ElcStuCouLevelDto dto : listPage)
