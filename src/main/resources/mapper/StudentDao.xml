@@ -94,7 +94,7 @@
 		FROM student_t t1
 		<where>
 			t1.LEAVE_SCHOOL_ = 1
-			and t1.MANAGER_DEPT_ID_ = #{query.managerDeptId}
+			and t1.MANAGER_DEPT_ID_ = #{query.projectId}
 			and t1.STUDENT_CODE_  IN  
 			<foreach item="studentId" collection="query.studentIds" index="index" open="(" separator="," close=")">
 		          #{studentId}
