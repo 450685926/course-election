@@ -80,7 +80,6 @@ import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
-
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -422,7 +421,6 @@ public class ElcResultServiceImpl implements ElcResultService
         	// 实时获取选课人数
         	Integer elecNumber = teachClassCacheService.getElecNumber(teachingClassVo.getId());
         	teachingClassCache.setCurrentNumber(elecNumber);
-        	
         	teachClassCacheService.saveTeachClassCache(teachingClassVo.getId(), teachingClassCache);
 		}
     }
