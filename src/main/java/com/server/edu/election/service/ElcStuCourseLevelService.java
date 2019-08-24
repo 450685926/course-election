@@ -27,7 +27,9 @@ public interface ElcStuCourseLevelService
      * @see [类、类#方法、类#成员]
      */
     PageResult<ElcStuCouLevelDto> listPage(
-        PageCondition<StuCourseLevelQuery> page);
+        PageCondition<StuCourseLevelQuery> page)
+        throws Exception;
+    
     /**
      * 新增
      * 
@@ -51,6 +53,7 @@ public interface ElcStuCourseLevelService
      * @see [类、类#方法、类#成员]
      */
     void delete(List<Long> ids);
+    
     /**
      * 批量新增
      * 
