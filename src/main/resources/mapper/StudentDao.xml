@@ -101,7 +101,7 @@
 		    </foreach>
 	      	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
 			AND t1.STUDENT_CODE_  NOT IN 
-			<foreach item="studentId" collection="query.studentCodes" index="index" open="(" separator="," close=")">
+			<foreach item="studentCode" collection="query.studentCodes" index="index" open="(" separator="," close=")">
 		          #{studentCode}
 		    </foreach>
 		  	</if>
