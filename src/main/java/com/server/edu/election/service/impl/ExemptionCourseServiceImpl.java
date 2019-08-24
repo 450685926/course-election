@@ -1225,7 +1225,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		
 		//培养计划课程
-		List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(student.getStudentCode());
+		List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(student.getStudentCode());
 		logger.info("courseType========================="+courseType.size());
 		Set<PlanCourse> planCourses = new HashSet<>();//培养课程
 		if (CollectionUtil.isNotEmpty(courseType)) {
