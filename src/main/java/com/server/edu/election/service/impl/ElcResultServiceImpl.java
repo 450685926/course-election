@@ -16,12 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
@@ -73,7 +70,6 @@ import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
-import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcResultCountVo;
@@ -151,9 +147,6 @@ public class ElcResultServiceImpl implements ElcResultService
 
     @Autowired
     private TeachClassCacheService teachClassCacheService;
-    
-    @Autowired
-    private StringRedisTemplate redisTemplate;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -430,8 +423,7 @@ public class ElcResultServiceImpl implements ElcResultService
         	Integer elecNumber = teachClassCacheService.getElecNumber(teachingClassVo.getId());
         	teachingClassCache.setCurrentNumber(elecNumber);
         	
-        	HashOperations<String, String, String> ops = redisTemplate.opsForHash();
-        	ops.put(Keys.getClassKey(), String.valueOf(teachingClassVo.getId()), JSON.toJSONString(teachingClassCache));
+        	teachClassCacheService.saveTeachClassCache(teachingClassVo.getId(), teachingClassCache);
 		}
     }
     
