@@ -387,7 +387,7 @@
 		select CAMPUS_ from student_t where STUDENT_CODE_=#{studentCode}
 	</select>
 	
-	<select id="findCampus" resultType="java.lang.String">
-		select COUNT(*) from elc_course_takes_t t2 WHERE COURSE_CODE_ = #{query.courseCode}
+	<select id="isTakeNum" resultType="java.lang.String">
+		select COUNT(*) from elc_course_takes_t t2 WHERE COURSE_CODE_ = #{courseCode}
 	</select>
 </mapper>
