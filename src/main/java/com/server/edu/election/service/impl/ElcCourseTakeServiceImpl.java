@@ -640,6 +640,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		
 		//查询本门课是否有选课
+		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
 		Integer isTake = studentDao.isTakeNum(cond.getCourseCode());
 		if (isTake.intValue() > 0) {
 			cond.setIsTake(isTake+"");
