@@ -98,7 +98,7 @@
 			<foreach item="studentId" collection="query.studentIds" index="index" open="(" separator="," close=")">
 		          #{studentId}
 		    </foreach>
-			AND t1.STUDENT_CODE_  NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} and COURSE_CODE_ = #{query.courseCode})
+			AND t1.STUDENT_CODE_  NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE COURSE_CODE_ = #{query.courseCode})
 	      	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
 		  	and t1.GRADE_ = #{query.grade}
 		  	</if>
