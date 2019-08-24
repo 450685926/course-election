@@ -649,7 +649,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		List<String> collect = selectByExample.stream().map(ElcCourseTake::getStudentId).collect(Collectors.toList());
 
 		if (selectByExample.size() > 0) {
-			cond.setIsTake(cond.getCourseCode());
+			cond.setIsTake(selectByExample.size()+"");
 			cond.setStudentCodes(collect);
 		}else{
 			cond.setIsTake(null);
