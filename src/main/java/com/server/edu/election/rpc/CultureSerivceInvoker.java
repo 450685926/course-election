@@ -236,6 +236,17 @@ public class CultureSerivceInvoker
         return list.getData();
     }
     
+    /**免修免考查询培养计划*/
+    public static List<PlanCourseDto> findCourseTypeForGraduteExemption(String studentId)
+    {
+    	@SuppressWarnings("unchecked")
+    	RestResult<List<PlanCourseDto>> list = ServicePathEnum.CULTURESERVICE
+    	.getForObject("/studentCultureRel/findCourseTypeForGraduteExemption/{studentId}",
+    			RestResult.class,
+    			studentId);
+    	return list.getData();
+    }
+    
     /**查询本科生选课培养计划课程（包含实践课）*/
     public static List<PlanCourseDto> findUnGraduateCourse(String studentId)
     {
