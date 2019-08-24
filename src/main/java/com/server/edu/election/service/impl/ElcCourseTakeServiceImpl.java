@@ -45,12 +45,14 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -105,6 +107,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private ElecResultSwitchService elecResultSwitchService;
+    
+    @Autowired
+    private ElecYjsServiceImpl elecYjsServiceImpl;
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -392,6 +397,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             take.setMode(mode);
             take.setTurn(0);
             courseTakeDao.insertSelective(take);
+            
+            
+            try {
+            	elecYjsServiceImpl.updateSelectCourse(studentId,courseCode,ElectRuleType.ELECTION);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             // 增加选课人数
             classDao.increElcNumber(teachingClassId);
             // 添加选课日志
@@ -569,7 +581,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             {
                 vo = classInfoMap.get(key);
             }
-            
+            try {
+            	elecYjsServiceImpl.updateSelectCourse(studentId,vo.getCourseCode(),ElectRuleType.WITHDRAW);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             // 记录退课日志
             if (null != vo)
             {
@@ -861,6 +877,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (count.intValue() != teachingClassIds.size()) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseError"));
         }
+        for (ElcCourseTake elcCourseTake : elcCourseTakes) {
+        	try {
+				elecYjsServiceImpl.updateSelectCourse(elcCourseTake.getStudentId(),elcCourseTake.getCourseCode(),ElectRuleType.ELECTION);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
         teachingClassDao.increElcNumberList(teachingClassIds);
         Integer logCount = elcLogDao.saveCourseLog(elcLogs);
         if (logCount != count) {
@@ -966,6 +989,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcLog.setCreateName(name);
             elcLog.setCreatedAt(new Date());
             elcLogs.add(elcLog);
+        }
+        for (ElcStudentVo elcStudentVo : elcStudentVos) {
+    		try {
+    			elecYjsServiceImpl.updateSelectCourse(elcStudentVo.getStudentId(),elcStudentVo.getCourseCode(),ElectRuleType.WITHDRAW);
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
         }
         Integer logCount = elcLogDao.saveCourseLog(elcLogs);
         if (logCount != delSize) {

@@ -3,7 +3,6 @@ package com.server.edu.election.dao;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
-import com.server.edu.common.PageCondition;
 import com.server.edu.election.dto.ElcStuCouLevelDto;
 import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.query.StuCourseLevelQuery;
@@ -29,5 +28,5 @@ public interface ElcStuCouLevelDao extends Mapper<ElcStuCouLevel>
      * @see [类、类#方法、类#成员]
      */
     Page<ElcStuCouLevelDto> listPage(
-        @Param("query") PageCondition<StuCourseLevelQuery> page);
+        @Param("query") StuCourseLevelQuery page);
 }

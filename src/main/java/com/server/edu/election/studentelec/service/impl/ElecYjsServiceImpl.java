@@ -408,7 +408,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             courseTakeDao.insertSelective(take);
             
             /*************************选课后修改学生培养计划中课程选课状态************************/
-            //updateSelectCourse(studentId,courseCode,type);
+            try {
+				updateSelectCourse(studentId,courseCode,type);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         }
         else
         {
@@ -427,7 +431,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             
             /*************************选课后修改学生培养计划中课程选课状态************************/
-            //updateSelectCourse(studentId,courseCode,type);
+            try {
+				updateSelectCourse(studentId,courseCode,type);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         }
         
         // 添加选课日志

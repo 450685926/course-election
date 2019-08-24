@@ -27,32 +27,7 @@
     <result column="REMARK_" jdbcType="LONGVARCHAR" property="remark" />
     <result column="TEACH_MODE_" jdbcType="LONGVARCHAR" property="teachMode" />
   </resultMap>
-  <select id="getPEorEnglishCourses" parameterType="com.server.edu.election.entity.ElectionConstants" resultMap="BaseResultMap">
-		SELECT
-			t2.*
-		FROM
-			course_t t2
-		JOIN (
-			SELECT
-				t1.ID_,
-				substring_index(
-					substring_index(
-						t1.VALUE_,
-						',',
-						b.help_topic_id + 1
-					),
-					',' ,- 1
-				) courseCode
-			FROM
-				election_constants_t t1
-			JOIN mysql.help_topic b ON b.help_topic_id &lt; (
-				length(t1.VALUE_) - length(REPLACE(t1.VALUE_, ',', '')) + 1
-			)
-			WHERE
-				t1.KEY_ = #{key}
-			AND t1.MANAGER_DEPT_ID_ = #{managerDeptId}
-		) t3 ON t2.CODE_ = t3.courseCode
-  </select>
+  
   <select id="getCourseLabelName" resultType="java.lang.String">
   	SELECT LABEL_ FROM `courses_label_t` WHERE ID_ = #{label}
   </select>
