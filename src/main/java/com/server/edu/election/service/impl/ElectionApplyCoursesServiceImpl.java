@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -19,11 +20,11 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.dto.CourseDto;
 import com.server.edu.election.dto.ElectionApplyCoursesDto;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApplyCourses;
-import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.service.ElectionApplyCoursesService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElectionApplyCoursesVo;
@@ -37,6 +38,10 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	private CourseDao courseDao;
 	@Autowired
 	private  ElectionApplyCoursesDao electionApplyCoursesDao;
+	
+	@Autowired
+	private ElectionConstantsDao constantsDao;
+	
 	@Override
 	public PageInfo<ElectionApplyCoursesVo> applyCourseList(PageCondition<ElectionApplyCoursesDto> condition){
 		ElectionApplyCoursesDto dto = condition.getCondition();
@@ -52,24 +57,29 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		CourseDto dto = condition.getCondition();
 		Integer model = dto.getMode();
 		List<Course> list = new ArrayList<>();
-		ElectionConstants electionConstants = new ElectionConstants();
-		if(Constants.NORMAL_MODEL.equals(model)) {
-			Example example = new Example(Course.class);
-			Example.Criteria criteria = example.createCriteria();
-			criteria.andEqualTo("status", Constants.THREE);
-			if(StringUtils.isNotBlank(dto.getCode())) {
-				criteria.andLike("code", dto.getCode()+'%');
-			}
-			list = courseDao.selectByExample(example);
-		}else if (Constants.ENGLISH_MODEL.equals(model)) {
-			electionConstants.setManagerDeptId("1");
-			electionConstants.setKey("ENGLISH_COURSE_CODES");
-			list = courseDao.getPEorEnglishCourses(electionConstants);
-		}else {
-			electionConstants.setManagerDeptId("1");
-			electionConstants.setKey("PE_COURSE_CODES");
-			list = courseDao.getPEorEnglishCourses(electionConstants);
+		Example example = new Example(Course.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("status", Constants.THREE);
+		if(StringUtils.isNotBlank(dto.getKeyword())) {
+		    example.and().andLike("code", dto.getKeyword()+"%").orLike("name", dto.getKeyword()+"%");
 		}
+		
+		if (Constants.ENGLISH_MODEL.equals(model)) {
+			String englishCourses = constantsDao.findEnglishCourses();
+			if(StringUtils.isBlank(englishCourses)) {
+			    return new PageInfo<>();
+			}
+			String[] split = englishCourses.split(",");
+			criteria.andIn("code", Arrays.asList(split));
+		}else {
+			String PECourses = constantsDao.findPECourses();
+			if(StringUtils.isBlank(PECourses)) {
+                return new PageInfo<>();
+            }
+			String[] split = PECourses.split(",");
+            criteria.andIn("code", Arrays.asList(split));
+		}
+		list = courseDao.selectByExample(example);
 		PageInfo<Course> pageInfo = new PageInfo<>(list);
 		return pageInfo;
 		
