@@ -745,10 +745,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = courseTakeQuerytudentVo.getCalendarId();
         String keyword = courseTakeQuerytudentVo.getKeyword();
         // 获取学生所有已修课程成绩
-        List<StudentScoreVo> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentId);
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         // 获取学生通过课程集合
-        List<StudentScoreVo> collect = stuScoreBest.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
-        List<String> passedCourseCodes = collect.stream().map(StudentScoreVo::getCourseCode).collect(Collectors.toList());
+        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
+        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
         //通过研究生培养计划获取学生所有需要修读的课程
         String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
         RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);

@@ -163,6 +163,7 @@
 			t1.NAME_ teachClassName,
 			t1.REMARK_ remark,
 			t3.FACULTY_ faculty,
+			t3.NATURE_ nature,
 			t3.TERM_ term,
 			GROUP_CONCAT(t4.TEACHER_NAME_) teacherName
 		FROM

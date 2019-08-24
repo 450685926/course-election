@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.dao.*;
-import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.vo.ScoreStudentResultVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,26 +92,26 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
-        List<StudentScoreVo> stuScoreBest =
-            ScoreServiceInvoker.findStuScoreBest(studentId);
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
+
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
-        if (CollectionUtil.isNotEmpty(stuScoreBest))
+        if (CollectionUtil.isNotEmpty(stuScore))
         {
-            List<Long> teachClassIds = stuScoreBest.stream()
-                    .map(temp -> temp.getTeachingClassId())
-                    .collect(Collectors.toList());
-            // 获取学院，教师名称
-            List<TeachingClassCache> classInfo = courseOpenDao.findClassInfo(teachClassIds);
-            Map<Long, TeachingClassCache> classMap = classInfo.stream().collect(Collectors.toMap(s->s.getTeachClassId(),s->s));
-            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-            for (StudentScoreVo studentScore : stuScoreBest)
+//            List<Long> teachClassIds = stuScore.stream()
+//                    .map(temp -> Long.parseLong(temp.getTeachingClassId()))
+//                    .collect(Collectors.toList());
+//            // 获取学院，教师名称
+//            List<TeachingClassCache> classInfo = courseOpenDao.findClassInfo(teachClassIds);
+//            Map<Long, TeachingClassCache> classMap = classInfo.stream().collect(Collectors.toMap(s->s.getTeachClassId(),s->s));
+//            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
+            for (ScoreStudentResultVo studentScore : stuScore)
             {
                 CompletedCourse lesson = new CompletedCourse();
-                Long teachingClassId = studentScore.getTeachingClassId();
-                lesson.setTeachClassId(teachingClassId);
+//                Long teachingClassId = Long.parseLong(studentScore.getTeachingClassId());
+//                lesson.setTeachClassId(teachingClassId);
                 lesson.setCourseCode(studentScore.getCourseCode());
                 lesson.setCourseName(studentScore.getCourseName());
                 lesson.setScore(studentScore.getTotalMarkScore());
@@ -120,52 +120,52 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
                 lesson.setIsPass(studentScore.getIsPass());
-                lesson.setNature(studentScore.getCourseNature());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
+                lesson.setTeachClassName(studentScore.getTeachingClassName());
+                lesson.setTeacherName(studentScore.getTeacherName());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 // 根据校历id设置学年
                 lesson.setCalendarName(schoolCalendar.getYear()+"");
-                List<ClassTimeUnit> classTimeUnits = collect.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(classTimeUnits)) {
-                    List<TimeAndRoom> list = new ArrayList<>();
-                    for (ClassTimeUnit classTimeUnit : classTimeUnits) {
-                        TimeAndRoom time=new TimeAndRoom();
-                        Integer dayOfWeek = classTimeUnit.getDayOfWeek();
-                        Integer timeStart = classTimeUnit.getTimeStart();
-                        Integer timeEnd = classTimeUnit.getTimeEnd();
-                        String roomID = classTimeUnit.getRoomId();
-                        List<Integer> weeks = classTimeUnit.getWeeks();
-                        if (CollectionUtil.isEmpty(weeks)) {
-                            continue;
-                        }
-                        List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
-                        String weekNumStr = weekNums.toString();//周次
-                        if ("[1, 3, 5, 7, 9, 11, 13, 15, 17]".equals(weekNumStr)) {
-                            weekNumStr = "单周";
-                        } else if ("[2, 4, 6, 8, 10, 12, 14, 16".equals(weekNumStr)) {
-                            weekNumStr = "双周";
-                        }
-                        String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
-                        String timeStr=weekstr+timeStart+"-"+timeEnd+weekNumStr+" ";
-                        time.setTimeAndRoom(timeStr);
-                        time.setRoomId(roomID);
-                        list.add(time);
-                    }
-                    lesson.setTimeTableList(list);
-                }
+//                List<ClassTimeUnit> classTimeUnits = collect.get(teachingClassId);
+//                if (CollectionUtil.isNotEmpty(classTimeUnits)) {
+//                    List<TimeAndRoom> list = new ArrayList<>();
+//                    for (ClassTimeUnit classTimeUnit : classTimeUnits) {
+//                        TimeAndRoom time=new TimeAndRoom();
+//                        Integer dayOfWeek = classTimeUnit.getDayOfWeek();
+//                        Integer timeStart = classTimeUnit.getTimeStart();
+//                        Integer timeEnd = classTimeUnit.getTimeEnd();
+//                        String roomID = classTimeUnit.getRoomId();
+//                        List<Integer> weeks = classTimeUnit.getWeeks();
+//                        if (CollectionUtil.isEmpty(weeks)) {
+//                            continue;
+//                        }
+//                        List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+//                        String weekNumStr = weekNums.toString();//周次
+//                        if ("[1, 3, 5, 7, 9, 11, 13, 15, 17]".equals(weekNumStr)) {
+//                            weekNumStr = "单周";
+//                        } else if ("[2, 4, 6, 8, 10, 12, 14, 16".equals(weekNumStr)) {
+//                            weekNumStr = "双周";
+//                        }
+//                        String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+//                        String timeStr=weekstr+timeStart+"-"+timeEnd+weekNumStr+" ";
+//                        time.setTimeAndRoom(timeStr);
+//                        time.setRoomId(roomID);
+//                        list.add(time);
+//                    }
+//                    lesson.setTimeTableList(list);
+//                }
                 // 设置学院，教师名称
-                TeachingClassCache classCache = classMap.get(teachingClassId);
-                if (classCache == null) {
-                    continue;
-                }
-                lesson.setTeachClassCode(classCache.getTeachClassCode());
-                lesson.setRemark(classCache.getRemark());
-                lesson.setFaculty(classCache.getFaculty());
-                lesson.setTerm(classCache.getTerm());
-                lesson.setTeachClassName(classCache.getTeachClassName());
-                lesson.setTeacherName(classCache.getTeacherName());
+//                TeachingClassCache classCache = classMap.get(teachingClassId);
+//                if (classCache == null) {
+//                    continue;
+//                }
+//                lesson.setNature(classCache.getNature());
+//                lesson.setTeachClassCode(classCache.getTeachClassCode());
+//                lesson.setRemark(classCache.getRemark());
+//                lesson.setFaculty(classCache.getFaculty());
+//                lesson.setTerm(classCache.getTerm());
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
                 {//已經完成課程
