@@ -641,9 +641,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		
 		//查询本门课是否有选课
 		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
-		Integer isTake = studentDao.isTakeNum(cond.getCourseCode());
-		if (isTake.intValue() > 0) {
-			cond.setIsTake(isTake+"");
+		
+		Example example = new Example(ElcCourseTake.class);
+		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
+		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
+		if (selectByExample.size() > 0) {
+			cond.setIsTake(selectByExample.size()+"");
 		}else{
 			cond.setIsTake(null);
 		}
