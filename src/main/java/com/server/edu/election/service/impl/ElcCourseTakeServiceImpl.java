@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
@@ -37,7 +38,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
-import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -775,11 +775,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String studentId = courseTakeQuerytudentVo.getStudentId();
         Long calendarId = courseTakeQuerytudentVo.getCalendarId();
         String keyword = courseTakeQuerytudentVo.getKeyword();
-//        // 获取学生所有已修课程成绩
-//        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-//        // 获取学生通过课程集合
-//        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
-//        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+        // 获取学生所有已修课程成绩
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
+        // 获取学生通过课程集合
+        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
+        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
         //通过研究生培养计划获取学生所有需要修读的课程
         String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
         RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
@@ -790,11 +790,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
-//        List<String> elcCourses = allCourseCode.stream()
-//                .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
-//                .collect(Collectors.toList());
         List<String> elcCourses = allCourseCode.stream()
-                .filter(item -> !codes.contains(item))
+                .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
                 .collect(Collectors.toList());
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Session session = SessionUtils.getCurrentSession();
