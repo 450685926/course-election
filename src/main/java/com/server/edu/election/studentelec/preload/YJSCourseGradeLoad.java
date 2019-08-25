@@ -121,9 +121,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 lesson.setTeacherName(studentScore.getTeacherName());
                 lesson.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                // 根据校历id设置学年
-                lesson.setCalendarName(schoolCalendar.getYear()+"");
+//                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+//                // 根据校历id设置学年
+//                lesson.setCalendarName(schoolCalendar.getYear()+"");
 //                List<ClassTimeUnit> classTimeUnits = collect.get(teachingClassId);
 //                if (CollectionUtil.isNotEmpty(classTimeUnits)) {
 //                    List<TimeAndRoom> list = new ArrayList<>();
