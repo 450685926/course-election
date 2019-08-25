@@ -2,6 +2,7 @@ package com.server.edu.election.query;
 
 import java.util.List;
 
+import javax.management.loading.PrivateClassLoader;
 import javax.validation.constraints.NotNull;
 
 import com.server.edu.dictionary.DictTypeEnum;
@@ -158,6 +159,17 @@ public class ElcResultQuery
     
     private List<String> includeCodes;
     
+    private List<String> studentCodes;
+    
+    public List<String> getStudentCodes() {
+		return studentCodes;
+	}
+
+	public void setStudentCodes(List<String> studentCodes) {
+		this.studentCodes = studentCodes;
+	}
+
+	private String isTake;   
 	public List<String> getIncludeCodes() {
 		return includeCodes;
 	}
@@ -515,6 +527,15 @@ public class ElcResultQuery
 	public void setTeacherName(String teacherName) {
 		this.teacherName = teacherName;
 	}
+
+	public String getIsTake() {
+		return isTake;
+	}
+
+	public void setIsTake(String isTake) {
+		this.isTake = isTake;
+	}
+	
 	
 	
 }

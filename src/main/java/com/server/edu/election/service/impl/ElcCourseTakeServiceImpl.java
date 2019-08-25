@@ -51,6 +51,7 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
+import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.exception.ParameterValidateException;
@@ -638,6 +639,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		Session currentSession = SessionUtils.getCurrentSession();
 		cond.setProjectId(currentSession.getCurrentManageDptId());
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+		
+		//查询本门课是否有选课
+		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
+		
+		Example example = new Example(ElcCourseTake.class);
+		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
+		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
+//		List<String> collect = selectByExample.stream().map(ElcCourseTake::getStudentId).collect(Collectors.toList());
+		List<String> collect = new ArrayList<>();
+		for (ElcCourseTake string : selectByExample) {
+			collect.add(string.getStudentId());
+		}
+		collect.add("0");
+		cond.setStudentCodes(collect);
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
