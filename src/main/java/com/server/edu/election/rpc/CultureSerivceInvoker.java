@@ -1,6 +1,7 @@
 package com.server.edu.election.rpc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,13 +17,16 @@ import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.entity.CourseLabelRelation;
 import com.server.edu.common.entity.Courses;
+import com.server.edu.common.entity.CulturePlan;
 import com.server.edu.common.entity.CultureScheme;
 import com.server.edu.common.entity.StudentCultureRel;
+import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.vo.CoursesVo;
 import com.server.edu.election.dao.FirstLanguageContrastDao;
+import com.server.edu.election.dto.CourseLevelDto;
 import com.server.edu.election.entity.FirstLanguageContrast;
 import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
 import com.server.edu.util.CollectionUtil;
@@ -234,6 +238,17 @@ public class CultureSerivceInvoker
         return list.getData();
     }
     
+    /**免修免考查询培养计划*/
+    public static List<PlanCourseDto> findCourseTypeForGraduteExemption(String studentId)
+    {
+    	@SuppressWarnings("unchecked")
+    	RestResult<List<PlanCourseDto>> list = ServicePathEnum.CULTURESERVICE
+    	.getForObject("/studentCultureRel/findCourseTypeForGraduteExemption/{studentId}",
+    			RestResult.class,
+    			studentId);
+    	return list.getData();
+    }
+    
     /**查询本科生选课培养计划课程（包含实践课）*/
     public static List<PlanCourseDto> findUnGraduateCourse(String studentId)
     {
@@ -276,6 +291,46 @@ public class CultureSerivceInvoker
 //    	List<StudentCultureRel> parseArray = restResult.getData().getList();
     	
     	return parseObject;
+    }
+    
+    /** 选课后更新学生培养计划课程选课数据 */
+    public static RestResult updateSelectCourse(CulturePlan record) throws Exception{
+    	@SuppressWarnings("unchecked")
+    	RestResult restResult = 
+    		ServicePathEnum.CULTURESERVICE.postForObject("/culturePlan/updateSelectCourse",record,RestResult.class);
+    	return restResult;
+    }
+    
+    /**
+     * 查询分级课程
+     * 
+     * @return
+     * @throws Exception
+     * @see [类、类#方法、类#成员]
+     */
+    public static List<CourseLevelDto> getCoursesLevel() throws Exception{
+        JSONObject param = new JSONObject();
+        param.put("type", "2");
+        param.put("page", "false");
+        
+        Object restResult = 
+            ServicePathEnum.CULTURESERVICE.postForObject("/coursesCategory/list",param, Object.class);
+        
+        String text = JSON.toJSONString(restResult);
+        JSONObject obj = JSON.parseObject(text);
+        JSONObject data = obj.getJSONObject("data");
+        if(null != data) {
+            String list = data.getString("list");
+            List<CourseLevelDto> parseArray = JSON.parseArray(list, CourseLevelDto.class);
+            
+            for (CourseLevelDto dto : parseArray)
+            {
+                JSONObject j = JacksonUtil.convertObj(dto);
+                dto.setLevelName(j.getString("nameI18n")+j.getString("levelI18n"));
+            }
+            return parseArray;
+        }
+        return Collections.emptyList();
     }
 
 }

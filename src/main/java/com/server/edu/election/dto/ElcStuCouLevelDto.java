@@ -34,6 +34,7 @@ public class ElcStuCouLevelDto extends ElcStuCouLevel
     @Code2Text(DictTypeEnum.G_ZY)
     private String major;
     
+    private String courseCategoryName;
     
     public String getStudentName()
     {
@@ -73,6 +74,16 @@ public class ElcStuCouLevelDto extends ElcStuCouLevel
     public void setMajor(String major)
     {
         this.major = major;
+    }
+    
+    public String getCourseCategoryName()
+    {
+        return courseCategoryName;
+    }
+    
+    public void setCourseCategoryName(String courseCategoryName)
+    {
+        this.courseCategoryName = courseCategoryName;
     }
     
 }

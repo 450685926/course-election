@@ -5,15 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -298,6 +290,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 time.setValue(value);
                 list.add(time);
             }
+            List<TimeTable> timtable = getTimtable(list);
+            timetabVo.setTimeTables(timtable);
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
@@ -312,11 +306,65 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     studentSchoolTimetab.setTeacherName(String.join(",", names));
                 }
             }
-            timetabVo.setTimeTables(list);
         }
         timetabVo.setList(schoolTimetab);
         timetabVo.setTotalCredits(totalCredits);
         return timetabVo;
+    }
+
+    private List<TimeTable> getTimtable(List<TimeTable> list) {
+        Map<Integer, List<TimeTable>> map = list.stream().collect(Collectors.groupingBy(TimeTable::getDayOfWeek));
+        List<TimeTable> tableList = new ArrayList<>(list.size() * 2);
+        for (Map.Entry<Integer, List<TimeTable>>entry : map.entrySet()) {
+            List<TimeTable> tables = entry.getValue();
+            List<String> days = new ArrayList<>(12);
+            if (tables.size() > 1) {
+                //按开始节次升序结束节次降序排列
+                tables.sort(Comparator.comparing(TimeTable::getTimeStart).reversed().thenComparing(TimeTable::getTimeEnd).reversed());
+                for (int i = 0; i < tables.size(); i++) {
+                    TimeTable timeTable = tables.get(i);
+                    Integer start = timeTable.getTimeStart();
+                    Integer end = timeTable.getTimeEnd();
+                    String value = timeTable.getValue();
+                    // 是否有冲突课程
+                    boolean flag = false;
+                    // 第i条数据依次与后面数据比较
+                    for (int j = i + 1; j < tables.size(); j++) {
+                        TimeTable table = tables.get(j);
+                        Integer timeStart = table.getTimeStart();
+                        Integer timeEnd = table.getTimeEnd();
+                        //如果包含
+                        if (start <= timeStart && timeEnd <= end) {
+                            table.setValue(value + ", " + table.getValue());
+                            if (start < timeStart) {
+                                days.add(start + "," + (timeStart - 1));
+                            }
+                            if (timeEnd < end) {
+                                days.add((timeEnd + 1) + "," + end);
+                            }
+                            days.remove(timeStart + "," + timeEnd);
+                            flag = true;
+                        }
+                    }
+                    if (flag) {
+                        for (String day : days) {
+                            String[] split = day.split(",");
+                            TimeTable table = new TimeTable();
+                            table.setDayOfWeek(timeTable.getDayOfWeek());
+                            table.setValue(value);
+                            table.setTimeStart(Integer.parseInt(split[0]));
+                            table.setTimeEnd(Integer.parseInt(split[1]));
+                            tableList.add(table);
+                        }
+                    } else {
+                        tableList.add(timeTable);
+                    }
+                }
+            } else {
+                tableList.add(tables.get(0));
+            }
+        }
+        return tableList;
     }
 
     /**
@@ -898,10 +946,18 @@ public class ReportManagementServiceImpl implements ReportManagementService
         // 将模板和数据模型合并生成文件
         Writer out = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
-        tpl.process(map, out);
-        // 关闭流
-        out.flush();
-        out.close();
+        try
+        {
+            tpl.process(map, out);
+            out.flush();
+        }
+        finally
+        {
+            // 关闭流
+            if(null != out) {
+                out.close();
+            }
+        }
         return path;
     }
 
@@ -1132,7 +1188,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
                 .getSchoolCalendarById(calendarId);
         Paragraph subtitle = new Paragraph(schoolCalendarVo.getFullName(), subtitleChinese);
-        subtitle.setAlignment(Element.ALIGN_CENTER);
+        subtitle.setAlignment(Element.ALIGN_CENTER); 
         //设置行间距
         subtitle.setLeading(10);
         //内容距离左边8个单位

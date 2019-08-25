@@ -35,10 +35,13 @@
 		        and t1.MODE_ = #{mode}
 		   </if>
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(code)">
-		        and t2.CODE_ like concat(#{code},'%')
+		        and t2.CODE_ = #{code}
 		   </if>
-		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyCode)">
-		        and (t2.NAME_ like concat(#{keyCode},'%') or t2.NAME_EN_ like concat(#{keyCode},'%'))
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
+		        and t2.NAME_ = #{name}
+		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+		        and (t2.CODE_ like concat(#{keyword},'%') or t2.NAME_ like concat(#{keyword},'%') or t2.NAME_EN_ like concat(#{keyword},'%'))
 		   </if>
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
 		        and t2.COLLEGE_ = #{college}

@@ -1134,7 +1134,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					courseName.add(course.getCourseName());
 					applyCourse.setApplyType(Constants.ZERO);
 				}
-				applyCourse.setFirstForeignLanguageName(dictCache.getLanguageName());
+				applyCourse.setFirstForeignLanguageName(scoreModel.getCourseName());
 				applyCourse.setCourseNameAndCode(courseNameAndCode);
 				applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
 				applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
@@ -1155,7 +1155,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					courseName.add(course.getCourseName());
 					applyCourse.setApplyType(Constants.ONE);
 				}
-				applyCourse.setFirstForeignLanguageName(null);
+				applyCourse.setFirstForeignLanguageName(scoreModel.getCourseName());
 				applyCourse.setCourseNameAndCode(courseNameAndCode);
 				applyCourse.setCourseCode(StringUtils.join(courseCode.toArray(new String[courseCode.size()]), ","));
 				applyCourse.setCourseName(StringUtils.join(courseName.toArray(new String[courseName.size()]), ","));
@@ -1225,7 +1225,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		
 		//培养计划课程
-		List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(student.getStudentCode());
+		List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(student.getStudentCode());
 		logger.info("courseType========================="+courseType.size());
 		Set<PlanCourse> planCourses = new HashSet<>();//培养课程
 		if (CollectionUtil.isNotEmpty(courseType)) {

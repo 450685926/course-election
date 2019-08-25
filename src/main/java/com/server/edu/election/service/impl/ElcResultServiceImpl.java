@@ -67,7 +67,9 @@ import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcResultCountVo;
@@ -78,7 +80,6 @@ import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
-
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -142,6 +143,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElectionConstantsDao constantsDao;
+
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -409,6 +413,16 @@ public class ElcResultServiceImpl implements ElcResultService
         record.setId(teachingClassVo.getId());
         record.setNumber(teachingClassVo.getNumber());
         classDao.updateByPrimaryKeySelective(record);
+        
+        // 更新缓存中教学班人数上限
+        TeachingClassCache teachingClassCache = teachClassCacheService.getTeachClassByTeachClassId(teachingClassVo.getId());
+        if (teachingClassCache != null) {
+        	teachingClassCache.setMaxNumber(teachingClassVo.getNumber());
+        	// 实时获取选课人数
+        	Integer elecNumber = teachClassCacheService.getElecNumber(teachingClassVo.getId());
+        	teachingClassCache.setCurrentNumber(elecNumber);
+        	teachClassCacheService.saveTeachClassCache(teachingClassVo.getId(), teachingClassCache);
+		}
     }
     
     @Override

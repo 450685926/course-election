@@ -10,9 +10,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,16 +21,19 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.CourseOpenDto;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
+import com.server.edu.election.util.WeekUtil;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -340,6 +340,35 @@ public class TeachClassCacheService extends AbstractCacheService
         TeachingClassCache lesson =
             hash.get(Keys.getClassKey(), teachClassId.toString());
         return lesson;
+    }
+    
+    /**
+     * 获取缓存中指定教学班
+     * @param calendarId
+     * @param courseCode
+     * @param teachClassId
+     * @return
+     */
+    public TeachingClassCache getTeachClassByTeachClassId(Long teachClassId){
+        HashOperations<String, String, TeachingClassCache> hash =
+            opsTeachClass();
+        
+        TeachingClassCache lesson =
+            hash.get(Keys.getClassKey(), teachClassId.toString());
+        return lesson;
+    }
+    
+    /**
+     * 保存教学班缓存
+     * 
+     * @param teachClassId
+     * @param cache
+     * @see [类、类#方法、类#成员]
+     */
+    public void saveTeachClassCache(Long teachClassId, TeachingClassCache cache) {
+        HashOperations<String, String, TeachingClassCache> hash =
+            opsTeachClass();
+        hash.put(Keys.getClassKey(), teachClassId.toString(), cache);
     }
     
     /**

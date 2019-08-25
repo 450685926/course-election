@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
@@ -37,7 +38,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
-import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -45,12 +45,15 @@ import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
+import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -105,6 +108,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private ElecResultSwitchService elecResultSwitchService;
+    
+    @Autowired
+    private ElecYjsServiceImpl elecYjsServiceImpl;
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -392,6 +398,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             take.setMode(mode);
             take.setTurn(0);
             courseTakeDao.insertSelective(take);
+            
+            
+            try {
+            	elecYjsServiceImpl.updateSelectCourse(studentId,courseCode,ElectRuleType.ELECTION);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             // 增加选课人数
             classDao.increElcNumber(teachingClassId);
             // 添加选课日志
@@ -569,7 +582,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             {
                 vo = classInfoMap.get(key);
             }
-            
+            try {
+            	elecYjsServiceImpl.updateSelectCourse(studentId,vo.getCourseCode(),ElectRuleType.WITHDRAW);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
             // 记录退课日志
             if (null != vo)
             {
@@ -622,6 +639,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		Session currentSession = SessionUtils.getCurrentSession();
 		cond.setProjectId(currentSession.getCurrentManageDptId());
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+		
+		//查询本门课是否有选课
+		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
+		
+		Example example = new Example(ElcCourseTake.class);
+		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
+		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
+//		List<String> collect = selectByExample.stream().map(ElcCourseTake::getStudentId).collect(Collectors.toList());
+		List<String> collect = new ArrayList<>();
+		for (ElcCourseTake string : selectByExample) {
+			collect.add(string.getStudentId());
+		}
+		collect.add("0");
+		cond.setStudentCodes(collect);
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
@@ -745,10 +776,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = courseTakeQuerytudentVo.getCalendarId();
         String keyword = courseTakeQuerytudentVo.getKeyword();
         // 获取学生所有已修课程成绩
-        List<StudentScoreVo> stuScoreBest = ScoreServiceInvoker.findStuScoreBest(studentId);
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         // 获取学生通过课程集合
-        List<StudentScoreVo> collect = stuScoreBest.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
-        List<String> passedCourseCodes = collect.stream().map(StudentScoreVo::getCourseCode).collect(Collectors.toList());
+        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
+        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
         //通过研究生培养计划获取学生所有需要修读的课程
         String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
         RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
@@ -858,6 +889,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (count.intValue() != teachingClassIds.size()) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.addCourseError"));
         }
+        for (ElcCourseTake elcCourseTake : elcCourseTakes) {
+        	try {
+				elecYjsServiceImpl.updateSelectCourse(elcCourseTake.getStudentId(),elcCourseTake.getCourseCode(),ElectRuleType.ELECTION);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
         teachingClassDao.increElcNumberList(teachingClassIds);
         Integer logCount = elcLogDao.saveCourseLog(elcLogs);
         if (logCount != count) {
@@ -963,6 +1001,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             elcLog.setCreateName(name);
             elcLog.setCreatedAt(new Date());
             elcLogs.add(elcLog);
+        }
+        for (ElcStudentVo elcStudentVo : elcStudentVos) {
+    		try {
+    			elecYjsServiceImpl.updateSelectCourse(elcStudentVo.getStudentId(),elcStudentVo.getCourseCode(),ElectRuleType.WITHDRAW);
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
         }
         Integer logCount = elcLogDao.saveCourseLog(elcLogs);
         if (logCount != delSize) {
