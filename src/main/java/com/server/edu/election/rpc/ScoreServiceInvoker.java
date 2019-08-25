@@ -10,9 +10,9 @@ import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.StudentScore;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.vo.ScoreStudentResultVo;
 
 /**
  * 成绩模块微服务调用
