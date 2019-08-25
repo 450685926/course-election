@@ -3,6 +3,10 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -35,7 +39,9 @@ import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.service.ExemptionApplyConditionService;
+import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
@@ -197,7 +203,14 @@ public class ExemptionApplyConditionController {
     	
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.
     			queryApplyConditionByCourseCodeAndStudentId(applyManage.getCourseCode(),applyManage.getStudentCode());
-    	return RestResult.successData(list);
+    	Map<String, List<ExemptionApplyGraduteCondition>> collect = list.stream().collect(Collectors.groupingBy(ExemptionApplyGraduteCondition::getConditions));
+    	List<ExemptionApplyGraduteCondition> newList = new ArrayList<>();
+    	for (Entry<String, List<ExemptionApplyGraduteCondition>> entry : collect.entrySet()) {
+			if (CollectionUtil.isNotEmpty(entry.getValue())) {
+				newList.add(entry.getValue().get(0));
+			}
+		}
+    	return RestResult.successData(newList);
     }
     
 }
