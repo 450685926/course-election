@@ -40,10 +40,8 @@ import org.springframework.web.client.RestTemplate;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
@@ -800,6 +798,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<String> elcCourses = allCourseCode.stream()
                 .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
                 .collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(elcCourses)) {
+            return new PageResult<>();
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Session session = SessionUtils.getCurrentSession();
         Page<ElcStudentVo> elcStudentVos;
@@ -810,7 +811,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
         }
-
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }
