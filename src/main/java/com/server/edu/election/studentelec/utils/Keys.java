@@ -15,101 +15,76 @@ public class Keys
     /** 学生选课状态，值为 com.server.edu.election.studentelec.utils.ElecStatus  format参数 roundid studentid*/
     public static final String STD_STATUS = "elec-stdstatus-%s_%s";
     
-    /** 轮次信息 elec-rounData */
-    private static final String ROUND_KEY = "elec-roundData1";
-    
-    /**学期-教学班 elec-teachClass*/
-    private static final String CALENDAR_CLASS = "elec-teachClass1";
-    
-    /** 教学班选课人数elec-classNum */
-    private static final String ROUND_CLASS_NUM = "elec-classNum1";
-    
-    /**轮次-课程 elec-roundCourse-[roundid] */
-    private static final String ROUND_COURSE = "elec-roundCourse-%s";
-    
-    /** 研究生管理员代理选课存储学年学期课程 elec-calendarId-%s-course*/
-    private static final String CALENDAR_COURSE = "elec-calendarId-%s-course";
-    
-    /** 轮次的规则信息 elec-roundRule-[rountid] */
-    private static final String ROUND_RULE = "elec-roundRule-%s";
-    
-    /**轮次学生 elec-roundStudent-%s */
-    private static final String ROUND_STUDENT = "elec-roundStudent-%s";
-    
-    /**选课申请管理课程 elec-calendarId-%s-applyCourse*/
-    private static final String APPLY_COURSE = "elec-calendarId-%s-applyCourse";
-    
-    /**轮次上一学期 elec-roundPreSemester-%s */
-    private static final String ROUND_PRESEMESTER = "elec-roundPreSemester-%s";
-    
-    /**轮次条件 elec-roundCondition-[roundid] */
-    private static final String ROUND_CONDITION = "elec-roundCondition-%s";
-    
-    /**轮次缓存KEY*/
-    private static final String RULES = "elec-rules";
-    
-    /**轮次的redis key*/
+    /**轮次的redis key elec-roundData1*/
     public static String getRoundKey()
     {
-        return String.format(Keys.ROUND_KEY);
+        return String.format("elec-roundData1");
     }
     
-    /**轮次条件k round-condition* */
+    /**轮次条件 elec-roundCondition-[roundid] */
     public static String getRoundConditionOne(Long roundId)
     {
-        return String.format(Keys.ROUND_CONDITION, roundId);
+        return String.format("elec-roundCondition-%s", roundId);
     }
     
     /**轮次规则Key*/
     public static String getRoundRuleKey(Long roundId)
     {
-        return String.format(Keys.ROUND_RULE, roundId);
+        return String.format("elec-roundRule-%s", roundId);
     }
     
     /**轮次学生Key*/
     public static String getRoundStuKey(Long roundId)
     {
-        return String.format(Keys.ROUND_STUDENT, roundId);
+        return String.format("elec-roundStudent-%s", roundId);
     }
     
     /**轮次课程key*/
     public static String getRoundCourseKey(Long roundId)
     {
-        return String.format(Keys.ROUND_COURSE, roundId);
+        return String.format("elec-roundCourse-%s", roundId);
     }
     
-    /**学年学期课程key*/
+    /** 研究生管理员代理选课存储学年学期课程 elec-calendarId-%s-course*/
     public static String getCalendarCourseKey(Long calendarId)
     {
-    	return String.format(Keys.CALENDAR_COURSE, calendarId);
+        return String.format("elec-calendarId-%s-course", calendarId);
     }
     
-    /**教学班key*/
+    /**教学班key elec-teachClass1*/
     public static String getClassKey()
     {
-        return String.format(Keys.CALENDAR_CLASS);
+        return String.format("elec-teachClass1");
     }
     
-    /**教学班选课人数Key*/
+    /**教学班选课人数Key elec-classNum1*/
     public static String getClassElecNumberKey()
     {
-        return String.format(Keys.ROUND_CLASS_NUM);
+        return String.format("elec-classNum1");
     }
     
     /**轮次规则Key*/
     public static String getRuleKey()
     {
-        return Keys.RULES;
+        return "elec-rules";
     }
     
+    /**选课申请管理课程 elec-calendarId-%s-applyCourse*/
     public static String getApplyCourseKey(Long calendarId)
     {
-        return String.format(Keys.APPLY_COURSE, calendarId);
+        return String.format("elec-calendarId-%s-applyCourse", calendarId);
     }
     
+    /**上个学期*/
     public static String getRoundPresemesterKey(Long roundId)
     {
-        return String.format(Keys.ROUND_PRESEMESTER, roundId);
+        return String.format("elec-roundPreSemester-%s", roundId);
+    }
+    
+    /** 公选课课程代码*/
+    public static String getPublicCourseKey()
+    {
+        return "elec-PublicCourse";
     }
     
 }

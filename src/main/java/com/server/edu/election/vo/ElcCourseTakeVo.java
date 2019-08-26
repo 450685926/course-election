@@ -21,7 +21,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private Double period;
     
     /**校区*/
-    @Code2Text(transformer = "X_XQ")
+    @Code2Text(DictTypeEnum.X_XQ)
     private String campus;
     
     /**专业*/
@@ -31,7 +31,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String grade;
 
     /**课程性质*/
-    @Code2Text(transformer = "X_KCXZ")
+    @Code2Text(DictTypeEnum.X_KCXZ)
     private String nature;
 
     private String courseArrange;
@@ -57,10 +57,10 @@ public class ElcCourseTakeVo extends ElcCourseTake
     @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
 
-    @Code2Text(transformer="X_YX")
+    @Code2Text(DictTypeEnum.X_YX)
     private String faculty;
 
-    @Code2Text(transformer="X_KCFL")
+    @Code2Text(DictTypeEnum.X_KCFL)
     private String label;
 
     /**考试方式*/
@@ -72,6 +72,8 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     private String elcMedWithdrawStatus;
     
+    /** 课程类别*/
+    private String courseLabel;
     
     public String getElcMedWithdrawStatus() {
 		return elcMedWithdrawStatus;
@@ -276,9 +278,15 @@ public class ElcCourseTakeVo extends ElcCourseTake
 	public void setLabel(String label) {
 		this.label = label;
 	}
+
+    public String getCourseLabel()
+    {
+        return courseLabel;
+    }
+
+    public void setCourseLabel(String courseLabel)
+    {
+        this.courseLabel = courseLabel;
+    }
 	
-	
-    
-    
-    
 }

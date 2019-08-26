@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
@@ -19,6 +21,7 @@ import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
 import org.apache.commons.lang3.StringUtils;
@@ -37,10 +40,8 @@ import org.springframework.web.client.RestTemplate;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
-import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
@@ -636,7 +637,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
 		Session currentSession = SessionUtils.getCurrentSession();
-		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		ElcResultQuery cond = page.getCondition();
 		cond.setProjectId(currentSession.getCurrentManageDptId());
 		
@@ -653,6 +653,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		}
 		collect.add("0");
 		cond.setStudentCodes(collect);
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
@@ -748,7 +749,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	public PageResult<ElcCourseTakeNameListVo> courseTakeNameListPage(PageCondition<ElcCourseTakeQuery> condition) {
 		Session currentSession = SessionUtils.getCurrentSession();
-		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
 		if (StringUtils.isNotEmpty(condition.getCondition().getIncludeCourseCode())) {
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}
@@ -780,19 +780,26 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         // 获取学生通过课程集合
         List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
         List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
-        //通过研究生培养计划获取学生所有需要修读的课程
-        String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
-        RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
-        List<String> allCourseCode = restResult.getData();
-        if (allCourseCode == null) {
+        //通过在职研究生培养计划获取学生所有需要修读的课程
+        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(studentId);
+        if (CollectionUtil.isEmpty(courseType)) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.planCultureError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
+        List<PlanCourseTypeDto> planCourseTypeDtos = new ArrayList<>(100);
+        for (PlanCourseDto planCourseDto : courseType) {
+            List<PlanCourseTypeDto> list = planCourseDto.getList();
+            planCourseTypeDtos.addAll(list);
+        }
+        List<String> allCourseCode = planCourseTypeDtos.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
         List<String> elcCourses = allCourseCode.stream()
                 .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
                 .collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(elcCourses)) {
+            return new PageResult<>();
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Session session = SessionUtils.getCurrentSession();
         Page<ElcStudentVo> elcStudentVos;
@@ -803,7 +810,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
         }
-
         setCourseArrange(elcStudentVos);
         return new PageResult<>(elcStudentVos);
     }
