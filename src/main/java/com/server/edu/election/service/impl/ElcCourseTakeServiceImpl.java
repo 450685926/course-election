@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
@@ -19,6 +21,7 @@ import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
 import org.apache.commons.lang3.StringUtils;
@@ -780,13 +783,17 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         // 获取学生通过课程集合
         List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
         List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
-        //通过研究生培养计划获取学生所有需要修读的课程
-        String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCourseCode?id={id}&isPass={isPass}");
-        RestResult<List<String>> restResult = restTemplate.getForObject(path, RestResult.class, studentId, 0);
-        List<String> allCourseCode = restResult.getData();
-        if (allCourseCode == null) {
+        //通过在职研究生培养计划获取学生所有需要修读的课程
+        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(studentId);
+        if (CollectionUtil.isEmpty(courseType)) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.planCultureError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
+        List<PlanCourseTypeDto> planCourseTypeDtos = new ArrayList<>(100);
+        for (PlanCourseDto planCourseDto : courseType) {
+            List<PlanCourseTypeDto> list = planCourseDto.getList();
+            planCourseTypeDtos.addAll(list);
+        }
+        List<String> allCourseCode = planCourseTypeDtos.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
