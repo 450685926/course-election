@@ -748,7 +748,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	public PageResult<ElcCourseTakeNameListVo> courseTakeNameListPage(PageCondition<ElcCourseTakeQuery> condition) {
 		Session currentSession = SessionUtils.getCurrentSession();
-		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
 		if (StringUtils.isNotEmpty(condition.getCondition().getIncludeCourseCode())) {
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}

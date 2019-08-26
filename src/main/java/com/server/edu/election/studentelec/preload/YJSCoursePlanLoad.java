@@ -53,7 +53,7 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
     public void load(ElecContext context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseType(stu.getStudentId());
+        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(stu.getStudentId());
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
