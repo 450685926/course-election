@@ -995,6 +995,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		if (student == null) {
 			RestResult.fail("common.notExist",studentId);
 		}
+		if (StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
+			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+			studentAndCourseVo.setStudent(null);
+			studentAndCourseVo.setApplyCourse(null);
+			return studentAndCourseVo;
+		}
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
 		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO);
 		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
@@ -1046,6 +1052,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	public StudentAndCourseVo findStudentApplyCourse(String studentId,Long calendarId) {
 		Session session = SessionUtils.getCurrentSession();
 		Student student = studentDao.findStudentByCode(studentId);
+		if (StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
+			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+			studentAndCourseVo.setStudent(null);
+			studentAndCourseVo.setApplyCourse(null);
+			return studentAndCourseVo;
+		}
 		Boolean isAchievement = false;
 		//查找本次开通的免修免考课程
 		List<FirstLanguageContrast> selectAll = firstLanguageContrastDao.selectAll();
@@ -1053,7 +1065,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
 		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",session.getCurrentManageDptId());
-//		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",2);
 		
 		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
 		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
