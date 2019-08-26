@@ -636,10 +636,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
 	@Override
 	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
-		ElcResultQuery cond = page.getCondition();
 		Session currentSession = SessionUtils.getCurrentSession();
-		cond.setProjectId(currentSession.getCurrentManageDptId());
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+		ElcResultQuery cond = page.getCondition();
+		cond.setProjectId(currentSession.getCurrentManageDptId());
 		
 		//查询本门课是否有选课
 		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
