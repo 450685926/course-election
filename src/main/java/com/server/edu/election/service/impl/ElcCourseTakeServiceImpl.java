@@ -637,7 +637,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
 		Session currentSession = SessionUtils.getCurrentSession();
-		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		ElcResultQuery cond = page.getCondition();
 		cond.setProjectId(currentSession.getCurrentManageDptId());
 		
@@ -654,6 +653,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		}
 		collect.add("0");
 		cond.setStudentCodes(collect);
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
