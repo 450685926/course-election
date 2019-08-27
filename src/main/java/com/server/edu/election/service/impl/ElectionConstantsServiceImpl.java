@@ -40,10 +40,9 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
         Criteria createCriteria = example.createCriteria();
         
         String managerDeptId = quer.getManagerDeptId();
-        if (StringUtils.equals(quer.getManagerDeptId(), Constants.PROJ_LINE_GRADUATE)) {
-        	managerDeptId = "2";
+        if (StringUtils.isNotBlank(managerDeptId)) {
+        	createCriteria.andEqualTo("managerDeptId", managerDeptId);
 		}
-        createCriteria.andEqualTo("managerDeptId", managerDeptId);
         if (StringUtils.isNotBlank(quer.getName()))
         {
             createCriteria.andLike("name", "%" + quer.getName() + "%");
@@ -128,9 +127,6 @@ public class ElectionConstantsServiceImpl implements ElectionConstantsService
 
 	@Override
 	public List<ElectionConstants> getAllGraduateConstants(String projectId) {
-		if (org.apache.commons.lang.StringUtils.equals(projectId, Constants.PROJ_LINE_GRADUATE)) {
-			projectId = "2";
-		}
 		List<ElectionConstants> list = electionConstantsDao.getAllGraduateConstants(projectId);
 		return list;
 	}
