@@ -180,7 +180,11 @@ public class ExemptionApplyConditionController {
                 		&& StringUtils.isNotBlank(trainingLevels)
                 		&& StringUtils.isNotBlank(conditions))
                 {
-                	condition.setCourseCode(courseCode.split(".")[0]);
+            		Double double1 = Double.valueOf(courseCode);
+            		int floor = (int)Math.floor(double1);
+            		String courseCodeStr = String.valueOf(floor);
+                	condition.setCourseCode(courseCodeStr);
+                	
                 	condition.setTrainingCategorys(getCodeByNames(trainingCategorys));
                 	condition.setTrainingLevels(getCodeByNames(trainingLevels));
                 	condition.setDegreeTypes(getCodeByNames(degreeTypes));
