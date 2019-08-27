@@ -285,7 +285,7 @@
     from teaching_class_t  t1
 		join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
 		join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_
-		join teaching_class_arrange_time_t time on t1.ID_ = time.TEACHING_CLASS_ID_
+		left join teaching_class_arrange_time_t time on t1.ID_ = time.TEACHING_CLASS_ID_
 		join teaching_class_teacher_t t4 on t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_= 0
 		join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
