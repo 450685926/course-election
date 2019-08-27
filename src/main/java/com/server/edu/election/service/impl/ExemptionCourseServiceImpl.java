@@ -995,7 +995,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		if (student == null) {
 			RestResult.fail("common.notExist",studentId);
 		}
-		if (StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
+		if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
 			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 			studentAndCourseVo.setStudent(null);
 			studentAndCourseVo.setApplyCourse(null);
@@ -1052,7 +1052,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	public StudentAndCourseVo findStudentApplyCourse(String studentId,Long calendarId) {
 		Session session = SessionUtils.getCurrentSession();
 		Student student = studentDao.findStudentByCode(studentId);
-		if (StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
+		if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
 			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 			studentAndCourseVo.setStudent(null);
 			studentAndCourseVo.setApplyCourse(null);
