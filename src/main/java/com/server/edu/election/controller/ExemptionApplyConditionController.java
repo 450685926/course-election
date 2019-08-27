@@ -34,12 +34,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.service.ExemptionApplyConditionService;
-import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
@@ -170,12 +170,21 @@ public class ExemptionApplyConditionController {
                 String courseCode = StringUtils.trim(condition.getCourseCode());
                 String courseName = StringUtils.trim(condition.getCourseName());
                 String trainingLevels = StringUtils.trim(condition.getTrainingLevels());
+                String trainingCategorys = StringUtils.trim(condition.getTrainingCategorys());
+                String degreeTypes = StringUtils.trim(condition.getDegreeTypes());
+                String formLearnings = StringUtils.trim(condition.getFormLearnings());
                 String conditions = StringUtils.trim(condition.getConditions());
+                
                 if (StringUtils.isNotBlank(courseCode) 
                 		&& StringUtils.isNotBlank(courseName)
                 		&& StringUtils.isNotBlank(trainingLevels)
                 		&& StringUtils.isNotBlank(conditions))
                 {
+                	condition.setCourseCode(Integer.valueOf(courseCode).toString());
+                	condition.setTrainingCategorys(getCodeByNames(trainingCategorys));
+                	condition.setTrainingLevels(getCodeByNames(trainingLevels));
+                	condition.setDegreeTypes(getCodeByNames(degreeTypes));
+                	condition.setFormLearnings(getCodeByNames(formLearnings));
                 	condition.setProjId(projectId);
                 	condition.setDeleteStatus(Constants.DELETE_FALSE);
                 	list.add(condition);
@@ -187,6 +196,17 @@ public class ExemptionApplyConditionController {
             return RestResult.error("解析文件错误" + e.getMessage());
         }
         return RestResult.success();
+    }
+    
+    public String getCodeByNames(String names) throws Exception {
+    	if (StringUtils.isNotBlank(names)) {
+    		String replace = names.replace("，", ",");
+			List<String> codes = (List<String>)SpringUtils.convertToCode(replace);
+			String codesStr = String.join(",", codes);
+    		return StringUtils.isBlank(codesStr)?"":codesStr;
+		}else {
+			return "";
+		}
     }
     
     @ApiOperation(value = "根据课程编号查询名称和培养层次")
