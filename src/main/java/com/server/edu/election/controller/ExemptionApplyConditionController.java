@@ -205,9 +205,15 @@ public class ExemptionApplyConditionController {
     public String getCodeByNames(String names) throws Exception {
     	if (StringUtils.isNotBlank(names)) {
     		String replace = names.replace("，", ",");
-			List<String> codes = (List<String>)SpringUtils.convertToCode(replace);
-			String codesStr = String.join(",", codes);
-    		return StringUtils.isBlank(codesStr)?"":codesStr;
+    		String[] splits = replace.split(",");
+    		StringBuffer buffer = new StringBuffer();
+    		for (String split : splits) {
+    			String convertToCode = (String)SpringUtils.convertToCode(split);
+    			buffer.append(convertToCode).append(",");
+			}
+    		String string = buffer.toString();
+    		String codes = string.substring(0, string.length()-1);
+    		return codes;
 		}else {
 			return "";
 		}
