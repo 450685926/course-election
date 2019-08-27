@@ -52,7 +52,6 @@ import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
-import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.exception.ParameterValidateException;
@@ -637,7 +636,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	public PageResult<Student4Elc> getGraduateStudentForCulturePlan(PageCondition<ElcResultQuery> page) {
 		Session currentSession = SessionUtils.getCurrentSession();
-		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		ElcResultQuery cond = page.getCondition();
 		cond.setProjectId(currentSession.getCurrentManageDptId());
 		
@@ -654,6 +652,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		}
 		collect.add("0");
 		cond.setStudentCodes(collect);
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlan(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
@@ -749,7 +748,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	public PageResult<ElcCourseTakeNameListVo> courseTakeNameListPage(PageCondition<ElcCourseTakeQuery> condition) {
 		Session currentSession = SessionUtils.getCurrentSession();
-		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
 		if (StringUtils.isNotEmpty(condition.getCondition().getIncludeCourseCode())) {
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}
@@ -778,9 +776,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String keyword = courseTakeQuerytudentVo.getKeyword();
         // 获取学生所有已修课程成绩
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-        // 获取学生通过课程集合
-        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
-        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
         //通过在职研究生培养计划获取学生所有需要修读的课程
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(studentId);
         if (CollectionUtil.isEmpty(courseType)) {
@@ -794,16 +789,21 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<String> allCourseCode = planCourseTypeDtos.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
+        // 获取学生通过课程集合
+        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
+        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+        // 组合学生已选课程和考试通过课程
+        codes.addAll(passedCourseCodes);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
         List<String> elcCourses = allCourseCode.stream()
-                .filter(item -> !passedCourseCodes.contains(item) && !codes.contains(item))
+                .filter(item -> !codes.contains(item))
                 .collect(Collectors.toList());
         if (CollectionUtil.isEmpty(elcCourses)) {
             return new PageResult<>();
         }
-        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Session session = SessionUtils.getCurrentSession();
         Page<ElcStudentVo> elcStudentVos;
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
             elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
         } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
