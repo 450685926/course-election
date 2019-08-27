@@ -177,6 +177,7 @@ public class ExemptionApplyConditionController {
                 		&& StringUtils.isNotBlank(conditions))
                 {
                 	condition.setProjId(projectId);
+                	condition.setDeleteStatus(Constants.DELETE_FALSE);
                 	list.add(condition);
                 	this.addExemptionApplyCondition(condition);
                 }
