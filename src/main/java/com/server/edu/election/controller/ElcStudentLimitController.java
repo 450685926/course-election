@@ -36,7 +36,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
-@SwaggerDefinition(info = @Info(title = "可选容量设置", version = ""))
+@SwaggerDefinition(info = @Info(title = "个选限制", version = ""))
 @RestSchema(schemaId = "ElcStudentLimitController")
 @RequestMapping("elcStudentLimit")
 public class ElcStudentLimitController {
