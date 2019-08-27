@@ -172,7 +172,7 @@
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_
         from elc_course_takes_t t1
-        left join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+        left join student_t t2 ON (t1.STUDENT_ID_ = t2.STUDENT_CODE_ and t2.LEAVE_SCHOOL_ = 1)
         left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         where t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
@@ -1233,7 +1233,7 @@
        select
             a.FACULTY_ courseFaculty,a.COURSE_NAME_ courseName,a.NATURE_ nature,
             d.ID_ teachingClassId,d.CODE_ classCode,
-            d.NAME_ teachingClassName,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
+            d.NAME_ teachingClassName,d.MAN_ARRANGE_FLAG_ manArrangeFlag,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
         from course_open_t a
         join teaching_task_t c on c.COURSE_OPEN_ID_ = a.ID_
         join teaching_class_t d on d.TASK_ID_ = c.ID_
@@ -1246,6 +1246,7 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
             and (a.COURSE_NAME_ like concat('%',#{keyWord},'%') or d.CODE_ like concat('%',#{keyWord},'%'))
         </if>
+        and d.MAN_ARRANGE_FLAG_ in (1,2,3)
         group by d.ID_
     </select>
 
@@ -1253,7 +1254,7 @@
         select
         a.FACULTY_ courseFaculty,a.COURSE_NAME_ courseName,a.NATURE_ nature,
         d.ID_ teachingClassId,d.CODE_ classCode,
-        d.NAME_ teachingClassName,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
+        d.NAME_ teachingClassName,d.MAN_ARRANGE_FLAG_ manArrangeFlag,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
         from course_open_t a
         join teaching_task_t c on c.COURSE_OPEN_ID_ = a.ID_
         join teaching_class_t d on d.TASK_ID_ = c.ID_
@@ -1264,6 +1265,7 @@
         </foreach>
         and a.CALENDAR_ID_ = #{calendarId}
         and a.NATURE_ = 2
+        and d.MAN_ARRANGE_FLAG_ in (1,2,3)
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
             and (a.COURSE_NAME_ like concat('%',#{keyWord},'%') or d.CODE_ like concat('%',#{keyWord},'%'))
         </if>
