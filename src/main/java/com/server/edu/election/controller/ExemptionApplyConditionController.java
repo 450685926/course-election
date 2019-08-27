@@ -185,7 +185,6 @@ public class ExemptionApplyConditionController {
                 String degreeTypes = StringUtils.trim(condition.getDegreeTypes());
                 String formLearnings = StringUtils.trim(condition.getFormLearnings());
                 String conditions = StringUtils.trim(condition.getConditions());
-                logger.info("===============courseCode==================: " + courseCode);
                 if (StringUtils.isNotBlank(courseCode) 
                 		&& StringUtils.isNotBlank(courseName)
                 		&& StringUtils.isNotBlank(trainingLevels)
@@ -195,11 +194,6 @@ public class ExemptionApplyConditionController {
             		int floor = (int)Math.floor(double1);
             		String courseCodeStr = String.valueOf(floor);
                 	condition.setCourseCode(courseCodeStr);
-                	
-                	//condition.setTrainingCategorys(getCodeByNames(trainingCategorys));
-                	//condition.setTrainingLevels(getCodeByNames(trainingLevels));
-                	//condition.setDegreeTypes(getCodeByNames(degreeTypes));
-                	//condition.setFormLearnings(getCodeByNames(formLearnings));
                 	
                 	condition.setTrainingLevels(getCodesByNames(trainingLevels, DictTypeEnum.X_PYCC.getType(), mapList));
                 	condition.setTrainingCategorys(getCodesByNames(trainingCategorys,DictTypeEnum.X_PYLB.getType(),mapList));
@@ -229,30 +223,17 @@ public class ExemptionApplyConditionController {
     	if (StringUtils.isNotBlank(names)) {
     		String replace = names.replace("，", ",");
     		String[] splits = replace.split(",");
-    		List<String> list = new ArrayList<String>();
     		Map<String, String> map = mapList.get(type);
     		Set<Entry<String, String>> set = map.entrySet();
+    		
+    		StringBuffer buffer = new StringBuffer();
+    		
     		for (Entry<String, String> entry : set) {
     			for (String split : splits) {
     				if (entry.getValue().equals(split)) {
-    					list.add(entry.getKey());
+    					buffer.append(entry.getKey()).append(",");
     				}
 				}
-			}
-    		return StringUtils.join(",", list);
-		}else {
-			return "";
-		}
-    }
-    
-    public String getCodeByNames(String names) throws Exception {
-    	if (StringUtils.isNotBlank(names)) {
-    		String replace = names.replace("，", ",");
-    		String[] splits = replace.split(",");
-    		StringBuffer buffer = new StringBuffer();
-    		for (String split : splits) {
-    			String convertToCode = (String)SpringUtils.convertToCode(split);
-    			buffer.append(convertToCode).append(",");
 			}
     		String string = buffer.toString();
     		String codes = string.substring(0, string.length()-1);
