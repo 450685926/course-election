@@ -1231,7 +1231,7 @@
 
     <select id="findAddCourseList" resultType="com.server.edu.election.vo.ElcStudentVo">
        select
-            a.FACULTY_ courseFaculty,a.COURSE_NAME_ courseName,a.NATURE_ nature,
+            a.FACULTY_ faculty,a.COURSE_NAME_ courseName,a.NATURE_ nature,
             d.ID_ teachingClassId,d.CODE_ classCode,
             d.NAME_ teachingClassName,d.MAN_ARRANGE_FLAG_ manArrangeFlag,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
         from course_open_t a
@@ -1252,7 +1252,7 @@
 
     <select id="findAddCourseListByNature" resultType="com.server.edu.election.vo.ElcStudentVo">
         select
-        a.FACULTY_ courseFaculty,a.COURSE_NAME_ courseName,a.NATURE_ nature,
+        a.FACULTY_ faculty,a.COURSE_NAME_ courseName,a.NATURE_ nature,
         d.ID_ teachingClassId,d.CODE_ classCode,
         d.NAME_ teachingClassName,d.MAN_ARRANGE_FLAG_ manArrangeFlag,d.ELC_NUMBER_ elcNumber,d.NUMBER_ number
         from course_open_t a
