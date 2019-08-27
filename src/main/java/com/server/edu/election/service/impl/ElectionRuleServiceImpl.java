@@ -54,14 +54,9 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         {
             criteria.andEqualTo("type", electionRuleDto.getType());
         }
-        String managerDeptId = electionRuleDto.getManagerDeptId();
-        if (StringUtils.isNotBlank(managerDeptId))
+        if (StringUtils.isNotBlank(electionRuleDto.getManagerDeptId()))
         {
-            if ("4".equals(managerDeptId)) {
-                managerDeptId = "2";
-            }
-            criteria.andEqualTo("managerDeptId",
-                    managerDeptId);
+            criteria.andEqualTo("managerDeptId",electionRuleDto.getManagerDeptId());
         }
         if (electionRuleDto.getStatus() != null)
         {
@@ -95,8 +90,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         list.add("不能跨校区选课");
         list.add("不能超出人数上限");
         criteria.andIn("name", list);
-        criteria.andEqualTo("managerDeptId",
-                2);
+        criteria.andEqualTo("managerDeptId",managerDeptId);
         List<ElectionRule> electionRules = electionRuleDao.selectByExample(example);
         List<ElectionRuleVo> ruleVos = new ArrayList<>(electionRules.size());
         for (ElectionRule electionRule : electionRules) {
@@ -223,9 +217,6 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
     @Override
     public List<ElectionRuleVo> listAll(String projectId)
     {
-        if ("4".equals(projectId)) {
-            projectId = "2";
-        }
         List<ElectionRuleVo> rules =
             electionRuleDao.listAllByProjectId(projectId);
         

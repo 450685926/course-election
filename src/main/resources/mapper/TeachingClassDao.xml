@@ -279,7 +279,7 @@
   <select id="grduateListPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct t1.ID_,t1.CODE_,t1.ELC_NUMBER_,t1.NUMBER_,t1.NAME_,
     	   t1.CAMPUS_,
-    	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,
+    	   t3.COURSE_CODE_,t3.COURSE_NAME_,t3.NATURE_,t3.FACULTY_,t1.MAN_ARRANGE_FLAG_,
     	   room.ROOM_ID_ roomId
     	   <!-- t4.TEACHER_CODE_,t4.TEACHER_NAME_,room.ROOM_ID_ roomId -->
     from teaching_class_t  t1
@@ -290,7 +290,8 @@
 		join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
-      and time.TYPE_ = '2'
+	  and time.TYPE_ = '2'
+      and t1.MAN_ARRANGE_FLAG_ in(1,2,3)
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t3.FACULTY_ = #{faculty}
       </if>
