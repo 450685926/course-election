@@ -191,8 +191,8 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                String grade = restrictAttr.getGrade();
 	                Integer stugrade = studentInfo.getGrade();
 	                //学生类别校验
-	                if ((grade != null && grade.contains(String.valueOf(stugrade))) || grade == null) {
-	                //if (StringUtils.isNotBlank(grade) && grade.contains(String.valueOf(stugrade)) || grade == null) {
+	                //if ((grade != null && grade.contains(String.valueOf(stugrade))) || grade == null) {
+	                if ((StringUtils.isNotBlank(grade) && grade.contains(String.valueOf(stugrade))) || StringUtils.isBlank(grade)) {
 	                	resultFlag = true;
     				}else{
     					resultFlag = false;
