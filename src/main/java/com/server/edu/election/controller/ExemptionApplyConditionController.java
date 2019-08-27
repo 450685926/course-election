@@ -154,7 +154,7 @@ public class ExemptionApplyConditionController {
             designer.getConfigs().add(new ExcelParseConfig("courseName", 1));
             designer.getConfigs().add(new ExcelParseConfig("trainingLevels", 2));
             designer.getConfigs().add(new ExcelParseConfig("trainingCategorys", 3));
-            designer.getConfigs().add(new ExcelParseConfig("degreeCategorys", 4));
+            designer.getConfigs().add(new ExcelParseConfig("degreeTypes", 4));
             designer.getConfigs().add(new ExcelParseConfig("formLearnings", 5));
             designer.getConfigs().add(new ExcelParseConfig("conditions", 6));
             
