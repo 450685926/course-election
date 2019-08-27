@@ -269,8 +269,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String teacherName = "";
                 if (teacherCode != null) {
                     String[] split = teacherCode.split(",");
-                    List<String> names = new ArrayList<>(split.length);
-                    for (String s : split) {
+                    Set<String> names = new HashSet<>(Arrays.asList(split));
+                    for (String s : names) {
                         if (!"".equals(s)) {
                             String name = teachingClassTeacherDao.findTeacherName(s);
                             if (name != null) {
@@ -290,8 +290,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 time.setValue(value);
                 list.add(time);
             }
-            List<TimeTable> timtable = getTimtable(list);
-            timetabVo.setTimeTables(timtable);
+//            List<TimeTable> timtable = getTimtable(list);
+//            timetabVo.setTimeTables(timtable);
+            timetabVo.setTimeTables(list);
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
