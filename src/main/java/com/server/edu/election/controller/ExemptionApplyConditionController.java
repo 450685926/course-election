@@ -174,13 +174,13 @@ public class ExemptionApplyConditionController {
                 String degreeTypes = StringUtils.trim(condition.getDegreeTypes());
                 String formLearnings = StringUtils.trim(condition.getFormLearnings());
                 String conditions = StringUtils.trim(condition.getConditions());
-                
+                logger.info("===============courseCode==================: " + courseCode);
                 if (StringUtils.isNotBlank(courseCode) 
                 		&& StringUtils.isNotBlank(courseName)
                 		&& StringUtils.isNotBlank(trainingLevels)
                 		&& StringUtils.isNotBlank(conditions))
                 {
-                	condition.setCourseCode(Integer.valueOf(courseCode).toString());
+                	condition.setCourseCode(courseCode.split(".")[0]);
                 	condition.setTrainingCategorys(getCodeByNames(trainingCategorys));
                 	condition.setTrainingLevels(getCodeByNames(trainingLevels));
                 	condition.setDegreeTypes(getCodeByNames(degreeTypes));
