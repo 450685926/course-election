@@ -149,6 +149,7 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setMaxNumber(lesson.getMaxNumber());
             tc.setCurrentNumber(lesson.getCurrentNumber());
             tc.setRemark(lesson.getTeachingClassRemark());
+            tc.setManArrangeFlag(lesson.getManArrangeFlag());
             tc.setTimeTableList(getTimeById(teachingClassId));
             tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
