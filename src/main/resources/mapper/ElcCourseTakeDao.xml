@@ -1237,7 +1237,7 @@
         from course_open_t a
         join teaching_task_t c on c.COURSE_OPEN_ID_ = a.ID_
         join teaching_class_t d on d.TASK_ID_ = c.ID_
-        join teaching_class_arrange_time_t e on (e.TEACHING_CLASS_ID_ = d.ID_ and e.TYPE_ = 2)
+        left join teaching_class_arrange_time_t e on (e.TEACHING_CLASS_ID_ = d.ID_ and e.TYPE_ = 2)
         where a.COURSE_CODE_ in
             <foreach item="courseCode" collection="courseCodes" separator="," open="(" close=")" >
               #{courseCode}
@@ -1258,7 +1258,7 @@
         from course_open_t a
         join teaching_task_t c on c.COURSE_OPEN_ID_ = a.ID_
         join teaching_class_t d on d.TASK_ID_ = c.ID_
-        join teaching_class_arrange_time_t e on (e.TEACHING_CLASS_ID_ = d.ID_ and e.TYPE_ = 2)
+        left join teaching_class_arrange_time_t e on (e.TEACHING_CLASS_ID_ = d.ID_ and e.TYPE_ = 2)
         where a.COURSE_CODE_ in
         <foreach item="courseCode" collection="courseCodes" separator="," open="(" close=")" >
             #{courseCode}
