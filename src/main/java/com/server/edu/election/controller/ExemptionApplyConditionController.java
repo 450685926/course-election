@@ -41,6 +41,7 @@ import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.service.ExemptionApplyConditionService;
 import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
@@ -161,6 +162,8 @@ public class ExemptionApplyConditionController {
             List<ExemptionApplyGraduteCondition> parseExcel = GeneralExcelUtil
                 .parseExcel(workbook, designer, ExemptionApplyGraduteCondition.class);
             
+            String projectId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            
             List<ExemptionApplyGraduteCondition> list = new ArrayList<ExemptionApplyGraduteCondition>();
             for (ExemptionApplyGraduteCondition condition : parseExcel)
             {
@@ -173,7 +176,7 @@ public class ExemptionApplyConditionController {
                 		&& StringUtils.isNotBlank(trainingLevels)
                 		&& StringUtils.isNotBlank(conditions))
                 {
-                	condition.setProjId(Constants.PROJ_GRADUATE);
+                	condition.setProjId(projectId);
                 	list.add(condition);
                 	this.addExemptionApplyCondition(condition);
                 }
