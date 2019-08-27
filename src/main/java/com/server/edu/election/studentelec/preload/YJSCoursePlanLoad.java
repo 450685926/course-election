@@ -61,12 +61,6 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
-                CultureRuleDto rule = planCourse.getRule();
-                Long label = planCourse.getLabel();
-                String labelName = null;
-                if (label != null) {
-                	labelName  = courseDao.getCourseLabelName(label);
-				}
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
                         PlanCourse pl=new PlanCourse();
@@ -76,6 +70,11 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                         if (course != null) {
                         	pl.setNature(course.getNature());
 						}
+                        Long label = planCourseTypeDto.getLabelId();
+                        String labelName = null;
+                        if (label != null) {
+                        	labelName  = courseDao.getCourseLabelName(label);
+                        }
                         pl.setSemester(planCourseTypeDto.getSemester());
                         pl.setWeekType(planCourseTypeDto.getWeekType());
                         pl.setCourseCode(planCourseTypeDto.getCourseCode());
@@ -91,17 +90,6 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                         planCourses.add(pl);
                     }
                 }
-                /*if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
-                    CourseGroup courseGroup=new CourseGroup();
-                    courseGroup.setLabel(label);
-                    courseGroup.setCrrdits(rule.getMinCredits());
-                    if("1".equals(rule.getLabelType())){
-                        courseGroup.setLimitType("1");
-                    }else{
-                        courseGroup.setLimitType("0");
-                    }
-                    courseGroups.add(courseGroup);
-                }*/
             }
         }
     }

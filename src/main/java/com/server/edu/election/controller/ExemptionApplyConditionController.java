@@ -2,9 +2,11 @@ package com.server.edu.election.controller;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -34,13 +36,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.service.ExemptionApplyConditionService;
-import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
@@ -60,6 +65,9 @@ public class ExemptionApplyConditionController {
 	
 	@Autowired
 	ExemptionApplyConditionService exemptionApplyConditionSerice;
+	
+	@Autowired
+	DictionaryService dictionaryService;
 	
 	@ApiOperation(value = "添加研究生免修免考申请条件")
     @PostMapping
@@ -161,19 +169,39 @@ public class ExemptionApplyConditionController {
             List<ExemptionApplyGraduteCondition> parseExcel = GeneralExcelUtil
                 .parseExcel(workbook, designer, ExemptionApplyGraduteCondition.class);
             
+            String projectId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            
             List<ExemptionApplyGraduteCondition> list = new ArrayList<ExemptionApplyGraduteCondition>();
+            
+            Map<String, Map<String, String>> mapList = dictionaryService.queryByTypeList(Arrays.asList(DictTypeEnum.X_PYCC.getType(),DictTypeEnum.X_PYLB.getType(),DictTypeEnum.X_XWLX.getType(),DictTypeEnum.X_XXXS.getType()), SessionUtils.CN);
+            
+            
             for (ExemptionApplyGraduteCondition condition : parseExcel)
             {
                 String courseCode = StringUtils.trim(condition.getCourseCode());
                 String courseName = StringUtils.trim(condition.getCourseName());
                 String trainingLevels = StringUtils.trim(condition.getTrainingLevels());
+                String trainingCategorys = StringUtils.trim(condition.getTrainingCategorys());
+                String degreeTypes = StringUtils.trim(condition.getDegreeTypes());
+                String formLearnings = StringUtils.trim(condition.getFormLearnings());
                 String conditions = StringUtils.trim(condition.getConditions());
                 if (StringUtils.isNotBlank(courseCode) 
                 		&& StringUtils.isNotBlank(courseName)
                 		&& StringUtils.isNotBlank(trainingLevels)
                 		&& StringUtils.isNotBlank(conditions))
                 {
-                	condition.setProjId(Constants.PROJ_GRADUATE);
+            		Double double1 = Double.valueOf(courseCode);
+            		int floor = (int)Math.floor(double1);
+            		String courseCodeStr = String.valueOf(floor);
+                	condition.setCourseCode(courseCodeStr);
+                	
+                	condition.setTrainingLevels(getCodesByNames(trainingLevels, DictTypeEnum.X_PYCC.getType(), mapList));
+                	condition.setTrainingCategorys(getCodesByNames(trainingCategorys,DictTypeEnum.X_PYLB.getType(),mapList));
+                	condition.setDegreeTypes(getCodesByNames(degreeTypes, DictTypeEnum.X_XWLX.getType(), mapList));
+                	condition.setFormLearnings(getCodesByNames(formLearnings, DictTypeEnum.X_XXXS.getType(), mapList));
+                	
+                	condition.setProjId(projectId);
+                	condition.setDeleteStatus(Constants.DELETE_FALSE);
                 	list.add(condition);
                 	this.addExemptionApplyCondition(condition);
                 }
@@ -183,6 +211,36 @@ public class ExemptionApplyConditionController {
             return RestResult.error("解析文件错误" + e.getMessage());
         }
         return RestResult.success();
+    }
+    
+    /**
+     * @param names 名称(逗号分隔)
+     * @param type  数据字典类型
+     * @param mapList 数字字典类型集合
+     * @return 
+     */
+    public String getCodesByNames(String names, String type, Map<String, Map<String, String>> mapList) {
+    	if (StringUtils.isNotBlank(names)) {
+    		String replace = names.replace("，", ",");
+    		String[] splits = replace.split(",");
+    		Map<String, String> map = mapList.get(type);
+    		Set<Entry<String, String>> set = map.entrySet();
+    		
+    		StringBuffer buffer = new StringBuffer();
+    		
+    		for (Entry<String, String> entry : set) {
+    			for (String split : splits) {
+    				if (entry.getValue().equals(split)) {
+    					buffer.append(entry.getKey()).append(",");
+    				}
+				}
+			}
+    		String string = buffer.toString();
+    		String codes = string.substring(0, string.length()-1);
+    		return codes;
+		}else {
+			return "";
+		}
     }
     
     @ApiOperation(value = "根据课程编号查询名称和培养层次")
