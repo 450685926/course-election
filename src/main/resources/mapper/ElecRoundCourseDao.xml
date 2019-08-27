@@ -161,11 +161,12 @@
 		t1.FACULTY_,
 		t4.CAMPUS_ campus,
 		t4.ID_ teachingClassId,
-		t4.CODE_ teachingClassCode
+		t4.CODE_ teachingClassCode,
+		t4.MAN_ARRANGE_FLAG_ manArrangeFlag
   	from course_open_t t1 
-  		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
-  		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
-  		JOIN election_rounds_cour_t t2 ON t2.TEACHING_CLASS_ID_ = t4.ID_
+  		left JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
+  		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
+  		left JOIN election_rounds_cour_t t2 ON t2.TEACHING_CLASS_ID_ = t4.ID_
   	<where>
 	  	t1.CALENDAR_ID_ = #{query.calendarId} 
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
@@ -205,13 +206,15 @@
 			t1.FACULTY_,
 			t4.CAMPUS_ campus,
 			t4.ID_ teachingClassId,
-			t4.CODE_ teachingClassCode
+			t4.CODE_ teachingClassCode,
+			t4.MAN_ARRANGE_FLAG_ manArrangeFlag
 		from course_open_t t1 
-	  		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
-	  		JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
+	  		left JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
+	  		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{query.calendarId}
 		  	and t1.IS_OPEN_ = 1
+		  	and t4.MAN_ARRANGE_FLAG_ in(1,2,3)
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
 		  	and t1.PROJ_ID_ = #{query.projectId}
 		  	</if>

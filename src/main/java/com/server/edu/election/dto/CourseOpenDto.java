@@ -50,14 +50,16 @@ public class CourseOpenDto extends CourseOpen
     
     private Long courseLabelId;
     
-    private  Integer manArrangeFlag;
-    
     @Code2Text(translator=TeacherTranslator.class)
     private String teacherCode;
     //教学班预留人数
     private Integer reserveNumber;
     
-
+    /**
+            * 手工排课标识(0未排,1已排,2教室待定,3学院通知(暂不排课))
+     */
+    private Integer manArrangeFlag;
+    
 	public Integer getReserveNumber() {
 		return reserveNumber;
 	}
@@ -199,5 +201,4 @@ public class CourseOpenDto extends CourseOpen
 	public void setManArrangeFlag(Integer manArrangeFlag) {
 		this.manArrangeFlag = manArrangeFlag;
 	}
-	
 }
