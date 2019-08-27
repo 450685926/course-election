@@ -69,6 +69,8 @@ public class ElcCourseResult{
 	
 	/** 冲突课程 */
 	private String conflictCourse;
+	
+    private  Integer manArrangeFlag;
 
 	
 	public String getNature() {
@@ -222,7 +224,13 @@ public class ElcCourseResult{
 	public void setTeachClassName(String teachClassName) {
 		this.teachClassName = teachClassName;
 	}
-	
-	
+
+	public Integer getManArrangeFlag() {
+		return manArrangeFlag;
+	}
+
+	public void setManArrangeFlag(Integer manArrangeFlag) {
+		this.manArrangeFlag = manArrangeFlag;
+	}
 	
 }
