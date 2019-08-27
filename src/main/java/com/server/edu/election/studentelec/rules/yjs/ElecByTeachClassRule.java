@@ -66,7 +66,9 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
     	
     	//教学班规则
     	Example electionRuleExample = new Example(ElectionRule.class);
+    	String projectId = context.getRequest().getProjectId();
     	electionRuleExample.createCriteria().andEqualTo("serviceName", "yjsElecByTeachClassRule");
+    	electionRuleExample.createCriteria().andEqualTo("managerDeptId", projectId);
         ElectionRule rule =
         		ectionRuleDao.selectOneByExample(electionRuleExample);
     	
@@ -190,6 +192,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                Integer stugrade = studentInfo.getGrade();
 	                //学生类别校验
 	                if ((grade != null && grade.contains(String.valueOf(stugrade))) || grade == null) {
+	                //if (StringUtils.isNotBlank(grade) && grade.contains(String.valueOf(stugrade)) || grade == null) {
 	                	resultFlag = true;
     				}else{
     					resultFlag = false;
