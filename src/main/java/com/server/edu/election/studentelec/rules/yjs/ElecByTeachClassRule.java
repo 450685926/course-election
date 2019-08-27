@@ -23,7 +23,6 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
-import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -187,11 +186,10 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         		
         		if (restrictAttr != null) {
 	        		//年级
-	                Integer grade = restrictAttr.getGrade();
+	                String grade = restrictAttr.getGrade();
 	                Integer stugrade = studentInfo.getGrade();
 	                //学生类别校验
-	                if ((grade != null && grade.intValue() != 0 && grade.intValue() == stugrade
-    						.intValue()) || grade == null || grade.intValue() == 0) {
+	                if ((grade != null && grade.contains(String.valueOf(stugrade))) || grade == null) {
 	                	resultFlag = true;
     				}else{
     					resultFlag = false;
