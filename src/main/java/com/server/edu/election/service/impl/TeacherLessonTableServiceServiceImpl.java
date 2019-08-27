@@ -151,22 +151,22 @@ public class TeacherLessonTableServiceServiceImpl
     public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode) {
         //查询所有教学班
         StudentSchoolTimetabVo vo = new StudentSchoolTimetabVo();
-        String name = teachingClassTeacherDao.findTeacherName(teacherCode);
+        TeachingClassTeacher teachingClassTeacher = teachingClassTeacherDao.findTeacher(teacherCode);
+        String teacherName = teachingClassTeacher.getTeacherName();
+        vo.setTeacherName(teacherName);
+//        vo.setFaculty();
         List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassIds(calendarId, teacherCode);
         if (CollectionUtil.isEmpty(classTeachers)) {
             return vo;
         }
-        Map<Long, String> campus = classTeachers.stream()
-                .collect(Collectors.toMap(ClassTeacherDto::getTeachingClassId,ClassTeacherDto::getCampus));
-        Map<Long, String> courseNames = classTeachers.stream()
-                .collect(Collectors.toMap(ClassTeacherDto::getTeachingClassId,ClassTeacherDto::getCourseName));
-        Set<Long> ids = campus.keySet();
+        Map<Long, ClassTeacherDto> map = classTeachers.stream()
+                .collect(Collectors.toMap(ClassTeacherDto::getTeachingClassId,s->s));
+        Set<Long> ids = map.keySet();
         List<TimeTableMessage> courseArrange = courseTakeDao.findTeachingArrange(ids, teacherCode);
         String lang = SessionUtils.getLang();
         List<TimeTable> timeTables=new ArrayList<>(courseArrange.size());
         if(CollectionUtil.isNotEmpty(courseArrange)){
             for (TimeTableMessage timeTableMessage : courseArrange) {
-                Long teachingClassId = timeTableMessage.getTeachingClassId();
                 Integer dayOfWeek = timeTableMessage.getDayOfWeek();
                 Integer timeStart = timeTableMessage.getTimeStart();
                 Integer timeEnd = timeTableMessage.getTimeEnd();
@@ -178,9 +178,11 @@ public class TeacherLessonTableServiceServiceImpl
                 String weekNumStr = weekNums.toString();//周次
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
-                String value=name+" "+ courseNames.get(teachingClassId)
+                Long teachingClassId = timeTableMessage.getTeachingClassId();
+                ClassTeacherDto classTeacherDto = map.get(teachingClassId);
+                String value=teacherName+" "+ classTeacherDto.getCourseName()
                         +"("+ weekNumStr + ClassroomCacheUtil.getRoomName(roomID) + ")"
-                        + " " + dictionaryService.query("X_XQ",campus.get(teachingClassId), lang);
+                        + " " + dictionaryService.query("X_XQ",classTeacherDto.getCampus(), lang);
                 timeTableMessage.setTimeAndRoom(timeStr);
                 TimeTable timeTable = new TimeTable();
                 timeTable.setDayOfWeek(dayOfWeek);
