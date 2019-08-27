@@ -2,9 +2,11 @@ package com.server.edu.election.controller;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -34,6 +36,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
@@ -61,6 +65,9 @@ public class ExemptionApplyConditionController {
 	
 	@Autowired
 	ExemptionApplyConditionService exemptionApplyConditionSerice;
+	
+	@Autowired
+	DictionaryService dictionaryService;
 	
 	@ApiOperation(value = "添加研究生免修免考申请条件")
     @PostMapping
@@ -165,6 +172,10 @@ public class ExemptionApplyConditionController {
             String projectId = SessionUtils.getCurrentSession().getCurrentManageDptId();
             
             List<ExemptionApplyGraduteCondition> list = new ArrayList<ExemptionApplyGraduteCondition>();
+            
+            Map<String, Map<String, String>> mapList = dictionaryService.queryByTypeList(Arrays.asList(DictTypeEnum.X_PYCC.getType(),DictTypeEnum.X_PYLB.getType(),DictTypeEnum.X_XWLX.getType(),DictTypeEnum.X_XXXS.getType()), SessionUtils.CN);
+            
+            
             for (ExemptionApplyGraduteCondition condition : parseExcel)
             {
                 String courseCode = StringUtils.trim(condition.getCourseCode());
@@ -185,10 +196,16 @@ public class ExemptionApplyConditionController {
             		String courseCodeStr = String.valueOf(floor);
                 	condition.setCourseCode(courseCodeStr);
                 	
-                	condition.setTrainingCategorys(getCodeByNames(trainingCategorys));
-                	condition.setTrainingLevels(getCodeByNames(trainingLevels));
-                	condition.setDegreeTypes(getCodeByNames(degreeTypes));
-                	condition.setFormLearnings(getCodeByNames(formLearnings));
+                	//condition.setTrainingCategorys(getCodeByNames(trainingCategorys));
+                	//condition.setTrainingLevels(getCodeByNames(trainingLevels));
+                	//condition.setDegreeTypes(getCodeByNames(degreeTypes));
+                	//condition.setFormLearnings(getCodeByNames(formLearnings));
+                	
+                	condition.setTrainingLevels(getCodesByNames(trainingLevels, DictTypeEnum.X_PYCC.getType(), mapList));
+                	condition.setTrainingCategorys(getCodesByNames(trainingCategorys,DictTypeEnum.X_PYLB.getType(),mapList));
+                	condition.setDegreeTypes(getCodesByNames(degreeTypes, DictTypeEnum.X_XWLX.getType(), mapList));
+                	condition.setFormLearnings(getCodesByNames(formLearnings, DictTypeEnum.X_XXXS.getType(), mapList));
+                	
                 	condition.setProjId(projectId);
                 	condition.setDeleteStatus(Constants.DELETE_FALSE);
                 	list.add(condition);
@@ -200,6 +217,32 @@ public class ExemptionApplyConditionController {
             return RestResult.error("解析文件错误" + e.getMessage());
         }
         return RestResult.success();
+    }
+    
+    /**
+     * @param names 名称(逗号分隔)
+     * @param type  数据字典类型
+     * @param mapList 数字字典类型集合
+     * @return 
+     */
+    public String getCodesByNames(String names, String type, Map<String, Map<String, String>> mapList) {
+    	if (StringUtils.isNotBlank(names)) {
+    		String replace = names.replace("，", ",");
+    		String[] splits = replace.split(",");
+    		List<String> list = new ArrayList<String>();
+    		Map<String, String> map = mapList.get(type);
+    		Set<Entry<String, String>> set = map.entrySet();
+    		for (Entry<String, String> entry : set) {
+    			for (String split : splits) {
+    				if (entry.getValue().equals(split)) {
+    					list.add(entry.getKey());
+    				}
+				}
+			}
+    		return StringUtils.join(",", list);
+		}else {
+			return "";
+		}
     }
     
     public String getCodeByNames(String names) throws Exception {
