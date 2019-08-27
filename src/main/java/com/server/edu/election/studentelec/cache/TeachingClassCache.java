@@ -60,6 +60,8 @@ public class TeachingClassCache extends ElecCourse
     @Code2Text(transformer = "X_KKXQ")
     private String term;
     
+    private  Integer manArrangeFlag;
+    
     public String getTerm()
     {
         return term;
@@ -234,7 +236,15 @@ public class TeachingClassCache extends ElecCourse
         this.timeTableList = timeTableList;
     }
     
-    @Override
+    public Integer getManArrangeFlag() {
+		return manArrangeFlag;
+	}
+
+	public void setManArrangeFlag(Integer manArrangeFlag) {
+		this.manArrangeFlag = manArrangeFlag;
+	}
+
+	@Override
     public boolean equals(Object obj)
     {
         if (this == obj)
