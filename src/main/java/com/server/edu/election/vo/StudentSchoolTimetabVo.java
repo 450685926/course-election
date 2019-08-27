@@ -20,6 +20,15 @@ public class StudentSchoolTimetabVo extends Student {
     private List<StudentSchoolTimetab> list;
     private List<TimeTable> timeTables;
     private List<ClassTeacherDto> teacherDtos;
+    private String teacherName;
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
 
     public List<ClassTeacherDto> getTeacherDtos() {
         return teacherDtos;

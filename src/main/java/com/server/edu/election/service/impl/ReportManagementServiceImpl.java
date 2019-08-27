@@ -8,6 +8,7 @@ import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.entity.TeachingClassTeacher;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,6 @@ import com.server.edu.election.dto.RollBookConditionDto;
 import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.dto.StudentSelectCourseList;
 import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -269,8 +269,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String teacherName = "";
                 if (teacherCode != null) {
                     String[] split = teacherCode.split(",");
-                    List<String> names = new ArrayList<>(split.length);
-                    for (String s : split) {
+                    Set<String> names = new HashSet<>(Arrays.asList(split));
+                    for (String s : names) {
                         if (!"".equals(s)) {
                             String name = teachingClassTeacherDao.findTeacherName(s);
                             if (name != null) {
@@ -290,8 +290,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 time.setValue(value);
                 list.add(time);
             }
-            List<TimeTable> timtable = getTimtable(list);
-            timetabVo.setTimeTables(timtable);
+//            List<TimeTable> timtable = getTimtable(list);
+//            timetabVo.setTimeTables(timtable);
+            timetabVo.setTimeTables(list);
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
@@ -545,26 +546,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
         {
             List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
             //获取老师id
-            List<TeacherClassTimeRoom> teacherClassTimeRooms = teachingClassDao.findTeacherCodes(list);
-            if (CollectionUtil.isNotEmpty(teacherClassTimeRooms)) {
-                Map<Long, String> map = teacherClassTimeRooms.stream().
-                        collect(Collectors.toMap(TeacherClassTimeRoom::getTeachClassId, TeacherClassTimeRoom::getTeacherCode));
+            List<TeachingClassTeacher> teachers = teachingClassDao.findTeacherNames(list);
+            Map<Long, String> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacher::getTeachingClassId, TeachingClassTeacher::getTeacherName));
+            if (CollectionUtil.isNotEmpty(teachers)) {
                 for (RollBookList bookList : result)
                 {
-                    String codes = map.get(bookList.getTeachingClassId());
-                    if (codes != null) {
-                        String[] split = codes.split(",");
-                        Set<String> set = new HashSet<>(Arrays.asList(split));
-                        List<String> names = new ArrayList<>();
-                        for (String s : set) {
-                            String teacherName = teachingClassTeacherDao.findTeacherName(s);
-                            if (teacherName != null) {
-                                names.add(teacherName);
-                            }
-                        }
-                        String teacherNames = String.join(",", names);
-                        bookList.setTeacherName(teacherNames);
-                    }
+                    String name = map.get(bookList.getTeachingClassId());
+                        bookList.setTeacherName(name);
                 }
             }
         }

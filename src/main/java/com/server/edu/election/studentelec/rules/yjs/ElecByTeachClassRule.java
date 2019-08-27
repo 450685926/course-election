@@ -23,7 +23,6 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.RulePriority;
-import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -67,7 +66,9 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
     	
     	//教学班规则
     	Example electionRuleExample = new Example(ElectionRule.class);
+    	String projectId = context.getRequest().getProjectId();
     	electionRuleExample.createCriteria().andEqualTo("serviceName", "yjsElecByTeachClassRule");
+    	electionRuleExample.createCriteria().andEqualTo("managerDeptId", projectId);
         ElectionRule rule =
         		ectionRuleDao.selectOneByExample(electionRuleExample);
     	
@@ -187,11 +188,11 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         		
         		if (restrictAttr != null) {
 	        		//年级
-	                Integer grade = restrictAttr.getGrade();
+	                String grade = restrictAttr.getGrade();
 	                Integer stugrade = studentInfo.getGrade();
 	                //学生类别校验
-	                if ((grade != null && grade.intValue() != 0 && grade.intValue() == stugrade
-    						.intValue()) || grade == null || grade.intValue() == 0) {
+	                //if ((grade != null && grade.contains(String.valueOf(stugrade))) || grade == null) {
+	                if ((StringUtils.isNotBlank(grade) && grade.contains(String.valueOf(stugrade))) || StringUtils.isBlank(grade)) {
 	                	resultFlag = true;
     				}else{
     					resultFlag = false;
@@ -240,7 +241,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
 	                
 	                //学生类别校验
 	                if (faculty != null && faculty != "") {
-	                	resultFlag = faculty.equals(studentInfo.getFaculty());
+	                	resultFlag = faculty.contains(studentInfo.getFaculty());
 	                }
         		}
                 if (!resultFlag) {
@@ -256,89 +257,6 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
         		
         	}
 		}
-        //教学班可选名单内校验
-        /*if (CollectionUtil.isNotEmpty(stringList)) {
-            if (stringList.contains(studentInfo.getStudentId())) {
-                return true;
-            }
-        }*/
-        
-        //专业限制
-/*        if (CollectionUtil.isNotEmpty(suggestProfessionDtos))
-        {
-            Integer grade = studentInfo.getGrade();
-            String major = studentInfo.getMajor();
-            for (SuggestProfessionDto suggestProfessionDto : suggestProfessionDtos)
-            {
-                if (suggestProfessionDto.getGrade().intValue() == grade
-                    .intValue()
-                    && suggestProfessionDto.getProfession().equals(major))
-                {
-                    return true;
-                }
-            }
-        }*/
-
-        /*if (restrictAttr != null) {
-        	//是否留学限制
-            String isOverseas = restrictAttr.getIsOverseas();
-            //培养层次
-            String trainingLevel = restrictAttr.getTrainingLevel();
-            //专项计划
-            String spcialPlan = restrictAttr.getSpcialPlan();
-            //男女班
-            String isDivsex = restrictAttr.getIsDivsex();
-            //男生人数 1
-            Integer numberMale = restrictAttr.getNumberMale();
-            //女生人数 2
-            Integer numberFemale = restrictAttr.getNumberFemale();
-            boolean flag = false;
-            if (isOverseas != null) {
-                String s = studentInfo.isAboard() ? IS_OVERSEAS_ : IS_NOT_OVERSEAS_;
-                flag = isOverseas.equals(s);
-            }
-            //培养层次校验
-            if (trainingLevel != null) {
-                flag = trainingLevel.equals(studentInfo.getTrainingLevel());
-            }
-
-            if (spcialPlan != null) {
-                flag = spcialPlan.equals(studentInfo.getSpcialPlan());
-            }
-
-            if (isDivsex != null) {
-                ElcCourseLimitDto sexNumber = takeDao.findSexNumber(teachClassId);
-                String sex = String.valueOf(studentInfo.getSex());//当前学生性别
-                int currentNum = 0;
-                if (sexNumber==null) {//当前还没有选课人数
-                    currentNum = 0;
-                } else {
-                    if(sex.equals(MALE)&&sexNumber.getMaleNum()!=null){
-                        currentNum=sexNumber.getMaleNum();
-                    }
-                    if(sex.equals(FEMALE)&&sexNumber.getFeMaleNum()!=null){
-                        currentNum=sexNumber.getFeMaleNum();
-                    }
-                }
-
-                int limitNumber = 0;
-                if (sex.equals(MALE)) {//男
-                    limitNumber = numberMale;
-                } else {
-                    limitNumber = numberFemale;
-                }
-                if (currentNum + Constants.ONE <= limitNumber) {
-                    flag = true;
-                } else {
-                    flag = false;
-                }
-            }
-
-
-            if (flag == true) {
-                return flag;
-            }
-        }*/
 
         if (resultFlag) {
             return true;

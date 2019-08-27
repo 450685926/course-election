@@ -401,17 +401,15 @@
   </select>
 
 
-    <select id="findTeacherCodes" resultType="com.server.edu.election.dto.TeacherClassTimeRoom">
-        select t2.ID_ teachClassId,
-        GROUP_CONCAT(ro.TEACHER_CODE_) teacherCode
-        from teaching_class_t t2
-        join teaching_class_arrange_time_t ti on t2.ID_ = ti.TEACHING_CLASS_ID_
-        join teaching_class_arrange_room_t ro on ti.ID_=ro.ARRANGE_TIME_ID_
-        where t2.ID_ in
+    <select id="findTeacherNames" resultType="com.server.edu.election.entity.TeachingClassTeacher">
+        select TEACHING_CLASS_ID_ teachingClassId,
+        GROUP_CONCAT(TEACHER_NAME_) teacherName
+        from teaching_class_teacher_t
+        where TEACHING_CLASS_ID_ in
         <foreach collection="teachingClassIds" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
-        group by t2.ID_
+        group by TEACHING_CLASS_ID_
     </select>
 
   <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.dto.TeacherClassTimeRoom">
