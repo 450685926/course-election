@@ -34,13 +34,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.service.ExemptionApplyConditionService;
-import com.server.edu.election.studentelec.context.SelectedCourse;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
@@ -154,12 +155,14 @@ public class ExemptionApplyConditionController {
             designer.getConfigs().add(new ExcelParseConfig("courseName", 1));
             designer.getConfigs().add(new ExcelParseConfig("trainingLevels", 2));
             designer.getConfigs().add(new ExcelParseConfig("trainingCategorys", 3));
-            designer.getConfigs().add(new ExcelParseConfig("degreeCategorys", 4));
+            designer.getConfigs().add(new ExcelParseConfig("degreeTypes", 4));
             designer.getConfigs().add(new ExcelParseConfig("formLearnings", 5));
             designer.getConfigs().add(new ExcelParseConfig("conditions", 6));
             
             List<ExemptionApplyGraduteCondition> parseExcel = GeneralExcelUtil
                 .parseExcel(workbook, designer, ExemptionApplyGraduteCondition.class);
+            
+            String projectId = SessionUtils.getCurrentSession().getCurrentManageDptId();
             
             List<ExemptionApplyGraduteCondition> list = new ArrayList<ExemptionApplyGraduteCondition>();
             for (ExemptionApplyGraduteCondition condition : parseExcel)
@@ -167,13 +170,27 @@ public class ExemptionApplyConditionController {
                 String courseCode = StringUtils.trim(condition.getCourseCode());
                 String courseName = StringUtils.trim(condition.getCourseName());
                 String trainingLevels = StringUtils.trim(condition.getTrainingLevels());
+                String trainingCategorys = StringUtils.trim(condition.getTrainingCategorys());
+                String degreeTypes = StringUtils.trim(condition.getDegreeTypes());
+                String formLearnings = StringUtils.trim(condition.getFormLearnings());
                 String conditions = StringUtils.trim(condition.getConditions());
+                logger.info("===============courseCode==================: " + courseCode);
                 if (StringUtils.isNotBlank(courseCode) 
                 		&& StringUtils.isNotBlank(courseName)
                 		&& StringUtils.isNotBlank(trainingLevels)
                 		&& StringUtils.isNotBlank(conditions))
                 {
-                	condition.setProjId(Constants.PROJ_GRADUATE);
+            		Double double1 = Double.valueOf(courseCode);
+            		int floor = (int)Math.floor(double1);
+            		String courseCodeStr = String.valueOf(floor);
+                	condition.setCourseCode(courseCodeStr);
+                	
+                	condition.setTrainingCategorys(getCodeByNames(trainingCategorys));
+                	condition.setTrainingLevels(getCodeByNames(trainingLevels));
+                	condition.setDegreeTypes(getCodeByNames(degreeTypes));
+                	condition.setFormLearnings(getCodeByNames(formLearnings));
+                	condition.setProjId(projectId);
+                	condition.setDeleteStatus(Constants.DELETE_FALSE);
                 	list.add(condition);
                 	this.addExemptionApplyCondition(condition);
                 }
@@ -183,6 +200,23 @@ public class ExemptionApplyConditionController {
             return RestResult.error("解析文件错误" + e.getMessage());
         }
         return RestResult.success();
+    }
+    
+    public String getCodeByNames(String names) throws Exception {
+    	if (StringUtils.isNotBlank(names)) {
+    		String replace = names.replace("，", ",");
+    		String[] splits = replace.split(",");
+    		StringBuffer buffer = new StringBuffer();
+    		for (String split : splits) {
+    			String convertToCode = (String)SpringUtils.convertToCode(split);
+    			buffer.append(convertToCode).append(",");
+			}
+    		String string = buffer.toString();
+    		String codes = string.substring(0, string.length()-1);
+    		return codes;
+		}else {
+			return "";
+		}
     }
     
     @ApiOperation(value = "根据课程编号查询名称和培养层次")

@@ -28,12 +28,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
@@ -49,7 +50,6 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
@@ -291,50 +291,19 @@ public class ElcCourseTakeController
                 res = courseTakeService.listPage(page);
             }
         }
-        
+        List<JSONObject> convertList = JacksonUtil.convertList(datas);
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.addCell("学号", "studentId");
         design.addCell("姓名", "studentName");
         design.addCell("课程序号", "teachingClassCode");
         design.addCell("课程代码", "courseCode");
         design.addCell("课程名称", "courseName");
-        design.addCell("专业", "profession")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.G_ZY.getType(), value);
-                    return dict;
-                });
-        design.addCell("校区", "campus")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    String dict = dictionaryService
-                        .query(DictTypeEnum.X_XQ.getType(), value);
-                    return dict;
-                });
+        design.addCell("专业", "professionI18n");
+        design.addCell("校区", "campusI18n");
+        design.addCell("课程类别", "courseLabel");
         design.addCell("学分", "credits");
-        design.addCell("修读类别", "courseTakeType")
-            .setValueHandler(
-                (String value, Object rawData, GeneralExcelCell cell) -> {
-                    if ("1".equals(value))
-                    {
-                        return "正常修读";
-                    }
-                    else if ("2".equals(value))
-                    {
-                        return "重修";
-                    }
-                    else if ("3".equals(value))
-                    {
-                        return "免修不免考";
-                    }
-                    else if ("4".equals(value))
-                    {
-                        return "免修";
-                    }
-                    return value;
-                });
-        design.setDatas(datas);
+        design.addCell("修读类别", "courseTakeTypeI18n");
+        design.setDatas(convertList);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         
         return ExportUtil
