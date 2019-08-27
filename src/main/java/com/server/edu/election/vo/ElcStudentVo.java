@@ -32,6 +32,15 @@ public class ElcStudentVo {
     private Integer number;
     private String courseArrange;
     private String campus;
+    private String manArrangeFlag;
+
+    public String getManArrangeFlag() {
+        return manArrangeFlag;
+    }
+
+    public void setManArrangeFlag(String manArrangeFlag) {
+        this.manArrangeFlag = manArrangeFlag;
+    }
 
     public String getCampus() {
         return campus;

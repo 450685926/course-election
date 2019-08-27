@@ -798,11 +798,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<String> elcCourses = allCourseCode.stream()
                 .filter(item -> !codes.contains(item))
                 .collect(Collectors.toList());
+        Page<ElcStudentVo> elcStudentVos = new Page<ElcStudentVo>();
         if (CollectionUtil.isEmpty(elcCourses)) {
-            return new PageResult<>();
+            return new PageResult<>(elcStudentVos);
         }
         Session session = SessionUtils.getCurrentSession();
-        Page<ElcStudentVo> elcStudentVos;
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
             elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
