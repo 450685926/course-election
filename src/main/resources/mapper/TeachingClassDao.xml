@@ -290,7 +290,7 @@
 		join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
     <where>
       t3.CALENDAR_ID_ = #{calendarId}
-	  and time.TYPE_ = '2'
+	  <!-- and time.TYPE_ = '2' -->
       and t1.MAN_ARRANGE_FLAG_ in(1,2,3)
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t3.FACULTY_ = #{faculty}
