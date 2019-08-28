@@ -236,5 +236,14 @@ public class ElecYjsController
     {
     	List<ExemptionApplyGraduteCondition> list = exemptionApplyConditionSerice.queryApplyConditionByCourseCodeAndStudentId(courseCode,studentId);
     	return RestResult.successData(list);
-    }    
+    }  
+    
+    @ApiOperation(value = "教学班信息缓存")
+    @PostMapping("/teachingClassLoad")
+    public RestResult<?> teachingClassLoad()
+    {
+    	dataProvider.load();
+    	return RestResult.success();
+    }  
+    
 }
