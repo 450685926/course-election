@@ -1513,7 +1513,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		//学生已经完成的课程
 		Set<String> courseCodes = new HashSet<>();
 		List<ElcCourseTakeVo> courseTakes =
-	            elcCourseTakeDao.findSelectedCourses(studentId,calendarId);
+	            elcCourseTakeDao.findAllSelectedCourses(studentId);
 		for (ElcCourseTakeVo elcCourseTakeVo : courseTakes) {
 			courseCodes.add(elcCourseTakeVo.getCourseCode());
 		}
