@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.utils.Keys;
@@ -66,6 +69,15 @@ public class TeachClassCacheService extends AbstractCacheService
     @Autowired
     private StringRedisTemplate strTemplate;
     
+    public HashOperations<String, String, ElecCourse> opsElecCourse()
+    {
+        RedisTemplate<String, ElecCourse> redisTemplate =
+            redisTemplate(ElecCourse.class);
+        HashOperations<String, String, ElecCourse> ops =
+            redisTemplate.opsForHash();
+        return ops;
+    } 
+    
     public HashOperations<String, String, TeachingClassCache> opsTeachClass()
     {
         RedisTemplate<String, TeachingClassCache> redisTemplate =
@@ -88,15 +100,17 @@ public class TeachClassCacheService extends AbstractCacheService
     public void cacheAllTeachClass(Long calendarId)
     {
         PageInfo<CourseOpenDto> page = new PageInfo<>();
-        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        // 获取学历年
+        SchoolCalendarVo schoolCalendar =
+            BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        //获取学历年
         String year = schoolCalendar.getYear() + "";
         page.setNextPage(1);
         page.setHasNextPage(true);
         while (page.isHasNextPage())
         {
             PageHelper.startPage(page.getNextPage(), 300);
-            List<CourseOpenDto> lessons = roundCourseDao.selectTeachingClassByCalendarId(calendarId);
+            List<CourseOpenDto> lessons =
+                roundCourseDao.selectTeachingClassByCalendarId(calendarId);
             this.cacheTeachClass(100, lessons, year);
             page = new PageInfo<>(lessons);
         }
@@ -117,7 +131,8 @@ public class TeachClassCacheService extends AbstractCacheService
      * @return
      * @see [类、类#方法、类#成员]
      */
-    public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss, String year)
+    public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss,
+        String year)
     {
         if (CollectionUtil.isEmpty(teachClasss))
         {
@@ -129,7 +144,9 @@ public class TeachClassCacheService extends AbstractCacheService
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
+        
         Map<String, TeachingClassCache> map = new HashMap<>();
+        Map<String, ElecCourse> publicCourseMap = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
         for (CourseOpenDto lesson : teachClasss)
         {
@@ -149,22 +166,27 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setMaxNumber(lesson.getMaxNumber());
             tc.setCurrentNumber(lesson.getCurrentNumber());
             tc.setRemark(lesson.getTeachingClassRemark());
+            tc.setManArrangeFlag(lesson.getManArrangeFlag());
             tc.setTimeTableList(getTimeById(teachingClassId));
             tc.setPublicElec(
                 lesson.getIsElective() == Constants.ONE ? true : false);
             tc.setFaculty(lesson.getFaculty());
             tc.setCalendarId(lesson.getCalendarId());
-            List<ClassTimeUnit> times =
-                gradeLoad.concatTime(collect, tc);
+            List<ClassTimeUnit> times = gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
             //设置研究生学年跟开课学期，勿删
             tc.setTerm(lesson.getTerm());
             tc.setCalendarName(year);
-
-            numMap.put(teachingClassId.toString(),
-                tc.getCurrentNumber());
+            
+            numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);
+            // 公共选修课
+            if (tc.isPublicElec() && !publicCourseMap.containsKey(tc.getCourseCode()))
+            {
+                publicCourseMap.put(tc.getCourseCode(), tc);
+            }
         }
+        
         // 缓存选课人数
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
         strTemplate
@@ -173,13 +195,23 @@ public class TeachClassCacheService extends AbstractCacheService
         String key = Keys.getClassKey();
         opsTeachClass().putAll(key, map);
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
+        
+        // 缓存公共选修课信息
+        String publicCourseKey = Keys.getPublicCourseKey();
+        opsElecCourse().putAll(publicCourseKey, publicCourseMap);
+        strTemplate.expire(publicCourseKey, timeout, TimeUnit.MINUTES);
     }
-    private List<TimeAndRoom>  getTimeById(Long teachingClassId){
-        List<TimeAndRoom> list=new ArrayList<>();
-        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoomStr(teachingClassId);
-        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
-            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
-            	TimeAndRoom time=new TimeAndRoom();
+    
+    private List<TimeAndRoom> getTimeById(Long teachingClassId)
+    {
+        List<TimeAndRoom> list = new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom =
+            courseTakeDao.findClassTimeAndRoomStr(teachingClassId);
+        if (CollectionUtil.isNotEmpty(classTimeAndRoom))
+        {
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom)
+            {
+                TimeAndRoom time = new TimeAndRoom();
                 Integer dayOfWeek = classTeacherDto.getDayOfWeek();
                 Integer timeStart = classTeacherDto.getTimeStart();
                 Integer timeEnd = classTeacherDto.getTimeEnd();
@@ -188,11 +220,16 @@ public class TeachClassCacheService extends AbstractCacheService
                 Long timeId = classTeacherDto.getTimeId();
                 String[] str = weekNumber.split(",");
                 
-                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
-                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                List<Integer> weeks = Arrays.asList(str)
+                    .stream()
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+                List<String> weekNums =
+                    CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
-                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
+                String timeStr = weekstr + " " + timeStart + "-" + timeEnd + " "
+                    + weekNumStr + " ";
                 time.setTimeId(timeId);
                 time.setTimeAndRoom(timeStr);
                 time.setRoomId(roomID);
@@ -201,7 +238,7 @@ public class TeachClassCacheService extends AbstractCacheService
         }
         return list;
     }
-
+    
     /**
      * 
      * 通过轮次与课程代码获取教学班信息
@@ -233,7 +270,9 @@ public class TeachClassCacheService extends AbstractCacheService
                 opsTeachClass();
             lessons = hash.multiGet(Keys.getClassKey(), keys);
             // 过滤null
-            lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            lessons = lessons.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         }
         return lessons;
     }
@@ -246,32 +285,34 @@ public class TeachClassCacheService extends AbstractCacheService
      * @return
      */
     public List<TeachingClassCache> getTeachClasssBycalendarId(Long calendarId,
-    		String courseCode)
+        String courseCode)
     {
-    	List<TeachingClassCache> lessons = new ArrayList<>();
-    	
-    	List<Long> teachClassIds =
-    			this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
-    	if (CollectionUtil.isEmpty(teachClassIds))
-    	{
-    		return lessons;
-    	}
-    	
-    	if (CollectionUtil.isNotEmpty(teachClassIds))
-    	{
-    		Collections.sort(teachClassIds);
-    		
-    		List<String> keys = teachClassIds.stream()
-    				.map(String::valueOf)
-    				.collect(Collectors.toList());
-    		
-    		HashOperations<String, String, TeachingClassCache> hash =
-    				opsTeachClass();
-    		lessons = hash.multiGet(Keys.getClassKey(), keys);
-    		// 过滤null
-    		lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
-    	}
-    	return lessons;
+        List<TeachingClassCache> lessons = new ArrayList<>();
+        
+        List<Long> teachClassIds = this.roundCacheService
+            .getTeachClassIdsByCalendarId(calendarId, courseCode);
+        if (CollectionUtil.isEmpty(teachClassIds))
+        {
+            return lessons;
+        }
+        
+        if (CollectionUtil.isNotEmpty(teachClassIds))
+        {
+            Collections.sort(teachClassIds);
+            
+            List<String> keys = teachClassIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+            
+            HashOperations<String, String, TeachingClassCache> hash =
+                opsTeachClass();
+            lessons = hash.multiGet(Keys.getClassKey(), keys);
+            // 过滤null
+            lessons = lessons.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        }
+        return lessons;
     }
     
     /**
@@ -315,8 +356,8 @@ public class TeachClassCacheService extends AbstractCacheService
      * @param teachClassId 教学班ID
      * @return
      */
-    public TeachingClassCache getTeachClassByCalendarId(Long calendarId, String courseCode,
-        Long teachClassId)
+    public TeachingClassCache getTeachClassByCalendarId(Long calendarId,
+        String courseCode, Long teachClassId)
     {
         if (calendarId == null || StringUtils.isBlank(courseCode)
             || teachClassId == null)
@@ -326,9 +367,9 @@ public class TeachClassCacheService extends AbstractCacheService
             return null;
         }
         
-        List<Long> teachClassIds =
-            this.roundCacheService.getTeachClassIdsByCalendarId(calendarId, courseCode);
-                                   
+        List<Long> teachClassIds = this.roundCacheService
+            .getTeachClassIdsByCalendarId(calendarId, courseCode);
+        
         if (CollectionUtil.isEmpty(teachClassIds)
             || !teachClassIds.contains(teachClassId))
         {
@@ -349,7 +390,8 @@ public class TeachClassCacheService extends AbstractCacheService
      * @param teachClassId
      * @return
      */
-    public TeachingClassCache getTeachClassByTeachClassId(Long teachClassId){
+    public TeachingClassCache getTeachClassByTeachClassId(Long teachClassId)
+    {
         HashOperations<String, String, TeachingClassCache> hash =
             opsTeachClass();
         
@@ -365,7 +407,8 @@ public class TeachClassCacheService extends AbstractCacheService
      * @param cache
      * @see [类、类#方法、类#成员]
      */
-    public void saveTeachClassCache(Long teachClassId, TeachingClassCache cache) {
+    public void saveTeachClassCache(Long teachClassId, TeachingClassCache cache)
+    {
         HashOperations<String, String, TeachingClassCache> hash =
             opsTeachClass();
         hash.put(Keys.getClassKey(), teachClassId.toString(), cache);
@@ -417,7 +460,9 @@ public class TeachClassCacheService extends AbstractCacheService
         }
         HashOperations<String, String, Integer> opsClassNum = opsClassNum();
         return opsClassNum
-            .increment(Keys.getClassElecNumberKey(), teachClassId.toString(), -1)
+            .increment(Keys.getClassElecNumberKey(),
+                teachClassId.toString(),
+                -1)
             .intValue();
     }
 }

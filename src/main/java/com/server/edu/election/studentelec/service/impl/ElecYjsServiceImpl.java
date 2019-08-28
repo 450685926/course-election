@@ -408,7 +408,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             courseTakeDao.insertSelective(take);
             
             /*************************选课后修改学生培养计划中课程选课状态************************/
-            //updateSelectCourse(studentId,courseCode,type);
+            try {
+				updateSelectCourse(studentId,courseCode,type);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         }
         else
         {
@@ -427,7 +431,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             
             /*************************选课后修改学生培养计划中课程选课状态************************/
-            //updateSelectCourse(studentId,courseCode,type);
+            try {
+				updateSelectCourse(studentId,courseCode,type);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
         }
         
         // 添加选课日志
@@ -577,6 +585,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			               for (TeachingClassCache teachClass : teachClasss)
 			               {
 				               ElcCourseResult elcCourseResult = new ElcCourseResult();
+				               elcCourseResult.setManArrangeFlag(teachClass.getManArrangeFlag());
 				               elcCourseResult.setLabel(completedCourse.getLabel());
 				               elcCourseResult.setLabelName(completedCourse.getLabelName());
 				               elcCourseResult.setNature(completedCourse.getNature());
@@ -726,6 +735,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							    dataProvider.getElecNumber(teachClassId);
 							teachClass.setCurrentNumber(elecNumber);
 							elcCourseResult.setFaculty(teachClass.getFaculty());
+							elcCourseResult.setManArrangeFlag(teachClass.getManArrangeFlag());
 							elcCourseResult
 							    .setTeachClassId(teachClass.getTeachClassId());
 							elcCourseResult
@@ -864,6 +874,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 						elcCourseResult.setFaculty(teachClass.getFaculty());
 						elcCourseResult
 						    .setTeachClassId(teachClass.getTeachClassId());
+						elcCourseResult.setManArrangeFlag(teachClass.getManArrangeFlag());
 						elcCourseResult
 						    .setTeachClassCode(teachClass.getTeachClassCode());
 						elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
@@ -1263,6 +1274,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             	elcCourseResult.setLabelName(dict);
             	elcCourseResult.setLabel(StringUtils.isNotEmpty(selected.getNature())?selected.getNature():"0");
 			}
+            
             elcCourseResult.setChooseObj(selected.getChooseObj());
             elcCourseResult.setTurn(selected.getTurn());
             elcCourseResult.setNature(selected.getNature());
@@ -1330,6 +1342,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     private void setClassCache(TeachingClassCache newClassCache,
         TeachingClassCache oldClassCache)
     {
+    	newClassCache.setManArrangeFlag(oldClassCache.getManArrangeFlag());
         newClassCache.setFaculty(oldClassCache.getFaculty());
         newClassCache.setTeachClassId(oldClassCache.getTeachClassId());
         newClassCache.setTeachClassCode(oldClassCache.getTeachClassCode());

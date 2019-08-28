@@ -94,11 +94,15 @@
 		FROM student_t t1
 		<where>
 			t1.LEAVE_SCHOOL_ = 1
+			and t1.MANAGER_DEPT_ID_ = #{query.projectId}
 			and t1.STUDENT_CODE_  IN  
 			<foreach item="studentId" collection="query.studentIds" index="index" open="(" separator="," close=")">
 		          #{studentId}
 		    </foreach>
-			AND t1.STUDENT_CODE_  NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId} and COURSE_CODE_ = #{query.courseCode})
+			AND t1.STUDENT_CODE_  NOT IN 
+			<foreach item="studentCode" collection="query.studentCodes" index="index" open="(" separator="," close=")">
+		          #{studentCode}
+		    </foreach>
 	      	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
 		  	and t1.GRADE_ = #{query.grade}
 		  	</if>
@@ -241,7 +245,8 @@
 	         left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
 	         left join teaching_class_arrange_time_t time ON class.ID_ = time.TEACHING_CLASS_ID_
 		where 
-		     time.TYPE_ = '2' and 
+		     <!-- time.TYPE_ = '2' and  -->
+		     class.MAN_ARRANGE_FLAG_ in(1,2,3) and
 		     course.CALENDAR_ID_ = #{calendarId} and
              course.TRAINING_LEVEL_ = #{trainingLevel}
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
@@ -315,11 +320,7 @@
    <select id="getUnLimitStudents" parameterType="com.server.edu.election.dto.StudentDto" resultMap="BaseResultMap">
 		SELECT
 		    distinct
-			t1.STUDENT_CODE_,
-			t1.NAME_,
-			t1.GRADE_,
-			t1.FACULTY_,
-			t1.PROFESSION_
+			<include refid="Base_Column_List"></include>
 		FROM
 			student_t t1
 		WHERE

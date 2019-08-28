@@ -24,7 +24,7 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
      * 年级(默认0，代表研究生专业)
      */
     @Column(name = "GRADE_")
-    private Integer grade;
+    private String grade;
 
     /**
      * 培养层次X_PYCC(专科   本科   硕士   博士    其他    预科)
@@ -159,7 +159,7 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
      *
      * @return GRADE_ - 年级(默认0，代表研究生专业)
      */
-    public Integer getGrade() {
+    public String getGrade() {
         return grade;
     }
 
@@ -168,7 +168,7 @@ public class TeachingClassElectiveRestrictAttr implements Serializable {
      *
      * @param grade 年级(默认0，代表研究生专业)
      */
-    public void setGrade(Integer grade) {
+    public void setGrade(String grade) {
         this.grade = grade;
     }
 

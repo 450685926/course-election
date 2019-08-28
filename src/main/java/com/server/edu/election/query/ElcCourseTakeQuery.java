@@ -88,6 +88,9 @@ public class ElcCourseTakeQuery
     /**是否留学生*/
     private String overseas;
     
+    /** 课程类别ID*/
+    private Long courseLabelId;
+    
     public List<Long> getIds() {
         return ids;
     }
@@ -332,6 +335,16 @@ public class ElcCourseTakeQuery
     public void setOverseas(String overseas)
     {
         this.overseas = StringUtils.trim(overseas);
+    }
+
+    public Long getCourseLabelId()
+    {
+        return courseLabelId;
+    }
+
+    public void setCourseLabelId(Long courseLabelId)
+    {
+        this.courseLabelId = courseLabelId;
     }
     
 }

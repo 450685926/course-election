@@ -3,6 +3,8 @@ package com.server.edu.election.dao;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.election.entity.Course;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -243,6 +245,13 @@ public interface ElcCourseTakeDao
 
     List<Long> findTeachingClassIdByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
 
+    /**研究生已完成课程信息查询*/
+    List<Course> findCourses(@Param("courseCodes") List<String> courseCodes);
+
+    /**研究生已完成课程信息查询*/
+    List<TeachingClassCache> findTeachClass(@Param("studentId") String studentId, @Param("calendarId") Long calendarId, @Param("courseCode") String courseCode);
+
+
     List<ElcCourseTakeVo> findElcCourseTakeByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
     /**
      * 研究生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
@@ -274,5 +283,8 @@ public interface ElcCourseTakeDao
 	
 	/** 研究生查询未选课名单(ids)  */
 	List<NoSelectCourseStdsDto> findElectCourseListByIds(@Param("ids") List<String> ids);
+
+	/**查询学生所有的课程*/
+	List<ElcCourseTakeVo> findAllSelectedCourses(@Param("studentId")String studentId);
 	
 }

@@ -8,6 +8,8 @@ import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +56,6 @@ import com.server.edu.election.dto.RollBookConditionDto;
 import com.server.edu.election.dto.StudentSchoolTimetab;
 import com.server.edu.election.dto.StudentSelectCourseList;
 import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -248,6 +249,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
             int size = tableMessages.size();
             MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
+            Map<Long, String> names = new HashMap<>(size);
+            List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(ids);
+            Map<Long, List<TeachingClassCache>> collect = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
             List<TimeTable> list=new ArrayList<>(size);
             String lang = SessionUtils.getLang();
             for (TimeTableMessage tableMessage : tableMessages) {
@@ -257,7 +261,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String roomID = tableMessage.getRoomId();
                 String campus = tableMessage.getCampus();
                 String courseName = tableMessage.getCourseName();
-                String teacherCode = tableMessage.getTeacherCode();
                 String[] str = tableMessage.getWeekNum().split(",");
                 Long teachingClassId = tableMessage.getTeachingClassId();
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
@@ -266,20 +269,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 arrangeMap.add(teachingClassId, timeStr);
-                String teacherName = "";
-                if (teacherCode != null) {
-                    String[] split = teacherCode.split(",");
-                    List<String> names = new ArrayList<>(split.length);
-                    for (String s : split) {
-                        if (!"".equals(s)) {
-                            String name = teachingClassTeacherDao.findTeacherName(s);
-                            if (name != null) {
-                                names.add(name);
-                            }
-                        }
-                    }
-                    teacherName = String.join(",",names);
-                }
+                List<TeachingClassCache> teachingClassCaches = collect.get(teachingClassId);
+                Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                String teacherName = String.join(",",set);
+                names.put(teachingClassId, teacherName);
                 TimeTable time = new TimeTable();
                 time.setDayOfWeek(dayOfWeek);
                 time.setTimeStart(timeStart);
@@ -290,20 +283,18 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 time.setValue(value);
                 list.add(time);
             }
-            List<TimeTable> timtable = getTimtable(list);
-            timetabVo.setTimeTables(timtable);
+//            List<TimeTable> timtable = getTimtable(list);
+//            timetabVo.setTimeTables(timtable);
+            timetabVo.setTimeTables(list);
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
                 }
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
+                studentSchoolTimetab.setTeacherName(names.get(teachingClassId));
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
                     studentSchoolTimetab.setTime(String.join(",", times));
-                }
-                List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachingClassId);
-                if (CollectionUtil.isNotEmpty(names)) {
-                    studentSchoolTimetab.setTeacherName(String.join(",", names));
                 }
             }
         }
@@ -545,26 +536,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
         {
             List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
             //获取老师id
-            List<TeacherClassTimeRoom> teacherClassTimeRooms = teachingClassDao.findTeacherCodes(list);
-            if (CollectionUtil.isNotEmpty(teacherClassTimeRooms)) {
-                Map<Long, String> map = teacherClassTimeRooms.stream().
-                        collect(Collectors.toMap(TeacherClassTimeRoom::getTeachClassId, TeacherClassTimeRoom::getTeacherCode));
+            List<TeachingClassTeacher> teachers = teachingClassDao.findTeacherNames(list);
+            Map<Long, String> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacher::getTeachingClassId, TeachingClassTeacher::getTeacherName));
+            if (CollectionUtil.isNotEmpty(teachers)) {
                 for (RollBookList bookList : result)
                 {
-                    String codes = map.get(bookList.getTeachingClassId());
-                    if (codes != null) {
-                        String[] split = codes.split(",");
-                        Set<String> set = new HashSet<>(Arrays.asList(split));
-                        List<String> names = new ArrayList<>();
-                        for (String s : set) {
-                            String teacherName = teachingClassTeacherDao.findTeacherName(s);
-                            if (teacherName != null) {
-                                names.add(teacherName);
-                            }
-                        }
-                        String teacherNames = String.join(",", names);
-                        bookList.setTeacherName(teacherNames);
-                    }
+                    String name = map.get(bookList.getTeachingClassId());
+                        bookList.setTeacherName(name);
                 }
             }
         }

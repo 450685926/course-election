@@ -2,10 +2,12 @@ package com.server.edu.election.vo;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 
 /**
  * 课程维护学生选课数据实体类
  */
+@CodeI18n
 public class ElcStudentVo {
     private Long calendarId;
     private String studentId;
@@ -32,6 +34,15 @@ public class ElcStudentVo {
     private Integer number;
     private String courseArrange;
     private String campus;
+    private String manArrangeFlag;
+
+    public String getManArrangeFlag() {
+        return manArrangeFlag;
+    }
+
+    public void setManArrangeFlag(String manArrangeFlag) {
+        this.manArrangeFlag = manArrangeFlag;
+    }
 
     public String getCampus() {
         return campus;
