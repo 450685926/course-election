@@ -172,13 +172,15 @@ public class ReportManagementController
 
     @ApiOperation(value = "导出研究生点名册详情")
     @PostMapping("/exportGraduteRollBook")
-    public RestResult<String> exportGraduteRollBook(
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> exportGraduteRollBook(
             @RequestBody ExportPreCondition condition)
             throws Exception
     {
         LOG.info("exportGraduteRollBook.start");
         String fileName = managementService.exportGraduteRollBook(condition);
-        return RestResult.successData(fileName);
+        return ExportUtil.export(fileName, "学生点名册.xls");
     }
 
     @ApiOperation(value = "预览点名册")
