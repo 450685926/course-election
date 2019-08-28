@@ -145,8 +145,6 @@ public class TeachClassCacheService extends AbstractCacheService
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
         
-        logger.info("============cacheTeachClass==============:" + classIds);
-        
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, ElecCourse> publicCourseMap = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -188,14 +186,6 @@ public class TeachClassCacheService extends AbstractCacheService
                 publicCourseMap.put(tc.getCourseCode(), tc);
             }
         }
-        Set<Entry<String, TeachingClassCache>> set = map.entrySet();
-        for (Entry<String, TeachingClassCache> entry : set) {
-        	TeachingClassCache teachingClassCache = entry.getValue();
-			if (teachingClassCache.getTeachClassId().longValue() == 111111112472981L) {
-				logger.info("============111111112472981L==============:");
-			}
-		}
-        
         
         // 缓存选课人数
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
