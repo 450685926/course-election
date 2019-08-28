@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.election.vo.TeachingClassTeacherVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,6 +138,14 @@ public class TeacherLessonTableServiceServiceImpl
         ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(classCodeToTeacher);
+        Set<String> set = teacherTimeTable.stream().map(ClassCodeToTeacher::getTeacherCode).collect(Collectors.toSet());
+        List<TeachingClassTeacherVo> teachers = teachingClassTeacherDao.findTeachers(set);
+        Map<String, TeachingClassTeacherVo> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacherVo::getTeacherCode, s -> s));
+        for (ClassCodeToTeacher codeToTeacher : teacherTimeTable) {
+            TeachingClassTeacherVo teachingClassTeacherVo = map.get(codeToTeacher.getTeacherCode());
+            classCodeToTeacher.setSex(teachingClassTeacherVo.getSex());
+            classCodeToTeacher.setFaculty(teachingClassTeacherVo.getFaculty());
+        }
         return new PageResult<ClassCodeToTeacher>(teacherTimeTable);
     }
 
@@ -151,10 +160,10 @@ public class TeacherLessonTableServiceServiceImpl
     public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode) {
         //查询所有教学班
         StudentSchoolTimetabVo vo = new StudentSchoolTimetabVo();
-        TeachingClassTeacher teachingClassTeacher = teachingClassTeacherDao.findTeacher(teacherCode);
-        String teacherName = teachingClassTeacher.getTeacherName();
+        TeachingClassTeacherVo teacher = teachingClassTeacherDao.findTeacher(teacherCode);
+        String teacherName = teacher.getTeacherName();
         vo.setTeacherName(teacherName);
-//        vo.setFaculty();
+        vo.setFaculty(teacher.getFaculty());
         List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassIds(calendarId, teacherCode);
         if (CollectionUtil.isEmpty(classTeachers)) {
             return vo;
@@ -561,8 +570,7 @@ public class TeacherLessonTableServiceServiceImpl
     }
     
     @Override
-    public RestResult<String> exportTeacherTimetabPdf(Long calendarId,
-                                                      String teacherCode,String teacherName, String faculty)
+    public RestResult<String> exportTeacherTimetabPdf(Long calendarId, String teacherCode)
         throws DocumentException, IOException
     {
         //检查目录是否存在
@@ -571,6 +579,10 @@ public class TeacherLessonTableServiceServiceImpl
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
         FileUtil.deleteFile(cacheDirectory, 30);
+
+        //----3 教师基本信息----
+        StudentSchoolTimetabVo teacherTimetab =
+                findTeacherTimetable2(calendarId, teacherCode);
         
         /************************ PDF初始化操作 ******************************/
         //所有使用中文处理
@@ -584,7 +596,8 @@ public class TeacherLessonTableServiceServiceImpl
         //正常文字
         //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
         Font name2 = new Font(bfChinese, 12, Font.NORMAL);
-        
+
+        String teacherName = teacherTimetab.getTeacherName();
         String fileName = new StringBuffer("").append(cacheDirectory)
             .append("//")
             .append(System.currentTimeMillis())
@@ -619,10 +632,6 @@ public class TeacherLessonTableServiceServiceImpl
         subtitle.setSpacingBefore(15);
         document.add(subtitle);
         
-        //----3 教师基本信息----
-        StudentSchoolTimetabVo teacherTimetab =
-            findTeacherTimetable2(calendarId, teacherCode);
-        
         PdfPTable table1 = new PdfPTable(4);
         //前间距
         table1.setSpacingBefore(5);
@@ -632,7 +641,7 @@ public class TeacherLessonTableServiceServiceImpl
         
         PdfPCell cell2 = createNoBorderCell("姓名：" + teacherName, name2, 20f);
         table1.addCell(cell2);
-        String facultyStr = dictionaryService.query(DictTypeEnum.X_YX.getType(), faculty);
+        String facultyStr = dictionaryService.query(DictTypeEnum.X_YX.getType(), teacherTimetab.getFaculty());
 
         PdfPCell cell3 =
             createNoBorderCell("学院：" + facultyStr, name2, 150f);

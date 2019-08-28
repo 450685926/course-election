@@ -925,14 +925,13 @@
         tc.ELC_NUMBER_ elcNumber,
         op.COURSE_CODE_ courseCode,
         op.COURSE_NAME_ courseName,
-        op.FACULTY_ faculty,
         op.NATURE_ nature,
         tc.ID_ teachingClassId
         from course_open_t op
-        join teaching_task_t tk ON op.ID_ = tk.COURSE_OPEN_ID_
-        join teaching_class_t tc ON tk.ID_ = tc.TASK_ID_
-        join teaching_class_arrange_time_t ta ON (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
-        join teaching_class_teacher_t tt ON tc.ID_ = tt.TEACHING_CLASS_ID_
+        join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_
+        join teaching_class_t tc on tk.ID_ = tc.TASK_ID_
+        join teaching_class_arrange_time_t ta on (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
+        join teaching_class_teacher_t tt on tc.ID_ = tt.TEACHING_CLASS_ID_
         <where>
             op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">

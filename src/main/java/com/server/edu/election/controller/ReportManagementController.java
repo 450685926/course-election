@@ -180,7 +180,7 @@ public class ReportManagementController
     {
         LOG.info("exportGraduteRollBook.start");
         String fileName = managementService.exportGraduteRollBook(condition);
-        return ExportUtil.export(fileName, "学生点名册.xls");
+        return ExportUtil.export(fileName, "GraduteDianMingCe.xls");
     }
 
     @ApiOperation(value = "预览点名册")

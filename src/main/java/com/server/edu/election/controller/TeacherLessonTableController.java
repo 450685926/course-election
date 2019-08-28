@@ -178,17 +178,12 @@ public class TeacherLessonTableController
         @ApiResponse(code = 200, response = File.class, message = "导出教师课表pdf--研究生")})
     public ResponseEntity<Resource> exportTeacherTimetabPdf(
         @RequestParam("calendarId") Long calendarId,
-        @RequestParam("teacherCode") String teacherCode,
-        @RequestParam("teacherName") String teacherName,
-        @RequestParam("faculty") String faculty)
+        @RequestParam("teacherCode") String teacherCode)
         throws Exception
     {
         LOG.info("exportTeacherTimetabPdf.start");
         RestResult<String> restResult =
-            lessonTableService.exportTeacherTimetabPdf(calendarId,
-                teacherCode,
-                teacherName,
-                    faculty);
+            lessonTableService.exportTeacherTimetabPdf(calendarId, teacherCode);
         
         if (ResultStatus.SUCCESS.code() == restResult.getCode()
             && !"".equals(restResult.getData()))
@@ -201,7 +196,7 @@ public class TeacherLessonTableController
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment;filename="
                         + String.valueOf(
-                            URLEncoder.encode(teacherName, "UTF-8"))
+                            URLEncoder.encode("教师课表", "UTF-8"))
                         + ".pdf")
                 .body(resource);
         }
