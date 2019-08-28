@@ -3,11 +3,14 @@ package com.server.edu.election.studentelec.rules.yjs;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.controller.ElcNumberSetController;
 import com.server.edu.election.dao.ElectionParameterDao;
 import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dao.StudentDao;
@@ -34,6 +37,9 @@ import tk.mybatis.mapper.entity.Example;
  */
 @Component("yjsElecByTeachClassRule")
 public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
+	private static Logger LOG =
+	        LoggerFactory.getLogger(ElecByTeachClassRule.class);
+	
     @Override
     public int getOrder() {
         return RulePriority.FIFTH.ordinal();
@@ -67,8 +73,10 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutor {
     	//教学班规则
     	Example electionRuleExample = new Example(ElectionRule.class);
     	String projectId = context.getRequest().getProjectId();
-    	electionRuleExample.createCriteria().andEqualTo("serviceName", "yjsElecByTeachClassRule");
-    	electionRuleExample.createCriteria().andEqualTo("managerDeptId", projectId);
+    	electionRuleExample.createCriteria().andEqualTo("serviceName", "yjsElecByTeachClassRule")
+    									    .andEqualTo("managerDeptId", projectId);
+    	
+    	LOG.info("=============yjsElecByTeachClassRule============: " + projectId);
         ElectionRule rule =
         		ectionRuleDao.selectOneByExample(electionRuleExample);
     	
