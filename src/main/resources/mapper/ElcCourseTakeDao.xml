@@ -725,6 +725,7 @@
   	 	t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   	 	and t1.STUDENT_ID_ = #{studentId}
   	 </where>
+  	</select> 
     <select id="findAllSelectedCourses" resultMap="VoResultMap">
       select
 	      t1.*,op.NATURE_ NATURE,
