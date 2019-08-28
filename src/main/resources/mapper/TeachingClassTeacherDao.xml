@@ -41,4 +41,14 @@
   <select id="findNamesByTeachingClassId" resultType="java.lang.String">
     select TEACHER_NAME_ from teaching_class_teacher_t where TEACHING_CLASS_ID_ = #{teachingClassId}
   </select>
+
+  <select id="findTeacherClass" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+    select
+          TEACHING_CLASS_ID_ teachClassId,
+          TEACHER_NAME_ teacherName
+    from teaching_class_teacher_t where TEACHING_CLASS_ID_ in
+    <foreach item="item" collection="teachingClassIds" separator="," open="(" close=")" >
+      #{item}
+    </foreach>
+  </select>
 </mapper>
