@@ -612,7 +612,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   elcCourseResult.setRemark(teachClass.getRemark());
 			                   elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 			                   
-			                   Boolean flag = true;
+			                  /* Boolean flag = true;
 			                   String conflictCourse = null;
 			                   //上课时间是否冲突
 			                   for (TeachingClassCache teachingClass : classTimeLists)
@@ -695,7 +695,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   {
 			                       elcCourseResult.setIsConflict(-Constants.ONE);
 			                       elcCourseResult.setConflictCourse(conflictCourse);
-			                   }
+			                   }*/
 			                   setOptionalCourses.add(elcCourseResult);
 			               }
 			           }
@@ -751,7 +751,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setRemark(teachClass.getRemark());
 		                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 							
-							Boolean flag = true;
+							/*Boolean flag = true;
 							String conflictCourse = null;
 							//上课时间是否冲突
 							for (TeachingClassCache teachingClass : classTimeLists)
@@ -834,7 +834,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					       {
 					           elcCourseResult.setIsConflict(-Constants.ONE);
 					           elcCourseResult.setConflictCourse(conflictCourse);
-					       }
+					       }*/
 					       setOptionalCourses.add(elcCourseResult);
 					   }
 					}
@@ -888,7 +888,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 						elcCourseResult.setRemark(teachClass.getRemark());
 	                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 						
-						Boolean flag = true;
+						/*Boolean flag = true;
 						String conflictCourse = null;
 						//上课时间是否冲突
 						for (TeachingClassCache teachingClass : classTimeLists)
@@ -971,7 +971,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				       {
 				           elcCourseResult.setIsConflict(-Constants.ONE);
 				           elcCourseResult.setConflictCourse(conflictCourse);
-				       }
+				       }*/
 				       setOptionalCourses.add(elcCourseResult);
 				   }
 				}
