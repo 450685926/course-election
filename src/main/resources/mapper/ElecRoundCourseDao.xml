@@ -206,7 +206,6 @@
 			t1.FACULTY_,
 			t4.CAMPUS_ campus,
 			t4.ID_ teachingClassId,
-			t4.CODE_ teachingClassCode,
 			t4.MAN_ARRANGE_FLAG_ manArrangeFlag
 		from course_open_t t1 
 	  		left JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
@@ -349,7 +348,7 @@
 		course_open_t op1
 	JOIN teaching_task_t ta ON op1.ID_ = ta.COURSE_OPEN_ID_
 	JOIN teaching_class_t cl1 ON cl1.TASK_ID_ = ta.ID_
-	JOIN teaching_class_arrange_time_t time ON cl1.ID_ = time.TEACHING_CLASS_ID_
+	left JOIN teaching_class_arrange_time_t time ON cl1.ID_ = time.TEACHING_CLASS_ID_
 	WHERE
 		time.TYPE_ = '2' and cl1.MAN_ARRANGE_FLAG_ in(1,2,3)
 	AND op1.PROJ_ID_ in(2,4)
