@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -100,7 +102,7 @@ public class TeachClassCacheService extends AbstractCacheService
         PageInfo<CourseOpenDto> page = new PageInfo<>();
         SchoolCalendarVo schoolCalendar =
             BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        // 获取学历年
+        //获取学历年
         String year = schoolCalendar.getYear() + "";
         page.setNextPage(1);
         page.setHasNextPage(true);
@@ -142,6 +144,7 @@ public class TeachClassCacheService extends AbstractCacheService
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
             gradeLoad.groupByTime(classIds);
+        
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, ElecCourse> publicCourseMap = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -183,6 +186,7 @@ public class TeachClassCacheService extends AbstractCacheService
                 publicCourseMap.put(tc.getCourseCode(), tc);
             }
         }
+        
         // 缓存选课人数
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
         strTemplate

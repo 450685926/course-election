@@ -301,7 +301,7 @@
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON cl.TASK_ID_=ta.ID_
 	  JOIN election_rounds_cour_t co ON co.TEACHING_CLASS_ID_ = cl.ID_
-	  JOIN teaching_class_arrange_time_t time on cl.ID_ = time.TEACHING_CLASS_ID_
+	  LEFT JOIN teaching_class_arrange_time_t time on cl.ID_ = time.TEACHING_CLASS_ID_
 	  where
 	  	 <!-- time.TYPE_ = '2'  -->
 	  	 cl.MAN_ARRANGE_FLAG_ in(1,2,3)

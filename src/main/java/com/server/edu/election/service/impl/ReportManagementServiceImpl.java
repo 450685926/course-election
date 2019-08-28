@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -248,6 +249,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
             int size = tableMessages.size();
             MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
+            Map<Long, String> names = new HashMap<>(size);
+            List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(ids);
+            Map<Long, List<TeachingClassCache>> collect = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
             List<TimeTable> list=new ArrayList<>(size);
             String lang = SessionUtils.getLang();
             for (TimeTableMessage tableMessage : tableMessages) {
@@ -257,7 +261,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String roomID = tableMessage.getRoomId();
                 String campus = tableMessage.getCampus();
                 String courseName = tableMessage.getCourseName();
-                String teacherCode = tableMessage.getTeacherCode();
                 String[] str = tableMessage.getWeekNum().split(",");
                 Long teachingClassId = tableMessage.getTeachingClassId();
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
@@ -266,20 +269,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 arrangeMap.add(teachingClassId, timeStr);
-                String teacherName = "";
-                if (teacherCode != null) {
-                    String[] split = teacherCode.split(",");
-                    Set<String> names = new HashSet<>(Arrays.asList(split));
-                    for (String s : names) {
-                        if (!"".equals(s)) {
-                            String name = teachingClassTeacherDao.findTeacherName(s);
-                            if (name != null) {
-                                names.add(name);
-                            }
-                        }
-                    }
-                    teacherName = String.join(",",names);
-                }
+                List<TeachingClassCache> teachingClassCaches = collect.get(teachingClassId);
+                Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                String teacherName = String.join(",",set);
+                names.put(teachingClassId, teacherName);
                 TimeTable time = new TimeTable();
                 time.setDayOfWeek(dayOfWeek);
                 time.setTimeStart(timeStart);
@@ -298,13 +291,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     totalCredits+=studentSchoolTimetab.getCredits();
                 }
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
+                studentSchoolTimetab.setTeacherName(names.get(teachingClassId));
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
                     studentSchoolTimetab.setTime(String.join(",", times));
-                }
-                List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachingClassId);
-                if (CollectionUtil.isNotEmpty(names)) {
-                    studentSchoolTimetab.setTeacherName(String.join(",", names));
                 }
             }
         }

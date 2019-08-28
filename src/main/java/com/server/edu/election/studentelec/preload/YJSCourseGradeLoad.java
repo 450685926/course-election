@@ -124,7 +124,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
                 List<TeachingClassCache> teachClass = elcCourseTakeDao.findTeachClass(studentId, calendarId, courseCode);
                 if (CollectionUtil.isNotEmpty(teachClass)) {
-                    List<String> names = teachClass.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toList());
+                    Set<String> names = teachClass.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
                     lesson.setTeacherName(String.join(",", names));
                     TeachingClassCache teachingClass = teachClass.get(0);
                     Long teachClassId = teachingClass.getTeachClassId();
