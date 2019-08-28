@@ -22,6 +22,7 @@ import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
 import org.apache.commons.lang3.StringUtils;
@@ -1043,21 +1044,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
             int size = tableMessages.size();
             MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
-            MultiValueMap<Long, String> nameMap = new LinkedMultiValueMap<>(size);
             for (TimeTableMessage tableMessage : tableMessages) {
                 Integer dayOfWeek = tableMessage.getDayOfWeek();
                 Integer timeStart = tableMessage.getTimeStart();
                 Integer timeEnd = tableMessage.getTimeEnd();
                 String roomID = tableMessage.getRoomId();
-                String teacherCode = tableMessage.getTeacherCode();
                 Long teachingClassId = tableMessage.getTeachingClassId();
-                if (teacherCode != null) {
-                    String[] split = teacherCode.split(",");
-                    for (String s : split) {
-                        String name = teachingClassTeacherDao.findTeacherName(s);
-                        nameMap.add(teachingClassId, name);
-                    }
-                }
                 String[] str = tableMessage.getWeekNum().split(",");
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
@@ -1066,19 +1058,19 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ ClassroomCacheUtil.getRoomName(roomID);
                 arrangeMap.add(teachingClassId, timeStr);
             }
+            List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(ids);
+            Map<Long, List<TeachingClassCache>> map = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
             for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(elcCourseTakeVo.getCalendarId());
                 elcCourseTakeVo.setCalendarName(schoolCalendar.getFullName());
                 Long teachingClassId = elcCourseTakeVo.getTeachingClassId();
                 List<String> arr = arrangeMap.get(teachingClassId);
+                List<TeachingClassCache> teachingClassCaches = map.get(teachingClassId);
+                Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                String teacherName = String.join(",",set);
+                elcCourseTakeVo.setTeachingName(teacherName);
                 if (CollectionUtil.isNotEmpty(arr)) {
                     elcCourseTakeVo.setCourseArrange(String.join(",", arr));
-                }
-                List<String> names = nameMap.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(names)) {
-                    Set<String> set = new HashSet<>(names.size());
-                    set.addAll(names);
-                    elcCourseTakeVo.setTeachingName(String.join(",", set));
                 }
             }
         }
@@ -1090,21 +1082,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
             int size = tableMessages.size();
             MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
-            MultiValueMap<Long, String> nameMap = new LinkedMultiValueMap<>(size);
             for (TimeTableMessage tableMessage : tableMessages) {
                 Integer dayOfWeek = tableMessage.getDayOfWeek();
                 Integer timeStart = tableMessage.getTimeStart();
                 Integer timeEnd = tableMessage.getTimeEnd();
                 String roomID = tableMessage.getRoomId();
-                String teacherCode = tableMessage.getTeacherCode();
                 Long teachingClassId = tableMessage.getTeachingClassId();
-                if (teacherCode != null) {
-                    String[] split = teacherCode.split(",");
-                    for (String s : split) {
-                        String name = teachingClassTeacherDao.findTeacherName(s);
-                        nameMap.add(teachingClassId, name);
-                    }
-                }
                 String[] str = tableMessage.getWeekNum().split(",");
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
                 List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
@@ -1113,17 +1096,17 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ ClassroomCacheUtil.getRoomName(roomID);
                 arrangeMap.add(teachingClassId, timeStr);
             }
+            List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(ids);
+            Map<Long, List<TeachingClassCache>> map = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
             for (ElcStudentVo elcStudentVo : elcStudentVos) {
                 Long teachingClassId = elcStudentVo.getTeachingClassId();
+                List<TeachingClassCache> teachingClassCaches = map.get(teachingClassId);
+                Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                String teacherName = String.join(",",set);
+                elcStudentVo.setTeacherName(teacherName);
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
                     elcStudentVo.setCourseArrange(String.join(",", times));
-                }
-                List<String> names = nameMap.get(teachingClassId);
-                if (CollectionUtil.isNotEmpty(names)) {
-                    Set<String> set = new HashSet<>(names.size());
-                    set.addAll(names);
-                    elcStudentVo.setTeacherName(String.join(",", set));
                 }
             }
         }

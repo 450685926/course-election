@@ -1,6 +1,7 @@
 package com.server.edu.election.dao;
 
 import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 
@@ -16,4 +17,6 @@ public interface TeachingClassTeacherDao extends Mapper<TeachingClassTeacher> {
     List<String> findTeacherCodes(@Param("keyWord") String keyWord);
 
     List<String> findNamesByTeachingClassId(Long teachingClassId);
+
+    List<TeachingClassCache> findTeacherClass(@Param("teachingClassIds") List<Long> teachingClassIds);
 }
