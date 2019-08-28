@@ -283,5 +283,8 @@ public interface ElcCourseTakeDao
 	
 	/** 研究生查询未选课名单(ids)  */
 	List<NoSelectCourseStdsDto> findElectCourseListByIds(@Param("ids") List<String> ids);
+
+	/**查询学生所有的课程*/
+	List<ElcCourseTakeVo> findAllSelectedCourses(@Param("studentId")String studentId);
 	
 }
