@@ -20,8 +20,24 @@
     select TEACHER_NAME_ from teaching_class_teacher_t where TEACHER_CODE_ = #{teacherCode} limit 1
   </select>
 
-  <select id="findTeacher" resultMap="BaseResultMap">
-    select * from teaching_class_teacher_t where TEACHER_CODE_ = #{teacherCode} limit 1
+  <select id="findTeacher" resultType="com.server.edu.election.vo.TeachingClassTeacherVo">
+    select
+        a.TEACHER_CODE_ teacherCode, a.TEACHER_NAME_ teacherName,
+        b.SEX sex,b.FACULTY_ faculty
+    from teaching_class_teacher_t a
+    left join teacher_t_info b on a.TEACHER_CODE_ = b.TEACHER_CODE_
+    where a.TEACHER_CODE_ = #{teacherCode} limit 1
+  </select>
+
+  <select id="findTeachers" resultType="com.server.edu.election.vo.TeachingClassTeacherVo">
+    select
+        TEACHER_CODE_ teacherCode, SEX sex, FACULTY_ faculty
+    from teacher_t_info
+    where TEACHER_CODE_ in
+    <foreach item="item" collection="teacherCodes" separator="," open="(" close=")" >
+    #{item}
+  </foreach>
+  group by TEACHER_CODE_
   </select>
 
   <select id="findTeacherNames" resultType="java.lang.String">
