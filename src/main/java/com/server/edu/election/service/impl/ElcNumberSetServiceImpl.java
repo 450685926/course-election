@@ -7,6 +7,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -30,6 +31,7 @@ import tk.mybatis.mapper.entity.Example;
 
 @Service
 @Primary
+@Lazy(false)
 public class ElcNumberSetServiceImpl implements ElcNumberSetService
 {
     private static final Logger log =
@@ -103,7 +105,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
      * 每天定时安排任务进行执行 
      */
     @Scheduled(cron = "0 0/1 * * * *")
-    public void executeEightAtNightPerDay(Runnable runnable, String time)
+    public void executeEightAtNightPerDay()
     {
         String key = "ElcNumberSetTimer";
         if(RedisLockUtil.tryAcquire(key)) {
