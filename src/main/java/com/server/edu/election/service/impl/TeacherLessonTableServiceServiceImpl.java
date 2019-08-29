@@ -756,14 +756,16 @@ public class TeacherLessonTableServiceServiceImpl
         List<TimeTable> tables)
     {
         TimeTable time = null;
-        for (TimeTable timeTable : tables)
-        {
-            if (timeTable.getDayOfWeek() == dayOfWeek
-                && timeTable.getTimeStart() <= timeNo
-                && timeNo <= timeTable.getTimeEnd())
+        if (CollectionUtil.isNotEmpty(tables)) {
+            for (TimeTable timeTable : tables)
             {
-                time = timeTable;
-                break;
+                if (timeTable.getDayOfWeek() == dayOfWeek
+                        && timeTable.getTimeStart() <= timeNo
+                        && timeNo <= timeTable.getTimeEnd())
+                {
+                    time = timeTable;
+                    break;
+                }
             }
         }
         return time;
