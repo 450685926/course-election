@@ -375,10 +375,10 @@ public class ReportManagementController
         @ApiResponse(code = 200, response = File.class, message = "导出学生课表pdf--研究生")})
     public ResponseEntity<Resource> exportStudentTimetabPdf(
     		@RequestParam("calendarId") Long calendarId,
-    		@RequestParam("studentCode") String studentCode,
-    		@RequestParam("studentName") String studentName) throws Exception{
+    		@RequestParam("studentCode") String studentCode)
+            throws Exception{
     	LOG.info("exportStudentTimetabPdf.start");
-    	RestResult<String> restResult = managementService.exportStudentTimetabPdf(calendarId, studentCode, studentName);
+    	RestResult<String> restResult = managementService.exportStudentTimetabPdf(calendarId, studentCode);
     	
     	if (ResultStatus.SUCCESS.code() == restResult.getCode()
                 && !"".equals(restResult.getData()))
@@ -391,7 +391,7 @@ public class ReportManagementController
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment;filename="
                             + String.valueOf(
-                                URLEncoder.encode(studentName, "UTF-8"))
+                                URLEncoder.encode("学生课表", "UTF-8"))
                             + ".pdf")
                     .body(resource);
             }
