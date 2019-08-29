@@ -435,12 +435,12 @@
 
    <select id="selectDrawClasss" parameterType="com.server.edu.election.dto.ElcNumberSetDto" resultType="com.server.edu.election.vo.TeachingClassVo">
 		SELECT
-			t2.ID_,
-			t2.CODE_,
+			t2.ID_ id,
+			t2.CODE_ code,
 			COUNT(t1.ID_) withdrawNum
 		FROM
-			election_log_t_5 t1
-		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_CODE_ = t2.CODE_
+			election_log_t_${mode} t1
+		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_CODE_ = t2.CODE_ AND t2.DEPLOY_FLAG_ &gt; 0
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON (
 			t4.ID_ = t3.COURSE_OPEN_ID_
@@ -463,7 +463,7 @@
 
    <update id="batchDecrElcNumber" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"
-      separator=",">
+      separator=";">
       update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - #{item.withdrawNum} where
       id_ = #{item.id} and ELC_NUMBER_ > 0
     </foreach>

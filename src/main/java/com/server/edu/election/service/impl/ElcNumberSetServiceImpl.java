@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcNumberSetDto;
 import com.server.edu.election.entity.ElcNumberSet;
 import com.server.edu.election.service.ElcNumberSetService;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -58,12 +60,17 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
         elcNumberSetDto.setTurns(turns);
         int result = 0;
         log.info("start select list");
+		int mode = TableIndexUtil.getMode(calendarId);
+		elcNumberSetDto.setMode(mode);
         List<TeachingClassVo> list =
             teachingClassDao.selectDrawClasss(elcNumberSetDto);
         if (CollectionUtil.isNotEmpty(list))
-        {
-            result = teachingClassDao.batchDecrElcNumber(list);
-            log.info("end clear data sucesess");
+        { 
+        	List<TeachingClassVo> decrElcNumberList =list.stream().filter(c->c.getId()!=null).collect(Collectors.toList());
+        	if(CollectionUtil.isNotEmpty(decrElcNumberList)) {
+                result = teachingClassDao.batchDecrElcNumber(decrElcNumberList);
+                log.info("end clear data sucesess");
+        	}
         }
         if (result < Constants.ZERO)
         {
