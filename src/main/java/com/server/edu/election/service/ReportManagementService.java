@@ -64,9 +64,8 @@ public interface ReportManagementService {
 	 * 导出学生课表pdf--研究生
 	 * @param calendarId
 	 * @param studentCode
-	 * @param studentName
 	 * @return
 	 */
-	RestResult<String> exportStudentTimetabPdf(Long calendarId, String studentCode,String studentName) throws Exception;
+	RestResult<String> exportStudentTimetabPdf(Long calendarId, String studentCode) throws Exception;
 
 }

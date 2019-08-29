@@ -114,7 +114,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private TeacherLessonTableServiceServiceImpl teacherLessonTableServiceServiceImpl;
 
     private static final String[] setTimeListTitle =
-        {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "教学安排", "备注"};
+        {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "教学安排", "备注", "校区"};
 
     /**
     *@Description: 预览点名册
@@ -310,8 +310,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<TimeTable> tables = entry.getValue();
             List<String> days = new ArrayList<>(12);
             if (tables.size() > 1) {
-                //按开始节次升序结束节次降序排列
-                tables.sort(Comparator.comparing(TimeTable::getTimeStart).reversed().thenComparing(TimeTable::getTimeEnd).reversed());
+                //按开始节次升序结束节次升序排列
+                tables.sort(Comparator.comparing(TimeTable::getTimeStart).thenComparing(TimeTable::getTimeEnd));
                 for (int i = 0; i < tables.size(); i++) {
                     TimeTable timeTable = tables.get(i);
                     Integer start = timeTable.getTimeStart();
@@ -1118,7 +1118,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
     @Override
     public RestResult<String> exportStudentTimetabPdf(Long calendarId,
-        String studentCode, String studentName)
+        String studentCode)
         throws Exception
     {
         //检查目录是否存在
@@ -1141,11 +1141,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
         //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
         Font name2 = new Font(bfChinese, 12, Font.NORMAL);
 
+        //----3 学生基本信息----
+        StudentSchoolTimetabVo studentTimetab =
+                findSchoolTimetab2(calendarId, studentCode);
         String fileName = new StringBuffer("").append(cacheDirectory)
             .append("//")
             .append(System.currentTimeMillis())
             .append("_")
-            .append(studentName)
+            .append(studentCode)
             .append(".pdf")
             .toString();
         Document document = new Document(PageSize.A4, 24, 24, 16, 16);
@@ -1166,7 +1169,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
                 .getSchoolCalendarById(calendarId);
         Paragraph subtitle = new Paragraph(schoolCalendarVo.getFullName(), subtitleChinese);
-        subtitle.setAlignment(Element.ALIGN_CENTER); 
+        subtitle.setAlignment(Element.ALIGN_CENTER);
         //设置行间距
         subtitle.setLeading(10);
         //内容距离左边8个单位
@@ -1176,10 +1179,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
         subtitle.setSpacingBefore(15);
         document.add(subtitle);
 
-        //----3 学生基本信息----
-        StudentSchoolTimetabVo studentTimetab =
-            findSchoolTimetab2(calendarId, studentCode);
-        
         PdfPTable table1 = new PdfPTable(4);
         //前间距
         table1.setSpacingBefore(5);
@@ -1187,7 +1186,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         PdfPCell cell1 = TeacherLessonTableServiceServiceImpl.createNoBorderCell("学号：" + studentCode, name2, 20f);
         table1.addCell(cell1);
 
-        PdfPCell cell2 = TeacherLessonTableServiceServiceImpl.createNoBorderCell("学生姓名：" + studentName, name2, 20f);
+        PdfPCell cell2 = TeacherLessonTableServiceServiceImpl.createNoBorderCell("学生姓名：" + studentTimetab.getName(), name2, 20f);
         table1.addCell(cell2);
         
         PdfPCell cell4 =
@@ -1258,7 +1257,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
     private List<String> getTimeTableList(StudentSchoolTimetab timeTable)
     {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<String>(11);
         list.add(timeTable.getCourseCode());
         list.add(timeTable.getCourseName());
         list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
@@ -1271,7 +1270,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         }
         String assessmentMode = timeTable.getAssessmentMode();
         if (assessmentMode != null) {
-            assessmentMode = dictionaryService.query("X_XQ", assessmentMode);
+            assessmentMode = dictionaryService.query("X_KSLX", assessmentMode);
         } else {
             assessmentMode = "";
         }
@@ -1287,6 +1286,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
         list.add(timeTable.getTeacherName());
         list.add(timeTable.getTime());
         list.add(timeTable.getRemark());
+        String campus = timeTable.getCampus();
+        if (campus != null) {
+            campus = dictionaryService.query("X_XQ", campus);
+        } else {
+            campus = "";
+        }
+        list.add(campus);
         return list;
     }
 
