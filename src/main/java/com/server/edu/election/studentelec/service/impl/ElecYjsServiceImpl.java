@@ -79,6 +79,7 @@ import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
 import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.Keys;
+import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElcLogVo;
@@ -251,6 +252,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
+            	//判断学生是否为重修
+            	boolean count = RetakeCourseUtil.isRetakeCourse(context,
+            			teachClass.getCourseCode());
+            	if (count) {
+            		teachClass.setTeachClassType(CourseTakeType.RETAKE.type()+"");
+				}
                 this.saveElc(context, teachClass, ElectRuleType.ELECTION);
                 // 判断是否有重修课
 //                if (!hasRetakeCourse && RetakeCourseUtil.isRetakeCourse(context,
