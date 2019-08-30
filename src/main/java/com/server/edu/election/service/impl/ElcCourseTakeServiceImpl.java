@@ -403,7 +403,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             take.setCalendarId(calendarId);
             take.setChooseObj(ChooseObj.ADMIN.type());
             take.setCourseCode(courseCode);
-            take.setCourseTakeType(CourseTakeType.NORMAL.type());
+            int count = courseTakeDao.courseCount(courseCode, studentId);
+            if (count > 0) {
+            	take.setCourseTakeType(CourseTakeType.RETAKE.type());
+			}else{
+				take.setCourseTakeType(CourseTakeType.NORMAL.type());
+			}
+            
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachingClassId);
