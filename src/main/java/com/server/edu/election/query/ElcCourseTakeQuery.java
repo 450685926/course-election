@@ -8,6 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ElcCourseTakeQuery
 {
+    /**体育课程类型 1*/
+    public static final Integer PE_COURSE_TYPE = 1;
+    /**英语课程类型*/
+    public static final Integer EN_COURSE_TYPE = 2;
+    
     /**
      * 校历ID（学年学期）
      */
