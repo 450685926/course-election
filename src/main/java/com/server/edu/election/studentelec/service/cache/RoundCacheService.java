@@ -263,6 +263,7 @@ public class RoundCacheService extends AbstractCacheService
     		lessons = roundCourseDao.selectCorseRefTeachClassByRoundId(roundId, calendarId);
 		}else {
 			lessons = roundCourseDao.selectCorseRefTeachClassGraduteByRoundId(roundId, calendarId, manageDptId);
+			
 			System.err.println("test====="+lessons);
 			System.err.println("test====="+roundId);
 			System.err.println("test====="+calendarId);
