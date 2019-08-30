@@ -122,22 +122,24 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 lesson.setCalendarId(calendarId);
                 lesson.setIsPass(studentScore.getIsPass());
                 lesson.setCourseLabelId(studentScore.getCourseLabelId());
-                List<TeachingClassCache> teachClass = elcCourseTakeDao.findTeachClass(studentId, calendarId, courseCode);
-                if (CollectionUtil.isNotEmpty(teachClass)) {
-                    Set<String> names = teachClass.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
-                    lesson.setTeacherName(String.join(",", names));
-                    TeachingClassCache teachingClass = teachClass.get(0);
-                    Long teachClassId = teachingClass.getTeachClassId();
-                    lesson.setTeachClassId(teachClassId);
-                    teachClassIds.add(teachClassId);
-                    lesson.setTeachClassName(teachingClass.getTeachClassName());
-                    lesson.setTeachClassCode(teachingClass.getTeachClassCode());
-                    lesson.setRemark(teachingClass.getRemark());
-                }
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                // 根据校历id设置学年
-                if (schoolCalendar != null) {
-                    lesson.setCalendarName(schoolCalendar.getYear()+"");
+                if (calendarId != null) {
+                    List<TeachingClassCache> teachClass = elcCourseTakeDao.findTeachClass(studentId, calendarId, courseCode);
+                    if (CollectionUtil.isNotEmpty(teachClass)) {
+                        Set<String> names = teachClass.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                        lesson.setTeacherName(String.join(",", names));
+                        TeachingClassCache teachingClass = teachClass.get(0);
+                        Long teachClassId = teachingClass.getTeachClassId();
+                        lesson.setTeachClassId(teachClassId);
+                        teachClassIds.add(teachClassId);
+                        lesson.setTeachClassName(teachingClass.getTeachClassName());
+                        lesson.setTeachClassCode(teachingClass.getTeachClassCode());
+                        lesson.setRemark(teachingClass.getRemark());
+                    }
+                    SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                    // 根据校历id设置学年
+                    if (schoolCalendar != null) {
+                        lesson.setCalendarName(schoolCalendar.getYear()+"");
+                    }
                 }
                 if (studentScore.getIsPass() != null
                     && studentScore.getIsPass().intValue() == Constants.ONE)
