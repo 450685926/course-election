@@ -283,9 +283,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 time.setValue(value);
                 list.add(time);
             }
-//            List<TimeTable> timtable = getTimtable(list);
-//            timetabVo.setTimeTables(timtable);
-            timetabVo.setTimeTables(list);
+            List<TimeTable> timtable = getTimtable(list);
+            timetabVo.setTimeTables(timtable);
+//            timetabVo.setTimeTables(list);
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
@@ -306,50 +306,55 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private List<TimeTable> getTimtable(List<TimeTable> list) {
         Map<Integer, List<TimeTable>> map = list.stream().collect(Collectors.groupingBy(TimeTable::getDayOfWeek));
         List<TimeTable> tableList = new ArrayList<>(list.size() * 2);
+        MultiValueMap<Integer, String> timeMap = new LinkedMultiValueMap<>();
         for (Map.Entry<Integer, List<TimeTable>>entry : map.entrySet()) {
             List<TimeTable> tables = entry.getValue();
-            List<String> days = new ArrayList<>(12);
+            Integer day = entry.getKey();
+            // 上课节次集合
+            Set<Integer> set = new LinkedHashSet<>(12);
             if (tables.size() > 1) {
-                //按开始节次升序结束节次升序排列
-                tables.sort(Comparator.comparing(TimeTable::getTimeStart).thenComparing(TimeTable::getTimeEnd));
-                for (int i = 0; i < tables.size(); i++) {
-                    TimeTable timeTable = tables.get(i);
-                    Integer start = timeTable.getTimeStart();
-                    Integer end = timeTable.getTimeEnd();
+                // 将上课节次以一节为单位拆分
+                for (TimeTable table : tables) {
+                    Integer timeStart = table.getTimeStart();
+                    Integer timeEnd = table.getTimeEnd();
+                    String value = table.getValue();
+                    for (int i = timeStart; i <= timeEnd; i++) {
+                        timeMap.add(i, value);
+                        set.add(i);
+                    }
+                }
+                List<TimeTable> times = new ArrayList<>(12);
+                for (Integer i : set) {
+                    List<String> value = timeMap.get(i);
+                    String values = String.join(",", value);
+                    TimeTable tab = new TimeTable();
+                    tab.setTimeStart(i);
+                    tab.setValue(values);
+                    tab.setTimeEnd(i);
+                    times.add(tab);
+                }
+                int size = times.size();
+                loop:for (int i = 0; i < size;i++) {
+                    TimeTable timeTable = times.get(i);
                     String value = timeTable.getValue();
-                    // 是否有冲突课程
-                    boolean flag = false;
-                    // 第i条数据依次与后面数据比较
-                    for (int j = i + 1; j < tables.size(); j++) {
-                        TimeTable table = tables.get(j);
-                        Integer timeStart = table.getTimeStart();
+                    timeTable.setDayOfWeek(day);
+                    for (int j = i + 1; j < size; j++) {
+                        TimeTable table = times.get(j);
                         Integer timeEnd = table.getTimeEnd();
-                        //如果包含
-                        if (start <= timeStart && timeEnd <= end) {
-                            table.setValue(value + ", " + table.getValue());
-                            if (start < timeStart) {
-                                days.add(start + "," + (timeStart - 1));
+                        if (value.equals(table.getValue())) {
+                            timeTable.setTimeEnd(timeEnd);
+                            if (j == size - 1) {
+                                tableList.add(timeTable);
+                                break loop;
                             }
-                            if (timeEnd < end) {
-                                days.add((timeEnd + 1) + "," + end);
-                            }
-                            days.remove(timeStart + "," + timeEnd);
-                            flag = true;
+                            continue;
+                        } else {
+                            tableList.add(timeTable);
+                            i = j - 1;
+                            continue loop;
                         }
                     }
-                    if (flag) {
-                        for (String day : days) {
-                            String[] split = day.split(",");
-                            TimeTable table = new TimeTable();
-                            table.setDayOfWeek(timeTable.getDayOfWeek());
-                            table.setValue(value);
-                            table.setTimeStart(Integer.parseInt(split[0]));
-                            table.setTimeEnd(Integer.parseInt(split[1]));
-                            tableList.add(table);
-                        }
-                    } else {
-                        tableList.add(timeTable);
-                    }
+                    tableList.add(timeTable);
                 }
             } else {
                 tableList.add(tables.get(0));
@@ -1233,23 +1238,25 @@ public class ReportManagementServiceImpl implements ReportManagementService
             table.addCell(cell);
         }
 
-        // 添加表内容
-        for (int j = 0; j < list.size(); j++)
-        {
-            List<String> timeTableList = getTimeTableList(list.get(j));
-            for (int i = 0; i < setTimeListTitle.length ; i++)
+        if (CollectionUtil.isNotEmpty(list)) {
+            // 添加表内容
+            for (int j = 0; j < list.size(); j++)
             {
-                PdfPCell cell = new PdfPCell();
-                if (i == 0)
+                List<String> timeTableList = getTimeTableList(list.get(j));
+                for (int i = 0; i < setTimeListTitle.length ; i++)
                 {
-                    cell = TeacherLessonTableServiceServiceImpl.createCell(String.valueOf(j + 1), 1, 1, name2, null);
+                    PdfPCell cell = new PdfPCell();
+                    if (i == 0)
+                    {
+                        cell = TeacherLessonTableServiceServiceImpl.createCell(String.valueOf(j + 1), 1, 1, name2, null);
+                    }
+                    else
+                    {
+                        cell =
+                                TeacherLessonTableServiceServiceImpl.createCell(timeTableList.get(i - 1), 1, 1, name2, null);
+                    }
+                    table.addCell(cell);
                 }
-                else
-                {
-                    cell =
-                        TeacherLessonTableServiceServiceImpl.createCell(timeTableList.get(i - 1), 1, 1, name2, null);
-                }
-                table.addCell(cell);
             }
         }
         return table;
