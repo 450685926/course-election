@@ -789,24 +789,25 @@ public class TeacherLessonTableServiceServiceImpl
                 null);
             table.addCell(cell);
         }
-        
-        // 添加表内容
-        for (int j = 0; j < list.size(); j++)
-        {
-            List<String> timeTableList = getTimeTableTeacherList(list.get(j));
-            for (int i = 0; i < setTimeListTeacherTitle.length; i++)
+        if (CollectionUtil.isNotEmpty(list)) {
+            // 添加表内容
+            for (int j = 0; j < list.size(); j++)
             {
-                PdfPCell cell = new PdfPCell();
-                if (i == 0)
+                List<String> timeTableList = getTimeTableTeacherList(list.get(j));
+                for (int i = 0; i < setTimeListTeacherTitle.length; i++)
                 {
-                    cell = createCell(String.valueOf(j + 1), 1, 1, name2, null);
+                    PdfPCell cell = new PdfPCell();
+                    if (i == 0)
+                    {
+                        cell = createCell(String.valueOf(j + 1), 1, 1, name2, null);
+                    }
+                    else
+                    {
+                        cell =
+                                createCell(timeTableList.get(i - 1), 1, 1, name2, null);
+                    }
+                    table.addCell(cell);
                 }
-                else
-                {
-                    cell =
-                        createCell(timeTableList.get(i - 1), 1, 1, name2, null);
-                }
-                table.addCell(cell);
             }
         }
         return table;
