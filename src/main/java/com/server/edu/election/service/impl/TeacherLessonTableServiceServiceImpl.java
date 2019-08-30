@@ -716,7 +716,7 @@ public class TeacherLessonTableServiceServiceImpl
                 PdfPCell cell = new PdfPCell(new Paragraph("", name2));
                 if (j == 0)
                 {
-                    cell = createCell(setSchoolTimeCol[i], 1, 1, name2, 30f);
+                    cell = createCell(setSchoolTimeCol[i], 1, 1, name2, null);
                     table.addCell(cell);
                 }
                 else
@@ -730,7 +730,7 @@ public class TeacherLessonTableServiceServiceImpl
                                 1,
                                 time.getTimeEnd() - i,
                                 name2,
-                                30f);
+                                null);
                             table.addCell(cell);
                         }
                     }
