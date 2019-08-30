@@ -306,11 +306,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private List<TimeTable> getTimtable(List<TimeTable> list) {
         Map<Integer, List<TimeTable>> map = list.stream().collect(Collectors.groupingBy(TimeTable::getDayOfWeek));
         List<TimeTable> tableList = new ArrayList<>(list.size() * 2);
-        MultiValueMap<Integer, String> timeMap = new LinkedMultiValueMap<>();
-        for (Map.Entry<Integer, List<TimeTable>>entry : map.entrySet()) {
-            List<TimeTable> tables = entry.getValue();
-            Integer day = entry.getKey();
+        Set<Integer> days = map.keySet();
+        for (Integer day : days) {
+            List<TimeTable> tables = map.get(day);
             // 上课节次集合
+            MultiValueMap<Integer, String> timeMap = new LinkedMultiValueMap<>();
             Set<Integer> set = new LinkedHashSet<>(12);
             if (tables.size() > 1) {
                 // 将上课节次以一节为单位拆分
@@ -326,7 +326,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 List<TimeTable> times = new ArrayList<>(12);
                 for (Integer i : set) {
                     List<String> value = timeMap.get(i);
-                    String values = String.join(",", value);
+                    String values = String.join(",  ", value);
                     TimeTable tab = new TimeTable();
                     tab.setTimeStart(i);
                     tab.setValue(values);
