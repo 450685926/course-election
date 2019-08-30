@@ -28,7 +28,7 @@ public class RetakeCourseCountVo {
     @NotNull
     private Integer retakeCount;
 
-    @NotBlank
+    @NotBlank(message = "项目名称不能为空")
     private String projectName;
 
     public Long getId() {
