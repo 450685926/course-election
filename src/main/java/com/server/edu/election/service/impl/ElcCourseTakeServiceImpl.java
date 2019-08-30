@@ -2,6 +2,7 @@ package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -753,6 +754,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}
 		PageResult<ElcCourseTakeVo> list = listPage(condition);
+		list.getList().sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
 		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
     	for (ElcCourseTakeVo elcCourseTakeVo : list.getList()) {
     		ElcCourseTakeNameListVo elcCourseTakeNameListVo = new ElcCourseTakeNameListVo();
