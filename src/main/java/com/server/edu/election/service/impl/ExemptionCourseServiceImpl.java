@@ -84,6 +84,7 @@ import com.server.edu.election.vo.ExemptionCourseVo;
 import com.server.edu.election.vo.ExemptionStudentCountVo;
 import com.server.edu.election.vo.ExemptionStudentCourseVo;
 import com.server.edu.election.vo.StudentAndCourseVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -992,10 +993,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		Student student = new Student();
 		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
 		student = studentDao.findStudentByCode(studentId);
-		if (student == null) {
-			RestResult.fail("common.notExist",studentId);
-		}
-		if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
+		if (student == null || !StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
 			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
 			studentAndCourseVo.setStudent(null);
 			studentAndCourseVo.setApplyCourse(null);
