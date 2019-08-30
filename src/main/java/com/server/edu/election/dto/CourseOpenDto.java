@@ -56,9 +56,11 @@ public class CourseOpenDto extends CourseOpen
     private Integer reserveNumber;
     
     /**
-            * 手工排课标识(0未排,1已排,2教室待定,3学院通知(暂不排课))
+    * 手工排课标识(0未排,1已排,2教室待定,3学院通知(暂不排课))
      */
     private Integer manArrangeFlag;
+    
+    private String courseLabelName;
     
 	public Integer getReserveNumber() {
 		return reserveNumber;
@@ -201,4 +203,15 @@ public class CourseOpenDto extends CourseOpen
 	public void setManArrangeFlag(Integer manArrangeFlag) {
 		this.manArrangeFlag = manArrangeFlag;
 	}
+
+    public String getCourseLabelName()
+    {
+        return courseLabelName;
+    }
+
+    public void setCourseLabelName(String courseLabelName)
+    {
+        this.courseLabelName = courseLabelName;
+    }
+	
 }
