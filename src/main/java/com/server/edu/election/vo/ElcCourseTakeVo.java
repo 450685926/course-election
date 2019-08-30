@@ -14,6 +14,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     private String courseName;
     
+    private Long studentCode;
     /**学分*/
     private Double credits;
     
@@ -288,5 +289,9 @@ public class ElcCourseTakeVo extends ElcCourseTake
     {
         this.courseLabel = courseLabel;
     }
+
+	public Long getStudentCode() {
+		return Long.parseLong(super.getStudentId());
+	}
 	
 }
