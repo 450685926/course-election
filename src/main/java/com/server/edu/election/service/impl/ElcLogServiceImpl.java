@@ -41,8 +41,6 @@ public class ElcLogServiceImpl implements ElcLogService
     @Override
     public PageResult<ElcLogVo> listPage(PageCondition<ElcLogQuery> page)
     {
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        
         ElcLogQuery cond = page.getCondition();
         List<String> includeCodes = new ArrayList<>();
         // 1体育课
@@ -65,6 +63,7 @@ public class ElcLogServiceImpl implements ElcLogService
         }
         cond.setSpeCourseCodes(includeCodes);
         
+        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<ElcLogVo> p = elcLogDao.listPage(cond);
         
         return new PageResult<>(p);

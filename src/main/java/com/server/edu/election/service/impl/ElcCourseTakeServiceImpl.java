@@ -13,7 +13,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -44,9 +42,7 @@ import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
-import com.server.edu.election.dao.ElectionRuleDao;
 import com.server.edu.election.dao.RetakeCourseCountDao;
-import com.server.edu.election.dao.RetakeCourseSetDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
@@ -91,8 +87,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 {
     Logger logger = LoggerFactory.getLogger(getClass());
 
-    private RestTemplate restTemplate = RestTemplateBuilder.create();
-    
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
     
@@ -122,12 +116,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
-
-    @Autowired
-    private ElectionRuleDao electionRuleDao;
-
-    @Autowired
-    private RetakeCourseSetDao retakeCourseSetDao;
 
     @Autowired
     private ElecResultSwitchService elecResultSwitchService;
