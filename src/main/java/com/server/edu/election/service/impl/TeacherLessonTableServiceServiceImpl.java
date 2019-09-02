@@ -569,7 +569,6 @@ public class TeacherLessonTableServiceServiceImpl
         throws DocumentException, IOException
     {
         //检查目录是否存在
-        cacheDirectory = "C://temp//pdf//cacheWord";
         LOG.info("缓存目录：" + cacheDirectory);
         FileUtil.mkdirs(cacheDirectory);
         //删除超过30天的文件
@@ -627,6 +626,7 @@ public class TeacherLessonTableServiceServiceImpl
         subtitle.setSpacingBefore(15);
         document.add(subtitle);
         
+        //---3 教师基本信息---
         PdfPTable table1 = new PdfPTable(4);
         //前间距
         table1.setSpacingBefore(5);
@@ -637,16 +637,22 @@ public class TeacherLessonTableServiceServiceImpl
         PdfPCell cell2 = createNoBorderCell("姓名：" + teacherName, name2, 20f);
         table1.addCell(cell2);
         String facultyStr = dictionaryService.query(DictTypeEnum.X_YX.getType(), teacherTimetab.getFaculty());
-
-        PdfPCell cell3 =
-            createNoBorderCell("学院：" + facultyStr, name2, 150f);
+        
+        PdfPCell cell3 = new PdfPCell(new Paragraph("学院：" + facultyStr, name2));
+        //无边框
+        cell3.setBorder(Rectangle.NO_BORDER);
+        // 设置内容水平居左显示
+        cell3.setHorizontalAlignment(Element.ALIGN_LEFT);
+        // 设置内容垂直居左显示
+        cell3.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell3.setColspan(2);
         table1.addCell(cell3);
         
-        PdfPCell cell4 = createNoBorderCell("", name2, 20f);
+        PdfPCell cell4 = createNoBorderCell("", name2, 0f);
         table1.addCell(cell4);
         document.add(table1);
         
-        // ----3 教师选课课表展示----
+        // ----4 教师选课课表展示----
         List<TimeTable> timeTables = teacherTimetab.getTimeTables();
         // 教师课表上课时间冲突合并
         List<TimeTable> list = getTimtable(timeTables);
@@ -655,7 +661,7 @@ public class TeacherLessonTableServiceServiceImpl
             name2);
         document.add(table2);
         
-        // ----4 教师课程安排列表 -------
+        // ----5 教师课程安排列表 -------
         PdfPTable table3 =
             createTeacherTimeList(teacherTimetab.getTeacherDtos(),
                 subtitleChinese,
