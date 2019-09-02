@@ -16,10 +16,12 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.controller.ExemptionApplyConditionController;
+import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ExemptionApplyConditionDao;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.entity.Student;
@@ -40,6 +42,9 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 	
     @Autowired
     private StudentDao studentDao;
+    
+    @Autowired
+    private CourseDao courseDao;
 	
 	@Override
 	public void addExemptionApplyCondition(ExemptionApplyGraduteCondition applyCondition) {
@@ -166,5 +171,8 @@ public class ExemptionApplyConditionServiceImpl implements ExemptionApplyConditi
 		return exemptionApplyConditionDao.queryApplyConditionByCourseCodeAndStudentId(condition);
 	}
 
-
+	@Override
+	public Integer getCourseByCodeOrName(Course course) {
+		 return courseDao.selectCount(course);
+	}
 }
