@@ -34,17 +34,19 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 import com.server.edu.election.service.ExemptionApplyConditionService;
 import com.server.edu.election.vo.ExemptionApplyManageVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.GeneralExcelUtil;
@@ -185,26 +187,57 @@ public class ExemptionApplyConditionController {
                 String degreeTypes = StringUtils.trim(condition.getDegreeTypes());
                 String formLearnings = StringUtils.trim(condition.getFormLearnings());
                 String conditions = StringUtils.trim(condition.getConditions());
+               
+                // ************************* 校验excel数据完整性及准确性  start ****************************/
+                // 1.excel中数据不能有空值
                 if (StringUtils.isNotBlank(courseCode) 
                 		&& StringUtils.isNotBlank(courseName)
                 		&& StringUtils.isNotBlank(trainingLevels)
+                		&& StringUtils.isNotBlank(trainingCategorys)
+                		&& StringUtils.isNotBlank(degreeTypes)
+                		&& StringUtils.isNotBlank(formLearnings)
                 		&& StringUtils.isNotBlank(conditions))
                 {
-            		Double double1 = Double.valueOf(courseCode);
-            		int floor = (int)Math.floor(double1);
-            		String courseCodeStr = String.valueOf(floor);
-                	condition.setCourseCode(courseCodeStr);
-                	
-                	condition.setTrainingLevels(getCodesByNames(trainingLevels, DictTypeEnum.X_PYCC.getType(), mapList));
-                	condition.setTrainingCategorys(getCodesByNames(trainingCategorys,DictTypeEnum.X_PYLB.getType(),mapList));
-                	condition.setDegreeTypes(getCodesByNames(degreeTypes, DictTypeEnum.X_XWLX.getType(), mapList));
-                	condition.setFormLearnings(getCodesByNames(formLearnings, DictTypeEnum.X_XXXS.getType(), mapList));
-                	
-                	condition.setProjId(projectId);
-                	condition.setDeleteStatus(Constants.DELETE_FALSE);
-                	list.add(condition);
-                	this.addExemptionApplyCondition(condition);
+                	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
                 }
+                
+                // 2.培养层次、培养类别、学位类型、学习形式需在字典表中
+                String trainingLevelCodes = getCodesByNames(trainingLevels, DictTypeEnum.X_PYCC.getType(), mapList);
+            	String trainingCategoryCodes = getCodesByNames(trainingCategorys,DictTypeEnum.X_PYLB.getType(),mapList);
+            	String degreeTypeCodes = getCodesByNames(degreeTypes, DictTypeEnum.X_XWLX.getType(), mapList);
+            	String formLearningCodes = getCodesByNames(formLearnings, DictTypeEnum.X_XXXS.getType(), mapList);
+                if (StringUtils.isBlank(trainingLevelCodes) 
+                		|| StringUtils.isBlank(trainingCategoryCodes)
+                		|| StringUtils.isBlank(degreeTypeCodes) 
+                		|| StringUtils.isBlank(formLearningCodes)) 
+                {
+                	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
+				}
+                
+                // 3.课程名称和课程编号需在系统中可用
+                Course course = new Course();
+                course.setCode(courseCode);
+                course.setName(courseName);
+                Integer courseCount = exemptionApplyConditionSerice.getCourseByCodeOrName(course);
+                if (courseCount.intValue() == 0) {
+                	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
+				}
+                // ************************* 校验excel数据完整性及准确性  end ****************************/
+                
+        		Double double1 = Double.valueOf(courseCode);
+        		int floor = (int)Math.floor(double1);
+        		String courseCodeStr = String.valueOf(floor);
+            	condition.setCourseCode(courseCodeStr);
+            	
+            	condition.setTrainingLevels(trainingLevelCodes);
+            	condition.setTrainingCategorys(trainingCategoryCodes);
+            	condition.setDegreeTypes(degreeTypeCodes);
+            	condition.setFormLearnings(formLearningCodes);
+            	
+            	condition.setProjId(projectId);
+            	condition.setDeleteStatus(Constants.DELETE_FALSE);
+            	list.add(condition);
+            	this.addExemptionApplyCondition(condition);
             }
         } catch (Exception e){
             logger.error(e.getMessage(), e);
@@ -220,6 +253,7 @@ public class ExemptionApplyConditionController {
      * @return 
      */
     public String getCodesByNames(String names, String type, Map<String, Map<String, String>> mapList) {
+    	String codes = "";
     	if (StringUtils.isNotBlank(names)) {
     		String replace = names.replace("，", ",");
     		String[] splits = replace.split(",");
@@ -236,11 +270,11 @@ public class ExemptionApplyConditionController {
 				}
 			}
     		String string = buffer.toString();
-    		String codes = string.substring(0, string.length()-1);
-    		return codes;
-		}else {
-			return "";
+    		if (StringUtils.isNotBlank(string)) {
+    			codes = string.substring(0, string.length()-1);
+    		}
 		}
+    	return codes;
     }
     
     @ApiOperation(value = "根据课程编号查询名称和培养层次")
