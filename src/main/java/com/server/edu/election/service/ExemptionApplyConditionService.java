@@ -5,6 +5,7 @@ import java.util.List;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dao.ExemptionApplyGraduteConditionDto;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ExemptionApplyGraduteCondition;
 
@@ -58,4 +59,10 @@ public interface ExemptionApplyConditionService {
 	 */
 	List<ExemptionApplyGraduteCondition> queryApplyConditionByCourseCodeAndStudentId(String courseCode,String studentCode);
 	
+	/**
+	 * 根据课程code或者名称查询课程信息
+	 * @param course
+	 * @return
+	 */
+	Integer getCourseByCodeOrName(Course course);
 }
