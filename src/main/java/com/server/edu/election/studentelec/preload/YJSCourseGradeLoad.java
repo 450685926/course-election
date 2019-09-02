@@ -219,7 +219,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
     }
     
     public void loadApplyRecord(Long calendarId, String studentId, Set<ElecCourse> applyForDropCourses) {
-    	List<ElecCourse> applyRecord = applyDao.findApplyRecord(calendarId, studentId);
+    	List<ElecCourse> applyRecord = applyDao.findApplyRecordForElection(studentId);
     	if (CollectionUtil.isNotEmpty(applyRecord)) {
     		applyForDropCourses.addAll(applyRecord);
 		}
