@@ -89,7 +89,7 @@
       <where>
       ex.DELETE_STATUS_ = 0 and 
       s.MANAGER_DEPT_ID_ =  #{projectId,jdbcType=VARCHAR}
-          <if test="grade !=null>
+          <if test="grade !=null">
             and s.GRADE_ =#{grade,jdbcType=INTEGER}
           </if>
           <if test="enrolSeason!=null and enrolSeason !='' ">
