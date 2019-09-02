@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.entity.Teacher;
-import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
@@ -32,9 +33,9 @@ import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcCouSubsDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -111,6 +112,55 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
+        // 加载成绩
+//        loadScore(context, studentInfo, studentId, stu);
+        loadScoreTemp(context, studentInfo, studentId, stu);
+        
+        //得到校历id
+        Long calendarId = request.getCalendarId();
+        //2.学生已选择课程
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        //选课集合
+        this.loadSelectedCourses(studentId, selectedCourses, calendarId);
+        
+        //3.学生免修课程
+        List<ElecCourse> applyRecord =
+            applyDao.findApplyRecord(calendarId, studentId);
+        
+        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
+        applyForDropCourses.addAll(applyRecord);
+        // 4. 非本学期的选课并且没有成功的
+        
+        //5. 学生选课申请课程
+        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
+        Example aExample = new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys =
+            electionApplyDao.selectByExample(aExample);
+        elecApplyCourses.addAll(electionApplys);
+        
+        //6. 学生替代课程
+        ElcCouSubsDto dto = new ElcCouSubsDto();
+        dto.setStudentId(studentId);
+        List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
+        context.getReplaceCourses().addAll(list);
+    }
+
+    /**
+     * 查询学生成绩（使用的是分表）
+     * 
+     * @param context
+     * @param studentInfo
+     * @param studentId
+     * @param stu
+     * @see [类、类#方法、类#成员]
+     */
+    @SuppressWarnings("unused")
+    private void loadScore(ElecContextBk context, StudentInfoCache studentInfo,
+        String studentId, Student stu)
+    {
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
         BeanUtils.copyProperties(stu, studentInfo);
@@ -174,37 +224,96 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 }
             }
         }
+    }
+    /**
+     * 查询学生成绩（使用的是一张表），由于成绩没有开发完所以使用的这个，如果成绩开发完了考虑使用loadScore方法
+     * 
+     * @param context
+     * @param studentInfo
+     * @param studentId
+     * @param stu
+     * @see [类、类#方法、类#成员]
+     */
+    private void loadScoreTemp(ElecContextBk context, StudentInfoCache studentInfo,
+        String studentId, Student stu)
+    {
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
+        BeanUtils.copyProperties(stu, studentInfo);
         
-        //得到校历id
-        Long calendarId = request.getCalendarId();
-        //2.学生已选择课程
-        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        //选课集合
-        this.loadSelectedCourses(studentId, selectedCourses, calendarId);
-        
-        //3.学生免修课程
-        List<ElecCourse> applyRecord =
-            applyDao.findApplyRecord(calendarId, studentId);
-        
-        Set<ElecCourse> applyForDropCourses = context.getApplyForDropCourses();
-        applyForDropCourses.addAll(applyRecord);
-        // 4. 非本学期的选课并且没有成功的
-        
-        //5. 学生选课申请课程
-        Set<ElectionApply> elecApplyCourses = context.getElecApplyCourses();
-        Example aExample = new Example(ElectionApply.class);
-        Example.Criteria aCriteria = aExample.createCriteria();
-        aCriteria.andEqualTo("studentId", studentId);
-        aCriteria.andEqualTo("calendarId", calendarId);
-        List<ElectionApply> electionApplys =
-            electionApplyDao.selectByExample(aExample);
-        elecApplyCourses.addAll(electionApplys);
-        
-        //6. 学生替代课程
-        ElcCouSubsDto dto = new ElcCouSubsDto();
-        dto.setStudentId(studentId);
-        List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
-        context.getReplaceCourses().addAll(list);
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
+        if (CollectionUtil.isNotEmpty(stuScore))
+        {
+            List<String> courseCodes = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+            List<Course> courses = elcCourseTakeDao.findCourses(courseCodes);
+            Map<String, Course> map = courses.stream().collect(Collectors.toMap(Course::getCode, s -> s));
+            List<Long> teachClassIds = new ArrayList<>();
+            for (ScoreStudentResultVo studentScore : stuScore)
+            {
+                Long calendarId = studentScore.getCalendarId();
+                String courseCode = studentScore.getCourseCode();
+                
+                CompletedCourse c = new CompletedCourse();
+                TeachingClassCache lesson = new TeachingClassCache();
+                lesson.setCourseCode(courseCode);
+                Course co = map.get(courseCode);
+                if (co != null) {
+                    lesson.setCourseName(co.getName());
+                    lesson.setNature(co.getNature());
+                    lesson.setFaculty(co.getCollege());
+                    lesson.setTerm(co.getTerm());
+                }
+                lesson.setCredits(studentScore.getCredit());
+                lesson.setCalendarId(calendarId);
+                if (calendarId != null) {
+                    List<TeachingClassCache> tcList = elcCourseTakeDao.findTeachClass(studentId, calendarId, courseCode);
+                    if (CollectionUtil.isNotEmpty(tcList)) {
+                        Set<String> names = tcList.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                        lesson.setTeacherName(String.join(",", names));
+                        TeachingClassCache teachingClass = tcList.get(0);
+                        Long teachClassId = teachingClass.getTeachClassId();
+                        lesson.setTeachClassId(teachClassId);
+                        lesson.setTeachClassName(teachingClass.getTeachClassName());
+                        lesson.setTeachClassCode(teachingClass.getTeachClassCode());
+                        lesson.setRemark(teachingClass.getRemark());
+                        teachClassIds.add(teachClassId);
+                    }
+                }
+                
+                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
+                { // 已通过的课程
+                    completedCourses.add(c);
+                }
+                else
+                { // 未通过的课程
+                    failedCourse.add(c);
+                }
+                
+                c.setCourse(lesson);
+                
+                c.setScore(studentScore.getTotalMarkScore());
+                c.setExcellent(studentScore.isBestScore());
+                c.setIsPass(studentScore.getIsPass());
+                c.setCourseLabelId(studentScore.getCourseLabelId());
+                c.setCheat(
+                    StringUtils.isBlank(studentScore.getTotalMarkScore()));
+            }
+            
+            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
+            Consumer<CompletedCourse> consumer = new Consumer<CompletedCourse>()
+            {
+                @Override
+                public void accept(CompletedCourse t)
+                {
+                  //课程安排查询
+                    List<ClassTimeUnit> times = BKCourseGradeLoad.this.concatTime(collect, t.getCourse());
+                    t.getCourse().setTimes(times);
+                    
+                }
+            };
+            completedCourses.forEach(consumer);
+            failedCourse.forEach(consumer);
+        }
     }
     
     /**
