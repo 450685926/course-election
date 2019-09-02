@@ -116,8 +116,8 @@
           <if test="courseName!=null and courseName !='' ">
               and ex.COURSE_NAME_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
           </if>
-          <if test="examineResult!=null and examineResult !='' ">
-              and ex.EXAMINE_RESULT_ =#{examineResult,jdbcType=VARCHAR}
+          <if test="examineResult!=null">
+              and ex.EXAMINE_RESULT_ =#{examineResult,jdbcType=INTEGER}
           </if>
       </where>
        	GROUP BY ex.STUDENT_CODE_
