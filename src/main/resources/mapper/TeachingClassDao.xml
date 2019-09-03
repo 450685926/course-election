@@ -136,7 +136,7 @@
         and t3.COURSE_NAME_ = #{courseName}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus}
+        and t1.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
@@ -241,7 +241,7 @@
         and t3.COURSE_NAME_ = #{courseName}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus}
+        and t1.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
