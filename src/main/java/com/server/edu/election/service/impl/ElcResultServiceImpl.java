@@ -155,7 +155,7 @@ public class ElcResultServiceImpl implements ElcResultService
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
-        Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
+        Page<TeachingClassVo> listPage = null;
         if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
         		int mode = TableIndexUtil.getMode(condition.getCalendarId());
