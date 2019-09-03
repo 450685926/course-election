@@ -177,7 +177,6 @@ public class ExemptionApplyConditionController {
             
             Map<String, Map<String, String>> mapList = dictionaryService.queryByTypeList(Arrays.asList(DictTypeEnum.X_PYCC.getType(),DictTypeEnum.X_PYLB.getType(),DictTypeEnum.X_XWLX.getType(),DictTypeEnum.X_XXXS.getType()), SessionUtils.CN);
             
-            logger.info("===========================000000000000000000000================================="+parseExcel.size());
             for (ExemptionApplyGraduteCondition condition : parseExcel)
             {
                 String courseCode = StringUtils.trim(condition.getCourseCode());
@@ -187,14 +186,6 @@ public class ExemptionApplyConditionController {
                 String degreeTypes = StringUtils.trim(condition.getDegreeTypes());
                 String formLearnings = StringUtils.trim(condition.getFormLearnings());
                 String conditions = StringUtils.trim(condition.getConditions());
-               
-                logger.info("================================courseCode=====================================: " + courseCode); 
-                logger.info("================================courseName=====================================: " + courseName); 
-                logger.info("================================trainingLevels=====================================: " + trainingLevels); 
-                logger.info("================================trainingCategorys=====================================: " + trainingCategorys); 
-                logger.info("================================degreeTypes=====================================: " + degreeTypes); 
-                logger.info("================================formLearnings=====================================: " + formLearnings); 
-                logger.info("================================conditions=====================================: " + conditions); 
                 
                 // ************************* 校验excel数据完整性及准确性  start ****************************/
                 // 1.excel中数据不能有空值
@@ -206,7 +197,6 @@ public class ExemptionApplyConditionController {
                 		|| StringUtils.isBlank(formLearnings)
                 		|| StringUtils.isBlank(conditions))
                 {
-                	logger.info("===========================11111111111111111111===========================");
                 	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
                 }
                 
@@ -215,18 +205,12 @@ public class ExemptionApplyConditionController {
             	String trainingCategoryCodes = getCodesByNames(trainingCategorys,DictTypeEnum.X_PYLB.getType(),mapList);
             	String degreeTypeCodes = getCodesByNames(degreeTypes, DictTypeEnum.X_XWLX.getType(), mapList);
             	String formLearningCodes = getCodesByNames(formLearnings, DictTypeEnum.X_XXXS.getType(), mapList);
-            	
-            	logger.info("================================trainingLevelCodes=====================================: " + trainingLevelCodes); 
-            	logger.info("================================trainingCategoryCodes=====================================: " + trainingCategoryCodes); 
-            	logger.info("================================degreeTypeCodes=====================================: " + degreeTypeCodes); 
-            	logger.info("================================formLearningCodes=====================================: " + formLearningCodes); 
 
             	if (StringUtils.isBlank(trainingLevelCodes) 
                 		|| StringUtils.isBlank(trainingCategoryCodes)
                 		|| StringUtils.isBlank(degreeTypeCodes) 
                 		|| StringUtils.isBlank(formLearningCodes)) 
                 {
-                	logger.info("===========================22222222222222222222===========================");
                 	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
 				}
                 
@@ -236,7 +220,6 @@ public class ExemptionApplyConditionController {
                 course.setName(courseName);
                 Integer courseCount = exemptionApplyConditionSerice.getCourseByCodeOrName(course);
                 if (courseCount.intValue() == 0) {
-                	logger.info("===========================333333333333333333333===========================");
                 	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
 				}
                 // ************************* 校验excel数据完整性及准确性  end ****************************/
