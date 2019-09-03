@@ -89,6 +89,7 @@
             DELETE_STATUS_ = 0
          and TRAINING_LEVEL_ = #{trainingLevel}
          and TRAINING_CATEGORY_ = #{trainingCategory}
+         and PROJECT_ID_ = #{projectId}
          and DEGREE_TYPE_ = #{degreeType}
          and FORM_LEARNING_ = #{formLearning}
     </select>
