@@ -27,6 +27,7 @@ import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.validator.Assert;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
@@ -80,6 +81,7 @@ import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
+
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -395,7 +397,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
 			}
 		}
-    	
+    	Assert.isNull(teachingClassVo.getCalendarId(), "学期不能为空");
     	Session session = SessionUtils.getCurrentSession();
     	Example example = new Example(ElcClassEditAuthority.class);
     	Example.Criteria criteria = example.createCriteria();
