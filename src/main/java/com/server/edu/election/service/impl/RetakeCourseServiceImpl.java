@@ -100,14 +100,16 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         Long id = retakeCourseCountVo.getId();
         RetakeCourseCountDto retakeCourseCountDto = getRetakeCourseCountDto(retakeCourseCountVo);
         // 判断这条数据是否与数据库现有数据重复重复
+        Session currentSession = SessionUtils.getCurrentSession();
+        String manageDptId = currentSession.getCurrentManageDptId();
+        retakeCourseCountDto.setProjectId(manageDptId);
         RetakeCourseCountDto retakeCourseCount = retakeCourseCountDao.findRetakeCourseCount(retakeCourseCountDto);
         if (id == null) {
             if (retakeCourseCount != null) {
                 throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.dataError",retakeCourseCount.getProjectName()));
             }
-            Session currentSession = SessionUtils.getCurrentSession();
             String uid = currentSession.getUid();
-            retakeCourseCountDto.setProjectId(currentSession.getCurrentManageDptId());
+            retakeCourseCountDto.setProjectId(manageDptId);
             retakeCourseCountDto.setCreateBy(uid);
             retakeCourseCountDto.setCreateAt(new Date());
             retakeCourseCountDao.saveRetakeCourseCount(retakeCourseCountDto);
