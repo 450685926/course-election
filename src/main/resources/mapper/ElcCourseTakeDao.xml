@@ -623,7 +623,7 @@
             cl.ELC_NUMBER_ selectCourseNumber,
             cl.REMARK_ remark,
             cl.CAMPUS_ campus,
-            co.TEACHING_LANGUAGE_ teachingLanguage,
+            cl.TEACHING_LANGUAGE_ teachingLanguage,
             co.WEEK_HOUR_ weekHour,
             cl.ELC_NUMBER_ selectCourseNumber
         FROM
