@@ -46,6 +46,10 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutor
                     for (SelectedCourse selectedCours : selectedCourses)
                     {
                         List<ClassTimeUnit> times = selectedCours.getTimes();
+                        if (CollectionUtil.isEmpty(times)) {
+							continue;
+						}
+                        
                         for (ClassTimeUnit v0 : teachingClassTime)
                         {
                             for (ClassTimeUnit v1 : times)
