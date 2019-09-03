@@ -198,6 +198,7 @@ public class ExemptionApplyConditionController {
                 		&& StringUtils.isNotBlank(formLearnings)
                 		&& StringUtils.isNotBlank(conditions))
                 {
+                	logger.info("===========================11111111111111111111===========================");
                 	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
                 }
                 
@@ -211,6 +212,7 @@ public class ExemptionApplyConditionController {
                 		|| StringUtils.isBlank(degreeTypeCodes) 
                 		|| StringUtils.isBlank(formLearningCodes)) 
                 {
+                	logger.info("===========================22222222222222222222===========================");
                 	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
 				}
                 
@@ -220,6 +222,7 @@ public class ExemptionApplyConditionController {
                 course.setName(courseName);
                 Integer courseCount = exemptionApplyConditionSerice.getCourseByCodeOrName(course);
                 if (courseCount.intValue() == 0) {
+                	logger.info("===========================333333333333333333333===========================");
                 	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
 				}
                 // ************************* 校验excel数据完整性及准确性  end ****************************/
