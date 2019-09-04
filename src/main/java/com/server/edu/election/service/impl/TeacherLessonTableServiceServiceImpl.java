@@ -133,6 +133,9 @@ public class TeacherLessonTableServiceServiceImpl
         ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<ClassCodeToTeacher> teacherTimeTable = courseTakeDao.findTeacherTimeTableByRole(classCodeToTeacher);
+        if (CollectionUtil.isEmpty(teacherTimeTable)) {
+            return new PageResult<ClassCodeToTeacher>(teacherTimeTable);
+        }
         Set<String> set = teacherTimeTable.stream().map(ClassCodeToTeacher::getTeacherCode).collect(Collectors.toSet());
         List<TeachingClassTeacherVo> teachers = teachingClassTeacherDao.findTeachers(set);
         Map<String, TeachingClassTeacherVo> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacherVo::getTeacherCode, s -> s));
