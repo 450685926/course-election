@@ -397,7 +397,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
 			}
 		}
-    	Assert.isNull(teachingClassVo.getCalendarId(), "学期不能为空");
+    	Assert.notNull(teachingClassVo.getCalendarId(), "学期不能为空");
     	Session session = SessionUtils.getCurrentSession();
     	Example example = new Example(ElcClassEditAuthority.class);
     	Example.Criteria criteria = example.createCriteria();
