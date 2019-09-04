@@ -856,15 +856,54 @@
         GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_
     </select>
 
+    <select id="findTeachingClass" parameterType="com.server.edu.election.dto.RollBookConditionDto" resultType="com.server.edu.election.vo.RollBookList">
+        SELECT
+            a.CALENDAR_ID_ calendarId,a.COURSE_CODE_ courseCode,a.COURSE_NAME_ courseName,
+            a.FACULTY_ faculty,a.NATURE_ courseNature,
+            c.ID_ id,
+            c.ID_ teachingClassId,c.CODE_ classCode,c.NAME_ className,
+            c.ELC_NUMBER_ selectCourseNumber,c.NUMBER_ numberLimit
+        from course_open_t a
+        join teaching_task_t b on a.ID_ = b.COURSE_OPEN_ID_
+        join teaching_class_t c on b.ID_ = c.TASK_ID_
+        <where>
+            a.PROJ_ID_ = #{projectId}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and a.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and a.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+                and a.COURSE_CODE_  like concat('%',#{courseCode,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+                and a.COURSE_NAME_ like concat ('%',#{courseName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseNature)">
+                and a.NATURE_ =#{courseNature,jdbcType=VARCHAR}
+            </if>
+            and c.MAN_ARRANGE_FLAG_ in (1,2,3)
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+                and c.ID_  in (select TEACHING_CLASS_ID_ from teaching_class_teacher_t
+                where TEACHER_CODE_= #{teacherCode})
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
+                and c.CODE_ =#{classCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
     <select id="getExportGraduteRollBookList" resultType="com.server.edu.election.vo.RollBookList">
-    SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,
-    t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,
-    t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,
-    t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature
-    from elc_course_takes_t t1
-    join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
-    join course_t t3 on t1.COURSE_CODE_=t3.CODE_
-    where t1.ID_ in
+    SELECT
+        a.CALENDAR_ID_ calendarId,a.COURSE_CODE_ courseCode,a.COURSE_NAME_ courseName,
+        a.FACULTY_ faculty,a.NATURE_ courseNature,
+        c.ID_ teachingClassId,c.CODE_ classCode,c.NAME_ className,
+        c.ELC_NUMBER_ selectCourseNumber,c.NUMBER_ numberLimit
+        from teaching_class_t c
+        join teaching_task_t b on c.TASK_ID_ = b.ID_
+        join course_open_t a on b.COURSE_OPEN_ID_ = a.ID_
+        where c.ID_ in
         <foreach item="id" collection="ids"  index="index" open="(" separator="," close=")">
             #{id}
         </foreach>

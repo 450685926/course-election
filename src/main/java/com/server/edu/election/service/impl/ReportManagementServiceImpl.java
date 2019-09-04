@@ -527,7 +527,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
     {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RollBookList> rollBookList =
-                courseTakeDao.findClassByTeacherCode(condition.getCondition());
+                courseTakeDao.findTeachingClass(condition.getCondition());
         if (rollBookList != null)
         {
             List<RollBookList> result = rollBookList.getResult();
@@ -542,12 +542,16 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
             //获取老师id
             List<TeachingClassTeacher> teachers = teachingClassDao.findTeacherNames(list);
-            Map<Long, String> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacher::getTeachingClassId, TeachingClassTeacher::getTeacherName));
+            Map<Long, List<TeachingClassTeacher>> map = teachers.stream().collect(Collectors.groupingBy(TeachingClassTeacher::getTeachingClassId));
             if (CollectionUtil.isNotEmpty(teachers)) {
                 for (RollBookList bookList : result)
                 {
-                    String name = map.get(bookList.getTeachingClassId());
-                        bookList.setTeacherName(name);
+                    List<TeachingClassTeacher> teachingClassTeachers = map.get(bookList.getTeachingClassId());
+                    if (CollectionUtil.isEmpty(teachingClassTeachers)) {
+                        continue;
+                    }
+                    Set<String> set = teachingClassTeachers.stream().map(TeachingClassTeacher::getTeacherName).collect(Collectors.toSet());
+                    bookList.setTeacherName(String.join(",",set));
                 }
             }
         }
