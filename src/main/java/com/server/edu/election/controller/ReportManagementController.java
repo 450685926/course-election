@@ -123,6 +123,7 @@ public class ReportManagementController
             return RestResult.fail("common.parameterError");
         }
         Session session = SessionUtils.getCurrentSession();
+        rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
         PageResult<RollBookList> bookList = null;
         if (session.isAdmin()) {
             bookList = managementService.findGraduteRollBookList(condition);
