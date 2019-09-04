@@ -161,6 +161,9 @@ public interface ElcCourseTakeDao
     /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
 
+    /**研究生点名册*/
+    Page<RollBookList> findTeachingClass(RollBookConditionDto condition);
+
     /**点名册导出查询*/
     List<RollBookList> getExportGraduteRollBookList(@Param("ids") List<String> ids);
 

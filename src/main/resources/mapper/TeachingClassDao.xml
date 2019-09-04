@@ -405,13 +405,12 @@
 
     <select id="findTeacherNames" resultType="com.server.edu.election.entity.TeachingClassTeacher">
         select TEACHING_CLASS_ID_ teachingClassId,
-        GROUP_CONCAT(TEACHER_NAME_) teacherName
+        TEACHER_NAME_ teacherName
         from teaching_class_teacher_t
         where TEACHING_CLASS_ID_ in
         <foreach collection="teachingClassIds" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
-        group by TEACHING_CLASS_ID_
     </select>
 
   <select id="getClassTimes" parameterType="java.util.List" resultType="com.server.edu.election.dto.TeacherClassTimeRoom">
