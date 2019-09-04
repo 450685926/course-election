@@ -72,6 +72,7 @@ public class TeacherLessonTableController
         ClassCodeToTeacher classCodeToTeacher = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
         PageResult<ClassCodeToTeacher> classTeacher = null;
+        classCodeToTeacher.setProjectId(session.getCurrentManageDptId());
         if (StringUtils.equals(session.getCurrentRole(), "1")
             && session.isAdmin())
         {
