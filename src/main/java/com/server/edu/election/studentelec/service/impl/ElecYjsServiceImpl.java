@@ -403,11 +403,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
-            if (round.getId() == null) {
+            if (round.getId() == null) { // 管理员代理选课
             	take.setCalendarId(request.getCalendarId());
             	take.setMode(1);
             	take.setTurn(0);
-			}else {
+			}else if (!StringUtils.equals(request.getProjectId(), Constants.PROJ_UNGRADUATE) 
+					&& request.getChooseObj().intValue()==ChooseObj.DEPART_ADMIN.type()) { // 教务员代理选课
+				take.setCalendarId(round.getCalendarId());
+				take.setMode(1);
+				take.setTurn(round.getTurn());
+			} else {  // 学生选课
 				take.setCalendarId(round.getCalendarId());
 				take.setMode(round.getMode());
 				take.setTurn(round.getTurn());
