@@ -2,14 +2,7 @@ package com.server.edu.election.service.impl;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,6 +59,8 @@ import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @Service
 public class TeacherLessonTableServiceServiceImpl
@@ -620,8 +615,8 @@ public class TeacherLessonTableServiceServiceImpl
         document.add(title);
         
         //---2 副标题---
-        SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        Paragraph subtitle = new Paragraph(schoolCalendar.getFullName());
+        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+        Paragraph subtitle = new Paragraph(schoolCalendarVo.getFullName(), subtitleChinese);
         subtitle.setAlignment(Element.ALIGN_CENTER);
         //设置行间距
         subtitle.setLeading(10);
@@ -651,13 +646,16 @@ public class TeacherLessonTableServiceServiceImpl
         table1.addCell(cell4);
         document.add(table1);
         
-        // ----3 教师选课课表展示---- 
-        PdfPTable table2 = createStudentTable(teacherTimetab.getTimeTables(),
+        // ----3 教师选课课表展示----
+        List<TimeTable> timeTables = teacherTimetab.getTimeTables();
+        // 教师课表上课时间冲突合并
+        List<TimeTable> list = getTimtable(timeTables);
+        PdfPTable table2 = createStudentTable(list,
             subtitleChinese,
             name2);
         document.add(table2);
         
-        // ----4 学生选课列表 -------
+        // ----4 教师课程安排列表 -------
         PdfPTable table3 =
             createTeacherTimeList(teacherTimetab.getTeacherDtos(),
                 subtitleChinese,
@@ -666,6 +664,74 @@ public class TeacherLessonTableServiceServiceImpl
         
         document.close();
         return RestResult.successData("导出成功。", fileName);
+    }
+
+    /**
+     *上课时间冲突合并
+     * @param list
+     * @return
+     */
+    private List<TimeTable> getTimtable(List<TimeTable> list) {
+        if (CollectionUtil.isEmpty(list)) {
+            return new ArrayList<>();
+        }
+        Map<Integer, List<TimeTable>> map = list.stream().collect(Collectors.groupingBy(TimeTable::getDayOfWeek));
+        List<TimeTable> tableList = new ArrayList<>(list.size() * 2);
+        Set<Integer> days = map.keySet();
+        for (Integer day : days) {
+            List<TimeTable> tables = map.get(day);
+            // 上课节次集合
+            MultiValueMap<Integer, String> timeMap = new LinkedMultiValueMap<>();
+            Set<Integer> set = new LinkedHashSet<>(12);
+            if (tables.size() > 1) {
+                // 将上课节次以一节为单位拆分
+                for (TimeTable table : tables) {
+                    Integer timeStart = table.getTimeStart();
+                    Integer timeEnd = table.getTimeEnd();
+                    String value = table.getValue();
+                    for (int i = timeStart; i <= timeEnd; i++) {
+                        timeMap.add(i, value);
+                        set.add(i);
+                    }
+                }
+                List<TimeTable> times = new ArrayList<>(12);
+                for (Integer i : set) {
+                    List<String> value = timeMap.get(i);
+                    String values = String.join(",  ", value);
+                    TimeTable tab = new TimeTable();
+                    tab.setTimeStart(i);
+                    tab.setValue(values);
+                    tab.setTimeEnd(i);
+                    times.add(tab);
+                }
+                int size = times.size();
+                loop:for (int i = 0; i < size;i++) {
+                    TimeTable timeTable = times.get(i);
+                    String value = timeTable.getValue();
+                    timeTable.setDayOfWeek(day);
+                    for (int j = i + 1; j < size; j++) {
+                        TimeTable table = times.get(j);
+                        Integer timeEnd = table.getTimeEnd();
+                        if (value.equals(table.getValue())) {
+                            timeTable.setTimeEnd(timeEnd);
+                            if (j == size - 1) {
+                                tableList.add(timeTable);
+                                break loop;
+                            }
+                            continue;
+                        } else {
+                            tableList.add(timeTable);
+                            i = j - 1;
+                            continue loop;
+                        }
+                    }
+                    tableList.add(timeTable);
+                }
+            } else {
+                tableList.add(tables.get(0));
+            }
+        }
+        return tableList;
     }
     
     /**
