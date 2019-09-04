@@ -29,6 +29,15 @@ public class ClassCodeToTeacher {
     private Long teachingClassId;
     private Integer elcNumber;
     private String keyWord;//查询条件
+    private String projectId;
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
 
     public String getClassName() {
         return className;

@@ -628,13 +628,12 @@
             cl.ELC_NUMBER_ selectCourseNumber
         FROM
             `course_open_t` el
-        JOIN course_t co ON co.CODE_ = el.COURSE_CODE_
-        JOIN teaching_task_t ts ON ts.COURSE_OPEN_ID_ = el.ID_
-        JOIN teaching_class_t cl ON cl.TASK_ID_ = ts.ID_
-        JOIN teaching_class_arrange_time_t ta ON (ta.TEACHING_CLASS_ID_ = cl.ID_ and ta.TYPE_ = 2)
-        JOIN teaching_class_arrange_room_t tr ON tr.ARRANGE_TIME_ID_ = ta.ID_
+        JOIN course_t co ON el.COURSE_CODE_ = co.CODE_
+        JOIN teaching_task_t ts ON el.ID_ = ts.COURSE_OPEN_ID_
+        JOIN teaching_class_t cl ON ts.ID_ = cl.TASK_ID_
+        JOIN teaching_class_teacher_t te ON cl.ID_ = te.TEACHING_CLASS_ID_
         WHERE el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
-        and tr.TEACHER_CODE_ like concat('%',#{teacherCode},'%')
+        and te.TEACHER_CODE_ = #{teacherCode}
         GROUP BY cl.ID_
     </select>
 
@@ -969,10 +968,11 @@
         from course_open_t op
         join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_
         join teaching_class_t tc on tk.ID_ = tc.TASK_ID_
-        join teaching_class_arrange_time_t ta on (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
+        left join teaching_class_arrange_time_t ta on (tc.ID_ = ta.TEACHING_CLASS_ID_ and ta.TYPE_ = 2)
         join teaching_class_teacher_t tt on tc.ID_ = tt.TEACHING_CLASS_ID_
         <where>
             op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            and op.PROJ_ID_ = #{projectId}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and op.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
