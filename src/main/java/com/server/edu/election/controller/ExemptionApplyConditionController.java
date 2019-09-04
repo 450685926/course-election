@@ -198,13 +198,13 @@ public class ExemptionApplyConditionController {
                 
                 // ************************* 校验excel数据完整性及准确性  start ****************************/
                 // 1.excel中数据不能有空值
-                if (StringUtils.isNotBlank(courseCode) 
-                		|| StringUtils.isNotBlank(courseName)
-                		|| StringUtils.isNotBlank(trainingLevels)
-                		|| StringUtils.isNotBlank(trainingCategorys)
-                		|| StringUtils.isNotBlank(degreeTypes)
-                		|| StringUtils.isNotBlank(formLearnings)
-                		|| StringUtils.isNotBlank(conditions))
+                if (StringUtils.isBlank(courseCode) 
+                		|| StringUtils.isBlank(courseName)
+                		|| StringUtils.isBlank(trainingLevels)
+                		|| StringUtils.isBlank(trainingCategorys)
+                		|| StringUtils.isBlank(degreeTypes)
+                		|| StringUtils.isBlank(formLearnings)
+                		|| StringUtils.isBlank(conditions))
                 {
                 	throw new ParameterValidateException(I18nUtil.getMsg("exemptionApply.condition.dataError"));
                 }
@@ -253,7 +253,10 @@ public class ExemptionApplyConditionController {
             	list.add(condition);
             	this.addExemptionApplyCondition(condition);
             }
-        } catch (Exception e){
+        }catch (ParameterValidateException e){
+            logger.error(e.getMessage(), e);
+            return RestResult.error(e.getMessage());
+        }catch (Exception e){
             logger.error(e.getMessage(), e);
             return RestResult.error("解析文件错误" + e.getMessage());
         }
