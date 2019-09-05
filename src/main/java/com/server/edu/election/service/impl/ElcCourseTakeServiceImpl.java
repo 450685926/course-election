@@ -822,11 +822,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             return new PageResult<>(elcStudentVos);
         }
         Session session = SessionUtils.getCurrentSession();
+        String currentManageDptId = session.getCurrentManageDptId();
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
-            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword);
+            elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword, currentManageDptId);
         } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            elcStudentVos = courseTakeDao.findAddCourseListByNature(elcCourses, calendarId, keyword);
+            elcStudentVos = courseTakeDao.findAddCourseListByNature(elcCourses, calendarId, keyword, currentManageDptId);
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.loginError",I18nUtil.getMsg("elecResultSwitch.operationalerror")));
         }
