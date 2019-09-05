@@ -139,19 +139,17 @@
 		select
 			a.COURSE_CODE_ courseCode,a.COURSE_NAME_ courseName,a.FACULTY_ faculty,a.CREDITS_ credits,
 			c.ID_ teachingClassId,c.CODE_ classCode,c.CAMPUS_ campus,c.REMARK_ remark,
-			c.ELC_NUMBER_ selectNumber,c.NUMBER_ number,
-			GROUP_CONCAT(e.TEACHER_CODE_) teacherName
+			c.ELC_NUMBER_ selectNumber,c.NUMBER_ number
 		from course_open_t a
 		join teaching_task_t b on a.ID_ = b.COURSE_OPEN_ID_
 		join teaching_class_t c on b.ID_ = c.TASK_ID_
-		join teaching_class_arrange_time_t d on (c.ID_=d.TEACHING_CLASS_ID_ and d.TYPE_ =2)
-		join teaching_class_arrange_room_t e on d.ID_ = e.ARRANGE_TIME_ID_
 		where a.COURSE_CODE_ in
 		<foreach item="item" collection="courseCodes" separator="," open="(" close=")" >
 			#{item}
 		</foreach>
 		and a.CALENDAR_ID_ = #{calendarId}
 		and a.PROJ_ID_ = #{projectId}
+        and c.MAN_ARRANGE_FLAG_ in (1,2,3)
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
 			and (a.COURSE_NAME_ like CONCAT('%', #{keyWord}, '%') or c.CODE_ like CONCAT(#{keyWord}, '%'))
 		</if>
