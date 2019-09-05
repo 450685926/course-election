@@ -89,8 +89,8 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
          if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && Constants.PROJ_UNGRADUATE.equals(deptId)) {
              electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
          }else {
-        	 if (StringUtils.equals(session.getCurrentRole(), String.valueOf(ChooseObj.DEPART_ADMIN.type()))
-        			 && !session.isAdmin() && session.isAcdemicDean()) { // 教务员
+        	 if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+        	            && !session.isAdmin() && session.isAcdemicDean()) { // 教务员
         		 condition.getCondition().setFaculty(session.getFaculty());
 			 }
         	 
