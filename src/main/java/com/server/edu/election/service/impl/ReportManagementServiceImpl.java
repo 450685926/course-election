@@ -965,10 +965,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
             previewGraduteRollBook(condition.getTeachingClassId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
         setSexAndFaculty(studentsList);
-//        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
-//            .getSchoolCalendarById(condition.getCalendarId());
-//        String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
-        String calendarName = "同济大学" + "学生点名册";
+        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
+            .getSchoolCalendarById(condition.getCalendarId());
+        String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
         Integer lineNumber = preViewRollDto.getLineNumber();
         Integer rowNumber = preViewRollDto.getRowNumber();
         List<Integer> lineList = new ArrayList<>();
