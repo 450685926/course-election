@@ -25,10 +25,15 @@ public interface CourseOpenDao extends Mapper<CourseOpen> {
 	 */
 	CourseOpen queryNameAndTrainingLevelByCode(String courseCode);
 
-	List<FailedCourseVo> findFailedCourseInfo(@Param("courseCodes") List<String> failedCourseCodes, @Param("calendarId") Long calendarId);
+	List<FailedCourseVo> findFailedCourseInfo(@Param("courseCodes") List<String> failedCourseCodes,
+											  @Param("calendarId") Long calendarId,
+											  @Param("projectId")String projectId);
 
 	Page<RebuildCourseVo> findRebuildCourses(
-			@Param("courseCodes") List<String> failedCourseCodes, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
+			@Param("courseCodes") List<String> failedCourseCodes,
+			@Param("calendarId") Long calendarId,
+			@Param("keyWord") String keyWord,
+			@Param("projectId")String projectId);
 
 	List<TeachingClassCache> findClassInfo(@Param("teachClassIds") List<Long> teachClassIds);
 }
