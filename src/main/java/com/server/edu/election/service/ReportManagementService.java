@@ -68,4 +68,12 @@ public interface ReportManagementService {
 	 */
 	RestResult<String> exportStudentTimetabPdf(Long calendarId, String studentCode) throws Exception;
 
+	/**
+	 * 研究生批量导出点名册压缩包
+	 * @param ids
+	 * @param fileName
+	 * @return
+	 */
+	RestResult exportGraduteRollBookZipList(List<String> ids, StringBuffer fileName) throws Exception ;
+
 }

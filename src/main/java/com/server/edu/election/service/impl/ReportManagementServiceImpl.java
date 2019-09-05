@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -61,6 +62,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.util.WeekUtil;
+import com.server.edu.election.util.ZipUtils;
 import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
@@ -69,6 +71,7 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.DateTimeUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
@@ -1001,6 +1004,50 @@ public class ReportManagementServiceImpl implements ReportManagementService
         out.close();
         return path;
     }
+    
+
+	@Override
+	public RestResult exportGraduteRollBookZipList(List<String> studentIds, StringBuffer name) throws Exception  {
+		List<File> fileList = new ArrayList<>();
+		//检查目录是否存在
+		LOG.info("缓存目录：" + cacheDirectory);
+		
+	    List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(studentIds);
+	    for (RollBookList rollBookList : exportGraduteRollBookList) {
+	    	ExportPreCondition condition = new ExportPreCondition();
+	    	condition.setCalendarId(rollBookList.getCalendarId());
+	    	condition.setClassCode(rollBookList.getClassCode());
+	    	condition.setClassName(rollBookList.getClassName());
+	    	condition.setCourseCode(rollBookList.getCourseCode());
+	    	condition.setCourseName(rollBookList.getCourseName());
+	    	condition.setTeacherName(rollBookList.getTeacherName());
+	    	condition.setTeachingClassId(rollBookList.getTeachingClassId());
+	    	PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
+	    	List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
+	    	String teachingTimeAndRoom = "";
+	    	if (CollectionUtil.isNotEmpty(timeTabelList)) {
+	    		for (TimeTableMessage timeTableMessage : timeTabelList) {
+	    			teachingTimeAndRoom = teachingTimeAndRoom + timeTableMessage.getTimeAndRoom() +" ";
+	    		}
+			}
+	    	condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
+	    	condition.setNumber(rollBookList.getSelectCourseNumber());
+	    	String path = exportGraduteRollBook(condition);
+	    	fileList.add(new File(path));
+		}
+	    
+		String systemNum = DateTimeUtil.getTimeFormartSimple();
+		name = name.append(systemNum);
+		String zipPath = cacheDirectory + systemNum+ ".zip";
+		File fileDir = new File(zipPath);
+		FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
+		ZipUtils.toZip(fileList, fos2);
+		String fileName = fileDir.getCanonicalPath();
+		Map<String, Object> map = new HashMap<>();
+		map.put("fileName", name);
+		map.put("path", fileName);
+		return RestResult.successData("导出成功。",map);
+	}
 
     private void setSexAndFaculty(List<StudentVo> studentsList) {
         for (StudentVo studentVo : studentsList) {
