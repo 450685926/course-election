@@ -21,6 +21,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.RetakeCourseService;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
@@ -552,21 +553,16 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
      * @return
      */
     private List<TimeTableMessage> getTimeById(Page<RebuildCourseVo> page) {
-        List<Long> teachingClassIds = new ArrayList<>(page.size());
+        List<Long> teachingClassIds = page.stream().map(RebuildCourseVo::getTeachingClassId).collect(Collectors.toList());
+        List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(teachingClassIds);
+        Map<Long, List<TeachingClassCache>> map = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
         //添加教师名
         for (RebuildCourseVo rebuildCourseVo : page) {
-            String teacherCode = rebuildCourseVo.getTeacherName();
             Long teachingClassId = rebuildCourseVo.getTeachingClassId();
-            teachingClassIds.add(teachingClassId);
-            if (teacherCode != null) {
-                String[] split = teacherCode.split(",");
-                Set<String> set = new HashSet(Arrays.asList(split));
-                List<String> names = new ArrayList<>(set.size());
-                for (String s : set) {
-                    String teacherName = teachingClassTeacherDao.findTeacherName(s);
-                    names.add(teacherName);
-                }
-            rebuildCourseVo.setTeacherName(String.join(",",names));
+            List<TeachingClassCache> teachingClassCaches = map.get(teachingClassId);
+            if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                rebuildCourseVo.setTeacherName(String.join(",",set));
             }
         }
         List<TimeTableMessage> courseArrange = courseTakeDao.findCourseArrange(teachingClassIds);
