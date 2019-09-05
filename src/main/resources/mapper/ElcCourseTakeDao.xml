@@ -866,7 +866,9 @@
         join teaching_task_t b on a.ID_ = b.COURSE_OPEN_ID_
         join teaching_class_t c on b.ID_ = c.TASK_ID_
         <where>
-            a.PROJ_ID_ = #{projectId}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+                and a.PROJ_ID_ = #{projectId}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and a.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
