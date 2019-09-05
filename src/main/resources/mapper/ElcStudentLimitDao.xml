@@ -87,35 +87,30 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t4.GRADE_ = #{grade}
 		    </if>
-		    <if test="minLimitCredits !=null and minLimitCredits !=0">
-		        and t1.TOTAL_LIMIT_CREDITS_ &gt; #{minLimitCredits}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+		        and t4.MANAGER_DEPT_ID_ = #{projectId}
 		    </if>
-		    <if test="maxLimitCredits !=null and minLimitCredits !=0">
-		        and t1.TOTAL_LIMIT_CREDITS_ &lt; #{minLimitCredits}
+		    <if test="minLimitCredits > 0 or maxLimitCredits > 0">
+		        and t1.TOTAL_LIMIT_CREDITS_ <![CDATA[ >= ]]> #{minLimitCredits}
+		        and t1.TOTAL_LIMIT_CREDITS_ <![CDATA[ <= ]]> #{maxLimitCredits}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(rebuildLimitNumber)">
-		        and t1.REBUILD_LIMIT_NUMBER_ &gt; #{rebuildLimitNumber}
-		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(rebuildLimitNumber)">
-		        and t1.REBUILD_LIMIT_NUMBER_ &lt; #{rebuildLimitNumber}
+		    <if test="minRebuild > 0 or maxRebuild > 0">
+		        and t1.REBUILD_LIMIT_NUMBER_ <![CDATA[ >= ]]> #{minRebuild}
+		        and t1.REBUILD_LIMIT_NUMBER_ <![CDATA[ <= ]]> #{maxRebuild}
 		    </if>
 		    </where>
 		GROUP BY
 			t1.STUDENT_ID_
 		) t5 
 		<where>
-		 	<if test="minSelectedCredits != null and minSelectedCredits !=0">
-		        and t5.selectedCredits &gt; #{minSelectedCredits}
+		 	<if test="minSelectedCredits > 0 or maxSelectedCredits > 0">
+		        and t5.selectedCredits <![CDATA[ >= ]]> #{minSelectedCredits}
+		        and t5.selectedCredits <![CDATA[ <= ]]> #{maxSelectedCredits}
 		    </if>
-		    <if test="maxSelectedCredits !=null and maxSelectedCredits !=0">
-		        and t5.selectedCredits &lt; #{maxSelectedCredits}
+		 	<if test="minSelectedRebuild > 0 or maxSelectedRebuild > 0">
+		        and t5.selectedRebuild <![CDATA[ >= ]]> #{minSelectedRebuild}
+		        and t5.selectedRebuild <![CDATA[ <= ]]> #{maxSelectedRebuild}
 		    </if>
-		 	<if test="minSelectedRebuild !=null and minSelectedRebuild !=0">
-		        and t5.selectedRebuild &gt; #{minSelectedRebuild}
-		    </if>
-		    <if test="maxSelectedRebuild !=null and maxSelectedRebuild !=0">
-		        and t5.selectedRebuild &lt; #{maxSelectedRebuild}
-		    </if>		    
 		</where>
   </select>
 </mapper>
