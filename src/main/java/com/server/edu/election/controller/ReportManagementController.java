@@ -156,6 +156,41 @@ public class ReportManagementController
         String uid = currentSession.getUid();
         return ExportUtil.exportExcel(excelUtil, cacheDirectory, uid + ".xls");
     }
+    /**
+     * 批量导出点名册，并打包成压缩包
+     */
+    @PostMapping(value = "/exportGraduteRollBookZipList")
+    @ApiOperation(value = " 批量导出点名册，并打包成压缩包")
+    public  RestResult<?> exportGraduteRollBookZipList(
+            @RequestBody List<String> ids) throws Exception {
+        LOG.info("exportPlanPdfList.start");
+
+        StringBuffer fileName =new StringBuffer();
+        fileName.append("DianMingCe");
+        RestResult restResult=managementService.exportGraduteRollBookZipList(ids,fileName);
+        return restResult;
+    }
+    
+    @GetMapping(value = "/exportZip")
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出点名册压缩包")})
+    public ResponseEntity<Resource> exportPlanPdfList(
+            @RequestParam("path") String path,@RequestParam("fileName") String fileName) throws Exception {
+        LOG.info("exportPlanPdfList.start");
+
+        Resource resource = new FileSystemResource(
+                URLDecoder.decode(path, "utf-8"));// 绝对路径
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE,
+                        "application/zip;charset=utf-8")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename="
+                                + String.valueOf(
+                                URLEncoder.encode(fileName.toString(), "UTF-8"))
+                                + ".zip")
+                .body(resource);
+    }
+    
 
     @ApiOperation(value = "研究生点名册（学生名单）详情")
     @GetMapping("/previewGraduteRollBook")
