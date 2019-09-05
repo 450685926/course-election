@@ -91,6 +91,7 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
          }else {
         	 if (StringUtils.equals(session.getCurrentRole(), String.valueOf(ChooseObj.DEPART_ADMIN))
         			 && !session.isAdmin() && session.isAcdemicDean()) { // 教务员
+        		 LOG.info("=============================findElectCourseList===================================: " + session.getFaculty());
         		 condition.getCondition().setFaculty(session.getFaculty());
 			 }
         	 
