@@ -1297,6 +1297,7 @@
               #{courseCode}
             </foreach>
         and a.CALENDAR_ID_ = #{calendarId}
+        and a.PROJ_ID_ = #{projectId}
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
             and (a.COURSE_NAME_ like concat('%',#{keyWord},'%') or d.CODE_ like concat('%',#{keyWord},'%'))
         </if>
@@ -1318,6 +1319,7 @@
             #{courseCode}
         </foreach>
         and a.CALENDAR_ID_ = #{calendarId}
+        and a.PROJ_ID_ = #{projectId}
         and a.NATURE_ = 2
         and d.MAN_ARRANGE_FLAG_ in (1,2,3)
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
