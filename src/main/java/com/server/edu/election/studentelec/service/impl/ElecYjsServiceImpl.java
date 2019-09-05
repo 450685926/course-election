@@ -59,7 +59,6 @@ import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.studentelec.context.ElecContext;
@@ -76,7 +75,6 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
-import com.server.edu.election.studentelec.service.cache.RuleCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
@@ -506,6 +504,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	
         //每门课上课信息集合
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
+        
+        Map<String, Object> elecResult = new HashMap<>();
+        if (roundId != null)
+        { // 教务员
+            elecResult = getElectResultCount(studentId, roundId);
+        }
+        else
+        { // 管理员
+            elecResult = getAdminElectResultCount(studentId, c, calendarId);
+        }
         
         //本学年已选课程组装
         List<SelectedCourse> selectedCoursess = packagingSelectedCourse(roundId, calendarId, planCourses,
@@ -1004,15 +1012,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			
 			}
 		}
-        Map<String, Object> elecResult = new HashMap<>();
-        if (roundId != null)
-        { // 教务员
-            elecResult = getElectResultCount(studentId, roundId);
-        }
-        else
-        { // 管理员
-            elecResult = getAdminElectResultCount(studentId, c, calendarId);
-        }
         long start17 = System.currentTimeMillis();
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
         long start18 = System.currentTimeMillis();
@@ -1709,6 +1708,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                         .equals(selectedCourse.getCourseCode()))
                     {
                         selectedCourse.setLabel(course.getLabel() + "");
+                        selectedCourse.setLabelName(course.getLabelName());
                     }
                 }
             }
@@ -1773,6 +1773,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                             .equals(completedCourse.getCourseCode()))
                         {
                             completedCourse.setCourseLabelId(course.getLabel());
+                            completedCourse.setLabelName(course.getLabelName());
                         }
                     }
                     if (completedCourse.getCourseLabelId() != null
