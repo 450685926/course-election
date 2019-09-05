@@ -220,11 +220,13 @@ public interface ElcCourseTakeDao
 
     /**管理员查询学生可加课程*/
     Page<ElcStudentVo> findAddCourseList(
-            @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
+            @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId,
+            @Param("keyWord") String keyWord, @Param("projectId")String projectId);
 
     /**教务员查询学生可加课程*/
     Page<ElcStudentVo> findAddCourseListByNature(
-            @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId, @Param("keyWord") String keyWord);
+            @Param("courseCodes") List<String> list, @Param("calendarId") Long calendarId,
+            @Param("keyWord") String keyWord, @Param("projectId")String projectId);
 
     Page<ElcStudentVo> findRemovedCourseList(@Param("calendarId") Long calendarId,@Param("studentId") String studentId);
 
