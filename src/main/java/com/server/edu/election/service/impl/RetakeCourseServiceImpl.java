@@ -202,7 +202,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(uid);
         List<FailedCourseVo> failedCourseInfo = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
-            failedCourseInfo = courseOpenDao.findFailedCourseInfo(failedCourseCodes, calendarId);
+            failedCourseInfo = courseOpenDao.findFailedCourseInfo(failedCourseCodes, calendarId, currentSession.getCurrentManageDptId());
             for (FailedCourseVo failedCourseVo : failedCourseInfo) {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 failedCourseVo.setCalendarName(schoolCalendar.getFullName());
@@ -292,7 +292,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             RebuildCourseDto rebuildCourseDto = condition.getCondition();
             Long calendarId = rebuildCourseDto.getCalendarId();
             PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-            Page<RebuildCourseVo> page = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord());
+            Page<RebuildCourseVo> page = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord(), currentManageDptId);
             if (CollectionUtil.isEmpty(page)) {
                 return new PageResult<>(page);
             }

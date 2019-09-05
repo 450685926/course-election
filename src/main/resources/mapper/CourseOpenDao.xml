@@ -132,6 +132,7 @@
 			#{item}
 		</foreach>
 		and a.CALENDAR_ID_ = #{calendarId}
+		and a.PROJ_ID_ = #{projectId}
 	</select>
 
 	<select id="findRebuildCourses" resultType="com.server.edu.election.vo.RebuildCourseVo">
@@ -150,6 +151,7 @@
 			#{item}
 		</foreach>
 		and a.CALENDAR_ID_ = #{calendarId}
+		and a.PROJ_ID_ = #{projectId}
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
 			and (a.COURSE_NAME_ like CONCAT('%', #{keyWord}, '%') or c.CODE_ like CONCAT(#{keyWord}, '%'))
 		</if>
