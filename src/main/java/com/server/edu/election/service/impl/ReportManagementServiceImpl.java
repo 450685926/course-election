@@ -249,9 +249,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
             int size = tableMessages.size();
             MultiValueMap<Long, String> arrangeMap = new LinkedMultiValueMap<>(size);
-            Map<Long, String> names = new HashMap<>(size);
             List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(ids);
             Map<Long, List<TeachingClassCache>> collect = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
+            Map<Long, String> map = new HashMap<>(collect.size());
+            for (Map.Entry<Long, List<TeachingClassCache>> entry : collect.entrySet()) {
+                List<TeachingClassCache> value = entry.getValue();
+                Set<String> set = value.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                map.put(entry.getKey(), String.join(",", set));
+            }
             List<TimeTable> list=new ArrayList<>(size);
             String lang = SessionUtils.getLang();
             for (TimeTableMessage tableMessage : tableMessages) {
@@ -269,14 +274,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 arrangeMap.add(teachingClassId, timeStr);
-                List<TeachingClassCache> teachingClassCaches = collect.get(teachingClassId);
-                Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
-                String teacherName = String.join(",",set);
-                names.put(teachingClassId, teacherName);
                 TimeTable time = new TimeTable();
                 time.setDayOfWeek(dayOfWeek);
                 time.setTimeStart(timeStart);
                 time.setTimeEnd(timeEnd);
+                String teacherName = map.get(teachingClassId);
                 String value = teacherName + " " + courseName
                         + "(" + weekNumStr + ClassroomCacheUtil.getRoomName(roomID) + ")"
                         + " " + dictionaryService.query("X_XQ", campus, lang);
@@ -291,7 +293,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     totalCredits+=studentSchoolTimetab.getCredits();
                 }
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
-                studentSchoolTimetab.setTeacherName(names.get(teachingClassId));
+                studentSchoolTimetab.setTeacherName(map.get(teachingClassId));
                 List<String> times = arrangeMap.get(teachingClassId);
                 if (CollectionUtil.isNotEmpty(times)) {
                     studentSchoolTimetab.setTime(String.join(",", times));
