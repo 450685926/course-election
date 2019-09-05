@@ -393,9 +393,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<StudentVo> findStudentTimeTableByRole(PageCondition<ReportManagementCondition> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ReportManagementCondition reportManagementCondition = condition.getCondition();
-        Session currentSession = SessionUtils.getCurrentSession();
-        String currentManageDptId = currentSession.getCurrentManageDptId();
-        reportManagementCondition.setProjectId(currentManageDptId);
         Page<StudentVo> schoolTimetab = courseTakeDao.findSchoolTimetabByRole(reportManagementCondition);
         if (!schoolTimetab.isEmpty()) {
             List<StudentVo> result = schoolTimetab.getResult();
@@ -965,9 +962,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
             previewGraduteRollBook(condition.getTeachingClassId());
         List<StudentVo> studentsList = preViewRollDto.getStudentsList();
         setSexAndFaculty(studentsList);
-        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
-            .getSchoolCalendarById(condition.getCalendarId());
-        String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
+//        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
+//            .getSchoolCalendarById(condition.getCalendarId());
+//        String calendarName = "同济大学" + schoolCalendarVo.getFullName() + "学生点名册";
+        String calendarName = "同济大学" + "学生点名册";
         Integer lineNumber = preViewRollDto.getLineNumber();
         Integer rowNumber = preViewRollDto.getRowNumber();
         List<Integer> lineList = new ArrayList<>();

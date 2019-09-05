@@ -201,7 +201,7 @@
             <Row ss:AutoFitHeight="0" ss:Height="14.25">
                 <Cell ss:Index="2" ss:MergeAcross="2" ss:StyleID="s97"><Data ss:Type="String">                           </Data></Cell>
                 <Cell ss:MergeAcross="8" ss:StyleID="s98"><Data ss:Type="String">出勤√ 旷课χ 病假Ο 事假Δ 迟到Φ </Data></Cell>
-                <Cell ss:MergeAcross="7" ss:StyleID="s99"><Data ss:Type="String">任课老师签名：     年    月    日</Data></Cell>
+                <Cell ss:MergeAcross="7" ss:StyleID="s99"><Data ss:Type="String">任课老师签名：   年   月   日</Data></Cell>
             </Row>
             <Row>
                 <Cell ss:StyleID="s100"><Data ss:Type="String">序号</Data></Cell>
@@ -228,7 +228,7 @@
             </Row>
             <#list list as item>
                 <Row ss:Height="14.25">
-                    <Cell ss:MergeDown="${lineNumber}" ss:StyleID="m438409212"><Data ss:Type="Number">1${item_index + 1}</Data></Cell>
+                    <Cell ss:MergeDown="${lineNumber}" ss:StyleID="m438409212"><Data ss:Type="Number">${item_index + 1}</Data></Cell>
                     <Cell ss:MergeDown="${lineNumber}" ss:StyleID="m438409232"><Data ss:Type="String">${item.studentCode!}</Data></Cell>
                     <Cell ss:MergeDown="${lineNumber}" ss:StyleID="m438409252"><Data ss:Type="String">${item.exportName!}</Data></Cell>
                     <Cell ss:MergeDown="${lineNumber}" ss:StyleID="m438409272"><Data ss:Type="String">${item.sexStr!}</Data></Cell>

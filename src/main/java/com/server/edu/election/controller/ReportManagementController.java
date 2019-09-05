@@ -123,14 +123,16 @@ public class ReportManagementController
             return RestResult.fail("common.parameterError");
         }
         Session session = SessionUtils.getCurrentSession();
-        rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
         PageResult<RollBookList> bookList = null;
         if (session.isAdmin()) {
+            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
             bookList = managementService.findGraduteRollBookList(condition);
         }else if (session.isAcdemicDean()) {
+            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
             rollBookConditionDto.setFaculty(session.getFaculty());
             bookList = managementService.findGraduteRollBookList(condition);
         }else if (session.isTeacher()) {
+            // 教师不需要设置部门
             rollBookConditionDto.setTeacherCode(session.realUid());
             bookList = managementService.findGraduteRollBookList(condition);
         }
@@ -296,6 +298,8 @@ public class ReportManagementController
         ReportManagementCondition reportManagementCondition = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
         PageResult<StudentVo> schoolTimetab = null;
+        String currentManageDptId = session.getCurrentManageDptId();
+        reportManagementCondition.setProjectId(currentManageDptId);
         if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
             schoolTimetab = managementService.findStudentTimeTableByRole(condition);
         }else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
