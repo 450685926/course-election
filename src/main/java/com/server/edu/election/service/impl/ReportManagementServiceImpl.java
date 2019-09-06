@@ -1024,7 +1024,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
             condition.setCourseName(rollBookList.getCourseName());
             condition.setTeacherName(rollBookList.getTeacherName());
             condition.setTeachingClassId(rollBookList.getTeachingClassId());
-            PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
+            PreViewRollDto findPreview = previewGraduteRollBook(rollBookList.getTeachingClassId());
             List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
 
             if (CollectionUtil.isNotEmpty(timeTabelList)) {
@@ -1038,7 +1038,6 @@ public class ReportManagementServiceImpl implements ReportManagementService
         }
         String systemNum = DateTimeUtil.getTimeFormartSimple();
         String zipPath = cacheDirectory + systemNum+ ".zip";
-        File fileDir = new File(zipPath);
         FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
         ZipUtils.toZip(fileList, fos2);
         return zipPath;
