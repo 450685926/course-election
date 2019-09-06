@@ -74,6 +74,6 @@ public interface ReportManagementService {
 	 * @param fileName
 	 * @return
 	 */
-	RestResult exportGraduteRollBookZipList(List<String> ids, StringBuffer fileName) throws Exception ;
+	String exportGraduteRollBookZipList(List<String> ids, StringBuffer fileName) throws Exception ;
 
 }
