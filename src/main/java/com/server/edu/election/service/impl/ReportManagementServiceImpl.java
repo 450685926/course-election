@@ -1012,7 +1012,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
         List<File> fileList = new ArrayList<>();
         //检查目录是否存在
         LOG.info("缓存目录：" + cacheDirectory);
-
+        FileUtil.mkdirs(cacheDirectory);
+        FileUtil.deleteFile(cacheDirectory, 2);
         List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(studentIds);
         for (RollBookList rollBookList : exportGraduteRollBookList) {
             ExportPreCondition condition = new ExportPreCondition();
