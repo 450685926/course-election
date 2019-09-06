@@ -530,7 +530,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RollBookList> rollBookList =
                 courseTakeDao.findTeachingClass(condition.getCondition());
-        if (rollBookList != null)
+        if (CollectionUtil.isNotEmpty(rollBookList))
         {
             List<RollBookList> result = rollBookList.getResult();
             setTeacherNames(result);
@@ -678,6 +678,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 vo.setExportName(exportName);
                 vo.setPrefix(list);
             }
+            Collections.sort(student, new Comparator<StudentVo>(){
+                public int compare(StudentVo p1, StudentVo p2) {
+                    return Integer.parseInt(p1.getStudentCode()) - Integer.parseInt(p2.getStudentCode());
+                }
+            });
         }
         pre.setStudentsList(student);
         pre.setSize(student.size());
