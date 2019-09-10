@@ -36,13 +36,23 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
     
     ExemptionApplyManage applyRepeatGradute(@Param("calendarId") Long calendarId,
     		@Param("studentCode")String studentCode, @Param("courseCode")String courseCode);
+    /**查询是否重复申请
+     * @param examineResult */
+    
+    ExemptionApplyManage queryRepeatGradute(@Param("studentCode")String studentCode, @Param("courseCode")String courseCode);
     
     List<ExemptionApplyManage> applyRecord(@Param("calendarId") Long calendarId,
+    		@Param("studentCode")String studentCode,
+    		@Param("courseCode")String courseCode);
+    
+    List<ExemptionApplyManage> queryRecord(
     		@Param("studentCode")String studentCode,
     		@Param("courseCode")String courseCode);
 
     List<ElecCourse> findApplyRecord(@Param("calendarId") Long calendarId,
                                      @Param("studentCode")String studentCode);
+    
+    List<ElecCourse> findApplyRecordForElection(@Param("studentCode")String studentCode);
 
 	Page<ExemptionStudentCountVo> exemptionCount(@Param("query")ExemptionQuery query);
 
@@ -79,5 +89,13 @@ public interface ExemptionApplyDao extends Mapper<ExemptionApplyManage> {
 	 * @return
 	 */
 	List<ExemptionApplyManage> applyRepeatByStudent(@Param("calendarId")Long calendarId, @Param("studentCode")String studentCode, @Param("examineResult")Integer examineResult);
+
+	/**
+	 * 查询重复记录
+	 * @param studentCode
+	 * @param courseCode
+	 * @return
+	 */
+	List<ExemptionApplyManage> queryRep(@Param("studentCode")String studentCode, @Param("courseCode")String courseCode);
 
 }

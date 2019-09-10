@@ -89,7 +89,7 @@
       <where>
       ex.DELETE_STATUS_ = 0 and 
       s.MANAGER_DEPT_ID_ =  #{projectId,jdbcType=VARCHAR}
-          <if test="grade !=null  and grade !='' ">
+          <if test="grade !=null>
             and s.GRADE_ =#{grade,jdbcType=INTEGER}
           </if>
           <if test="enrolSeason!=null and enrolSeason !='' ">
@@ -121,7 +121,7 @@
           </if>
       </where>
        	GROUP BY ex.STUDENT_CODE_
-        order by ex.ID_ desc
+        order by ex.EXAMINE_RESULT_
     </select>
 
     <delete id="deleteExemptionApply" parameterType="java.util.List">
@@ -144,6 +144,14 @@
         from exemption_apply_manage_t
         where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ not in (2)
     </select>
+    <select id=queryRep resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ not in (2)
+    </select>
+    
+    
     <select id="applyRepeatGradute" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"></include>
@@ -151,11 +159,24 @@
         where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode}  and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ = 2 
     </select>
     
+    <select id="queryRepeatGradute" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and DELETE_STATUS_ = 0 and EXAMINE_RESULT_ = 2 
+    </select>
+    
     <select id="applyRecord" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"></include>
         from exemption_apply_manage_t
         where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and CALENDAR_ID_ =#{calendarId} and DELETE_STATUS_ = 0
+    </select>
+    <select id="queryRecord" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from exemption_apply_manage_t
+        where STUDENT_CODE_=#{studentCode} and COURSE_CODE_=#{courseCode} and DELETE_STATUS_ = 0
     </select>
     <select id="applyRepeatByStudent" resultMap="BaseResultMap">
         select
@@ -171,6 +192,14 @@
         join course_t co on co.CODE_ =ap.COURSE_CODE_
         join student_t st on st.STUDENT_CODE_ =ap.STUDENT_CODE_
         WHERE ap.STUDENT_CODE_=#{studentCode} and ap.CALENDAR_ID_ =#{calendarId} and ap.EXAMINE_RESULT_ !=2 and ap.DELETE_STATUS_ = 0
+    </select>
+    <select id="findApplyRecordForElection" resultType="com.server.edu.election.studentelec.context.ElecCourse">
+        select
+        co.CODE_ courseCode,co.NAME_ courseName,co.CREDITS_ credits,co.NAME_EN_ nameEn,st.CAMPUS_ campus,co.IS_ELECTIVE_ publicElec
+        from exemption_apply_manage_t ap
+        join course_t co on co.CODE_ =ap.COURSE_CODE_
+        join student_t st on st.STUDENT_CODE_ =ap.STUDENT_CODE_
+        WHERE ap.STUDENT_CODE_=#{studentCode} and ap.EXAMINE_RESULT_ !=2 and ap.DELETE_STATUS_ = 0
     </select>
     <select id="findGraduteApplyRecord"  resultMap="BaseResultMap">
         select
