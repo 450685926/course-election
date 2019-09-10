@@ -1000,7 +1000,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			return studentAndCourseVo;
 		}
 		
-		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student,session);
+		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student);
 //		for (PlanCourse course : studentExemptionCouses) {
 //			ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
 //			applyCourse.setCourseNameAndCode(course.getCourseCode() + course.getCourseName() + "");
@@ -1038,7 +1038,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 
 	@Override
 	public StudentAndCourseVo findStudentApplyCourse(String studentId,Long calendarId) {
-		Session session = SessionUtils.getCurrentSession();
+//		Session session = SessionUtils.getCurrentSession();
 		Student student = studentDao.findStudentByCode(studentId);
 //		if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
 //			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
@@ -1052,7 +1052,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		List<ElecFirstLanguageContrastVo> findStudentCultureRelList = CultureSerivceInvoker.getStudentFirstForeignLanguage(selectAll);
 		
 		Example example = new Example(ExemptionApplyAuditSwitch.class);
-		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",session.getCurrentManageDptId());
+		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",student.getManagerDeptId());
 		
 		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
 		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
@@ -1115,7 +1115,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		}
 		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
 		
-		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, session);
+		Set<PlanCourse> optCourses = getStudentExemptionCouses(student);
 		
 		logger.info("------------------------------------"+optCourses.size());
 		if (scoreModel == null) {
@@ -1246,7 +1246,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param collect 
 	 * @return
 	 */
-	private Set<PlanCourse> getStudentExemptionCouses(Student student, Session session) {
+	private Set<PlanCourse> getStudentExemptionCouses(Student student) {
 		StudentCultureRel studentCultureRel = new StudentCultureRel();
 		studentCultureRel.setStudentId(student.getStudentCode());
 		StudentCultureRel findStudentCultureRelList = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
