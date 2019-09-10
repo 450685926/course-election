@@ -999,18 +999,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			studentAndCourseVo.setApplyCourse(null);
 			return studentAndCourseVo;
 		}
-		Example example = new Example(ExemptionApplyAuditSwitch.class);
-		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO);
-		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
-		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
-		if (applySwitch == null) {
-			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
-			studentAndCourseVo.setStudent(student);
-			studentAndCourseVo.setApplyCourse(applyCourses);
-			return studentAndCourseVo;
-		}
 		
-		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student, applySwitch,session);
+		Set<PlanCourse> studentExemptionCouses = getStudentExemptionCouses(student,session);
 //		for (PlanCourse course : studentExemptionCouses) {
 //			ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
 //			applyCourse.setCourseNameAndCode(course.getCourseCode() + course.getCourseName() + "");
@@ -1066,13 +1056,6 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		
 		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
 		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
-		if (applySwitch == null) {
-			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
-			studentAndCourseVo.setStudent(student);
-			studentAndCourseVo.setApplyCourse(null);
-			return studentAndCourseVo;
-		}
-		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
 		
 		//调取字典表，获取第一外语列表
 		Example scoreexample = new Example(ExemptionCourseScoreGradute.class);
@@ -1095,8 +1078,38 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				break;
 			}
 		}
+		if (applySwitch == null) {
+			//查找学生是否有申请记录
+			PageCondition<ExemptionQuery> condition = new PageCondition<>();
+			condition.getCondition().setStudentId(studentId);
+			condition.getCondition().setProjectId(session.getCurrentManageDptId());
+			PageResult<ExemptionApplyManageVo> exemptionCourse = findGraduateExemptionApply(condition);
+			List<ExemptionApplyManageVo> list = exemptionCourse.getList();
+			if (CollectionUtil.isNotEmpty(list)) {
+				List<ExemptionStudentCourseVo> list3 = new ArrayList<>();
+				for (ExemptionApplyManageVo exemptionApplyManageVo : list) {
+					ExemptionStudentCourseVo applyCourse = new ExemptionStudentCourseVo();
+					applyCourse.setApplyCourse(exemptionApplyManageVo.getApplyCourse());
+					applyCourse.setExamineResult(exemptionApplyManageVo.getExamineResult());
+					applyCourse.setFirstForeignLanguageCode(scoreModel.getCourseCode());
+					applyCourse.setFirstForeignLanguageScore(scoreModel.getScore());
+					applyCourse.setFirstForeignLanguageName(scoreModel.getCourseName());
+					list3.add(applyCourse);
+				}
+				StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+				studentAndCourseVo.setStudent(student);
+				studentAndCourseVo.setApplyCourse(list3);
+				return studentAndCourseVo;
+			}else{
+				StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+				studentAndCourseVo.setStudent(student);
+				studentAndCourseVo.setApplyCourse(null);
+				return studentAndCourseVo;
+			}
+		}
+		List<ExemptionStudentCourseVo> applyCourses = new ArrayList<ExemptionStudentCourseVo>();
 		
-		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, applySwitch, session);
+		Set<PlanCourse> optCourses = getStudentExemptionCouses(student, session);
 		
 		logger.info("------------------------------------"+optCourses.size());
 		if (scoreModel == null) {
@@ -1227,7 +1240,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param collect 
 	 * @return
 	 */
-	private Set<PlanCourse> getStudentExemptionCouses(Student student, ExemptionApplyAuditSwitch applySwitch, Session session) {
+	private Set<PlanCourse> getStudentExemptionCouses(Student student, Session session) {
 		StudentCultureRel studentCultureRel = new StudentCultureRel();
 		studentCultureRel.setStudentId(student.getStudentCode());
 		StudentCultureRel findStudentCultureRelList = CultureSerivceInvoker.findStudentCultureRelList(studentCultureRel);
