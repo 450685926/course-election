@@ -1040,12 +1040,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	public StudentAndCourseVo findStudentApplyCourse(String studentId,Long calendarId) {
 		Session session = SessionUtils.getCurrentSession();
 		Student student = studentDao.findStudentByCode(studentId);
-		if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
-			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
-			studentAndCourseVo.setStudent(null);
-			studentAndCourseVo.setApplyCourse(null);
-			return studentAndCourseVo;
-		}
+//		if (!StringUtils.equalsIgnoreCase(session.getCurrentManageDptId(), student.getManagerDeptId())) {
+//			StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
+//			studentAndCourseVo.setStudent(null);
+//			studentAndCourseVo.setApplyCourse(null);
+//			return studentAndCourseVo;
+//		}
 		Boolean isAchievement = false;
 		//查找本次开通的免修免考课程
 		List<FirstLanguageContrast> selectAll = firstLanguageContrastDao.selectAll();
@@ -1303,6 +1303,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		if("".equals(applyManage.getApplyType())){
 	        return RestResult.fail("common.parameterError");
 	    }
+		
+		Student student = studentDao.findStudentByCode(applyManage.getStudentCode());
 	    //查询是否重复申请
 	    List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.queryRep(applyManage.getStudentCode(), applyManage.getCourseCode());
 	    if(exemptionApplyManageVo!=null && exemptionApplyManageVo.size() > 0){
@@ -1341,7 +1343,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setApplyType(applyManage.getApplyType());
 					exemptionApplyManage.setScore("免修");
 					exemptionApplyManage.setCalendarId(applyManage.getCalendarId());
-					exemptionApplyManage.setManagerDeptId(session.getCurrentManageDptId());
+					exemptionApplyManage.setManagerDeptId(student.getManagerDeptId());
 					exemptionApplyManage.setExamineResult(ExemptionCourseServiceImpl.SUCCESS_STATUS);
 					exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 					exemptionApplyManage.setName(applyManage.getName());
@@ -1371,7 +1373,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setCourseName(courseNames[i]);
 					exemptionApplyManage.setApplyType(applyManage.getApplyType());
 					exemptionApplyManage.setCalendarId(applyManage.getCalendarId());
-					exemptionApplyManage.setManagerDeptId(session.getCurrentManageDptId());
+					exemptionApplyManage.setManagerDeptId(student.getManagerDeptId());
 					exemptionApplyManage.setExamineResult(ExemptionCourseServiceImpl.STATUS);
 					exemptionApplyManage.setStudentCode(applyManage.getStudentCode());
 					exemptionApplyManage.setName(applyManage.getName());
@@ -1383,7 +1385,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					if (exemptionApplyManage1 != null) {
 						exemptionApplyManage1.setExamineResult(ExemptionCourseServiceImpl.STATUS);
 						exemptionApplyManage1.setDeleteStatus("0");
-						exemptionApplyManage1.setManagerDeptId(session.getCurrentManageDptId());
+						exemptionApplyManage1.setManagerDeptId(student.getManagerDeptId());
 						
 						applyDao.updateByPrimaryKey(exemptionApplyManage1);
 					}else{
