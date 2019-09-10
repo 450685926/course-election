@@ -75,5 +75,13 @@ public interface ReportManagementService {
 	 * @return
 	 */
 	String exportGraduteRollBookZipList(List<String> ids, StringBuffer fileName) throws Exception ;
+	
+	/**
+	 * 研究生批量导出点名册压缩包2
+	 * @param ids
+	 * @param RestResult
+	 * @return
+	 */
+	RestResult<String> exportGraduteRollBookZipList2(List<String> ids, StringBuffer fileName) throws Exception ;
 
 }
