@@ -1082,7 +1082,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			//查找学生是否有申请记录
 			PageCondition<ExemptionQuery> condition = new PageCondition<>();
 			condition.getCondition().setStudentId(studentId);
-			condition.getCondition().setProjectId(session.getCurrentManageDptId());
+			condition.getCondition().setProjectId(student.getManagerDeptId());
 			PageResult<ExemptionApplyManageVo> exemptionCourse = findGraduateExemptionApply(condition);
 			List<ExemptionApplyManageVo> list = exemptionCourse.getList();
 			if (CollectionUtil.isNotEmpty(list)) {
