@@ -1082,12 +1082,15 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			logger.info("++++++++++++++++++++++applySwitch   closed");
 			//查找学生是否有申请记录
 			PageCondition<ExemptionQuery> condition = new PageCondition<>();
+
+			
 			logger.info("++++++++++++++++++++++new     condition");
-			ExemptionQuery query = condition.getCondition();
+			ExemptionQuery query = new  ExemptionQuery();
 			logger.info("++++++++++++++++++++++new     condition   studentId"+studentId);
 			query.setStudentId(studentId);
 			logger.info("++++++++++++++++++++++new     condition   ProjectId"+student.getManagerDeptId());
 			query.setProjectId(student.getManagerDeptId());
+			condition.setCondition(query);
 			PageResult<ExemptionApplyManageVo> exemptionCourse = findGraduateExemptionApply(condition);
 			logger.info("++++++++++++++++++++++exemptionCourse"+exemptionCourse.getList().toString());
 			List<ExemptionApplyManageVo> list = exemptionCourse.getList();
