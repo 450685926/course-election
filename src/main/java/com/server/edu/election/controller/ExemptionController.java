@@ -741,8 +741,11 @@ public class ExemptionController {
     @PostMapping("/addGraduteExemptionApply")
     public RestResult<?> addGraduteExemptionApply(@RequestBody ExemptionApplyManage applyManage){
     	Session session = SessionUtils.getCurrentSession();
+    	LOG.info("-----------------------------session.getCurrentManageDptId()"+session.getCurrentManageDptId());
     	applyManage.setManagerDeptId(session.getCurrentManageDptId());
+    	LOG.info("-----------------------------session.realUid()"+session.realUid());
     	applyManage.setStudentCode(session.realUid());
+    	LOG.info("-----------------------------session.realName()"+session.realName());
     	applyManage.setName(session.realName());
     	RestResult<?> result = exemptionCourseService.addGraduateExemptionApply(applyManage);
         return result;
