@@ -155,14 +155,14 @@ public class TeacherLessonTableServiceServiceImpl
      *@date: 2019/2/18 10:56
      */
     @Override
-    public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode) {
+    public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode, String projectId) {
         //查询所有教学班
         StudentSchoolTimetabVo vo = new StudentSchoolTimetabVo();
         TeachingClassTeacherVo teacher = teachingClassTeacherDao.findTeacher(teacherCode);
         String teacherName = teacher.getTeacherName();
         vo.setTeacherName(teacherName);
         vo.setFaculty(teacher.getFaculty());
-        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassIds(calendarId, teacherCode);
+        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassIds(calendarId, teacherCode, projectId);
         if (CollectionUtil.isEmpty(classTeachers)) {
             return vo;
         }
@@ -568,7 +568,7 @@ public class TeacherLessonTableServiceServiceImpl
     }
     
     @Override
-    public RestResult<String> exportTeacherTimetabPdf(Long calendarId, String teacherCode)
+    public RestResult<String> exportTeacherTimetabPdf(Long calendarId, String teacherCode, String projectId)
         throws DocumentException, IOException
     {
         //检查目录是否存在
@@ -579,7 +579,7 @@ public class TeacherLessonTableServiceServiceImpl
 
         //----3 教师基本信息----
         StudentSchoolTimetabVo teacherTimetab =
-                findTeacherTimetable2(calendarId, teacherCode);
+                findTeacherTimetable2(calendarId, teacherCode,projectId);
         
         /************************ PDF初始化操作 ******************************/
         //所有使用中文处理

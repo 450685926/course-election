@@ -24,7 +24,7 @@ public interface TeacherLessonTableService
     PageResult<ClassCodeToTeacher> findTeacherTimeTableByRole(PageCondition<ClassCodeToTeacher> condition);
 
     /**查询教师课表*/
-    StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId,String teacherCode);
+    StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId,String teacherCode,String projectId);
 
     List<TeacherTimeTable> findTeacherTimetable(Long calendarId, String teacherCode);
 
@@ -36,9 +36,10 @@ public interface TeacherLessonTableService
      * 导出教师课表pdf--研究生
      * @param calendarId
      * @param teacherCode
+     * @param projectId
      * @return
      */
-    RestResult<String> exportTeacherTimetabPdf(Long calendarId,  String teacherCode) throws DocumentException, IOException;
+    RestResult<String> exportTeacherTimetabPdf(Long calendarId,  String teacherCode, String projectId) throws DocumentException, IOException;
     
     /**查询课表对应教师详细信息*/
     List<ClassTeacherDto> findStudentAndTeacherTime( Long teachingClassId);

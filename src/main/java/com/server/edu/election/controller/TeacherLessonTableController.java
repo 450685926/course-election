@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -32,6 +33,7 @@ import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 
 import io.swagger.annotations.ApiOperation;
@@ -98,14 +100,22 @@ public class TeacherLessonTableController
     @ApiOperation(value = "研究生查询教师课表")
     @GetMapping("/findTeacherTimetable2")
     public RestResult<StudentSchoolTimetabVo> findTeacherTimetable2(
-        @RequestParam Long calendarId, @RequestParam String teacherCode)
+        @RequestParam Long calendarId, @RequestParam String teacherCode, @RequestParam(required=false) String projectId)
     {
         if (calendarId == null || StringUtils.isBlank(teacherCode))
         {
             return RestResult.fail("common.parameterError");
         }
+        
+        Session session = SessionUtils.getCurrentSession();
+    	Set<String> dptIds = session.getManageDptIds();
+    	if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
+			String manageDptId = session.getCurrentManageDptId();
+			projectId = manageDptId;
+		}
+    	
         StudentSchoolTimetabVo teacherTimetable =
-            lessonTableService.findTeacherTimetable2(calendarId, teacherCode);
+            lessonTableService.findTeacherTimetable2(calendarId, teacherCode, projectId);
         return RestResult.successData(teacherTimetable);
     }
     
@@ -179,12 +189,20 @@ public class TeacherLessonTableController
         @ApiResponse(code = 200, response = File.class, message = "导出教师课表pdf--研究生")})
     public ResponseEntity<Resource> exportTeacherTimetabPdf(
         @RequestParam("calendarId") Long calendarId,
-        @RequestParam("teacherCode") String teacherCode)
+        @RequestParam("teacherCode") String teacherCode,
+        @RequestParam(name="projectId",required=false) String projectId)
         throws Exception
     {
+        Session session = SessionUtils.getCurrentSession();
+    	Set<String> dptIds = session.getManageDptIds();
+    	if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
+			String manageDptId = session.getCurrentManageDptId();
+			projectId = manageDptId;
+		}
+    	
         LOG.info("exportTeacherTimetabPdf.start");
         RestResult<String> restResult =
-            lessonTableService.exportTeacherTimetabPdf(calendarId, teacherCode);
+            lessonTableService.exportTeacherTimetabPdf(calendarId, teacherCode,projectId);
         
         if (ResultStatus.SUCCESS.code() == restResult.getCode()
             && !"".equals(restResult.getData()))
