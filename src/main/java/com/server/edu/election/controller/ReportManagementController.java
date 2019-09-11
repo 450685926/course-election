@@ -290,8 +290,6 @@ public class ReportManagementController
      * @return
      */
     @PostMapping(value = "/exportGraduteRollBookList3")
-    @ApiResponses({
-    	@ApiResponse(code = 200, response = File.class, message = "点名册批量下载打压缩包3")})
     public RestResult<ExcelResult> exportGraduteRollBookList3(@RequestBody List<String> ids){
     	LOG.info("exportGraduteRollBookList2.start");
 
