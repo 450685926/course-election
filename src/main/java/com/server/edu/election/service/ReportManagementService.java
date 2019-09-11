@@ -83,5 +83,14 @@ public interface ReportManagementService {
 	 * @return
 	 */
 	RestResult<String> exportGraduteRollBookZipList2(List<String> ids, StringBuffer fileName) throws Exception ;
+	
+	/**
+	 * 批量下载点名册，导出并打压缩包(生成key)
+	 * @param ids
+	 * @param fileName
+	 * @return
+	 * @throws Exception
+	 */
+	ExcelResult exportGraduteRollBookZipList3(List<String> ids) ;
 
 }
