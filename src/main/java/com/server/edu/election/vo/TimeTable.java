@@ -1,5 +1,7 @@
 package com.server.edu.election.vo;
 
+import java.io.Serializable;
+
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
@@ -9,8 +11,10 @@ import com.server.edu.dictionary.annotation.CodeI18n;
  * @create: 2019-02-20 19:34
  */
 @CodeI18n
-public class TimeTable{
-    private Integer dayOfWeek;
+public class TimeTable implements Serializable{
+	private static final long serialVersionUID = 1L;
+	
+	private Integer dayOfWeek;
     private Integer timeStart;
     private Integer timeEnd;
     private String value;
