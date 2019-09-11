@@ -246,6 +246,42 @@ public class ReportManagementController
                                 + ".zip")
                 .body(resource);
     }
+    
+    /**
+     * 批量下载点名册，导出并打压缩包
+     * @author xlluoc
+     * @param ids 课程序号id集合
+     * @return
+     */
+    @GetMapping(value = "/exportGraduteRollBookZip2")
+    @ApiResponses({
+        @ApiResponse(code = 200, response = File.class, message = "点名册批量下载打压缩包")})
+    public ResponseEntity<Resource> exportGraduteRollBookZip2(@RequestBody List<String> ids){
+	    LOG.info("exportGraduteRollBookZip2.start");
+
+	    try {
+	    	StringBuffer fileName =new StringBuffer();
+			RestResult<String> restResult = managementService.exportGraduteRollBookZipList2(ids,fileName);
+			if (ResultStatus.SUCCESS.code() == restResult.getCode()
+					&& StringUtils.isNotBlank(restResult.getData())) {
+				Resource resource = new FileSystemResource(
+	                    URLDecoder.decode(restResult.getData(), "utf-8"));// 绝对路径
+				return ResponseEntity.ok()
+	                    .header(HttpHeaders.CONTENT_TYPE,
+	                            "application/zip;charset=utf-8")
+	                    .header(HttpHeaders.CONTENT_DISPOSITION,
+	                            "attachment;filename="
+	                                    + String.valueOf(
+	                                    URLEncoder.encode(fileName.toString(), "UTF-8"))
+	                                    + ".zip")
+	                    .body(resource);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	    
+		return null;
+    }
 
     @ApiOperation(value = "预览点名册")
     @PostMapping("/previewRollBookList2")

@@ -1042,6 +1042,50 @@ public class ReportManagementServiceImpl implements ReportManagementService
         ZipUtils.toZip(fileList, fos2);
         return zipPath;
     }
+    
+	@Override
+	public RestResult<String> exportGraduteRollBookZipList2(List<String> ids, StringBuffer fileName) throws Exception{
+        LOG.info("缓存目录：" + cacheDirectory);
+        
+        // 检查目录是否存在
+        FileUtil.mkdirs(cacheDirectory);
+        // 删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
+        
+        List<File> fileList = new ArrayList<>();
+        List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
+	    for (RollBookList rollBookList : exportGraduteRollBookList) {
+	    	ExportPreCondition condition = new ExportPreCondition();
+	    	condition.setCalendarId(rollBookList.getCalendarId());
+	    	condition.setClassCode(rollBookList.getClassCode());
+	    	condition.setClassName(rollBookList.getClassName());
+	    	condition.setCourseCode(rollBookList.getCourseCode());
+	    	condition.setCourseName(rollBookList.getCourseName());
+	    	condition.setTeacherName(rollBookList.getTeacherName());
+	    	condition.setTeachingClassId(rollBookList.getTeachingClassId());
+	    	PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
+	    	List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
+
+	    	if (CollectionUtil.isNotEmpty(timeTabelList)) {
+                List<String> list = timeTabelList.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                String teachingTimeAndRoom = String.join(";", list);
+                condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
+            }
+	    	condition.setNumber(rollBookList.getSelectCourseNumber());
+	    	String path = exportGraduteRollBook(condition);
+	    	fileList.add(new File(path));
+		}
+
+	    String systemNum = DateTimeUtil.getTimeFormartSimple();
+        fileName = fileName.append(systemNum);
+        String zipPath = cacheDirectory + systemNum+ ".zip";
+        File fileDir = new File(zipPath);
+        FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
+        ZipUtils.toZip(fileList, fos2);
+        String pathName = fileDir.getCanonicalPath();
+        return RestResult.successData("导出成功。",pathName);
+	}
+    
 //	@Override
 //	public RestResult exportGraduteRollBookZipList(List<String> studentIds, StringBuffer name) throws Exception  {
 //		List<File> fileList = new ArrayList<>();
