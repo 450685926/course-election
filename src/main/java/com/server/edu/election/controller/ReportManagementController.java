@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -45,6 +46,7 @@ import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -132,7 +134,11 @@ public class ReportManagementController
             rollBookConditionDto.setFaculty(session.getFaculty());
             bookList = managementService.findGraduteRollBookList(condition);
         }else if (session.isTeacher()) {
-            // 教师不需要设置部门
+        	Set<String> dptIds = session.getManageDptIds();
+        	if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
+				String manageDptId = session.getCurrentManageDptId();
+				rollBookConditionDto.setProjectId(manageDptId);
+			}
             rollBookConditionDto.setTeacherCode(session.realUid());
             bookList = managementService.findGraduteRollBookList(condition);
         }
