@@ -1105,6 +1105,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					applyCourse.setFirstForeignLanguageScore(scoreModel.getScore());
 					applyCourse.setCourseNameAndCode(exemptionApplyManageVo.getApplyCourse());
 					applyCourse.setFirstForeignLanguageName(scoreModel.getCourseName());
+					applyCourse.setCourseCode(exemptionApplyManageVo.getCourseCode());
+					applyCourse.setCourseName(exemptionApplyManageVo.getCourseName());
 					list3.add(applyCourse);
 				}
 				StudentAndCourseVo studentAndCourseVo = new StudentAndCourseVo();
