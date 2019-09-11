@@ -4,8 +4,6 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -32,8 +30,6 @@ import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.election.constants.ChooseObj;
-import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.ExportPreCondition;
 import com.server.edu.election.dto.PreViewRollDto;
 import com.server.edu.election.dto.PreviewRollBookList;
@@ -48,7 +44,6 @@ import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -111,8 +106,16 @@ public class ReportManagementController
         {
             return RestResult.fail("common.parameterError");
         }
-        PageResult<RollBookList> bookList =
-            managementService.findRollBookList(condition);
+        String projectId = StringUtils.isEmpty(condition.getCondition().getProjectId()) 
+            ? SessionUtils.getCurrentSession().getCurrentManageDptId() : condition.getCondition().getProjectId();
+        PageResult<RollBookList> bookList =  null;
+        if("1".equals(projectId)) 
+        {
+            bookList =  managementService.findRollBookList(condition);
+        } else 
+        {
+            bookList  = managementService.findGraduteRollBookList(condition);
+        }
         return RestResult.successData(bookList);
     }
 
@@ -121,29 +124,19 @@ public class ReportManagementController
     public RestResult<PageResult<RollBookList>> findGraduteRollBookList(
             @RequestBody PageCondition<RollBookConditionDto> condition)
     {
-        RollBookConditionDto rollBookConditionDto = condition.getCondition();
-        if (rollBookConditionDto.getCalendarId() == null)
+        if (condition.getCondition().getCalendarId() == null)
         {
             return RestResult.fail("common.parameterError");
         }
-        Session session = SessionUtils.getCurrentSession();
-        PageResult<RollBookList> bookList = null;
-        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin()) {
-            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
-            bookList = managementService.findGraduteRollBookList(condition);
-        }else if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
-        		&& !session.isAdmin() && session.isAcdemicDean()) {
-            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
-            rollBookConditionDto.setFaculty(session.getFaculty());
-            bookList = managementService.findGraduteRollBookList(condition);
-        }else if (session.isTeacher()) {
-        	Set<String> dptIds = session.getManageDptIds();
-        	if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
-				String manageDptId = session.getCurrentManageDptId();
-				rollBookConditionDto.setProjectId(manageDptId);
-			}
-            rollBookConditionDto.setTeacherCode(session.realUid());
-            bookList = managementService.findGraduteRollBookList(condition);
+        String projectId = StringUtils.isEmpty(condition.getCondition().getProjectId()) 
+            ? SessionUtils.getCurrentSession().getCurrentManageDptId() : condition.getCondition().getProjectId();
+        PageResult<RollBookList> bookList =  null;
+        if("1".equals(projectId)) 
+        {
+            bookList =  managementService.findRollBookList(condition);
+        } else 
+        {
+            bookList  = managementService.findGraduteRollBookList(condition);
         }
         return RestResult.successData(bookList);
     }
