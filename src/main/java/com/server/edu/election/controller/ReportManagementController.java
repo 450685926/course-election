@@ -180,8 +180,7 @@ public class ReportManagementController
             @RequestParam("path") String path,@RequestParam("fileName") String fileName) throws Exception {
         LOG.info("exportPlanPdfList.start");
 
-        Resource resource = new FileSystemResource(
-                URLDecoder.decode(path, "utf-8"));// 绝对路径
+        Resource resource = new FileSystemResource(new File(path));// 绝对路径
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE,
                         "application/zip;charset=utf-8")
