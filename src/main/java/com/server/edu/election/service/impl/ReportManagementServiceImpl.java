@@ -71,6 +71,7 @@ import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.DateTimeUtil;
@@ -534,15 +535,33 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<RollBookList> findGraduteRollBookList(
             PageCondition<RollBookConditionDto> condition)
     {
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        Page<RollBookList> bookList  =  null;
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin()) {
+            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
+            bookList =  courseTakeDao.findTeachingClass(condition.getCondition());
+        }else if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+                && !session.isAdmin() && session.isAcdemicDean()) {
+            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
+            rollBookConditionDto.setFaculty(session.getFaculty());
+            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
+        }else if (session.isTeacher()) {
+            Set<String> dptIds = session.getManageDptIds();
+            if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
+                String manageDptId = session.getCurrentManageDptId();
+                rollBookConditionDto.setProjectId(manageDptId);
+            }
+            rollBookConditionDto.setTeacherCode(session.realUid());
+            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RollBookList> rollBookList =
-                courseTakeDao.findTeachingClass(condition.getCondition());
-        if (CollectionUtil.isNotEmpty(rollBookList))
+        if (CollectionUtil.isNotEmpty(bookList))
         {
-            List<RollBookList> result = rollBookList.getResult();
+            List<RollBookList> result = bookList.getResult();
             setTeacherNames(result);
         }
-        return new PageResult<>(rollBookList);
+        return new PageResult<>(bookList);
     }
 
     private void setTeacherNames(List<RollBookList> result) {
