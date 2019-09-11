@@ -32,6 +32,8 @@ import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.constants.ChooseObj;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dto.ExportPreCondition;
 import com.server.edu.election.dto.PreViewRollDto;
 import com.server.edu.election.dto.PreviewRollBookList;
@@ -126,10 +128,11 @@ public class ReportManagementController
         }
         Session session = SessionUtils.getCurrentSession();
         PageResult<RollBookList> bookList = null;
-        if (session.isAdmin()) {
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin()) {
             rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
             bookList = managementService.findGraduteRollBookList(condition);
-        }else if (session.isAcdemicDean()) {
+        }else if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+        		&& !session.isAdmin() && session.isAcdemicDean()) {
             rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
             rollBookConditionDto.setFaculty(session.getFaculty());
             bookList = managementService.findGraduteRollBookList(condition);
