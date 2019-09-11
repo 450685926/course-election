@@ -1096,11 +1096,15 @@ public class ReportManagementServiceImpl implements ReportManagementService
 	@Override
 	public ExcelResult exportGraduteRollBookZipList3(List<String> ids) {
 		String key = "exportGraduteRollBookZipList";
+		int total = ids.size();
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);
         rs.setCreateTime(System.currentTimeMillis());
         String newKey = key + rs.getCreateTime();
         rs.setKey(newKey);
+        
+        rs.setTotal(ids.size());
+        
         redisTemplate.opsForValue().set(newKey, rs);
         redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
        
@@ -1109,7 +1113,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
             public File getFile() {
               try {
             	  List<File> fileList = new ArrayList<>();
-                  List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
+            	  List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
           	      for (RollBookList rollBookList : exportGraduteRollBookList) {
 	          	    	ExportPreCondition condition = new ExportPreCondition();
 	          	    	condition.setCalendarId(rollBookList.getCalendarId());
@@ -1130,9 +1134,21 @@ public class ReportManagementServiceImpl implements ReportManagementService
 	          	    	condition.setNumber(rollBookList.getSelectCourseNumber());
 	          	    	String path = exportGraduteRollBook(condition);
 	          	    	fileList.add(new File(path));
-	          	    	rs.setDoneCount(fileList.size());
+	          	    	
+	          	    	//由于开课情况表是生成两个文件，这里要进行处理一下
+	          			int count = fileList.size();
+	          			//将最终的进度控制在95%（最后还有5%文件压缩与上传的时间）
+	          			//开始的进度应该是
+	          			int start = (int) ((count/total)*0.95);
+	          			//更新redis中的进度
+	          			ExcelResult rs = new ExcelResult();
+	          	        rs.setStatus(false);
+	          	        rs.setCreateTime(System.currentTimeMillis());
+	          	        rs.setKey(newKey);
+	          	        rs.setTotal(total);
+	          			rs.setDoneCount(start);
+	          			redisTemplate.opsForValue().getAndSet(newKey, rs);
           	      }
-          	        rs.setTotal(exportGraduteRollBookList.size());
 					ZipUtil.createZip(fileList, cacheDirectory+"DianMingCe.zip");
 					return new File(cacheDirectory+"DianMingCe.zip");
 				} catch (FileNotFoundException e) {
