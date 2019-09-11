@@ -1103,7 +1103,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         String newKey = key + rs.getCreateTime();
         rs.setKey(newKey);
         
-        rs.setTotal(ids.size());
+        rs.setTotal(ids.size()*1000);
         
         redisTemplate.opsForValue().set(newKey, rs);
         redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
@@ -1139,14 +1139,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
 	          			int count = fileList.size();
 	          			//将最终的进度控制在95%（最后还有5%文件压缩与上传的时间）
 	          			//开始的进度应该是
-	          			int start = (int) ((count/total)*0.95);
+//	          			int start = (int) ((count/total)*0.95);
 	          			//更新redis中的进度
 	          			ExcelResult rs = new ExcelResult();
 	          	        rs.setStatus(false);
 	          	        rs.setCreateTime(System.currentTimeMillis());
 	          	        rs.setKey(newKey);
-	          	        rs.setTotal(total);
-	          			rs.setDoneCount(start);
+	          	        rs.setTotal(total*1000);
+	          			rs.setDoneCount(count*1000);
 	          			redisTemplate.opsForValue().getAndSet(newKey, rs);
           	      }
 					ZipUtil.createZip(fileList, cacheDirectory+"DianMingCe.zip");
