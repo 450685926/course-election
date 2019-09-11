@@ -1130,8 +1130,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
 	          	    	condition.setNumber(rollBookList.getSelectCourseNumber());
 	          	    	String path = exportGraduteRollBook(condition);
 	          	    	fileList.add(new File(path));
+	          	    	rs.setDoneCount(fileList.size());
           	      }
-            	  
+          	        rs.setTotal(exportGraduteRollBookList.size());
 					ZipUtil.createZip(fileList, cacheDirectory+"DianMingCe.zip");
 					return new File(cacheDirectory+"DianMingCe.zip");
 				} catch (FileNotFoundException e) {
