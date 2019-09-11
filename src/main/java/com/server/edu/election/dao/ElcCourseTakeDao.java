@@ -45,6 +45,8 @@ public interface ElcCourseTakeDao
     /**分页查询选课名单*/
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
 
+    Page<ElcCourseTakeVo> courseTakeNameList(@Param("query") ElcCourseTakeQuery take);
+
     /**研究生课程维护模块分页查询选课记录*/
     Page<ElcCourseTakeVo> graduatePage(@Param("query") ElcCourseTakeQuery take);
 
@@ -126,7 +128,7 @@ public interface ElcCourseTakeDao
     List<ClassTeacherDto> findTeachingClassId(@Param("calendarId") Long calendarId, @Param("teacherCode") String teacherCode);
 
     /**研究生查询教师的教学安排*/
-    List<ClassTeacherDto> findTeachingClassIds(@Param("calendarId") Long calendarId, @Param("teacherCode") String teacherCode);
+    List<ClassTeacherDto> findTeachingClassIds(@Param("calendarId") Long calendarId, @Param("teacherCode") String teacherCode, @Param("projectId") String projectId);
 
     /**通过学生删除课程*/
     
