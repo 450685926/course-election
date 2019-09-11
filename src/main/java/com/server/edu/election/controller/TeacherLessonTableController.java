@@ -107,6 +107,8 @@ public class TeacherLessonTableController
             return RestResult.fail("common.parameterError");
         }
         
+        projectId = StringUtils.isEmpty(projectId) ? SessionUtils.getCurrentSession().getCurrentManageDptId() : projectId;
+        
         Session session = SessionUtils.getCurrentSession();
     	Set<String> dptIds = session.getManageDptIds();
     	if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
@@ -193,6 +195,8 @@ public class TeacherLessonTableController
         @RequestParam(name="projectId",required=false) String projectId)
         throws Exception
     {
+        projectId = StringUtils.isEmpty(projectId) ? SessionUtils.getCurrentSession().getCurrentManageDptId() : projectId;
+    	
         Session session = SessionUtils.getCurrentSession();
     	Set<String> dptIds = session.getManageDptIds();
     	if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
