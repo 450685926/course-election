@@ -1316,6 +1316,15 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	    }
 		
 		Student student = studentDao.findStudentByCode(applyManage.getStudentCode());
+		
+		Example example = new Example(ExemptionApplyAuditSwitch.class);
+		example.createCriteria().andEqualTo("applyOpen",Constants.ONE).andEqualTo("deleteStatus",Constants.ZERO).andEqualTo("projId",student.getManagerDeptId());
+		
+		List<ExemptionApplyAuditSwitch> applySwitchs = exemptionAuditSwitchDao.selectByExample(example);
+		ExemptionApplyAuditSwitch applySwitch = getStudentExemptionSwitch(student, applySwitchs);
+		if (applySwitch == null) {
+			return RestResult.fail("exemption.not.been.developed");
+		}
 	    //查询是否重复申请
 	    List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.queryRep(applyManage.getStudentCode(), applyManage.getCourseCode());
 	    if(exemptionApplyManageVo!=null && exemptionApplyManageVo.size() > 0){
