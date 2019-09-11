@@ -2,11 +2,13 @@ package com.server.edu.election.service.impl;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.entity.TeachingClassTeacher;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -68,15 +71,16 @@ import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.DateTimeUtil;
 import com.server.edu.util.FileUtil;
+import com.server.edu.util.ZipUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import com.server.edu.util.excel.export.FileExecuter;
 
 import freemarker.template.Template;
 
@@ -115,7 +119,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
     @Autowired
     private TeacherLessonTableServiceServiceImpl teacherLessonTableServiceServiceImpl;
-
+    
+	@Autowired
+	private RedisTemplate<String, ExcelResult> redisTemplate;
+	
     private static final String[] setTimeListTitle =
         {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "教学安排", "备注", "校区"};
 
@@ -1042,6 +1049,112 @@ public class ReportManagementServiceImpl implements ReportManagementService
         ZipUtils.toZip(fileList, fos2);
         return zipPath;
     }
+    
+	@Override
+	public RestResult<String> exportGraduteRollBookZipList2(List<String> ids, StringBuffer fileName) throws Exception{
+        LOG.info("缓存目录：" + cacheDirectory);
+       
+        // 检查目录是否存在
+        FileUtil.mkdirs(cacheDirectory);
+        // 删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 2);
+        
+        List<File> fileList = new ArrayList<>();
+        List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
+	    for (RollBookList rollBookList : exportGraduteRollBookList) {
+	    	ExportPreCondition condition = new ExportPreCondition();
+	    	condition.setCalendarId(rollBookList.getCalendarId());
+	    	condition.setClassCode(rollBookList.getClassCode());
+	    	condition.setClassName(rollBookList.getClassName());
+	    	condition.setCourseCode(rollBookList.getCourseCode());
+	    	condition.setCourseName(rollBookList.getCourseName());
+	    	condition.setTeacherName(rollBookList.getTeacherName());
+	    	condition.setTeachingClassId(rollBookList.getTeachingClassId());
+	    	PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
+	    	List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
+
+	    	if (CollectionUtil.isNotEmpty(timeTabelList)) {
+                List<String> list = timeTabelList.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                String teachingTimeAndRoom = String.join(";", list);
+                condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
+            }
+	    	condition.setNumber(rollBookList.getSelectCourseNumber());
+	    	String path = exportGraduteRollBook(condition);
+	    	fileList.add(new File(path));
+		}
+
+	    String systemNum = DateTimeUtil.getTimeFormartSimple();
+        fileName = fileName.append(systemNum);
+        String zipPath = cacheDirectory + systemNum+ ".zip";
+        File fileDir = new File(zipPath);
+        FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
+        ZipUtils.toZip(fileList, fos2);
+        String pathName = fileDir.getCanonicalPath();
+        return RestResult.successData("导出成功。",pathName);
+	}
+	
+	@Override
+	public ExcelResult exportGraduteRollBookZipList3(List<String> ids) {
+		String key = "exportGraduteRollBookZipList";
+        ExcelResult rs = new ExcelResult();
+        rs.setStatus(false);
+        rs.setCreateTime(System.currentTimeMillis());
+        String newKey = key + rs.getCreateTime();
+        rs.setKey(newKey);
+        redisTemplate.opsForValue().set(newKey, rs);
+        redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
+       
+        ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
+            @Override
+            public File getFile() {
+              try {
+            	  List<File> fileList = new ArrayList<>();
+                  List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
+          	      for (RollBookList rollBookList : exportGraduteRollBookList) {
+	          	    	ExportPreCondition condition = new ExportPreCondition();
+	          	    	condition.setCalendarId(rollBookList.getCalendarId());
+	          	    	condition.setClassCode(rollBookList.getClassCode());
+	          	    	condition.setClassName(rollBookList.getClassName());
+	          	    	condition.setCourseCode(rollBookList.getCourseCode());
+	          	    	condition.setCourseName(rollBookList.getCourseName());
+	          	    	condition.setTeacherName(rollBookList.getTeacherName());
+	          	    	condition.setTeachingClassId(rollBookList.getTeachingClassId());
+	          	    	PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
+	          	    	List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
+	
+	          	    	if (CollectionUtil.isNotEmpty(timeTabelList)) {
+	                          List<String> list = timeTabelList.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+	                          String teachingTimeAndRoom = String.join(";", list);
+	                          condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
+	                      }
+	          	    	condition.setNumber(rollBookList.getSelectCourseNumber());
+	          	    	String path = exportGraduteRollBook(condition);
+	          	    	fileList.add(new File(path));
+          	      }
+            	  
+					ZipUtil.createZip(fileList, cacheDirectory+"DianMingCe.zip");
+					return new File(cacheDirectory+"DianMingCe.zip");
+				} catch (FileNotFoundException e) {
+					rs.setStatus(true);
+		            redisTemplate.opsForValue().getAndSet(newKey, rs);
+		            LOG.info(e.getMessage(), e);
+					return null;
+				} catch (IOException e) {
+					rs.setStatus(true);
+		            redisTemplate.opsForValue().getAndSet(newKey, rs);
+		            LOG.info(e.getMessage(), e);
+					return null;
+				} catch (Exception e) {
+	            	rs.setStatus(true);
+	            	redisTemplate.opsForValue().getAndSet(newKey, rs);
+	            	LOG.info(e.getMessage(), e);
+	            	return null;
+				}
+            }
+		},".zip");
+	    return  rs;
+	}
+    
 //	@Override
 //	public RestResult exportGraduteRollBookZipList(List<String> studentIds, StringBuffer name) throws Exception  {
 //		List<File> fileList = new ArrayList<>();
