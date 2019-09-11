@@ -282,6 +282,49 @@ public class ReportManagementController
 	    
 		return null;
     }
+    
+    /**
+     * 批量下载点名册，导出并打压缩包(生成key)
+     * @author xlluoc
+     * @param ids 课程序号id集合
+     * @return
+     */
+    @PostMapping(value = "/exportGraduteRollBookList3")
+    @ApiResponses({
+    	@ApiResponse(code = 200, response = File.class, message = "点名册批量下载打压缩包3")})
+    public RestResult<ExcelResult> exportGraduteRollBookList3(@RequestBody List<String> ids){
+    	LOG.info("exportGraduteRollBookList2.start");
+
+    	ExcelResult export = managementService.exportGraduteRollBookZipList3(ids);
+        return RestResult.successData(export);
+    }
+    
+    /**
+     * 批量下载点名册，导出并打压缩包(通过key查找生成文件的path)
+     * @param key
+     * @return
+     */
+    @GetMapping("resultWithOutPre/{key}")
+    public RestResult<?> getResultByKeyWithOutPre(@PathVariable("key") @NotBlank String key) {
+        ExcelResult excelResult = ExportExcelUtils.getResultByKey2(key);
+        return RestResult.successData(excelResult);
+    }
+    
+    /**
+     * 批量下载点名册，导出并打压缩包(通过path下载文件)
+     * @param path
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "导出批量下载文件")
+    @GetMapping("/downLoadMore")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> downLoadMore(@RequestParam("path") String path) throws Exception
+    {
+        LOG.info("export.start");
+        ResponseEntity<Resource> result = ExportExcelUtils.export(path,"application/zip","DianMingCe.zip");
+        return result;
+    }
 
     @ApiOperation(value = "预览点名册")
     @PostMapping("/previewRollBookList2")
@@ -529,4 +572,8 @@ public class ReportManagementController
         return design;
     }
 
+    
+    
+    
+    
 }
