@@ -986,7 +986,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         FileUtil.mkdirs(cacheDirectory);
         FileUtil.deleteFile(cacheDirectory, 2);
         String fileName =
-            "GraduteRollBook-" + System.currentTimeMillis() + ".xls";
+            condition.getClassCode() + condition.getCourseName() + ".xls";
         String path = cacheDirectory + fileName;
         Map<String, Object> map = new HashMap<>();
         map.put("list", studentsList);
@@ -1006,50 +1006,83 @@ public class ReportManagementServiceImpl implements ReportManagementService
         out.close();
         return path;
     }
-    
 
-	@Override
-	public RestResult exportGraduteRollBookZipList(List<String> studentIds, StringBuffer name) throws Exception  {
-		List<File> fileList = new ArrayList<>();
-		//检查目录是否存在
-		LOG.info("缓存目录：" + cacheDirectory);
-		
-	    List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(studentIds);
-	    for (RollBookList rollBookList : exportGraduteRollBookList) {
-	    	ExportPreCondition condition = new ExportPreCondition();
-	    	condition.setCalendarId(rollBookList.getCalendarId());
-	    	condition.setClassCode(rollBookList.getClassCode());
-	    	condition.setClassName(rollBookList.getClassName());
-	    	condition.setCourseCode(rollBookList.getCourseCode());
-	    	condition.setCourseName(rollBookList.getCourseName());
-	    	condition.setTeacherName(rollBookList.getTeacherName());
-	    	condition.setTeachingClassId(rollBookList.getTeachingClassId());
-	    	PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
-	    	List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
-	    	String teachingTimeAndRoom = "";
-	    	if (CollectionUtil.isNotEmpty(timeTabelList)) {
-	    		for (TimeTableMessage timeTableMessage : timeTabelList) {
-	    			teachingTimeAndRoom = teachingTimeAndRoom + timeTableMessage.getTimeAndRoom() +" ";
-	    		}
-			}
-	    	condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
-	    	condition.setNumber(rollBookList.getSelectCourseNumber());
-	    	String path = exportGraduteRollBook(condition);
-	    	fileList.add(new File(path));
-		}
-	    
-		String systemNum = DateTimeUtil.getTimeFormartSimple();
-		name = name.append(systemNum);
-		String zipPath = cacheDirectory + systemNum+ ".zip";
-		File fileDir = new File(zipPath);
-		FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
-		ZipUtils.toZip(fileList, fos2);
-		String fileName = fileDir.getCanonicalPath();
-		Map<String, Object> map = new HashMap<>();
-		map.put("fileName", name);
-		map.put("path", fileName);
-		return RestResult.successData("导出成功。",map);
-	}
+    @Override
+    public String exportGraduteRollBookZipList(List<String> studentIds, StringBuffer name) throws Exception  {
+        List<File> fileList = new ArrayList<>();
+        //检查目录是否存在
+        LOG.info("缓存目录：" + cacheDirectory);
+
+        List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(studentIds);
+        for (RollBookList rollBookList : exportGraduteRollBookList) {
+            ExportPreCondition condition = new ExportPreCondition();
+            condition.setCalendarId(rollBookList.getCalendarId());
+            condition.setClassCode(rollBookList.getClassCode());
+            condition.setClassName(rollBookList.getClassName());
+            condition.setCourseCode(rollBookList.getCourseCode());
+            condition.setCourseName(rollBookList.getCourseName());
+            condition.setTeacherName(rollBookList.getTeacherName());
+            condition.setTeachingClassId(rollBookList.getTeachingClassId());
+            PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
+            List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
+
+            if (CollectionUtil.isNotEmpty(timeTabelList)) {
+                List<String> list = timeTabelList.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+                String teachingTimeAndRoom = String.join(";", list);
+                condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
+            }
+            condition.setNumber(rollBookList.getSelectCourseNumber());
+            String path = exportGraduteRollBook(condition);
+            fileList.add(new File(path));
+        }
+        String systemNum = DateTimeUtil.getTimeFormartSimple();
+        String zipPath = cacheDirectory + systemNum+ ".zip";
+        File fileDir = new File(zipPath);
+        FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
+        ZipUtils.toZip(fileList, fos2);
+        return zipPath;
+    }
+//	@Override
+//	public RestResult exportGraduteRollBookZipList(List<String> studentIds, StringBuffer name) throws Exception  {
+//		List<File> fileList = new ArrayList<>();
+//		//检查目录是否存在
+//		LOG.info("缓存目录：" + cacheDirectory);
+//
+//	    List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(studentIds);
+//	    for (RollBookList rollBookList : exportGraduteRollBookList) {
+//	    	ExportPreCondition condition = new ExportPreCondition();
+//	    	condition.setCalendarId(rollBookList.getCalendarId());
+//	    	condition.setClassCode(rollBookList.getClassCode());
+//	    	condition.setClassName(rollBookList.getClassName());
+//	    	condition.setCourseCode(rollBookList.getCourseCode());
+//	    	condition.setCourseName(rollBookList.getCourseName());
+//	    	condition.setTeacherName(rollBookList.getTeacherName());
+//	    	condition.setTeachingClassId(rollBookList.getTeachingClassId());
+//	    	PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
+//	    	List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
+//
+//	    	if (CollectionUtil.isNotEmpty(timeTabelList)) {
+//                List<String> list = timeTabelList.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
+//                String teachingTimeAndRoom = String.join(";", list);
+//                condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
+//            }
+//	    	condition.setNumber(rollBookList.getSelectCourseNumber());
+//	    	String path = exportGraduteRollBook(condition);
+//	    	fileList.add(new File(path));
+//		}
+//
+//		String systemNum = DateTimeUtil.getTimeFormartSimple();
+//		name = name.append(systemNum);
+//		String zipPath = cacheDirectory + systemNum+ ".zip";
+//		File fileDir = new File(zipPath);
+//		FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
+//		ZipUtils.toZip(fileList, fos2);
+//		String fileName = fileDir.getCanonicalPath();
+//		Map<String, Object> map = new HashMap<>();
+//		map.put("fileName", name);
+//		map.put("path", fileName);
+//		return RestResult.successData("导出成功。",map);
+//	}
 
     private void setSexAndFaculty(List<StudentVo> studentsList) {
         for (StudentVo studentVo : studentsList) {
