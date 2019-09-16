@@ -53,6 +53,7 @@
   	<result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
   	<result column="medWithdrawId" jdbcType="BIGINT" property="medWithdrawId" />
   	<result column="courseLabel" jdbcType="VARCHAR" property="courseLabel" />
+  	<result column="MODE_" jdbcType="INTEGER" property="electionMode" />
   </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
@@ -166,18 +167,35 @@
   
   <select id="courseTakeNameList" resultMap="VoResultMap">
       select
-	      t1.ID_,t1.CALENDAR_ID_,t1.STUDENT_ID_,t1.COURSE_TAKE_TYPE_,t1.CREATED_AT_,t1.TEACHING_CLASS_ID_,
+	      t1.STUDENT_ID_,
+	      t1.CALENDAR_ID_,
+	      t1.COURSE_CODE_,
+	      t1.TEACHING_CLASS_ID_,
+	      t1.COURSE_TAKE_TYPE_,
+	      t1.TURN_,
 	      t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
 	      t2.TRAINING_LEVEL_,t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_,
 	      t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
 	      t5.LABEL_ AS courseLabel,
-	      t6.MODE_
+	      t6.MODE_ electionMode
       from elc_course_takes_t t1
 	      join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
 	      join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
 	      join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
 	      left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
-	      left join election_log_t t6 ON t1.STUDENT_ID_ = t6.STUDENT_ID_
+	      join (SELECT
+					MAX(ID_),
+					STUDENT_ID_,
+					COURSE_CODE_,
+					TYPE_,
+					MODE_
+				FROM
+					election_log_t  
+				WHERE
+					TYPE_ = 1
+				GROUP BY
+					STUDENT_ID_,
+					COURSE_CODE_) t6 ON t1.STUDENT_ID_ = t6.STUDENT_ID_ and t6.COURSE_CODE_ = t1.COURSE_CODE_
       <where>
 	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
 	      	and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
