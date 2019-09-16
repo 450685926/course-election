@@ -176,7 +176,7 @@
 	      t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
 	      t2.TRAINING_LEVEL_,t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_,
 	      t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
-	      t5.LABEL_ AS courseLabel,
+	      t5.LABEL_ AS courseLabel
       from elc_course_takes_t t1
 	      join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
 	      join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
