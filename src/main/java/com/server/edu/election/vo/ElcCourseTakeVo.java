@@ -76,6 +76,10 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /** 课程类别*/
     private String courseLabel;
     
+    /** 选课方式：1-自选；2-代选 */
+    @Code2Text(DictTypeEnum.K_XKFS)
+    private Integer electionMode;
+    
     public String getElcMedWithdrawStatus() {
 		return elcMedWithdrawStatus;
 	}
@@ -292,6 +296,14 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
 	public Long getStudentCode() {
 		return Long.parseLong(super.getStudentId());
+	}
+
+	public Integer getElectionMode() {
+		return electionMode;
+	}
+
+	public void setElectionMode(Integer electionMode) {
+		this.electionMode = electionMode;
 	}
 	
 }
