@@ -68,10 +68,9 @@ public class ElcCourseTake implements Serializable
     private Integer turn;
 
     /**
-     * 选课模式
-     * */
+     * 模式（该字段同election_rounds_t中MODE_,选课模式:1正常,2实践课,3结业生,4留学结业生）
+    */
     @Column(name = "MODE_")
-    @Code2Text(DictTypeEnum.K_XKFS)
     private Integer mode;
     
     /**

@@ -769,8 +769,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		if (StringUtils.isNotEmpty(condition.getCondition().getIncludeCourseCode())) {
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}
-		PageResult<ElcCourseTakeVo> list = listPage(condition);
+		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
+		
+//		PageResult<ElcCourseTakeVo> list = listPage(condition);
+		PageResult<ElcCourseTakeVo> list = courseTakeNameList(condition);
 		list.getList().sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
+		
 		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
     	for (ElcCourseTakeVo elcCourseTakeVo : list.getList()) {
     		ElcCourseTakeNameListVo elcCourseTakeNameListVo = new ElcCourseTakeNameListVo();
@@ -785,6 +789,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     	result.setPageSize_(list.getPageSize_());
     	result.setTotal_(list.getTotal_());
 		return result;
+	}
+	
+	/** 研究生选课结果处理学生名单 */
+	public PageResult<ElcCourseTakeVo> courseTakeNameList(PageCondition<ElcCourseTakeQuery> condition){
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.courseTakeNameList(condition.getCondition());
+        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        return result;
 	}
 
     @Override
