@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,6 +52,7 @@ import com.server.edu.election.dto.AddCourseDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Course;
@@ -773,7 +775,24 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		
 //		PageResult<ElcCourseTakeVo> list = listPage(condition);
 		PageResult<ElcCourseTakeVo> list = courseTakeNameList(condition);
-		list.getList().sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
+		
+		List<ElcCourseTakeVo> list2 = list.getList();
+		if (CollectionUtil.isNotEmpty(list2)) {
+			Iterator<ElcCourseTakeVo> iterator = list2.iterator();
+			while (iterator.hasNext()) {
+				ElcCourseTakeVo takeVo = iterator.next();
+				condition.getCondition().setStudentId(takeVo.getStudentId());
+				condition.getCondition().setTeachingClassCode(takeVo.getTeachingClassCode());
+				List<ElcLog> listLogs = elcLogDao.getElectionLog(condition.getCondition());
+				if (CollectionUtil.isNotEmpty(listLogs)) {
+					takeVo.setElectionMode(listLogs.get(0).getMode());
+				}else {
+					iterator.remove();
+				}
+			}
+		}
+		
+		list2.sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
 		
 		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
     	for (ElcCourseTakeVo elcCourseTakeVo : list.getList()) {

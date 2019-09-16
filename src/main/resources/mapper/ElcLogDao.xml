@@ -108,5 +108,27 @@
             )
         </foreach>
     </insert>
+    
+    <select id="getElectionLog" parameterType="com.server.edu.election.query.ElcCourseTakeQuery" resultMap="BaseResultMap">
+    	select MODE_
+		from election_log_t 
+		where TYPE_ = 1
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.calendarId)">
+            	and CALENDAR_ID_ = #{condition.calendarId}
+        	</if> 
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.courseCode)">
+            	and COURSE_CODE_ = #{condition.courseCode}
+        	</if> 
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.teachingClassCode)">
+            	and TEACHING_CLASS_CODE_ = #{condition.teachingClassCode}
+        	</if> 
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.studentId)">
+            	and STUDENT_ID_  = #{condition.studentId}
+        	</if> 
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(condition.mode)">
+            	and MODE_  = #{condition.mode}
+        	</if> 
+		order by CREATED_AT_ desc 
+    </select>
 
 </mapper>
