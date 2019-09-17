@@ -55,6 +55,7 @@
   	<result column="secondTurnNum" jdbcType="INTEGER" property="secondTurnNum" />
   	<result column="LABEL_NAME_" jdbcType="VARCHAR" property="labelName" />
   	<result column="NATURE_" jdbcType="VARCHAR" property="nature" />
+  	<result column="teacherCodes" jdbcType="VARCHAR" property="teacherCodes" />
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct
@@ -73,7 +74,9 @@
 	t1.RESERVE_NUMBER_,
 	t1.ASSISTANT_NUMBER_,
 	t1.REMARK_,
-    t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId
+    t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
+    t3.FACULTY_,
+    GROUP_CONCAT(DISTINCT t7.`TEACHER_CODE_`) teacherCodes
     <if test="isHaveLimit !=null and isHaveLimit ==1">
 	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,
 	    t5.TRAINING_CATEGORY_ limitTrainingCategory,t5.SPCIAL_PLAN_ limitSpcialPlan,
@@ -91,6 +94,7 @@
     </if>
 	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
 	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
+	LEFT JOIN teaching_class_teacher_t t7 ON t7.TEACHING_CLASS_ID_ = t1.ID_ AND t7.`TYPE_` = 0
     <where>
       t1.DELETE_STATUS_ = 0
       and t3.CALENDAR_ID_ = #{calendarId}
@@ -135,7 +139,7 @@
         and t3.COURSE_NAME_ = #{courseName}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus}
+        and t1.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
@@ -182,6 +186,7 @@
 	t1.ASSISTANT_NUMBER_,
 	t1.REMARK_,
     t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
+    t3.FACULTY_,
     label.LABEL_NAME_
     ,CASE WHEN t7.TURN_ = 1 THEN
     count(t7.ID_) END firstTurnNum,
@@ -239,7 +244,7 @@
         and t3.COURSE_NAME_ = #{courseName}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
-        and t2.CAMPUS_ = #{campus}
+        and t1.CAMPUS_ = #{campus}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
@@ -434,12 +439,12 @@
 
    <select id="selectDrawClasss" parameterType="com.server.edu.election.dto.ElcNumberSetDto" resultType="com.server.edu.election.vo.TeachingClassVo">
 		SELECT
-			t2.ID_,
-			t2.CODE_,
+			t2.ID_ id,
+			t2.CODE_ code,
 			COUNT(t1.ID_) withdrawNum
 		FROM
-			election_log_t_5 t1
-		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_CODE_ = t2.CODE_
+			election_log_t_${mode} t1
+		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_CODE_ = t2.CODE_ AND t2.DEPLOY_FLAG_ &gt; 0
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON (
 			t4.ID_ = t3.COURSE_OPEN_ID_
@@ -462,7 +467,7 @@
 
    <update id="batchDecrElcNumber" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"
-      separator=",">
+      separator=";">
       update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - #{item.withdrawNum} where
       id_ = #{item.id} and ELC_NUMBER_ > 0
     </foreach>
