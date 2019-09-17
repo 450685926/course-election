@@ -31,6 +31,7 @@ import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dao.ExemptionApplyDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.ElcCouSubsDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.Course;
@@ -84,6 +85,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     
     @Autowired
     private ElcCouSubsDao elcCouSubsDao;
+    
+    @Autowired
+    private TeachingClassTeacherDao teacherDao;
     
     @Override
     public int getOrder()
@@ -477,7 +481,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         Map<Long, List<ClassTimeUnit>> collect, TeachingClassCache c)
     {
         //一个教学班的排课时间信息
-        List<ClassTimeUnit> times = collect.get(c.getTeachClassId());
+    	Long teachClassId = c.getTeachClassId();
+        List<ClassTimeUnit> times = collect.get(teachClassId);
         if (CollectionUtil.isNotEmpty(times))
         {
             for (ClassTimeUnit ctu : times)
@@ -488,7 +493,15 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     ctu.getValue()));
             }
             
-            String teacherName = this.getTeacherName(times);
+            String teacherName = null;
+            if (CollectionUtil.isEmpty(times)) {
+            	List<String> findNamesByTeachingClassId = teacherDao.findNamesByTeachingClassId(teachClassId);
+            	Set<String> names = new HashSet<>(findNamesByTeachingClassId);
+            	teacherName = StringUtils.join(names, ",");
+			}else{
+				teacherName = this.getTeacherName(times);
+			}
+            
             c.setTeacherName(teacherName);
             
             return times;
