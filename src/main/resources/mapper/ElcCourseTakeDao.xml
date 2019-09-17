@@ -1282,7 +1282,7 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
                 and FORM_LEARNING_ = #{formLearning,jdbcType=VARCHAR}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(role)">
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and FACULTY_ = #{faculty,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
