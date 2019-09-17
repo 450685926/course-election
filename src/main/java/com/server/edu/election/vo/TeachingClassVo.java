@@ -92,8 +92,18 @@ public class TeachingClassVo extends TeachingClass
      */
     private String labelName;
     
+    /**
+     * 教师code集合字符串
+     */
+    private String teacherCodes;
     
     
+	public String getTeacherCodes() {
+		return teacherCodes;
+	}
+	public void setTeacherCodes(String teacherCodes) {
+		this.teacherCodes = teacherCodes;
+	}
 	public String getLabelName() {
 		return labelName;
 	}
