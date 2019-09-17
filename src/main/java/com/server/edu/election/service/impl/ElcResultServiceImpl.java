@@ -24,12 +24,14 @@ import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.Classroom;
+import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcClassEditAuthorityDao;
@@ -156,7 +158,66 @@ public class ElcResultServiceImpl implements ElcResultService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = null;
-        if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
+        listPage = getListPage(condition, listPage);
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+    		// 添加教室容量
+    		Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
+    		List<Classroom> classroomList = ClassroomCacheUtil.getList(roomIds);
+            for(TeachingClassVo vo: list) {
+        	    //拼装教师
+                getTeacgerName(vo);
+                //获得男女比例
+            	getProportion(condition, vo);
+            	vo.setClassNumberStr("不限");
+            	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+    				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+    				if(classroom!=null && classroom.getClassNumber()!=null) {
+    					vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+    				}
+    			}
+            	// 处理教学安排（上课时间地点）信息
+				List<TimeAndRoom> tableMessages = getTimeById(vo.getId());
+				vo.setTimeTableList(tableMessages);
+            }
+        }
+        return new PageResult<>(listPage);
+    }
+
+	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
+		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
+			String boy = "无";
+			if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
+				boy = vo.getNumberMale().toString();
+			}
+			String girl = "无";
+			if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
+				girl = vo.getNumberFemale().toString();
+			}
+			String proportion = boy +"/" +girl;
+			vo.setProportion(proportion);
+		}
+	}
+
+	private void getTeacgerName(TeachingClassVo vo) {
+		if(StringUtils.isNotBlank(vo.getTeacherCodes())) {
+			List<Teacher> teachers = TeacherCacheUtil.getTeachers(vo.getTeacherCodes());
+		     	if(CollectionUtil.isNotEmpty(teachers)) {
+		     		StringBuilder stringBuilder = new StringBuilder();
+		    		for(Teacher teacher:teachers) {
+		    			stringBuilder.append(teacher.getName());
+		    			stringBuilder.append("(");
+		    			stringBuilder.append(teacher.getCode());
+		    			stringBuilder.append(")");
+		    			stringBuilder.append(",");
+		    		}
+		    		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+				}
+		    }
+	}
+
+	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage) {
+		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
         		int mode = TableIndexUtil.getMode(condition.getCalendarId());
         		condition.setMode(mode);
@@ -185,63 +246,9 @@ public class ElcResultServiceImpl implements ElcResultService
         		listPage = classDao.listPage(condition);
 			}
 		}
-		// 添加教室容量
-		Set<String> roomIds = listPage.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
-		List<Classroom> classroomList = ClassroomCacheUtil.getList(roomIds);
-        List<TeachingClassVo> list = listPage.getResult();
-        if(CollectionUtil.isNotEmpty(list)) {
-        	List<TeachingClassTeacher> teacherList = getTeachingTeachers(list);
-            for(TeachingClassVo vo: list) {
-            	if(CollectionUtil.isNotEmpty(teacherList)) {
-                	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
-                	StringBuilder stringBuilder = new StringBuilder();
-                	if(CollectionUtil.isNotEmpty(teachers)) {
-                		for(TeachingClassTeacher teacher:teachers) {
-                			stringBuilder.append(teacher.getTeacherName());
-                			stringBuilder.append("(");
-                			stringBuilder.append(teacher.getTeacherCode());
-                			stringBuilder.append(")");
-                			stringBuilder.append(",");
-                		}
-                		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
-                	}
-                	if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-                		String boy = "无";
-                		if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
-                			boy = vo.getNumberMale().toString();
-                		}
-                		String girl = "无";
-                		if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
-                			girl = vo.getNumberFemale().toString();
-                		}
-                		String proportion = boy +"/" +girl;
-                		vo.setProportion(proportion);
-                		
-                	}
-                	vo.setClassNumberStr("不限");
-                	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
-        				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
-        				if(classroom!=null && classroom.getClassNumber()!=null) {
-        					vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-        				}
-        			}
-            	}
-            }
-            // 处理教学安排（上课时间地点）信息
-            getTimeList(list);
-        }
-        return new PageResult<>(listPage);
-    }
-    
-    // 查找任课教师信息
-	private List<TeachingClassTeacher> getTeachingTeachers(List<TeachingClassVo> list) {
-		List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
-		Example teacherExample = new Example(TeachingClassTeacher.class);
-		teacherExample.createCriteria().andIn("teachingClassId", classIds).
-		        andEqualTo("type",Constants.TEACHER_DEFAULT);
-		List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
-		return teacherList;
+		return listPage;
 	}
+    
     
     @Override
     public PageResult<TeachingClassVo> graduatePage(
