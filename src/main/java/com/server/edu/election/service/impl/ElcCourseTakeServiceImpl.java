@@ -787,7 +787,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 				if (CollectionUtil.isNotEmpty(listLogs)) {
 					takeVo.setElectionMode(listLogs.get(0).getMode());
 				}else {
-					iterator.remove();
+					if(condition.getCondition().getMode() != null) {
+						iterator.remove();
+					}
 				}
 			}
 		}
