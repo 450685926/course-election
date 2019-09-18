@@ -161,41 +161,6 @@ public class ReportManagementController
         return ExportUtil.exportExcel(excelUtil, cacheDirectory, uid + ".xls");
     }
 
-//    /**
-//     * 批量导出点名册，并打包成压缩包
-//     */
-//    @PostMapping(value = "/exportGraduteRollBookZipList")
-//    @ApiOperation(value = " 批量导出点名册，并打包成压缩包")
-//    public  RestResult<?> exportGraduteRollBookZipList(
-//            @RequestBody List<String> ids) throws Exception {
-//        LOG.info("exportPlanPdfList.start");
-//
-//        StringBuffer fileName =new StringBuffer();
-//        fileName.append("DianMingCe");
-//        RestResult restResult=managementService.exportGraduteRollBookZipList(ids,fileName);
-//        return restResult;
-//    }
-    
-    @GetMapping(value = "/exportZip")
-    @ApiResponses({
-            @ApiResponse(code = 200, response = File.class, message = "导出点名册压缩包")})
-    public ResponseEntity<Resource> exportPlanPdfList(
-            @RequestParam("path") String path,@RequestParam("fileName") String fileName) throws Exception {
-        LOG.info("exportPlanPdfList.start");
-
-        Resource resource = new FileSystemResource(new File(path));// 绝对路径
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE,
-                        "application/zip;charset=utf-8")
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment;filename="
-                                + String.valueOf(
-                                URLEncoder.encode(fileName.toString(), "UTF-8"))
-                                + ".zip")
-                .body(resource);
-    }
-    
-
     @ApiOperation(value = "研究生点名册（学生名单）详情")
     @GetMapping("/previewGraduteRollBook")
     public RestResult<PreViewRollDto> previewGraduteRollBook(
@@ -223,68 +188,6 @@ public class ReportManagementController
         return ExportUtil.export(fileName, "GraduteDianMingCe.xls");
     }
 
-    /**
-     * 批量导出点名册，并打包成压缩包
-     */
-    @PostMapping(value = "/exportGraduteRollBookZip")
-    @ApiOperation(value = " 批量导出点名册，并打包成压缩包")
-    @ApiResponses({
-            @ApiResponse(code = 200, response = File.class, message = "导出zip下载文件")})
-    public ResponseEntity<Resource> exportGraduteRollBookZip(
-            @RequestBody List<String> ids) throws Exception {
-        LOG.info("exportPlanPdfList.start");
-
-        StringBuffer fileName =new StringBuffer();
-        fileName.append("DianMingCe");
-        String path = managementService.exportGraduteRollBookZipList(ids, fileName);
-        Resource resource = new FileSystemResource(new File(path));// 绝对路径
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE,
-                        "application/zip;charset=utf-8")
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment;filename="
-                                + String.valueOf(
-                                URLEncoder.encode(fileName.toString(), "UTF-8"))
-                                + ".zip")
-                .body(resource);
-    }
-    
-    /**
-     * 批量下载点名册，导出并打压缩包
-     * @author xlluoc
-     * @param ids 课程序号id集合
-     * @return
-     */
-    @GetMapping(value = "/exportGraduteRollBookZip2")
-    @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "点名册批量下载打压缩包")})
-    public ResponseEntity<Resource> exportGraduteRollBookZip2(@RequestBody List<String> ids){
-	    LOG.info("exportGraduteRollBookZip2.start");
-
-	    try {
-	    	StringBuffer fileName =new StringBuffer();
-			RestResult<String> restResult = managementService.exportGraduteRollBookZipList2(ids,fileName);
-			if (ResultStatus.SUCCESS.code() == restResult.getCode()
-					&& StringUtils.isNotBlank(restResult.getData())) {
-				Resource resource = new FileSystemResource(
-	                    URLDecoder.decode(restResult.getData(), "utf-8"));// 绝对路径
-				return ResponseEntity.ok()
-	                    .header(HttpHeaders.CONTENT_TYPE,
-	                            "application/zip;charset=utf-8")
-	                    .header(HttpHeaders.CONTENT_DISPOSITION,
-	                            "attachment;filename="
-	                                    + String.valueOf(
-	                                    URLEncoder.encode(fileName.toString(), "UTF-8"))
-	                                    + ".zip")
-	                    .body(resource);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	    
-		return null;
-    }
-    
     /**
      * 批量下载点名册，导出并打压缩包(生成key)
      * @author xlluoc
