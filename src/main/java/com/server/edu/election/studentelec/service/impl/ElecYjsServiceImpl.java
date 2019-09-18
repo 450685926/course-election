@@ -1606,7 +1606,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     public List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo)
     {
         List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
-        LOG.info("===================arrangementCourses===============:" + list.size());
         List<TeachingClassCache> lessons =
             new ArrayList<TeachingClassCache>(list.size());
         
