@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElcLogQuery;
 import com.server.edu.election.vo.ElcLogVo;
 
@@ -21,5 +22,12 @@ public interface ElcLogDao extends Mapper<ElcLog>, MySqlMapper<ElcLog>
     Page<ElcLogVo> listPage(@Param("query") ElcLogQuery elcLog);
 
     Integer saveCourseLog(@Param("list") List<ElcLog> list);
+
+	/**
+	 * 获取日志记录中的选课方式
+	 * @param condition
+	 * @return
+	 */
+	List<ElcLog> getElectionLog(@Param("condition") ElcCourseTakeQuery condition);
 
 }
