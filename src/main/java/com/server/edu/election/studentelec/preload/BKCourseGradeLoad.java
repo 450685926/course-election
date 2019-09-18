@@ -483,6 +483,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         //一个教学班的排课时间信息
     	Long teachClassId = c.getTeachClassId();
         List<ClassTimeUnit> times = collect.get(teachClassId);
+        String teacherName = null;
         if (CollectionUtil.isNotEmpty(times))
         {
             for (ClassTimeUnit ctu : times)
@@ -493,18 +494,15 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     ctu.getValue()));
             }
             
-            String teacherName = null;
-            if (CollectionUtil.isEmpty(times)) {
-            	List<String> findNamesByTeachingClassId = teacherDao.findNamesByTeachingClassId(teachClassId);
-            	Set<String> names = new HashSet<>(findNamesByTeachingClassId);
-            	teacherName = StringUtils.join(names, ",");
-			}else{
-				teacherName = this.getTeacherName(times);
-			}
+            teacherName = this.getTeacherName(times);
             
             c.setTeacherName(teacherName);
             
             return times;
+        }else{
+        	List<String> findNamesByTeachingClassId = teacherDao.findNamesByTeachingClassId(teachClassId);
+        	Set<String> names = new HashSet<>(findNamesByTeachingClassId);
+        	teacherName = StringUtils.join(names, ",");
         }
         
         return null;
