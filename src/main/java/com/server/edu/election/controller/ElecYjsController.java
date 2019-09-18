@@ -157,27 +157,20 @@ public class ElecYjsController
         
         /** 学生 */
         boolean isStudent = session.isStudent();
-        logger.info("============/round/arrangementCourses====isStudent===: "+isStudent);
         /** 管理员 */
         boolean isAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
         						&& session.isAdmin();
-        logger.info("============/round/arrangementCourses====isAdmin===: "+isAdmin);
         /** 教务员  */
         boolean isDepartAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				                && !session.isAdmin() && session.isAcdemicDean();
-        logger.info("============/round/arrangementCourses====isDepartAdmin===: "+isDepartAdmin);
         
         RestResult<Student> studentMessage = new RestResult<Student>();
         if (isStudent) {
         	studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
 		}else if (isAdmin || isDepartAdmin) {
-			logger.info("============/round/arrangementCourses====22222===: "+allCourseVo.getStudentCode());
 			studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getStudentCode());
 		}
         Student student = studentMessage.getData();
-        logger.info("============/round/arrangementCourses====student============: "+ student.toString());
-        logger.info("============/round/arrangementCourses====student TrainingLevel============: "+ student.getTrainingLevel());
-        logger.info("============/round/arrangementCourses====student Campus============: "+ student.getCampus());
         allCourseVo.setTrainingLevel(student.getTrainingLevel());
         allCourseVo.setCampu(student.getCampus());
         
