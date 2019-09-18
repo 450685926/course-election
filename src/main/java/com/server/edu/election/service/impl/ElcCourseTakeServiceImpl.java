@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,6 +52,7 @@ import com.server.edu.election.dto.AddCourseDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Course;
@@ -769,10 +771,33 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		if (StringUtils.isNotEmpty(condition.getCondition().getIncludeCourseCode())) {
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}
-		PageResult<ElcCourseTakeVo> list = listPage(condition);
-		list.getList().sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
+		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
+		
+//		PageResult<ElcCourseTakeVo> list = listPage(condition);
+		PageResult<ElcCourseTakeVo> list = courseTakeNameList(condition);
+		
+		List<ElcCourseTakeVo> list2 = list.getList();
+		if (CollectionUtil.isNotEmpty(list2)) {
+			Iterator<ElcCourseTakeVo> iterator = list2.iterator();
+			while (iterator.hasNext()) {
+				ElcCourseTakeVo takeVo = iterator.next();
+				condition.getCondition().setStudentId(takeVo.getStudentId());
+				condition.getCondition().setTeachingClassCode(takeVo.getTeachingClassCode());
+				List<ElcLog> listLogs = elcLogDao.getElectionLog(condition.getCondition());
+				if (CollectionUtil.isNotEmpty(listLogs)) {
+					takeVo.setElectionMode(listLogs.get(0).getMode());
+				}else {
+					if(condition.getCondition().getMode() != null) {
+						iterator.remove();
+					}
+				}
+			}
+		}
+		
+		list2.sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
+		
 		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
-    	for (ElcCourseTakeVo elcCourseTakeVo : list.getList()) {
+    	for (ElcCourseTakeVo elcCourseTakeVo : list2) {
     		ElcCourseTakeNameListVo elcCourseTakeNameListVo = new ElcCourseTakeNameListVo();
     		elcCourseTakeNameListVo.setElcCourseTakeVo(elcCourseTakeVo);
     		Student stu = studentDao.findStudentByCode(elcCourseTakeVo.getStudentId());
@@ -785,6 +810,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     	result.setPageSize_(list.getPageSize_());
     	result.setTotal_(list.getTotal_());
 		return result;
+	}
+	
+	/** 研究生选课结果处理学生名单 */
+	public PageResult<ElcCourseTakeVo> courseTakeNameList(PageCondition<ElcCourseTakeQuery> condition){
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.courseTakeNameList(condition.getCondition());
+        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        return result;
 	}
 
     @Override

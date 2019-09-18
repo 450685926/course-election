@@ -17,8 +17,6 @@ import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.util.excel.export.ExcelResult;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 
 public interface ReportManagementService { 
 
@@ -67,22 +65,6 @@ public interface ReportManagementService {
 	 * @return
 	 */
 	RestResult<String> exportStudentTimetabPdf(Long calendarId, String studentCode) throws Exception;
-
-	/**
-	 * 研究生批量导出点名册压缩包
-	 * @param ids
-	 * @param fileName
-	 * @return
-	 */
-	String exportGraduteRollBookZipList(List<String> ids, StringBuffer fileName) throws Exception ;
-	
-	/**
-	 * 研究生批量导出点名册压缩包2
-	 * @param ids
-	 * @param RestResult
-	 * @return
-	 */
-	RestResult<String> exportGraduteRollBookZipList2(List<String> ids, StringBuffer fileName) throws Exception ;
 	
 	/**
 	 * 批量下载点名册，导出并打压缩包(生成key)

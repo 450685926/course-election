@@ -65,15 +65,14 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.util.WeekUtil;
-import com.server.edu.election.util.ZipUtils;
 import com.server.edu.election.vo.RollBookList;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.DateTimeUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.ZipUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
@@ -534,15 +533,33 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<RollBookList> findGraduteRollBookList(
             PageCondition<RollBookConditionDto> condition)
     {
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        Page<RollBookList> bookList  =  null;
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin()) {
+            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
+            bookList =  courseTakeDao.findTeachingClass(condition.getCondition());
+        }else if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+                && !session.isAdmin() && session.isAcdemicDean()) {
+            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
+            rollBookConditionDto.setFaculty(session.getFaculty());
+            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
+        }else if (session.isTeacher()) {
+            Set<String> dptIds = session.getManageDptIds();
+            if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
+                String manageDptId = session.getCurrentManageDptId();
+                rollBookConditionDto.setProjectId(manageDptId);
+            }
+            rollBookConditionDto.setTeacherCode(session.realUid());
+            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RollBookList> rollBookList =
-                courseTakeDao.findTeachingClass(condition.getCondition());
-        if (CollectionUtil.isNotEmpty(rollBookList))
+        if (CollectionUtil.isNotEmpty(bookList))
         {
-            List<RollBookList> result = rollBookList.getResult();
+            List<RollBookList> result = bookList.getResult();
             setTeacherNames(result);
         }
-        return new PageResult<>(rollBookList);
+        return new PageResult<>(bookList);
     }
 
     private void setTeacherNames(List<RollBookList> result) {
@@ -1014,93 +1031,18 @@ public class ReportManagementServiceImpl implements ReportManagementService
         return path;
     }
 
-    @Override
-    public String exportGraduteRollBookZipList(List<String> studentIds, StringBuffer name) throws Exception  {
-        List<File> fileList = new ArrayList<>();
-        //检查目录是否存在
-        LOG.info("缓存目录：" + cacheDirectory);
-        FileUtil.mkdirs(cacheDirectory);
-        FileUtil.deleteFile(cacheDirectory, 2);
-        List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(studentIds);
-        for (RollBookList rollBookList : exportGraduteRollBookList) {
-            ExportPreCondition condition = new ExportPreCondition();
-            condition.setCalendarId(rollBookList.getCalendarId());
-            condition.setClassCode(rollBookList.getClassCode());
-            condition.setClassName(rollBookList.getClassName());
-            condition.setCourseCode(rollBookList.getCourseCode());
-            condition.setCourseName(rollBookList.getCourseName());
-            condition.setTeacherName(rollBookList.getTeacherName());
-            condition.setTeachingClassId(rollBookList.getTeachingClassId());
-            PreViewRollDto findPreview = previewGraduteRollBook(rollBookList.getTeachingClassId());
-            List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
-
-            if (CollectionUtil.isNotEmpty(timeTabelList)) {
-                List<String> list = timeTabelList.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                String teachingTimeAndRoom = String.join(";", list);
-                condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
-            }
-            condition.setNumber(rollBookList.getSelectCourseNumber());
-            String path = exportGraduteRollBook(condition);
-            fileList.add(new File(path));
-        }
-        String systemNum = DateTimeUtil.getTimeFormartSimple();
-        String zipPath = cacheDirectory + systemNum+ ".zip";
-        FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
-        ZipUtils.toZip(fileList, fos2);
-        return zipPath;
-    }
-    
-	@Override
-	public RestResult<String> exportGraduteRollBookZipList2(List<String> ids, StringBuffer fileName) throws Exception{
-        LOG.info("缓存目录：" + cacheDirectory);
-       
-        // 检查目录是否存在
-        FileUtil.mkdirs(cacheDirectory);
-        // 删除超过30天的文件
-        FileUtil.deleteFile(cacheDirectory, 2);
-        
-        List<File> fileList = new ArrayList<>();
-        List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
-	    for (RollBookList rollBookList : exportGraduteRollBookList) {
-	    	ExportPreCondition condition = new ExportPreCondition();
-	    	condition.setCalendarId(rollBookList.getCalendarId());
-	    	condition.setClassCode(rollBookList.getClassCode());
-	    	condition.setClassName(rollBookList.getClassName());
-	    	condition.setCourseCode(rollBookList.getCourseCode());
-	    	condition.setCourseName(rollBookList.getCourseName());
-	    	condition.setTeacherName(rollBookList.getTeacherName());
-	    	condition.setTeachingClassId(rollBookList.getTeachingClassId());
-	    	PreViewRollDto findPreview = findPreviewRollBookListById(rollBookList.getTeachingClassId(),rollBookList.getCalendarId());
-	    	List<TimeTableMessage> timeTabelList = findPreview.getTimeTabelList();
-
-	    	if (CollectionUtil.isNotEmpty(timeTabelList)) {
-                List<String> list = timeTabelList.stream().map(TimeTableMessage::getTimeAndRoom).collect(Collectors.toList());
-                String teachingTimeAndRoom = String.join(";", list);
-                condition.setTeachingTimeAndRoom(teachingTimeAndRoom);
-            }
-	    	condition.setNumber(rollBookList.getSelectCourseNumber());
-	    	String path = exportGraduteRollBook(condition);
-	    	fileList.add(new File(path));
-		}
-
-	    String systemNum = DateTimeUtil.getTimeFormartSimple();
-        fileName = fileName.append(systemNum);
-        String zipPath = cacheDirectory + systemNum+ ".zip";
-        File fileDir = new File(zipPath);
-        FileOutputStream fos2 = new FileOutputStream(new File(zipPath));
-        ZipUtils.toZip(fileList, fos2);
-        String pathName = fileDir.getCanonicalPath();
-        return RestResult.successData("导出成功。",pathName);
-	}
-	
 	@Override
 	public ExcelResult exportGraduteRollBookZipList3(List<String> ids) {
 		String key = "exportGraduteRollBookZipList";
+		int total = ids.size();
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);
         rs.setCreateTime(System.currentTimeMillis());
         String newKey = key + rs.getCreateTime();
         rs.setKey(newKey);
+        
+        rs.setTotal(ids.size()*1000);
+        
         redisTemplate.opsForValue().set(newKey, rs);
         redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
        
@@ -1109,7 +1051,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
             public File getFile() {
               try {
             	  List<File> fileList = new ArrayList<>();
-                  List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
+            	  List<RollBookList> exportGraduteRollBookList = getExportGraduteRollBookList(ids);
           	      for (RollBookList rollBookList : exportGraduteRollBookList) {
 	          	    	ExportPreCondition condition = new ExportPreCondition();
 	          	    	condition.setCalendarId(rollBookList.getCalendarId());
@@ -1130,8 +1072,21 @@ public class ReportManagementServiceImpl implements ReportManagementService
 	          	    	condition.setNumber(rollBookList.getSelectCourseNumber());
 	          	    	String path = exportGraduteRollBook(condition);
 	          	    	fileList.add(new File(path));
+	          	    	
+	          	    	//由于开课情况表是生成两个文件，这里要进行处理一下
+	          			int count = fileList.size();
+	          			//将最终的进度控制在95%（最后还有5%文件压缩与上传的时间）
+	          			//开始的进度应该是
+//	          			int start = (int) ((count/total)*0.95);
+	          			//更新redis中的进度
+	          			ExcelResult rs = new ExcelResult();
+	          	        rs.setStatus(false);
+	          	        rs.setCreateTime(System.currentTimeMillis());
+	          	        rs.setKey(newKey);
+	          	        rs.setTotal(total*1000);
+	          			rs.setDoneCount(count*1000);
+	          			redisTemplate.opsForValue().getAndSet(newKey, rs);
           	      }
-            	  
 					ZipUtil.createZip(fileList, cacheDirectory+"DianMingCe.zip");
 					return new File(cacheDirectory+"DianMingCe.zip");
 				} catch (FileNotFoundException e) {

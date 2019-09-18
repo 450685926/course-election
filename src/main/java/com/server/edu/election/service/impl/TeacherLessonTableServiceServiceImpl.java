@@ -44,7 +44,6 @@ import com.server.edu.election.dto.ClassCodeToTeacher;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.TeacherTimeTable;
 import com.server.edu.election.dto.TimeTableMessage;
-import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.TeacherLessonTableService;
@@ -155,14 +154,14 @@ public class TeacherLessonTableServiceServiceImpl
      *@date: 2019/2/18 10:56
      */
     @Override
-    public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode) {
+    public StudentSchoolTimetabVo findTeacherTimetable2(Long calendarId, String teacherCode, String projectId) {
         //查询所有教学班
         StudentSchoolTimetabVo vo = new StudentSchoolTimetabVo();
         TeachingClassTeacherVo teacher = teachingClassTeacherDao.findTeacher(teacherCode);
         String teacherName = teacher.getTeacherName();
         vo.setTeacherName(teacherName);
         vo.setFaculty(teacher.getFaculty());
-        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassIds(calendarId, teacherCode);
+        List<ClassTeacherDto> classTeachers = courseTakeDao.findTeachingClassIds(calendarId, teacherCode, projectId);
         if (CollectionUtil.isEmpty(classTeachers)) {
             return vo;
         }
@@ -192,6 +191,7 @@ public class TeacherLessonTableServiceServiceImpl
                         + " " + dictionaryService.query("X_XQ",classTeacherDto.getCampus(), lang);
                 timeTableMessage.setTimeAndRoom(timeStr);
                 TimeTable timeTable = new TimeTable();
+                timeTable.setId(teachingClassId + "");
                 timeTable.setDayOfWeek(dayOfWeek);
                 timeTable.setTimeStart(timeStart);
                 timeTable.setTimeEnd(timeEnd);
@@ -568,7 +568,7 @@ public class TeacherLessonTableServiceServiceImpl
     }
     
     @Override
-    public RestResult<String> exportTeacherTimetabPdf(Long calendarId, String teacherCode)
+    public RestResult<String> exportTeacherTimetabPdf(Long calendarId, String teacherCode, String projectId)
         throws DocumentException, IOException
     {
         //检查目录是否存在
@@ -579,7 +579,7 @@ public class TeacherLessonTableServiceServiceImpl
 
         //----3 教师基本信息----
         StudentSchoolTimetabVo teacherTimetab =
-                findTeacherTimetable2(calendarId, teacherCode);
+                findTeacherTimetable2(calendarId, teacherCode,projectId);
         
         /************************ PDF初始化操作 ******************************/
         //所有使用中文处理
@@ -690,38 +690,42 @@ public class TeacherLessonTableServiceServiceImpl
         for (Integer day : days) {
             List<TimeTable> tables = map.get(day);
             // 上课节次集合
-            MultiValueMap<Integer, String> timeMap = new LinkedMultiValueMap<>();
+            MultiValueMap<Integer, TimeTable> timeMap = new LinkedMultiValueMap<>();
             Set<Integer> set = new LinkedHashSet<>(12);
             if (tables.size() > 1) {
                 // 将上课节次以一节为单位拆分
                 for (TimeTable table : tables) {
                     Integer timeStart = table.getTimeStart();
                     Integer timeEnd = table.getTimeEnd();
-                    String value = table.getValue();
                     for (int i = timeStart; i <= timeEnd; i++) {
-                        timeMap.add(i, value);
+                        timeMap.add(i, table);
                         set.add(i);
                     }
                 }
                 List<TimeTable> times = new ArrayList<>(12);
                 for (Integer i : set) {
-                    List<String> value = timeMap.get(i);
+                    List<TimeTable> timeTables = timeMap.get(i);
+                    List<String> value = timeTables.stream().map(TimeTable::getValue).collect(Collectors.toList());
                     String values = String.join(",  ", value);
+                    List<String> ids = timeTables.stream().map(TimeTable::getId).collect(Collectors.toList());
+                    String id = String.join(",  ", ids);
                     TimeTable tab = new TimeTable();
                     tab.setTimeStart(i);
                     tab.setValue(values);
                     tab.setTimeEnd(i);
+                    tab.setId(id);
                     times.add(tab);
                 }
                 int size = times.size();
                 loop:for (int i = 0; i < size;i++) {
                     TimeTable timeTable = times.get(i);
                     String value = timeTable.getValue();
+                    String id = timeTable.getId();
                     timeTable.setDayOfWeek(day);
                     for (int j = i + 1; j < size; j++) {
                         TimeTable table = times.get(j);
                         Integer timeEnd = table.getTimeEnd();
-                        if (value.equals(table.getValue())) {
+                        if (id.equals(table.getId()) && value.equals(table.getValue())) {
                             timeTable.setTimeEnd(timeEnd);
                             if (j == size - 1) {
                                 tableList.add(timeTable);

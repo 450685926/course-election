@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -107,8 +106,16 @@ public class ReportManagementController
         {
             return RestResult.fail("common.parameterError");
         }
-        PageResult<RollBookList> bookList =
-            managementService.findRollBookList(condition);
+        String projectId = StringUtils.isEmpty(condition.getCondition().getProjectId()) 
+            ? SessionUtils.getCurrentSession().getCurrentManageDptId() : condition.getCondition().getProjectId();
+        PageResult<RollBookList> bookList =  null;
+        if("1".equals(projectId)) 
+        {
+            bookList =  managementService.findRollBookList(condition);
+        } else 
+        {
+            bookList  = managementService.findGraduteRollBookList(condition);
+        }
         return RestResult.successData(bookList);
     }
 
@@ -117,24 +124,19 @@ public class ReportManagementController
     public RestResult<PageResult<RollBookList>> findGraduteRollBookList(
             @RequestBody PageCondition<RollBookConditionDto> condition)
     {
-        RollBookConditionDto rollBookConditionDto = condition.getCondition();
-        if (rollBookConditionDto.getCalendarId() == null)
+        if (condition.getCondition().getCalendarId() == null)
         {
             return RestResult.fail("common.parameterError");
         }
-        Session session = SessionUtils.getCurrentSession();
-        PageResult<RollBookList> bookList = null;
-        if (session.isAdmin()) {
-            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
-            bookList = managementService.findGraduteRollBookList(condition);
-        }else if (session.isAcdemicDean()) {
-            rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
-            rollBookConditionDto.setFaculty(session.getFaculty());
-            bookList = managementService.findGraduteRollBookList(condition);
-        }else if (session.isTeacher()) {
-            // 教师不需要设置部门
-            rollBookConditionDto.setTeacherCode(session.realUid());
-            bookList = managementService.findGraduteRollBookList(condition);
+        String projectId = StringUtils.isEmpty(condition.getCondition().getProjectId()) 
+            ? SessionUtils.getCurrentSession().getCurrentManageDptId() : condition.getCondition().getProjectId();
+        PageResult<RollBookList> bookList =  null;
+        if("1".equals(projectId)) 
+        {
+            bookList =  managementService.findRollBookList(condition);
+        } else 
+        {
+            bookList  = managementService.findGraduteRollBookList(condition);
         }
         return RestResult.successData(bookList);
     }
@@ -158,41 +160,6 @@ public class ReportManagementController
         String uid = currentSession.getUid();
         return ExportUtil.exportExcel(excelUtil, cacheDirectory, uid + ".xls");
     }
-
-//    /**
-//     * 批量导出点名册，并打包成压缩包
-//     */
-//    @PostMapping(value = "/exportGraduteRollBookZipList")
-//    @ApiOperation(value = " 批量导出点名册，并打包成压缩包")
-//    public  RestResult<?> exportGraduteRollBookZipList(
-//            @RequestBody List<String> ids) throws Exception {
-//        LOG.info("exportPlanPdfList.start");
-//
-//        StringBuffer fileName =new StringBuffer();
-//        fileName.append("DianMingCe");
-//        RestResult restResult=managementService.exportGraduteRollBookZipList(ids,fileName);
-//        return restResult;
-//    }
-    
-    @GetMapping(value = "/exportZip")
-    @ApiResponses({
-            @ApiResponse(code = 200, response = File.class, message = "导出点名册压缩包")})
-    public ResponseEntity<Resource> exportPlanPdfList(
-            @RequestParam("path") String path,@RequestParam("fileName") String fileName) throws Exception {
-        LOG.info("exportPlanPdfList.start");
-
-        Resource resource = new FileSystemResource(new File(path));// 绝对路径
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE,
-                        "application/zip;charset=utf-8")
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment;filename="
-                                + String.valueOf(
-                                URLEncoder.encode(fileName.toString(), "UTF-8"))
-                                + ".zip")
-                .body(resource);
-    }
-    
 
     @ApiOperation(value = "研究生点名册（学生名单）详情")
     @GetMapping("/previewGraduteRollBook")
@@ -222,29 +189,44 @@ public class ReportManagementController
     }
 
     /**
-     * 批量导出点名册，并打包成压缩包
+     * 批量下载点名册，导出并打压缩包(生成key)
+     * @author xlluoc
+     * @param ids 课程序号id集合
+     * @return
      */
-    @PostMapping(value = "/exportGraduteRollBookZip")
-    @ApiOperation(value = " 批量导出点名册，并打包成压缩包")
-    @ApiResponses({
-            @ApiResponse(code = 200, response = File.class, message = "导出zip下载文件")})
-    public ResponseEntity<Resource> exportGraduteRollBookZip(
-            @RequestBody List<String> ids) throws Exception {
-        LOG.info("exportPlanPdfList.start");
+    @PostMapping(value = "/exportGraduteRollBookList3")
+    public RestResult<ExcelResult> exportGraduteRollBookList3(@RequestBody List<String> ids){
+    	LOG.info("exportGraduteRollBookList2.start");
 
-        StringBuffer fileName =new StringBuffer();
-        fileName.append("DianMingCe");
-        String path = managementService.exportGraduteRollBookZipList(ids, fileName);
-        Resource resource = new FileSystemResource(new File(path));// 绝对路径
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE,
-                        "application/zip;charset=utf-8")
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment;filename="
-                                + String.valueOf(
-                                URLEncoder.encode(fileName.toString(), "UTF-8"))
-                                + ".zip")
-                .body(resource);
+    	ExcelResult export = managementService.exportGraduteRollBookZipList3(ids);
+        return RestResult.successData(export);
+    }
+    
+    /**
+     * 批量下载点名册，导出并打压缩包(通过key查找生成文件的path)
+     * @param key
+     * @return
+     */
+    @GetMapping("resultWithOutPre/{key}")
+    public RestResult<?> getResultByKeyWithOutPre(@PathVariable("key") @NotBlank String key) {
+        ExcelResult excelResult = ExportExcelUtils.getResultByKey2(key);
+        return RestResult.successData(excelResult);
+    }
+    
+    /**
+     * 批量下载点名册，导出并打压缩包(通过path下载文件)
+     * @param path
+     * @return
+     * @throws Exception
+     */
+    @ApiOperation(value = "导出批量下载文件")
+    @GetMapping("/downLoadMore")
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> downLoadMore(@RequestParam("path") String path) throws Exception
+    {
+        LOG.info("export.start");
+        ResponseEntity<Resource> result = ExportExcelUtils.export(path,"application/zip","DianMingCe.zip");
+        return result;
     }
     
     /**
