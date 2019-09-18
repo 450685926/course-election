@@ -128,12 +128,12 @@ public class ElecAgentYjsController
         
         if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
         {
-            if (elecRequest.getChooseObj() == Constants.TOW)
+            if (elecRequest.getChooseObj().intValue() == Constants.TOW)
             { // 教务员
                 c = yjsService
                     .setData(studentId, c, elecRequest.getRoundId(), null);
             }
-            else if (elecRequest.getChooseObj() == Constants.THREE)
+            else if (elecRequest.getChooseObj().intValue() == Constants.THREE)
             { // 管理员
                 c = yjsService
                     .setData(studentId, c, null, elecRequest.getCalendarId());
