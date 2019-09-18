@@ -152,6 +152,8 @@ public class ElecYjsController
         logger.info("election getAllCourse start !!!");
         
         Session session = SessionUtils.getCurrentSession();
+        
+        logger.info("======================/round/arrangementCourses========11111=========: "+session.getCurrentManageDptId());
         allCourseVo.setProjectId(session.getCurrentManageDptId());
         
         /** 学生 */

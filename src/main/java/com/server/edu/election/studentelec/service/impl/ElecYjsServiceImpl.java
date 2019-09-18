@@ -403,18 +403,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
+            take.setMode(Constants.NORMAL_MODEL); // 研究生选课都是“正常选课”模式
             if (round.getId() == null) { // 管理员代理选课
             	take.setCalendarId(request.getCalendarId());
-            	take.setMode(1);
             	take.setTurn(0);
-			}else if (!StringUtils.equals(request.getProjectId(), Constants.PROJ_UNGRADUATE) 
-					&& request.getChooseObj().intValue()==ChooseObj.DEPART_ADMIN.type()) { // 教务员代理选课
+			} else {  // 学生选课 或者 教务员代理选课
 				take.setCalendarId(round.getCalendarId());
-				take.setMode(1);
-				take.setTurn(round.getTurn());
-			} else {  // 学生选课
-				take.setCalendarId(round.getCalendarId());
-				take.setMode(round.getMode());
 				take.setTurn(round.getTurn());
 			}
             courseTakeDao.insertSelective(take);
@@ -458,7 +452,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         log.setCreatedAt(date);
         log.setCreateIp(request.getRequestIp());
         log.setMode(
-            ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
+            ChooseObj.STU.type() == request.getChooseObj().intValue() ? ElcLogVo.MODE_1
                 : ElcLogVo.MODE_2);
         log.setStudentId(studentId);
         log.setTeachingClassCode(TeachClassCode);
