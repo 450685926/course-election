@@ -152,6 +152,8 @@ public class ElecYjsController
         logger.info("election getAllCourse start !!!");
         
         Session session = SessionUtils.getCurrentSession();
+        
+        logger.info("======================/round/arrangementCourses========11111=========: "+session.getCurrentManageDptId());
         allCourseVo.setProjectId(session.getCurrentManageDptId());
         
         /** 学生 */
@@ -165,6 +167,7 @@ public class ElecYjsController
         
         RestResult<Student> studentMessage = new RestResult<Student>();
         if (isStudent) {
+        	logger.info("============/round/arrangementCourses====22222===: "+session.realUid());
         	studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
 		}else if (isAdmin || isDepartAdmin) {
 			studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getStudentCode());
