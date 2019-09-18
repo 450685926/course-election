@@ -167,7 +167,6 @@ public class ElecYjsController
         
         RestResult<Student> studentMessage = new RestResult<Student>();
         if (isStudent) {
-        	logger.info("============/round/arrangementCourses====22222===: "+session.realUid());
         	studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
 		}else if (isAdmin || isDepartAdmin) {
 			studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getStudentCode());
