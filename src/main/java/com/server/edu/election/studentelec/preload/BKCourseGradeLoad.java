@@ -503,6 +503,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         	List<String> findNamesByTeachingClassId = teacherDao.findNamesByTeachingClassId(teachClassId);
         	Set<String> names = new HashSet<>(findNamesByTeachingClassId);
         	teacherName = StringUtils.join(names, ",");
+        	c.setTeacherName(teacherName);
         }
         
         return null;
