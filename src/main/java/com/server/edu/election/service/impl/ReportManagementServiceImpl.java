@@ -535,15 +535,12 @@ public class ReportManagementServiceImpl implements ReportManagementService
     {
         RollBookConditionDto rollBookConditionDto = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
-        Page<RollBookList> bookList  =  null;
         if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin()) {
             rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
-            bookList =  courseTakeDao.findTeachingClass(condition.getCondition());
         }else if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
                 && !session.isAdmin() && session.isAcdemicDean()) {
             rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
             rollBookConditionDto.setFaculty(session.getFaculty());
-            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
         }else if (session.isTeacher()) {
             Set<String> dptIds = session.getManageDptIds();
             if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
@@ -551,9 +548,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 rollBookConditionDto.setProjectId(manageDptId);
             }
             rollBookConditionDto.setTeacherCode(session.realUid());
-            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
         }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<RollBookList> bookList = courseTakeDao.findTeachingClass(rollBookConditionDto);
         if (CollectionUtil.isNotEmpty(bookList))
         {
             List<RollBookList> result = bookList.getResult();
