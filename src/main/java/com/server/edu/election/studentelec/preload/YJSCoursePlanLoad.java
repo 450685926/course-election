@@ -1,8 +1,10 @@
 package com.server.edu.election.studentelec.preload;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +55,13 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
     public void load(ElecContext context)
     {
         StudentInfoCache stu = context.getStudentInfo();
-        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(stu.getStudentId());
+        List<PlanCourseDto> courseType = new ArrayList<PlanCourseDto>();
+        if (StringUtils.equalsIgnoreCase(context.getStudentInfo().getManagerDeptId(), "4")) {
+        	courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(stu.getStudentId());
+		}else{
+			courseType = CultureSerivceInvoker.findCourseTypeForGradute(stu.getStudentId());
+		}
+        
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
@@ -73,7 +81,11 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                         Long label = planCourseTypeDto.getLabelId();
                         String labelName = null;
                         if (label != null) {
-                        	labelName  = courseDao.getCourseLabelName(label);
+                        	if (label == 999999) {
+                        		labelName  = "跨院系或跨门类";
+							}else{
+								labelName  = courseDao.getCourseLabelName(label);
+							}
                         }
                         pl.setSemester(planCourseTypeDto.getSemester());
                         pl.setWeekType(planCourseTypeDto.getWeekType());
