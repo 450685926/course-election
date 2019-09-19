@@ -23,12 +23,15 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.entity.Classroom;
+import com.server.edu.common.entity.ClassroomN;
+import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.validator.Assert;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
 import com.server.edu.election.dao.ElcClassEditAuthorityDao;
@@ -62,7 +65,6 @@ import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter;
@@ -80,6 +82,7 @@ import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
+
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -153,8 +156,67 @@ public class ElcResultServiceImpl implements ElcResultService
     {
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
-        Page<TeachingClassVo> listPage = new Page<TeachingClassVo>();
-        if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
+        Page<TeachingClassVo> listPage = null;
+        listPage = getListPage(condition, listPage);
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+    		// 添加教室容量
+    		Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
+    		List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
+            for(TeachingClassVo vo: list) {
+        	    //拼装教师
+                getTeacgerName(vo);
+                //获得男女比例
+            	getProportion(condition, vo);
+            	vo.setClassNumberStr("不限");
+            	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+            		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+    				if(classroom!=null && classroom.getClassCapacity()!=null) {
+    					vo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
+    				}
+    			}
+            	// 处理教学安排（上课时间地点）信息
+				List<TimeAndRoom> tableMessages = getTimeById(vo.getId());
+				vo.setTimeTableList(tableMessages);
+            }
+        }
+        return new PageResult<>(listPage);
+    }
+
+	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
+		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
+			String boy = "无";
+			if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
+				boy = vo.getNumberMale().toString();
+			}
+			String girl = "无";
+			if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
+				girl = vo.getNumberFemale().toString();
+			}
+			String proportion = boy +"/" +girl;
+			vo.setProportion(proportion);
+		}
+	}
+
+	private void getTeacgerName(TeachingClassVo vo) {
+		if(StringUtils.isNotBlank(vo.getTeacherCodes())) {
+			List<Teacher> teachers = TeacherCacheUtil.getTeachers(vo.getTeacherCodes());
+		     	if(CollectionUtil.isNotEmpty(teachers)) {
+		     		StringBuilder stringBuilder = new StringBuilder();
+		    		for(Teacher teacher:teachers) {
+		    			stringBuilder.append(teacher.getName());
+		    			stringBuilder.append("(");
+		    			stringBuilder.append(teacher.getCode());
+		    			stringBuilder.append(")");
+		    			stringBuilder.append(",");
+		    		}
+		    		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+				}
+		    }
+	}
+
+	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage) {
+		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
         		int mode = TableIndexUtil.getMode(condition.getCalendarId());
         		condition.setMode(mode);
@@ -183,63 +245,9 @@ public class ElcResultServiceImpl implements ElcResultService
         		listPage = classDao.listPage(condition);
 			}
 		}
-		// 添加教室容量
-		Set<String> roomIds = listPage.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
-		List<Classroom> classroomList = ClassroomCacheUtil.getList(roomIds);
-        List<TeachingClassVo> list = listPage.getResult();
-        if(CollectionUtil.isNotEmpty(list)) {
-        	List<TeachingClassTeacher> teacherList = getTeachingTeachers(list);
-            for(TeachingClassVo vo: list) {
-            	if(CollectionUtil.isNotEmpty(teacherList)) {
-                	List<TeachingClassTeacher> teachers = teacherList.stream().filter(c->vo.getId().equals(c.getTeachingClassId())).collect(Collectors.toList());
-                	StringBuilder stringBuilder = new StringBuilder();
-                	if(CollectionUtil.isNotEmpty(teachers)) {
-                		for(TeachingClassTeacher teacher:teachers) {
-                			stringBuilder.append(teacher.getTeacherName());
-                			stringBuilder.append("(");
-                			stringBuilder.append(teacher.getTeacherCode());
-                			stringBuilder.append(")");
-                			stringBuilder.append(",");
-                		}
-                		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
-                	}
-                	if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-                		String boy = "无";
-                		if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
-                			boy = vo.getNumberMale().toString();
-                		}
-                		String girl = "无";
-                		if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
-                			girl = vo.getNumberFemale().toString();
-                		}
-                		String proportion = boy +"/" +girl;
-                		vo.setProportion(proportion);
-                		
-                	}
-                	vo.setClassNumberStr("不限");
-                	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
-        				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
-        				if(classroom!=null && classroom.getClassNumber()!=null) {
-        					vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-        				}
-        			}
-            	}
-            }
-            // 处理教学安排（上课时间地点）信息
-            getTimeList(list);
-        }
-        return new PageResult<>(listPage);
-    }
-    
-    // 查找任课教师信息
-	private List<TeachingClassTeacher> getTeachingTeachers(List<TeachingClassVo> list) {
-		List<Long>  classIds = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
-		Example teacherExample = new Example(TeachingClassTeacher.class);
-		teacherExample.createCriteria().andIn("teachingClassId", classIds).
-		        andEqualTo("type",Constants.TEACHER_DEFAULT);
-		List<TeachingClassTeacher> teacherList = teacherDao.selectByExample(teacherExample);
-		return teacherList;
+		return listPage;
 	}
+    
     
     @Override
     public PageResult<TeachingClassVo> graduatePage(
@@ -263,21 +271,19 @@ public class ElcResultServiceImpl implements ElcResultService
 		roomIds.clear();
 		roomIds.addAll(set);
 		
-		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
-		List<Classroom> classroomList = queryAllClassRoom.getData();
-		
-		for (TeachingClassVo teachingClassVo : listPage) {
-			if (StringUtils.isBlank(teachingClassVo.getRoomId()) || 
-					StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
-				teachingClassVo.setClassNumberStr("不限");
-			}else {
-				for (Classroom classroom : classroomList) {
-					if (classroom != null && StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
-						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-					}
-				}
-			}
-		}
+        List<ClassroomN> classroomList = null;
+        classroomList = CollectionUtil.isEmpty(roomIds)?ClassroomCacheUtil.getAll():ClassroomCacheUtil.getList(roomIds);
+        for (TeachingClassVo teachingClassVo : listPage) {
+        	teachingClassVo.setClassNumberStr("不限");
+        	if(CollectionUtil.isNotEmpty(classroomList) 
+        			&& StringUtils.isNotBlank(teachingClassVo.getRoomId()) 
+        			&& !StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
+        		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->teachingClassVo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        		if(classroom!=null && classroom.getClassCapacity()!=null) {
+        			teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
+        		}
+        	}
+        }
         
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
@@ -395,7 +401,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
 			}
 		}
-    	
+    	Assert.notNull(teachingClassVo.getCalendarId(), "学期不能为空");
     	Session session = SessionUtils.getCurrentSession();
     	Example example = new Example(ElcClassEditAuthority.class);
     	Example.Criteria criteria = example.createCriteria();
