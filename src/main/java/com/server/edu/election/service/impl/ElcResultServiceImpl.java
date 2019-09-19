@@ -171,7 +171,10 @@ public class ElcResultServiceImpl implements ElcResultService
                 //获得男女比例
             	getProportion(condition, vo);
             	vo.setClassNumberStr("不限");
-            	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+            	if(CollectionUtil.isNotEmpty(classroomList) 
+            			&& StringUtils.isNotBlank(vo.getRoomId()) 
+            			&& !StringUtils.equals(vo.getRoomId(),String.valueOf(Constants.ZERO))) {
+            	//if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
             		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
     				if(classroom!=null && classroom.getClassCapacity()!=null) {
     					vo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
@@ -273,21 +276,19 @@ public class ElcResultServiceImpl implements ElcResultService
 		roomIds.clear();
 		roomIds.addAll(set);
 		
-		RestResult<List<Classroom>> queryAllClassRoom = BaseresServiceInvoker.queryAllClassRoom(roomIds);
-		List<Classroom> classroomList = queryAllClassRoom.getData();
-		
-		for (TeachingClassVo teachingClassVo : listPage) {
-			if (StringUtils.isBlank(teachingClassVo.getRoomId()) || 
-					StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
-				teachingClassVo.setClassNumberStr("不限");
-			}else {
-				for (Classroom classroom : classroomList) {
-					if (classroom != null && StringUtils.equals(String.valueOf(classroom.getId().longValue()), teachingClassVo.getRoomId())) {
-						teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
-					}
-				}
-			}
-		}
+        List<ClassroomN> classroomList = null;
+        classroomList = CollectionUtil.isEmpty(roomIds)?ClassroomCacheUtil.getAll():ClassroomCacheUtil.getList(roomIds);
+        for (TeachingClassVo teachingClassVo : listPage) {
+        	teachingClassVo.setClassNumberStr("不限");
+        	if(CollectionUtil.isNotEmpty(classroomList) 
+        			&& StringUtils.isNotBlank(teachingClassVo.getRoomId()) 
+        			&& !StringUtils.equals(teachingClassVo.getRoomId(),String.valueOf(Constants.ZERO))) {
+        		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->teachingClassVo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+        		if(classroom!=null && classroom.getClassCapacity()!=null) {
+        			teachingClassVo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
+        		}
+        	}
+        }
         
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
