@@ -24,6 +24,7 @@ import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.Classroom;
+import com.server.edu.common.entity.ClassroomN;
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
@@ -163,7 +164,7 @@ public class ElcResultServiceImpl implements ElcResultService
         if(CollectionUtil.isNotEmpty(list)) {
     		// 添加教室容量
     		Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
-    		List<Classroom> classroomList = ClassroomCacheUtil.getList(roomIds);
+    		List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
             for(TeachingClassVo vo: list) {
         	    //拼装教师
                 getTeacgerName(vo);
@@ -171,9 +172,9 @@ public class ElcResultServiceImpl implements ElcResultService
             	getProportion(condition, vo);
             	vo.setClassNumberStr("不限");
             	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
-    				Classroom classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
-    				if(classroom!=null && classroom.getClassNumber()!=null) {
-    					vo.setClassNumberStr(String.valueOf(classroom.getClassNumber()));
+            		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+    				if(classroom!=null && classroom.getClassCapacity()!=null) {
+    					vo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
     				}
     			}
             	// 处理教学安排（上课时间地点）信息
