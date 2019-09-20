@@ -711,14 +711,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
         List<TimeTableMessage> timeTableMessages = courseTakeDao.findClassTimeAndRoomById(teachingClassId);
         // 最大周集合
         List<Integer> number=new ArrayList<>();
-        Set<Integer> days =new HashSet<>();
+//        Set<Integer> days =new HashSet<>();
         if (CollectionUtil.isNotEmpty(timeTableMessages)) {
             for (TimeTableMessage timeTableMessage : timeTableMessages) {
                 Integer dayOfWeek = timeTableMessage.getDayOfWeek();
                 if (dayOfWeek == null) {
                     continue;
                 }
-                days.add(dayOfWeek);
+//                days.add(dayOfWeek);
                 Integer timeStart = timeTableMessage.getTimeStart();
                 Integer timeEnd = timeTableMessage.getTimeEnd();
                 String weekNumber = timeTableMessage.getWeekNum();
@@ -742,11 +742,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
             max = Collections.max(number);
         }
         pre.setRowNumber(max);
-        int size = days.size();
-        if (size < 1) {
-            size = 1;
-        }
-        pre.setLineNumber(size);
+//        int size = days.size();
+//        if (size < 1) {
+//            size = 1;
+//        }
+        pre.setLineNumber(1);
         return pre;
     }
 
