@@ -1125,9 +1125,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 Long teachingClassId = elcCourseTakeVo.getTeachingClassId();
                 List<String> arr = arrangeMap.get(teachingClassId);
                 List<TeachingClassCache> teachingClassCaches = map.get(teachingClassId);
-                Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
-                String teacherName = String.join(",",set);
-                elcCourseTakeVo.setTeachingName(teacherName);
+                if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                    Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                    String teacherName = String.join(",",set);
+                    elcCourseTakeVo.setTeachingName(teacherName);
+                }
                 if (CollectionUtil.isNotEmpty(arr)) {
                     elcCourseTakeVo.setCourseArrange(String.join(",", arr));
                 }
