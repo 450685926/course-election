@@ -818,8 +818,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String keyword = courseTakeQuerytudentVo.getKeyword();
         // 获取学生所有已修课程成绩
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-        //通过在职研究生培养计划获取学生所有需要修读的课程
-        List<PlanCourseDto> courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(studentId);
+        Session session = SessionUtils.getCurrentSession();
+        String currentManageDptId = session.getCurrentManageDptId();
+        List<PlanCourseDto> courseType;
+        if ("2".equals(currentManageDptId)) {
+            //通过普研培养计划获取学生所有需要修读的课程
+            courseType = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
+        } else {
+            //通过在职研究生培养计划获取学生所有需要修读的课程
+            courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(studentId);
+        }
         if (CollectionUtil.isEmpty(courseType)) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.planCultureError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
@@ -844,8 +852,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         if (CollectionUtil.isEmpty(elcCourses)) {
             return new PageResult<>(elcStudentVos);
         }
-        Session session = SessionUtils.getCurrentSession();
-        String currentManageDptId = session.getCurrentManageDptId();
+
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         if (StringUtils.equals(session.getCurrentRole(), "1") && session.isAdmin()) {
             elcStudentVos = courseTakeDao.findAddCourseList(elcCourses, calendarId, keyword, currentManageDptId);
@@ -978,7 +985,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             String courseCode = elcStudentVo.getCourseCode();
             elcCourseTake.setCourseCode(courseCode);
             elcCourseTake.setTeachingClassId(elcStudentVo.getTeachingClassId());
-            elcCourseTake.setMode(2);
+            elcCourseTake.setMode(1);
             elcCourseTake.setChooseObj(chooseObj);
             elcCourseTake.setCreatedAt(new Date());
             elcCourseTake.setTurn(0);
@@ -1242,7 +1249,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             String courseCode = elcStudentVo.getCourseCode();
             elcCourseTake.setCourseCode(courseCode);
             elcCourseTake.setTeachingClassId(elcStudentVo.getTeachingClassId());
-            elcCourseTake.setMode(2);
+            elcCourseTake.setMode(1);
             elcCourseTake.setChooseObj(chooseObj);
             elcCourseTake.setCreatedAt(new Date());
             elcCourseTake.setTurn(0);
