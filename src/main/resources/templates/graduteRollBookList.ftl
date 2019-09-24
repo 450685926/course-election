@@ -181,7 +181,7 @@
             <Column ss:AutoFitWidth="0" ss:Width="27.75"/>
             <Column ss:AutoFitWidth="0" ss:Width="21.75" ss:Span="16"/>
             <Row ss:Height="18.75">
-                <Cell ss:MergeAcross="18" ss:StyleID="s91"><Data ss:Type="String">${calendar}</Data></Cell>
+                <Cell ss:MergeAcross="20" ss:StyleID="s91"><Data ss:Type="String">${calendar}</Data></Cell>
                 <Cell ss:StyleID="s41"/>
                 <Cell ss:StyleID="s41"/>
             </Row>

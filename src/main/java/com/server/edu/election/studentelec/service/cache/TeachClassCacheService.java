@@ -102,8 +102,11 @@ public class TeachClassCacheService extends AbstractCacheService
         PageInfo<CourseOpenDto> page = new PageInfo<>();
         SchoolCalendarVo schoolCalendar =
             BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        //获取学历年
-        String year = schoolCalendar.getYear() + "";
+        String year = "";
+        if (schoolCalendar != null) {
+        	//获取学历年
+        	year = schoolCalendar.getYear() + "";
+		}
         page.setNextPage(1);
         page.setHasNextPage(true);
         while (page.isHasNextPage())
@@ -224,9 +227,19 @@ public class TeachClassCacheService extends AbstractCacheService
                     .stream()
                     .map(Integer::parseInt)
                     .collect(Collectors.toList());
+                String oneCycle = "[1, 3, 5, 7, 9, 11, 13, 15, 17]";
+                String biweekly = "[2, 4, 6, 8, 10, 12, 14, 16]";
+                String allweekly = "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]";
                 List<String> weekNums =
                     CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
                 String weekNumStr = weekNums.toString();//周次
+                if (StringUtils.equalsIgnoreCase(oneCycle, weekNumStr)) {
+                	weekNumStr = "单周";
+				}else if (StringUtils.equalsIgnoreCase(biweekly, weekNumStr)) {
+					weekNumStr = "双周";
+				}else if (StringUtils.equalsIgnoreCase(allweekly, weekNumStr)) {
+					weekNumStr = "单双周[1-17]";
+				}
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr = weekstr + " " + timeStart + "-" + timeEnd + " "
                     + weekNumStr + " ";
