@@ -169,10 +169,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 //获得男女比例
             	getProportion(condition, vo);
             	vo.setClassNumberStr("不限");
-            	if(CollectionUtil.isNotEmpty(classroomList) 
-            			&& StringUtils.isNotBlank(vo.getRoomId()) 
-            			&& !StringUtils.equals(vo.getRoomId(),String.valueOf(Constants.ZERO))) {
-            	//if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+            	if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
             		ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
     				if(classroom!=null && classroom.getClassCapacity()!=null) {
     					vo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
