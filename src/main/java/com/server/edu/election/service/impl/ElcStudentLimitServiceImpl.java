@@ -16,7 +16,6 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcStudentLimitDao;
 import com.server.edu.election.dao.StudentDao;
@@ -43,8 +42,6 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	private StudentDao studentDao;
 	@Autowired
 	private ElcStudentLimitDao elcStudentLimitDao;
-	@Autowired
-	private DictionaryService dictionaryService;
 	@Override
 	public PageInfo<Student> getUnLimitStudents(PageCondition<StudentDto> condition) {
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());

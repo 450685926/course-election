@@ -18,7 +18,9 @@ public class TimeTable implements Serializable{
     private Integer timeStart;
     private Integer timeEnd;
     private String value;
-    
+    //教学班id，课程冲突使用
+    private String id;
+
     private String courseCode;
     private String courseName;
     private String teacherName;
@@ -26,6 +28,14 @@ public class TimeTable implements Serializable{
     
     @Code2Text(transformer = "X_XQ")
     private String campus;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getCampus() {
         return campus;

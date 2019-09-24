@@ -785,7 +785,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		
 		list2.sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));
 		
-		
 		List<ElcCourseTakeNameListVo> nameList = new ArrayList<>();
     	for (ElcCourseTakeVo elcCourseTakeVo : list2) {
     		ElcCourseTakeNameListVo elcCourseTakeNameListVo = new ElcCourseTakeNameListVo();
