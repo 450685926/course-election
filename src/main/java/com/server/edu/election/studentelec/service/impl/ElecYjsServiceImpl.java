@@ -515,7 +515,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<SelectedCourse> sortSelectedCourses = sortSelectedCourses(selectedCoursess);
         Set<SelectedCourse> selectedCourseTreeSet = new LinkedHashSet<>(sortSelectedCourses);
         
-        long start1 = System.currentTimeMillis();
         //已完成课程组装
     	for (CompletedCourse completedCourse : setCompletedCourses) {
 			for (PlanCourse planCourse : planCourses) {
@@ -530,10 +529,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				completedCourse.setLabelName(dict);
 			}
 		}
-    	long start2 = System.currentTimeMillis();
-    	LOG.info("================setData=================completedCourse===============:" + (start2-start1)+"ms");
     	//失败课程组装
-        long start3 = System.currentTimeMillis();
     	for (CompletedCourse failedCourse : failedCourses) {
     		for (PlanCourse planCourse : planCourses) {
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), failedCourse.getCourseCode())) {
@@ -547,8 +543,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				failedCourse.setLabelName(dict);
 			}
 		}
-        long start4 = System.currentTimeMillis();
-    	LOG.info("================setData=================failedCourses===============:" + (start4-start3)+"ms");
+        
     	List<ElcCourseResult> setOptionalCourses = new ArrayList<>();
         //从缓存中拿到本轮次排课信息
         HashOperations<String, String, String> ops = strTemplate.opsForHash();
@@ -589,23 +584,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		}
 			if (isPlanElection) {
 				//培养计划与排课信息的交集（中间变量）
-				long start5 = System.currentTimeMillis();
 				List<PlanCourse> optionalCourses = getOptionalCourses(c, planCourses, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
-				long start6 = System.currentTimeMillis();
-		    	LOG.info("================setData=================optionalCourses===============:" + (start6-start5)+"ms");
 				for (PlanCourse completedCourse : optionalCourses)
 			       {
 			           List<TeachingClassCache> teachClasss = dataProvider.getTeachClasss(roundId,
 			                   completedCourse.getCourseCode());
-			           long start7 = System.currentTimeMillis();
 			           if (isCampus) {
 			        	   List<TeachingClassCache> exclusionOfCampus = exclusionOfCampus(teachClasss,c);
 			        	   teachClasss.clear();
 			        	   teachClasss.addAll(exclusionOfCampus);
 			           }
-			           long start8 = System.currentTimeMillis();
-			           LOG.info("================setData=================exclusionOfCampus===============:" + (start8-start7)+"ms");
-			           long start9 = System.currentTimeMillis();
 			           if (CollectionUtil.isNotEmpty(teachClasss))
 			           {
 			               for (TeachingClassCache teachClass : teachClasss)
@@ -641,8 +629,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   setOptionalCourses.add(elcCourseResult);
 			               }
 			           }
-			           long start10 = System.currentTimeMillis();
-			           LOG.info("================setData=================exclusionOfCampus===============:" + (start10-start9)+"ms");
 			       }
 			}else{
 				List<String> optionalCourses = getOptionalCourses2(c, setCompletedCourses, selectedCourseTreeSet, roundsCoursesIdsList);
@@ -749,14 +735,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			
 			}
 		}
-        long start17 = System.currentTimeMillis();
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
-        long start18 = System.currentTimeMillis();
-        LOG.info("================setData=================sortOptionalCourses===============:" + (start18-start17)+"ms");
-        long start19 = System.currentTimeMillis();
         List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
-        long start20 = System.currentTimeMillis();
-        LOG.info("================setData=================takenCourse===============:" + (start20-start19)+"ms");
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
@@ -1426,17 +1406,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         /** 调用培养：培养方案的课程分类学分 */
         String culturePath = ServicePathEnum.CULTURESERVICE
             .getPath("/studentCultureRel/getCultureMsg/{studentId}");
-        long start11 = System.currentTimeMillis();
         RestResult<Map<String, Object>> restResult =
             restTemplate.getForObject(culturePath, RestResult.class, studentId);
-        long start12 = System.currentTimeMillis();
-        LOG.info("================getAdminElectResultCount=================restResult===============:" + (start12-start11)+"ms");
+        
         //获取当前已经完成的课程
         Set<PlanCourse> planCourse = c.getPlanCourses();
         Set<CompletedCourse> completedCourses = c.getCompletedCourses();
         
         //获取本学期已选课程
-        long start13 = System.currentTimeMillis();
         Set<SelectedCourse> thisSelectedCourses = c.getSelectedCourses();
         for (SelectedCourse selectedCourse : thisSelectedCourses)
         {
@@ -1453,8 +1430,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 }
             }
         }
-        long start14 = System.currentTimeMillis();
-        LOG.info("================getAdminElectResultCount=================thisSelectedCourses===============:" + (start14-start13)+"ms");
         LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG");
         Map<String, Object> minNumMap = new HashMap<String, Object>();
         Map<String, Object> courseNumMap = new HashMap<String, Object>();
@@ -1502,7 +1477,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             Integer courseNum = 0;
             //已完成学分
             Double sumCredits = 0.0;
-            long start15 = System.currentTimeMillis();
             for (CompletedCourse completedCourse : completedCourses)
             {
                 if (completedCourse != null)
@@ -1525,13 +1499,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     }
                 }
             }
-            long start16 = System.currentTimeMillis();
-            LOG.info("================getAdminElectResultCount=================thisSelectedCourses===============:" + (start16-start15)+"ms");
             //统计本次选课门数
             Integer thisTimecourseNum = 0;
             //统计本次选课学分
             Double thisTimeSumCredits = 0.0;
-            long start17 = System.currentTimeMillis();
             for (SelectedCourse thisSelected : thisSelectedCourses)
             {
                 
@@ -1541,8 +1512,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                     thisTimeSumCredits += thisSelected.getCredits();
                 }
             }
-            long start18 = System.currentTimeMillis();
-            LOG.info("================getAdminElectResultCount=================thisSelectedCourses===============:" + (start18-start17)+"ms");
             map.put("courseNum", courseNum + thisTimecourseNum);
             map.put("sumCredits", sumCredits + thisTimeSumCredits);
             map.put("thisTimeSumCredits", thisTimeSumCredits.doubleValue());
