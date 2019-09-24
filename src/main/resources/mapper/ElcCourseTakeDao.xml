@@ -1031,6 +1031,7 @@
         op.COURSE_CODE_ courseCode,
         op.COURSE_NAME_ courseName,
         op.NATURE_ nature,
+        op.FACULTY_ faculty,
         tc.ID_ teachingClassId
         from course_open_t op
         join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_

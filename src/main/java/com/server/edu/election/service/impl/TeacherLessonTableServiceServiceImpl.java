@@ -142,7 +142,7 @@ public class TeacherLessonTableServiceServiceImpl
         for (ClassCodeToTeacher codeToTeacher : teacherTimeTable) {
             TeachingClassTeacherVo teachingClassTeacherVo = map.get(codeToTeacher.getTeacherCode());
             codeToTeacher.setSex(teachingClassTeacherVo.getSex());
-            codeToTeacher.setFaculty(teachingClassTeacherVo.getFaculty());
+//            codeToTeacher.setFaculty(teachingClassTeacherVo.getFaculty());
         }
         return new PageResult<ClassCodeToTeacher>(teacherTimeTable);
     }
