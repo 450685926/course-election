@@ -523,7 +523,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					completedCourse.setCourseLabelId(planCourse.getLabel());
 				}
 			}
-			if (completedCourse.getCourseLabelId() == null) {
+			if (completedCourse.getCourseLabelId() == null || StringUtils.isEmpty(completedCourse.getLabelName())) {
 				String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),completedCourse.getNature());
 				completedCourse.setCourseLabelId(Long.parseLong(completedCourse.getNature()));
 				completedCourse.setLabelName(dict);
@@ -537,7 +537,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					failedCourse.setCourseLabelId(planCourse.getLabel());
 				}
 			}
-    		if (failedCourse.getCourseLabelId() == null) {
+    		if (failedCourse.getCourseLabelId() == null  || StringUtils.isEmpty(failedCourse.getLabelName())) {
 				String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),failedCourse.getNature());
 				failedCourse.setCourseLabelId(Long.parseLong(failedCourse.getNature()));
 				failedCourse.setLabelName(dict);
