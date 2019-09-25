@@ -51,6 +51,17 @@ public class StudentSchoolTimetab  {
      */
     private Integer isElective;
 
+    // 是否必修课，1是，0或者null否
+    private String compulsory;
+
+    public String getCompulsory() {
+        return compulsory;
+    }
+
+    public void setCompulsory(String compulsory) {
+        this.compulsory = compulsory;
+    }
+
     public String getTeacherCode() {
         return teacherCode;
     }
