@@ -11,7 +11,10 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -296,10 +299,21 @@ public class ReportManagementServiceImpl implements ReportManagementService
             }
             List<TimeTable> timtable = getTimtable(list);
             timetabVo.setTimeTables(timtable);
-//            timetabVo.setTimeTables(list);
+            List<PlanCourseDto> planCourseDtos = CultureSerivceInvoker.findCourseTypeForGraduteExemption(studentCode);
+            List<PlanCourseTypeDto> planCourseTypeList = new ArrayList<>(50);
+            for (PlanCourseDto planCourseDto : planCourseDtos) {
+                List<PlanCourseTypeDto> planCourseTypeDtos = planCourseDto.getList();
+                planCourseTypeList.addAll(planCourseTypeDtos);
+            }
+            Map<String, PlanCourseTypeDto> planCourseTypeDtoMap = planCourseTypeList.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, s->s));
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
+                }
+                String courseCode = studentSchoolTimetab.getCourseCode();
+                PlanCourseTypeDto planCourseTypeDto = planCourseTypeDtoMap.get(courseCode);
+                if (planCourseTypeDto != null) {
+                    studentSchoolTimetab.setCompulsory(planCourseTypeDto.getCompulsory());
                 }
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
                 studentSchoolTimetab.setTeacherName(map.get(teachingClassId));
