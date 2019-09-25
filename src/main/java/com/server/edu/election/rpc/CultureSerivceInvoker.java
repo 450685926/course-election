@@ -250,7 +250,7 @@ public class CultureSerivceInvoker
     	return list.getData();
     }
     
-
+    /**普研查询培养计划课程 */
 	public static List<PlanCourseDto> findCourseTypeForGradute(String studentId) {
 		@SuppressWarnings("unchecked")
     	RestResult<List<PlanCourseDto>> list = ServicePathEnum.CULTURESERVICE
