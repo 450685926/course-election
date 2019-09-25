@@ -401,20 +401,24 @@ public class ElcResultServiceImpl implements ElcResultService
 				throw new ParameterValidateException(I18nUtil.getMsg("election.classNumber.error")); 
 			}
 		}
-    	Assert.notNull(teachingClassVo.getCalendarId(), "学期不能为空");
-    	Session session = SessionUtils.getCurrentSession();
-    	Example example = new Example(ElcClassEditAuthority.class);
-    	Example.Criteria criteria = example.createCriteria();
-    	criteria.andEqualTo("calendarId", teachingClassVo.getCalendarId());
-    	criteria.andEqualTo("status", Constants.ZERO);
-    	ElcClassEditAuthority editAuthority =elcClassEditAuthorityDao.selectOneByExample(example);
     	
-    	if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
-    			&& !session.isAdmin() 
-    			&& session.isAcdemicDean()
-    			&& editAuthority!=null) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority")); 
+    	Session session = SessionUtils.getCurrentSession();
+    	if(StringUtils.equals(session.getCurrentManageDptId(), Constants.PROJ_UNGRADUATE)) {
+    		Assert.notNull(teachingClassVo.getCalendarId(), "学期不能为空");
+    		Example example = new Example(ElcClassEditAuthority.class);
+    		Example.Criteria criteria = example.createCriteria();
+    		criteria.andEqualTo("calendarId", teachingClassVo.getCalendarId());
+    		criteria.andEqualTo("status", Constants.ZERO);
+    		ElcClassEditAuthority editAuthority =elcClassEditAuthorityDao.selectOneByExample(example);
+    		
+    		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+    				&& !session.isAdmin() 
+    				&& session.isAcdemicDean()
+    				&& editAuthority!=null) {
+    			throw new ParameterValidateException(I18nUtil.getMsg("election.noClassEditAuthority")); 
+    		}
     	}
+    	
         TeachingClass record = new TeachingClass();
         record.setId(teachingClassVo.getId());
         record.setNumber(teachingClassVo.getNumber());
