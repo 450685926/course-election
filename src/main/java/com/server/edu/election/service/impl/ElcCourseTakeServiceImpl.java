@@ -535,7 +535,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	public void graduateWithdraw(ElcCourseTakeWithDrawDto value,String currentRole, boolean adminFlag, String projId) {
     	
     	Date date = new Date();
-    	//如果当前操作人是老师
+    	//如果当前操作人是教务员
         if ("1".equals(currentRole)&&!adminFlag)
         {
         	//判断选课结果开关状态
@@ -558,6 +558,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
         }
         List<ElcCourseTake> values = new ArrayList<ElcCourseTake>();
+        List<String> students = ScoreServiceInvoker.findCourseHaveScore2(value.getCourseCode(), value.getCalendarId(), value.getStudents());
+        if (CollectionUtil.isNotEmpty(students)) {
+            throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.removeCourseError2",String.join(",",students))));
+        }
         for (String studentId : value.getStudents()) {
         	ElcCourseTake elcCourseTake = new ElcCourseTake();
         	elcCourseTake.setStudentId(studentId);
@@ -566,6 +570,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         	elcCourseTake.setTeachingClassId(value.getTeachingClassId());
         	values.add(elcCourseTake);
 		}
+        //
         this.graduateWithdrawCourse(values);
 	}
     @Transactional
