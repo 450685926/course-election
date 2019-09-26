@@ -1016,11 +1016,20 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Transactional
     public Integer removedCourse(List<ElcCourseTake> value) {
         Session session = SessionUtils.getCurrentSession();
-        // 验证选课维护开关状态
-        getChooseObj(session, value.get(0).getCalendarId());
-
-        int count = courseTakeDao.deleteByCourseTask(value);
+        // 查询退课
+        ElcCourseTake courseTake = value.get(0);
+        Long calendarId = courseTake.getCalendarId();
+        String studentId = courseTake.getStudentId();
         List<Long> teachingClassIds = value.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
+        List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
+        List<String> courseCodes = elcStudentVos.stream().map(ElcStudentVo::getCourseCode).collect(Collectors.toList());
+        List<String> courses = ScoreServiceInvoker.findCourseHaveScore(studentId, calendarId, courseCodes);
+        if (CollectionUtil.isNotEmpty(courses)) {
+            throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.removeCourseError",String.join(",",courses))));
+        }
+        // 验证选课维护开关状态
+        getChooseObj(session, calendarId);
+        int count = courseTakeDao.deleteByCourseTask(value);
         int delSize = teachingClassIds.size();
         if (delSize != count ) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.removedCourseError"));
@@ -1031,7 +1040,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.decrElcNumberError",teachingClassId + "")));
             }
         }
-        List<ElcStudentVo> elcStudentVos = courseTakeDao.findCourseInfo(teachingClassIds);
         int size = elcStudentVos.size();
         if (elcStudentVos.size() != delSize) {
             throw new ParameterValidateException(I18nUtil.getMsg("elcCourseUphold.teachingTaskError"));
