@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -426,6 +427,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             take.setCourseCode(courseCode);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
+//            List list  = new ArrayList<>();
+//            list.add(courseCode);
+            //查询本门课是否有成绩
+//            List<String> courses = ScoreServiceInvoker.findCourseHaveScore(studentId, take.getCalendarId(), list);
+//            if (CollectionUtil.isNotEmpty(courses)) {
+//            	respose.getFailedReasons()
+//                .put(teachClassId.toString(),
+//                    I18nUtil.getMsg("elcCourseUphold.removeCourseError"));
+//            return;
+//            }
             courseTakeDao.delete(take);
 
             int count = classDao.decrElcNumber(teachClassId);
@@ -781,12 +792,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		completedCourse.setFaculty(selectedCourse.getFaculty());
     		takenCourse.add(completedCourse);
 		}
-    	Map<Long, List<CompletedCourse>> collect = takenCourse.stream().collect(Collectors.groupingBy(CompletedCourse::getCourseLabelId));
-    	List<CompletedCourse> takenCourse2 = new ArrayList<>();
-    	for (Entry<Long, List<CompletedCourse>> entry : collect.entrySet()){
-    		takenCourse2.addAll(entry.getValue());
-    	}
-    	return takenCourse2;
+//    	Map<Long, List<CompletedCourse>> collect = takenCourse.stream().collect(Collectors.groupingBy(CompletedCourse::getCourseLabelId));
+//    	List<CompletedCourse> takenCourse2 = new ArrayList<>();
+//    	for (Entry<Long, List<CompletedCourse>> entry : collect.entrySet()){
+//    		takenCourse2.addAll(entry.getValue());
+//    	}
+    	
+    	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
+    	return takenCourse;
 	}
 
 	/**
@@ -909,7 +922,27 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		    	lastCourse.add(centerCourses);
 		    }
 		}
-		return lastCourse;
+		//去重成绩未通过的课程
+		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+		List<PlanCourse> courses = new ArrayList<>();
+		for (PlanCourse centerCourses : lastCourse)
+		{
+		    Boolean flag = true;
+		    for (CompletedCourse selectedCourseModel : failedCourse)
+		    {
+		        if (selectedCourseModel.getCourseCode()
+		            .equals(centerCourses.getCourseCode()))
+		        {
+		            flag = false;
+		            break;
+		        }
+		    }
+		    if (flag)
+		    {
+		    	courses.add(centerCourses);
+		    }
+		}
+		return courses;
 	}
 	
 	/** 不按培养计划选课 */
@@ -975,7 +1008,27 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				lastCourse.add(centerCourses);
 			}
 		}
-		return lastCourse;
+		//去重成绩未通过的课程
+		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+		List<String> courses = new ArrayList<>();
+		for (String centerCourses : lastCourse)
+		{
+		    Boolean flag = true;
+		    for (CompletedCourse selectedCourseModel : failedCourse)
+		    {
+		        if (selectedCourseModel.getCourseCode()
+						.equals(centerCourses))
+		        {
+		            flag = false;
+		            break;
+		        }
+		    }
+		    if (flag)
+		    {
+		    	courses.add(centerCourses);
+		    }
+		}
+		return courses;
 	}
 
     //课程code集合
@@ -1016,6 +1069,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), selected.getCourseCode())) {
 					 elcCourseResult.setLabel(planCourse.getLabel()+"");
 					 elcCourseResult.setLabelName(planCourse.getLabelName());
+					 elcCourseResult.setCompulsory(planCourse.getCompulsory());
 					 break;
 				}
 			}
@@ -1033,8 +1087,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             elcCourseResult.setCredits(selected.getCredits());
             elcCourseResult
                 .setCourseTakeType(selected.getCourseTakeType());
-            elcCourseResult
-                .setAssessmentMode(selected.getAssessmentMode());
+            String assessmentMode = selected.getAssessmentMode();
+            if (StringUtils.isNotEmpty(assessmentMode)) {
+            	String query = dictionaryService.query(DictTypeEnum.X_KSLX.getType(),assessmentMode);
+            	elcCourseResult
+            	.setAssessmentMode(query);
+			}
             elcCourseResult.setPublicElec(selected.isPublicElec());
             elcCourseResult.setCalendarId(selected.getCalendarId());
             elcCourseResult.setCalendarName(selected.getCalendarName());

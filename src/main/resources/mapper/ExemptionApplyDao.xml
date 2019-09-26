@@ -234,7 +234,7 @@
 		    and t2.ENROL_SEASON_= #{query.enrolSeason} 
 		</if>
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		    and t2.DEGREE_CATEGORY_= #{query.degreeType} 
+		    and t2.DEGREE_TYPE_= #{query.degreeType} 
 		</if>
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		    and t2.FORM_LEARNING_= #{query.formLearning} 
