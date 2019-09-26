@@ -271,6 +271,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             Long id = rebuildCourseVo.getTeachingClassId();
             List<Long> list = new ArrayList<>(1);
             list.add(id);
+            List<String> courseCodes = new ArrayList<>(1);
+            courseCodes.add(courseCode);
+            List<String> courses = ScoreServiceInvoker.findCourseHaveScore(studentId, calendarId, courseCodes);
+            if (CollectionUtil.isNotEmpty(courses)) {
+                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.removeCourseError",courses.get(0))));
+            }
             courseTakeDao.deleteCourseTask(list, studentId);
             teachingClassDao.decrElcNumber(teachingClassId);
             // 添加选课日志
