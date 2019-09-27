@@ -161,9 +161,9 @@ public class ScoreServiceInvoker {
     public static List<String> findCourseHaveScore2(String courseCode, Long calendarId, List<String> studentCodes)
     {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("studentCode", studentCodes);
+        jsonObject.put("studentCodes", studentCodes);
         jsonObject.put("calendarId", calendarId);
-        jsonObject.put("courseCodes", courseCode);
+        jsonObject.put("courseCode", courseCode);
         @SuppressWarnings("unchecked")
         List<String> list =
                 ServicePathEnum.SCORESERVICE.postForObject(
