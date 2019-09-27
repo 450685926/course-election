@@ -1087,12 +1087,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             elcCourseResult.setCredits(selected.getCredits());
             elcCourseResult
                 .setCourseTakeType(selected.getCourseTakeType());
-            String assessmentMode = selected.getAssessmentMode();
-            if (StringUtils.isNotEmpty(assessmentMode)) {
-            	String query = dictionaryService.query(DictTypeEnum.X_KSLX.getType(),assessmentMode);
-            	elcCourseResult
-            	.setAssessmentMode(query);
-			}
+            elcCourseResult.setAssessmentMode(selected.getAssessmentMode());
             elcCourseResult.setPublicElec(selected.isPublicElec());
             elcCourseResult.setCalendarId(selected.getCalendarId());
             elcCourseResult.setCalendarName(selected.getCalendarName());
