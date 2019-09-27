@@ -38,7 +38,7 @@ public class SelectedCourse extends TeachingClassCache
     
     private String labelName;
 
-    @Code2Text(transformer=" X_KSLX")
+    @Code2Text(transformer = "X_KSLX")
     private String assessmentMode;
     
     /**
