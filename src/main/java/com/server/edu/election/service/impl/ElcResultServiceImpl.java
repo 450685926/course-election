@@ -207,13 +207,17 @@ public class ElcResultServiceImpl implements ElcResultService
 		     	if(CollectionUtil.isNotEmpty(teachers)) {
 		     		StringBuilder stringBuilder = new StringBuilder();
 		    		for(Teacher teacher:teachers) {
-		    			stringBuilder.append(teacher.getName());
-		    			stringBuilder.append("(");
-		    			stringBuilder.append(teacher.getCode());
-		    			stringBuilder.append(")");
-		    			stringBuilder.append(",");
+		    			if(teacher!=null) {
+			    			stringBuilder.append(teacher.getName());
+			    			stringBuilder.append("(");
+			    			stringBuilder.append(teacher.getCode());
+			    			stringBuilder.append(")");
+			    			stringBuilder.append(",");
+		    			}
 		    		}
-		    		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+		    		if(stringBuilder.length()>Constants.ZERO) {
+			    		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+		    		}
 				}
 		    }
 	}
