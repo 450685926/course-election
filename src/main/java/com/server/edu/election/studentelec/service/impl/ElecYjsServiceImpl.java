@@ -355,6 +355,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
+        Map<String, String> failedReasons = respose.getFailedReasons();
         Date date = new Date();
         String studentId = stu.getStudentId();
         
@@ -385,6 +386,19 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
+        	Long calendarId = 0l;
+        	//查询学生选课记录
+        	if (round.getId() == null) { // 管理员代理选课
+        		 calendarId = request.getCalendarId();
+ 			} else {  // 学生选课 或者 教务员代理选课
+ 				 calendarId = round.getCalendarId();
+ 			}
+        	int findIsEletionCourse = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
+        	if (findIsEletionCourse != 0) {
+        		 failedReasons.put(String.format("%s",
+        				 courseCode), "已经选课");
+        		 return;
+			}
             int	count = classDao.increElcNumber(teachClassId);
             
             if (count == 0)
