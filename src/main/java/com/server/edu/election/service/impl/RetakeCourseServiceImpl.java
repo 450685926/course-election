@@ -252,6 +252,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             if (set.size() >= maxCount.intValue()) {
                 throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
             }
+            // 判断学生是否已经选过该门课程
+            int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
+            if (count != 0) {
+                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.repeatedError"));
+            }
             ElcCourseTake take = new ElcCourseTake();
             take.setStudentId(studentId);
             take.setCalendarId(calendarId);
