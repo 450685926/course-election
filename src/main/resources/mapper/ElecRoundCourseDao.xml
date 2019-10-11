@@ -88,6 +88,9 @@
   	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
   		and t3.COURSE_LABEL_ID_ = #{query.label}
   		</if>
+  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+  		and t1.NATURE_ = #{query.nature}
+  		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
   		and (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
   		</if>
