@@ -76,6 +76,7 @@
 	t1.REMARK_,
     t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
     t3.FACULTY_,
+    t3.NATURE_,
     GROUP_CONCAT(DISTINCT t7.`TEACHER_CODE_`) teacherCodes
     <if test="isHaveLimit !=null and isHaveLimit ==1">
 	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,
@@ -187,6 +188,7 @@
 	t1.REMARK_,
     t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
     t3.FACULTY_,
+    t3.NATURE_,
     label.LABEL_NAME_
     ,CASE WHEN t7.TURN_ = 1 THEN
     count(t7.ID_) END firstTurnNum,
