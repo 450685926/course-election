@@ -1675,7 +1675,6 @@
         ON t1.BILL_ID_ = t2.ID_
         JOIN student_t t3
         ON t1.`STUDENT_ID_` = t3.`STUDENT_CODE_`
-        LEFT JOIN
         JOIN `teaching_class_t` t5
         ON t1.`TEACHING_CLASS_ID_` = t5.`ID_`
         JOIN `teaching_task_t` t6
