@@ -1,8 +1,8 @@
 package com.server.edu.election.dto;
 
-import java.util.List;
-
 import com.server.edu.election.entity.ElcCourseTake;
+
+import java.util.List;
 
 public class StudentRebuildFeeDto extends ElcCourseTake {
     private static final long serialVersionUID = 1L;
@@ -25,8 +25,22 @@ public class StudentRebuildFeeDto extends ElcCourseTake {
     private Integer mode;
     
     private List<Long> ids;
-    
-    
+
+    /**
+     * @Description: 管理部门id
+     * @author kan yuanfeng
+     * @date 2019/10/15 14:39
+     */
+    private String manageDptId;
+
+	public String getManageDptId() {
+		return manageDptId;
+	}
+
+	public void setManageDptId(String manageDptId) {
+		this.manageDptId = manageDptId;
+	}
+
 	public List<Long> getIds() {
 		return ids;
 	}
