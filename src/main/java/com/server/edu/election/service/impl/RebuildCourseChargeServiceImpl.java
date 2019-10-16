@@ -161,7 +161,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
         RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(noChargeType);
         if (item != null) {
-            throw new ParameterValidateException(I18nUtil.getMsg("common.exist"));
+            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("rebuildCourse.noCharge")));
         }
         noChargeTypeDao.insertSelective(noChargeType);
     }
@@ -178,7 +178,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         if (CollectionUtil.isEmpty(ids)) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
         }
-
         noChargeTypeDao.deleteRebuildCourseNoChargeType(ids);
     }
 
@@ -195,7 +194,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(courseNoCharge);
         if(item!=null){
             if(item.getId().intValue()!=courseNoCharge.getId().intValue()){
-                throw new ParameterValidateException(I18nUtil.getMsg("common.exist"));
+                throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("rebuildCourse.noCharge")));
             }
         }
         noChargeTypeDao.updateByPrimaryKeySelective(courseNoCharge);
