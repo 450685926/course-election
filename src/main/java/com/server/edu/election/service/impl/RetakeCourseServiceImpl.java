@@ -252,6 +252,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             if (set.size() >= maxCount.intValue()) {
                 throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
             }
+            // 判断学生是否已经选过该门课程
+            int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
+            if (count != 0) {
+                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.repeatedError"));
+            }
             ElcCourseTake take = new ElcCourseTake();
             take.setStudentId(studentId);
             take.setCalendarId(calendarId);
@@ -271,6 +276,12 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             Long id = rebuildCourseVo.getTeachingClassId();
             List<Long> list = new ArrayList<>(1);
             list.add(id);
+            List<String> courseCodes = new ArrayList<>(1);
+            courseCodes.add(courseCode);
+            List<String> courses = ScoreServiceInvoker.findCourseHaveScore(studentId, calendarId, courseCodes);
+            if (CollectionUtil.isNotEmpty(courses)) {
+                throw new ParameterValidateException(I18nUtil.getMsg(I18nUtil.getMsg("elcCourseUphold.removeCourseError",courses.get(0))));
+            }
             courseTakeDao.deleteCourseTask(list, studentId);
             teachingClassDao.decrElcNumber(teachingClassId);
             // 添加选课日志

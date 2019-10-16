@@ -2,7 +2,6 @@ package com.server.edu.election.service.impl;
 
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +33,7 @@ import com.server.edu.election.service.NoSelectStudentService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.vo.ElcNoSelectReasonVo;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.FileUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -79,7 +79,8 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
      */
      @Override
      public PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition) {
-         String deptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+    	 Session session = SessionUtils.getCurrentSession();
+    	 String deptId = session.getCurrentManageDptId();
          condition.getCondition().setDeptId(deptId);
          PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
 
@@ -87,6 +88,11 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
          if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && Constants.PROJ_UNGRADUATE.equals(deptId)) {
              electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
          }else {
+        	 if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+        	            && !session.isAdmin() && session.isAcdemicDean()) { // 教务员
+        		 condition.getCondition().setFaculty(session.getFaculty());
+			 }
+        	 
              electCourseList = courseTakeDao.findNoSelectCourseGraduteStds(condition.getCondition());
              List<NoSelectCourseStdsDto> result = electCourseList.getResult();
              if (CollectionUtil.isNotEmpty(result)) {

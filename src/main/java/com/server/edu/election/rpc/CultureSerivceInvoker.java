@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
@@ -249,6 +250,16 @@ public class CultureSerivceInvoker
     	return list.getData();
     }
     
+    /**普研查询培养计划课程 */
+	public static List<PlanCourseDto> findCourseTypeForGradute(String studentId) {
+		@SuppressWarnings("unchecked")
+    	RestResult<List<PlanCourseDto>> list = ServicePathEnum.CULTURESERVICE
+    	.getForObject("/studentCultureRel/findCourseTypeForGradute/{studentId}",
+    			RestResult.class,
+    			studentId);
+    	return list.getData();
+	}
+    
     /**查询本科生选课培养计划课程（包含实践课）*/
     public static List<PlanCourseDto> findUnGraduateCourse(String studentId)
     {
@@ -331,6 +342,38 @@ public class CultureSerivceInvoker
             return parseArray;
         }
         return Collections.emptyList();
+    }
+    
+    /**
+     * 查询分级课程
+     * 
+     * @return
+     * @throws Exception
+     * @see [类、类#方法、类#成员]
+     */
+    public static List<String> getCoursesLevelCourse(Long categoryId) {
+        JSONObject param = new JSONObject();
+        param.put("type", "2");
+        param.put("page", "false");
+        param.put("categoryId", "categoryId");
+        
+        Object restResult = 
+            ServicePathEnum.CULTURESERVICE.postForObject("/coursesCategoryRel/list",param, Object.class);
+        List<String> result = new ArrayList<>();
+        
+        String text = JSON.toJSONString(restResult);
+        JSONObject obj = JSON.parseObject(text);
+        JSONObject data = obj.getJSONObject("data");
+        if(null != data) {
+            String list = data.getString("list");
+            JSONArray parseArray = JSON.parseArray(list);
+            for (int i = 0; i < parseArray.size(); i++)
+            {
+                JSONObject jsonObject = parseArray.getJSONObject(i);
+                result.add(jsonObject.getString("code"));
+            }
+        }
+        return result;
     }
 
 }

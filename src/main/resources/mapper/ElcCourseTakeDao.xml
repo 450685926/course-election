@@ -1031,6 +1031,7 @@
         op.COURSE_CODE_ courseCode,
         op.COURSE_NAME_ courseName,
         op.NATURE_ nature,
+        op.FACULTY_ faculty,
         tc.ID_ teachingClassId
         from course_open_t op
         join teaching_task_t tk on op.ID_ = tk.COURSE_OPEN_ID_
@@ -1648,42 +1649,42 @@
     <result column="nature" jdbcType="VARCHAR" property="nature" />
   </resultMap>
   <select id="getStudentRebuildFeeList" parameterType="com.server.edu.election.dto.StudentRebuildFeeDto" resultMap="RebuildFeeMap">
-		SELECT
-		  t1.ID_, 
-		  t1.STUDENT_ID_,
-		  t1.`CALENDAR_ID_`,
-		  t1.`COURSE_CODE_`,
-		  t1.`PAID_`,
-		  t1.`MODE_`,
-		  t1.`BILL_ID_`,
-		  t2.BILL_NUM_,
-		  t2.`AMOUNT_`,
-		  t2.`PAY_`,
-		  t2.`CREATED_AT_` payTime,
-		  t3.`NAME_` studentName,
-		  t3.`FACULTY_`,
-		  t3.`PROFESSION_`,
-		  t5.`CODE_` teachingClassCode,
-		  t7.`COURSE_NAME_` courseName,
-          t7.`CREDITS_`,
-          t7.`CALENDAR_ID_` couCalendarId,
-          t7.NATURE_ nature
-		FROM
-		  elc_course_takes_t_${mode} t1 
-		  JOIN elc_bills_t t2 
-		    ON t1.BILL_ID_ = t2.ID_ 
-		  JOIN student_t t3 
-		    ON t1.`STUDENT_ID_` = t3.`STUDENT_CODE_` 
-		  JOIN `teaching_class_t` t5 
-		    ON t1.`TEACHING_CLASS_ID_` = t5.`ID_`
-		  JOIN `teaching_task_t` t6 
-            ON t5.`TASK_ID_` = t6.`ID_` 
-          JOIN `course_open_t` t7 
-            ON t6.`COURSE_OPEN_ID_` = t7.`ID_` 
-		  <where>
-		    t1.`CALENDAR_ID_` = #{calendarId} 
-		    AND t1.`COURSE_TAKE_TYPE_` = 2
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+        SELECT
+        t1.ID_,
+        t1.STUDENT_ID_,
+        t1.`CALENDAR_ID_`,
+        t1.`COURSE_CODE_`,
+        t1.`PAID_`,
+        t1.`MODE_`,
+        t1.`BILL_ID_`,
+        t2.BILL_NUM_,
+        t2.`AMOUNT_`,
+        t2.`PAY_`,
+        t2.`CREATED_AT_` payTime,
+        t3.`NAME_` studentName,
+        t3.`FACULTY_`,
+        t3.`PROFESSION_`,
+        t5.`CODE_` teachingClassCode,
+        t7.`COURSE_NAME_` courseName,
+        t7.`CREDITS_`,
+        t7.`CALENDAR_ID_` couCalendarId,
+        t7.IS_ELECTIVE_ nature
+        FROM
+        elc_course_takes_t_${mode} t1
+        left JOIN elc_bills_t t2
+        ON t1.BILL_ID_ = t2.ID_
+        JOIN student_t t3
+        ON t1.`STUDENT_ID_` = t3.`STUDENT_CODE_`
+        JOIN `teaching_class_t` t5
+        ON t1.`TEACHING_CLASS_ID_` = t5.`ID_`
+        JOIN `teaching_task_t` t6
+        ON t5.`TASK_ID_` = t6.`ID_`
+        JOIN `course_open_t` t7
+        ON t6.`COURSE_OPEN_ID_` = t7.`ID_`
+        <where>
+            t1.`CALENDAR_ID_` = #{calendarId}
+            AND t1.`COURSE_TAKE_TYPE_` = 2
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
                 and t5.CODE_ = #{teachingClassCode}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
@@ -1699,7 +1700,7 @@
                 and t3.PROFESSION_ = #{profession}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
-                and t7.NATURE_ = #{nature}
+                and t7.IS_ELECTIVE_ = #{nature}
             </if>
             <if test="paId !=null and paId !=0">
                 and t1.PAID_ = #{paId}
@@ -1711,12 +1712,15 @@
                 and (t1.STUDENT_ID_ like concat('%',#{keyword},'%') OR t3.`NAME_` like concat('%',#{keyword},'%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
-                and t1.ID_ in 
-		        <foreach item="item" collection="ids" separator="," open="(" close=")" >
-		            #{item}
-		        </foreach>
-            </if>                                                                 
-		  </where>
+                and t1.ID_ in
+                <foreach item="item" collection="ids" separator="," open="(" close=")" >
+                    #{item}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manageDptId)">
+                and t3.MANAGER_DEPT_ID_ = #{manageDptId}
+            </if>
+        </where>
   </select>
   
   <select id="getElcMedWithdraw" parameterType="com.server.edu.election.dto.ElcMedWithdrawDto" resultMap="VoResultMap">

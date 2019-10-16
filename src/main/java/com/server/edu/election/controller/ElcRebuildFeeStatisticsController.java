@@ -1,7 +1,15 @@
 package com.server.edu.election.controller;
 
-import java.io.File;
-
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.dto.StudentRebuildFeeDto;
+import com.server.edu.election.service.ElcRebuildFeeStatisticsService;
+import com.server.edu.election.vo.StudentRebuildFeeVo;
+import com.server.edu.util.ExportUtil;
+import com.server.edu.util.FileUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
+import io.swagger.annotations.*;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,21 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.github.pagehelper.PageInfo;
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.dto.StudentRebuildFeeDto;
-import com.server.edu.election.service.ElcRebuildFeeStatisticsService;
-import com.server.edu.election.vo.StudentRebuildFeeVo;
-import com.server.edu.util.ExportUtil;
-import com.server.edu.util.FileUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
+import java.io.File;
 
 @SwaggerDefinition(info = @Info(title = "重修缴费统计", version = ""))
 @RestSchema(schemaId = "ElcRebuildFeeStatisticsController")
@@ -49,12 +43,8 @@ public class ElcRebuildFeeStatisticsController {
      */
     @ApiOperation(value = "学生重修缴费信息列表")
     @PostMapping("/page")
-    public RestResult<PageInfo<StudentRebuildFeeVo>> page(
-    		@RequestBody PageCondition<StudentRebuildFeeDto> condition)
-        throws Exception
-    {
-        LOG.info("page.start");
-        PageInfo<StudentRebuildFeeVo> page =elcRebuildFeeStatisticsService.getStudentRebuildFeeList(condition);
+    public RestResult<PageResult<StudentRebuildFeeVo>> page(@RequestBody PageCondition<StudentRebuildFeeDto> condition) {
+        PageResult<StudentRebuildFeeVo> page =elcRebuildFeeStatisticsService.getStudentRebuildFeeList(condition);
         return RestResult.successData(page);
     }
     

@@ -133,4 +133,42 @@ public class ScoreServiceInvoker {
     			
     	return restResult;
     }
+
+    /**
+     *  查询学生课程是否有成绩
+     * @param studentCode
+     * @return
+     */
+    public static List<String> findCourseHaveScore(String studentCode, Long calendarId, List<String> courseCodes)
+    {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("studentCode", studentCode);
+        jsonObject.put("calendarId", calendarId);
+        jsonObject.put("courseCodes", courseCodes);
+        @SuppressWarnings("unchecked")
+        List<String> list =
+                ServicePathEnum.SCORESERVICE.postForObject(
+                        "/studentScoreCount/findCourseHaveScore",
+                        jsonObject, List.class);
+        return list;
+    }
+
+    /**
+     *  查询学生课程是否有成绩
+     * @param studentCode
+     * @return
+     */
+    public static List<String> findCourseHaveScore2(String courseCode, Long calendarId, List<String> studentCodes)
+    {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("studentCodes", studentCodes);
+        jsonObject.put("calendarId", calendarId);
+        jsonObject.put("courseCode", courseCode);
+        @SuppressWarnings("unchecked")
+        List<String> list =
+                ServicePathEnum.SCORESERVICE.postForObject(
+                        "/studentScoreCount/findViolationStus",
+                        jsonObject, List.class);
+        return list;
+    }
 }

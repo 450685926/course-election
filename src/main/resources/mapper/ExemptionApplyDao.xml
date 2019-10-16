@@ -234,7 +234,7 @@
 		    and t2.ENROL_SEASON_= #{query.enrolSeason} 
 		</if>
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
-		    and t2.DEGREE_CATEGORY_= #{query.degreeType} 
+		    and t2.DEGREE_TYPE_= #{query.degreeType} 
 		</if>
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
 		    and t2.FORM_LEARNING_= #{query.formLearning} 
@@ -252,6 +252,6 @@
 		    and t1.COURSE_NAME_= #{query.courseName} 
 		</if>
 	</where>
-		GROUP BY t1.EXEMPTION_TYPE_ ,t1.COURSE_CODE_ ,t1.COURSE_NAME_ ,t2.TRAINING_LEVEL_,t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_
+		GROUP BY t3.CONDITIONS_ ,t1.COURSE_CODE_ ,t1.COURSE_NAME_ ,t2.TRAINING_LEVEL_,t2.TRAINING_CATEGORY_,t2.DEGREE_TYPE_,t2.FORM_LEARNING_
   </select>
 </mapper>

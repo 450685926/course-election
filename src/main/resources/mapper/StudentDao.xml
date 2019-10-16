@@ -347,6 +347,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t1.GRADE_ = #{grade}
 		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+		        and t1.MANAGER_DEPT_ID_ = #{projectId}
+		    </if>
 	</select>
     <select id="getAllNonSelectedCourseStudent1" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
        SELECT t4.* FROM student_t t4 

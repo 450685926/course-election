@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -354,6 +355,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
+        Map<String, String> failedReasons = respose.getFailedReasons();
         Date date = new Date();
         String studentId = stu.getStudentId();
         
@@ -384,6 +386,19 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         if (ElectRuleType.ELECTION.equals(type))
         {
+        	Long calendarId = 0l;
+        	//查询学生选课记录
+        	if (round.getId() == null) { // 管理员代理选课
+        		 calendarId = request.getCalendarId();
+ 			} else {  // 学生选课 或者 教务员代理选课
+ 				 calendarId = round.getCalendarId();
+ 			}
+        	int findIsEletionCourse = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
+        	if (findIsEletionCourse != 0) {
+        		 failedReasons.put(String.format("%s",
+        				 courseCode), "已经选课");
+        		 return;
+			}
             int	count = classDao.increElcNumber(teachClassId);
             
             if (count == 0)
@@ -426,6 +441,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             take.setCourseCode(courseCode);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
+//            List list  = new ArrayList<>();
+//            list.add(courseCode);
+            //查询本门课是否有成绩
+//            List<String> courses = ScoreServiceInvoker.findCourseHaveScore(studentId, take.getCalendarId(), list);
+//            if (CollectionUtil.isNotEmpty(courses)) {
+//            	respose.getFailedReasons()
+//                .put(teachClassId.toString(),
+//                    I18nUtil.getMsg("elcCourseUphold.removeCourseError"));
+//            return;
+//            }
             courseTakeDao.delete(take);
 
             int count = classDao.decrElcNumber(teachClassId);
@@ -499,6 +524,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         //每门课上课信息集合
         List<TeachingClassCache> classTimeLists = new ArrayList<>();
         
+        Map<String, Object> elecResult = new HashMap<>();
+        if (roundId != null)
+        { // 教务员
+            elecResult = getElectResultCount(studentId, roundId);
+        }
+        else
+        { // 管理员
+            elecResult = getAdminElectResultCount(studentId, c, calendarId);
+        }
+        
         //本学年已选课程组装
         List<SelectedCourse> selectedCoursess = packagingSelectedCourse(roundId, calendarId, planCourses,
 				selectedCourseSet, classTimeLists);
@@ -513,7 +548,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					completedCourse.setCourseLabelId(planCourse.getLabel());
 				}
 			}
-			if (completedCourse.getCourseLabelId() == null) {
+			if (completedCourse.getCourseLabelId() == null || StringUtils.isEmpty(completedCourse.getLabelName())) {
 				String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),completedCourse.getNature());
 				completedCourse.setCourseLabelId(Long.parseLong(completedCourse.getNature()));
 				completedCourse.setLabelName(dict);
@@ -527,7 +562,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 					failedCourse.setCourseLabelId(planCourse.getLabel());
 				}
 			}
-    		if (failedCourse.getCourseLabelId() == null) {
+    		if (failedCourse.getCourseLabelId() == null  || StringUtils.isEmpty(failedCourse.getLabelName())) {
 				String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),failedCourse.getNature());
 				failedCourse.setCourseLabelId(Long.parseLong(failedCourse.getNature()));
 				failedCourse.setLabelName(dict);
@@ -616,90 +651,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   elcCourseResult.setRemark(teachClass.getRemark());
 			                   elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 			                   
-			                  /* Boolean flag = true;
-			                   String conflictCourse = null;
-			                   //上课时间是否冲突
-			                   for (TeachingClassCache teachingClass : classTimeLists)
-			                   {
-			                       //已选课程上课时间
-			                       for (ClassTimeUnit classTimeUnit : teachingClass.getTimes())
-			                       {
-			                           //本次选课课程时间
-			                           for (ClassTimeUnit thisClassTimeUnit : teachClass
-			                               .getTimes())
-			                           {
-			                               //先判断上课周是有重复的，没有则不冲突
-			                               List<Integer> thisWeeks =
-			                                   thisClassTimeUnit.getWeeks();
-			                               List<Integer> weeks =
-			                                   thisClassTimeUnit.getWeeks();
-			                               thisWeeks.retainAll(weeks);
-			                               //教学周无重复
-			                               if (CollectionUtil.isEmpty(thisWeeks))
-			                               {
-			                                   flag = true;
-			                               }
-			                               else
-			                               {
-			                                   //判断上课周内时间
-			                                   if (thisClassTimeUnit
-			                                       .getDayOfWeek() == classTimeUnit
-			                                           .getDayOfWeek())
-			                                   {
-			                                   	//判断上课时间
-			                                       //获取学生上课时间
-			                                   	List<Integer> thisClassTime = new ArrayList<>();
-			                                   	List<Integer> classTime = new ArrayList<>();
-			                                   	for (int i = 0; i <= thisClassTimeUnit.getTimeEnd() - thisClassTimeUnit.getTimeStart(); i++) {
-			                                   		if (thisClassTimeUnit.getTimeStart() + i <= thisClassTimeUnit.getTimeEnd()) {
-			                                   			thisClassTime.add(thisClassTimeUnit.getTimeStart()+i);
-													}
-												}
-			                                   	for (int i = 0; i <= classTimeUnit.getTimeEnd() - classTimeUnit.getTimeStart(); i++) {
-			                                   		if (classTimeUnit.getTimeStart() + i <= classTimeUnit.getTimeEnd()) {
-			                                   			classTime.add(classTimeUnit.getTimeStart()+i);
-			                                   		}
-			                                   	}
-			                                   	
-			                                   	thisClassTime.retainAll(classTime);
-			                                   	if (CollectionUtil.isEmpty(thisClassTime))
-			                                       {
-			                                           flag = true;
-			                                       }else{
-			                                       	flag = false;
-			                                           conflictCourse = String.format("%s(%s)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
-			                                       }
-			                                   }
-			                                   else
-			                                   {
-			                                       flag = true;
-			                                   }
-			                               }
-			                               if (!flag)
-			                               {
-			                               	break;
-			                               }
-			                           }
-			                           if (!flag)
-			                           {
-			                               break;
-			                           }
-			                       }
-			                       if (!flag)
-			                       {
-			                           break;
-			                       }
-			                   }
-			                   if (flag)
-			                   {
-			                       elcCourseResult.setIsConflict(Constants.ZERO);
-			                       elcCourseResult.setConflictCourse(null);
-			                   }
-			                   else
-			                   {
-			                       elcCourseResult.setIsConflict(-Constants.ONE);
-			                       elcCourseResult.setConflictCourse(conflictCourse);
-			                   }*/
 			                   setOptionalCourses.add(elcCourseResult);
 			               }
 			           }
@@ -755,90 +706,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setRemark(teachClass.getRemark());
 		                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
 							
-							/*Boolean flag = true;
-							String conflictCourse = null;
-							//上课时间是否冲突
-							for (TeachingClassCache teachingClass : classTimeLists)
-							{
-							    //已选课程上课时间
-								for (ClassTimeUnit classTimeUnit : teachingClass.getTimes())
-								{
-								    //本次选课课程时间
-									for (ClassTimeUnit thisClassTimeUnit : teachClass
-									    .getTimes())
-									{
-										    //先判断上课周是有重复的，没有则不冲突
-										List<Integer> thisWeeks =
-										    thisClassTimeUnit.getWeeks();
-										List<Integer> weeks =
-										    thisClassTimeUnit.getWeeks();
-										thisWeeks.retainAll(weeks);
-										//教学周无重复
-										if (CollectionUtil.isEmpty(thisWeeks))
-										{
-										    flag = true;
-										}
-										else
-										{
-										    //判断上课周内时间
-										if (thisClassTimeUnit
-										    .getDayOfWeek() == classTimeUnit
-										        .getDayOfWeek())
-										{
-											//判断上课时间
-										    //获取学生上课时间
-					                       	List<Integer> thisClassTime = new ArrayList<>();
-					                       	List<Integer> classTime = new ArrayList<>();
-					                       	for (int i = 0; i <= thisClassTimeUnit.getTimeEnd() - thisClassTimeUnit.getTimeStart(); i++) {
-					                       		if (thisClassTimeUnit.getTimeStart() + i <= thisClassTimeUnit.getTimeEnd()) {
-					                       			thisClassTime.add(thisClassTimeUnit.getTimeStart()+i);
-												}
-											}
-					                       	for (int i = 0; i <= classTimeUnit.getTimeEnd() - classTimeUnit.getTimeStart(); i++) {
-					                       		if (classTimeUnit.getTimeStart() + i <= classTimeUnit.getTimeEnd()) {
-					                       			classTime.add(classTimeUnit.getTimeStart()+i);
-					                       		}
-					                       	}
-					                       	
-					                       	thisClassTime.retainAll(classTime);
-					                       	if (CollectionUtil.isEmpty(thisClassTime))
-					                           {
-					                               flag = true;
-					                           }else{
-					                           	flag = false;
-					                               conflictCourse = String.format("%s(%s)", teachingClass.getCourseName(),teachingClass.getCourseCode()); 
-					                           }
-					                       }
-					                       else
-					                       {
-					                           flag = true;
-					                       }
-					                   }
-					                   if (!flag)
-					                   {
-					                   	break;
-					                   }
-					               }
-					               if (!flag)
-					               {
-					                   break;
-					               }
-					           }
-					           if (!flag)
-					           {
-					               break;
-					           }
-					       }
-					       if (flag)
-					       {
-					           elcCourseResult.setIsConflict(Constants.ZERO);
-					           elcCourseResult.setConflictCourse(null);
-					       }
-					       else
-					       {
-					           elcCourseResult.setIsConflict(-Constants.ONE);
-					           elcCourseResult.setConflictCourse(conflictCourse);
-					       }*/
 					       setOptionalCourses.add(elcCourseResult);
 					   }
 					}
@@ -893,16 +760,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			
 			}
 		}
-        Map<String, Object> elecResult = new HashMap<>();
-        if (roundId != null)
-        { // 教务员
-            elecResult = getElectResultCount(studentId, roundId);
-        }
-        else
-        { // 管理员
-            elecResult = getAdminElectResultCount(studentId, c, calendarId);
-        }
-       
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
         List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         c.setCompletedCourses(setCompletedCourses);
@@ -949,12 +806,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     		completedCourse.setFaculty(selectedCourse.getFaculty());
     		takenCourse.add(completedCourse);
 		}
-    	Map<Long, List<CompletedCourse>> collect = takenCourse.stream().collect(Collectors.groupingBy(CompletedCourse::getCourseLabelId));
-    	List<CompletedCourse> takenCourse2 = new ArrayList<>();
-    	for (Entry<Long, List<CompletedCourse>> entry : collect.entrySet()){
-    		takenCourse2.addAll(entry.getValue());
-    	}
-    	return takenCourse2;
+//    	Map<Long, List<CompletedCourse>> collect = takenCourse.stream().collect(Collectors.groupingBy(CompletedCourse::getCourseLabelId));
+//    	List<CompletedCourse> takenCourse2 = new ArrayList<>();
+//    	for (Entry<Long, List<CompletedCourse>> entry : collect.entrySet()){
+//    		takenCourse2.addAll(entry.getValue());
+//    	}
+    	
+    	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
+    	return takenCourse;
 	}
 
 	/**
@@ -1077,7 +936,27 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		    	lastCourse.add(centerCourses);
 		    }
 		}
-		return lastCourse;
+		//去重成绩未通过的课程
+		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+		List<PlanCourse> courses = new ArrayList<>();
+		for (PlanCourse centerCourses : lastCourse)
+		{
+		    Boolean flag = true;
+		    for (CompletedCourse selectedCourseModel : failedCourse)
+		    {
+		        if (selectedCourseModel.getCourseCode()
+		            .equals(centerCourses.getCourseCode()))
+		        {
+		            flag = false;
+		            break;
+		        }
+		    }
+		    if (flag)
+		    {
+		    	courses.add(centerCourses);
+		    }
+		}
+		return courses;
 	}
 	
 	/** 不按培养计划选课 */
@@ -1143,7 +1022,27 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				lastCourse.add(centerCourses);
 			}
 		}
-		return lastCourse;
+		//去重成绩未通过的课程
+		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+		List<String> courses = new ArrayList<>();
+		for (String centerCourses : lastCourse)
+		{
+		    Boolean flag = true;
+		    for (CompletedCourse selectedCourseModel : failedCourse)
+		    {
+		        if (selectedCourseModel.getCourseCode()
+						.equals(centerCourses))
+		        {
+		            flag = false;
+		            break;
+		        }
+		    }
+		    if (flag)
+		    {
+		    	courses.add(centerCourses);
+		    }
+		}
+		return courses;
 	}
 
     //课程code集合
@@ -1184,6 +1083,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), selected.getCourseCode())) {
 					 elcCourseResult.setLabel(planCourse.getLabel()+"");
 					 elcCourseResult.setLabelName(planCourse.getLabelName());
+					 elcCourseResult.setCompulsory(planCourse.getCompulsory());
 					 break;
 				}
 			}
@@ -1201,8 +1101,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             elcCourseResult.setCredits(selected.getCredits());
             elcCourseResult
                 .setCourseTakeType(selected.getCourseTakeType());
-            elcCourseResult
-                .setAssessmentMode(selected.getAssessmentMode());
+            elcCourseResult.setAssessmentMode(selected.getAssessmentMode());
             elcCourseResult.setPublicElec(selected.isPublicElec());
             elcCourseResult.setCalendarId(selected.getCalendarId());
             elcCourseResult.setCalendarName(selected.getCalendarName());
@@ -1593,6 +1492,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                         .equals(selectedCourse.getCourseCode()))
                     {
                         selectedCourse.setLabel(course.getLabel() + "");
+                        selectedCourse.setLabelName(course.getLabelName());
                     }
                 }
             }
@@ -1654,6 +1554,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                             .equals(completedCourse.getCourseCode()))
                         {
                             completedCourse.setCourseLabelId(course.getLabel());
+                            completedCourse.setLabelName(course.getLabelName());
                         }
                     }
                     if (completedCourse.getCourseLabelId() != null

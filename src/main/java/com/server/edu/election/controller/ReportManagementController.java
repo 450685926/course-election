@@ -196,7 +196,7 @@ public class ReportManagementController
      */
     @PostMapping(value = "/exportGraduteRollBookList3")
     public RestResult<ExcelResult> exportGraduteRollBookList3(@RequestBody List<String> ids){
-    	LOG.info("exportGraduteRollBookList2.start");
+    	LOG.info("exportGraduteRollBookList3.start");
 
     	ExcelResult export = managementService.exportGraduteRollBookZipList3(ids);
         return RestResult.successData(export);

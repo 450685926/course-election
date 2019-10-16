@@ -49,6 +49,12 @@
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
 	  	and t1.MODE_ = #{query.mode}
 	  	</if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.speCourseCodes)">
+	  	  and t1.COURSE_CODE_ IN
+	  	 	<foreach collection="query.speCourseCodes" open="(" separator="," close=")" item="code">
+	            #{code}
+	        </foreach>
+	  	</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
             and t1.TEACHING_CLASS_CODE_ like CONCAT(#{query.teachingClassCode},'%')
         </if>

@@ -11,7 +11,10 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -296,10 +299,21 @@ public class ReportManagementServiceImpl implements ReportManagementService
             }
             List<TimeTable> timtable = getTimtable(list);
             timetabVo.setTimeTables(timtable);
-//            timetabVo.setTimeTables(list);
+            List<PlanCourseDto> planCourseDtos = CultureSerivceInvoker.findCourseTypeForGraduteExemption(studentCode);
+            List<PlanCourseTypeDto> planCourseTypeList = new ArrayList<>(50);
+            for (PlanCourseDto planCourseDto : planCourseDtos) {
+                List<PlanCourseTypeDto> planCourseTypeDtos = planCourseDto.getList();
+                planCourseTypeList.addAll(planCourseTypeDtos);
+            }
+            Map<String, PlanCourseTypeDto> planCourseTypeDtoMap = planCourseTypeList.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, s->s));
             for (StudentSchoolTimetab studentSchoolTimetab : schoolTimetab) {
                 if(studentSchoolTimetab.getCredits()!=null){
                     totalCredits+=studentSchoolTimetab.getCredits();
+                }
+                String courseCode = studentSchoolTimetab.getCourseCode();
+                PlanCourseTypeDto planCourseTypeDto = planCourseTypeDtoMap.get(courseCode);
+                if (planCourseTypeDto != null) {
+                    studentSchoolTimetab.setCompulsory(planCourseTypeDto.getCompulsory());
                 }
                 Long teachingClassId = studentSchoolTimetab.getTeachingClassId();
                 studentSchoolTimetab.setTeacherName(map.get(teachingClassId));
@@ -535,15 +549,12 @@ public class ReportManagementServiceImpl implements ReportManagementService
     {
         RollBookConditionDto rollBookConditionDto = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
-        Page<RollBookList> bookList  =  null;
         if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin()) {
             rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
-            bookList =  courseTakeDao.findTeachingClass(condition.getCondition());
         }else if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
                 && !session.isAdmin() && session.isAcdemicDean()) {
             rollBookConditionDto.setProjectId(session.getCurrentManageDptId());
             rollBookConditionDto.setFaculty(session.getFaculty());
-            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
         }else if (session.isTeacher()) {
             Set<String> dptIds = session.getManageDptIds();
             if (CollectionUtil.isNotEmpty(dptIds) && dptIds.size() == 1) {
@@ -551,9 +562,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 rollBookConditionDto.setProjectId(manageDptId);
             }
             rollBookConditionDto.setTeacherCode(session.realUid());
-            bookList = courseTakeDao.findTeachingClass(condition.getCondition());
         }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<RollBookList> bookList = courseTakeDao.findTeachingClass(rollBookConditionDto);
         if (CollectionUtil.isNotEmpty(bookList))
         {
             List<RollBookList> result = bookList.getResult();
@@ -714,14 +725,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
         List<TimeTableMessage> timeTableMessages = courseTakeDao.findClassTimeAndRoomById(teachingClassId);
         // 最大周集合
         List<Integer> number=new ArrayList<>();
-        Set<Integer> days =new HashSet<>();
+//        Set<Integer> days =new HashSet<>();
         if (CollectionUtil.isNotEmpty(timeTableMessages)) {
             for (TimeTableMessage timeTableMessage : timeTableMessages) {
                 Integer dayOfWeek = timeTableMessage.getDayOfWeek();
                 if (dayOfWeek == null) {
                     continue;
                 }
-                days.add(dayOfWeek);
+//                days.add(dayOfWeek);
                 Integer timeStart = timeTableMessage.getTimeStart();
                 Integer timeEnd = timeTableMessage.getTimeEnd();
                 String weekNumber = timeTableMessage.getWeekNum();
@@ -745,11 +756,11 @@ public class ReportManagementServiceImpl implements ReportManagementService
             max = Collections.max(number);
         }
         pre.setRowNumber(max);
-        int size = days.size();
-        if (size < 1) {
-            size = 1;
-        }
-        pre.setLineNumber(size);
+//        int size = days.size();
+//        if (size < 1) {
+//            size = 1;
+//        }
+        pre.setLineNumber(1);
         return pre;
     }
 
