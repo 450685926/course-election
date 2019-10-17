@@ -293,7 +293,7 @@
         mode,el.TURN_ turn,el.CHOOSE_OBJ_ chooseObj
         ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_
         teachingClassCode
-        FROM elc_course_takes_t${mode} el
+        FROM FROM elc_course_takes_t_${mode} el
         JOIN course_t co on el.COURSE_CODE_=co.CODE_
         JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
         JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
