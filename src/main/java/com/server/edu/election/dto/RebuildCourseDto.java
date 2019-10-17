@@ -1,8 +1,8 @@
 package com.server.edu.election.dto;
 
-import javax.validation.constraints.NotNull;
-
 import com.server.edu.dictionary.annotation.Code2Text;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @description:
@@ -37,7 +37,37 @@ public class RebuildCourseDto
     private Integer mode;
     
     private String deptId;
-    
+    /**学号*/
+    private String studentId;
+    /**姓名*/
+    private String studentName;
+    /**性别*/
+    private String sex;
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
     public String getDeptId()
     {
         return deptId;
