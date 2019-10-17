@@ -97,6 +97,11 @@ public class TeachingClassVo extends TeachingClass
      */
     private String teacherCodes;
     
+    /**
+     * 绑定班级Id
+     * @return
+     */
+    private String bindClassId;
     
 	public String getTeacherCodes() {
 		return teacherCodes;
@@ -281,5 +286,10 @@ public class TeachingClassVo extends TeachingClass
 	public void setClassNumberStr(String classNumberStr) {
 		this.classNumberStr = classNumberStr;
 	}
-	
+	public String getBindClassId() {
+		return bindClassId;
+	}
+	public void setBindClassId(String bindClassId) {
+		this.bindClassId = bindClassId;
+	}
 }
