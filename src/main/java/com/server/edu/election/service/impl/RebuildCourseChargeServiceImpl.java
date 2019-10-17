@@ -212,7 +212,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
-        condition.getCondition().setMode(TableIndexUtil.getMode(condition.getCondition().getCalendarId()));
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
         if (courseNoChargeList != null) {
