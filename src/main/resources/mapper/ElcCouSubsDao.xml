@@ -81,6 +81,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(subCourseName)">
 		        and t3.NAME_ = #{subCourseName}
 		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+		        and ( t4.STUDENT_CODE_ like concat ('%', #{keyword},'%') or t4.NAME_ like concat ('%', #{keyword},'%'))
+		    </if>		    
 		</where>
 		 ORDER BY t1.CREATED_AT_ DESC
   </select>

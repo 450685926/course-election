@@ -41,6 +41,8 @@ public class ElcCouSubsDto extends ElcCouSubs
     //新课程信息
     private String subCourseInfo;
     
+    private String keyword;
+    
     public String getOrigsCourseCode()
     {
         return origsCourseCode;
@@ -170,5 +172,13 @@ public class ElcCouSubsDto extends ElcCouSubs
     {
         this.subCourseInfo = subCourseInfo;
     }
+
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
     
 }
