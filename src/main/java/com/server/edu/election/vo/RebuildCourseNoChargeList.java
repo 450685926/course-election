@@ -43,6 +43,10 @@ public class RebuildCourseNoChargeList implements Serializable{
     @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
     public String getCourseCode() {
         return courseCode;
     }
