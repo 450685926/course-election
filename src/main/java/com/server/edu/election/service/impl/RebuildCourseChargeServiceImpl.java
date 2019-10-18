@@ -13,7 +13,6 @@ import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
-import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -240,7 +239,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
-        condition.getCondition().setMode(TableIndexUtil.getMode(condition.getCondition().getCalendarId()));
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> courseNoChargeStudentList = courseTakeDao
                 .findCourseNoChargeStudentList(condition.getCondition());
