@@ -339,7 +339,7 @@
         st.STUDENT_CATEGORY_ studentCategory,
         COUNT(el.ID_) rebuildNumber,
         st.SEX_ sex
-        FROM elc_course_takes_t_${mode} el
+        FROM elc_course_takes_t el
         JOIN student_t st
         on st.STUDENT_CODE_=el.STUDENT_ID_
         JOIN teaching_class_t te
