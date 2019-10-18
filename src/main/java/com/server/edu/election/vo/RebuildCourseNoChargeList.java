@@ -1,10 +1,10 @@
 package com.server.edu.election.vo;
 
-import java.io.Serializable;
-
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+
+import java.io.Serializable;
 
 /**
  * @description: 未缴费课程名单
@@ -40,6 +40,8 @@ public class RebuildCourseNoChargeList implements Serializable{
     private Integer mode;
     private Integer turn;
     private Integer chooseObj;
+    @Code2Text(DictTypeEnum.X_PYCC)
+    private String trainingLevel;
 
     public String getCourseCode() {
         return courseCode;

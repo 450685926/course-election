@@ -287,12 +287,29 @@
 
     <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCourseDto"
             resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
-        SELECT el.ID_ id,el.CALENDAR_ID_ calendarId,st.STUDENT_CODE_ studentCode,st.NAME_ studentName,co.CODE_
-        courseCode,co.NAME_ courseName,co.NATURE_ nature,co.CREDITS_ credits,
-        te.COURSE_LABEL_ID_ label,el.PAID_ paid,te.WEEK_HOUR_ weekHour,el.COURSE_TAKE_TYPE_ courseTakeType,el.MODE_
-        mode,el.TURN_ turn,el.CHOOSE_OBJ_ chooseObj
-        ,te.END_WEEK_ endWeek,te.START_WEEK_ startWeek,te.PERIOD_ period,te.ID_ teachingClassId,te.CODE_
-        teachingClassCode
+        SELECT
+        el.ID_ id,
+        el.CALENDAR_ID_ calendarId,
+        st.STUDENT_CODE_ studentCode,
+        st.NAME_ studentName,
+        co.CODE_ courseCode,
+        co.NAME_ courseName,
+        co.IS_ELECTIVE_ nature,
+        co.CREDITS_ credits,
+        te.COURSE_LABEL_ID_ label,
+        el.PAID_ paid,
+        te.WEEK_HOUR_ weekHour,
+        el.COURSE_TAKE_TYPE_ courseTakeType,
+        el.MODE_
+        mode,el.TURN_ turn,
+        el.CHOOSE_OBJ_ chooseObj,
+        te.END_WEEK_ endWeek,
+        te.START_WEEK_ startWeek,
+        te.PERIOD_ period,
+        te.ID_ teachingClassId,
+        te.CODE_ teachingClassCode,
+        st.TRAINING_LEVEL_ trainingLevel,
+        CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr
         FROM elc_course_takes_t el
         JOIN course_t co on el.COURSE_CODE_=co.CODE_
         JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
