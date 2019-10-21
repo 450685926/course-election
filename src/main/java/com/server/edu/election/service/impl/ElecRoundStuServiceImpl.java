@@ -147,6 +147,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         if (CollectionUtil.isNotEmpty(studentCodes))
         {
             elecRoundStuDao.delete(roundId, studentCodes);
+        }else{
+        	elecRoundStuDao.deleteAll(roundId);
         }
     }
     

@@ -55,6 +55,15 @@
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.trainingCategory)">
 	    and t1.TRAINING_CATEGORY_= #{stu.trainingCategory} 
 	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.enrolMethods)">
+	    and t1.ENROL_METHODS_= #{stu.enrolMethods} 
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.spcialPlan)">
+	    and t1.SPCIAL_PLAN_= #{stu.spcialPlan} 
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.researchDirection)">
+	    and t1.RESEARCH_DIRECTION_= #{stu.researchDirection} 
+	    </if>
   	</where>
   	order by t1.STUDENT_CODE_
   </select>
@@ -130,6 +139,10 @@
   	<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">  
        #{id}  
     </foreach>
+  </delete>
+  
+  <delete id="deleteAll">
+  	delete from election_rounds_stu_t where ROUNDS_ID_ = #{roundId}
   </delete>
   
   <delete id="deleteByRoundId">
