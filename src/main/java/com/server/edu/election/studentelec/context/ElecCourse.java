@@ -51,8 +51,33 @@ public class ElecCourse
      * 备注
      */
     private String remark;
+    /**
+     * 培养课程类别
+     */
+    private Long labelId;
+    /**
+     * 培养课程类别名称
+     */
+    private String labelName;
     
-    public String getCourseCode()
+    
+    public Long getLabelId() {
+		return labelId;
+	}
+
+	public void setLabelId(Long labelId) {
+		this.labelId = labelId;
+	}
+
+	public String getLabelName() {
+		return labelName;
+	}
+
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
+	}
+
+	public String getCourseCode()
     {
         return courseCode;
     }

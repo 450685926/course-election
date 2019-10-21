@@ -2,7 +2,7 @@ APPLICATION_ID: ${application_id}
 service_description:
   name: electionservice
   description: 选课微服务
-  version: 0.0.3
+  version: 0.0.5
   #environment: ${dev_type}
 
   properties:
