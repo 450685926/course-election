@@ -260,7 +260,7 @@ public class CultureSerivceInvoker
     	return list.getData();
 	}
     
-    /**查询本科生选课培养计划课程（包含实践课）*/
+    /**查询本科生选课培养计划课程*/
     public static List<PlanCourseDto> findUnGraduateCourse(String studentId)
     {
         @SuppressWarnings("unchecked")

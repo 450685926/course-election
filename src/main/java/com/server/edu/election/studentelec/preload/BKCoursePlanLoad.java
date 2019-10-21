@@ -64,7 +64,8 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
-                Long label = planCourse.getLabel();
+                Long labelId = planCourse.getLabel();
+                String labelName = planCourse.getLabelName();
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto pct : list) {//培养课程
                         String courseCode = pct.getCourseCode();
@@ -86,12 +87,15 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
                             course2.setCalendarName(calendarName);
                             course2.setCompulsory(pct.getCompulsory());
+                            course2.setLabelId(labelId);
+                            course2.setLabelName(labelName);
 						}
                         pl.setCourse(course2);
                         pl.setSemester(pct.getSemester());
                         pl.setWeekType(pct.getWeekType());
                         pl.setSubCourseCode(pct.getSubCourseCode());
-                        pl.setLabel(label);
+                        pl.setLabel(labelId);
+                        pl.setLabelName(labelName);
                         planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
                             ElecCourse c=new ElecCourse();
@@ -108,7 +112,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 }
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
                     CourseGroup courseGroup=new CourseGroup();
-                    courseGroup.setLabel(label);
+                    courseGroup.setLabel(labelId);
                     courseGroup.setCrrdits(rule.getMinCredits());
                     if("1".equals(rule.getLabelType())){
                         courseGroup.setLimitType("1");
