@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -478,4 +478,19 @@ public class TeachClassCacheService extends AbstractCacheService
                 -1)
             .intValue();
     }
+    
+    /**
+     * 获取当前学期的公共选修课
+     * @param calendarId
+     * @return
+     */
+    public Set<ElecCourse> getPublicCourses(Long calendarId) {
+    	Set<ElecCourse> publicCourses = new HashSet<>();
+    	List<ElecCourse> list = opsElecCourse().values(Keys.getPublicCourseKey());
+    	if(CollectionUtil.isNotEmpty(list)) {
+        	publicCourses = list.stream().filter(c->c.getCalendarId().equals(calendarId)).collect(Collectors.toSet());
+    	}
+    	return publicCourses;
+	}
+
 }
