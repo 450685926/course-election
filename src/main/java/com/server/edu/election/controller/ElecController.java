@@ -3,6 +3,8 @@ package com.server.edu.election.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -19,19 +21,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.enums.UserTypeEnum;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.service.StudentElecService;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -53,6 +59,10 @@ public class ElecController
     
     @Autowired
     private RoundDataProvider dataProvider;
+    
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -189,5 +199,21 @@ public class ElecController
         ElecRespose response = elecService.getElectResult(elecRequest);
         return RestResult.successData(response);
     }
+    
+    
+    @ApiOperation(value = "获取本科生公共选修课程")
+    @PostMapping("/getPublicCourses")
+    public RestResult<Set<ElecCourse>> getPublicCourses(
+        @RequestParam("roundId") @NotNull Long roundId)
+    {
+    	ElectionRounds electionRounds = dataProvider.getRound(roundId);
+    	if(electionRounds==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("election.round"))); 
+    	}
+    	Set<ElecCourse> elecCourses = teachClassCacheService.getPublicCourses(electionRounds.getCalendarId());
+        return RestResult.successData(elecCourses);
+    }
+
+
     
 }
