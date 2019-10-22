@@ -293,5 +293,11 @@ public interface ElcCourseTakeDao
 
 	/**查询学生所有的课程*/
 	List<ElcCourseTakeVo> findAllSelectedCourses(@Param("studentId")String studentId);
-	
+
+    /**
+     * @Description: 根据学号查询重修详情
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    Page<RebuildCourseNoChargeList> findNoChargeListByStuId(RebuildCourseDto condition);
 }
