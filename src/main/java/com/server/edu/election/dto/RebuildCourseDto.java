@@ -3,6 +3,7 @@ package com.server.edu.election.dto;
 import com.server.edu.dictionary.annotation.Code2Text;
 
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * @description:
@@ -43,6 +44,17 @@ public class RebuildCourseDto
     private String studentName;
     /**性别*/
     private String sex;
+
+    /**培养计划对应课程Id集合*/
+    private List<Long> planCourseIds;
+
+    public List<Long> getPlanCourseIds() {
+        return planCourseIds;
+    }
+
+    public void setPlanCourseIds(List<Long> planCourseIds) {
+        this.planCourseIds = planCourseIds;
+    }
 
     public String getStudentId() {
         return studentId;

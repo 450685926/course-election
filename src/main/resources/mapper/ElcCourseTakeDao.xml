@@ -357,11 +357,13 @@
         st.FACULTY_ faculty,
         st.PROFESSION_ profession,
         st.STUDENT_CATEGORY_ studentCategory,
-        COUNT(el.ID_) rebuildNumber,
+        SUM(CASE WHEN vp.score is not null and vp.isPass = 0 THEN 1 ELSE 0 END) rebuildNumber,
         st.SEX_ sex
         FROM elc_course_takes_t el
         JOIN student_t st
         on st.STUDENT_CODE_=el.STUDENT_ID_
+        left JOIN v_student_plan_course vp
+        on el.STUDENT_ID_ = vp.studentId
         JOIN teaching_class_t te
         on el.TEACHING_CLASS_ID_=te.ID_
         <where>
@@ -560,7 +562,7 @@
         SELECT
         el.CALENDAR_ID_ calendarId,
         st.STUDENT_CODE_ studentCode,st.NAME_ name,st.GRADE_ grade,st.FACULTY_ faculty,st.PROFESSION_ profession,
-        st.TRAINING_LEVEL_ trainingLevel,st.FORM_LEARNING_ formLearning
+        st.TRAINING_LEVEL_ trainingLevel,st.FORM_LEARNING_ formLearning,st.CAMPUS_ campus
         FROM student_t st
         JOIN elc_course_takes_t el on el.STUDENT_ID_=st.STUDENT_CODE_
         <where>
@@ -1858,4 +1860,38 @@
 		WHERE t1.`STUDENT_ID_` = #{studentId}
 		  AND t1.`CALENDAR_ID_` = #{calendarId} 
   </select>
+
+    <select id="findNoChargeListByStuId" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
+        SELECT
+         st.STUDENT_CODE_ studentCode,
+         st.NAME_ studentName,
+         st.TRAINING_LEVEL_ trainingLevel,
+         te.CODE_ teachingClassCode,
+         ct.NAME_ courseName,
+         ct.IS_ELECTIVE_ nature,
+         CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr,
+         ct.CREDITS_ credits,
+         el.PAID_ paid,
+         CASE WHEN  el.ID_ is null THEN 0 ELSE 1 END as chooseObj,
+         vp.planCourseId planCourseId
+         FROM student_t st
+         JOIN v_student_plan_course vp
+         on st.STUDENT_CODE_ = vp.studentId and vp.score is not null and vp.isPass = 0
+         JOIN course_t ct
+         on vp.courseCode = ct.CODE_
+         left JOIN elc_course_takes_t el
+         on vp.courseCode = el.COURSE_CODE_
+         and el.CALENDAR_ID_ = #{calendarId}
+         and el.COURSE_TAKE_TYPE_ =2
+         and el.STUDENT_ID_ = #{studentId}
+         left JOIN teaching_class_t te
+         on el.TEACHING_CLASS_ID_=te.ID_
+         WHERE st.STUDENT_CODE_ = #{studentId}
+         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(planCourseIds)">
+             and vp.planCourseId in
+             <foreach item="planCourseId" collection="planCourseIds" separator="," open="(" close=")">
+                 #{planCourseId}
+             </foreach>
+         </if>
+    </select>
 </mapper>

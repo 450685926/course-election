@@ -9,6 +9,7 @@ import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.StudentRePaymentDto;
@@ -20,10 +21,13 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -629,4 +633,72 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         return paymentDtoList;
     }
 
+    /**
+     * @Description: 根据学号查询重修详情
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @Override
+    public PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(condition.getCondition());
+        return new PageResult<>(courseNoChargeList);
+    }
+
+    /**
+     * @Description: 导出重修详情根据学号
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @Override
+    public ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception {
+        Page<RebuildCourseNoChargeList> list = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
+        GeneralExcelDesigner design = getDesignByStuId();
+        List<JSONObject> convertList = JacksonUtil.convertList(list);
+        design.setDatas(convertList);
+        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+        return excelUtil;
+    }
+
+    private GeneralExcelDesigner getDesignByStuId() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell("学号", "studentCode");
+        design.addCell("姓名", "studentName");
+        design.addCell("培养层次", "trainingLevelI18n");
+        design.addCell("课程序号", "teachingClassCode");
+        design.addCell("课程名称", "courseName");
+        design.addCell("课程性质", "nature").setValueHandler(
+                (value, rawData, cell) -> {
+                    if ("1".equals(value)) {
+                        value = "公开课";
+                    } else {
+                        value = "专业课";
+                    }
+                    return value;
+                });
+        design.addCell("课程安排", "courseArr");
+        design.addCell("学分", "credits");
+        design.addCell("是否缴费", "paid").setValueHandler(
+                (value, rawData, cell) -> {
+                    if (Constants.PAID.toString().equals(value)) {
+                        value = "已缴费";
+                    } else if (Constants.UN_PAID.equals(value)){
+                        value = "未缴费";
+                    }else {
+                        value = StringUtils.EMPTY;
+                    }
+                    return value;
+                });
+        design.addCell("是否选课", "chooseObj").setValueHandler(
+                (value, rawData, cell) -> {
+                    if (Constants.PAID.toString().equals(value)) {
+                        value = "已选课";
+                    } else {
+                        value = "未选课";
+                    }
+                    return value;
+                });
+        return design;
+    }
 }
