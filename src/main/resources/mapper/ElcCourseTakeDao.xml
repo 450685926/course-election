@@ -357,7 +357,7 @@
         st.FACULTY_ faculty,
         st.PROFESSION_ profession,
         st.STUDENT_CATEGORY_ studentCategory,
-        SUM(CASE WHEN vp.isPass = 0 THEN 1 ELSE 0 END) rebuildNumber,
+        SUM(CASE WHEN vp.score is not null and vp.isPass = 0 THEN 1 ELSE 0 END) rebuildNumber,
         st.SEX_ sex
         FROM elc_course_takes_t el
         JOIN student_t st
@@ -1876,10 +1876,10 @@
          vp.planCourseId planCourseId
          FROM student_t st
          JOIN v_student_plan_course vp
-         on st.STUDENT_CODE_ = vp.studentId and vp.isPass = 0
+         on st.STUDENT_CODE_ = vp.studentId and vp.score is not null and vp.isPass = 0
          JOIN course_t ct
          on vp.courseCode = ct.CODE_
-         left JOIN elc_course_takes_t_0 el
+         left JOIN elc_course_takes_t el
          on vp.courseCode = el.COURSE_CODE_
          and el.CALENDAR_ID_ = #{calendarId}
          and el.COURSE_TAKE_TYPE_ =2
