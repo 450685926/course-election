@@ -241,7 +241,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     private void loadScoreTemp(ElecContextBk context, StudentInfoCache studentInfo,
         String studentId, Student stu)
     {
-        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
+//        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
+    	List<ScoreStudentResultVo> stuScore = new ArrayList<>();
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
