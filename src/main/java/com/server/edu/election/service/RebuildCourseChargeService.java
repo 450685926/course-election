@@ -1,7 +1,5 @@
 package com.server.edu.election.service;
 
-import java.util.List;
-
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCourseDto;
@@ -11,7 +9,10 @@ import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
+
+import java.util.List;
 
 public interface RebuildCourseChargeService {
     PageResult<RebuildCourseCharge> findCourseCharge(PageCondition<RebuildCourseCharge> condition);
@@ -57,5 +58,19 @@ public interface RebuildCourseChargeService {
     boolean isNoNeedPayForRetake(String studentId);
 
     List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto);
+
+    /**
+     * @Description: 根据学号查询重修详情
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition);
+
+    /**
+     * @Description: 导出重修详情根据学号
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception;
 }
 
