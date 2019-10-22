@@ -560,7 +560,7 @@
         SELECT
         el.CALENDAR_ID_ calendarId,
         st.STUDENT_CODE_ studentCode,st.NAME_ name,st.GRADE_ grade,st.FACULTY_ faculty,st.PROFESSION_ profession,
-        st.TRAINING_LEVEL_ trainingLevel,st.FORM_LEARNING_ formLearning
+        st.TRAINING_LEVEL_ trainingLevel,st.FORM_LEARNING_ formLearning,st.CAMPUS_ campus
         FROM student_t st
         JOIN elc_course_takes_t el on el.STUDENT_ID_=st.STUDENT_CODE_
         <where>
