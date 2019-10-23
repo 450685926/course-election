@@ -7,8 +7,6 @@ import java.util.List;
 public class StudentRebuildFeeDto extends ElcCourseTake {
     private static final long serialVersionUID = 1L;
     private String courseName;
-    //是否缴费
-    private Integer paId;
     //课程学期
     private Long couCalendarId;
     
@@ -85,12 +83,6 @@ public class StudentRebuildFeeDto extends ElcCourseTake {
 	}
 	public void setNature(String nature) {
 		this.nature = nature;
-	}
-	public Integer getPaId() {
-		return paId;
-	}
-	public void setPaId(Integer paId) {
-		this.paId = paId;
 	}
 	public String getFaculty() {
 		return faculty;

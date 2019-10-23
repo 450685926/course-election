@@ -1,11 +1,11 @@
 package com.server.edu.election.vo;
 
-import java.util.Date;
-
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.dictionary.translator.SchoolCalendarTranslator;
 import com.server.edu.election.entity.ElcCourseTake;
+
+import java.util.Date;
 @CodeI18n
 public class StudentRebuildFeeVo extends ElcCourseTake {
 
@@ -35,23 +35,10 @@ public class StudentRebuildFeeVo extends ElcCourseTake {
     
     @Code2Text(transformer = "X_KCXZ")
     private String nature;
-    
-    //是否缴费
-    private Integer paId;
-    
+
     //课程学期
     @Code2Text(translator= SchoolCalendarTranslator.class)
     private Long couCalendarId;
-    
-    
-	public Integer getPaId() {
-		return paId;
-	}
-
-	public void setPaId(Integer paId) {
-		this.paId = paId;
-	}
-
 
 	public Long getCouCalendarId() {
 		return couCalendarId;
