@@ -7,6 +7,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dto.StudentRebuildFeeDto;
@@ -55,6 +56,7 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 	}
 	
 	private GeneralExcelDesigner getDesign() {
+		 DoubleHandler doubleHandler = new DoubleHandler();
 		 GeneralExcelDesigner design = new GeneralExcelDesigner();
 		 design.setNullCellValue("");
 		 design.addCell("学号","studentId");
@@ -73,9 +75,9 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 					 return value;
 				 });
         design.addCell("学分", "facultyI18n");
-		 design.addCell("应缴金额","amount");
-		 design.addCell("已缴金额","pay");
-		 design.addCell("是否已缴费","paid").setValueHandler(
+	 	design.addCell("应缴金额","amount").setValueHandler(doubleHandler);
+	 	design.addCell("已缴金额","pay").setValueHandler(doubleHandler);
+	 	design.addCell("是否已缴费","paid").setValueHandler(
 				 (value, rawData, cell) -> {
 					    if(Constants.PAID.toString().equals(value)) {
 					    	value ="是";
