@@ -16,6 +16,7 @@ import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -641,6 +642,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+               // int mode = TableIndexUtil.getMode(c.getCalendarId());
+        condition.getCondition().setMode(TableIndexUtil.getMode(condition.getCondition().getCalendarId()));
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(condition.getCondition());
         return new PageResult<>(courseNoChargeList);
     }
