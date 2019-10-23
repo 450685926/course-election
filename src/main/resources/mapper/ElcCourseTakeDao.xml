@@ -1863,7 +1863,8 @@
 		  AND t1.`CALENDAR_ID_` = #{calendarId} 
   </select>
 
-    <select id="findNoChargeListByStuId" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
+    <select id="findNoChargeListByStuId" parameterType="com.server.edu.election.dto.RebuildCourseDto"
+            resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT
          st.STUDENT_CODE_ studentCode,
          st.NAME_ studentName,
@@ -1881,7 +1882,7 @@
          on st.STUDENT_CODE_ = vp.studentId and vp.score is not null and vp.isPass = 0
          JOIN course_t ct
          on vp.courseCode = ct.CODE_
-         left JOIN elc_course_takes_t el
+         left JOIN elc_course_takes_t_${mode} el
          on vp.courseCode = el.COURSE_CODE_
          and el.CALENDAR_ID_ = #{calendarId}
          and el.COURSE_TAKE_TYPE_ =2
