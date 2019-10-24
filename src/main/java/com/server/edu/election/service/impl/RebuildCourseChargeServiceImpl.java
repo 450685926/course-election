@@ -659,7 +659,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     public PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
                // int mode = TableIndexUtil.getMode(c.getCalendarId());
-        condition.getCondition().setMode(TableIndexUtil.getMode(condition.getCondition().getCalendarId()));
+        condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(condition.getCondition());
         return new PageResult<>(courseNoChargeList);
     }

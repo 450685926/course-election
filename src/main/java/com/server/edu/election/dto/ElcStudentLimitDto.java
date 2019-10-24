@@ -1,12 +1,11 @@
 package com.server.edu.election.dto;
 
-import java.util.List;
-
-import org.hibernate.validator.constraints.NotEmpty;
-
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.election.entity.ElcStudentLimit;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import java.util.List;
 
 public class ElcStudentLimitDto extends ElcStudentLimit {
 	private static final long serialVersionUID = 1L;
@@ -51,7 +50,18 @@ public class ElcStudentLimitDto extends ElcStudentLimit {
     private List<Long> ids;
     
     private Integer mode;
-    
+
+	/**分库分表标识*/
+	private Integer index;
+
+	public Integer getIndex() {
+		return index;
+	}
+
+	public void setIndex(Integer index) {
+		this.index = index;
+	}
+
 	public Integer getMode() {
 		return mode;
 	}
