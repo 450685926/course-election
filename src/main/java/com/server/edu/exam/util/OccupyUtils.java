@@ -39,10 +39,7 @@ public class OccupyUtils {
 
         RestResult<List<ConflictMessage>> result = BaseresServiceExamInvoker.addOccupy(occupationParams);
         if (result.getCode() != 200) {
-
-            List<ConflictMessage> data = result.getData();
-
-            throw new ParameterValidateException("有冲突");
+            throwException(result.getData());
         }
 
     }
@@ -67,9 +64,7 @@ public class OccupyUtils {
         RestResult<List<ConflictMessage>> result = BaseresServiceExamInvoker.addOccupy(occupationParams);
         if (result.getCode() != 200) {
 
-            List<ConflictMessage> data = result.getData();
-
-            throw new ParameterValidateException("有冲突");
+            throwException(result.getData());
         }
 
     }
@@ -95,6 +90,15 @@ public class OccupyUtils {
         List<Long> collect = list.stream().map(a -> Long.parseLong(a)).collect(Collectors.toList());
         Collections.sort(collect);
         return StringUtils.join(collect, "");
+    }
+
+    public static void throwException(List<ConflictMessage> data){
+        StringBuilder builder = new StringBuilder();
+        for (ConflictMessage datum : data) {
+            builder.append(datum.getName()).append(",时间冲突为 :").append(datum.getTime()).append(";");
+        }
+        builder.substring(0,builder.length()-1);
+        throw new ParameterValidateException(builder.toString());
     }
 
 }

@@ -423,46 +423,43 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.setProjId(dptId);
+        List<PropertySheetDto> SheetDto = roomDao.listExamRoomAndExamInfo(condition);
         ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
             @Override
             public File getFile() {
-                List<PropertySheetDto> SheetDto = roomDao.listExamRoomAndExamInfo(condition);
-                if(CollectionUtil.isNotEmpty(SheetDto)){
-                    try {
-                    for (PropertySheetDto propertySheetDto : SheetDto) {
-                        String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
-                        String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
-                        propertySheetDto.setFaculty(s);
-                        propertySheetDto.setCampus(campus);
-                    }
+                try {
+                for (PropertySheetDto propertySheetDto : SheetDto) {
+                    String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
+                    String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
+                    propertySheetDto.setFaculty(s);
+                    propertySheetDto.setCampus(campus);
+                }
                     SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                     String fullName = calendarVo.getFullName();
                     Map<String, List<PropertySheetDto>> sheetMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus));
-                    Map<String,Object> map = new HashMap<>();
-                    String title = fullName+"研究生考试安排表";
-                    map.put("sheetMap",sheetMap);
-                    map.put("title",title);
-                    FileUtil.mkdirs(cacheDirectory);
-                    FileUtil.deleteFile(cacheDirectory, 2);
-                    String fileName =
-                            "exportPropertySheet-" + System.currentTimeMillis() + ".xls";
-                     String path = cacheDirectory + fileName;
-                     Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("propertySheet.ftl");
-                        // 将模板和数据模型合并生成文件
-                        Writer  out = new BufferedWriter(
-                                new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
-                        tpl.process(map, out);
-                        out.flush();
-                        return new File(path);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        rs.setStatus(true);
-                        redisTemplate.opsForValue().getAndSet(newKey, rs);
-                        return null;
-                    }
-                }else{
+                Map<String,Object> map = new HashMap<>();
+                String title = fullName+"研究生考试安排表";
+                map.put("sheetMap",sheetMap);
+                map.put("title",title);
+                FileUtil.mkdirs(cacheDirectory);
+                FileUtil.deleteFile(cacheDirectory, 2);
+                String fileName =
+                        "exportPropertySheet-" + System.currentTimeMillis() + ".xls";
+                 String path = cacheDirectory + fileName;
+                 Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("propertySheet.ftl");
+                    // 将模板和数据模型合并生成文件
+                    Writer  out = new BufferedWriter(
+                            new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+                    tpl.process(map, out);
+                    out.flush();
+                    return new File(path);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    rs.setStatus(true);
+                    redisTemplate.opsForValue().getAndSet(newKey, rs);
                     return null;
                 }
+
             }}, ".xls");
         return rs;
 
@@ -484,62 +481,58 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.setProjId(dptId);
+        List<PropertySheetDto> SheetDto = roomDao.listExamRoomAndExamInfo(condition);
         ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
             @Override
             public File getFile() {
-                List<PropertySheetDto> SheetDto = roomDao.listExamRoomAndExamInfo(condition);
-                if(CollectionUtil.isNotEmpty(SheetDto)){
-                    for (PropertySheetDto propertySheetDto : SheetDto) {
-                        Date examDate = propertySheetDto.getExamDate();
-                        String day = getDay(examDate);
-                        String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
-                        String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
-                        propertySheetDto.setFaculty(s);
-                        propertySheetDto.setCampus(campus);
-                        propertySheetDto.setDay(day);
-                    }
-                    SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                    String fullName = calendarVo.getFullName();
-                    String title = fullName+"研究生考试巡考工作安排表";
-                    Map<String, List<PropertySheetDto>> dayMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getDay));
-                    List<Map<String,Object>> listSheet = new ArrayList<>();
-                    for (String day : dayMap.keySet()) {
-                        List<PropertySheetDto> propertySheetDtos = dayMap.get(day);
-                        Map<String, List<PropertySheetDto>> campusMap = propertySheetDtos.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus));
-                        for (String campus : campusMap.keySet()) {
-                            Map<String,Object> map = new HashMap<>();
-                            List<PropertySheetDto> list = campusMap.get(campus);
-                            map.put("day",day);
-                            map.put("campus",campus);
-                            map.put("dto",list.get(0));
-                            map.put("list",list.subList(1,list.size()));
-                            map.put("rowNumber",list.size() - 1);
-                            listSheet.add(map);
-                        }
-                    }
-                    Map<String,Object> myMap = new HashMap<>();
-                    myMap.put("title",title);
-                    myMap.put("listSheet",listSheet);
-                    FileUtil.mkdirs(cacheDirectory);
-                    FileUtil.deleteFile(cacheDirectory, 2);
-                    String fileName =
-                            "exportInspectionSheet-" + System.currentTimeMillis() + ".xls";
-                    String path = cacheDirectory + fileName;
-                    try {
-                        Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("inspectionSheet.ftl");
-                        Writer  out = new BufferedWriter(
-                                new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
-                        tpl.process(myMap, out);
-                        out.flush();
-                        return new File(path);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        rs.setStatus(true);
-                        redisTemplate.opsForValue().getAndSet(newKey, rs);
-                        return null;
-                    }
-                }else{
 
+                for (PropertySheetDto propertySheetDto : SheetDto) {
+                    Date examDate = propertySheetDto.getExamDate();
+                    String day = getDay(examDate);
+                    String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
+                    String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
+                    propertySheetDto.setFaculty(s);
+                    propertySheetDto.setCampus(campus);
+                    propertySheetDto.setDay(day);
+                }
+                SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                String fullName = calendarVo.getFullName();
+                String title = fullName+"研究生考试巡考工作安排表";
+                Map<String, List<PropertySheetDto>> dayMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getDay));
+                List<Map<String,Object>> listSheet = new ArrayList<>();
+                for (String day : dayMap.keySet()) {
+                    List<PropertySheetDto> propertySheetDtos = dayMap.get(day);
+                    Map<String, List<PropertySheetDto>> campusMap = propertySheetDtos.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus));
+                    for (String campus : campusMap.keySet()) {
+                        Map<String,Object> map = new HashMap<>();
+                        List<PropertySheetDto> list = campusMap.get(campus);
+                        map.put("day",day);
+                        map.put("campus",campus);
+                        map.put("dto",list.get(0));
+                        map.put("list",list.subList(1,list.size()));
+                        map.put("rowNumber",list.size() - 1);
+                        listSheet.add(map);
+                    }
+                }
+                Map<String,Object> myMap = new HashMap<>();
+                myMap.put("title",title);
+                myMap.put("listSheet",listSheet);
+                FileUtil.mkdirs(cacheDirectory);
+                FileUtil.deleteFile(cacheDirectory, 2);
+                String fileName =
+                        "exportInspectionSheet-" + System.currentTimeMillis() + ".xls";
+                String path = cacheDirectory + fileName;
+                try {
+                    Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("inspectionSheet.ftl");
+                    Writer  out = new BufferedWriter(
+                            new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+                    tpl.process(myMap, out);
+                    out.flush();
+                    return new File(path);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    rs.setStatus(true);
+                    redisTemplate.opsForValue().getAndSet(newKey, rs);
                     return null;
                 }
             }

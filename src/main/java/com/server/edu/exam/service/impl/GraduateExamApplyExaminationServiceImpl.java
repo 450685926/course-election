@@ -346,6 +346,7 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
         }
         Session currentSession = SessionUtils.getCurrentSession();
         String dptId = currentSession.getCurrentManageDptId();
+        selectDto.setProjId(dptId);
         Page<SelectDto> page = new Page<>();
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         if(examType.equals(ApplyStatus.EXAM_SITUATION_SLOW)){
