@@ -73,7 +73,7 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
-        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
+        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,
         t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
@@ -130,13 +130,10 @@
                 and t2.FORM_LEARNING_= #{query.formLearning}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-                and t2.FACULTY_ = #{query.faculty}
+                and t3.COLLEGE_ = #{query.faculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
                 and t3.CODE_ = #{query.courseCode}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
-                and t3.COLLEGE_ = #{courseFaculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
                 and t3.NAME_ = #{query.courseName}
