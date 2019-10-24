@@ -1822,7 +1822,7 @@
 		  t3.PERIOD_,
 		  t2.`CAMPUS_` 
 		FROM
-		  elc_course_takes_t_${mode} t1 
+		  elc_course_takes_t_${index} t1
 		  JOIN teaching_class_t t2 
 		    ON t1.`TEACHING_CLASS_ID_` = t2.`ID_` 
 		  JOIN `course_open_t` t3 
@@ -1879,7 +1879,7 @@
          on st.STUDENT_CODE_ = vp.studentId and vp.score is not null and vp.isPass = 0
          JOIN course_t ct
          on vp.courseCode = ct.CODE_
-         left JOIN elc_course_takes_t_${mode} el
+         left JOIN elc_course_takes_t_${index} el
          on vp.courseCode = el.COURSE_CODE_
          and el.CALENDAR_ID_ = #{calendarId}
          and el.COURSE_TAKE_TYPE_ =2

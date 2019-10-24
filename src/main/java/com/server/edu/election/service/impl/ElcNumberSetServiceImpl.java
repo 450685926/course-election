@@ -1,20 +1,5 @@
 package com.server.edu.election.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.util.RedisLockUtil;
 import com.server.edu.election.constants.Constants;
@@ -28,8 +13,21 @@ import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.DateUtil;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Primary
@@ -60,8 +58,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
         elcNumberSetDto.setTurns(turns);
         int result = 0;
         log.info("start select list");
-		int mode = TableIndexUtil.getMode(calendarId);
-		elcNumberSetDto.setMode(mode);
+		elcNumberSetDto.setIndex(TableIndexUtil.getIndex(calendarId));
         List<TeachingClassVo> list =
             teachingClassDao.selectDrawClasss(elcNumberSetDto);
         if (CollectionUtil.isNotEmpty(list))
