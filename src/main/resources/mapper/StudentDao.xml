@@ -168,6 +168,15 @@
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 	        and t1.GRADE_ = #{grade}
 	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(researchDirection)">
+	    	and t1.RESEARCH_DIRECTION_= #{researchDirection} 
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCategory)">
+	    	and t1.STUDENT_CATEGORY_= #{studentCategory} 
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+	    	and t1.IS_OVERSEAS_= #{isOverseas} 
+	    </if>
     </select>
     <select id="selectElcInvincibleStds" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
 			SELECT
@@ -204,7 +213,7 @@
 			       and  t1.STUDENT_CODE_ =#{studentCode}
 			    </if>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
-			        and t1.NAME_ =#{name}
+			        and ()t1.NAME_ like concat('%', #{name} ,'%') or t1.STUDENT_CODE_  like concat('%', #{name} ,'%') 
 			    </if>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(managerDeptId)">
 			        and t1.MANAGER_DEPT_ID_ =#{managerDeptId}

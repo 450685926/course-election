@@ -127,7 +127,7 @@ public class ElecRoundStuController
     @ApiOperation(value = "条件添加可选课学生")
     @PutMapping("/addByCondition")
     public RestResult<?> addByCondition(
-        @RequestBody @Valid @NotNull ElecRoundStuQuery condition)
+        @RequestBody @Valid ElecRoundStuQuery condition)
     {
         elecRoundStuService.addByCondition(condition);
         
