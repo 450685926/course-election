@@ -302,7 +302,7 @@
     <select id="listExamStudent" parameterType="com.server.edu.exam.query.GraduateExamStudentQuery"
             resultType="com.server.edu.exam.dto.GraduateExamStudentDto">
         SELECT t1.ID_ examStudentId,t1.STUDENT_CODE_ studentCode,t5.NAME_ studentName,t3.COURSE_CODE_
-        courseCode,t4.NAME_ courseName,t3.ID_ examInfoId,t3.CAMPUS_ campus,
+        courseCode,t4.NAME_ courseName,t3.ID_ examInfoId,t3.CAMPUS_ campus,GROUP_CONCAT(t6.TEACHER_NAME_) teacherName,
         t3.CALENDAR_ID_ calendarId,t3.EXAM_TIME_ examTime,t3.EXAM_TYPE_ examType,
         t2.ID_ examRoomId,t2.ROOM_ID_ roomId,t2.ROOM_NAME_ roomName,t1.EXAM_SITUATION_
         examSituation,t1.TEACHING_CLASS_CODE_ teachingClassCode,t1.TEACHING_CLASS_ID_ teachingClassId,t1.REMARK_ remark
@@ -312,6 +312,7 @@
         LEFT JOIN graduate_exam_info_t t3 ON t1.EXAM_INFO_ID_ = t3.ID_
         LEFT JOIN course_t t4 ON t3.COURSE_CODE_ = t4.CODE_
         LEFT JOIN student_t t5 ON t1.STUDENT_CODE_ = t5.STUDENT_CODE_
+        left join teaching_class_teacher_t t6 on t1.TEACHING_CLASS_ID_ = t6.TEACHING_CLASS_ID_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and t3.CALENDAR_ID_ = #{calendarId}
@@ -351,8 +352,9 @@
 				and t3.EXAM_DATE_ <= #{examEndTime}
 				   ]]>
             </if>
-            and t3.EXAM_STATUS_ = 2
+            and t3.EXAM_STATUS_ = 2 and t6.TYPE_ = 0
         </where>
+        GROUP BY t1.ID_
     </select>
 
     <select id="findStudentElcCourseTake" resultType="com.server.edu.exam.dto.ExamStudentAddDto"
