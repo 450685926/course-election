@@ -241,10 +241,7 @@ public class RebuildCourseController
     
     @ApiOperation(value = "导出回收站名单")
     @PostMapping("/exportRecycle")
-    public RestResult<ExcelResult> exportRecycle(
-        @RequestBody RebuildCourseDto condition)
-        throws Exception
-    {
+    public RestResult<ExcelResult> exportRecycle(@RequestBody RebuildCourseDto condition) throws Exception {
         LOG.info("exportRecycle.start");
         ExcelResult result = service.exportRecycle(condition);
         return RestResult.successData(result);
