@@ -64,8 +64,24 @@
     </insert>
 
     <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
-        SELECT re.ID_ id,re.CALENDAR_ID_ calendarId,te.CODE_ teachingClassCode,re.STUDENT_CODE_ studentCode,re.TEACHING_CLASS_ID_ teachingClassId,re.COURSE_TAKE_TYPE_ courseTakeType,re.TURN_ turn,re.MODE_ mode,re.CHOOSE_OBJ_ chooseObj,re.PAID_ paid
-        ,st.NAME_ studentName,re.COURSE_CODE_ courseCode,co.NAME_ courseName,te.COURSE_LABEL_ID_ label,co.CREDITS_ credits
+        SELECT
+        re.ID_ id,
+        re.CALENDAR_ID_ calendarId,
+        te.CODE_ teachingClassCode,
+        re.STUDENT_CODE_ studentCode,
+        re.TEACHING_CLASS_ID_ teachingClassId,
+        re.COURSE_TAKE_TYPE_ courseTakeType,
+        re.TURN_ turn,
+        re.MODE_ mode,
+        re.CHOOSE_OBJ_ chooseObj,
+        re.PAID_ paid,
+        st.NAME_ studentName,
+        re.COURSE_CODE_ courseCode,
+        co.NAME_ courseName,
+        te.COURSE_LABEL_ID_ label,
+        co.CREDITS_ credits,
+        co.IS_ELECTIVE_ nature,
+        CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr
         FROM rebuild_course_recycle_t re
         LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
@@ -74,11 +90,20 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+                and st.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+                and st.NAME_ =#{studentName,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+                and te.CODE_ =#{teachingClassCode,jdbcType=VARCHAR}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
                 and re.MODE_ = #{mode,jdbcType=INTEGER}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
-                and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') or st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
+                and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') or st.NAME_ like CONCAT('%', #{keyWord,jdbcType=VARCHAR}, '%') )
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
                 and st.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
@@ -90,7 +115,16 @@
                 and co.CODE_ like CONCAT('%', #{courseCode,jdbcType=VARCHAR}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-                and co.NAME_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
+                and co.NAME_ = #{courseName,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+                and co.IS_ELECTIVE_ = #{nature,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+                and re.ID_ in
+                <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
             </if>
         </where>
     </select>
