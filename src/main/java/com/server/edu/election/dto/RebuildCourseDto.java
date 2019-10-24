@@ -53,6 +53,17 @@ public class RebuildCourseDto {
     /**id集合*/
     private List<Long> ids;
 
+    /**分库分表标识*/
+    private Integer index;
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
     public List<Long> getIds() {
         return ids;
     }

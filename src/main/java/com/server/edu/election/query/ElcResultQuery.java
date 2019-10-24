@@ -1,12 +1,10 @@
 package com.server.edu.election.query;
 
-import java.util.List;
-
-import javax.management.loading.PrivateClassLoader;
-import javax.validation.constraints.NotNull;
-
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 public class ElcResultQuery
 {
@@ -160,8 +158,19 @@ public class ElcResultQuery
     private List<String> includeCodes;
     
     private List<String> studentCodes;
-    
-    public List<String> getStudentCodes() {
+
+	/**分库分表标识*/
+	private Integer index;
+
+	public Integer getIndex() {
+		return index;
+	}
+
+	public void setIndex(Integer index) {
+		this.index = index;
+	}
+
+	public List<String> getStudentCodes() {
 		return studentCodes;
 	}
 
