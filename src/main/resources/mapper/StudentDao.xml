@@ -213,7 +213,7 @@
 			       and  t1.STUDENT_CODE_ =#{studentCode}
 			    </if>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
-			        and ()t1.NAME_ like concat('%', #{name} ,'%') or t1.STUDENT_CODE_  like concat('%', #{name} ,'%') 
+			        and (t1.NAME_ like concat('%', #{name} ,'%') or t1.STUDENT_CODE_  like concat('%', #{name} ,'%') )
 			    </if>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(managerDeptId)">
 			        and t1.MANAGER_DEPT_ID_ =#{managerDeptId}
