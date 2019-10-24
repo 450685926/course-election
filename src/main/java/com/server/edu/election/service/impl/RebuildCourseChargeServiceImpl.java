@@ -9,6 +9,7 @@ import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.RebuildCourseDto;
@@ -564,12 +565,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     return value;
                 });
         design.addCell("课程安排", "courseArr");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits").setValueHandler(new DoubleHandler());
         design.addCell("是否缴费", "paid").setValueHandler(
                 (value, rawData, cell) -> {
                     if (Constants.PAID.toString().equals(value)) {
                         value = "已缴费";
-                    } else if (Constants.UN_PAID.equals(value)){
+                    } else if (Constants.UN_PAID.toString().equals(value)){
                         value = "未缴费";
                     }else {
                         value = StringUtils.EMPTY;
@@ -696,12 +697,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     return value;
                 });
         design.addCell("课程安排", "courseArr");
-        design.addCell("学分", "credits");
+        design.addCell("学分", "credits").setValueHandler(new DoubleHandler());
         design.addCell("是否缴费", "paid").setValueHandler(
                 (value, rawData, cell) -> {
                     if (Constants.PAID.toString().equals(value)) {
                         value = "已缴费";
-                    } else if (Constants.UN_PAID.equals(value)){
+                    } else if (Constants.UN_PAID.toString().equals(value)){
                         value = "未缴费";
                     }else {
                         value = StringUtils.EMPTY;
