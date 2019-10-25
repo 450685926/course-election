@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.StudentUndergraduateScoreInfoDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.StudentUndergraduateScoreInfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="ACADEMIC_YEAR_" jdbcType="BIGINT" property="academicYear" />
+    <result column="SEMESTER_" jdbcType="BIGINT" property="semester" />
+    <result column="STUDENT_NUM_" jdbcType="VARCHAR" property="studentNum" />
+    <result column="STUDENT_NAME_" jdbcType="VARCHAR" property="studentName" />
+    <result column="COURSE_NUM_" jdbcType="VARCHAR" property="courseNum" />
+    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+    <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
+    <result column="SCORE_PROPERTY_" jdbcType="VARCHAR" property="scoreProperty" />
+    <result column="SCORE_TYPE_" jdbcType="CHAR" property="scoreType" />
+    <result column="IS_CONFIRM_" jdbcType="CHAR" property="isConfirm" />
+    <result column="SCORE_VALUE_" jdbcType="VARCHAR" property="scoreValue" />
+    <result column="SCORE_" jdbcType="VARCHAR" property="score" />
+    <result column="GRADE_POINT_" jdbcType="DOUBLE" property="gradePoint" />
+    <result column="IS_PASS_" jdbcType="VARCHAR" property="isPass" />
+    <result column="SCORE_PROPERTY_NAME_" jdbcType="VARCHAR" property="scorePropertyName" />
+    <result column="COURSE_CATEGORY_" jdbcType="VARCHAR" property="courseCategory" />
+    <result column="COURSE_PROPERTY_" jdbcType="VARCHAR" property="courseProperty" />
+    <result column="CREDIT_" jdbcType="DOUBLE" property="credit" />
+    <result column="TEARCHER_NAME_" jdbcType="VARCHAR" property="tearcherName" />
+    <result column="COURES_TYPE_" jdbcType="CHAR" property="couresType" />
+    <result column="EXAM_WAY_" jdbcType="VARCHAR" property="examWay" />
+    <result column="EXAM_WAY_NAME_" jdbcType="VARCHAR" property="examWayName" />
+    <result column="PUBLIC_COURSES_TYPE_" jdbcType="VARCHAR" property="publicCoursesType" />
+    <result column="TEARCHER_CODE" jdbcType="VARCHAR" property="tearcherCode" />
+  </resultMap>
+  <select id="getStudentScoreList" parameterType="com.server.edu.election.dto.StudentScoreDto" resultType="com.server.edu.common.vo.ScoreStudentResultVo">
+     SELECT  ID id,
+             ACADEMIC_YEAR_ academicYear,
+             SEMESTER_ semester,
+             STUDENT_NUM_ studentId,
+             STUDENT_NAME_studentName,
+             COURSE_CODE_ courseCode,
+             COURSE_NAME_ courseName,
+             EXAM_WAY_ examType,
+             CREDIT_ credit,
+             SCORE_ finalScore,
+             GRADE_POINT_ greadePoint,
+             IS_PASS_ isPass,
+             TEARCHER_CODE teacherId,
+             TEARCHER_NAME_ teacherName,
+             ${calendarId} calendarId
+         FROM student_undergraduate_score_info_t
+         <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+               STUDENT_NUM_ = #{studentId}
+             </if>
+             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(academicYear)">
+               and ACADEMIC_YEAR_ = #{academicYear}
+             </if>
+             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
+               and SEMESTER_ = #{semester}
+             </if>
+             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(score)">
+               and SCORE_ = #{score}
+             </if>
+             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isPass)">
+               and IS_PASS_ = #{isPass}
+             </if>
+         </where>
+  </select>
+</mapper>
