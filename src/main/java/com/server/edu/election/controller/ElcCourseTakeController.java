@@ -35,7 +35,6 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
 import com.server.edu.common.validator.ValidatorUtil;
-import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
@@ -73,9 +72,6 @@ public class ElcCourseTakeController
     
     @Autowired
     private ElecRoundCourseService roundCourseService;
-    
-    @Autowired
-    private DictionaryService dictionaryService;
     
     @Value("${cache.directory}")
     private String cacheDirectory;
