@@ -57,6 +57,7 @@
   	<result column="NATURE_" jdbcType="VARCHAR" property="nature" />
   	<result column="teacherCodes" jdbcType="VARCHAR" property="teacherCodes" />
   	<result column="BIND_CLASS_ID_" jdbcType="VARCHAR" property="bindClassId" />
+  	<result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct
@@ -79,6 +80,7 @@
     t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
     t3.FACULTY_,
     t3.NATURE_,
+      t3.IS_ELECTIVE_,
     GROUP_CONCAT(DISTINCT t7.`TEACHER_CODE_`) teacherCodes
     <if test="isHaveLimit !=null and isHaveLimit ==1">
 	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,

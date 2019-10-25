@@ -102,7 +102,18 @@ public class TeachingClassVo extends TeachingClass
      * @return
      */
     private String bindClassId;
-    
+
+	@Code2Text(transformer="K_BKKCXZ")
+	private Integer isElective;
+
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
+
 	public String getTeacherCodes() {
 		return teacherCodes;
 	}

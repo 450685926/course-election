@@ -54,6 +54,7 @@
         <result column="medWithdrawId" jdbcType="BIGINT" property="medWithdrawId"/>
         <result column="courseLabel" jdbcType="VARCHAR" property="courseLabel"/>
         <result column="MODE_" jdbcType="INTEGER" property="electionMode"/>
+        <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
     </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
@@ -74,7 +75,7 @@
         select
         t1.*,
         t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,
-        t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
+        t3.NAME_ as courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
         from elc_course_takes_t t1
