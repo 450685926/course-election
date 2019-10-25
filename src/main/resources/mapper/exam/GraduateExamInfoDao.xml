@@ -97,10 +97,6 @@
                     </otherwise>
                 </choose>
             </if>
-            and t1.STUDENT_ID_ not in (
-            select t7.STUDENT_ID_ from score_student_result_t t7
-            where t7.STUDENT_ID_ = t1.STUDENT_ID_ and t7.CALENDAR_ID_ = t1.CALENDAR_ID_ and t7.COURSE_CODE_ = t1.COURSE_CODE_ and t7.RELEASE_TYPE_ = 1
-            )
             and t2.MANAGER_DEPT_ID_ = #{projId}
             and t1.CALENDAR_ID_ = #{calendarId}
         </where>
