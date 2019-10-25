@@ -26,6 +26,7 @@
     <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="managerDeptId" />
     <result column="LEAVE_SCHOOL_" jdbcType="VARCHAR" property="leaveSchool" />
     <result column="IS_MEMBERSHIP_" jdbcType="VARCHAR" property="isMembership" />
+    <result column="EDUCATION_CODE_" jdbcType="VARCHAR" property="educationCode" />
   </resultMap>
   <resultMap id="ResultMap" type="com.server.edu.election.dto.Student4Elc">
     <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentId" />
@@ -48,7 +49,7 @@
   </resultMap>
     <sql id="Base_Column_List">
         STUDENT_CODE_, NAME_, SEX_, FORM_LEARNING_, IS_OVERSEAS_, TRAINING_LEVEL_, FACULTY_,
-        PROFESSION_, GRADE_, SPCIAL_PLAN_, REGISTRATION_STATUS_, ENROL_SEASON_, CAMPUS_,
+        PROFESSION_, GRADE_, SPCIAL_PLAN_, REGISTRATION_STATUS_, ENROL_SEASON_, CAMPUS_,EDUCATION_CODE_,
         TRAINING_CATEGORY_, DEGREE_CATEGORY_,DEGREE_TYPE_,RESEARCH_DIRECTION_,STUDENT_CATEGORY_,MANAGER_DEPT_ID_
     </sql>
     <select id="findStudentByCode" resultMap="BaseResultMap">
