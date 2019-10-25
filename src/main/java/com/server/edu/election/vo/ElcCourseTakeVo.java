@@ -79,7 +79,18 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /** 选课方式：1-自选；2-代选 */
     @Code2Text(DictTypeEnum.K_XKFS)
     private Integer electionMode;
-    
+
+    @Code2Text(transformer="K_BKKCXZ")
+    private Integer isElective;
+
+    public Integer getIsElective() {
+        return isElective;
+    }
+
+    public void setIsElective(Integer isElective) {
+        this.isElective = isElective;
+    }
+
     public String getElcMedWithdrawStatus() {
 		return elcMedWithdrawStatus;
 	}

@@ -33,11 +33,13 @@ import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.ElcCouSubsDto;
+import com.server.edu.election.dto.StudentScoreDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
+import com.server.edu.election.service.BkStudentScoreService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -88,6 +90,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     
     @Autowired
     private TeachingClassTeacherDao teacherDao;
+    
+    @Autowired
+    private BkStudentScoreService bkStudentScoreService;
     
     @Override
     public int getOrder()
@@ -242,7 +247,11 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         String studentId, Student stu)
     {
 //        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-    	List<ScoreStudentResultVo> stuScore = new ArrayList<>();
+    	
+    	StudentScoreDto dto = new StudentScoreDto();
+    	dto.setStudentId(studentId);
+    	dto.setCalendarId(context.getCalendarId());
+    	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
         
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
@@ -285,6 +294,18 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     }
                 }
                 
+                c.setCourse(lesson);
+                c.setScore(studentScore.getFinalScore());
+                boolean excellent = false;
+                if(Constants.EXCELLENT.equals(studentScore.isBestScore())) {
+                	excellent = true;
+                }
+                c.setExcellent(excellent);
+                c.setIsPass(studentScore.getIsPass());
+                c.setCourseLabelId(studentScore.getCourseLabelId());
+                c.setCheat(
+                    StringUtils.isBlank(studentScore.getTotalMarkScore()));
+                
                 if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
                 { // 已通过的课程
                     completedCourses.add(c);
@@ -293,15 +314,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 { // 未通过的课程
                     failedCourse.add(c);
                 }
-                
-                c.setCourse(lesson);
-                
-                c.setScore(studentScore.getTotalMarkScore());
-                c.setExcellent(studentScore.isBestScore());
-                c.setIsPass(studentScore.getIsPass());
-                c.setCourseLabelId(studentScore.getCourseLabelId());
-                c.setCheat(
-                    StringUtils.isBlank(studentScore.getTotalMarkScore()));
             }
             
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
