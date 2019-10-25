@@ -494,4 +494,13 @@
         where t1.CALENDAR_ID_ = #{calendarId} and t1.COURSE_CODE_ = #{courseCode} and t1.EXAM_TYPE_ = #{examType}
         and t2.NATURE_ = 1 and t1.PROJ_ID_ = #{projId}
     </select>
+
+    <select id="findCourse" parameterType="java.util.List" resultType="com.server.edu.exam.dto.SelectDto">
+        select t1.COURSE_CODE_ courseCode,t2.NAME_ courseName from graduate_exam_info_t t1
+        left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
+        where t1.ID_ in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

@@ -222,9 +222,20 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         //添加资源占用
         GraduateExamInfo examInfo = examInfoDao.selectByPrimaryKey(Long.valueOf(ids.get(0)));
 
-       // String infoId = OccupyUtils.sortBussniessId(examInfoIds);
+        List<Long> collect = ids.stream().map(a -> Long.parseLong(a)).collect(Collectors.toList());
+        List<SelectDto> course = examInfoDao.findCourse(collect);
+        StringBuilder builder = new StringBuilder();
+        if(CollectionUtil.isNotEmpty(course)){
+            for (SelectDto selectDto : course) {
+                builder.append(selectDto.getCourseName()).append("(").append(selectDto.getCourseCode()).append(")").append(",");
+            }
+        }
+        String remark = "";
+        if(builder.length()>0){
+             remark = builder.substring(0, builder.length() - 1)+"排考";
+        }
 
-        OccupyUtils.addOccupy(room, examInfo);
+        OccupyUtils.addOccupy(room, examInfo,remark);
 
     }
 

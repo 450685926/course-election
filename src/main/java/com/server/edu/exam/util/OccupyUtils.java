@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * @date 2019/10/10
  */
 public class OccupyUtils {
-    public static void addOccupy(List<GraduateExamRoom> room, GraduateExamInfo examInfo) {
+    public static void addOccupy(List<GraduateExamRoom> room, GraduateExamInfo examInfo,String remark) {
         ArrayList<OccupationParam> occupationParams = new ArrayList<>();
 
         for (GraduateExamRoom examRoom : room) {
@@ -30,8 +30,7 @@ public class OccupyUtils {
             List<String> classNodes = Arrays.asList(examInfo.getClassNode().split(","));
             int startTime = Integer.parseInt(classNodes.get(0));
             int endTime = Integer.parseInt(classNodes.get(classNodes.size() - 1));
-
-            builder.occupy(examRoom.getRoomId(), ResourceType.Classroom, "添加研究生排考占用", examInfo.getCampus())
+            builder.occupy(examRoom.getRoomId(), ResourceType.Classroom, remark, examInfo.getCampus())
                     .addTime(WeekDay.valueOf(examInfo.getWeekDay()), startTime, endTime, Arrays.asList(examInfo.getWeekNumber()));
             List<OccupationParam> params = builder.build(); // 这个参数就可以传递给对应的接口了
             occupationParams.add(params.get(0));
