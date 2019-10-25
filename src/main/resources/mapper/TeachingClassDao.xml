@@ -57,6 +57,7 @@
   	<result column="NATURE_" jdbcType="VARCHAR" property="nature" />
   	<result column="teacherCodes" jdbcType="VARCHAR" property="teacherCodes" />
   	<result column="BIND_CLASS_ID_" jdbcType="VARCHAR" property="bindClassId" />
+  	<result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
   </resultMap>
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct
@@ -79,6 +80,7 @@
     t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
     t3.FACULTY_,
     t3.NATURE_,
+      t3.IS_ELECTIVE_,
     GROUP_CONCAT(DISTINCT t7.`TEACHER_CODE_`) teacherCodes
     <if test="isHaveLimit !=null and isHaveLimit ==1">
 	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,
@@ -204,7 +206,7 @@
 	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
 	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
 	left join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
-    left join elc_course_takes_t_${mode} t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_ and t7.CALENDAR_ID_ =#{calendarId})
+    left join elc_course_takes_t_${index} t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_ and t7.CALENDAR_ID_ =#{calendarId})
     <where>
       t1.DELETE_STATUS_ = 0
       and t3.CALENDAR_ID_ = #{calendarId}
@@ -448,7 +450,7 @@
 			t2.CODE_ code,
 			COUNT(t1.ID_) withdrawNum
 		FROM
-			election_log_t_${mode} t1
+			election_log_t_${index} t1
 		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_CODE_ = t2.CODE_ AND t2.DEPLOY_FLAG_ &gt; 0
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON (

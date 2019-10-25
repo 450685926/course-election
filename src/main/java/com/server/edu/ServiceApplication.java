@@ -1,4 +1,4 @@
-package com.server.edu.election;
+package com.server.edu;
 
 import java.nio.charset.StandardCharsets;
 
@@ -16,7 +16,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @Import(SpringUtils.class)
-@MapperScan("com.server.edu.election.dao")
+@MapperScan({"com.server.edu.*.dao","com.server.edu.*.*.dao"})
 @EnableServiceComb
 @EnableScheduling
 public class ServiceApplication

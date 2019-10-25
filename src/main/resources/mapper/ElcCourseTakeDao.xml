@@ -54,6 +54,7 @@
         <result column="medWithdrawId" jdbcType="BIGINT" property="medWithdrawId"/>
         <result column="courseLabel" jdbcType="VARCHAR" property="courseLabel"/>
         <result column="MODE_" jdbcType="INTEGER" property="electionMode"/>
+        <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
     </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
@@ -73,8 +74,8 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
-        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
-        t3.NAME_ as courseName, t3.NATURE_ nature,t3.CREDITS_,
+        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,
+        t3.NAME_ as courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
         from elc_course_takes_t t1
@@ -130,13 +131,10 @@
                 and t2.FORM_LEARNING_= #{query.formLearning}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-                and t2.FACULTY_ = #{query.faculty}
+                and t3.COLLEGE_ = #{query.faculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
                 and t3.CODE_ = #{query.courseCode}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
-                and t3.COLLEGE_ = #{courseFaculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
                 and t3.NAME_ = #{query.courseName}
@@ -1741,7 +1739,6 @@
         t1.`MODE_`,
         t1.`BILL_ID_`,
         t2.BILL_NUM_,
-        t2.`AMOUNT_`,
         t2.`PAY_`,
         t2.`CREATED_AT_` payTime,
         t3.`NAME_` studentName,
@@ -1751,13 +1748,19 @@
         t7.`COURSE_NAME_` courseName,
         t7.`CREDITS_`,
         t7.`CALENDAR_ID_` couCalendarId,
-        t7.IS_ELECTIVE_ nature
+        t7.IS_ELECTIVE_ nature,
+        if(t2.ID_ is null,
+        (if(rc.IS_CHARGE_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0)),
+        t2.AMOUNT_)	AMOUNT_
         FROM
-        elc_course_takes_t_${mode} t1
+        elc_course_takes_t t1
         left JOIN elc_bills_t t2
         ON t1.BILL_ID_ = t2.ID_
         JOIN student_t t3
         ON t1.`STUDENT_ID_` = t3.`STUDENT_CODE_`
+        left JOIN rebuild_course_charge_t rc
+        on t3.TRAINING_LEVEL_ = rc.TRAINING_LEVEL_
+        and t3.FORM_LEARNING_ = rc.FORM_LEARNING_
         JOIN `teaching_class_t` t5
         ON t1.`TEACHING_CLASS_ID_` = t5.`ID_`
         JOIN `teaching_task_t` t6
@@ -1779,14 +1782,11 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
                 and t3.PROFESSION_ = #{profession}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
-                and t3.PROFESSION_ = #{profession}
-            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and t7.IS_ELECTIVE_ = #{nature}
             </if>
-            <if test="paId !=null and paId !=0">
-                and t1.PAID_ = #{paId}
+            <if test="paid !=null">
+                and t1.PAID_ = #{paid}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(couCalendarId)">
                 and t7.CALENDAR_ID_ = #{couCalendarId}
@@ -1823,7 +1823,7 @@
 		  t3.PERIOD_,
 		  t2.`CAMPUS_` 
 		FROM
-		  elc_course_takes_t_${mode} t1 
+		  elc_course_takes_t_${index} t1
 		  JOIN teaching_class_t t2 
 		    ON t1.`TEACHING_CLASS_ID_` = t2.`ID_` 
 		  JOIN `course_open_t` t3 
@@ -1861,7 +1861,8 @@
 		  AND t1.`CALENDAR_ID_` = #{calendarId} 
   </select>
 
-    <select id="findNoChargeListByStuId" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
+    <select id="findNoChargeListByStuId" parameterType="com.server.edu.election.dto.RebuildCourseDto"
+            resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT
          st.STUDENT_CODE_ studentCode,
          st.NAME_ studentName,
@@ -1879,7 +1880,7 @@
          on st.STUDENT_CODE_ = vp.studentId and vp.score is not null and vp.isPass = 0
          JOIN course_t ct
          on vp.courseCode = ct.CODE_
-         left JOIN elc_course_takes_t el
+         left JOIN elc_course_takes_t_${index} el
          on vp.courseCode = el.COURSE_CODE_
          and el.CALENDAR_ID_ = #{calendarId}
          and el.COURSE_TAKE_TYPE_ =2

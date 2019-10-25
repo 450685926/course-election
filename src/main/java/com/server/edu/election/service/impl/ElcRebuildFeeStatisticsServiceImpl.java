@@ -7,11 +7,11 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dto.StudentRebuildFeeDto;
 import com.server.edu.election.service.ElcRebuildFeeStatisticsService;
-import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -35,8 +35,8 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 		String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		StudentRebuildFeeDto dto = condition.getCondition();
-		int mode = TableIndexUtil.getMode(dto.getCalendarId());
-		dto.setMode(mode);
+		/*int mode = TableIndexUtil.getMode(dto.getCalendarId());
+		dto.setMode(mode);*/
 		dto.setManageDptId(dptId);
 		Page<StudentRebuildFeeVo> list = (Page<StudentRebuildFeeVo>)elcCourseTakeDao.getStudentRebuildFeeList(condition.getCondition());
 		return new PageResult<>(list);
@@ -46,8 +46,6 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 	public ExcelWriterUtil export(StudentRebuildFeeDto studentRebuildFeeDto) throws Exception {
 		// TODO Auto-generated method stub
 		String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-		int mode = TableIndexUtil.getMode(studentRebuildFeeDto.getCalendarId());
-		studentRebuildFeeDto.setMode(mode);
 		studentRebuildFeeDto.setManageDptId(dptId);
 		List<StudentRebuildFeeVo> list = elcCourseTakeDao.getStudentRebuildFeeList(studentRebuildFeeDto);
 		GeneralExcelDesigner design = getDesign();
@@ -58,6 +56,7 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 	}
 	
 	private GeneralExcelDesigner getDesign() {
+		 DoubleHandler doubleHandler = new DoubleHandler();
 		 GeneralExcelDesigner design = new GeneralExcelDesigner();
 		 design.setNullCellValue("");
 		 design.addCell("学号","studentId");
@@ -75,9 +74,10 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 					 }
 					 return value;
 				 });
-		 design.addCell("应缴金额","amount");
-		 design.addCell("已缴金额","pay");
-		 design.addCell("是否已缴费","paId").setValueHandler(
+        design.addCell("学分", "facultyI18n");
+	 	design.addCell("应缴金额","amount").setValueHandler(doubleHandler);
+	 	design.addCell("已缴金额","pay").setValueHandler(doubleHandler);
+	 	design.addCell("是否已缴费","paid").setValueHandler(
 				 (value, rawData, cell) -> {
 					    if(Constants.PAID.toString().equals(value)) {
 					    	value ="是";

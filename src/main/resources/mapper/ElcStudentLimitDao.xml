@@ -58,7 +58,7 @@
 			sum(t3.CREDITS_) END selectedRebuild
 		FROM
 			elc_student_limit_t t1
-		LEFT JOIN elc_course_takes_t_${mode} t2 ON (
+		LEFT JOIN elc_course_takes_t_${index} t2 ON (
 			t1.STUDENT_ID_ = t2.STUDENT_ID_
 			AND t1.CALENDAR_ID_ = t2.CALENDAR_ID_
 			AND t2.CALENDAR_ID_ = #{calendarId}

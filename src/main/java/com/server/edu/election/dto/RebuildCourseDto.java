@@ -10,14 +10,17 @@ import java.util.List;
  * @author: bear
  * @create: 2019-05-23 17:23
  */
-public class RebuildCourseDto
-{
+public class RebuildCourseDto {
     @NotNull
     private Long calendarId;
     
     private String courseCode;
-    
+
+    /**课程名称*/
     private String courseName;
+
+    /**课程性质*/
+    private String nature;
     
     private String label;
     
@@ -44,6 +47,46 @@ public class RebuildCourseDto
     private String studentName;
     /**性别*/
     private String sex;
+    /**课程序号*/
+    private String teachingClassCode;
+
+    /**id集合*/
+    private List<Long> ids;
+
+    /**分库分表标识*/
+    private Integer index;
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
+    public List<Long> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<Long> ids) {
+        this.ids = ids;
+    }
+
+    public String getNature() {
+        return nature;
+    }
+
+    public void setNature(String nature) {
+        this.nature = nature;
+    }
+
+    public String getTeachingClassCode() {
+        return teachingClassCode;
+    }
+
+    public void setTeachingClassCode(String teachingClassCode) {
+        this.teachingClassCode = teachingClassCode;
+    }
 
     /**培养计划对应课程Id集合*/
     private List<Long> planCourseIds;

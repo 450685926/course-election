@@ -9,6 +9,7 @@ import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.RebuildCourseDto;
@@ -16,6 +17,7 @@ import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -552,13 +554,28 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
         design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "teachingClassCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.revisionategory"), "courseTakeType").setValueHandler(
+        design.addCell("课程性质", "nature").setValueHandler(
                 (value, rawData, cell) -> {
-                    return dictionaryService.query("X_XDLX", value, SessionUtils.getLang());
+                    if ("1".equals(value)) {
+                        value = "公开课";
+                    } else {
+                        value = "专业课";
+                    }
+                    return value;
+                });
+        design.addCell("课程安排", "courseArr");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits").setValueHandler(new DoubleHandler());
+        design.addCell("是否缴费", "paid").setValueHandler(
+                (value, rawData, cell) -> {
+                    if (Constants.PAID.toString().equals(value)) {
+                        value = "已缴费";
+                    } else if (Constants.UN_PAID.toString().equals(value)){
+                        value = "未缴费";
+                    }else {
+                        value = StringUtils.EMPTY;
+                    }
+                    return value;
                 });
         return design;
     }
@@ -641,6 +658,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeList> findNoChargeListByStuId(PageCondition<RebuildCourseDto> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+               // int mode = TableIndexUtil.getMode(c.getCalendarId());
+        condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findNoChargeListByStuId(condition.getCondition());
         return new PageResult<>(courseNoChargeList);
     }
@@ -678,12 +697,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     return value;
                 });
         design.addCell("课程安排", "courseArr");
-        design.addCell("学分", "credits");
+        design.addCell("学分", "credits").setValueHandler(new DoubleHandler());
         design.addCell("是否缴费", "paid").setValueHandler(
                 (value, rawData, cell) -> {
                     if (Constants.PAID.toString().equals(value)) {
                         value = "已缴费";
-                    } else if (Constants.UN_PAID.equals(value)){
+                    } else if (Constants.UN_PAID.toString().equals(value)){
                         value = "未缴费";
                     }else {
                         value = StringUtils.EMPTY;
