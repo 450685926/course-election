@@ -62,6 +62,9 @@ public interface Constants
     
     /** 未缴费 */
     public static final Integer UN_PAID = 0;
+    /** 优*/
+    public static final String EXCELLENT = "优";
+    
     
 
 }
