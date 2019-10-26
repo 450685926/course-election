@@ -10,7 +10,7 @@ public class StudentScoreDto {
     /**
      * 通过(1.是 0否)
      */
-	private Integer pass;
+	private Integer isPass;
 	
 	private Long calendarId;
 	
@@ -24,6 +24,21 @@ public class StudentScoreDto {
      */
     private Long semester;
     
+    /**
+     * 成绩
+     */
+    private String score;
+    
+    
+    
+
+	public String getScore() {
+		return score;
+	}
+
+	public void setScore(String score) {
+		this.score = score;
+	}
 
 	public Long getAcademicYear() {
 		return academicYear;
@@ -57,12 +72,13 @@ public class StudentScoreDto {
 		this.isBest = isBest;
 	}
 
-	public Integer getPass() {
-		return pass;
+
+	public Integer getIsPass() {
+		return isPass;
 	}
 
-	public void setPass(Integer pass) {
-		this.pass = pass;
+	public void setIsPass(Integer isPass) {
+		this.isPass = isPass;
 	}
 
 	public Long getCalendarId() {
