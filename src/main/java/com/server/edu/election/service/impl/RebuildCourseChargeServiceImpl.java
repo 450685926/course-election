@@ -8,7 +8,9 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
@@ -216,8 +218,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition) {
-        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        condition.getCondition().setDeptId(dptId);
+//        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId("1");
+        //查询校历时间
+        SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(condition.getCondition().getCalendarId());
+        condition.getCondition().setBeginTime(calendar.getBeginDay());
+        condition.getCondition().setEndTime(calendar.getEndDay());
+        condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
        /* if (courseNoChargeList != null) {
@@ -502,14 +509,27 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         design.setNullCellValue("");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"), "courseCode");
+        design.addCell("课程序号", "teachingClassCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "label");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.courseArr"), "courseArr");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.credits"), "credits");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.isCharge"), "paid")
-                .setValueHandler((value, rawData, cell) -> {
-                    return "0".equals(value) ? "未缴费" : "已缴费";
+        design.addCell("课程性质", "nature").setValueHandler(
+                (value, rawData, cell) -> {
+                    if("1".equals(value)) {
+                        value ="公开课";
+                    }else {
+                        value ="专业课";
+                    }
+                    return value;
+                });
+        design.addCell("课程安排", "courseArr");
+        design.addCell("学分", "credits");
+        design.addCell("是否缴费", "paid").setValueHandler(
+                (value, rawData, cell) -> {
+                    if("1".equals(value)) {
+                        value ="已缴费";
+                    }else {
+                        value ="未缴费";
+                    }
+                    return value;
                 });
         return design;
     }
