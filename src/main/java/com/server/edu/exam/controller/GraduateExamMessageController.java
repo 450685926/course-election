@@ -100,4 +100,10 @@ public class GraduateExamMessageController {
         ResponseEntity<Resource> result = ExportExcelUtils.export(path,"application/zip",fileName);
         return result;
     }
+
+    @GetMapping("/exportCheckTableFreemarker")
+    public RestResult<?> exportCheckTableFreemarker(@RequestParam Long calendarId,@RequestParam Integer examType,@RequestParam String calendarName){
+        ExcelResult result = messageService.exportCheckTableFreemarker(calendarId,examType,calendarName);
+        return RestResult.successData(result);
+    }
 }
