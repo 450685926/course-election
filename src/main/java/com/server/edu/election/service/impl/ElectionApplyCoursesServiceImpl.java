@@ -102,8 +102,9 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 			electionApplyCourses.setMode(dto.getMode());
 			electionApplyCourses.setCourseCode(course);
 			electionApplyCourses.setCalendarId(dto.getCalendarId());
-			list.add(electionApplyCourses);
-		}
+            list.add(electionApplyCourses);
+            courseCodes.add(course);
+        }
 		Example example = new Example(ElectionApplyCourses.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andIn("courseCode",courseCodes);
