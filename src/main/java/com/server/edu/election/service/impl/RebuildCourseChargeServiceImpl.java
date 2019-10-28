@@ -218,8 +218,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition) {
-//        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        condition.getCondition().setDeptId("1");
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.getCondition().setDeptId(dptId);
         //查询校历时间
         SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(condition.getCondition().getCalendarId());
         condition.getCondition().setBeginTime(calendar.getBeginDay());
@@ -521,7 +521,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     return value;
                 });
         design.addCell("课程安排", "courseArr");
-        design.addCell("学分", "credits");
+        design.addCell("学分", "credits").setValueHandler(new DoubleHandler());
         design.addCell("是否缴费", "paid").setValueHandler(
                 (value, rawData, cell) -> {
                     if("1".equals(value)) {
@@ -552,7 +552,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     return value;
                 });
         design.addCell("课程安排", "courseArr");
-        design.addCell("学分", "credits");
+        design.addCell("学分", "credits").setValueHandler(new DoubleHandler());
         design.addCell("是否缴费", "paid").setValueHandler(
                 (value, rawData, cell) -> {
                     if("1".equals(value)) {
