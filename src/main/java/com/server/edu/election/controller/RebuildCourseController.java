@@ -163,7 +163,7 @@ public class RebuildCourseController
         return RestResult.success();
     }
     
-    @ApiOperation(value = "查询未缴费的课程名单")
+    @ApiOperation(value = "查询所有重修的名单")
     @PostMapping("/findCourseNoChargeList")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(
         @RequestBody @NotNull PageCondition<RebuildCourseDto> condition)

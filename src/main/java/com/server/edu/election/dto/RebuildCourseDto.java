@@ -41,6 +41,17 @@ public class RebuildCourseDto {
     private Integer mode;
     
     private String deptId;
+
+    private Integer paid;
+
+    public Integer getPaid() {
+        return paid;
+    }
+
+    public void setPaid(Integer paid) {
+        this.paid = paid;
+    }
+
     /**学号*/
     private String studentId;
     /**姓名*/
@@ -55,6 +66,38 @@ public class RebuildCourseDto {
 
     /**分库分表标识*/
     private Integer index;
+
+    /**是否编级。1是0否*/
+    private Integer hasChangeGrade;
+
+    public Integer getHasChangeGrade() {
+        return hasChangeGrade;
+    }
+
+    public void setHasChangeGrade(Integer hasChangeGrade) {
+        this.hasChangeGrade = hasChangeGrade;
+    }
+
+    //============冗余两个字段，校历开始时间。结束时间================
+    private Long endTime;
+    private Long beginTime;
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
+    }
+
+    public Long getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(Long beginTime) {
+        this.beginTime = beginTime;
+    }
+    //==============================================================
 
     public Integer getIndex() {
         return index;

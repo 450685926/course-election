@@ -105,6 +105,7 @@
 		t1.COURSE_CODE_,
 		t1.COURSE_NAME_,
 		t1.NATURE_,
+		t1.IS_ELECTIVE_,
 		t1.FACULTY_,
 		t1.CREDITS_,
 		t1.PERIOD_,
@@ -154,6 +155,9 @@
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
 	  		and (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
 	  		</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+				and t1.IS_ELECTIVE_ = #{query.nature}
+			</if>
 	  	</where>
 	  	GROUP BY t4.ID_
 	  	order by t4.ID_
