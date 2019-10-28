@@ -286,7 +286,7 @@
     <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCourseDto"
             resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT
-        el.ID_ id,
+        DISTINCT(el.ID_) id,
         el.CALENDAR_ID_ calendarId,
         st.STUDENT_CODE_ studentCode,
         st.NAME_ studentName,
@@ -298,8 +298,8 @@
         el.PAID_ paid,
         te.WEEK_HOUR_ weekHour,
         el.COURSE_TAKE_TYPE_ courseTakeType,
-        el.MODE_
-        mode,el.TURN_ turn,
+        el.MODE_ mode,
+        el.TURN_ turn,
         el.CHOOSE_OBJ_ chooseObj,
         te.END_WEEK_ endWeek,
         te.START_WEEK_ startWeek,
@@ -312,6 +312,11 @@
         JOIN course_t co on el.COURSE_CODE_=co.CODE_
         JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
         JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(hasChangeGrade)">
+            left JOIN student.student_abnormal_apply_t sa
+            on el.STUDENT_ID_ = sa.STUDENT_ID_ and sa.STATUS_ = 3 and sa.CLASS_ID_ = '300015'
+            and #{endTime} &gt;= sa.EFFECTIVE_TIME_ &gt;= #{beginTime}
+        </if>
         <where>
             <if test="true">
                 and el.COURSE_TAKE_TYPE_=2
@@ -321,6 +326,10 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isCharge)">
                 and el.PAID_ = #{isCharge,jdbcType=INTEGER}
+            </if>
+            <!--我也不知道上面那个是干嘛的，我也不敢删-->
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(paid)">
+                and el.PAID_ = #{paid,jdbcType=INTEGER}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
                 and el.MODE_ = #{mode,jdbcType=INTEGER}
@@ -335,13 +344,34 @@
                 and co.CODE_ like CONCAT('%', #{courseCode,jdbcType=VARCHAR}, '%')
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-                and co.NAME_ like CONCAT('%', #{courseName,jdbcType=VARCHAR}, '%')
+                and co.NAME_ = #{courseName}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
                 and (st.STUDENT_CODE_ like CONCAT('%', #{keyWord}, '%') or st.NAME_ like CONCAT('%', #{keyWord}, '%'))
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+                and co.IS_ELECTIVE_ =#{nature,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+                and te.CODE_ =#{teachingClassCode,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+                and st.NAME_ =#{studentName,jdbcType=VARCHAR}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
                 and st.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+                and el.ID_ in
+                <foreach item="id" collection="ids" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="hasChangeGrade == 1">
+                and sa.ID_ is not null
+            </if>
+            <if test="hasChangeGrade == 0">
+                and sa.ID_ is null
             </if>
         </where>
     </select>
@@ -781,7 +811,8 @@
         st.TRAINING_LEVEL_ trainingLevel,
         st.FACULTY_ faculty,
         st.PROFESSION_ profession,
-        st.GRADE_ grade
+        st.GRADE_ grade,
+        st.CAMPUS_ campus
         FROM
         student_t st
         JOIN election_rounds_stu_t t2 ON (
@@ -811,6 +842,12 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(overseas)">
                 and st.IS_OVERSEAS_ =#{overseas}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+                and st.CAMPUS_ =#{campus}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(sex)">
+                and st.SEX_ =#{sex}
             </if>
         </where>
     </select>
