@@ -110,7 +110,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		criteria.andIn("courseCode",courseCodes);
 		List<ElectionApplyCourses> electionApplyCourses = electionApplyCoursesDao.selectByExample(example);
 		if (CollectionUtil.isNotEmpty(electionApplyCourses)) {
-			List<String> collect = electionApplyCourses.stream().map(ElectionApplyCourses::getCourseCode).collect(Collectors.toList());
+			Set<String> collect = electionApplyCourses.stream().map(ElectionApplyCourses::getCourseCode).collect(Collectors.toSet());
 			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg(String.join(",", collect))));
 		}
 		int result = electionApplyCoursesDao.insertList(list);
