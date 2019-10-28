@@ -27,6 +27,7 @@ public class ElcCourseTakeQuery
     /**学生学院*/
     private String faculty;
     
+    private Integer sex;
 
     /**年级*/
     private String grade;
@@ -351,5 +352,13 @@ public class ElcCourseTakeQuery
     {
         this.courseLabelId = courseLabelId;
     }
+
+	public Integer getSex() {
+		return sex;
+	}
+
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
     
 }

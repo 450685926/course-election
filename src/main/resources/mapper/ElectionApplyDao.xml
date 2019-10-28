@@ -25,6 +25,7 @@
   </resultMap>
   <select id="selectApplys" parameterType="com.server.edu.election.dto.ElectionApplyDto" resultMap="ApplyMap">
 		SELECT
+		  distinct
 		  t1.*,
 		  t2.NAME_ courseName,
 		  t3.NAME_ studentName,
