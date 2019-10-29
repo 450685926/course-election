@@ -86,6 +86,8 @@ public class ElcCourseTakeQuery
 
     private String formLearning;
 
+    private Integer isElective;
+
     private String nature;
 
     /**导出功能选中的id集合*/
@@ -96,7 +98,15 @@ public class ElcCourseTakeQuery
     
     /** 课程类别ID*/
     private Long courseLabelId;
-    
+
+    public Integer getIsElective() {
+        return isElective;
+    }
+
+    public void setIsElective(Integer isElective) {
+        this.isElective = isElective;
+    }
+
     public List<Long> getIds() {
         return ids;
     }
