@@ -577,19 +577,19 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 design.addCell("考场数", "examRooms");
                 design.addCell("应考人数", "totalNumber");
                 design.addCell("实考人数", "actualNumber");
-                design.addCell("考试时间", "examDate");
-                design.addCell("排考状态", "examStatus").setValueHandler(new CellValueHandler() {
-                    @Override
-                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
-                        if ("1".equals(s)) {
-                            return "已排考";
-                        } else if ("2".equals(s)) {
-                            return "已发布";
-                        } else {
-                            return "未排考";
-                        }
-                    }
-                });
+                design.addCell("考试时间", "examTime");
+//                design.addCell("排考状态", "examStatus").setValueHandler(new CellValueHandler() {
+//                    @Override
+//                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
+//                        if ("1".equals(s)) {
+//                            return "已排考";
+//                        } else if ("2".equals(s)) {
+//                            return "已发布";
+//                        } else {
+//                            return "未排考";
+//                        }
+//                    }
+//                });
                 return design;
             }
         });
