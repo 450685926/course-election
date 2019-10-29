@@ -80,7 +80,7 @@
     t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
     t3.FACULTY_,
     t3.NATURE_,
-      t3.IS_ELECTIVE_,
+    t3.IS_ELECTIVE_,
     GROUP_CONCAT(DISTINCT t7.`TEACHER_CODE_`) teacherCodes
     <if test="isHaveLimit !=null and isHaveLimit ==1">
 	    ,t5.FACULTY_ limitFaculty,t5.TRAINING_LEVEL_ limitTrainingLevel,
@@ -111,6 +111,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
         and t3.IS_ELECTIVE_ = #{isElective}
       </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+            and t3.TRAINING_LEVEL_ = #{trainingLevel}
+        </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
         and t1.COURSE_LABEL_ID_ = #{courseLabelId}
       </if>
