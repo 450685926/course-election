@@ -13,6 +13,8 @@ public class CourseDto extends Course
     
     private String keyword;
     
+    private Long calendarId;
+    
     public String getProjectId()
     {
         return projectId;
@@ -43,5 +45,13 @@ public class CourseDto extends Course
         this.keyword = keyword;
     }
     
-    private static final long serialVersionUID = 1L;
+    public Long getCalendarId() {
+		return calendarId;
+	}
+
+	public void setCalendarId(Long calendarId) {
+		this.calendarId = calendarId;
+	}
+
+	private static final long serialVersionUID = 1L;
 }
