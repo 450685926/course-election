@@ -137,21 +137,30 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             throw new ParameterValidateException("入参有误");
         }
         GraduateExamInfo info = examInfo.get(0);
-        Date examDate = info.getExamDate();
-        String examStartTime = info.getExamStartTime();
-        String examEndTime = info.getExamEndTime();
-        Integer weekNumber = info.getWeekNumber();
-        Integer weekDay = info.getWeekDay();
-        String classNode = info.getClassNode();
-        Long actualCalendarId = info.getActualCalendarId();
-        if (examDate == null || StringUtils.isBlank(examStartTime)
-                || StringUtils.isBlank(examEndTime) || info.getCalendarId() == null
-                || StringUtils.isBlank(info.getCourseCode()) || StringUtils.isBlank(info.getCampus())
-                || info.getExamType() == null || actualCalendarId == null) {
-            throw new ParameterValidateException("入参有误");
-        }
+        Integer weekNumber = null;
+        Integer weekDay = null;
+        String classNode = "";
+        Long actualCalendarId = null;
 
-        String examTime = GraduateExamTransTime.transTime(examDate, examStartTime, examEndTime, weekNumber, weekDay);
+        String examTime = "";
+        //时间地点
+        if(info.getNotice() == ApplyStatus.NOT_EXAMINE){
+            Date examDate = info.getExamDate();
+            String examStartTime = info.getExamStartTime();
+            String examEndTime = info.getExamEndTime();
+             weekNumber = info.getWeekNumber();
+             weekDay = info.getWeekDay();
+             classNode = info.getClassNode();
+             actualCalendarId = info.getActualCalendarId();
+            if (examDate == null || StringUtils.isBlank(examStartTime)
+                    || StringUtils.isBlank(examEndTime) || info.getCalendarId() == null
+                    || StringUtils.isBlank(info.getCourseCode()) || StringUtils.isBlank(info.getCampus())
+                    || info.getExamType() == null || actualCalendarId == null) {
+                throw new ParameterValidateException("入参有误");
+            }
+
+             examTime = GraduateExamTransTime.transTime(examDate, examStartTime, examEndTime, weekNumber, weekDay);
+        }
         List<Long> list = new ArrayList<>();
         for (GraduateExamInfo graduateExamInfo : examInfo) {
             graduateExamInfo.setUpdateAt(new Date());
@@ -160,7 +169,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             //this.transTime(graduateExamInfo);
             //保存时间就入库（判断是否有Id）
             if (graduateExamInfo.getId() == null) {
-                this.checkPublicExamTimeSame(graduateExamInfo);
+                if(graduateExamInfo.getNotice() == ApplyStatus.NOT_EXAMINE){
+                    this.checkPublicExamTimeSame(graduateExamInfo);
+                }
                 graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
                 graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
                 try {
@@ -170,7 +181,20 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                     throw new ParameterValidateException("该课程校区已经排考");
                 }
             } else {
-                examInfoDao.updateByPrimaryKeySelective(graduateExamInfo);
+                //学院通知需要校验是否有考场
+                if(graduateExamInfo.getNotice() == ApplyStatus.FINAL_EXAM){
+                    if(graduateExamInfo.getExamRooms() != null && graduateExamInfo.getExamRooms() > 0 ){
+                        throw new ParameterValidateException("保存时间地点学院通知,请先删除考场");
+                    }
+                    graduateExamInfo.setExamDate(null);
+                    graduateExamInfo.setExamEndTime("");
+                    graduateExamInfo.setExamStartTime("");
+                    graduateExamInfo.setWeekDay(null);
+                    graduateExamInfo.setWeekNumber(null);
+                    graduateExamInfo.setClassNode("");
+                    graduateExamInfo.setActualCalendarId(null);
+                }
+                examInfoDao.updateByPrimaryKey(graduateExamInfo);
             }
 
             list.add(graduateExamInfo.getId());
