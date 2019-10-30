@@ -990,7 +990,7 @@
         SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,
         t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,
         t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,
-        t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature
+        t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature,t3.IS_ELECTIVE_ isElective
         from elc_course_takes_t t1
         join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
         join course_t t3 on t1.COURSE_CODE_=t3.CODE_

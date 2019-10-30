@@ -23,6 +23,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcScreeningLabel;
@@ -34,6 +35,7 @@ import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.excel.export.ExcelResult;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -394,5 +396,22 @@ public class ElcResultController
         
         return RestResult.success();
     }
+    
+    /**
+     * 班级信息导出
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "导出班级信息")
+    @PostMapping("/teachClassPageExport")
+    public RestResult<?> teachClassPageExport(
+    		@RequestBody ElcResultQuery condition)
+            throws Exception
+        {
+    		logger.info("export.start");
+            ExcelResult result = elcResultService.teachClassPageExport(condition);
+            return RestResult.successData(result);
+        }   
     
 }
