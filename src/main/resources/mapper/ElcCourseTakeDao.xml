@@ -1014,6 +1014,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
                 and t3.NAME_ like concat ('%',#{courseName,jdbcType=VARCHAR},'%')
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+                and t3.IS_ELECTIVE_ = #{isElective}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabel)">
                 and t3.LABEL_ =#{courseLabel,jdbcType=VARCHAR}
             </if>
