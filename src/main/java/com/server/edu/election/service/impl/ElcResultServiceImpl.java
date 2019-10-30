@@ -153,7 +153,12 @@ public class ElcResultServiceImpl implements ElcResultService
 				vo.setTimeTableList(tableMessages);
 				String timeAndRoom = "";
 				for (TimeAndRoom tAndR : tableMessages) {
-					timeAndRoom = tAndR.getTimeAndRoom() + "/" + ClassroomCacheUtil.getClassroom(tAndR.getRoomId()).getName()+" ";
+					if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
+						ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
+						if (classroom != null) {
+							timeAndRoom = tAndR.getTimeAndRoom() + "/" + classroom.getName()+" ";
+						}
+					}
 				}
 				vo.setTimeAndRoom(timeAndRoom);
             }

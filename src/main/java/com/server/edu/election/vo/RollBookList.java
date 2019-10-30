@@ -32,7 +32,7 @@ public class RollBookList {
     private String faculty;
     private String teacherName;
     @Code2Text(transformer = "K_BKKCXZ")
-    private Integer isElective;
+    private String isElective;
 
     public String getCourseNature() {
         return courseNature;
@@ -153,4 +153,13 @@ public class RollBookList {
     public void setTeacherName(String teacherName) {
         this.teacherName = teacherName;
     }
+
+	public String getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(String isElective) {
+		this.isElective = isElective;
+	}
+    
 }
