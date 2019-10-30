@@ -214,9 +214,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassIds)">
         and t1.ID_ in
-         <foreach collection="ids" open="(" separator="," close=")" item="id">
+         <foreach collection="teachingClassIds" open="(" separator="," close=")" item="id">
             #{id}
          </foreach>
       </if>
