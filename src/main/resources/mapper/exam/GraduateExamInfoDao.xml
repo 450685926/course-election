@@ -36,11 +36,11 @@
             parameterType="com.server.edu.exam.vo.GraduateExamInfoVo">
         select t1.CALENDAR_ID_ calendarId,t1.COURSE_CODE_ courseCode,t2.NAME_ courseName,t3.CAMPUS_ campus,t2.COLLEGE_ faculty,
         t2.NATURE_ nature,t2.TRAINING_LEVEL_ trainingLevel,t2.FORM_LEARNING_ formLearning,t2.CREDITS_ credits,t4.EXAM_TIME_ examTime,
-        count(t1.ID_) totalNumber,t4.EXAM_ROOMS_ examRooms,t4.ACTUAL_NUMBER_ actualNumber,t4.ID_ id,t4.EXAM_DATE_ examDate,
+        count(t1.ID_) totalNumber,t4.EXAM_ROOMS_ examRooms,t4.ACTUAL_NUMBER_ actualNumber,t4.ID_ id,t4.EXAM_DATE_ examDate,GROUP_CONCAT(DISTINCT t3.NAME_ ORDER BY t3.CODE_ asc ) teachingClassName,
         t4.EXAM_START_TIME_ examStartTime,t4.EXAM_END_TIME_ examEndTime,t4.WEEK_NUMBER_ weekNumber,t2.MANAGER_DEPT_ID_ projId,
         t4.WEEK_DAY_ weekDay,t4.ClASS_NODE_ classNode,t4.EXAM_STATUS_ examStatus,t4.NOTICE_ notice,t4.ACTUAL_CALENDAR_ID_ actualCalendarId
         from
-        elc_course_takes_t t1
+        elc_course_takes_t_${mode} t1
         left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
         left join teaching_class_t t3 on t1.TEACHING_CLASS_ID_ = t3.ID_
         left join graduate_exam_info_t t4 on (
@@ -111,7 +111,7 @@
         t2.NATURE_ nature,t2.TRAINING_LEVEL_ trainingLevel,t2.CREDITS_ credits,t2.MANAGER_DEPT_ID_ projId,
         t4.ACTUAL_CALENDAR_ID_ actualCalendarId,t4.EXAM_START_TIME_ examStartTime,t4.EXAM_END_TIME_ examEndTime,
         t2.FORM_LEARNING_ formLearning,count(t1.ID_) totalNumber,t4.EXAM_ROOMS_ examRooms,t4.ACTUAL_NUMBER_ actualNumber,t4.WEEK_NUMBER_ weekNumber,t4.WEEK_DAY_ weekDay,
-        t4.ID_ id,t4.EXAM_DATE_ examDate,t4.EXAM_STATUS_ examStatus,t4.EXAM_TIME_ examTime,t4.ClASS_NODE_ classNode,t4.NOTICE_ notice
+        t4.ID_ id,t4.EXAM_DATE_ examDate,t4.EXAM_STATUS_ examStatus,t4.EXAM_TIME_ examTime,t4.ClASS_NODE_ classNode,t4.NOTICE_ notice,GROUP_CONCAT(DISTINCT t3.NAME_ ORDER BY t3.CODE_ asc ) teachingClassName
         from
         graduate_exam_apply_examination_t t1
         left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
@@ -503,4 +503,5 @@
             #{id}
         </foreach>
     </select>
+    
 </mapper>
