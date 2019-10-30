@@ -1,16 +1,40 @@
 package com.server.edu.election.service.impl;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.*;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.ElcMedWithdrawDao;
+import com.server.edu.election.dao.ElcMedWithdrawRuleRefCourDao;
+import com.server.edu.election.dao.ElcMedWithdrawRulesDao;
+import com.server.edu.election.dao.ElecRoundCourseDao;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcMedWithdrawDto;
 import com.server.edu.election.dto.ElcMedWithdrawRuleRefCourDto;
-import com.server.edu.election.entity.*;
+import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.ElcMedWithdraw;
+import com.server.edu.election.entity.ElcMedWithdrawRules;
+import com.server.edu.election.entity.ElectionConstants;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcMedWithdrawService;
 import com.server.edu.election.util.TableIndexUtil;
@@ -21,17 +45,8 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
     @Autowired
@@ -74,15 +89,6 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
     		dto.setStudentId(uid);
             elcCourseTakes =
                 elcCourseTakeDao.getElcMedWithdraw(dto);
-        }
-        if(CollectionUtil.isNotEmpty(elcCourseTakes)) {
-        	for(ElcCourseTakeVo elcCourseTakeVo:elcCourseTakes) {
-        		String elcMedWithdrawStatus = "未退课";
-        		if(elcCourseTakeVo.getMedWithdrawId()>0) {
-        			elcMedWithdrawStatus = "已退课";
-        		}
-        		elcCourseTakeVo.setElcMedWithdrawStatus(elcMedWithdrawStatus);
-        	}
         }
         PageInfo<ElcCourseTakeVo> pageInfo = new PageInfo<>(elcCourseTakes);
         return pageInfo;
