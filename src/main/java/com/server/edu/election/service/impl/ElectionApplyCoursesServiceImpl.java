@@ -96,12 +96,22 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		List<ElectionApplyCourses> list = new ArrayList<>();
+		List<String> courseCodes = new ArrayList<>();
 		for(String course:dto.getCourses()) {
 			ElectionApplyCourses electionApplyCourses = new ElectionApplyCourses();
 			electionApplyCourses.setMode(dto.getMode());
 			electionApplyCourses.setCourseCode(course);
 			electionApplyCourses.setCalendarId(dto.getCalendarId());
-			list.add(electionApplyCourses);
+            list.add(electionApplyCourses);
+            courseCodes.add(course);
+        }
+		Example example = new Example(ElectionApplyCourses.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andIn("courseCode",courseCodes);
+		List<ElectionApplyCourses> electionApplyCourses = electionApplyCoursesDao.selectByExample(example);
+		if (CollectionUtil.isNotEmpty(electionApplyCourses)) {
+			Set<String> collect = electionApplyCourses.stream().map(ElectionApplyCourses::getCourseCode).collect(Collectors.toSet());
+			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg(String.join(",", collect))));
 		}
 		int result = electionApplyCoursesDao.insertList(list);
 		if(result<=Constants.ZERO) {

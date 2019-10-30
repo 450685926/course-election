@@ -41,8 +41,11 @@ import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import com.server.edu.util.excel.export.FileExecuter;
+import freemarker.core.ParseException;
+import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.TemplateNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
 import org.apache.poi.hssf.model.InternalWorkbook;
@@ -540,11 +543,158 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         return rs;
     }
 
+    @Override
+    public ExcelResult exportCheckTableFreemarker(Long calendarId, Integer examType, String calendarName) {
+        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType);
+        String key = "exportCheckTableFreemarkerZip";
+        ExcelResult rs = new ExcelResult();
+        rs.setStatus(false);
+        rs.setCreateTime(System.currentTimeMillis());
+        String newKey = key + rs.getCreateTime();
+        rs.setKey(newKey);
+        redisTemplate.opsForValue().set(newKey, rs);
+        redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
+        ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
+            @Override
+            public File getFile() {
+                try {
+                    List<File> fileList = new ArrayList<>();
+                    for (Long  examRoomId: examRoomIds) {
+                        ExportExamInfoDto exportExamInfoDto = new ExportExamInfoDto();
+                        exportExamInfoDto.setCalendarId(calendarId);
+                        exportExamInfoDto.setExamRoomId(examRoomId);
+                        exportExamInfoDto.setCalendarName(calendarName);
+                        String path = creatFile(exportExamInfoDto,examRoomId);
+                        fileList.add(new File(path));
+                    }
+                    ZipUtil.createZip(fileList, cacheDirectory+"checkTable.zip");
+                    return new File(cacheDirectory+"checkTable.zip");
+                } catch (FileNotFoundException e) {
+                    rs.setStatus(true);
+                    redisTemplate.opsForValue().getAndSet(newKey, rs);
+                    LOG.info(e.getMessage(), e);
+                    return null;
+                } catch (IOException e) {
+                    rs.setStatus(true);
+                    redisTemplate.opsForValue().getAndSet(newKey, rs);
+                    LOG.info(e.getMessage(), e);
+                    return null;
+                } catch (Exception e) {
+                    rs.setStatus(true);
+                    redisTemplate.opsForValue().getAndSet(newKey, rs);
+                    LOG.info(e.getMessage(), e);
+                    return null;
+                }
+            }
+        },".zip");
+        return  rs;
+
+    }
+
     private String getDay(Date examDate){
         Calendar cal = Calendar.getInstance();
         cal.setTime(examDate);
         String day = String.valueOf(cal.get(Calendar.DAY_OF_MONTH));
         return day;
+    }
+
+
+    private String creatFile(ExportExamInfoDto exportExamInfoDto,Long examRoomId){
+        ArrayList<ExportStuDto> dataList = new ArrayList<>();
+        List<ExamStudent> list = examInfoDao.listExamStus(exportExamInfoDto.getCalendarId(), exportExamInfoDto.getExamRoomId());
+        StringBuilder examTime = new StringBuilder();
+        String examRoom ="";
+        if(list.size()>0){
+            Date date = list.get(0).getExamDate();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String dateStr = sdf.format(date);
+            examTime.append(dateStr).append(" ").append(list.get(0).getExamStartTime()).append("-").append(list.get(0).getExamEndTime());
+            examRoom = list.get(0).getRoomName();
+        }
+        if (list != null) {
+            int divNum = list.size() / 2;
+            int moreNum = list.size() % 2;
+            if (moreNum == 0) {
+                for (int i = 0; i < divNum; i++) {
+                    ExportStuDto exportStuDto = new ExportStuDto();
+
+                    exportStuDto.setOrder(list.get(i).getOrderStu());
+                    exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setStudentCode(list.get(i).getStudentCode());
+                    exportStuDto.setStudentName(list.get(i).getStudentName());
+                    exportStuDto.setFaculty(list.get(i).getFaculty());
+                    exportStuDto.setCourseCode(list.get(i).getCourseCode());
+                    exportStuDto.setCourseName(list.get(i).getCourseName());
+
+                    exportStuDto.setOrder_R(list.get((divNum + i)).getOrderStu());
+                    exportStuDto.setTeachingClassCode_R(list.get((divNum + i)).getTeachingClassCode());
+                    exportStuDto.setStudentCode_R(list.get((divNum + i)).getStudentCode());
+                    exportStuDto.setStudentName_R(list.get((divNum + i)).getStudentName());
+                    exportStuDto.setFaculty_R(list.get((divNum + i)).getFaculty());
+                    exportStuDto.setCourseCode_R(list.get((divNum + i)).getCourseCode());
+                    exportStuDto.setCourseName_R(list.get((divNum + i)).getCourseName());
+
+                    dataList.add(exportStuDto);
+                }
+            } else {
+                for (int i = 0; i < divNum; i++) {
+                    ExportStuDto exportStuDto = new ExportStuDto();
+
+                    exportStuDto.setOrder(list.get(i).getOrderStu());
+                    exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setStudentCode(list.get(i).getStudentCode());
+                    exportStuDto.setStudentName(list.get(i).getStudentName());
+                    exportStuDto.setFaculty(list.get(i).getFaculty());
+                    exportStuDto.setCourseCode(list.get(i).getCourseCode());
+                    exportStuDto.setCourseName(list.get(i).getCourseName());
+
+                    exportStuDto.setOrder_R(list.get((divNum + 1 + i)).getOrderStu());
+                    exportStuDto.setTeachingClassCode_R(list.get((divNum + 1 + i)).getTeachingClassCode());
+                    exportStuDto.setStudentCode_R(list.get((divNum + 1 + i)).getStudentCode());
+                    exportStuDto.setStudentName_R(list.get((divNum + 1 + i)).getStudentName());
+                    exportStuDto.setFaculty_R(list.get((divNum + 1 + i)).getFaculty());
+                    exportStuDto.setCourseCode_R(list.get((divNum + 1 + i)).getCourseCode());
+                    exportStuDto.setCourseName_R(list.get((divNum + 1 + i)).getCourseName());
+
+                    dataList.add(exportStuDto);
+                }
+                ExportStuDto exportStuDto = new ExportStuDto();
+
+                exportStuDto.setOrder(list.get(divNum).getOrderStu());
+                exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassCode());
+                exportStuDto.setStudentCode(list.get(divNum).getStudentCode());
+                exportStuDto.setStudentName(list.get(divNum).getStudentName());
+                exportStuDto.setFaculty(list.get(divNum).getFaculty());
+                dataList.add(exportStuDto);
+            }
+
+        }
+
+        GraduateExamRoom item = roomDao.getExamRoomNumber(examRoomId);
+
+        FileUtil.mkdirs(cacheDirectory);
+        FileUtil.deleteFile(cacheDirectory, 2);
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String dateNowStr = sdf.format(date);
+        String fileName =  "考场（"+item.getRoomName()+"）签到表("+dateNowStr+").xls";
+        String path = cacheDirectory + fileName;
+        String title = "同济大学" + exportExamInfoDto.getCalendarName() + "研究生课程考试名单";
+        Map<String,Object> myMap = new HashMap<>();
+        myMap.put("title",title);
+        myMap.put("examTime",examTime);
+        myMap.put("examRoom",examRoom);
+        myMap.put("dataList",dataList);
+        try {
+            Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("attendanceSheet.ftl");
+            Writer  out = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
+            tpl.process(myMap, out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return path;
     }
 
 }

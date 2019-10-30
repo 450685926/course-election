@@ -42,4 +42,5 @@ public interface GraduateExamMessageService {
      */
     ExcelResult exportInspectionSheet(GraduateExamMessageQuery condition);
 
+    ExcelResult exportCheckTableFreemarker(Long calendarId, Integer examType, String calendarName);
 }

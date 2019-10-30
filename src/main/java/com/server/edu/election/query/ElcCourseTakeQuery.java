@@ -27,6 +27,7 @@ public class ElcCourseTakeQuery
     /**学生学院*/
     private String faculty;
     
+    private Integer sex;
 
     /**年级*/
     private String grade;
@@ -95,6 +96,8 @@ public class ElcCourseTakeQuery
     
     /** 课程类别ID*/
     private Long courseLabelId;
+    
+    private String campus;
     
     public List<Long> getIds() {
         return ids;
@@ -351,5 +354,22 @@ public class ElcCourseTakeQuery
     {
         this.courseLabelId = courseLabelId;
     }
+
+	public Integer getSex() {
+		return sex;
+	}
+
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
+
+	public String getCampus() {
+		return campus;
+	}
+
+	public void setCampus(String campus) {
+		this.campus = campus;
+	}
     
+	
 }
