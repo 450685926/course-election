@@ -137,6 +137,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             throw new ParameterValidateException("入参有误");
         }
         GraduateExamInfo info = examInfo.get(0);
+        if(info.getNotice() == null){
+            throw new ParameterValidateException("入参有误");
+        }
         Integer weekNumber = null;
         Integer weekDay = null;
         String classNode = "";
