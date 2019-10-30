@@ -1,17 +1,19 @@
 package com.server.edu.election.rpc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.Classroom;
+import com.server.edu.common.entity.PayResult;
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.vo.SchoolCalendarVo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BaseresServiceInvoker
 {
@@ -141,6 +143,16 @@ public class BaseresServiceInvoker
     	@SuppressWarnings("unchecked")
     	RestResult<List<Classroom>> classrooms= ServicePathEnum.BASESERVICE.postForObject("/classroom/queryAllClassRoom", JSONArray.parseArray(JSON.toJSONString(roomIds)), RestResult.class);
     	return classrooms;
+    }
+
+    /**
+     * @Description: 财务对账(通过账单号)
+     * @author kan yuanfeng
+     * @date 2019/10/30 10:55
+     */
+    public static List<PayResult> getPayResult(List<String> orderNos){
+        List<PayResult> result = ServicePathEnum.BASESERVICE.postForObject("/payment/payResult", orderNos, List.class);
+         return result;
     }
     
 }

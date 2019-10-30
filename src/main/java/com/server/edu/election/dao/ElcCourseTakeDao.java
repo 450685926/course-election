@@ -3,28 +3,12 @@ package com.server.edu.election.dao;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
-import com.server.edu.election.dto.ClassCodeToTeacher;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElcCourseLimitDto;
-import com.server.edu.election.dto.ElcMedWithdrawDto;
-import com.server.edu.election.dto.ElcStudentCourseDto;
-import com.server.edu.election.dto.ElcStudentDto;
-import com.server.edu.election.dto.LoserStuElcCourse;
-import com.server.edu.election.dto.NoSelectCourseStdsDto;
-import com.server.edu.election.dto.RebuildCourseDto;
-import com.server.edu.election.dto.ReportManagementCondition;
-import com.server.edu.election.dto.RollBookConditionDto;
-import com.server.edu.election.dto.StudentRePaymentDto;
-import com.server.edu.election.dto.StudentRebuildFeeDto;
-import com.server.edu.election.dto.StudentSchoolTimetab;
-import com.server.edu.election.dto.StudnetTimeTable;
-import com.server.edu.election.dto.TeacherTimeTable;
-import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -300,4 +284,11 @@ public interface ElcCourseTakeDao
      * @date 2019/10/22 11:26
      */
     Page<RebuildCourseNoChargeList> findNoChargeListByStuId(RebuildCourseDto condition);
+
+    /**
+     * @Description: 批量设置支付状态
+     * @author kan yuanfeng
+     * @date 2019/10/30 11:36
+     */
+    void setPayStatusBatch(List<PayResultDto> payResultDtoList);
 }

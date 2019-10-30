@@ -16,6 +16,7 @@ import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
+import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -311,5 +312,18 @@ public class RebuildCourseController
     public ResponseEntity<Resource> exportByStuId(@RequestBody RebuildCourseDto rebuildCourseDto) throws Exception {
         ExcelWriterUtil result = service.exportByStuId(rebuildCourseDto);
         return ExportUtil.exportExcel(result, cacheDirectory,  "result.xls");
+    }
+
+    /**
+     * @Description: 财务对账(通过账单号)
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @ApiOperation("财务对账(通过账单号)")
+    @PostMapping("payResult")
+    public RestResult<?> payResult(@RequestBody List<StudentRebuildFeeVo> studentRebuildFeeDtoList){
+        //学期，账单号必填
+        service.payResult(studentRebuildFeeDtoList);
+        return RestResult.success();
     }
 }
