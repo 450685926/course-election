@@ -14,8 +14,7 @@ public class ElcCourseTakeVo extends ElcCourseTake
     
     private String courseName;
     
-    private Long studentCode;
-    /**学分*/
+	/**学分*/
     private Double credits;
     
     /**学时*/
@@ -82,8 +81,9 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
     @Code2Text(transformer="K_BKKCXZ")
     private Integer isElective;
+    
 
-    public Integer getIsElective() {
+	public Integer getIsElective() {
         return isElective;
     }
 
