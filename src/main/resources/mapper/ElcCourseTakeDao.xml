@@ -1855,6 +1855,7 @@
 		SELECT 
 		  t1.`ID_`,
 		  t1.`TEACHING_CLASS_ID_`,
+		  t1.STUDENT_ID_,
 		  t2.`CODE_` teachingClassCode,
 		  t2.NAME_  teachingClassName,
 		  t3.COURSE_CODE_,
