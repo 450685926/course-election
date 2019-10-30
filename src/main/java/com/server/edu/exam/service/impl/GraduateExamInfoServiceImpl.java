@@ -170,11 +170,19 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             graduateExamInfo.setExamStatus(ApplyStatus.PASS_INT);
             graduateExamInfo.setExamTime(examTime);
             //this.transTime(graduateExamInfo);
+            if(graduateExamInfo.getNotice() == ApplyStatus.FINAL_EXAM){
+                graduateExamInfo.setExamDate(null);
+                graduateExamInfo.setExamEndTime("");
+                graduateExamInfo.setExamStartTime("");
+                graduateExamInfo.setWeekDay(null);
+                graduateExamInfo.setWeekNumber(null);
+                graduateExamInfo.setClassNode("");
+                graduateExamInfo.setActualCalendarId(null);
+            }else{
+                this.checkPublicExamTimeSame(graduateExamInfo);
+            }
             //保存时间就入库（判断是否有Id）
             if (graduateExamInfo.getId() == null) {
-                if(graduateExamInfo.getNotice() == ApplyStatus.NOT_EXAMINE){
-                    this.checkPublicExamTimeSame(graduateExamInfo);
-                }
                 graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
                 graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
                 try {
@@ -189,13 +197,6 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                     if(graduateExamInfo.getExamRooms() != null && graduateExamInfo.getExamRooms() > 0 ){
                         throw new ParameterValidateException("保存时间地点学院通知,请先删除考场");
                     }
-                    graduateExamInfo.setExamDate(null);
-                    graduateExamInfo.setExamEndTime("");
-                    graduateExamInfo.setExamStartTime("");
-                    graduateExamInfo.setWeekDay(null);
-                    graduateExamInfo.setWeekNumber(null);
-                    graduateExamInfo.setClassNode("");
-                    graduateExamInfo.setActualCalendarId(null);
                 }
                 examInfoDao.updateByPrimaryKey(graduateExamInfo);
             }
