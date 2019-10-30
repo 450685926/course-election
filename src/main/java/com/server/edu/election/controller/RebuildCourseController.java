@@ -16,7 +16,6 @@ import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
-import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -321,9 +320,9 @@ public class RebuildCourseController
      */
     @ApiOperation("财务对账(通过账单号)")
     @PostMapping("payResult")
-    public RestResult<?> payResult(@RequestBody List<StudentRebuildFeeVo> studentRebuildFeeDtoList){
-        //学期，账单号必填
-        service.payResult(studentRebuildFeeDtoList);
+    public RestResult<?> payResult(@RequestBody List<RebuildCourseNoChargeList> rebuildCourseNoChargeLists){
+        //学期(必填)，账单id
+        service.payResult(rebuildCourseNoChargeLists);
         return RestResult.success();
     }
 }

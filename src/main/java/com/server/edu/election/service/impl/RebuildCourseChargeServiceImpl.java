@@ -41,11 +41,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +80,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private ElcBillDao elcBillDao;
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -711,27 +714,33 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      * @date 2019/10/22 11:26
      */
     @Override
-    public void payResult(List<StudentRebuildFeeVo> studentRebuildFeeDtoList) {
+    public void payResult(List<RebuildCourseNoChargeList> rebuildCourseNoChargeLists) {
         //财务对接
-        if (CollectionUtil.isNotEmpty(studentRebuildFeeDtoList)){
+        if (CollectionUtil.isNotEmpty(rebuildCourseNoChargeLists)){
             //分表规则
-            int index = TableIndexUtil.getIndex(studentRebuildFeeDtoList.get(0).getCouCalendarId());
-            Set<String> stringSet = studentRebuildFeeDtoList.stream().filter(s -> StringUtils.isNotBlank(s.getBillNum())).map(s -> s.getBillNum())
-                    .collect(Collectors.toSet());
-            List list = new ArrayList(stringSet);
-            if (CollectionUtil.isNotEmpty(stringSet)){
-                List<PayResult> payResult = BaseresServiceInvoker.getPayResult(list);
-                //解析对账结果
-                List<PayResult> results = payResult.stream().filter(r -> r.getPayFlag() && StringUtils.isNotBlank(r.getPaystate())).collect(Collectors.toList());
-                List<PayResultDto> payResultDtoList = new ArrayList<>();
-                results.forEach(r ->{
-                    PayResultDto payResultDto = new PayResultDto();
-                    BeanUtils.copyProperties(r,payResultDto);
-                    payResultDto.setIndex(index);
-                    payResultDto.setPaid(("4".equals(payResultDto.getPaystate())?1:0));
-                    payResultDtoList.add(payResultDto);
-                });
-                courseTakeDao.setPayStatusBatch(payResultDtoList);
+            int index = TableIndexUtil.getIndex(rebuildCourseNoChargeLists.get(0).getCalendarId());
+            List<Long> billIds = rebuildCourseNoChargeLists.stream().filter(r -> null != r.getBillId()).map(r -> r.getBillId()).collect(Collectors.toList());
+            if (CollectionUtil.isNotEmpty(billIds)){
+                //去数据库查询订单号
+                Example example = new Example(ElcBill.class);
+                Example.Criteria criteria = example.createCriteria();
+                criteria.andIn("id",billIds);
+                List<ElcBill> elcBills = elcBillDao.selectByExample(example);
+                if (CollectionUtil.isNotEmpty(elcBills)){
+                    List<String> list = elcBills.stream().map(e -> e.getBillNum()).collect(Collectors.toList());
+                    List<PayResult> payResult = BaseresServiceInvoker.getPayResult(list);
+                    //解析对账结果
+                    List<PayResult> results = payResult.stream().filter(r -> r.getPayFlag() && StringUtils.isNotBlank(r.getPaystate())).collect(Collectors.toList());
+                    List<PayResultDto> payResultDtoList = new ArrayList<>();
+                    results.forEach(r ->{
+                        PayResultDto payResultDto = new PayResultDto();
+                        BeanUtils.copyProperties(r,payResultDto);
+                        payResultDto.setIndex(index);
+                        payResultDto.setPaid(("4".equals(payResultDto.getPaystate())?1:0));
+                        payResultDtoList.add(payResultDto);
+                    });
+                    courseTakeDao.setPayStatusBatch(payResultDtoList);
+                }
             }
         }
     }
