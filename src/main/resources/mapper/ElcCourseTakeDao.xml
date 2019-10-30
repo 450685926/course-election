@@ -296,6 +296,7 @@
         co.CREDITS_ credits,
         te.COURSE_LABEL_ID_ label,
         el.PAID_ paid,
+        el.BILL_ID_ billId,
         te.WEEK_HOUR_ weekHour,
         el.COURSE_TAKE_TYPE_ courseTakeType,
         el.MODE_ mode,
