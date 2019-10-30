@@ -1858,7 +1858,7 @@
 		  t3.`CREDITS_`,
 		  t3.PERIOD_,
 		  t2.`CAMPUS_`,
-		  IFNULL( t4.ID_, 0 ) medWithdrawId 
+		  IFNULL(t4.ID_, 0) medWithdrawId 
 		FROM
 		  elc_course_takes_t_${index} t1
 		  JOIN teaching_class_t t2 
@@ -1868,8 +1868,6 @@
 		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
 		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
 		    )
-		  JOIN elc_med_withdraw_rule_ref_cour_t t4 
-           ON t4.TEACHING_CLASS_ID_ = t2.`ID_`
           LEFT JOIN elc_med_withdraw_t t4 ON t4.STUDENT_ID_ = t1.STUDENT_ID_ 
 	      AND t4.TEACHING_CLASS_ID_ = t2.ID_  
 		WHERE t1.`STUDENT_ID_` = #{studentId}
