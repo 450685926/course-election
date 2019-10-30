@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.PayResult;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
@@ -14,9 +15,11 @@ import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.PayResultDto;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.*;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.util.TableIndexUtil;
@@ -32,6 +35,7 @@ import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
@@ -41,6 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @description: 重修收费管理
@@ -697,6 +703,37 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         design.setDatas(convertList);
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         return excelUtil;
+    }
+
+    /**
+     * @Description: 财务对账(通过账单号)
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @Override
+    public void payResult(List<StudentRebuildFeeVo> studentRebuildFeeDtoList) {
+        //财务对接
+        if (CollectionUtil.isNotEmpty(studentRebuildFeeDtoList)){
+            //分表规则
+            int index = TableIndexUtil.getIndex(studentRebuildFeeDtoList.get(0).getCouCalendarId());
+            Set<String> stringSet = studentRebuildFeeDtoList.stream().filter(s -> StringUtils.isNotBlank(s.getBillNum())).map(s -> s.getBillNum())
+                    .collect(Collectors.toSet());
+            List list = new ArrayList(stringSet);
+            if (CollectionUtil.isNotEmpty(stringSet)){
+                List<PayResult> payResult = BaseresServiceInvoker.getPayResult(list);
+                //解析对账结果
+                List<PayResult> results = payResult.stream().filter(r -> r.getPayFlag() && StringUtils.isNotBlank(r.getPaystate())).collect(Collectors.toList());
+                List<PayResultDto> payResultDtoList = new ArrayList<>();
+                results.forEach(r ->{
+                    PayResultDto payResultDto = new PayResultDto();
+                    BeanUtils.copyProperties(r,payResultDto);
+                    payResultDto.setIndex(index);
+                    payResultDto.setPaid(("4".equals(payResultDto.getPaystate())?1:0));
+                    payResultDtoList.add(payResultDto);
+                });
+                courseTakeDao.setPayStatusBatch(payResultDtoList);
+            }
+        }
     }
 
     private GeneralExcelDesigner getDesignByStuId() {

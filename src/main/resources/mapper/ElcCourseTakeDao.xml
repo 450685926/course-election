@@ -1908,4 +1908,17 @@
              </foreach>
          </if>
     </select>
+
+    <!--批量设置支付状态-->
+    <update id="setPayStatusBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            update elc_course_takes_t_${index} ec
+            JOIN elc_bills_t eb on
+            ec.BILL_ID_ = eb.ID_
+            <set>
+                ec.PAID_ = #{paid}
+            </set>
+            where eb.BILL_NUM_ = #{billno}
+        </foreach>
+    </update>
 </mapper>

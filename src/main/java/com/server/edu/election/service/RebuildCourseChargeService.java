@@ -8,6 +8,7 @@ import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
+import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -72,5 +73,12 @@ public interface RebuildCourseChargeService {
      * @date 2019/10/22 11:26
      */
     ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception;
+
+    /**
+     * @Description: 财务对账(通过账单号)
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    void payResult(List<StudentRebuildFeeVo> studentRebuildFeeDtoList);
 }
 
