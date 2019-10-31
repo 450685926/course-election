@@ -163,6 +163,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseLabelId)">
                 and t4.COURSE_LABEL_ID_ = #{query.courseLabelId}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
+                and t4.CAMPUS_ =#{query.campus,jdbcType=BIGINT}
+            </if>
         </where>
         order by CREATED_AT_ DESC, t1.STUDENT_ID_
     </select>
