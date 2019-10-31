@@ -181,9 +181,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             }
             this.checkPublicExamTimeSame(graduateExamInfo);
             //保存时间就入库（判断是否有Id）
+            graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
+            graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
             if (graduateExamInfo.getId() == null) {
-                graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
-                graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
                 try {
                     examInfoDao.insert(graduateExamInfo);
                 } catch (Exception e) {
