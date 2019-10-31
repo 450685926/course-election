@@ -194,7 +194,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             } else {
                 //学院通知需要校验是否有考场
                 if(graduateExamInfo.getNotice() == ApplyStatus.FINAL_EXAM){
-                    if(graduateExamInfo.getExamRooms() != null && graduateExamInfo.getExamRooms() > 0 ){
+                    int i = examInfoDao.findExamRoomsNumber(graduateExamInfo.getId());
+                    if(i > 0 ){
                         throw new ParameterValidateException("保存时间地点学院通知,请先删除考场");
                     }
                 }
