@@ -178,9 +178,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 graduateExamInfo.setWeekNumber(null);
                 graduateExamInfo.setClassNode("");
                 graduateExamInfo.setActualCalendarId(null);
-            }else{
-                this.checkPublicExamTimeSame(graduateExamInfo);
             }
+            this.checkPublicExamTimeSame(graduateExamInfo);
             //保存时间就入库（判断是否有Id）
             if (graduateExamInfo.getId() == null) {
                 graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
@@ -192,12 +191,10 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                     throw new ParameterValidateException("该课程校区已经排考");
                 }
             } else {
-                //学院通知需要校验是否有考场
-                if(graduateExamInfo.getNotice() == ApplyStatus.FINAL_EXAM){
-                    int i = examInfoDao.findExamRoomsNumber(graduateExamInfo.getId());
-                    if(i > 0 ){
-                        throw new ParameterValidateException("保存时间地点学院通知,请先删除考场");
-                    }
+                //变更时间需要先删除考场
+                int i = examInfoDao.findExamRoomsNumber(graduateExamInfo.getId());
+                if(i > 0 ){
+                    throw new ParameterValidateException("变更排考时间,请先删除考场");
                 }
                 examInfoDao.updateByPrimaryKey(graduateExamInfo);
             }
@@ -218,11 +215,24 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
     private void checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo) {
         List<GraduateExamInfo> info = examInfoDao.checkPublicExamTimeSame(graduateExamInfo);
         if(CollectionUtil.isNotEmpty(info)){
-            GraduateExamInfo examInfo = info.get(0);
-            if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                throw new ParameterValidateException("公共课课程代码"+graduateExamInfo.getCourseCode()+"所有校区排考时间必须一样");
+            Long id = graduateExamInfo.getId();
+            if(id == null){
+                GraduateExamInfo examInfo = info.get(0);
+                if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
+                    throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                }
+            }else{
+                List<GraduateExamInfo> collect = info.stream().filter(vo -> !vo.getId().equals(id)).collect(Collectors.toList());
+                if(CollectionUtil.isNotEmpty(collect)){
+                    GraduateExamInfo examInfo = collect.get(0);
+                    if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
+                        throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                    }
+                }
             }
         }
+
+
     }
 
     @Override
