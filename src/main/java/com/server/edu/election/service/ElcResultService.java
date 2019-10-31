@@ -12,6 +12,7 @@ import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
+import com.server.edu.util.excel.export.ExcelResult;
 
 public interface ElcResultService
 {
@@ -123,6 +124,12 @@ public interface ElcResultService
 	void saveClassBind(ElcTeachingClassBind elcTeachingClassBind);
 	void updateClassBind(ElcTeachingClassBind elcTeachingClassBind);
 	void updateClassRemark(Long id, String remark);
+	/**
+	 * 班级信息导出
+	 * @param condition
+	 * @return
+	 */
+	ExcelResult teachClassPageExport(ElcResultQuery condition);
 	
 	
 	

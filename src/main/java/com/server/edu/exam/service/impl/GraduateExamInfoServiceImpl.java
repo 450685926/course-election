@@ -88,6 +88,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         examInfoVo.setProjId(dptId);
         List<String> facultys = session.getGroupData().get(GroupDataEnum.department.getValue());
         examInfoVo.setFacultys(facultys);
+        int mo = (int) (examInfoVo.getCalendarId() % 6);
+        examInfoVo.setMode(mo);
         //校验当前时间当前角色是否有权限进行排考
         this.checkTimeAndFaculty(examInfoVo);
         //通过查询条件和权限过滤数据,查询补缓考数据 1 期末考试 2 补缓考
@@ -97,6 +99,15 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
              page = examInfoDao.listGraduateExamInfoMakeUp(examInfoVo);
         } else {//查询期末考试
              page = examInfoDao.listGraduateExamInfoFinal(examInfoVo);
+        }
+        if(CollectionUtil.isNotEmpty(page)){
+            for (GraduateExamInfoVo vo : page.getResult()) {
+                if(StringUtils.isNotBlank(vo.getTeachingClassName())){
+                    vo.setTeachingClassName(vo.getTeachingClassName().replaceAll(",","/"));
+                }else{
+                    vo.setTeachingClassName("");
+                }
+            }
         }
         return new PageResult<>(page);
     }
@@ -577,19 +588,19 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 design.addCell("考场数", "examRooms");
                 design.addCell("应考人数", "totalNumber");
                 design.addCell("实考人数", "actualNumber");
-                design.addCell("考试时间", "examDate");
-                design.addCell("排考状态", "examStatus").setValueHandler(new CellValueHandler() {
-                    @Override
-                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
-                        if ("1".equals(s)) {
-                            return "已排考";
-                        } else if ("2".equals(s)) {
-                            return "已发布";
-                        } else {
-                            return "未排考";
-                        }
-                    }
-                });
+                design.addCell("考试时间", "examTime");
+//                design.addCell("排考状态", "examStatus").setValueHandler(new CellValueHandler() {
+//                    @Override
+//                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
+//                        if ("1".equals(s)) {
+//                            return "已排考";
+//                        } else if ("2".equals(s)) {
+//                            return "已发布";
+//                        } else {
+//                            return "未排考";
+//                        }
+//                    }
+//                });
                 return design;
             }
         });

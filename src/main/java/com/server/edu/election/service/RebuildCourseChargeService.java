@@ -72,5 +72,12 @@ public interface RebuildCourseChargeService {
      * @date 2019/10/22 11:26
      */
     ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception;
+
+    /**
+     * @Description: 财务对账(通过账单号)
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    void payResult(List<RebuildCourseNoChargeList> studentRebuildFeeDtoList);
 }
 

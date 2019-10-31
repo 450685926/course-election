@@ -25,6 +25,7 @@ import com.server.edu.election.dto.CourseDto;
 import com.server.edu.election.dto.ElectionApplyCoursesDto;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApplyCourses;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElectionApplyCoursesService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElectionApplyCoursesVo;
@@ -71,13 +72,30 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 			}
 			String[] split = englishCourses.split(",");
 			criteria.andIn("code", Arrays.asList(split));
-		}else {
+		}else if (Constants.PE_MODEL.equals(model)){
 			String PECourses = constantsDao.findPECourses();
 			if(StringUtils.isBlank(PECourses)) {
                 return new PageInfo<>();
             }
 			String[] split = PECourses.split(",");
             criteria.andIn("code", Arrays.asList(split));
+		}else{
+			String englishCourses = constantsDao.findEnglishCourses();
+			if (StringUtils.isNotBlank(englishCourses)) {
+				String[] split = englishCourses.split(",");
+				criteria.andNotIn("code", Arrays.asList(split));
+			}
+			String PECourses = constantsDao.findPECourses();
+			if (StringUtils.isNotBlank(PECourses)) {
+				String[] split = englishCourses.split(",");
+				criteria.andNotIn("code", Arrays.asList(split));
+			}
+			//查找申请列表中已经存在的课程，并排除掉
+			ElectionApplyCoursesDto electionApplyCoursesDto = new ElectionApplyCoursesDto();
+			electionApplyCoursesDto.setCalendarId(dto.getCalendarId());
+			List<ElectionApplyCoursesVo> selectApplyCourse = electionApplyCoursesDao.selectApplyCourse(electionApplyCoursesDto);
+			List<String> code = selectApplyCourse.stream().map(ElectionApplyCoursesVo::getCode).collect(Collectors.toList());
+			criteria.andNotIn("code",code);
 		}
 		list = courseDao.selectByExample(example);
 		PageInfo<Course> pageInfo = new PageInfo<>(list);

@@ -56,6 +56,15 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
     @Transactional
     public int add(ElcCouSubs elcCouSubs)
     {
+    	 if (elcCouSubs.getOrigsCourseId() == null || elcCouSubs.getSubCourseId() == null )
+         {
+             throw new ParameterValidateException(
+                 I18nUtil.getMsg("baseresservice.parameterError"));
+         }
+    	if (elcCouSubs.getOrigsCourseId() == elcCouSubs.getSubCourseId()) {
+         	throw new ParameterValidateException(
+                     I18nUtil.getMsg("election.subCourseError"));
+ 		}
         Example example = new Example(ElcCouSubs.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentId", elcCouSubs.getStudentId());
@@ -90,11 +99,15 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
     @Transactional
     public int update(ElcCouSubs elcCouSubs)
     {
-        if (elcCouSubs.getId() == null)
+        if (elcCouSubs.getId() == null || elcCouSubs.getOrigsCourseId() == null || elcCouSubs.getSubCourseId() == null )
         {
             throw new ParameterValidateException(
                 I18nUtil.getMsg("baseresservice.parameterError"));
         }
+        if (elcCouSubs.getOrigsCourseId() == elcCouSubs.getSubCourseId()) {
+        	throw new ParameterValidateException(
+                    I18nUtil.getMsg("election.subCourseError"));
+		}
         List<Long> ids = new ArrayList<>();
         ids.add(elcCouSubs.getId());
         Example example = new Example(ElcCouSubs.class);

@@ -299,6 +299,7 @@
         co.CREDITS_ credits,
         te.COURSE_LABEL_ID_ label,
         el.PAID_ paid,
+        el.BILL_ID_ billId,
         te.WEEK_HOUR_ weekHour,
         el.COURSE_TAKE_TYPE_ courseTakeType,
         el.MODE_ mode,
@@ -993,7 +994,7 @@
         SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,
         t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,
         t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,
-        t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature
+        t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature,t3.IS_ELECTIVE_ isElective
         from elc_course_takes_t t1
         join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
         join course_t t3 on t1.COURSE_CODE_=t3.CODE_
@@ -1016,6 +1017,9 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
                 and t3.NAME_ like concat ('%',#{courseName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+                and t3.IS_ELECTIVE_ = #{isElective}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabel)">
                 and t3.LABEL_ =#{courseLabel,jdbcType=VARCHAR}
@@ -1853,15 +1857,16 @@
             resultMap="VoResultMap">
 		SELECT 
 		  t1.`ID_`,
-		  0 AS medWithdrawId,
 		  t1.`TEACHING_CLASS_ID_`,
+		  t1.STUDENT_ID_,
 		  t2.`CODE_` teachingClassCode,
 		  t2.NAME_  teachingClassName,
 		  t3.COURSE_CODE_,
 		  t3.`COURSE_NAME_` courseName,
 		  t3.`CREDITS_`,
 		  t3.PERIOD_,
-		  t2.`CAMPUS_` 
+		  t2.`CAMPUS_`,
+		  IFNULL(t4.ID_, 0) medWithdrawId 
 		FROM
 		  elc_course_takes_t_${index} t1
 		  JOIN teaching_class_t t2 
@@ -1871,32 +1876,8 @@
 		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
 		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
 		    )
-		  JOIN elc_med_withdraw_rule_ref_cour_t t4 
-           ON t4.TEACHING_CLASS_ID_ = t2.`ID_` 
-		WHERE t1.`STUDENT_ID_` = #{studentId}
-		  AND t1.`CALENDAR_ID_` = #{calendarId} 
-		UNION
-		ALL 
-		SELECT 
-		  0 AS id,
-		  t1.`ID_` medWithdrawId,
-		  t1.`TEACHING_CLASS_ID_`,
-		  t2.`CODE_` teachingClassCode,
-		  t2.NAME_  teachingClassName,
-		  t3.COURSE_CODE_,
-		  t3.`COURSE_NAME_` courseName,
-		  t3.`CREDITS_`,
-		  t3.PERIOD_,
-		  t2.`CAMPUS_` 
-		FROM
-		  elc_med_withdraw_t t1 
-		  JOIN teaching_class_t t2 
-		    ON t1.`TEACHING_CLASS_ID_` = t2.`ID_` 
-		  JOIN `course_open_t` t3 
-		    ON (
-		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
-		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
-		    ) 
+          LEFT JOIN elc_med_withdraw_t t4 ON t4.STUDENT_ID_ = t1.STUDENT_ID_ 
+	      AND t4.TEACHING_CLASS_ID_ = t2.ID_  
 		WHERE t1.`STUDENT_ID_` = #{studentId}
 		  AND t1.`CALENDAR_ID_` = #{calendarId} 
   </select>
@@ -1935,4 +1916,17 @@
              </foreach>
          </if>
     </select>
+
+    <!--批量设置支付状态-->
+    <update id="setPayStatusBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            update elc_course_takes_t_${index} ec
+            JOIN elc_bills_t eb on
+            ec.BILL_ID_ = eb.ID_
+            <set>
+                ec.PAID_ = #{paid}
+            </set>
+            where eb.BILL_NUM_ = #{billno}
+        </foreach>
+    </update>
 </mapper>
