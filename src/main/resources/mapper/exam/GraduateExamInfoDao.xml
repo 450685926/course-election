@@ -504,7 +504,4 @@
         </foreach>
     </select>
 
-    <select id="findExamRoomsNumber" parameterType="java.lang.Long" resultType="int">
-        select COUNT(ID_) from graduate_exam_info_room_t where EXAM_INFO_ID_ = #{id}
-    </select>
 </mapper>

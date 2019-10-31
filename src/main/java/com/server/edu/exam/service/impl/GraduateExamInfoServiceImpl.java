@@ -181,21 +181,25 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             }
             this.checkPublicExamTimeSame(graduateExamInfo);
             //保存时间就入库（判断是否有Id）
-            graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
-            graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
             if (graduateExamInfo.getId() == null) {
                 try {
+                    graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
+                    graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
                     examInfoDao.insert(graduateExamInfo);
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new ParameterValidateException("该课程校区已经排考");
                 }
             } else {
-                //变更时间需要先删除考场
-                int i = examInfoDao.findExamRoomsNumber(graduateExamInfo.getId());
-                if(i > 0 ){
-                    throw new ParameterValidateException("变更排考时间,请先删除考场");
+                //变更时间不一样需要先删除考场
+                GraduateExamInfo item = examInfoDao.selectByPrimaryKey(graduateExamInfo.getId());
+                if(!graduateExamInfo.getExamTime().equals(item.getExamTime())){
+                    if(item.getExamRooms() != null && item.getExamRooms() > 0 ){
+                        throw new ParameterValidateException("变更排考时间,请先删除考场");
+                    }
                 }
+                graduateExamInfo.setExamRooms(item.getExamRooms());
+                graduateExamInfo.setActualNumber(item.getActualNumber());
                 examInfoDao.updateByPrimaryKey(graduateExamInfo);
             }
 
