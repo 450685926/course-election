@@ -10,6 +10,8 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
@@ -34,6 +36,10 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -114,6 +120,9 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private TeachClassCacheService teachClassCacheService;
     
+    @Autowired
+    private DictionaryService dictionaryService;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -142,6 +151,16 @@ public class ElcResultServiceImpl implements ElcResultService
             	// 处理教学安排（上课时间地点）信息
 				List<TimeAndRoom> tableMessages = getTimeById(vo.getId());
 				vo.setTimeTableList(tableMessages);
+				String timeAndRoom = "";
+				for (TimeAndRoom tAndR : tableMessages) {
+					if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
+						ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
+						if (classroom != null) {
+							timeAndRoom = tAndR.getTimeAndRoom() + "/" + classroom.getName()+" ";
+						}
+					}
+				}
+				vo.setTimeAndRoom(timeAndRoom);
             }
         }
         return new PageResult<>(listPage);
@@ -904,6 +923,65 @@ public class ElcResultServiceImpl implements ElcResultService
 		teachingClass.setId(id);
 		teachingClass.setRemark(remark);
 		teachingClassDao.updateByPrimaryKeySelective(teachingClass);
+	}
+
+	@Override
+	public ExcelResult teachClassPageExport(ElcResultQuery condition) {
+		ExcelResult excelResult = ExportExcelUtils.submitTask("teachClassPageExportList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<TeachingClassVo> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<TeachingClassVo> electCourseList = listPage(pageCondition);
+                    list.addAll(electCourseList.getList());
+
+                    result.setTotal((int)electCourseList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (electCourseList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesign();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+	}
+
+	private GeneralExcelDesigner getDesign() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.code"), "code");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.teacherName"), "teacherName");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.timeAndRoom"), "timeAndRoom");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.classNumberStr"), "classNumberStr");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.elcNumber"), "elcNumber");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.number"), "number");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.campus"), "campus").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_XQ", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.remark"), "remark");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.bindClassId"), "bindClassId");
+        return design;
 	}
 	
 }

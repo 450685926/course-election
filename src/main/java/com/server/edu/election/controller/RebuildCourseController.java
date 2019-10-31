@@ -312,4 +312,17 @@ public class RebuildCourseController
         ExcelWriterUtil result = service.exportByStuId(rebuildCourseDto);
         return ExportUtil.exportExcel(result, cacheDirectory,  "result.xls");
     }
+
+    /**
+     * @Description: 财务对账(通过账单号)
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @ApiOperation("财务对账(通过账单号)")
+    @PostMapping("payResult")
+    public RestResult<?> payResult(@RequestBody List<RebuildCourseNoChargeList> rebuildCourseNoChargeLists){
+        //学期(必填)，账单id
+        service.payResult(rebuildCourseNoChargeLists);
+        return RestResult.success();
+    }
 }

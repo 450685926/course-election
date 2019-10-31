@@ -148,6 +148,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
                 and t3.LABEL_ = #{query.label}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.isElective)">
+                and t3.IS_ELECTIVE_ = #{query.isElective}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
                 and t3.CODE_ IN
                 <foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">
@@ -159,6 +162,9 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseLabelId)">
                 and t4.COURSE_LABEL_ID_ = #{query.courseLabelId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
+                and t4.CAMPUS_ =#{query.campus,jdbcType=BIGINT}
             </if>
         </where>
         order by CREATED_AT_ DESC, t1.STUDENT_ID_
@@ -296,6 +302,7 @@
         co.CREDITS_ credits,
         te.COURSE_LABEL_ID_ label,
         el.PAID_ paid,
+        el.BILL_ID_ billId,
         te.WEEK_HOUR_ weekHour,
         el.COURSE_TAKE_TYPE_ courseTakeType,
         el.MODE_ mode,
@@ -990,7 +997,7 @@
         SELECT t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.TEACHING_CLASS_ID_ teachingClassId,
         t2.CODE_ classCode,t2.NAME_ className,t3.CODE_ courseCode,t3.NAME_ courseName,
         t2.ELC_NUMBER_ selectCourseNumber,t2.NUMBER_ numberLimit,
-        t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature
+        t3.LABEL_ courseLabel,t3.COLLEGE_ faculty,t3.NATURE_ courseNature,t3.IS_ELECTIVE_ isElective
         from elc_course_takes_t t1
         join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
         join course_t t3 on t1.COURSE_CODE_=t3.CODE_
@@ -1013,6 +1020,9 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
                 and t3.NAME_ like concat ('%',#{courseName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+                and t3.IS_ELECTIVE_ = #{isElective}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabel)">
                 and t3.LABEL_ =#{courseLabel,jdbcType=VARCHAR}
@@ -1909,4 +1919,17 @@
              </foreach>
          </if>
     </select>
+
+    <!--批量设置支付状态-->
+    <update id="setPayStatusBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            update elc_course_takes_t_${index} ec
+            JOIN elc_bills_t eb on
+            ec.BILL_ID_ = eb.ID_
+            <set>
+                ec.PAID_ = #{paid}
+            </set>
+            where eb.BILL_NUM_ = #{billno}
+        </foreach>
+    </update>
 </mapper>

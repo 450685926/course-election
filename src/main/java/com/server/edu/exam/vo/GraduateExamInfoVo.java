@@ -32,6 +32,26 @@ public class GraduateExamInfoVo extends GraduateExamInfo {
     /**合考添加课程使用*/
     private String addCourse;
 
+    private String teachingClassName;
+
+    private Integer mode;
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
+    public String getTeachingClassName() {
+        return teachingClassName;
+    }
+
+    public void setTeachingClassName(String teachingClassName) {
+        this.teachingClassName = teachingClassName;
+    }
+
     public String getAddCourse() {
         return addCourse;
     }

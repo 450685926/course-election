@@ -143,7 +143,7 @@ public class ElecRoundStuController
     @ApiOperation(value = "删除可选课学生")
     @DeleteMapping("/{roundId}")
     public RestResult<?> delete(@PathVariable("roundId") @NotNull Long roundId,
-        @RequestBody @NotEmpty List<String> studentCodes)
+        @RequestBody List<String> studentCodes)
     {
         elecRoundStuService.delete(roundId, studentCodes);
         

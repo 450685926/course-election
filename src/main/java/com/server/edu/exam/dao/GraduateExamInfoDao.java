@@ -131,4 +131,5 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
     List<GraduateExamInfo> checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo);
 
     List<SelectDto> findCourse(@Param("list") List<Long> ids);
+
 }
