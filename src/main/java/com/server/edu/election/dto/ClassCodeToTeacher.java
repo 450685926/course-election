@@ -5,6 +5,8 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 
 import java.util.List;
 
+import javax.persistence.Column;
+
 /**
  * @description: 老师课表
  * @author: bear
@@ -26,6 +28,8 @@ public class ClassCodeToTeacher {
     private Integer sex;
     @Code2Text(transformer = "X_KCXZ")
     private String nature;
+    @Code2Text(transformer="K_BKKCXZ")
+    private String isElective;
     private Long teachingClassId;
     private Integer elcNumber;
     private String keyWord;//查询条件
@@ -150,4 +154,13 @@ public class ClassCodeToTeacher {
     public void setSex(Integer sex) {
         this.sex = sex;
     }
+
+	public String getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(String isElective) {
+		this.isElective = isElective;
+	}
+    
 }

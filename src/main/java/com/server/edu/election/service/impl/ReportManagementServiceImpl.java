@@ -1181,13 +1181,20 @@ public class ReportManagementServiceImpl implements ReportManagementService
         design.setNullCellValue("");
         design.addCell(I18nUtil.getMsg("rollBookManage.teachingClass"),
             "classCode");
-        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"),
-            "courseCode");
+//        design.addCell(I18nUtil.getMsg("exemptionApply.courseCode"),
+//            "courseCode");
         design.addCell(I18nUtil.getMsg("exemptionApply.courseName"),
             "courseName");
-        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"),
-            "className");
-        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "courseLabel");
+//        design.addCell(I18nUtil.getMsg("rollBookManage.teachingClassName"),
+//            "className");
+//        design.addCell(I18nUtil.getMsg("rebuildCourse.label"), "courseLabel");
+        design
+        .addCell(I18nUtil.getMsg("rollBookManage.isElective"),
+            "isElective")
+        .setValueHandler((value, rawData, cell) -> {
+            return dictionaryService
+                .query("K_BKKCXZ", value, SessionUtils.getLang());
+        });
         design.addCell(I18nUtil.getMsg("rollBookManage.actualNumber"),
             "selectCourseNumber");
         design.addCell(I18nUtil.getMsg("rollBookManage.upperLimit"),

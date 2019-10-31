@@ -74,7 +74,7 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
-        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,
+        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,t2.TRAINING_LEVEL_,
         t3.NAME_ as courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
@@ -1143,6 +1143,7 @@
         distinct tt.TEACHER_CODE_ teacherCode,
         tt.TEACHER_NAME_ teacherName,
         op.CALENDAR_ID_ calendarId,
+        op.IS_ELECTIVE_ isElective,
         tc.CODE_ classCode,
         tc.NAME_ className,
         tc.ELC_NUMBER_ elcNumber,
@@ -1164,6 +1165,9 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and op.NATURE_ =#{nature,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+                and op.IS_ELECTIVE_ =#{isElective,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
                 and op.COURSE_CODE_ like CONCAT( '%', #{courseCode}, '%')

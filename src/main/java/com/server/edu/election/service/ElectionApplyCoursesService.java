@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.CourseDto;
 import com.server.edu.election.dto.ElectionApplyCoursesDto;
 import com.server.edu.election.entity.Course;
@@ -14,4 +15,5 @@ public interface ElectionApplyCoursesService {
 	PageInfo<Course> courseList(PageCondition<CourseDto> condition);
 	int addCourses(ElectionApplyCoursesDto dto);
 	int deleteCourses(List<Long> ids);
+	PageResult<Course> courseList1(PageCondition<CourseDto> condition);
 }

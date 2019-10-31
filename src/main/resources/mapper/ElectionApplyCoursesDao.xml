@@ -66,4 +66,94 @@
 		    </if>
 		</where>
   </select>
+  <select id="getApplyCourse2Add" parameterType="com.server.edu.election.dto.CourseDto" resultType="com.server.edu.election.vo.ElectionApplyCoursesVo">
+  		select
+		t2.CODE_ code,
+		  t2.NAME_ name,
+		  t2.NAME_EN_ nameEn,
+		  t2.CREDITS_ credits,
+		  t2.ENABLED_ enabled,
+		  t2.WEEKS_ weeks,
+		  t2.WEEK_HOUR_ weekHour,
+		  t2.PERIOD_ period,
+		  t2.CROSS_TERM_ crossTerm,
+		  t2.TERM_ term,
+		  t2.TRAINING_LEVEL_ trainingLevel,
+		  t2.FORM_LEARNING_ formLearning,
+		  t2.IS_ELECTIVE_ isElective,
+		  t2.COLLEGE_ college,
+		  t2.LABEL_ label,
+		  t2.TEACHING_LANGUAGE_ teachingLanguage,
+		  t2.SCORE_TYPE_ scoreType,
+		  t2.ASSESSMENT_MODE_ assessmentMode,
+		  t2.HEAD_TEACHER_ headTeacher,
+		  t2.TEACHERS_ teachers,
+		  t2.MANAGER_DEPT_ID_ managerDeptId,
+		  t2.STATUS_ status,
+		  t2.UPDATE_TIME_ updateTime,
+		  t2.REMARK_ remark,
+		  t2.TEACH_MODE_ teachMode,
+		  t2.NATURE_ nature
+		FROM
+			course_t t2
+		<where>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(status)">
+		        and t2.STATUS_ = #{status}
+		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+		        and (t2.CODE_ like concat(#{keyword},'%') or t2.NAME_ like concat(#{keyword},'%'))
+		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(codes)">
+		        and t2.CODE_ in 
+	                <foreach collection="codes" open="(" separator="," close=")" item="code">
+			            #{code}
+			        </foreach>
+		    </if>
+		</where>
+  </select>
+  <select id="getApplyCourse4Add" parameterType="com.server.edu.election.dto.CourseDto" resultType="com.server.edu.election.vo.ElectionApplyCoursesVo">
+		SELECT
+		  t2.CODE_ code,
+		  t2.NAME_ name,
+		  t2.NAME_EN_ nameEn,
+		  t2.CREDITS_ credits,
+		  t2.ENABLED_ enabled,
+		  t2.WEEKS_ weeks,
+		  t2.WEEK_HOUR_ weekHour,
+		  t2.PERIOD_ period,
+		  t2.CROSS_TERM_ crossTerm,
+		  t2.TERM_ term,
+		  t2.TRAINING_LEVEL_ trainingLevel,
+		  t2.FORM_LEARNING_ formLearning,
+		  t2.IS_ELECTIVE_ isElective,
+		  t2.COLLEGE_ college,
+		  t2.LABEL_ label,
+		  t2.TEACHING_LANGUAGE_ teachingLanguage,
+		  t2.SCORE_TYPE_ scoreType,
+		  t2.ASSESSMENT_MODE_ assessmentMode,
+		  t2.HEAD_TEACHER_ headTeacher,
+		  t2.TEACHERS_ teachers,
+		  t2.MANAGER_DEPT_ID_ managerDeptId,
+		  t2.STATUS_ status,
+		  t2.UPDATE_TIME_ updateTime,
+		  t2.REMARK_ remark,
+		  t2.TEACH_MODE_ teachMode,
+		  t2.NATURE_ nature
+		FROM
+			course_t t2
+		<where>
+		 	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(status)">
+		        and t2.STATUS_ = #{status}
+		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+		        and (t2.CODE_ like concat(#{keyword},'%') or t2.NAME_ like concat(#{keyword},'%'))
+		   </if>
+		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(codes)">
+		        and t2.CODE_ not in 
+	                <foreach collection="codes" open="(" separator="," close=")" item="code">
+			            #{code}
+			        </foreach>
+		    </if>
+		</where>
+  </select>
 </mapper>
