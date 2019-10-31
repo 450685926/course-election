@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
@@ -80,16 +82,6 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 			String[] split = PECourses.split(",");
             criteria.andIn("code", Arrays.asList(split));
 		}else{
-			String englishCourses = constantsDao.findEnglishCourses();
-			if (StringUtils.isNotBlank(englishCourses)) {
-				String[] split = englishCourses.split(",");
-				criteria.andNotIn("code", Arrays.asList(split));
-			}
-			String PECourses = constantsDao.findPECourses();
-			if (StringUtils.isNotBlank(PECourses)) {
-				String[] split = englishCourses.split(",");
-				criteria.andNotIn("code", Arrays.asList(split));
-			}
 			//查找申请列表中已经存在的课程，并排除掉
 			ElectionApplyCoursesDto electionApplyCoursesDto = new ElectionApplyCoursesDto();
 			electionApplyCoursesDto.setCalendarId(dto.getCalendarId());
@@ -101,6 +93,46 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		PageInfo<Course> pageInfo = new PageInfo<>(list);
 		return pageInfo;
 		
+	}
+
+	@Override
+	public PageResult<Course> courseList1(PageCondition<CourseDto> condition) {
+		CourseDto dto = condition.getCondition();
+		Integer model = dto.getMode();
+		CourseDto course = new CourseDto();
+		
+		course.setStatus(Constants.THREE+"");
+		Page<Course> page = null;
+		if (Constants.ENGLISH_MODEL.equals(model)) {
+			String englishCourses = constantsDao.findEnglishCourses();
+			if(StringUtils.isBlank(englishCourses)) {
+			    return new PageResult<>();
+			}
+			String[] split = englishCourses.split(",");
+			course.setCodes( Arrays.asList(split));
+			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+			page = electionApplyCoursesDao.getApplyCourse2Add(course);
+		}else if (Constants.PE_MODEL.equals(model)){
+			String PECourses = constantsDao.findPECourses();
+			if(StringUtils.isBlank(PECourses)) {
+                return new PageResult<>();
+            }
+			String[] split = PECourses.split(",");
+			course.setCodes( Arrays.asList(split));
+			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+			page = electionApplyCoursesDao.getApplyCourse2Add(course);
+		}else{
+			//查找申请列表中已经存在的课程，并排除掉
+			ElectionApplyCoursesDto electionApplyCoursesDto = new ElectionApplyCoursesDto();
+			electionApplyCoursesDto.setCalendarId(dto.getCalendarId());
+			List<ElectionApplyCoursesVo> selectApplyCourse = electionApplyCoursesDao.selectApplyCourse(electionApplyCoursesDto);
+			List<String> code = selectApplyCourse.stream().map(ElectionApplyCoursesVo::getCode).collect(Collectors.toList());
+			course.setCodes(code);
+			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+			page = electionApplyCoursesDao.getApplyCourse4Add(course);
+		}
+		PageResult<Course> pageInfo = new PageResult<>(page);
+		return pageInfo;
 	}
 	
 	@Override

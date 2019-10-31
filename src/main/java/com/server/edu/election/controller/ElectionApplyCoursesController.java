@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.CourseDto;
 import com.server.edu.election.dto.ElectionApplyCoursesDto;
@@ -57,7 +58,7 @@ public class ElectionApplyCoursesController {
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "课程列表")
-    @PostMapping("/courseList")
+    @PostMapping("/courseList1")
     public RestResult<PageInfo<Course>> courseList(
         @RequestBody PageCondition<CourseDto> condition)
         throws Exception
@@ -65,6 +66,17 @@ public class ElectionApplyCoursesController {
         LOG.info("courseList.start");
         PageInfo<Course> list =electionApplyCoursesService.courseList(condition);
         return RestResult.successData(list);
+    }
+    
+    @ApiOperation(value = "课程列表")
+    @PostMapping("/courseList")
+    public RestResult<PageResult<Course>> courseList1(
+    		@RequestBody PageCondition<CourseDto> condition)
+    				throws Exception
+    {
+    	LOG.info("courseList.start");
+    	PageResult<Course> list =electionApplyCoursesService.courseList1(condition);
+    	return RestResult.successData(list);
     }
     
     /**
