@@ -132,8 +132,4 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
 
     List<SelectDto> findCourse(@Param("list") List<Long> ids);
 
-    /**
-    * 查询考场数
-    */
-    int findExamRoomsNumber(Long id);
 }
