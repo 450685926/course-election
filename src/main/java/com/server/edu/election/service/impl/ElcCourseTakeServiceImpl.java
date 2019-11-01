@@ -67,11 +67,12 @@ import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.CourseConflictVo;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
@@ -130,6 +131,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Value("${cache.directory}")
     private String cacheDirectory;
+    
+    @Autowired
+    private ElecContextUtil contextUtil;
 
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -282,11 +286,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     }
 
 	private void reLoadSelectedCourse(Long calendarId, String studentId) {
-		ElecContextBk context = new ElecContextBk(studentId, calendarId);
-		Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-		selectedCourses.clear();
+	    /** 本学期已选择课程 */
+	    Set<SelectedCourse> selectedCourses = new HashSet<>();
 		BKCourseGradeLoad bkCourseGradeLoad = new BKCourseGradeLoad();
 		bkCourseGradeLoad.loadSelectedCourses(studentId, selectedCourses, calendarId);
+		contextUtil.updateMem(IElecContext.SELECTED_COURSES, selectedCourses);
 	}
     
     @Transactional
