@@ -464,6 +464,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	    if (CollectionUtil.isNotEmpty(selectedCourse)) {
 	    	return "please.drop.the.relevant.courses";
 	    }
+	    Session session = SessionUtils.getCurrentSession();
 	  //查找申请信息
 	    Student student = studentDao.findStudentByCode(applyManage.getStudentCode());
 	    applyManage.setName(student.getName());
@@ -487,7 +488,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				exemptionApplyManage.setAuditor(applyManage.getAuditor());
 				exemptionApplyManage.setExemptionType(applyManage.getExemptionType());
 				exemptionApplyManage.setDeleteStatus("0");
-				int code = saveExemptionScore(exemptionApplyManage, courseCodes[i]);
+				int code = saveExemptionScore(exemptionApplyManage, courseCodes[i],session.realUid(),session.realName());
         		if(code != 200){
         			return "common.editError";
         		}
@@ -894,7 +895,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         		//查询是否重复申请
         	    List<ExemptionApplyManage> exemptionApplyManageVo = applyDao.applyRepeatByStudent(applyRecord.getCalendarId(), applyRecord.getStudentCode(),applyRecord.getExamineResult());
         		for (ExemptionApplyManage exemptionApplyManage : exemptionApplyManageVo) {
-        			int code = saveExemptionScore(exemptionApplyManage, exemptionApplyManage.getCourseCode());
+        			int code = saveExemptionScore(exemptionApplyManage, exemptionApplyManage.getCourseCode(),session.realUid(),session.realName());
         			if(code != 200){
         				return "common.editError";
         			}
@@ -1371,7 +1372,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 					exemptionApplyManage.setName(applyManage.getName());
 					exemptionApplyManage.setAuditor(applyManage.getAuditor());
 					exemptionApplyManage.setDeleteStatus("0");
-					int code = saveExemptionScore(exemptionApplyManage, courseCodes[i]);
+					int code = saveExemptionScore(exemptionApplyManage, courseCodes[i],applyManage.getStudentCode(),applyManage.getName());
 	        		if(code != 200){
 	        			return RestResult.fail("common.editError","");
 	        		}
@@ -1427,7 +1428,7 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	 * @param courseCodes
 	 * @return 
 	 */
-	private int saveExemptionScore(ExemptionApplyManage applyManage, String courseCode) {
+	private int saveExemptionScore(ExemptionApplyManage applyManage, String courseCode,String teacherId,String teacherName) {
 		
 		
 		logger.info("save score start -----------------------------");
@@ -1437,7 +1438,8 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 		jsonObject.put("studentName", applyManage.getName());
 		jsonObject.put("calendarId", applyManage.getCalendarId());
 		jsonObject.put("courseCode", courseCode);
-		jsonObject.put("recoredType", 9);
+		jsonObject.put("teacherId", teacherId);
+		jsonObject.put("teacherName", teacherName);
 		RestResult saveExemptionScore = ScoreServiceInvoker.saveExemptionScore(jsonObject);
 		logger.info("save score end -----------------------------"+saveExemptionScore.getCode());
 		return saveExemptionScore.getCode();
