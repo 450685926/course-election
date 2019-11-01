@@ -29,6 +29,8 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -436,6 +438,14 @@ public class ElecContextUtil
             String jsonString = JSON.toJSONString(courseCods);
             ops.put(key, ElecContextBk.ELEC_APPLY_COURSES, jsonString);
         }
+    }
+    
+    public static void updateSelectedCourse(Long calendarId, String studentId) {
+    	Set<SelectedCourse> selectedCourses = new HashSet<>();
+		BKCourseGradeLoad bkCourseGradeLoad = new BKCourseGradeLoad();
+		bkCourseGradeLoad.loadSelectedCourses(studentId, selectedCourses, calendarId);
+		ElecContextUtil u = new ElecContextUtil(calendarId, studentId);
+		u.updateMem(IElecContext.SELECTED_COURSES, selectedCourses);
     }
     
 }
