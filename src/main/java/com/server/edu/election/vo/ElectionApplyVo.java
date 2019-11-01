@@ -9,7 +9,8 @@ public class ElectionApplyVo extends ElectionApply {
     private Integer status;
     private String studentName;
     private String courseName;
-    /**
+	private Double credits;
+	/**
      * 培养层次(专科   本科   硕士   博士    其他    预科)
      */
     @Code2Text(transformer = "X_PYCC")
@@ -28,8 +29,15 @@ public class ElectionApplyVo extends ElectionApply {
     private String profession;
     
     private Integer grade;
-    
-    
+
+	public Double getCredits() {
+		return credits;
+	}
+
+	public void setCredits(Double credits) {
+		this.credits = credits;
+	}
+
 	public String getTrainingLevel() {
 		return trainingLevel;
 	}

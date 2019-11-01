@@ -69,6 +69,7 @@ import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
+import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.CourseConflictVo;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
@@ -127,7 +128,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Value("${cache.directory}")
     private String cacheDirectory;
-
+    
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page)
@@ -272,12 +273,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             log.setTurn(0);
             log.setType(ElcLogVo.TYPE_1);
             this.elcLogDao.insertSelective(log);
-            
+            ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
         }
     }
-    
+
     @Transactional
     @Override
     public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas,
@@ -452,8 +453,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     public void withdraw(List<ElcCourseTake> value)
     {
+    	Session currentSession = SessionUtils.getCurrentSession();
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
-        
         List<ElcLog> logList = new ArrayList<>();
         Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
         for (ElcCourseTake take : value)
@@ -461,6 +462,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             Long calendarId = take.getCalendarId();
             String studentId = take.getStudentId();
             Long teachingClassId = take.getTeachingClassId();
+            Integer turn = take.getTurn()!=null?take.getTurn():0;
             //删除选课记录
             Example example = new Example(ElcCourseTake.class);
             example.createCriteria()
@@ -483,7 +485,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             {
                 vo = classInfoMap.get(key);
             }
-            
+            ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             // 记录退课日志
             if (null != vo)
             {
@@ -492,14 +494,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setCalendarId(calendarId);
                 log.setCourseCode(vo.getCourseCode());
                 log.setCourseName(vo.getCourseName());
-                Session currentSession = SessionUtils.getCurrentSession();
                 log.setCreateBy(currentSession.getUid());
                 log.setCreatedAt(new Date());
                 log.setCreateIp(currentSession.getIp());
                 log.setMode(ElcLogVo.MODE_2);
                 log.setStudentId(studentId);
                 log.setTeachingClassCode(teachingClassCode);
-                log.setTurn(0);
+                log.setTurn(turn);
                 log.setType(ElcLogVo.TYPE_2);
                 logList.add(log);
                 
