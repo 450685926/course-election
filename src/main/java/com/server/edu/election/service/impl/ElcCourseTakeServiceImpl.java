@@ -69,7 +69,7 @@ import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
-import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.CourseConflictVo;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
@@ -155,6 +155,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
         cond.setIncludeCourseCodes(includeCodes);
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+        cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
@@ -273,7 +274,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             log.setTurn(0);
             log.setType(ElcLogVo.TYPE_1);
             this.elcLogDao.insertSelective(log);
-            ElecContextUtil.updateSelectedCourse(calendarId, studentId);
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
         }
@@ -485,7 +486,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             {
                 vo = classInfoMap.get(key);
             }
-            ElecContextUtil.updateSelectedCourse(calendarId, studentId);
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             // 记录退课日志
             if (null != vo)
             {
