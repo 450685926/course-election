@@ -78,7 +78,7 @@
         t3.NAME_ as courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
-        from elc_course_takes_t t1
+        from elc_course_takes_t_${index} t1
         join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
         join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
@@ -115,8 +115,8 @@
                 and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-                and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like
-                concat('%',#{query.keyword},'%'))
+                and (t2.STUDENT_CODE_ like concat(#{query.keyword},'%') or t2.NAME_ like
+                concat(#{query.keyword},'%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
                 and t2.PROFESSION_ = #{query.profession}

@@ -100,9 +100,19 @@ public class ElcCourseTakeQuery
     private Long courseLabelId;
 
     private String campus;
+    
+    private Integer index;
 
+    
+    public Integer getIndex() {
+		return index;
+	}
 
-    public Integer getIsElective() {
+	public void setIndex(Integer index) {
+		this.index = index;
+	}
+
+	public Integer getIsElective() {
         return isElective;
     }
 

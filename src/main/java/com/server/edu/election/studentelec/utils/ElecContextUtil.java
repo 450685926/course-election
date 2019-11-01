@@ -54,6 +54,8 @@ public class ElecContextUtil
     
     private String studentId;
     
+    private BKCourseGradeLoad bkCourseGradeLoad;
+    
     // 由于使用redis的hash来保存数据，为了能快速得到所有的数据使用map先保存起来
     public Map<String, String> cacheData;
     
@@ -444,8 +446,13 @@ public class ElecContextUtil
     	Set<SelectedCourse> selectedCourses = new HashSet<>();
 		BKCourseGradeLoad bkCourseGradeLoad = new BKCourseGradeLoad();
 		bkCourseGradeLoad.loadSelectedCourses(studentId, selectedCourses, calendarId);
+		HashOperations<String, String, String> ops =
+                getRedisTemplate().opsForHash();
+        String jsonString = JSON.toJSONString(selectedCourses);
+        String key = getKey(studentId);
+        ops.put(key, ElecContextBk.SELECTED_COURSES, jsonString);
 		ElecContextUtil u = new ElecContextUtil(calendarId, studentId);
-		u.updateMem(IElecContext.SELECTED_COURSES, selectedCourses);
+		u.updateMem(ElecContextBk.SELECTED_COURSES, selectedCourses);
     }
     
 }
