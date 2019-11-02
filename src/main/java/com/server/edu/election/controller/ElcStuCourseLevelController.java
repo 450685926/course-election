@@ -164,7 +164,7 @@ public class ElcStuCourseLevelController
                 public Object handler(String value)
                 {
                     value = StringUtils.trim(value);
-                    value = value.split("//.")[0];
+                    value = value.split("\\.")[0];
                     Student stu = studentDao.findStudentByCode(value);
                     if(stu == null) {
                         return null;
