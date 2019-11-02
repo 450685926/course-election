@@ -151,6 +151,8 @@
 				where 
 				COURSE_ID_ =#{courseId}
 			)
+			and t1.LEAVE_SCHOOL_ = 1
+			and t1.MANAGER_DEPT_ID_ = '1'
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
 	        and t1.STUDENT_CODE_ like concat('%',#{studentCode},'%')
 	    </if>
@@ -209,7 +211,7 @@
 					STUDENT_ID_
 				FROM
 					elc_invincible_stds_t
-			)
+			) and t1.LEAVE_SCHOOL_ = 1 and t1.MANAGER_DEPT_ID_ = 1
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
 			       and  t1.STUDENT_CODE_ =#{studentCode}
 			    </if>

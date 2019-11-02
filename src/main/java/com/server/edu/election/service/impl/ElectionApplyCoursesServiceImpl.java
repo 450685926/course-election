@@ -102,6 +102,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		CourseDto course = new CourseDto();
 		
 		course.setStatus(Constants.THREE+"");
+		course.setKeyword(dto.getKeyword());
 		Page<Course> page = null;
 		if (Constants.ENGLISH_MODEL.equals(model)) {
 			String englishCourses = constantsDao.findEnglishCourses();
