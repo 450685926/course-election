@@ -56,6 +56,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(addCourse)">
                 and ( t4.EXAM_ROOMS_ = 0 or t4.EXAM_ROOMS_ is null )
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCodes)">
+                and t1.COURSE_CODE_ not in
+                <foreach collection="courseCodes" item="courseCode" open="(" separator="," close=")">
+                    #{courseCode}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t2.COLLEGE_ = #{faculty}
             </if>
@@ -125,6 +131,15 @@
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
                 and t3.CAMPUS_ = #{campus}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(addCourse)">
+                and ( t4.EXAM_ROOMS_ = 0 or t4.EXAM_ROOMS_ is null )
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCodes)">
+                and t1.COURSE_CODE_ not in
+                <foreach collection="courseCodes" item="courseCode" open="(" separator="," close=")">
+                    #{courseCode}
+                </foreach>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t2.COLLEGE_ = #{faculty}
