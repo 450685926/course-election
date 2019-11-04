@@ -1,5 +1,7 @@
 package com.server.edu.election.dto;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import com.server.edu.election.entity.Student;
@@ -16,6 +18,8 @@ public class StudentDto extends Student
     private Long calendarId;
     
     private String studentId;
+    
+    private List<String> studentIds;
     
     private String projectId;
     
@@ -68,5 +72,15 @@ public class StudentDto extends Student
     {
         this.projectId = projectId;
     }
+
+	public List<String> getStudentIds() {
+		return studentIds;
+	}
+
+	public void setStudentIds(List<String> studentIds) {
+		this.studentIds = studentIds;
+	}
+    
+    
     
 }

@@ -183,7 +183,11 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	private void getTeacgerName(TeachingClassVo vo) {
 		if(StringUtils.isNotBlank(vo.getTeacherCodes())) {
-			List<Teacher> teachers = TeacherCacheUtil.getTeachers(vo.getTeacherCodes());
+			String[] codes = vo.getTeacherCodes().split(",");
+			List<Teacher> teachers = new ArrayList<Teacher>();
+			for (String code : codes) {
+				teachers.addAll(TeacherCacheUtil.getTeachers(code));
+			}
 		     	if(CollectionUtil.isNotEmpty(teachers)) {
 		     		StringBuilder stringBuilder = new StringBuilder();
 		    		for(Teacher teacher:teachers) {

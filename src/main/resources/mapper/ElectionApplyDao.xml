@@ -18,7 +18,7 @@
   <resultMap id="ApplyMap" type="com.server.edu.election.vo.ElectionApplyVo" extends="com.server.edu.election.dao.ElectionApplyDao.BaseResultMap">
       <result column="studentName" jdbcType="VARCHAR" property="studentName" />
       <result column="courseName" jdbcType="VARCHAR" property="courseName" />
-      <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+      <result column="COLLEGE_" jdbcType="VARCHAR" property="faculty" />
       <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
       <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
       <result column="GRADE_" jdbcType="INTEGER" property="grade" />

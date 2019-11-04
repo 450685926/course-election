@@ -35,6 +35,8 @@ import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +58,7 @@ import java.util.stream.Collectors;
 @Service
 @Primary
 public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeService {
+    private Logger LOG = LoggerFactory.getLogger(RebuildCourseChargeServiceImpl.class);
 
     @Autowired
     private RebuildCourseChargeDao courseChargeDao;
@@ -321,20 +324,29 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public void moveRecycleCourseToNoChargeList(
-            List<RebuildCourseNoChargeList> list) {
+    public List<RebuildCourseNoChargeList> moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list) {
         if (CollectionUtil.isEmpty(list)) {
             throw new ParameterValidateException("common.parameterError");
         }
+        //有冲突的数据集合
+        List<RebuildCourseNoChargeList> conflictList = new ArrayList<>();
         for (RebuildCourseNoChargeList noChargeList : list) {
-            recoverClass(noChargeList);
+            //判断加课有没有成功
+            Boolean aBoolean = recoverClass(noChargeList);
+            if (!aBoolean){
+                conflictList.add(noChargeList);
+            }
         }
         /**从回收站删除*/
-        courseChargeDao.recoveryDataFromRecycleCourse(list);
+        list.removeAll(conflictList);
+        if (CollectionUtil.isNotEmpty(list)){
+            courseChargeDao.recoveryDataFromRecycleCourse(list);
+        }
+        return conflictList;
     }
 
     @Transactional
-    private void recoverClass(RebuildCourseNoChargeList noChargeList) {
+    private Boolean recoverClass(RebuildCourseNoChargeList noChargeList) {
         String studentCode = noChargeList.getStudentCode();
         String courseCode = noChargeList.getCourseCode();
         Long calendarId = noChargeList.getCalendarId();
@@ -348,8 +360,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentCode);
         record.setCourseCode(courseCode);
+        record.setCalendarId(calendarId);
         int selectCount = courseTakeDao.selectCount(record);
-        if (selectCount == 0) {
+        if (selectCount < 1) {
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(calendarId);
             take.setChooseObj(chooseObj);
@@ -368,15 +381,20 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             log.setCourseCode(courseCode);
             log.setCourseName(courseName);
             Session currentSession = SessionUtils.getCurrentSession();
+            LOG.info("currentSession Uid ============="+currentSession.getUid());
             log.setCreateBy(currentSession.getUid());
             log.setCreatedAt(new Date());
             log.setCreateIp(currentSession.getIp());
+            LOG.info("currentSession ip ============="+currentSession.getIp());
             log.setMode(chooseObj != 1 ? ElcLogVo.MODE_2 : ElcLogVo.MODE_1);
             log.setStudentId(studentCode);
             log.setTeachingClassCode(teachingClassCode);
             log.setTurn(turn);
             log.setType(ElcLogVo.TYPE_1);
             elcLogDao.insertSelective(log);
+            return true;
+        }else {
+            return false;
         }
     }
 

@@ -43,7 +43,7 @@ public interface RebuildCourseChargeService {
     PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition);
 
     /**从回收站回复数据*/
-    void moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
+    List<RebuildCourseNoChargeList> moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
 
 
     /**导出未缴费重修名单*/
