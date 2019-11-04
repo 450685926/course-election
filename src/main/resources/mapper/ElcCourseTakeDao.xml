@@ -1886,7 +1886,30 @@
           LEFT JOIN elc_med_withdraw_t t4 ON t4.STUDENT_ID_ = t1.STUDENT_ID_ 
 	      AND t4.TEACHING_CLASS_ID_ = t2.ID_  
 		WHERE t1.`STUDENT_ID_` = #{studentId}
-		  AND t1.`CALENDAR_ID_` = #{calendarId} 
+		  AND t1.`CALENDAR_ID_` = #{calendarId}
+		UNION ALL 
+		SELECT 
+		  0 AS id,
+		  t1.`ID_` medWithdrawId,
+		  t1.`TEACHING_CLASS_ID_`,
+		  t2.`CODE_` teachingClassCode,
+		  t2.NAME_  teachingClassName,
+		  t3.COURSE_CODE_,
+		  t3.`COURSE_NAME_` courseName,
+		  t3.`CREDITS_`,
+		  t3.PERIOD_,
+		  t2.`CAMPUS_` 
+		FROM
+		  elc_med_withdraw_t t1 
+		  JOIN teaching_class_t t2 
+		    ON t1.`TEACHING_CLASS_ID_` = t2.`ID_` 
+		  JOIN `course_open_t` t3 
+		    ON (
+		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
+		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
+		    ) 
+		WHERE t1.`STUDENT_ID_` = #{studentId}
+		  AND t1.`CALENDAR_ID_` = #{calendarId}  
   </select>
 
     <select id="findNoChargeListByStuId" parameterType="com.server.edu.election.dto.RebuildCourseDto"
