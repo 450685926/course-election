@@ -1890,6 +1890,7 @@
 		UNION ALL 
 		SELECT 
 		  0 AS id,
+		  t1.STUDENT_ID_,
 		  t1.`ID_` medWithdrawId,
 		  t1.`TEACHING_CLASS_ID_`,
 		  t2.`CODE_` teachingClassCode,
