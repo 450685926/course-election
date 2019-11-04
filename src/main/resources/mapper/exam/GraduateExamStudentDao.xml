@@ -47,7 +47,7 @@
       t2.ID_ teachingClassId,t2.NAME_ teachingClassName,t2.CODE_ teachingClassCode,t6.ID_ examInfoId
       from graduate_exam_info_t t6
       left join elc_course_takes_t_${mode} t1 on t1.CALENDAR_ID_ = t6.CALENDAR_ID_ and t1.COURSE_CODE_ = t6.COURSE_CODE_
-      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_ and t6.CAMPUS_ = t2.CAMPUS_
+      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
       left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_ID_
       <where>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
@@ -56,9 +56,9 @@
             #{examInfoId}
           </foreach>
         </if>
-        <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">-->
-          <!--and t3.CAMPUS_ = #{campus}-->
-        <!--</if>-->
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+          and t2.CAMPUS_ = #{campus}
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
           and t3.FACULTY_ = #{faculty}
         </if>
@@ -113,7 +113,7 @@
       t2.ID_ teachingClassId,t2.NAME_ teachingClassName,t2.CODE_ teachingClassCode,t6.ID_ examInfoId
       from graduate_exam_info_t t6
       left join graduate_exam_apply_examination_t t1 on t1.CALENDAR_ID_ = t6.CALENDAR_ID_ and t1.COURSE_CODE_ = t6.COURSE_CODE_
-      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_ and t6.CAMPUS_ = t2.CAMPUS_
+      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
       left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_CODE_
       <where>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
@@ -122,9 +122,9 @@
             #{examInfoId}
           </foreach>
         </if>
-        <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">-->
-          <!--and t3.CAMPUS_ = #{campus}-->
-        <!--</if>-->
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+          and t2.CAMPUS_ = #{campus}
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
           and t3.FACULTY_ = #{faculty}
         </if>

@@ -573,6 +573,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                     teachingClassDto.setExamNumber(examNumber);
                     teachingClassDto.setExamRoomNumber(examRoomNumber);
                 }
+            }else{
+                for (TeachingClassDto teachingClassDto : teachingClassDtos) {
+                    teachingClassDto.setNoExamNumber(teachingClassDto.getTotalNumber());
+                    teachingClassDto.setExamNumber(0);
+                    teachingClassDto.setExamRoomNumber(0);
+                }
             }
         }
         return new PageResult<>(page);
@@ -708,9 +714,15 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Integer examType = roomsQuery.getExamType();
         List<Long> examInfoIds = roomsQuery.getExamInfoIds();
         List<Long> examRoomIds = roomsQuery.getExamRoomIds();
+        if(CollectionUtil.isEmpty(examInfoIds) || examType == null){
+            return "入参有误";
+        }
         if (CollectionUtil.isEmpty(examRoomIds)) {
             examRoomIds = roomDao.listRoomsByExamInfoIds(examInfoIds);
         }
+
+        Long examInfoId = examInfoIds.get(0);
+        String campus = examInfoDao.selectByPrimaryKey(examInfoId).getCampus();
 
         //通过ExamRoomId查询未满的考场
         if (CollectionUtil.isEmpty(examRoomIds)) {
@@ -720,6 +732,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         //通过examInfoIds查询未排考的学生
         StudentQuery query = new StudentQuery();
         query.setExamInfoIds(examInfoIds);
+        query.setCampus(campus);
         Page<NoExamStudent> studentList = new Page<>();
         if (examType.equals(ApplyStatus.FINAL_EXAM)) {
             query.setMode((int) (roomsQuery.getCalendarId() % 6));
