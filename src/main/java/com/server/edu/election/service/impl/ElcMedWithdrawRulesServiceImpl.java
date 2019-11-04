@@ -56,7 +56,7 @@ public class ElcMedWithdrawRulesServiceImpl implements ElcMedWithdrawRulesServic
 //		criteria.andEqualTo("name",elcMedWithdrawRules.getName());
 		List<ElcMedWithdrawRules> list = elcMedWithdrawRulesDao.selectByExample(example);
 		if(CollectionUtil.isNotEmpty(list)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("elcMedWithdraw.rule")));
+			throw new ParameterValidateException("当前学年学期已存在期中退课规则");
 		}
 		int result = elcMedWithdrawRulesDao.insertSelective(elcMedWithdrawRules);
 		if(result<=Constants.ZERO) {
