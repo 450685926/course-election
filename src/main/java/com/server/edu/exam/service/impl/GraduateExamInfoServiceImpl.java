@@ -721,8 +721,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             examRoomIds = roomDao.listRoomsByExamInfoIds(examInfoIds);
         }
 
-        Long examInfoId = examInfoIds.get(0);
-        String campus = examInfoDao.selectByPrimaryKey(examInfoId).getCampus();
+        Long id = examInfoIds.get(0);
+        String campus = examInfoDao.selectByPrimaryKey(id).getCampus();
 
         //通过ExamRoomId查询未满的考场
         if (CollectionUtil.isEmpty(examRoomIds)) {
