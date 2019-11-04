@@ -573,6 +573,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                     teachingClassDto.setExamNumber(examNumber);
                     teachingClassDto.setExamRoomNumber(examRoomNumber);
                 }
+            }else{
+                for (TeachingClassDto teachingClassDto : teachingClassDtos) {
+                    teachingClassDto.setNoExamNumber(teachingClassDto.getTotalNumber());
+                    teachingClassDto.setExamNumber(0);
+                    teachingClassDto.setExamRoomNumber(0);
+                }
             }
         }
         return new PageResult<>(page);
