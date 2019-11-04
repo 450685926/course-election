@@ -20,6 +20,7 @@ import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -210,10 +212,22 @@ public class RebuildCourseController
     
     @ApiOperation(value = "从回收站恢复到未缴费的课程名单")
     @PostMapping("/moveRecycleCourseToNoChargeList")
-    public RestResult<?> moveRecycleCourseToNoChargeList(
-        @RequestBody List<RebuildCourseNoChargeList> list)
-    {
-        service.moveRecycleCourseToNoChargeList(list);
+    public RestResult<?> moveRecycleCourseToNoChargeList(@RequestBody List<RebuildCourseNoChargeList> list) {
+        List<RebuildCourseNoChargeList> conflictList = service.moveRecycleCourseToNoChargeList(list);
+        if (CollectionUtil.isNotEmpty(conflictList)){
+            //有冲突数据
+            StringBuilder sb = new StringBuilder();
+            sb.append("一共恢复数据"+list.size()+"条，成功恢复"+(list.size()-conflictList.size())+"条。");
+            sb.append("有冲突的"+conflictList.size()+"条。");
+            sb.append("冲突数据为:");
+            List<String> sList = new ArrayList<>();
+            conflictList.forEach(c ->{
+                 String s =  c.getStudentName()+"("+c.getStudentCode()+")的"+c.getCourseName()+"("+c.getCourseCode()+")课程";
+                 sList.add(s);
+            });
+            sb.append(StringUtils.join(sList,","));
+            return RestResult.success(sb.toString());
+        }
         return RestResult.success();
     }
     
