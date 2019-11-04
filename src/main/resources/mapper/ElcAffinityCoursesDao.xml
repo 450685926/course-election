@@ -25,10 +25,10 @@
 		)
 		<where>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-		        and t2.COURSE_CODE_ like concat('%',#{courseCode},'%')
+		        and t2.CODE_ like concat('%',#{courseCode},'%')
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-		        and t2.COURSE_NAME_ like concat('%',#{courseName},'%')
+		        and t2.NAME_ like concat('%',#{courseName},'%')
 		    </if>
 		</where>
   </select>

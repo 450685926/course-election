@@ -14,8 +14,10 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcCouSubsDao;
 import com.server.edu.election.dto.ElcCouSubsDto;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCouSubs;
 import com.server.edu.election.service.ElcCouSubsService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -30,6 +32,9 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
 {
     @Autowired
     private ElcCouSubsDao elcCouSubsDao;
+    
+    @Autowired
+    private CourseDao courseDao;
     
     @Override
     public PageInfo<ElcCouSubsVo> page(
@@ -56,6 +61,16 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
     @Transactional
     public int add(ElcCouSubs elcCouSubs)
     {
+    	if (elcCouSubs.getOrigsCourseId().longValue() == elcCouSubs.getSubCourseId().longValue()) {
+         	throw new ParameterValidateException(
+                     I18nUtil.getMsg("election.subCourseError"));
+ 		}
+        Course origsCourse = courseDao.selectByPrimaryKey(elcCouSubs.getOrigsCourseId().longValue());
+        Course subCourse = courseDao.selectByPrimaryKey(elcCouSubs.getSubCourseId().longValue());
+        if (origsCourse == null || subCourse == null || origsCourse.getCode() == null || subCourse.getCode() == null) {
+        	throw new ParameterValidateException(
+        			I18nUtil.getMsg("baseresservice.parameterError"));
+		}
         Example example = new Example(ElcCouSubs.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentId", elcCouSubs.getStudentId());
@@ -95,6 +110,16 @@ public class ElcCouSubsServiceImpl implements ElcCouSubsService
             throw new ParameterValidateException(
                 I18nUtil.getMsg("baseresservice.parameterError"));
         }
+        if (elcCouSubs.getOrigsCourseId().longValue() == elcCouSubs.getSubCourseId().longValue()) {
+        	throw new ParameterValidateException(
+                    I18nUtil.getMsg("election.subCourseError"));
+		}
+        Course origsCourse = courseDao.selectByPrimaryKey(elcCouSubs.getOrigsCourseId().longValue());
+        Course subCourse = courseDao.selectByPrimaryKey(elcCouSubs.getSubCourseId().longValue());
+        if (origsCourse == null || subCourse == null || origsCourse.getCode() == null || subCourse.getCode() == null) {
+        	throw new ParameterValidateException(
+        			I18nUtil.getMsg("baseresservice.parameterError"));
+		}
         List<Long> ids = new ArrayList<>();
         ids.add(elcCouSubs.getId());
         Example example = new Example(ElcCouSubs.class);

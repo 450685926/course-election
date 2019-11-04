@@ -8,6 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ElcCourseTakeQuery
 {
+    /**体育课程类型 1*/
+    public static final Integer PE_COURSE_TYPE = 1;
+    /**英语课程类型*/
+    public static final Integer EN_COURSE_TYPE = 2;
+    
     /**
      * 校历ID（学年学期）
      */
@@ -22,6 +27,7 @@ public class ElcCourseTakeQuery
     /**学生学院*/
     private String faculty;
     
+    private Integer sex;
 
     /**年级*/
     private String grade;
@@ -80,6 +86,8 @@ public class ElcCourseTakeQuery
 
     private String formLearning;
 
+    private Integer isElective;
+
     private String nature;
 
     /**导出功能选中的id集合*/
@@ -90,7 +98,28 @@ public class ElcCourseTakeQuery
     
     /** 课程类别ID*/
     private Long courseLabelId;
+
+    private String campus;
     
+    private Integer index;
+
+    
+    public Integer getIndex() {
+		return index;
+	}
+
+	public void setIndex(Integer index) {
+		this.index = index;
+	}
+
+	public Integer getIsElective() {
+        return isElective;
+    }
+
+    public void setIsElective(Integer isElective) {
+        this.isElective = isElective;
+    }
+
     public List<Long> getIds() {
         return ids;
     }
@@ -346,5 +375,22 @@ public class ElcCourseTakeQuery
     {
         this.courseLabelId = courseLabelId;
     }
-    
+
+	public Integer getSex() {
+		return sex;
+	}
+
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
+
+	public String getCampus() {
+		return campus;
+	}
+
+	public void setCampus(String campus) {
+		this.campus = campus;
+	}
+
+
 }

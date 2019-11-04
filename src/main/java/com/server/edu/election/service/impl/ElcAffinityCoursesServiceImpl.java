@@ -2,6 +2,7 @@ package com.server.edu.election.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcAffinityCoursesDao;
 import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
+import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.dto.ElcAffinityCoursesDto;
 import com.server.edu.election.dto.StudentDto;
@@ -25,6 +27,8 @@ import com.server.edu.election.service.ElcAffinityCoursesService;
 import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -43,6 +47,9 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     
     @Autowired
     private StudentDao studentDao;
+    
+    @Autowired
+    private ElecRoundStuDao elecRoundStuDao;
     
     @Override
     public PageInfo<ElcAffinityCoursesVo> list(
@@ -138,8 +145,19 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     @Override
     public int addStudent(ElcAffinityCoursesVo elcAffinityCoursesVo)
     {
-        List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
-        elcAffinityCoursesVo.getStudentIds().forEach(temp -> {
+    	 List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
+    	Session session = SessionUtils.getCurrentSession();
+        //新增学生不在已经添加的名单
+        StudentDto student =
+                new StudentDto();
+        student.setCourseId(elcAffinityCoursesVo.getCourseId());
+        List<Student> selectUnElcStudents = studentDao.selectUnElcStudents(student);
+        List<String> stuIds = selectUnElcStudents.stream().map(Student::getStudentCode).collect(Collectors.toList());
+        
+        //查找用户添加的学生名单,拿到可以添加的学生名单
+        List<String> listExistStu = elecRoundStuDao.listExistStu(stuIds, session.getCurrentManageDptId());
+        
+        listExistStu.forEach(temp -> {
             ElcAffinityCoursesStds elcAffinityCoursesStds =
                 new ElcAffinityCoursesStds();
             elcAffinityCoursesStds

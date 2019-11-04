@@ -20,6 +20,11 @@ public class ElcLogQuery extends ElcLog
     
     private Date endTime;
     
+    /** 课程类型 1体育课，2英语课*/
+    private Integer courseType;
+    
+    private List<String> speCourseCodes;
+    
     public List<String> getStudentIds()
     {
         return studentIds;
@@ -68,6 +73,26 @@ public class ElcLogQuery extends ElcLog
     public void setEndTime(Date endTime)
     {
         this.endTime = endTime;
+    }
+    
+    public Integer getCourseType()
+    {
+        return courseType;
+    }
+    
+    public void setCourseType(Integer courseType)
+    {
+        this.courseType = courseType;
+    }
+    
+    public List<String> getSpeCourseCodes()
+    {
+        return speCourseCodes;
+    }
+    
+    public void setSpeCourseCodes(List<String> speCourseCodes)
+    {
+        this.speCourseCodes = speCourseCodes;
     }
     
 }

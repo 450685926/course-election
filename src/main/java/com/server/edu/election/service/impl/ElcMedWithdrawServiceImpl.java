@@ -85,20 +85,10 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
         {
             PageHelper.startPage(condition.getPageNum_(),
                 condition.getPageSize_());
-        	int mode = TableIndexUtil.getMode(dto.getCalendarId());
-    		dto.setMode(mode);
+    		dto.setIndex(TableIndexUtil.getIndex(dto.getCalendarId()));
     		dto.setStudentId(uid);
             elcCourseTakes =
                 elcCourseTakeDao.getElcMedWithdraw(dto);
-        }
-        if(CollectionUtil.isNotEmpty(elcCourseTakes)) {
-        	for(ElcCourseTakeVo elcCourseTakeVo:elcCourseTakes) {
-        		String elcMedWithdrawStatus = "未退课";
-        		if(elcCourseTakeVo.getMedWithdrawId()>0) {
-        			elcMedWithdrawStatus = "已退课";
-        		}
-        		elcCourseTakeVo.setElcMedWithdrawStatus(elcMedWithdrawStatus);
-        	}
         }
         PageInfo<ElcCourseTakeVo> pageInfo = new PageInfo<>(elcCourseTakes);
         return pageInfo;

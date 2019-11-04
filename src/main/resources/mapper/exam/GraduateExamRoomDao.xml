@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.exam.dao.GraduateExamRoomDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.exam.entity.GraduateExamRoom">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="ROOM_ID_" jdbcType="BIGINT" property="roomId" />
+    <result column="ROOM_NAME_" jdbcType="VARCHAR" property="roomName" />
+    <result column="ROOM_CAPACITY_" jdbcType="INTEGER" property="roomCapacity" />
+    <result column="ROOM_NUMBER_" jdbcType="INTEGER" property="roomNumber" />
+    <result column="CREATE_AT_" jdbcType="TIMESTAMP" property="createAt" />
+    <result column="UPDATE_AT_" jdbcType="TIMESTAMP" property="updateAt" />
+    <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="TOWER_CODE_" jdbcType="VARCHAR" property="towerCode" />
+  </resultMap>
+
+  <resultMap id="VoBaseResultMap" type="com.server.edu.exam.vo.GraduateExamRoomVo" extends="BaseResultMap">
+    <result column="TEACHER_CODE_" jdbcType="VARCHAR" property="teacherCode" />
+    <result column="TEACHER_NAME_" jdbcType="VARCHAR" property="teacherName" />
+  </resultMap>
+  
+  <select id="listExamRoomByExamInfoId" parameterType="com.server.edu.exam.query.GraduateExamRoomsQuery" resultMap="VoBaseResultMap">
+    SELECT
+    t1.ID_,
+    t1.ROOM_ID_,
+    t1.ROOM_NAME_,
+    GROUP_CONCAT(t3.TEACHER_CODE_) TEACHER_CODE_,
+    GROUP_CONCAT(t3.TEACHER_NAME_) TEACHER_NAME_,
+    t1.ROOM_CAPACITY_,
+    t1.ROOM_NUMBER_
+    FROM
+    graduate_exam_room_t t1
+    left join graduate_exam_teacher_t t3 ON t1.ID_ = t3.EXAM_ROOM_ID_
+    where t1.ID_ in
+    (select DISTINCT EXAM_ROOM_ID_ from graduate_exam_info_room_t where EXAM_INFO_ID_ in
+      <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
+      #{examInfoId}
+      </foreach>)
+    GROUP BY t1.ID_ order by t1.ID_ desc
+  </select>
+
+    <select id="listRoom" resultType="com.server.edu.exam.dto.SelectDto" parameterType="com.server.edu.exam.dto.SelectDto">
+      select DISTINCT ROOM_ID_ roomId ,ROOM_NAME_ roomName from graduate_exam_room_t
+      <where>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+          and ( ROOM_ID_ like concat ('%',#{keyword},'%') or ROOM_NAME_ like concat ('%',#{keyword},'%'))
+        </if>
+      </where>
+    </select>
+
+  <update id="updateRoomNumberByList" parameterType="java.util.List">
+    <foreach collection="list" item="item" open="" close="" separator=";">
+      update graduate_exam_room_t set ROOM_NUMBER_ = ROOM_NUMBER_ - #{item.examRooms}
+      where ID_ = #{item.examInfoId}
+    </foreach>
+  </update>
+
+  <select id="listRoomsByExamInfoIds" parameterType="java.util.List" resultType="java.lang.Long">
+      select DISTINCT EXAM_ROOM_ID_ from graduate_exam_info_room_t
+      where EXAM_INFO_ID_ in
+      <foreach collection="list" item="examInfoId" open="(" separator="," close=")">
+        #{examInfoId}
+      </foreach>
+  </select>
+
+  <select id="findSurplusRoom" resultMap="BaseResultMap" parameterType="java.util.List">
+    select t1.* from graduate_exam_room_t t1
+    where t1.ID_ in
+    <foreach collection="list" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+    and t1.ROOM_NUMBER_ &lt; t1.ROOM_CAPACITY_
+    order by t1.ID_ desc
+  </select>
+
+  <update id="checkNum" parameterType="java.lang.Long">
+    update graduate_exam_room_t t1 set t1.ROOM_NUMBER_ = t1.ROOM_NUMBER_ + 1
+    where t1.ID_ = #{id} and t1.ROOM_CAPACITY_ > t1.ROOM_NUMBER_
+  </update>
+
+  <select id="getExamRoomNumber" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select * from graduate_exam_room_t
+    where ID_ = #{examRoomId}
+  </select>
+
+  <select id="listExamRoomAndExamInfo" resultType="com.server.edu.exam.dto.PropertySheetDto" parameterType="com.server.edu.exam.query.GraduateExamMessageQuery">
+    SELECT
+       t6.CALENDAR_ID_ calendarId,t6.CAMPUS_ campus,t6.COLLEGE_ faculty,t6.COURSE_CODE_ courseCode,t6.COURSE_NAME_ courseName,
+       t6.EXAM_TIME_ examTime,t5.ROOM_NAME_ roomName,t5.ROOM_NUMBER_ roomNumber,t5.TEACHER_NAME_ teacherName,t6.EXAM_DATE_ examDate
+    FROM
+        (
+            SELECT
+                t1.ID_,
+                t1.ROOM_NAME_,
+                t1.ROOM_NUMBER_,
+                t1.TOWER_CODE_,
+                GROUP_CONCAT(t2.TEACHER_NAME_) TEACHER_NAME_
+            FROM
+                graduate_exam_room_t t1
+            LEFT JOIN graduate_exam_teacher_t t2 ON t1.ID_ = t2.EXAM_ROOM_ID_
+            GROUP BY
+                t1.ID_
+        ) t5
+    LEFT JOIN (
+        SELECT
+            t3.EXAM_ROOM_ID_,
+            t4.CAMPUS_,
+            t4.EXAM_DATE_,
+            t4.EXAM_START_TIME_,
+            t4.EXAM_TIME_,
+            GROUP_CONCAT(t7.CODE_) COURSE_CODE_,
+            GROUP_CONCAT(t7.NAME_) COURSE_NAME_,
+            GROUP_CONCAT(DISTINCT t7.COLLEGE_) COLLEGE_,
+            t4.CALENDAR_ID_,
+            t4.EXAM_TYPE_,
+            t4.EXAM_STATUS_,
+            t4.PROJ_ID_
+        FROM
+            graduate_exam_info_room_t t3
+        LEFT JOIN graduate_exam_info_t t4 ON t3.EXAM_INFO_ID_ = t4.ID_
+        LEFT JOIN course_t t7 ON t4.COURSE_CODE_ = t7.CODE_
+        GROUP BY
+            t3.EXAM_ROOM_ID_
+    ) t6 ON t5.ID_ = t6.EXAM_ROOM_ID_
+    where t6.CALENDAR_ID_ = #{calendarId} and t6.EXAM_TYPE_ = #{examType} and t6.EXAM_STATUS_ = 2 and t6.PROJ_ID_ = #{projId}
+    ORDER BY
+        t6.EXAM_DATE_ ASC,
+        t6.EXAM_START_TIME_ ASC,
+        t5.TOWER_CODE_ ASC,
+        t5.ROOM_NAME_ ASC,
+        t6.COURSE_CODE_ ASC
+  </select>
+</mapper>

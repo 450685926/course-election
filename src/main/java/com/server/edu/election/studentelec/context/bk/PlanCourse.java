@@ -10,6 +10,8 @@ public class PlanCourse
     /**课程分类*/
     private Long label;
     
+    private String labelName;
+    
     /**开课学院*/
     private String faculty;
     
@@ -22,7 +24,15 @@ public class PlanCourse
     /**个人替代课程*/
     private String subCourseCode;
     
-    public String getCourseCode()
+    public String getLabelName() {
+		return labelName;
+	}
+
+	public void setLabelName(String labelName) {
+		this.labelName = labelName;
+	}
+
+	public String getCourseCode()
     {
         return getCourse().getCourseCode();
     }

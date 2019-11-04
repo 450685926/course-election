@@ -1,24 +1,5 @@
 package com.server.edu.election.service.impl;
 
-import static java.util.stream.Collectors.toSet;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
@@ -29,41 +10,15 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
-import com.server.edu.election.dao.ElcClassEditAuthorityDao;
-import com.server.edu.election.dao.ElcCourseSuggestSwitchDao;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcInvincibleStdsDao;
-import com.server.edu.election.dao.ElcResultCountDao;
-import com.server.edu.election.dao.ElcScreeningLabelDao;
-import com.server.edu.election.dao.ElcTeachingClassBindDao;
-import com.server.edu.election.dao.ElectionConstantsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dao.TeachingClassDao;
-import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
-import com.server.edu.election.dao.TeachingClassElectiveRestrictProfessionDao;
-import com.server.edu.election.dao.TeachingClassTeacherDao;
-import com.server.edu.election.dto.AutoRemoveDto;
-import com.server.edu.election.dto.ClassTeacherDto;
-import com.server.edu.election.dto.ElcResultDto;
-import com.server.edu.election.dto.ReserveDto;
-import com.server.edu.election.dto.Student4Elc;
-import com.server.edu.election.dto.SuggestProfessionDto;
-import com.server.edu.election.entity.ElcAffinityCoursesStds;
-import com.server.edu.election.entity.ElcClassEditAuthority;
-import com.server.edu.election.entity.ElcCourseSuggestSwitch;
-import com.server.edu.election.entity.ElcCourseTake;
-import com.server.edu.election.entity.ElcScreeningLabel;
-import com.server.edu.election.entity.ElcTeachingClassBind;
-import com.server.edu.election.entity.Student;
-import com.server.edu.election.entity.TeachingClass;
-import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
-import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
-import com.server.edu.election.entity.TeachingClassTeacher;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.*;
+import com.server.edu.election.entity.*;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
@@ -81,9 +36,24 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
-
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @Service
 public class ElcResultServiceImpl implements ElcResultService
@@ -150,6 +120,9 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private TeachClassCacheService teachClassCacheService;
     
+    @Autowired
+    private DictionaryService dictionaryService;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -178,6 +151,16 @@ public class ElcResultServiceImpl implements ElcResultService
             	// 处理教学安排（上课时间地点）信息
 				List<TimeAndRoom> tableMessages = getTimeById(vo.getId());
 				vo.setTimeTableList(tableMessages);
+				String timeAndRoom = "";
+				for (TimeAndRoom tAndR : tableMessages) {
+					if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
+						ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
+						if (classroom != null) {
+							timeAndRoom = tAndR.getTimeAndRoom() + "/" + classroom.getName()+" ";
+						}
+					}
+				}
+				vo.setTimeAndRoom(timeAndRoom);
             }
         }
         return new PageResult<>(listPage);
@@ -204,13 +187,17 @@ public class ElcResultServiceImpl implements ElcResultService
 		     	if(CollectionUtil.isNotEmpty(teachers)) {
 		     		StringBuilder stringBuilder = new StringBuilder();
 		    		for(Teacher teacher:teachers) {
-		    			stringBuilder.append(teacher.getName());
-		    			stringBuilder.append("(");
-		    			stringBuilder.append(teacher.getCode());
-		    			stringBuilder.append(")");
-		    			stringBuilder.append(",");
+		    			if(teacher!=null) {
+			    			stringBuilder.append(teacher.getName());
+			    			stringBuilder.append("(");
+			    			stringBuilder.append(teacher.getCode());
+			    			stringBuilder.append(")");
+			    			stringBuilder.append(",");
+		    			}
 		    		}
-		    		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+		    		if(stringBuilder.length()>Constants.ZERO) {
+			    		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+		    		}
 				}
 		    }
 	}
@@ -218,8 +205,7 @@ public class ElcResultServiceImpl implements ElcResultService
 	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage) {
 		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
-        		int mode = TableIndexUtil.getMode(condition.getCalendarId());
-        		condition.setMode(mode);
+        		condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
         		listPage = classDao.listScreeningPage(condition);
         	}else {
                 List<String> includeCodes = new ArrayList<>();
@@ -937,6 +923,65 @@ public class ElcResultServiceImpl implements ElcResultService
 		teachingClass.setId(id);
 		teachingClass.setRemark(remark);
 		teachingClassDao.updateByPrimaryKeySelective(teachingClass);
+	}
+
+	@Override
+	public ExcelResult teachClassPageExport(ElcResultQuery condition) {
+		ExcelResult excelResult = ExportExcelUtils.submitTask("teachClassPageExportList", new ExcelExecuter() {
+            @Override
+            public GeneralExcelDesigner getExcelDesigner() {
+                ExcelResult result = this.getResult();
+                PageCondition<ElcResultQuery> pageCondition = new PageCondition<ElcResultQuery>();
+                pageCondition.setCondition(condition);
+                pageCondition.setPageSize_(100);
+                int pageNum = 0;
+                pageCondition.setPageNum_(pageNum);
+                List<TeachingClassVo> list = new ArrayList<>();
+                while (true)
+                {
+                    pageNum++;
+                    pageCondition.setPageNum_(pageNum);
+                    PageResult<TeachingClassVo> electCourseList = listPage(pageCondition);
+                    list.addAll(electCourseList.getList());
+
+                    result.setTotal((int)electCourseList.getTotal_());
+                    Double count = list.size() / 1.5;
+                    result.setDoneCount(count.intValue());
+                    this.updateResult(result);
+
+                    if (electCourseList.getTotal_() <= list.size())
+                    {
+                        break;
+                    }
+                }
+                //组装excel
+                GeneralExcelDesigner design = getDesign();
+                //将数据放入excel对象中
+                design.setDatas(list);
+                result.setDoneCount(list.size());
+                return design;
+            }
+        });
+        return excelResult;
+	}
+
+	private GeneralExcelDesigner getDesign() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.code"), "code");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.teacherName"), "teacherName");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.timeAndRoom"), "timeAndRoom");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.classNumberStr"), "classNumberStr");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.elcNumber"), "elcNumber");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.number"), "number");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.campus"), "campus").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_XQ", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.remark"), "remark");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.bindClassId"), "bindClassId");
+        return design;
 	}
 	
 }

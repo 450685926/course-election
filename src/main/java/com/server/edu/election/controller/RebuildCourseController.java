@@ -1,31 +1,11 @@
 package com.server.edu.election.controller;
 
-import java.io.File;
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.hibernate.validator.constraints.NotBlank;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.log.LogRecord;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.validator.Assert;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dmskafka.entity.AuditType;
 import com.server.edu.election.constants.Constants;
@@ -40,14 +20,25 @@ import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.ExportUtil;
+import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.SwaggerDefinition;
+import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.util.List;
 
 /**
  * @description: 重修管理
@@ -172,7 +163,7 @@ public class RebuildCourseController
         return RestResult.success();
     }
     
-    @ApiOperation(value = "查询未缴费的课程名单")
+    @ApiOperation(value = "查询所有重修的名单")
     @PostMapping("/findCourseNoChargeList")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findCourseNoChargeList(
         @RequestBody @NotNull PageCondition<RebuildCourseDto> condition)
@@ -250,10 +241,7 @@ public class RebuildCourseController
     
     @ApiOperation(value = "导出回收站名单")
     @PostMapping("/exportRecycle")
-    public RestResult<ExcelResult> exportRecycle(
-        @RequestBody RebuildCourseDto condition)
-        throws Exception
-    {
+    public RestResult<ExcelResult> exportRecycle(@RequestBody RebuildCourseDto condition) throws Exception {
         LOG.info("exportRecycle.start");
         ExcelResult result = service.exportRecycle(condition);
         return RestResult.successData(result);
@@ -297,5 +285,44 @@ public class RebuildCourseController
         List<StudentRePaymentDto> list =
             service.findStuRePayment(studentRePaymentDto);
         return RestResult.successData(list);
+    }
+
+    /**
+     * @Description: 根据学号查询重修详情
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @ApiOperation(value = "根据学号查询重修详情")
+    @PostMapping("student")
+    public RestResult<PageResult<RebuildCourseNoChargeList>> findNoChargeListByStuId(@RequestBody PageCondition<RebuildCourseDto> condition) {
+        //判断学号是否为空
+        Assert.hasText(condition.getCondition().getStudentId(),"common.parameterError");
+        PageResult<RebuildCourseNoChargeList> pageResult = service.findNoChargeListByStuId(condition);
+        return RestResult.successData(pageResult);
+    }
+
+    /**
+     * @Description: 导出重修详情根据学号
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @ApiResponses({@ApiResponse(code = 200, response = File.class, message = "导出重修详情根据学号")})
+    @PostMapping("student/export")
+    public ResponseEntity<Resource> exportByStuId(@RequestBody RebuildCourseDto rebuildCourseDto) throws Exception {
+        ExcelWriterUtil result = service.exportByStuId(rebuildCourseDto);
+        return ExportUtil.exportExcel(result, cacheDirectory,  "result.xls");
+    }
+
+    /**
+     * @Description: 财务对账(通过账单号)
+     * @author kan yuanfeng
+     * @date 2019/10/22 11:26
+     */
+    @ApiOperation("财务对账(通过账单号)")
+    @PostMapping("payResult")
+    public RestResult<?> payResult(@RequestBody List<RebuildCourseNoChargeList> rebuildCourseNoChargeLists){
+        //学期(必填)，账单id
+        service.payResult(rebuildCourseNoChargeLists);
+        return RestResult.success();
     }
 }

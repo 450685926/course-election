@@ -79,7 +79,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             if (listExistStu.contains(code) && !listAddedStu.contains(code))
             {
                 Student studentByCode = studentDao.findStudentByCode(code);
-                if(RoundMode.JieYe.eq(mode) && "0".equals(studentByCode.getIsOverseas())){//结业生
+                //studentByCode.getIsOverseas()是否留学生,studentByCode.getEducationCode 22为本科生结业
+                if(RoundMode.JieYe.eq(mode) && "0".equals(studentByCode.getIsOverseas()) && "22".equals(studentByCode.getEducationCode())){//结业生
                     ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
                     if(student!=null){
                         elecRoundStuDao.add(roundId, code);
@@ -88,7 +89,7 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                         notExistStu.add(code);
                     }
 
-                }else if(RoundMode.LiuXueJieYe.eq(mode) && "1".equals(studentByCode.getIsOverseas())){//留学结业生
+                }else if(RoundMode.LiuXueJieYe.eq(mode) && "1".equals(studentByCode.getIsOverseas()) && "22".equals(studentByCode.getEducationCode())){//留学结业生
                     ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
                     if(student!=null){
                         elecRoundStuDao.add(roundId, code);
@@ -147,6 +148,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         if (CollectionUtil.isNotEmpty(studentCodes))
         {
             elecRoundStuDao.delete(roundId, studentCodes);
+        }else{
+        	elecRoundStuDao.deleteAll(roundId);
         }
     }
     

@@ -1,15 +1,5 @@
 package com.server.edu.election.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -33,8 +23,16 @@ import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
-
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 @Service
 public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 
@@ -78,8 +76,7 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	public PageInfo<ElcStudentLimitVo> getLimitStudents(PageCondition<ElcStudentLimitDto> condition) {
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcStudentLimitDto dto  = condition.getCondition();
-		int mode = TableIndexUtil.getMode(dto.getCalendarId());
-		dto.setMode(mode);
+		dto.setIndex(TableIndexUtil.getIndex(dto.getCalendarId()));
 		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(condition.getCondition());
 		PageInfo<ElcStudentLimitVo> pageInfo =new PageInfo<>(list);
 		return pageInfo;
@@ -120,8 +117,7 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	@Override
 	public int deleteAll(ElcStudentLimitDto elcStudentLimitDto) {
 		int result = 0;
-		int mode = TableIndexUtil.getMode(elcStudentLimitDto.getCalendarId());
-		elcStudentLimitDto.setMode(mode);
+		elcStudentLimitDto.setIndex(TableIndexUtil.getIndex(elcStudentLimitDto.getCalendarId()));
 		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(elcStudentLimitDto);
 		if(CollectionUtil.isNotEmpty(list)) {
 			List<Long> ids = list.stream().map(ElcStudentLimitVo::getId).collect(Collectors.toList());

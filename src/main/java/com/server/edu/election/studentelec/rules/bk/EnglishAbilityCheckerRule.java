@@ -1,104 +1,85 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.election.dao.ElcStuCouLevelDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.entity.ElcStuCouLevel;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
+import com.server.edu.util.CollectionUtil;
+
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 英语课程能力等级检察器<br>
  * 如果课程有英语等级要求，那么学生必须满足要求才能选<br>
- * 学生有一个自己的英语等级，学生只能选一门自己等级的英语课程，不能多选<br>
- * 如果学生的英语等级是“大学英语免修级”（代码：006），那么学生不能选英语课<br>
- * 
  */
 @Component("EnglishAbilityCheckerRule")
-public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk {
-
-//	private static final String PARAM_ENG_COURSES = "PARAM_ENG_COURSE_ABILITY_MAP";
-
-//	private static final String PARAM_ENG_STD = "PARAM_ENG_STD_ABILITIES";
-
-	/**
-	 * 执行选课操作时
-	 */
-	@Override
-	public boolean checkRule(ElecContextBk context, TeachingClassCache courseClass) {
-		// Map<Long, Set<String>> courseId2Abilities =
-		// (Map<Long, Set<String>>)state.getParams().get(PARAM_ENG_COURSES);
-		// String[] stdAbilities = (String[])state.getParams().get(PARAM_ENG_STD);
-
-		// FIXME 重复无用代码
-		// if(courseId2Abilities.keySet().isEmpty()) {
-		// return true;
-		// }
-		// if(CollectionUtils.isEmpty(courseId2Abilities.get(lesson.getCourse().getId())))
-		// {
-		// return true;
-		// }
-
-		// Set<String> courseAbilities =
-		// courseId2Abilities.get(lesson.getCourse().getId());
-		// if(CollectionUtils.isEmpty(courseAbilities)) {
-		// return true;
-		// }
-		// for(String stdAbility : stdAbilities) {
-		// if(stdAbility.equals("大学英语免修级")) {
-		// return false;
-		// }
-		// for(String courseAbility : courseAbilities) {
-		// if(stdAbility.equals(courseAbility)) {
-		// return true;
-		// }
-		// }
-		// }
-		return true;
-
-		// ElectionCourseContext electContext = (ElectionCourseContext)context;
-		// Lesson lesson = electContext.getLesson();
-		// ElectState state = electContext.getState();
-		//
-		// Map<Long, Set<String>> courseId2Abilities = (Map<Long, Set<String>>)
-		// state.getParams().get(PARAM_ENG_COURSES);
-		// String[] stdAbilities = (String[]) state.getParams().get(PARAM_ENG_STD);
-		//
-		//
-		// if(!isElectable(lesson, state)) {
-		// //如果该学生没有英语能力等级，则不能选任何英语课
-		// if(stdAbilities.length == 0){
-		// context.addMessage(new ElectMessage("你没有英语等级信息，不能选英语课程",
-		// ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// for(String stdAbility : stdAbilities) {
-		// if(stdAbility.equals("大学英语免修级")) {
-		// context.addMessage(new ElectMessage("您的英语课程是免修的，不能选择英语课程",
-		// ElectRuleType.ELECTION, false, lesson));
-		// return false;
-		// }
-		// }
-		// context.addMessage(new ElectMessage("没有达到课程英语能力要求", ElectRuleType.ELECTION,
-		// false, lesson));
-		// return false;
-		// }
-		//
-		// Set<String> courseAbilities =
-		// courseId2Abilities.get(lesson.getCourse().getId());
-		// if(!CollectionUtils.isEmpty(courseAbilities)) {
-		// if(
-		// ElectRuleType.ELECTION.equals(electContext.getOp())
-		// && CollectionUtils.isNotEmpty(
-		// CollectionUtils.intersection(state.getElectedCourseIds().keySet(),
-		// courseId2Abilities.keySet())
-		// )
-		// ) {
-		// context.addMessage(new ElectMessage("不能选一门以上的英语课", ElectRuleType.ELECTION,
-		// false, lesson));
-		// return false;
-		// }
-		// }
-
-	}
-
+public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
+{
+    
+    @Autowired
+    private ElcStuCouLevelDao couLevelDao;
+    
+    @Autowired
+    private ElectionConstantsDao constantsDao;
+    
+    /**
+     * 执行选课操作时
+     */
+    @Override
+    public boolean checkRule(ElecContextBk context,
+        TeachingClassCache courseClass)
+    {
+        
+        StudentInfoCache studentInfo = context.getStudentInfo();
+        String courseCode = courseClass.getCourseCode();
+        String englishCourses = constantsDao.findEnglishCourses();
+        // 查询不到英语课-通过
+        if (StringUtils.isBlank(englishCourses))
+        {
+            return true;
+        }
+        // 如果不是英语课-通过
+        String[] split = englishCourses.split(",");
+        List<String> asList = Arrays.asList(split);
+        if (!asList.contains(courseCode))
+        {
+            return true;
+        }
+        
+        Example example = new Example(ElcStuCouLevel.class);
+        example.createCriteria()
+            .andEqualTo("studentId", studentInfo.getStudentId());
+        List<ElcStuCouLevel> list = couLevelDao.selectByExample(example);
+        // 没有配置英语能力-通过
+        if (CollectionUtil.isEmpty(list))
+        {
+            return true;
+        }
+        Long courseCategoryId = list.get(0).getCourseCategoryId();
+        List<String> courseCodeList =
+            CultureSerivceInvoker.getCoursesLevelCourse(courseCategoryId);
+        if (CollectionUtil.isNotEmpty(courseCodeList)
+            && !courseCodeList.contains(courseCode))
+        {
+            ElecRespose respose = context.getRespose();
+            respose.getFailedReasons()
+                .put(courseClass.getCourseCodeAndClassCode(), "没有达到课程英语能力要求");
+            return false;
+        }
+        return true;
+        
+    }
+    
 }

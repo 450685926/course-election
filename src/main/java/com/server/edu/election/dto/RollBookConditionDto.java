@@ -16,6 +16,7 @@ public class RollBookConditionDto {
     private String teacherCode;
     private String courseNature;
     private String classCode;
+    private String isElective;
     private String projectId;
     private List<Long> ids;//导出列表id集合
 
@@ -98,4 +99,13 @@ public class RollBookConditionDto {
     public void setTeacherCode(String teacherCode) {
         this.teacherCode = teacherCode;
     }
+
+	public String getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(String isElective) {
+		this.isElective = isElective;
+	}
+    
 }
