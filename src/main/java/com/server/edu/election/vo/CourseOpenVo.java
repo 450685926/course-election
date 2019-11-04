@@ -1,7 +1,9 @@
 package com.server.edu.election.vo;
 
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.CourseOpen;
 
+@CodeI18n
 public class CourseOpenVo extends CourseOpen {
     private static final long serialVersionUID = 1L;
 

@@ -104,4 +104,13 @@ public interface ElecRoundStuDao
     /**获取当前轮次的所有学生*/
     List<String> findStuByRoundId(Long roundId);
 
+    /**
+     * 全部移除
+     * 
+     * @param roundId
+     * @param studentId
+     * @see [类、类#方法、类#成员]
+     */
+	void deleteAll(@Param("roundId") Long roundId);
+
 }

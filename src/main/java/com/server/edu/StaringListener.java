@@ -1,4 +1,4 @@
-package com.server.edu.election;
+package com.server.edu;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;

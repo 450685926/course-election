@@ -99,6 +99,7 @@ public class Course implements Serializable
     /**
      * 是否为公共选修课(1:是，0：否)
      */
+    @Code2Text(transformer="K_BKKCXZ")
     @Column(name = "IS_ELECTIVE_")
     private Integer isElective;
     

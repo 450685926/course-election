@@ -22,13 +22,16 @@
       <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
       <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
       <result column="GRADE_" jdbcType="INTEGER" property="grade" />
+	  <result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
   </resultMap>
   <select id="selectApplys" parameterType="com.server.edu.election.dto.ElectionApplyDto" resultMap="ApplyMap">
 		SELECT
+		  distinct
 		  t1.*,
 		  t2.NAME_ courseName,
 		  t3.NAME_ studentName,
-		  t3.FACULTY_,
+		  t2.COLLEGE_,
+		  t2.CREDITS_,
 		  t3.PROFESSION_,
 		  t3.TRAINING_LEVEL_,
 		  t3.GRADE_ 
@@ -65,7 +68,7 @@
 	        and t3.TRAINING_LEVEL_ = #{trainingLevel}
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-	        and t3.FACULTY_ = #{faculty}
+	        and t2.COLLEGE_ = #{faculty}
 	    </if>
 	</where>
   </select>

@@ -4,17 +4,15 @@ import com.server.edu.election.entity.ElcMedWithdraw;
 
 public class ElcMedWithdrawDto extends ElcMedWithdraw {
 	private static final long serialVersionUID = 1L;
-	private Integer mode;
+	/**分库分表标识*/
+	private Integer index;
 
-	@Override
-	public Integer getMode() {
-		return mode;
+	public Integer getIndex() {
+		return index;
 	}
 
-	@Override
-	public void setMode(Integer mode) {
-		this.mode = mode;
+	public void setIndex(Integer index) {
+		this.index = index;
 	}
-	
 	
 }

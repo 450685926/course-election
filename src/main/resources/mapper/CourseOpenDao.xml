@@ -36,6 +36,7 @@
 			t1.COURSE_NAME_EN_,
 			t1.TRAINING_LEVEL_,
 			t1.CREDITS_,
+			t1.PERIOD_,
 			t1.FACULTY_
 		FROM
 			course_open_t t1
@@ -51,6 +52,7 @@
 					course_t t2
 				JOIN elc_affinity_courses_t t3 ON t2.ID_ = t3.COURSE_ID_
 			)
+			and t1.PROJ_ID_ = 1
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
 	        and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
 	    </if>

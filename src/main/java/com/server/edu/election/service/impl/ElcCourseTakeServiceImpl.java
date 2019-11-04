@@ -14,21 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.dto.PlanCourseDto;
-import com.server.edu.common.dto.PlanCourseTypeDto;
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.common.vo.ScoreStudentResultVo;
-import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.*;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.rpc.CultureSerivceInvoker;
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.util.WeekUtil;
-import com.server.edu.election.vo.*;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,25 +24,58 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.common.vo.StudentScoreVo;
+import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dao.CourseDao;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.dao.RetakeCourseCountDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
+import com.server.edu.election.dto.AddCourseDto;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.entity.Course;
+import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcLog;
+import com.server.edu.election.entity.ElcResultSwitch;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.query.ElcResultQuery;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
+import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.util.WeekUtil;
+import com.server.edu.election.vo.CourseConflictVo;
+import com.server.edu.election.vo.ElcCourseTakeNameListVo;
+import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -71,8 +90,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 {
     Logger logger = LoggerFactory.getLogger(getClass());
 
-    private RestTemplate restTemplate = RestTemplateBuilder.create();
-    
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
     
@@ -104,12 +121,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     private TeachingClassTeacherDao teachingClassTeacherDao;
 
     @Autowired
-    private ElectionRuleDao electionRuleDao;
-
-    @Autowired
-    private RetakeCourseSetDao retakeCourseSetDao;
-
-    @Autowired
     private ElecResultSwitchService elecResultSwitchService;
     
     @Autowired
@@ -117,7 +128,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Value("${cache.directory}")
     private String cacheDirectory;
-
+    
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page)
@@ -125,7 +136,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         ElcCourseTakeQuery cond = page.getCondition();
         List<String> includeCodes = new ArrayList<>();
         // 1体育课
-        if (Objects.equals(cond.getCourseType(), 1))
+        if (Objects.equals(cond.getCourseType(), ElcCourseTakeQuery.PE_COURSE_TYPE))
         {
             String findPECourses = constantsDao.findPECourses();
             if (StringUtils.isNotBlank(findPECourses))
@@ -133,7 +144,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 includeCodes.addAll(Arrays.asList(findPECourses.split(",")));
             }
         }
-        else if (Objects.equals(cond.getCourseType(), 2))
+        else if (Objects.equals(cond.getCourseType(), ElcCourseTakeQuery.EN_COURSE_TYPE))
         {// 2英语课
             String findEnglishCourses = constantsDao.findEnglishCourses();
             if (StringUtils.isNotBlank(findEnglishCourses))
@@ -144,6 +155,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
         cond.setIncludeCourseCodes(includeCodes);
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+        cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
@@ -262,12 +274,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             log.setTurn(0);
             log.setType(ElcLogVo.TYPE_1);
             this.elcLogDao.insertSelective(log);
-            
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
         }
     }
-    
+
     @Transactional
     @Override
     public String addByExcel(Long calendarId, List<ElcCourseTakeAddDto> datas,
@@ -442,8 +454,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     public void withdraw(List<ElcCourseTake> value)
     {
+    	Session currentSession = SessionUtils.getCurrentSession();
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
-        
         List<ElcLog> logList = new ArrayList<>();
         Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
         for (ElcCourseTake take : value)
@@ -451,6 +463,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             Long calendarId = take.getCalendarId();
             String studentId = take.getStudentId();
             Long teachingClassId = take.getTeachingClassId();
+            Integer turn = take.getTurn()!=null?take.getTurn():0;
             //删除选课记录
             Example example = new Example(ElcCourseTake.class);
             example.createCriteria()
@@ -473,7 +486,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             {
                 vo = classInfoMap.get(key);
             }
-            
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             // 记录退课日志
             if (null != vo)
             {
@@ -482,14 +495,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setCalendarId(calendarId);
                 log.setCourseCode(vo.getCourseCode());
                 log.setCourseName(vo.getCourseName());
-                Session currentSession = SessionUtils.getCurrentSession();
                 log.setCreateBy(currentSession.getUid());
                 log.setCreatedAt(new Date());
                 log.setCreateIp(currentSession.getIp());
                 log.setMode(ElcLogVo.MODE_2);
                 log.setStudentId(studentId);
                 log.setTeachingClassCode(teachingClassCode);
-                log.setTurn(0);
+                log.setTurn(turn);
                 log.setType(ElcLogVo.TYPE_2);
                 logList.add(log);
                 

@@ -29,6 +29,8 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
@@ -51,6 +53,8 @@ public class ElecContextUtil
     private Long calendarId;
     
     private String studentId;
+    
+    private BKCourseGradeLoad bkCourseGradeLoad;
     
     // 由于使用redis的hash来保存数据，为了能快速得到所有的数据使用map先保存起来
     public Map<String, String> cacheData;
@@ -436,6 +440,19 @@ public class ElecContextUtil
             String jsonString = JSON.toJSONString(courseCods);
             ops.put(key, ElecContextBk.ELEC_APPLY_COURSES, jsonString);
         }
+    }
+    
+    public static void updateSelectedCourse(Long calendarId, String studentId) {
+    	Set<SelectedCourse> selectedCourses = new HashSet<>();
+		BKCourseGradeLoad bkCourseGradeLoad = new BKCourseGradeLoad();
+		bkCourseGradeLoad.loadSelectedCourses(studentId, selectedCourses, calendarId);
+		HashOperations<String, String, String> ops =
+                getRedisTemplate().opsForHash();
+        String jsonString = JSON.toJSONString(selectedCourses);
+        String key = getKey(studentId);
+        ops.put(key, ElecContextBk.SELECTED_COURSES, jsonString);
+		ElecContextUtil u = new ElecContextUtil(calendarId, studentId);
+		u.updateMem(ElecContextBk.SELECTED_COURSES, selectedCourses);
     }
     
 }

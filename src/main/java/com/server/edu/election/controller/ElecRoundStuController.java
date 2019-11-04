@@ -127,7 +127,7 @@ public class ElecRoundStuController
     @ApiOperation(value = "条件添加可选课学生")
     @PutMapping("/addByCondition")
     public RestResult<?> addByCondition(
-        @RequestBody @Valid @NotNull ElecRoundStuQuery condition)
+        @RequestBody @Valid ElecRoundStuQuery condition)
     {
         elecRoundStuService.addByCondition(condition);
         
@@ -143,7 +143,7 @@ public class ElecRoundStuController
     @ApiOperation(value = "删除可选课学生")
     @DeleteMapping("/{roundId}")
     public RestResult<?> delete(@PathVariable("roundId") @NotNull Long roundId,
-        @RequestBody @NotEmpty List<String> studentCodes)
+        @RequestBody List<String> studentCodes)
     {
         elecRoundStuService.delete(roundId, studentCodes);
         

@@ -17,6 +17,8 @@ public class TeachingClassVo extends TeachingClass
     private String courseName;
     private Double credits;
     
+    private List<String> ids;
+    
     private String teacherName;
     
     private int withdrawNum;
@@ -52,6 +54,8 @@ public class TeachingClassVo extends TeachingClass
      * 教学安排（上课时间地点）
      */
     private List<TimeAndRoom> timeTableList;
+    
+    private String timeAndRoom;
     
     private Long calendarId;
     
@@ -97,7 +101,23 @@ public class TeachingClassVo extends TeachingClass
      */
     private String teacherCodes;
     
-    
+    /**
+     * 绑定班级Id
+     * @return
+     */
+    private String bindClassId;
+
+	@Code2Text(transformer="K_BKKCXZ")
+	private Integer isElective;
+
+	public Integer getIsElective() {
+		return isElective;
+	}
+
+	public void setIsElective(Integer isElective) {
+		this.isElective = isElective;
+	}
+
 	public String getTeacherCodes() {
 		return teacherCodes;
 	}
@@ -280,6 +300,28 @@ public class TeachingClassVo extends TeachingClass
 	}
 	public void setClassNumberStr(String classNumberStr) {
 		this.classNumberStr = classNumberStr;
+	}
+	public String getBindClassId() {
+		return bindClassId;
+	}
+	public void setBindClassId(String bindClassId) {
+		this.bindClassId = bindClassId;
+	}
+
+	public List<String> getIds() {
+		return ids;
+	}
+
+	public void setIds(List<String> ids) {
+		this.ids = ids;
+	}
+
+	public String getTimeAndRoom() {
+		return timeAndRoom;
+	}
+
+	public void setTimeAndRoom(String timeAndRoom) {
+		this.timeAndRoom = timeAndRoom;
 	}
 	
 }

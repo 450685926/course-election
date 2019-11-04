@@ -145,21 +145,23 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
             practicalCourse = CultureSerivceInvoker.findPracticalCourse();
         }
         
-        Page<CourseOpenDto> listPage = new Page<CourseOpenDto>();
-        if (org.apache.commons.lang.StringUtils.equals(condition.getProjectId(), "1")) {
+        Page<CourseOpenDto> listPage = null;
+        if (StringUtils.equals(condition.getProjectId(), "1")) {
         	listPage = roundCourseDao.listUnAddPage(condition,practicalCourse);
 		}else {
 			listPage = roundCourseDao.listUnAddPageGraduate(condition);
 		}
-        List<ElectionRoundsCour> list = new ArrayList<>();
-        for (CourseOpenDto courseOpenDto : listPage)
-        {
-        	ElectionRoundsCour electionRoundsCour = new ElectionRoundsCour();
-	    	electionRoundsCour.setRoundsId(condition.getRoundId());
-	    	electionRoundsCour.setTeachingClassId(courseOpenDto.getTeachingClassId());
-	    	list.add(electionRoundsCour);
+        if(CollectionUtil.isNotEmpty(listPage)) {
+            List<ElectionRoundsCour> list = new ArrayList<>();
+            for (CourseOpenDto courseOpenDto : listPage)
+            {
+                ElectionRoundsCour electionRoundsCour = new ElectionRoundsCour();
+                electionRoundsCour.setRoundsId(condition.getRoundId());
+                electionRoundsCour.setTeachingClassId(courseOpenDto.getTeachingClassId());
+                list.add(electionRoundsCour);
+            }
+            roundCourseDao.batchInsert(list);
         }
-        roundCourseDao.batchInsert(list);
     }
     
     @Override
