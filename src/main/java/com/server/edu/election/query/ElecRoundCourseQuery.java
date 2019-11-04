@@ -48,6 +48,16 @@ public class ElecRoundCourseQuery
     
     private String keyword;
 
+    private Integer isElective;
+
+    public Integer getIsElective() {
+        return isElective;
+    }
+
+    public void setIsElective(Integer isElective) {
+        this.isElective = isElective;
+    }
+
     public String getLabel() {
 		return label;
 	}
