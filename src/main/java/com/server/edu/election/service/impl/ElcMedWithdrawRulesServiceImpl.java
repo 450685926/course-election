@@ -53,10 +53,10 @@ public class ElcMedWithdrawRulesServiceImpl implements ElcMedWithdrawRulesServic
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("projectId",elcMedWithdrawRules.getProjectId());
 		criteria.andEqualTo("calendarId",elcMedWithdrawRules.getCalendarId());
-		criteria.andEqualTo("name",elcMedWithdrawRules.getName());
+//		criteria.andEqualTo("name",elcMedWithdrawRules.getName());
 		List<ElcMedWithdrawRules> list = elcMedWithdrawRulesDao.selectByExample(example);
 		if(CollectionUtil.isNotEmpty(list)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("elcMedWithdraw.rule")));
+			throw new ParameterValidateException("当前学年学期已存在期中退课规则");
 		}
 		int result = elcMedWithdrawRulesDao.insertSelective(elcMedWithdrawRules);
 		if(result<=Constants.ZERO) {
@@ -73,13 +73,9 @@ public class ElcMedWithdrawRulesServiceImpl implements ElcMedWithdrawRulesServic
 		if(elcMedWithdrawRules.getBeginTime().getTime()>elcMedWithdrawRules.getEndTime().getTime()) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMedWithdraw.ruleTimeError"));
 		}
-		Example example = new Example(ElcMedWithdrawRules.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andNotEqualTo("id", elcMedWithdrawRules.getId());
-		criteria.andEqualTo("name",elcMedWithdrawRules.getName());
-		List<ElcMedWithdrawRules> list = elcMedWithdrawRulesDao.selectByExample(example);
-		if(CollectionUtil.isNotEmpty(list)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("elcMedWithdraw.rule")));
+		ElcMedWithdrawRules elcMedWithdrawRule = elcMedWithdrawRulesDao.selectByPrimaryKey(elcMedWithdrawRules.getId());
+		if(elcMedWithdrawRule==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",I18nUtil.getMsg("elcMedWithdraw.rule")));
 		}
 		int result = elcMedWithdrawRulesDao.updateByPrimaryKeySelective(elcMedWithdrawRules);
 		if(result<=Constants.ZERO) {
