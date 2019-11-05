@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcMedWithdrawService;
+import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcMedWithdrawRuleRefCourVo;
@@ -73,6 +75,9 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
     
     @Autowired
     private ElcMedWithdrawDao elcMedWithdrawDao;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
 	@Override
 	public PageInfo<ElcCourseTakeVo> page(PageCondition<ElcMedWithdrawDto> condition) {
 		// TODO Auto-generated method stub
@@ -140,6 +145,8 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
                     I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.info")));
         }
         result = elcCourseTakeDao.deleteByPrimaryKey(id);
+        applicationContext.publishEvent(new ElectLoadEvent(
+        		elcCourseTake.getCalendarId(), elcCourseTake.getStudentId()));
 		return result;
 	}
 
@@ -169,7 +176,8 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
                     I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.elcinfo")));
 		}
 		result = elcMedWithdrawDao.deleteByPrimaryKey(medWithdrawId);
-		
+        applicationContext.publishEvent(new ElectLoadEvent(
+        		elcCourseTake.getCalendarId(), elcCourseTake.getStudentId()));
 		return result;
 	}
 	
