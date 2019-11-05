@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElectionApplyDto;
 import com.server.edu.election.entity.ElectionApply;
@@ -48,6 +49,28 @@ public class ElectionApplyController {
         LOG.info("applyList.start");
         PageInfo<ElectionApplyVo> list =electionApplyService.applyList(condition);
         return RestResult.successData(list);
+    }
+    
+    @ApiOperation(value = "选课申请管理列表(未处理)")
+    @PostMapping("/applyCourseList")
+    public RestResult<PageResult<ElectionApplyVo>> applyUnList(
+    		@RequestBody PageCondition<ElectionApplyDto> condition)
+    				throws Exception
+    {
+    	LOG.info("applyList.start");
+    	PageResult<ElectionApplyVo> list =electionApplyService.applyUnList(condition);
+    	return RestResult.successData(list);
+    }
+    
+    @ApiOperation(value = "选课申请管理列表(已处理)")
+    @PostMapping("/applyCourseList")
+    public RestResult<PageResult<ElectionApplyVo>> alreadyApplyList(
+    		@RequestBody PageCondition<ElectionApplyDto> condition)
+    				throws Exception
+    {
+    	LOG.info("applyList.start");
+    	PageResult<ElectionApplyVo> list =electionApplyService.alreadyApplyList(condition);
+    	return RestResult.successData(list);
     }
     
 	 /**
