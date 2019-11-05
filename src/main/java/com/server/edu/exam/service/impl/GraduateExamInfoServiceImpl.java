@@ -364,7 +364,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         List<Long> examRoomIds = graduateExamRoomVos.getResult().stream().map(GraduateExamRoomVo::getId).collect(Collectors.toList());
         List<GraduateExamStudent> listStudent = studentDao.listStudentByClass(teachingClassIds, examRoomIds, calendarId,examType);
         if (CollectionUtil.isEmpty(listStudent)) {
-            throw new ParameterValidateException("选择的班级学生已经按排了排考");
+            throw new ParameterValidateException("没有满足条件的可排考学生");
         } else {
             if (listStudent.size() <= size) {
                 //删除教室下面的教学班，重新添加
