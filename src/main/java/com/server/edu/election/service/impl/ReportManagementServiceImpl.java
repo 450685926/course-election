@@ -128,6 +128,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private static final String[] setTimeListTitle =
         {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "教学安排", "备注", "校区"};
 
+    private static final String[] setTimeListTitleBk =
+            {"序号", "课程序号", "课程名称", "重修", "必/选修", "考试/查", "学分", "教师", "上课时间","上课地点", "校区","备注"};
+
     /**
     *@Description: 预览点名册
     *@Param:
@@ -1475,6 +1478,215 @@ public class ReportManagementServiceImpl implements ReportManagementService
         }
         list.add(campus);
         return list;
+    }
+
+    /**
+     * 创建学生选课列表table
+     * @throws IOException
+     */
+    private PdfPTable createStudentTimeListBk(List<StudnetTimeTable> list,
+                                            Font subtitleChinese, Font name2)
+            throws DocumentException, IOException
+    {
+        PdfPTable table = new PdfPTable(setTimeListTitleBk.length);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(10);
+
+        // 添加表头
+        for (int i = 0; i < setTimeListTitleBk.length; i++)
+        {
+            PdfPCell cell =
+                    TeacherLessonTableServiceServiceImpl.createCell(setTimeListTitleBk[i], 1, 1, subtitleChinese, null);
+            table.addCell(cell);
+        }
+
+        if (CollectionUtil.isNotEmpty(list)) {
+            // 添加表内容
+            for (int j = 0; j < list.size(); j++)
+            {
+                List<String> timeTableList = getTimeTableListBk(list.get(j));
+                for (int i = 0; i < setTimeListTitleBk.length ; i++)
+                {
+                    PdfPCell cell = new PdfPCell();
+                    if (i == 0)
+                    {
+                        cell = TeacherLessonTableServiceServiceImpl.createCell(String.valueOf(j + 1), 1, 1, name2, null);
+                    }
+                    else
+                    {
+                        cell =
+                                TeacherLessonTableServiceServiceImpl.createCell(timeTableList.get(i - 1), 1, 1, name2, null);
+                    }
+                    table.addCell(cell);
+                }
+            }
+        }
+        return table;
+    }
+
+    private List<String> getTimeTableListBk(StudnetTimeTable timeTable)
+    {
+        List<String> list = new ArrayList<String>(12);
+        list.add(timeTable.getCourseCode());
+        list.add(timeTable.getCourseName());
+        list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
+//        Integer isElective = timeTable.getIsElective();
+//        if (isElective != null)
+//        {
+//            list.add(isElective == 1 ? "选修" : "必修");
+//        } else {
+//            list.add("");
+//        }
+        list.add("选修");
+        String assessmentMode = timeTable.getAssessmentMode();
+        if (assessmentMode != null) {
+            assessmentMode = dictionaryService.query("X_KSLX", assessmentMode);
+        } else {
+            assessmentMode = "";
+        }
+        list.add(assessmentMode);
+        Double credits = timeTable.getCredits();
+        String credit;
+        if (credits == null) {
+            credit = "";
+        } else {
+            credit = String.valueOf(credits);
+        }
+        list.add(credit);
+        list.add(timeTable.getTeacherName());
+        list.add(timeTable.getClassTime());
+        String room = timeTable.getClassRoom();
+        if (room != null) {
+            room = ClassroomCacheUtil.getRoomName(room);
+        } else {
+            room = "";
+        }
+        list.add(room);
+        String campus = timeTable.getCampus();
+        if (campus != null) {
+            campus = dictionaryService.query("X_XQ", campus);
+        } else {
+            campus = "";
+        }
+        list.add(campus);
+        list.add(timeTable.getRemark());
+        return list;
+    }
+
+    @Override
+    public RestResult<String> exportStudentTimetab(Long calendarId,
+                                                      String studentCode)
+            throws Exception
+    {
+        //检查目录是否存在
+//        cacheDirectory = "C://temp//pdf//cacheWord";
+        LOG.info("缓存目录：" + cacheDirectory);
+        FileUtil.mkdirs(cacheDirectory);
+        //删除超过30天的文件
+        FileUtil.deleteFile(cacheDirectory, 30);
+
+        /************************ PDF初始化操作 ******************************/
+        //所有使用中文处理
+        BaseFont bfChinese = BaseFont.createFont("STSongStd-Light",
+                "UniGB-UCS2-H",
+                BaseFont.NOT_EMBEDDED);
+        //粗体文字 title使用
+        Font titleChinese = new Font(bfChinese, 20, Font.BOLD);
+        //副标题
+        Font subtitleChinese = new Font(bfChinese, 13, Font.BOLD);
+        //正常文字
+        //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
+        Font name2 = new Font(bfChinese, 12, Font.NORMAL);
+
+        //----3 学生基本信息----
+        List<StudnetTimeTable> studentTimetab = findStudentTimetab(calendarId, studentCode);
+        Double credits = 0D;
+        List<TimeTable> tables = new ArrayList<>(20);
+        for (StudnetTimeTable studnetTimeTable : studentTimetab) {
+            credits += studnetTimeTable.getCredits();
+            List<TimeTableMessage> timeTableList = studnetTimeTable.getTimeTableList();
+            for (TimeTableMessage timeTableMessage : timeTableList) {
+                TimeTable timeTable = new TimeTable();
+                timeTable.setDayOfWeek(timeTableMessage.getDayOfWeek());
+                timeTable.setTimeStart(timeTableMessage.getTimeStart());
+                timeTable.setTimeEnd(timeTableMessage.getTimeEnd());
+                StringBuffer sb = new StringBuffer();
+                sb.append(timeTableMessage.getTeacherName()).
+                        append(timeTableMessage.getCourseName()).
+                        append(timeTableMessage.getWeekNum()).
+                        append(ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId())).
+                        append(dictionaryService.query("X_XQ", timeTableMessage.getCampus()));
+                timeTable.setValue(sb.toString());
+                tables.add(timeTable);
+            }
+        }
+        String fileName = new StringBuffer("").append(cacheDirectory)
+                .append("//")
+                .append(System.currentTimeMillis())
+                .append("_")
+                .append(studentCode)
+                .append(".pdf")
+                .toString();
+        Document document = new Document(PageSize.A4, 24, 24, 16, 16);
+        PdfWriter.getInstance(document, new FileOutputStream(fileName));
+
+        /************************ PDF填充内容  ******************************/
+        document.open();
+        //---1 添加标题---
+        Paragraph title = new Paragraph("个人课程表", titleChinese);
+        //居中设置
+        title.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        title.setLeading(20);
+        title.setSpacingBefore(30);
+        document.add(title);
+
+        //---2 副标题---
+        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker
+                .getSchoolCalendarById(calendarId);
+        Paragraph subtitle = new Paragraph(schoolCalendarVo.getFullName(), subtitleChinese);
+        subtitle.setAlignment(Element.ALIGN_CENTER);
+        //设置行间距
+        subtitle.setLeading(10);
+        //内容距离左边8个单位
+        subtitle.setFirstLineIndent(7);
+        subtitle.setIndentationRight(20);
+        //副标题与标题之间的距离
+        subtitle.setSpacingBefore(15);
+        document.add(subtitle);
+
+        PdfPTable table1 = new PdfPTable(4);
+        //前间距
+        table1.setSpacingBefore(5);
+
+        PdfPCell cell1 = TeacherLessonTableServiceServiceImpl.createNoBorderCell("学号：" + studentCode, name2, 20f);
+        table1.addCell(cell1);
+
+        Student student = studentDao.findStudentByCode(studentCode);
+        PdfPCell cell2 = TeacherLessonTableServiceServiceImpl.createNoBorderCell("学生姓名：" + student.getName(), name2, 20f);
+        table1.addCell(cell2);
+
+        PdfPCell cell4 =
+                TeacherLessonTableServiceServiceImpl.createNoBorderCell("总学分：" + credits,
+                        name2,
+                        20f);
+        table1.addCell(cell4);
+        document.add(table1);
+
+        // ----3 学生选课课表展示----
+        PdfPTable table2 = teacherLessonTableServiceServiceImpl.createStudentTable(tables,
+                subtitleChinese,
+                name2);
+        document.add(table2);
+
+        // ----4 学生选课列表 -------
+        PdfPTable table3 = createStudentTimeListBk(studentTimetab,
+                subtitleChinese,
+                name2);
+        document.add(table3);
+
+        document.close();
+        return RestResult.successData("导出成功。", fileName);
     }
 
 }

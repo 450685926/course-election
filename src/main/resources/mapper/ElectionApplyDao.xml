@@ -72,4 +72,102 @@
 	    </if>
 	</where>
   </select>
+  <select id="alreadyApplyList" parameterType="com.server.edu.election.dto.ElectionApplyDto" resultMap="ApplyMap">
+		SELECT
+		  distinct
+		  t1.*,
+		  t2.NAME_ courseName,
+		  t3.NAME_ studentName,
+		  t2.COLLEGE_,
+		  t2.CREDITS_,
+		  t3.PROFESSION_,
+		  t3.TRAINING_LEVEL_,
+		  t3.GRADE_ 
+		FROM
+			election_applys_t t1
+		INNER JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
+		INNER JOIN student_t t3 ON t3.STUDENT_CODE_ = t1.STUDENT_ID_
+	<where>
+		t1.APPLY_ &gt; 0 
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+	        and t1.CALENDAR_ID_  = #{calendarId}
+	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+	        and t1.MODE_  = #{mode}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+	        and t1.STUDENT_ID_  =  #{studentId}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+	        and t3.NAME_  = #{studentName}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyCode)">
+	        and (t1.COURSE_CODE_  like concat(#{keyCode},'%') or t2.NAME_ like concat(#{keyCode},'%') )
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+	        and t1.COURSE_CODE_  = #{courseCode}
+	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+	        and t2.NAME_  = #{courseName}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+	        and t3.PROFESSION_ = #{profession}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+	        and t3.TRAINING_LEVEL_ = #{trainingLevel}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+	        and t2.COLLEGE_ = #{faculty}
+	    </if>
+	</where>
+  </select>
+  <select id="applyUnList" parameterType="com.server.edu.election.dto.ElectionApplyDto" resultMap="ApplyMap">
+		SELECT
+		  distinct
+		  t1.*,
+		  t2.NAME_ courseName,
+		  t3.NAME_ studentName,
+		  t2.COLLEGE_,
+		  t2.CREDITS_,
+		  t3.PROFESSION_,
+		  t3.TRAINING_LEVEL_,
+		  t3.GRADE_ 
+		FROM
+			election_applys_t t1
+		INNER JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
+		INNER JOIN student_t t3 ON t3.STUDENT_CODE_ = t1.STUDENT_ID_
+	<where>
+		t1.APPLY_ = 0 
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+	        and t1.CALENDAR_ID_  = #{calendarId}
+	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+	        and t1.MODE_  = #{mode}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+	        and t1.STUDENT_ID_  =  #{studentId}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+	        and t3.NAME_  = #{studentName}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyCode)">
+	        and (t1.COURSE_CODE_  like concat(#{keyCode},'%') or t2.NAME_ like concat(#{keyCode},'%') )
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+	        and t1.COURSE_CODE_  = #{courseCode}
+	    </if>
+	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+	        and t2.NAME_  = #{courseName}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+	        and t3.PROFESSION_ = #{profession}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+	        and t3.TRAINING_LEVEL_ = #{trainingLevel}
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+	        and t2.COLLEGE_ = #{faculty}
+	    </if>
+	</where>
+  </select>
 </mapper>

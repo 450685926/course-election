@@ -1960,4 +1960,9 @@
             where eb.BILL_NUM_ = #{billno}
         </foreach>
     </update>
+
+    <select id="findIsPass" resultType="int">
+        select isPass from v_student_plan_course where studentId= #{studentId}
+		  and courseCode = #{courseCode}
+    </select>
 </mapper>

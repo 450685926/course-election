@@ -299,6 +299,37 @@ public class ReportManagementController
             managementService.findStudentTimetab(calendarId, studentCode);
         return RestResult.successData(schoolTimetab);
     }
+
+    @GetMapping(value = "/exportStudentTimetab")
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出学生课表pdf--研究生")})
+    public ResponseEntity<Resource> exportStudentTimetab(
+            @RequestParam("calendarId") Long calendarId,
+            @RequestParam("studentCode") String studentCode)
+            throws Exception{
+        LOG.info("exportStudentTimetabPdf.start");
+        RestResult<String> restResult = managementService.exportStudentTimetab(calendarId, studentCode);
+
+        if (ResultStatus.SUCCESS.code() == restResult.getCode()
+                && !"".equals(restResult.getData()))
+        {
+            Resource resource = new FileSystemResource(
+                    URLDecoder.decode(restResult.getData(), "utf-8"));// 绝对路径
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE,
+                            "application/pdf; charset=utf-8")
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment;filename="
+                                    + String.valueOf(
+                                    URLEncoder.encode("学生课表", "UTF-8"))
+                                    + ".pdf")
+                    .body(resource);
+        }
+        else
+        {
+            return null;
+        }
+    }
     
     @ApiOperation(value = "查询当前登录学生个人课表")
     @GetMapping("/getStudentTimetab")
