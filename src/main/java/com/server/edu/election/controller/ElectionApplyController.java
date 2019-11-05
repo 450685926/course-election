@@ -52,7 +52,7 @@ public class ElectionApplyController {
     }
     
     @ApiOperation(value = "选课申请管理列表(未处理)")
-    @PostMapping("/applyCourseList")
+    @PostMapping("/applyUnList")
     public RestResult<PageResult<ElectionApplyVo>> applyUnList(
     		@RequestBody PageCondition<ElectionApplyDto> condition)
     				throws Exception
@@ -63,7 +63,7 @@ public class ElectionApplyController {
     }
     
     @ApiOperation(value = "选课申请管理列表(已处理)")
-    @PostMapping("/applyCourseList")
+    @PostMapping("/alreadyApplyList")
     public RestResult<PageResult<ElectionApplyVo>> alreadyApplyList(
     		@RequestBody PageCondition<ElectionApplyDto> condition)
     				throws Exception
