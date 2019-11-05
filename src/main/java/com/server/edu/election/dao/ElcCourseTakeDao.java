@@ -291,4 +291,6 @@ public interface ElcCourseTakeDao
      * @date 2019/10/30 11:36
      */
     void setPayStatusBatch(List<PayResultDto> payResultDtoList);
+
+    int findIsPass(@Param("studentId")String studentId, @Param("courseCode") String courseCode);
 }
