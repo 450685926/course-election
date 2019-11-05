@@ -117,14 +117,14 @@
    <#list dataList as item>
    <Row>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.order?default("")}</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">${item.teachingClassCode?default("")}</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">${item.teachingClassName?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.studentCode?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.studentName?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.courseCode?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.courseName?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.order_R?default("")}</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">${item.teachingClassCode_R?default("")}</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">${item.teachingClassName_R?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.studentCode_R?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.studentName_R?default("")}</Data></Cell>
     <Cell ss:StyleID="s69"><Data ss:Type="String">${item.courseCode_R?default("")}</Data></Cell>

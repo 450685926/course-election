@@ -459,6 +459,7 @@
           t4.NAME_ courseName,
           t1.ROOM_NAME_ roomName,
           t2.TEACHING_CLASS_CODE_ teachingClassCode,
+          t2.TEACHING_CLASS_NAME_ teachingClassName,
           t2.STUDENT_CODE_ studentCode,
           t5.NAME_ studentName,
           t5.FACULTY_ faculty,
@@ -475,7 +476,7 @@
         WHERE
           t3.CALENDAR_ID_ = #{calendarId} and t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1 and t3.EXAM_STATUS_ = 2
         ORDER BY
-          t2.TEACHING_CLASS_CODE_ ASC
+          ORDER BY t2.TEACHING_CLASS_NAME_ ASC
       ) t,
      (SELECT @i := 0) d
   </select>

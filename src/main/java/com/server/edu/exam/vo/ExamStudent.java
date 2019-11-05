@@ -31,6 +31,19 @@ public class ExamStudent implements Serializable{
     private String examEndTime;
     private Long examInfoId;
     private Integer orderStu;
+    private String teachingClassName;
+
+    public void setOrderStu(Integer orderStu) {
+        this.orderStu = orderStu;
+    }
+
+    public String getTeachingClassName() {
+        return teachingClassName;
+    }
+
+    public void setTeachingClassName(String teachingClassName) {
+        this.teachingClassName = teachingClassName;
+    }
 
     public Long getExamInfoId() {
         return examInfoId;
