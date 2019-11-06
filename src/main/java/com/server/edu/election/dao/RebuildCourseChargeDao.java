@@ -1,14 +1,13 @@
 package com.server.edu.election.dao;
 
-import java.util.List;
-
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
-
 import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
+
+import java.util.List;
 
 public interface RebuildCourseChargeDao extends Mapper<RebuildCourseCharge> {
 
@@ -30,4 +29,5 @@ public interface RebuildCourseChargeDao extends Mapper<RebuildCourseCharge> {
     /**按培养层次和学习形式*/
     RebuildCourseCharge findPrice(@Param("trainingLevel") String trainingLevel,@Param("formLearning") String formLearning);
 
+    List<RebuildCourseCharge> selectByStuId(String studentCode);
 }

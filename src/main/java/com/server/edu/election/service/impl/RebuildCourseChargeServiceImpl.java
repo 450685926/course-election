@@ -654,47 +654,52 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto) {
         List<StudentRePaymentDto> paymentDtoList=new ArrayList<>();
-        String studentCode = studentRePaymentDto.getStudentCode();
+        //String studentCode = studentRePaymentDto.getStudentCode();
         /**是否在不缴费学生类型中*/
-        boolean retake = isNoNeedPayForRetake(studentCode);
+        // todo 因为毕业证书类型现在取不到，暂时无法判断是否需要收费
+        /*boolean retake = isNoNeedPayForRetake(studentCode);
         if(retake){
             return null;
+        }*/
+        //去收费标准查询，是否需要缴费
+        List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(studentRePaymentDto.getStudentCode());
+        if (CollectionUtil.isNotEmpty(rebuildCourseChargeList) && rebuildCourseChargeList.get(0).getIsCharge().equals(1)){
+            //查询该学期缴费的课程及缴费状态
+            paymentDtoList = courseTakeDao.findByStuIdAndCId(studentRePaymentDto);
+            //设置单价
+            if (CollectionUtil.isNotEmpty(paymentDtoList)){
+                paymentDtoList.forEach(p -> p.setUnitPrice(rebuildCourseChargeList.get(0).getUnitPrice()));
+            }
         }
-        //不再不缴费学生类型中，查询重修课程并且判断是否需要缴费
-        List<ElcCourseTakeVo> courseTakes=courseTakeDao.findStuRebuildCourse(studentRePaymentDto);
-        //没有重修课程
-        if(CollectionUtil.isEmpty(courseTakes)){
-            return null;
-        }
-        //查询收费单价
-        Student record = new Student();
-        record.setStudentCode(studentCode);
-        Student student = studentDao.selectOne(record);
-        String trainingLevel = student.getTrainingLevel();
-        String formLearning = student.getFormLearning();
-        RebuildCourseCharge prices = courseChargeDao.findPrice(trainingLevel,formLearning);
-        if(prices == null || prices.getIsCharge()==0){
-            return null;
-        }
-
-        for (ElcCourseTakeVo courseTake : courseTakes) {
-            double credits=courseTake.getCredits();
-            int unitPrice= prices.getUnitPrice();
-            double payable =  (unitPrice*credits);
-            StudentRePaymentDto paymentDto=new StudentRePaymentDto();
-            paymentDto.setCourseCode(courseTake.getCourseCode());
-            paymentDto.setCourseName(courseTake.getCourseName());
-            paymentDto.setStudentCode(studentRePaymentDto.getStudentCode());
-            paymentDto.setCredits(credits);
-            paymentDto.setUnitPrice(unitPrice);
-            paymentDto.setCalendarId(studentRePaymentDto.getCalendarId());
-            paymentDto.setPayable(payable);
-            paymentDto.setBillId(courseTake.getBillId());
-            paymentDto.setPaid(courseTake.getPaid());
-            paymentDtoList.add(paymentDto);
-        }
-
         return paymentDtoList;
+
+//        //查询收费单价
+//        Student record = new Student();
+//        record.setStudentCode(studentCode);
+//        Student student = studentDao.selectOne(record);
+//        String trainingLevel = student.getTrainingLevel();
+//        String formLearning = student.getFormLearning();
+//        RebuildCourseCharge prices = courseChargeDao.findPrice(trainingLevel,formLearning);
+//        if(prices == null || prices.getIsCharge()==0){
+//            return null;
+//        }
+//
+//        for (ElcCourseTakeVo courseTake : courseTakes) {
+//            double credits=courseTake.getCredits();
+//            int unitPrice= prices.getUnitPrice();
+//            double payable =  (unitPrice*credits);
+//            StudentRePaymentDto paymentDto=new StudentRePaymentDto();
+//            paymentDto.setCourseCode(courseTake.getCourseCode());
+//            paymentDto.setCourseName(courseTake.getCourseName());
+//            paymentDto.setStudentCode(studentRePaymentDto.getStudentCode());
+//            paymentDto.setCredits(credits);
+//            paymentDto.setUnitPrice(unitPrice);
+//            paymentDto.setCalendarId(studentRePaymentDto.getCalendarId());
+//            paymentDto.setPayable(payable);
+//            paymentDto.setBillId(courseTake.getBillId());
+//            paymentDto.setPaid(courseTake.getPaid());
+//            paymentDtoList.add(paymentDto);
+//        }
     }
 
     /**
