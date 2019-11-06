@@ -261,7 +261,7 @@
           #{faculty}
         </foreach>
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(infoRoomIds)">
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
         and t1.ID_ in
         <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
           #{examInfoId}
