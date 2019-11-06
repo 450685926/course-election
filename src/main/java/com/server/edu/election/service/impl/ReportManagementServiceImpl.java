@@ -1620,6 +1620,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 tables.add(timeTable);
             }
         }
+        List<TimeTable> timtable = getTimtable(tables);
         String fileName = new StringBuffer("").append(cacheDirectory)
                 .append("//")
                 .append(System.currentTimeMillis())
@@ -1674,7 +1675,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
         document.add(table1);
 
         // ----3 学生选课课表展示----
-        PdfPTable table2 = teacherLessonTableServiceServiceImpl.createStudentTable(tables,
+        PdfPTable table2 = teacherLessonTableServiceServiceImpl.createStudentTable(timtable,
                 subtitleChinese,
                 name2);
         document.add(table2);
