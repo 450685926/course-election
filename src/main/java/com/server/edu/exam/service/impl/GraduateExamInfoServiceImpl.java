@@ -380,6 +380,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 }
                 //排考学生校验
                 Restrict restrict = this.checkExamConflict(listStudent);
+                if(restrict != null){
+                    Set<String> studentIds = restrict.getStudentIds();
+                    if(CollectionUtil.isNotEmpty(studentIds)){
+                        listStudent = listStudent.stream().filter(vo ->!studentIds.contains(vo.getStudentCode())).collect(Collectors.toList());
+                    }
+                }
                 this.saveStudentAndUpdateNumber(listStudent);
                 return restrict;
             } else {
@@ -420,6 +426,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         }
         //排考学生校验
         Restrict restrict = this.checkExamConflict(list);
+        if(restrict != null){
+            Set<String> studentIds = restrict.getStudentIds();
+            if(CollectionUtil.isNotEmpty(studentIds)){
+                list = list.stream().filter(vo ->!studentIds.contains(vo.getStudentCode())).collect(Collectors.toList());
+            }
+        }
         this.saveStudentAndUpdateNumber(list);
         return restrict;
 
@@ -821,7 +833,11 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             }
 
         }
-        return "成功分配" + matchList.size() + "学生" + "还有" + noMatchList.size() + "学生未分配。";
+        String msg = "";
+        if(StringUtils.isNotBlank(restrict.getDescript())){
+            msg = restrict.getDescript();
+        }
+        return "成功分配" + matchList.size() + "学生" + "还有" + noMatchList.size() + "学生未分配。" + msg;
     }
 
     @Override
@@ -860,13 +876,13 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                             String courseName = date.getCourseName();
                             List<String> studentIds = infoAndDates.stream().map(ExamStudentInfoAndDate::getStudentCode).collect(Collectors.toList());
                             repeatStudent.addAll(studentIds);
-                            descriptBuilder.append(String.format("排考学生: %s,冲突课程: %s(%s)<br>",
+                            descriptBuilder.append(String.format("排考学生: %s,冲突课程: %s(%s)",
                                     studentIds.toString(), courseCode, courseName));
                         }
                     }
                     if (descriptBuilder.length() > 0) {
                         restrict.setStudentIds(repeatStudent);
-                        restrict.setDescript("排考学生考试时间冲突:<br>" + descriptBuilder.toString());
+                        restrict.setDescript(descriptBuilder.toString());
                     }
                 }
             }
@@ -1012,12 +1028,6 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
     private Restrict checkExamConflict(List<GraduateExamStudent> list){
         //排考学生校验
         Restrict restrict = this.checkExamStudentsConflict(list);
-        if(restrict != null){
-            Set<String> studentIds = restrict.getStudentIds();
-            if(CollectionUtil.isNotEmpty(studentIds)){
-                list = list.stream().filter(vo ->!studentIds.contains(vo.getStudentCode())).collect(Collectors.toList());
-            }
-        }
         return restrict;
     }
 }
