@@ -1978,5 +1978,8 @@
         WHERE  el.COURSE_TAKE_TYPE_ = 2
         and el.CALENDAR_ID_ = #{calendarId}
         and el.STUDENT_ID_ = #{studentCode}
+        <if test="paid !=null">
+            and el.PAID_ = #{paid}
+        </if>
     </select>
 </mapper>
