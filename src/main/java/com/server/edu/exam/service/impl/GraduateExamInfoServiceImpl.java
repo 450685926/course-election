@@ -230,11 +230,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
                     throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
                 }
-
-            }
         }
-
-
     }
 
     @Override
