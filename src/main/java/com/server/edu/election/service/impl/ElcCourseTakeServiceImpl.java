@@ -1201,7 +1201,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             chooseObj = 3;
         } else if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             chooseObj = 2;
-            boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, "2");
+            boolean switchStatus = elecResultSwitchService.getSwitchStatus(calendarId, session.getCurrentManageDptId());
             // 教务员需判断选课开关是否开启
             if (!switchStatus) {
                 throw new ParameterValidateException(I18nUtil.getMsg("elecResultSwitch.notEnabled"));
