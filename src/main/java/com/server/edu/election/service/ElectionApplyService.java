@@ -2,6 +2,7 @@ package com.server.edu.election.service;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.ElectionApplyDto;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.vo.ElectionApplyVo;
@@ -94,4 +95,18 @@ public interface ElectionApplyService
      * @see [类、类#方法、类#成员]
      */
     void update(String studentId, Long roundId, String courseCode);
+
+    /**
+     * 未处理的申请数据
+     * @param condition
+     * @return
+     */
+	PageResult<ElectionApplyVo> applyUnList(PageCondition<ElectionApplyDto> condition);
+
+	/**
+	 * 已处理的申请数据
+	 * @param condition
+	 * @return
+	 */
+	PageResult<ElectionApplyVo> alreadyApplyList(PageCondition<ElectionApplyDto> condition);
 }

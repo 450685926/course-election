@@ -1890,16 +1890,16 @@
 		UNION ALL 
 		SELECT 
 		  0 AS id,
-		  t1.STUDENT_ID_,
-		  t1.`ID_` medWithdrawId,
 		  t1.`TEACHING_CLASS_ID_`,
+		  t1.STUDENT_ID_,
 		  t2.`CODE_` teachingClassCode,
 		  t2.NAME_  teachingClassName,
 		  t3.COURSE_CODE_,
 		  t3.`COURSE_NAME_` courseName,
 		  t3.`CREDITS_`,
 		  t3.PERIOD_,
-		  t2.`CAMPUS_` 
+		  t2.`CAMPUS_`,
+		  t1.`ID_` medWithdrawId 
 		FROM
 		  elc_med_withdraw_t t1 
 		  JOIN teaching_class_t t2 
@@ -1960,4 +1960,9 @@
             where eb.BILL_NUM_ = #{billno}
         </foreach>
     </update>
+
+    <select id="findIsPass" resultType="int">
+        select isPass from v_student_plan_course where studentId= #{studentId}
+		  and courseCode = #{courseCode}
+    </select>
 </mapper>

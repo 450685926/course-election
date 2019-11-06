@@ -42,6 +42,7 @@ public class ElectEventListener implements ApplicationListener<ElectLoadEvent>
             {
                 ElecContextBk context =
                     new ElecContextBk(studentId, calendarId);
+                context.courseClear();
                 // 重新加载学生缓存数据
                 bKCourseGradeLoad.loadSelectedCourses(studentId,
                     context.getSelectedCourses(),
