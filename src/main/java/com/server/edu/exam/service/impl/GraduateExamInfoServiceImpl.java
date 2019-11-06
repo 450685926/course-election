@@ -179,8 +179,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 graduateExamInfo.setClassNode("");
                 graduateExamInfo.setActualCalendarId(null);
             }
-            this.checkPublicExamTimeSame(graduateExamInfo);
 
+            this.checkPublicExamTimeSame(graduateExamInfo);
 
             Example example = new Example(GraduateExamInfo.class);
             Example.Criteria criteria = example.createCriteria();
@@ -226,10 +226,19 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
     private void checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo) {
         List<GraduateExamInfo> info = examInfoDao.checkPublicExamTimeSame(graduateExamInfo);
         if(CollectionUtil.isNotEmpty(info)){
-                GraduateExamInfo examInfo = info.get(0);
+            GraduateExamInfo examInfo = info.get(0);
+            if(info.size() == 1){
+                    if(!examInfo.getCampus().equals(graduateExamInfo.getCampus())){
+                        if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
+                            throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                        }
+                    }
+            }else{
+
                 if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
                     throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
                 }
+            }
         }
     }
 
