@@ -260,7 +260,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     take.setCourseTakeType(CourseTakeType.NORMAL.type());
                 }
             }
-
             take.setCalendarId(calendarId);
             take.setChooseObj(ChooseObj.ADMIN.type());
             take.setCourseCode(courseCode);
