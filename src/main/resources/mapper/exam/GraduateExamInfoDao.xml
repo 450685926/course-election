@@ -262,9 +262,9 @@
         </foreach>
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(infoRoomIds)">
-        and t5.ID_ in
-        <foreach collection="infoRoomIds" item="infoRoomId" open="(" separator="," close=")">
-          #{infoRoomId}
+        and t1.ID_ in
+        <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
+          #{examInfoId}
         </foreach>
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examStartTime)">
@@ -474,8 +474,7 @@
         LEFT JOIN course_t t4 ON t3.COURSE_CODE_ = t4.CODE_
         LEFT JOIN student_t t5 ON t5.STUDENT_CODE_ = t2.STUDENT_CODE_
         WHERE
-          t3.CALENDAR_ID_ = #{calendarId} and t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1 and t3.EXAM_STATUS_ = 2
-        ORDER BY
+           t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
           ORDER BY t2.TEACHING_CLASS_NAME_ ASC
       ) t,
      (SELECT @i := 0) d
