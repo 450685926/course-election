@@ -310,6 +310,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -318,6 +319,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + i)).getFaculty());
@@ -332,6 +334,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -340,6 +343,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + 1 + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + 1 + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + 1 + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + 1 + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + 1 + i)).getFaculty());
@@ -352,9 +356,12 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                 exportStuDto.setOrder(list.get(divNum).getOrderStu());
                 exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassCode());
+                exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassName());
                 exportStuDto.setStudentCode(list.get(divNum).getStudentCode());
                 exportStuDto.setStudentName(list.get(divNum).getStudentName());
                 exportStuDto.setFaculty(list.get(divNum).getFaculty());
+                exportStuDto.setCourseCode(list.get(divNum).getCourseCode());
+                exportStuDto.setCourseName(list.get(divNum).getCourseName());
                 dataList.add(exportStuDto);
             }
 
@@ -375,7 +382,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
         design.setOverviews(strings);
         design.addCell("序号", "order");
-        design.addCell("教学班号", "teachingClassCode");
+        design.addCell("教学班号", "teachingClassName");
         design.addCell("学号", "studentCode");
         design.addCell("姓名", "studentName");
         if("zip".equals(type)){
@@ -392,7 +399,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
 
         design.addCell("序号", "order_R");
-        design.addCell("教学班号", "teachingClassCode_R");
+        design.addCell("教学班号", "teachingClassName_R");
         design.addCell("学号", "studentCode_R");
         design.addCell("姓名", "studentName_R");
         if("zip".equals(type)){
@@ -620,6 +627,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -628,6 +636,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + i)).getFaculty());
@@ -642,6 +651,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -650,6 +660,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + 1 + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + 1 + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + 1 + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + 1 + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + 1 + i)).getFaculty());
@@ -662,9 +673,14 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                 exportStuDto.setOrder(list.get(divNum).getOrderStu());
                 exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassCode());
+                exportStuDto.setTeachingClassName(list.get((divNum)).getTeachingClassName());
                 exportStuDto.setStudentCode(list.get(divNum).getStudentCode());
                 exportStuDto.setStudentName(list.get(divNum).getStudentName());
                 exportStuDto.setFaculty(list.get(divNum).getFaculty());
+                exportStuDto.setCourseCode(list.get(divNum).getCourseCode());
+                exportStuDto.setCourseName(list.get(divNum).getCourseName());
+                exportStuDto.setCourseCode(list.get(divNum).getCourseCode());
+                exportStuDto.setCourseName(list.get(divNum).getCourseName());
                 dataList.add(exportStuDto);
             }
 
