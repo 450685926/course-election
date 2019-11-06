@@ -287,18 +287,14 @@ public class RebuildCourseController
     
     @ApiOperation(value = "学生重修缴费明细")
     @PostMapping("/findStuRePayment")
-    public RestResult<List<StudentRePaymentDto>> findStuRePayment(
-        @RequestBody StudentRePaymentDto studentRePaymentDto)
-    {
-        if (studentRePaymentDto.getCalendarId() == null)
-        {
+    public RestResult<PageResult<StudentRePaymentDto>> findStuRePayment(@RequestBody PageCondition<StudentRePaymentDto> condition) {
+        if (condition.getCondition().getCalendarId() == null) {
             throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
         }
         String studentCode = SessionUtils.getCurrentSession().realUid();
-        studentRePaymentDto.setStudentCode(studentCode);
-        List<StudentRePaymentDto> list =
-            service.findStuRePayment(studentRePaymentDto);
-        return RestResult.successData(list);
+        condition.getCondition().setStudentCode(studentCode);
+        PageResult<StudentRePaymentDto> result = service.findStuRePayment(condition);
+        return RestResult.successData(result);
     }
 
     /**

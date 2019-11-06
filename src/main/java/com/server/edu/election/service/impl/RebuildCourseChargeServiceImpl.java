@@ -650,10 +650,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@return: 
     *@Author: bear
     *@date: 2019/5/27 11:15
-    */
+     */
     @Override
-    public List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto) {
-        List<StudentRePaymentDto> paymentDtoList=new ArrayList<>();
+    public PageResult<StudentRePaymentDto> findStuRePayment(PageCondition<StudentRePaymentDto> pageCondition) {
+        PageResult<StudentRePaymentDto> paymentDtoList=new PageResult<>();
         //String studentCode = studentRePaymentDto.getStudentCode();
         /**是否在不缴费学生类型中*/
         // todo 因为毕业证书类型现在取不到，暂时无法判断是否需要收费
@@ -662,14 +662,16 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             return null;
         }*/
         //去收费标准查询，是否需要缴费
-        List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(studentRePaymentDto.getStudentCode());
+        List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(pageCondition.getCondition().getStudentCode());
         if (CollectionUtil.isNotEmpty(rebuildCourseChargeList) && rebuildCourseChargeList.get(0).getIsCharge().equals(1)){
             //查询该学期缴费的课程及缴费状态
-            paymentDtoList = courseTakeDao.findByStuIdAndCId(studentRePaymentDto);
+            PageHelper.startPage(pageCondition.getPageNum_(), pageCondition.getPageSize_());
+            Page<StudentRePaymentDto> page = (Page<StudentRePaymentDto>)courseTakeDao.findByStuIdAndCId(pageCondition.getCondition());
             //设置单价
-            if (CollectionUtil.isNotEmpty(paymentDtoList)){
-                paymentDtoList.forEach(p -> p.setUnitPrice(rebuildCourseChargeList.get(0).getUnitPrice()));
+            if (CollectionUtil.isNotEmpty(page.getResult())){
+                page.getResult().forEach(p -> p.setUnitPrice(rebuildCourseChargeList.get(0).getUnitPrice()));
             }
+            paymentDtoList = new PageResult<>(page);
         }
         return paymentDtoList;
 
