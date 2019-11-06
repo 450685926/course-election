@@ -254,7 +254,7 @@
   </update>
 
   <select id="listStudentInfo"  resultType="com.server.edu.exam.dto.ExamStudentInfoAndDate">
-      select t2.ID_ examInfoId,t2.CAMPUS_ campus,t2.COURSE_CODE_ courseCode,t2.EXAM_DATE_ examDate,
+      select t2.ID_ examInfoId,t2.CAMPUS_ campus,t2.COURSE_CODE_ courseCode,t2.EXAM_DATE_ examDate,t2.EXAM_TIME_ examTime,
       t2.EXAM_START_TIME_ examStartTime,t2.EXAM_END_TIME_ examEndTime,t1.STUDENT_CODE_ studentCode,t3.NAME_ courseName
       from graduate_exam_student_t t1
       left join graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_

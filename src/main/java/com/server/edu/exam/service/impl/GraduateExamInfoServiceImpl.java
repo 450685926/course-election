@@ -876,8 +876,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                             String courseName = date.getCourseName();
                             List<String> studentIds = infoAndDates.stream().map(ExamStudentInfoAndDate::getStudentCode).collect(Collectors.toList());
                             repeatStudent.addAll(studentIds);
-                            descriptBuilder.append(String.format("排考学生: %s,冲突课程: %s(%s)",
-                                    studentIds.toString(), courseCode, courseName));
+                            descriptBuilder.append(String.format("排考学生: %s,冲突课程: %s(%s),冲突时间: %s",
+                                    studentIds.toString(), courseCode, courseName,date.getExamTime()));
                         }
                     }
                     if (descriptBuilder.length() > 0) {
