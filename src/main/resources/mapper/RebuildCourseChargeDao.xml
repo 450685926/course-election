@@ -143,4 +143,12 @@
         from rebuild_course_charge_t
         where TRAINING_LEVEL_ = #{trainingLevel} and FORM_LEARNING_ = #{formLearning}
     </select>
+
+    <select id="selectByStuId" resultMap="BaseResultMap">
+        select
+        rc.*
+        from rebuild_course_charge_t rc left join student_t s
+        on rc.TRAINING_LEVEL_ = s.TRAINING_LEVEL_ and rc.FORM_LEARNING_ = s.FORM_LEARNING_
+        WHERE s.STUDENT_CODE_ = #{studentCode}
+    </select>
 </mapper>

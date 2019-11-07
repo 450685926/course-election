@@ -8,6 +8,7 @@ package com.server.edu.exam.dto;
 public class ExportStuDto {
     private Integer order;
     private String teachingClassCode;
+    private String teachingClassName;
     private String studentCode;
     private String studentName;
     private String faculty;
@@ -17,11 +18,28 @@ public class ExportStuDto {
 
     private Integer order_R;
     private String teachingClassCode_R;
+    private String teachingClassName_R;
     private String studentCode_R;
     private String studentName_R;
     private String faculty_R;
     private String courseCode_R;
     private String courseName_R;
+
+    public String getTeachingClassName() {
+        return teachingClassName;
+    }
+
+    public void setTeachingClassName(String teachingClassName) {
+        this.teachingClassName = teachingClassName;
+    }
+
+    public String getTeachingClassName_R() {
+        return teachingClassName_R;
+    }
+
+    public void setTeachingClassName_R(String teachingClassName_R) {
+        this.teachingClassName_R = teachingClassName_R;
+    }
 
     public Integer getOrder() {
         return order;

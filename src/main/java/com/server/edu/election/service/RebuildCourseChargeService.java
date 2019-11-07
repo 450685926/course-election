@@ -57,7 +57,7 @@ public interface RebuildCourseChargeService {
 
     boolean isNoNeedPayForRetake(String studentId);
 
-    List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto);
+    PageResult<StudentRePaymentDto> findStuRePayment(PageCondition<StudentRePaymentDto> studentRePaymentDto);
 
     /**
      * @Description: 根据学号查询重修详情

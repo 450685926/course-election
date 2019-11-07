@@ -179,20 +179,26 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 graduateExamInfo.setClassNode("");
                 graduateExamInfo.setActualCalendarId(null);
             }
+
             this.checkPublicExamTimeSame(graduateExamInfo);
-            //保存时间就入库（判断是否有Id）
-            if (graduateExamInfo.getId() == null) {
-                try {
-                    graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
-                    graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
-                    examInfoDao.insert(graduateExamInfo);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new ParameterValidateException("该课程校区已经排考");
-                }
+
+            Example example = new Example(GraduateExamInfo.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("calendarId",graduateExamInfo.getCalendarId());
+            criteria.andEqualTo("courseCode",graduateExamInfo.getCourseCode());
+            criteria.andEqualTo("campus",graduateExamInfo.getCampus());
+            criteria.andEqualTo("examType",graduateExamInfo.getExamType());
+            criteria.andEqualTo("projId",graduateExamInfo.getProjId());
+            GraduateExamInfo existInfo = examInfoDao.selectOneByExample(example);
+
+            //（第一次入库）
+            if(existInfo == null){
+                graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
+                graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
+                examInfoDao.insert(graduateExamInfo);
             } else {
                 //变更时间不一样需要先删除考场
-                GraduateExamInfo item = examInfoDao.selectByPrimaryKey(graduateExamInfo.getId());
+                GraduateExamInfo item = examInfoDao.selectByPrimaryKey(existInfo.getId());
                 if(!graduateExamInfo.getExamTime().equals(item.getExamTime())){
                     if(item.getExamRooms() != null && item.getExamRooms() > 0 ){
                         throw new ParameterValidateException("变更排考时间,请先删除考场");
@@ -200,10 +206,11 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 }
                 graduateExamInfo.setExamRooms(item.getExamRooms());
                 graduateExamInfo.setActualNumber(item.getActualNumber());
+                graduateExamInfo.setId(existInfo.getId());
                 examInfoDao.updateByPrimaryKey(graduateExamInfo);
             }
-
             list.add(graduateExamInfo.getId());
+
         }
         ExamSaveTimeRebackDto dto = new ExamSaveTimeRebackDto();
         dto.setExamInfoIds(list);
@@ -219,24 +226,20 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
     private void checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo) {
         List<GraduateExamInfo> info = examInfoDao.checkPublicExamTimeSame(graduateExamInfo);
         if(CollectionUtil.isNotEmpty(info)){
-            Long id = graduateExamInfo.getId();
-            if(id == null){
-                GraduateExamInfo examInfo = info.get(0);
+            GraduateExamInfo examInfo = info.get(0);
+            if(info.size() == 1){
+                    if(!examInfo.getCampus().equals(graduateExamInfo.getCampus())){
+                        if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
+                            throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                        }
+                    }
+            }else{
+
                 if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
                     throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
                 }
-            }else{
-                List<GraduateExamInfo> collect = info.stream().filter(vo -> !vo.getId().equals(id)).collect(Collectors.toList());
-                if(CollectionUtil.isNotEmpty(collect)){
-                    GraduateExamInfo examInfo = collect.get(0);
-                    if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                        throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
-                    }
-                }
             }
         }
-
-
     }
 
     @Override
@@ -364,7 +367,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         List<Long> examRoomIds = graduateExamRoomVos.getResult().stream().map(GraduateExamRoomVo::getId).collect(Collectors.toList());
         List<GraduateExamStudent> listStudent = studentDao.listStudentByClass(teachingClassIds, examRoomIds, calendarId,examType);
         if (CollectionUtil.isEmpty(listStudent)) {
-            throw new ParameterValidateException("选择的班级学生已经按排了排考");
+            throw new ParameterValidateException("没有满足条件的可排考学生");
         } else {
             if (listStudent.size() <= size) {
                 //删除教室下面的教学班，重新添加

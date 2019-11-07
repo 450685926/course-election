@@ -1965,4 +1965,21 @@
         select isPass from v_student_plan_course where studentId= #{studentId}
 		  and courseCode = #{courseCode}
     </select>
+
+    <select id="findByStuIdAndCId" resultType="com.server.edu.election.dto.StudentRePaymentDto">
+        SELECT
+        el.COURSE_CODE_ courseCode,
+        el.PAID_ paid,
+        c.CREDITS_ credits,
+        c.NAME_ courseName
+        FROM elc_course_takes_t el
+        left JOIN course_t c
+        on el.COURSE_CODE_ = c.CODE_
+        WHERE  el.COURSE_TAKE_TYPE_ = 2
+        and el.CALENDAR_ID_ = #{calendarId}
+        and el.STUDENT_ID_ = #{studentCode}
+        <if test="paid !=null">
+            and el.PAID_ = #{paid}
+        </if>
+    </select>
 </mapper>
