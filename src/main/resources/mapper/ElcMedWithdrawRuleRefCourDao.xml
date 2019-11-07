@@ -19,7 +19,7 @@
 			t4.COURSE_NAME_ courseName,
 			t4.COURSE_NAME_EN_ courseNameEn,
 			t4.TRAINING_LEVEL_ trainingLevel,
-			t4.NATURE_ nature,
+			t4.IS_ELECTIVE_ nature,
 			t4.FACULTY_ faculty
 		FROM
 			elc_med_withdraw_rule_ref_cour_t t1
@@ -42,7 +42,7 @@
 	        and t4.FACULTY_= #{faculty}
 	      </if> 
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
-	        and t4.NATURE_= #{nature}
+	        and t4.IS_ELECTIVE_= #{nature}
 	      </if>
 	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(parameter)">
 	         and (t4.COURSE_CODE_ like concat('%',#{parameter},'%') or t2.ID_ like concat('%',#{parameter},'%'))
@@ -60,7 +60,7 @@
 			t4.COURSE_NAME_ courseName,
 			t4.COURSE_NAME_EN_ courseNameEn,
 			t4.TRAINING_LEVEL_ trainingLevel,
-			t4.NATURE_ nature,
+			t4.IS_ELECTIVE_ nature,
 			t4.FACULTY_ faculty
 		FROM
 			(
@@ -83,16 +83,8 @@
 				AND t1.DEPLOY_FLAG_ &gt; 0
 			) t2
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
-		INNER JOIN (
-			SELECT
-				*
-			FROM
-				course_open_t
-			WHERE
-				IS_OPEN_ = 1
-		) t4 ON t4.ID_ = t3.COURSE_OPEN_ID_
+		INNER JOIN course_open_t t4 ON t4.ID_ = t3.COURSE_OPEN_ID_ and t4.IS_OPEN_ = 1
 	 <where>
-	      1=1
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 	        and t4.CALENDAR_ID_= #{calendarId}
 	      </if>
@@ -103,10 +95,10 @@
 	        and t4.FACULTY_= #{faculty}
 	      </if> 
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
-	        and t4.NATURE_= #{nature}
+	        and t4.IS_ELECTIVE_= #{nature}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(parameter)">
-	         and (t4.COURSE_CODE_ like concat('%',#{parameter},'%') or t2.ID_ like concat('%',#{parameter},'%'))
+	         and (t4.COURSE_CODE_ like concat(#{parameter},'%') or t2.ID_ like concat(#{parameter},'%'))
 	      </if> 	      	       
 	  </where>		   
   </select>
