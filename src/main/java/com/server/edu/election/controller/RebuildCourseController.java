@@ -1,5 +1,6 @@
 package com.server.edu.election.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.log.LogRecord;
@@ -53,7 +54,7 @@ import java.util.List;
 @RequestMapping("/rebuildCourse")
 public class RebuildCourseController
 {
-    
+
     @Autowired
     private RebuildCourseChargeService service;
     
@@ -321,6 +322,19 @@ public class RebuildCourseController
     public ResponseEntity<Resource> exportByStuId(@RequestBody RebuildCourseDto rebuildCourseDto) throws Exception {
         ExcelWriterUtil result = service.exportByStuId(rebuildCourseDto);
         return ExportUtil.exportExcel(result, cacheDirectory,  "result.xls");
+    }
+
+    /**
+     * @Description: 重修缴费回调接口
+     * @author kan yuanfeng
+     * @date 2019/11/7 9:22
+     */
+    @PostMapping("payCallback")
+    public RestResult<?> payCallback(@RequestBody JSONObject jsonObject){
+        Assert.notNull(jsonObject,"common.parameterError");
+        service.payCallback(jsonObject);
+        return RestResult.success();
+
     }
 
     /**
