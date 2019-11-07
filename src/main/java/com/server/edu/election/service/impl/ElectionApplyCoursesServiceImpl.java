@@ -141,35 +141,40 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	public int addCourses(ElectionApplyCoursesDto dto) {
 		Example courseExample = new Example(Course.class);
 		Example.Criteria courdseCriteria = courseExample.createCriteria();
-		courdseCriteria.andIn("code",dto.getCourses());
+		List<String> courseCodes = dto.getCourses();
+		courdseCriteria.andIn("code",courseCodes);
 		List<Course> courses = courseDao.selectByExample(courseExample);
 		if(CollectionUtil.isEmpty(courses)) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
 		List<ElectionApplyCourses> list = new ArrayList<>();
-		List<String> courseCodes = new ArrayList<>();
-		for(String course:dto.getCourses()) {
+//		List<String> courseCodes = new ArrayList<>();
+		Long calendarId = dto.getCalendarId();
+		Integer mode = dto.getMode();
+		for(String course: courseCodes) {
 			ElectionApplyCourses electionApplyCourses = new ElectionApplyCourses();
-			electionApplyCourses.setMode(dto.getMode());
+			electionApplyCourses.setMode(mode);
 			electionApplyCourses.setCourseCode(course);
-			electionApplyCourses.setCalendarId(dto.getCalendarId());
+			electionApplyCourses.setCalendarId(calendarId);
             list.add(electionApplyCourses);
-            courseCodes.add(course);
+//            courseCodes.add(course);
         }
 		Example example = new Example(ElectionApplyCourses.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andIn("courseCode",courseCodes);
+		criteria.andEqualTo("calendarId", calendarId);
+		criteria.andEqualTo("mode", mode);
 		List<ElectionApplyCourses> electionApplyCourses = electionApplyCoursesDao.selectByExample(example);
 		if (CollectionUtil.isNotEmpty(electionApplyCourses)) {
 			Set<String> collect = electionApplyCourses.stream().map(ElectionApplyCourses::getCourseCode).collect(Collectors.toSet());
-			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg(String.join(",", collect))));
+			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg(String.join(",", courseCodes))));
 		}
 		int result = electionApplyCoursesDao.insertList(list);
 		if(result<=Constants.ZERO) {
 			throw new ParameterValidateException(I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("electionApply.electionApplyCourses")));
 		}
 		
-		setToCache(dto.getCalendarId());
+		setToCache(calendarId);
 		return result;
 	}
 
