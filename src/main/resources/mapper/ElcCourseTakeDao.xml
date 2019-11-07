@@ -1951,13 +1951,13 @@
     <!--批量设置支付状态-->
     <update id="setPayStatusBatch" parameterType="java.util.List">
         <foreach collection="list" item="item" index="index"  separator=";">
-            update elc_course_takes_t_${index} ec
+            update elc_course_takes_t_${item.index} ec
             JOIN elc_bills_t eb on
             ec.BILL_ID_ = eb.ID_
             <set>
-                ec.PAID_ = #{paid}
+                ec.PAID_ = #{item.paid}
             </set>
-            where eb.BILL_NUM_ = #{billno}
+            where eb.BILL_NUM_ = #{item.billno}
         </foreach>
     </update>
 
@@ -1968,6 +1968,7 @@
 
     <select id="findByStuIdAndCId" resultType="com.server.edu.election.dto.StudentRePaymentDto">
         SELECT
+        el.ID_ id,
         el.COURSE_CODE_ courseCode,
         el.PAID_ paid,
         c.CREDITS_ credits,

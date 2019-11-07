@@ -1,5 +1,6 @@
 package com.server.edu.election.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCourseDto;
@@ -79,5 +80,12 @@ public interface RebuildCourseChargeService {
      * @date 2019/10/22 11:26
      */
     void payResult(List<RebuildCourseNoChargeList> studentRebuildFeeDtoList);
+
+    /**
+     * @Description: 重修缴费回调接口
+     * @author kan yuanfeng
+     * @date 2019/11/7 9:22
+     */
+    void payCallback(JSONObject jsonObject);
 }
 

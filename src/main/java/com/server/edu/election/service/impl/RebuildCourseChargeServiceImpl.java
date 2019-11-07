@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -22,8 +23,12 @@ import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.util.CommonConstant;
 import com.server.edu.election.util.TableIndexUtil;
-import com.server.edu.election.vo.*;
+import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
+import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
+import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -48,6 +53,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -757,17 +763,83 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     //解析对账结果
                     List<PayResult> results = payResult.stream().filter(r -> r.getPayFlag() && StringUtils.isNotBlank(r.getPaystate())).collect(Collectors.toList());
                     List<PayResultDto> payResultDtoList = new ArrayList<>();
+                    List<ElcBill> elcBillList = new ArrayList<>();
                     results.forEach(r ->{
                         PayResultDto payResultDto = new PayResultDto();
                         BeanUtils.copyProperties(r,payResultDto);
                         payResultDto.setIndex(index);
                         payResultDto.setPaid(("4".equals(payResultDto.getPaystate())?1:0));
                         payResultDtoList.add(payResultDto);
+                        //账单金额已缴金额处理
+                        ElcBill elcBill = new ElcBill();
+                        elcBill.setBillNum(payResultDto.getBillno());
+                        elcBill.setFlag(("4".equals(payResultDto.getPaystate())?true:false));
+                        elcBillList.add(elcBill);
                     });
                     courseTakeDao.setPayStatusBatch(payResultDtoList);
+                    //账单金额已缴金额处理
+                    elcBillDao.updatePayBatch(elcBillList);
                 }
             }
         }
+    }
+
+    /**
+     * @Description: 重修缴费回调接口
+     * @author kan yuanfeng
+     * @date 2019/11/7 9:22
+     */
+    @Override
+    @Transactional
+    public void payCallback(JSONObject jsonObject) {
+        //参数校验
+        /*json.put(CommonConstant.PAY_CODE_BILLNO, queryPay.get(CommonConstant.PAY_CODE_BILLNO));   // 订单号
+        json.put(CommonConstant.PAY_CODE_RETURNMSG, queryPay.get(CommonConstant.PAY_CODE_RETURNMSG));  //返回信息
+        json.put(CommonConstant.PAY_CODE_PAYSTATE, queryPay.get(CommonConstant.PAY_CODE_PAYSTATE));  //订单状态（1：缴费失败 4：缴费成功）
+        json.put(CommonConstant.PAY_CODE_STUID, queryPay.get(CommonConstant.PAY_CODE_STUID));  //学生ID
+        json.put(CommonConstant.PAY_CODE_FEEITEMID, queryPay.get(CommonConstant.PAY_CODE_FEEITEMID));  //缴费编码
+        json.put(CommonConstant.PAY_CODE_SIGN, queryPay.get(CommonConstant.PAY_CODE_SIGN));  // 签名
+        json.put(CommonConstant.PAY_CALLBACKDATA, queryPay.get(CommonConstant.PAY_CALLBACKDATA));  // 回调数据*/
+        String billNo = jsonObject.getString(CommonConstant.PAY_CODE_BILLNO);
+        String reTurnmsg = jsonObject.getString(CommonConstant.PAY_CODE_RETURNMSG);
+        String payState = jsonObject.getString(CommonConstant.PAY_CODE_PAYSTATE);
+        String studentId = jsonObject.getString(CommonConstant.PAY_CODE_STUID);
+        String callBackData = jsonObject.getString(CommonConstant.PAY_CALLBACKDATA);
+        if (StringUtils.isBlank(billNo) || StringUtils.isBlank(payState)
+            ||StringUtils.isBlank(studentId) || StringUtils.isBlank(callBackData)){
+            throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
+        }
+        //解析callBackData
+        /**
+         * callBackData内容
+         * put("id":"1,2")
+         * put("price":"700")
+         */
+        Map callDate = JSON.parseObject(callBackData, Map.class);
+        String id = (String)callDate.get("id");
+        String[] split = StringUtils.split(id, ",");
+        ElcCourseTake elcCourseTake = courseTakeDao.selectByPrimaryKey(Long.valueOf(split[0]));
+        //保存订单
+        ElcBill elcBill = new ElcBill();
+        elcBill.setStudentId(studentId);
+        elcBill.setCalendarId(elcCourseTake.getCalendarId());
+        elcBill.setBillNum(billNo);
+        String price = (String) callDate.get("price");
+        elcBill.setAmount(Double.valueOf(price));
+        elcBill.setRemark(reTurnmsg);
+        elcBill.setPay(("4".equals(payState)?Double.valueOf(price):0));
+        elcBillDao.insertSelective(elcBill);
+        //更新缴费信息
+        List<Long> ids = new ArrayList<>();
+        for (int i = 0; i <split.length ; i++) {
+            ids.add(Long.valueOf(split[i]));
+        }
+        ElcCourseTake courseTake = new ElcCourseTake();
+        courseTake.setPaid(("4".equals(payState)?1:0));
+        courseTake.setBillId(elcBill.getId());
+        Example example = new Example(ElcCourseTake.class);
+        example.createCriteria().andIn("id",ids);
+        courseTakeDao.updateByExampleSelective(courseTake,example);
     }
 
     private GeneralExcelDesigner getDesignByStuId() {

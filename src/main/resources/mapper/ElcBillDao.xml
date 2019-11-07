@@ -14,4 +14,20 @@
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
+
+  <!--批量设置支付状态-->
+  <update id="updatePayBatch" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index"  separator=";">
+      update elc_bills_t eb
+      <set>
+        <if test="item.flag">
+          eb.PAY_ = eb.AMOUNT_
+        </if>
+        <if test="!item.flag">
+          eb.PAY_ = 0
+        </if>
+      </set>
+      where eb.BILL_NUM_ = #{item.billNum}
+    </foreach>
+  </update>
 </mapper>
