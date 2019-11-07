@@ -16,6 +16,33 @@ public class StudentRePaymentDto{
     private Integer paid;
     private String studentCode;
     private Long billId;
+    private Integer index;
+    private Double price;
+    private String billNum;
+
+    public String getBillNum() {
+        return billNum;
+    }
+
+    public void setBillNum(String billNum) {
+        this.billNum = billNum;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
 
     public Long getId() {
         return id;
