@@ -17,7 +17,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.entity.SchoolCalendar;
 import com.server.edu.common.entity.Teacher;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
@@ -122,7 +124,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             throw new RuntimeException(msg);
         }
         // 加载成绩
-//        loadScore(context, studentInfo, studentId, stu);
+        //loadScore(context, studentInfo, studentId, stu);
         loadScoreTemp(context, studentInfo, studentId, stu);
         
         //得到校历id
@@ -250,7 +252,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     	
     	StudentScoreDto dto = new StudentScoreDto();
     	dto.setStudentId(studentId);
-    	dto.setCalendarId(context.getCalendarId());
+//    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
         
@@ -264,9 +266,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             List<Long> teachClassIds = new ArrayList<>();
             for (ScoreStudentResultVo studentScore : stuScore)
             {
-                Long calendarId = studentScore.getCalendarId();
+            	SchoolCalendar sc = new SchoolCalendar();
+            	sc.setYear(studentScore.getAcademicYear().intValue());
+            	sc.setTerm(studentScore.getSemester().intValue());
+            	SchoolCalendarVo schoolCalendarVo =SchoolCalendarCacheUtil.getSchoolCalendarVo(sc);
+                Long calendarId = schoolCalendarVo.getId();
                 String courseCode = studentScore.getCourseCode();
-                
                 CompletedCourse c = new CompletedCourse();
                 TeachingClassCache lesson = new TeachingClassCache();
                 lesson.setCourseCode(courseCode);
