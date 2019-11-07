@@ -3,6 +3,7 @@ package com.server.edu.election.vo;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.dictionary.translator.TeacherTranslator;
 import com.server.edu.election.entity.ElcMedWithdrawRuleRefCour;
 @CodeI18n
 public class ElcMedWithdrawRuleRefCourVo extends ElcMedWithdrawRuleRefCour {
@@ -46,6 +47,31 @@ public class ElcMedWithdrawRuleRefCourVo extends ElcMedWithdrawRuleRefCour {
      */
     @Code2Text(DictTypeEnum.X_XQ)
     private String campus;
+    
+    /**
+     * 学分
+     */
+    private Double credits;
+    
+    @Code2Text(translator=TeacherTranslator.class,dataType = Code2Text.DataType.SPLIT)
+    private String teacherName;
+    
+
+	public Double getCredits() {
+		return credits;
+	}
+
+	public void setCredits(Double credits) {
+		this.credits = credits;
+	}
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
 
 	public String getCode() {
 		return code;

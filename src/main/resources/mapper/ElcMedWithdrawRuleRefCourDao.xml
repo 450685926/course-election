@@ -20,17 +20,19 @@
 			t4.COURSE_NAME_EN_ courseNameEn,
 			t4.TRAINING_LEVEL_ trainingLevel,
 			t4.IS_ELECTIVE_ nature,
-			t4.FACULTY_ faculty
+			t4.FACULTY_ faculty,
+			t4.CREDITS_ credits,
+			GROUP_CONCAT(distinct t6.TEACHER_CODE_) teacherName
 		FROM
 			elc_med_withdraw_rule_ref_cour_t t1
 		INNER JOIN teaching_class_t t2 ON t1.TEACHING_CLASS_ID_ = t2.ID_
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON t3.COURSE_OPEN_ID_ = t4.ID_
 		INNER JOIN elc_med_withdraw_rules_t t5 ON t5.ID_ = t1.MED_WITHDRAW_RULE_ID_
+		LEFT JOIN teaching_class_teacher_t t6  ON (t6.TEACHING_CLASS_ID_  = t2.ID_ AND t6.TYPE_ =0)
 		<where>
-	      1=1
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
-	        and t5.PROJECT_ID= #{projectId}
+	         t5.PROJECT_ID= #{projectId}
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(medWithdrawRuleId)">
 	        and t1.MED_WITHDRAW_RULE_ID_= #{medWithdrawRuleId}
@@ -46,7 +48,13 @@
 	      </if>
 	     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(parameter)">
 	         and (t4.COURSE_CODE_ like concat('%',#{parameter},'%') or t2.ID_ like concat('%',#{parameter},'%'))
-	      </if>  	      	       
+	      </if>
+	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClasscode)">
+	        and t2.CODE_= #{teachingClasscode}
+	      </if>	      	       
+	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+	        and t4.COURSE_NAME_= #{courseName}
+	      </if>
 	    </where>
   </select>
   
@@ -61,7 +69,9 @@
 			t4.COURSE_NAME_EN_ courseNameEn,
 			t4.TRAINING_LEVEL_ trainingLevel,
 			t4.IS_ELECTIVE_ nature,
-			t4.FACULTY_ faculty
+			t4.FACULTY_ faculty,
+		    t4.CREDITS_ credits,
+			GROUP_CONCAT(distinct t6.TEACHER_CODE_) teacherName
 		FROM
 			(
 				SELECT
@@ -74,16 +84,13 @@
 							TEACHING_CLASS_ID_
 						FROM
 							elc_med_withdraw_rule_ref_cour_t c
-						INNER JOIN  elc_med_withdraw_rules_t r ON c.MED_WITHDRAW_RULE_ID_ = r.ID_
-						WHERE 1=1 
-							  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
-	                           and r.PROJECT_ID = #{projectId}
-	                          </if>
+						INNER JOIN  elc_med_withdraw_rules_t r ON c.MED_WITHDRAW_RULE_ID_ = r.ID_ and r.PROJECT_ID = 1
 					)
 				AND t1.DEPLOY_FLAG_ &gt; 0
 			) t2
 		INNER JOIN teaching_task_t t3 ON t2.TASK_ID_ = t3.ID_
 		INNER JOIN course_open_t t4 ON t4.ID_ = t3.COURSE_OPEN_ID_ and t4.IS_OPEN_ = 1
+		LEFT JOIN teaching_class_teacher_t t6  ON (t6.TEACHING_CLASS_ID_  = t2.ID_ AND t6.TYPE_ =0)
 	 <where>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
 	        and t4.CALENDAR_ID_= #{calendarId}
@@ -99,6 +106,12 @@
 	      </if>
 	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(parameter)">
 	         and (t4.COURSE_CODE_ like concat(#{parameter},'%') or t2.ID_ like concat(#{parameter},'%'))
+	      </if>
+	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClasscode)">
+	        and t2.CODE_= #{teachingClasscode}
+	      </if>	      	       
+	      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+	        and t4.COURSE_NAME_= #{courseName}
 	      </if> 	      	       
 	  </where>		   
   </select>

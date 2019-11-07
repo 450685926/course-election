@@ -38,8 +38,32 @@ public class ElcMedWithdrawRuleRefCourDto extends ElcMedWithdrawRuleRefCour {
     private List<Long> teachingClassIds;
     
     private Integer projectId;
+    /**
+     * 课程序号
+     */
+    private String teachingClasscode;
     
+    /**
+     * 课程名称
+     */
+    private String courseName;
     
+
+	public String getTeachingClasscode() {
+		return teachingClasscode;
+	}
+
+	public void setTeachingClasscode(String teachingClasscode) {
+		this.teachingClasscode = teachingClasscode;
+	}
+
+	public String getCourseName() {
+		return courseName;
+	}
+
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
 
 	public List<Long> getTeachingClassIds() {
 		return teachingClassIds;
