@@ -7,6 +7,7 @@ import com.server.edu.common.entity.WorkTime;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchCalendarTimeVo;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.constants.DeleteStatus;
@@ -74,6 +75,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
 
     @Autowired
     private GraduateExamMonitorTeacherDao monitorTeacherDao;
+
+    @Autowired
+    private DictionaryService dictionaryService;
 
 
     @Override
@@ -890,10 +894,11 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                         if (id != null) {
                             String courseCode = date.getCourseCode();
                             String courseName = date.getCourseName();
+                            String campus = dictionaryService.query("X_XQ", date.getCampus(), SessionUtils.getLang());
                             List<String> studentIds = infoAndDates.stream().map(ExamStudentInfoAndDate::getStudentCode).collect(Collectors.toList());
                             repeatStudent.addAll(studentIds);
-                            descriptBuilder.append(String.format("排考学生: %s,冲突课程: %s(%s),冲突时间: %s;",
-                                    studentIds.toString(), courseCode, courseName,date.getExamTime()));
+                            descriptBuilder.append(String.format("排考学生: %s,冲突课程: %s(%s)(%s),冲突时间: %s;",
+                                    studentIds.toString(), courseCode, courseName,campus,date.getExamTime()));
                         }
                     }
                     if (descriptBuilder.length() > 0) {
