@@ -93,11 +93,30 @@ public class GraduateExamMonitorTeacherServiceImpl implements GraduateExamMonito
         Example example = new Example(GraduateExamMonitorTeacher.class);
         Example.Criteria criteria = example.createCriteria();
         example.setOrderByClause("STUDENT_MIN_NUMBER_ ASC");
-        criteria.andEqualTo("projId","2");
+        criteria.andEqualTo("projId",dptId);
         criteria.andEqualTo("deleteStatus",DeleteStatus.NOT_DELETE);
         PageHelper.startPage(monitorTeacher.getPageNum_(),monitorTeacher.getPageSize_());
         Page<GraduateExamMonitorTeacher> page = (Page<GraduateExamMonitorTeacher>) teacherDao.selectByExample(example);
         return new PageResult<>(page);
+    }
+
+    @Override
+    public GraduateExamMonitorTeacher getMonitotTeacherNumber(Integer roomCapcity) {
+        if(roomCapcity == null){
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        Example example = new Example(GraduateExamMonitorTeacher.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andLessThanOrEqualTo("studentMaxNumber",roomCapcity);
+        criteria.andGreaterThanOrEqualTo("studentMinNumber",roomCapcity);
+        criteria.andEqualTo("projId",dptId);
+        List<GraduateExamMonitorTeacher> teachers = teacherDao.selectByExample(example);
+        if(CollectionUtil.isNotEmpty(teachers)){
+            GraduateExamMonitorTeacher monitorTeacher = teachers.get(0);
+            return monitorTeacher;
+        }
+        return null;
     }
 
     private void checkNumConflict(GraduateExamMonitorTeacher monitorTeacher){

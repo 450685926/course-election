@@ -109,6 +109,7 @@
         group by
         t1.COURSE_CODE_,
         t3.CAMPUS_
+        order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
     <select id="listGraduateExamInfoMakeUp" resultType="com.server.edu.exam.vo.GraduateExamInfoVo"
@@ -189,6 +190,7 @@
         group by
         t1.COURSE_CODE_,
         t3.CAMPUS_
+        order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
   <select id="listMyExam" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
