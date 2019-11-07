@@ -475,7 +475,7 @@
         LEFT JOIN student_t t5 ON t5.STUDENT_CODE_ = t2.STUDENT_CODE_
         WHERE
            t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
-          ORDER BY t2.TEACHING_CLASS_NAME_ ASC
+          ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
       ) t,
      (SELECT @i := 0) d
   </select>

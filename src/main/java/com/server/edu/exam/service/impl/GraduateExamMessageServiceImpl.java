@@ -356,7 +356,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                 exportStuDto.setOrder(list.get(divNum).getOrderStu());
                 exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassCode());
-                exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassName());
+                exportStuDto.setTeachingClassName(list.get(divNum).getTeachingClassName());
                 exportStuDto.setStudentCode(list.get(divNum).getStudentCode());
                 exportStuDto.setStudentName(list.get(divNum).getStudentName());
                 exportStuDto.setFaculty(list.get(divNum).getFaculty());

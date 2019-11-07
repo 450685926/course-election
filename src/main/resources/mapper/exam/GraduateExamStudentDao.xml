@@ -39,7 +39,7 @@
     left join student_t t5 on t5.STUDENT_CODE_ = t2.STUDENT_CODE_
     WHERE
      	t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
-   	ORDER BY t2.TEACHING_CLASS_NAME_ ASC
+   	ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
   </select>
 
   <select id="listStudent" resultType="com.server.edu.exam.dto.NoExamStudent" parameterType="com.server.edu.exam.query.StudentQuery">
@@ -98,7 +98,7 @@
         where t7.STUDENT_ID_ = t1.STUDENT_ID_ and t7.CALENDAR_ID_ = t6.CALENDAR_ID_ and t7.COURSE_CODE_ = t6.COURSE_CODE_ and t7.RELEASE_TYPE_ = 1
         )
       </where>
-    order by t2.ID_ desc
+    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc
   </select>
   <select id="listSelectStudent" resultType="com.server.edu.exam.dto.SelectDto" parameterType="com.server.edu.exam.dto.SelectDto">
     select STUDENT_CODE_ studentCode, NAME_ studentName from student_t
@@ -162,7 +162,7 @@
         )
         and t1.APPLY_STATUS_ = 4
       </where>
-    order by t2.ID_ desc
+    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc
   </select>
 
   <update id="updateExamStudentRemark" parameterType="java.util.List">
