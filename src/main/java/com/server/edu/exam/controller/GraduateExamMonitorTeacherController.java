@@ -11,9 +11,7 @@ import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -56,5 +54,11 @@ public class GraduateExamMonitorTeacherController {
     public RestResult<?> listeGraduateMonitorTeacher(@RequestBody PageCondition<GraduateExamMonitorTeacher> monitorTeacher) {
        PageResult<GraduateExamMonitorTeacher> pageResult = monitorTeacherService.listGraduateMonitorTeacher(monitorTeacher);
         return RestResult.successData(pageResult);
+    }
+
+    @GetMapping("/getMonitotTeacherNumber")
+    public RestResult<GraduateExamMonitorTeacher> getMonitotTeacherNumber(@RequestParam Integer roomCapcity){
+        GraduateExamMonitorTeacher teacher =  monitorTeacherService.getMonitotTeacherNumber(roomCapcity);
+        return RestResult.successData(teacher);
     }
 }
