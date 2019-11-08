@@ -157,23 +157,23 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
-        List<ElcCourseTakeVo> list2 = listPage.getResult();
-        if (CollectionUtil.isNotEmpty(list2)) {
-			Iterator<ElcCourseTakeVo> iterator = list2.iterator();
-			while (iterator.hasNext()) {
-				ElcCourseTakeVo takeVo = iterator.next();
-				page.getCondition().setStudentId(takeVo.getStudentId());
-				page.getCondition().setTeachingClassCode(takeVo.getTeachingClassCode());
-				List<ElcLog> listLogs = elcLogDao.getElectionLog(page.getCondition());
-				if (CollectionUtil.isNotEmpty(listLogs)) {
-					takeVo.setElectionMode(listLogs.get(0).getMode());
-				}else {
-					if(page.getCondition().getMode() != null) {
-						iterator.remove();
-					}
-				}
-			}
-		}
+//        List<ElcCourseTakeVo> list2 = listPage.getResult();
+//        if (CollectionUtil.isNotEmpty(list2)) {
+//			Iterator<ElcCourseTakeVo> iterator = list2.iterator();
+//			while (iterator.hasNext()) {
+//				ElcCourseTakeVo takeVo = iterator.next();
+//				page.getCondition().setStudentId(takeVo.getStudentId());
+//				page.getCondition().setTeachingClassCode(takeVo.getTeachingClassCode());
+//				List<ElcLog> listLogs = elcLogDao.getElectionLog(page.getCondition());
+//				if (CollectionUtil.isNotEmpty(listLogs)) {
+//					takeVo.setElectionMode(listLogs.get(0).getMode());
+//				}else {
+//					if(page.getCondition().getMode() != null) {
+//						iterator.remove();
+//					}
+//				}
+//			}
+//		}
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
     }
