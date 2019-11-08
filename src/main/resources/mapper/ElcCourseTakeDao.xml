@@ -489,6 +489,7 @@
         FROM `elc_course_takes_t` el
         LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
         where el.TEACHING_CLASS_ID_= #{id,jdbcType=BIGINT}
+        order by el.STUDENT_ID_
     </select>
 
     <select id="findClassTimeAndRoom" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -1724,6 +1725,23 @@
         <foreach item="item" collection="list" separator="," open="(" close=")">
             #{item}
         </foreach>
+        group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
+        order by t1.DAY_OF_WEEK_,t1.TIME_START_
+    </select>
+
+    <select id="findCourseArrangeBk" resultType="com.server.edu.election.dto.TimeTableMessage">
+        select
+        t0.ID_ teachingClassId,t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
+        t2.ROOM_ID_ roomId,GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
+        from teaching_class_t t0
+        join teaching_class_arrange_time_t t1 on t1.TEACHING_CLASS_ID_ = t0.ID_
+        join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
+        where
+        t0.ID_ in
+        <foreach item="item" collection="list" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        and t0.DEPLOY_FLAG_ &gt; 0
         group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
         order by t1.DAY_OF_WEEK_,t1.TIME_START_
     </select>
