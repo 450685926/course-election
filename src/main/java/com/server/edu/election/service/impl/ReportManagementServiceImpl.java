@@ -894,8 +894,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<Long> ids = studentTable.stream()
                 .map(StudnetTimeTable::getTeachingClassId)
                 .collect(Collectors.toList());
+            Map<String, String> compulsoryMap = new HashMap<>();
             List<PlanCourseTypeDto> planCourseTypeDtos = CultureSerivceInvoker.findPlanCourseTabBk(studentCode);
-            Map<String, String> compulsoryMap = planCourseTypeDtos.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, PlanCourseTypeDto::getCompulsory));
+            // 培养那边拿不到数据会返回null，也可能是空集合
+            if (CollectionUtil.isNotEmpty(planCourseTypeDtos)) {
+                compulsoryMap = planCourseTypeDtos.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, PlanCourseTypeDto::getCompulsory));
+
+            }
             for (StudnetTimeTable studnetTimeTable : studentTable)
             {
                 String courseCode = studnetTimeTable.getCourseCode();
