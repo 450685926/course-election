@@ -251,6 +251,13 @@ public interface ElcCourseTakeDao
      */
     List<TimeTableMessage> findCourseArrange(@Param("list") List<Long> list);
 
+    /**
+     * 本科生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
+     * @param list
+     * @return
+     */
+    List<TimeTableMessage> findCourseArrangeBk(@Param("list") List<Long> list);
+
     /**研究生查询教师课程安排*/
     List<TimeTableMessage> findTeachingArrange(@Param("teachingClassIds") Set<Long> ids, @Param("teacherCode") String teacherCode);
 
