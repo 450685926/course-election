@@ -440,13 +440,21 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                 try {
                 for (PropertySheetDto propertySheetDto : SheetDto) {
                     String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
-                    String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
                     propertySheetDto.setFaculty(s);
-                    propertySheetDto.setCampus(campus);
                 }
-                    SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                    String fullName = calendarVo.getFullName();
-                    Map<String, List<PropertySheetDto>> sheetMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus));
+                SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                String fullName = calendarVo.getFullName();
+                Map<String, List<PropertySheetDto>> sheetMaps = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus,TreeMap::new,Collectors.toList()));
+
+                List<Map<String, Object>> sheetMap = new ArrayList<>();
+                for (String s : sheetMaps.keySet()) {
+                    Map<String, Object> mapStr = new HashMap<>();
+                    String campus = dictionaryService.query("X_XQ", s, SessionUtils.getLang());
+                    List<PropertySheetDto> propertySheetDtos = sheetMaps.get(s);
+                    mapStr.put("campus",campus);
+                    mapStr.put("list",propertySheetDtos);
+                    sheetMap.add(mapStr);
+                }
                 Map<String,Object> map = new HashMap<>();
                 String title = fullName+"研究生考试安排表";
                 map.put("sheetMap",sheetMap);
@@ -498,25 +506,25 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                 for (PropertySheetDto propertySheetDto : SheetDto) {
                     Date examDate = propertySheetDto.getExamDate();
-                    String day = getDay(examDate);
+                    String str = getDay(examDate);
                     String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
-                    String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
                     propertySheetDto.setFaculty(s);
-                    propertySheetDto.setCampus(campus);
-                    propertySheetDto.setDay(day);
+                    propertySheetDto.setDay(str.split(",")[1]);
+                    propertySheetDto.setDayStr(str.split(",")[0]);
                 }
                 SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 String fullName = calendarVo.getFullName();
                 String title = fullName+"研究生考试巡考工作安排表";
-                Map<String, List<PropertySheetDto>> dayMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getDay));
+                Map<String, List<PropertySheetDto>> dayMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getDayStr,TreeMap::new,Collectors.toList()));
                 List<Map<String,Object>> listSheet = new ArrayList<>();
-                for (String day : dayMap.keySet()) {
-                    List<PropertySheetDto> propertySheetDtos = dayMap.get(day);
-                    Map<String, List<PropertySheetDto>> campusMap = propertySheetDtos.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus));
-                    for (String campus : campusMap.keySet()) {
+                for (String days : dayMap.keySet()) {
+                    List<PropertySheetDto> propertySheetDtos = dayMap.get(days);
+                    Map<String, List<PropertySheetDto>> campusMap = propertySheetDtos.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus,TreeMap::new,Collectors.toList()));
+                    for (String campusCode : campusMap.keySet()) {
                         Map<String,Object> map = new HashMap<>();
-                        List<PropertySheetDto> list = campusMap.get(campus);
-                        map.put("day",day);
+                        List<PropertySheetDto> list = campusMap.get(campusCode);
+                        String campus = dictionaryService.query("X_XQ", campusCode, SessionUtils.getLang());
+                        map.put("day",list.get(0).getDay());
                         map.put("campus",campus);
                         map.put("dto",list.get(0));
                         map.put("list",list.subList(1,list.size()));
@@ -599,10 +607,14 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
     }
 
     private String getDay(Date examDate){
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String dateStr = format.format(examDate);
         Calendar cal = Calendar.getInstance();
         cal.setTime(examDate);
         String day = String.valueOf(cal.get(Calendar.DAY_OF_MONTH));
-        return day;
+        return dateStr+","+day;
+
     }
 
 
