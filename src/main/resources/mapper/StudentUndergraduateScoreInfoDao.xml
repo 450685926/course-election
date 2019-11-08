@@ -45,8 +45,7 @@
              GRADE_POINT_ greadePoint,
              IS_PASS_ isPass,
              TEARCHER_CODE teacherId,
-             TEARCHER_NAME_ teacherName,
-             ${calendarId} calendarId
+             TEARCHER_NAME_ teacherName
          FROM student_undergraduate_score_info_t
          <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
