@@ -1705,6 +1705,22 @@
         and ec.CALENDAR_ID_ = #{calendarId}
         and ec.COURSE_CODE_ = #{courseCode}
     </select>
+    
+    <select id="findBkTeachClass" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+        SELECT
+                ec.TEACHING_CLASS_ID_ teachClassId,
+				tc.CODE_ teachClassCode,
+				tc.NAME_ teachClassName,
+				tc.REMARK_ remark,
+				te.TEACHER_NAME_ teacherName
+        FROM elc_course_takes_t_${index} ec
+		left join teaching_class_t tc on ec.TEACHING_CLASS_ID_ = tc.ID_
+		left join teaching_class_teacher_t te on ec.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_ and te.TYPE_ = 0
+        WHERE
+        ec.STUDENT_ID_ = #{studentId}
+        and ec.CALENDAR_ID_ = #{calendarId}
+        and ec.COURSE_CODE_ = #{courseCode}
+    </select>
 
     <select id="findElcCourseTakeByStudentId" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
         select
