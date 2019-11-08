@@ -1523,9 +1523,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
         String compulsory = timeTable.getCompulsory();
         if ("1".equals(compulsory))
         {
-            list.add("选修");
-        } else {
             list.add("必修");
+        } else {
+            list.add("选修");
         }
         String assessmentMode = timeTable.getAssessmentMode();
         if (assessmentMode != null) {
@@ -1608,9 +1608,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
         String compulsory = timeTable.getCompulsory();
         if ("1".equals(compulsory))
         {
-            list.add("选修");
-        } else {
             list.add("必修");
+        } else {
+            list.add("选修");
         }
         String assessmentMode = timeTable.getAssessmentMode();
         if (assessmentMode != null) {
