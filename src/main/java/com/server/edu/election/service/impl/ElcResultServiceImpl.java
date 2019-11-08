@@ -634,6 +634,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
 			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
+			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumber = elcResultCountDao.getElcNumber(condition);
 			for (ElcResultDto elcResultDto : elcResultList) {
 				
@@ -672,6 +673,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		}else{
 			//从学院维度查询
 			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
+			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
 			for (ElcResultDto elcResultDto : eleResultByFacultyList) {
 				//该学院该专业查询条件
