@@ -1838,7 +1838,7 @@
 --         if(t2.ID_ is null,
 --         (if(rc.IS_CHARGE_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0)),
 --         t2.AMOUNT_)	AMOUNT_
-        if(rc.IS_CHARGE_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0)) AMOUNT_
+        if(rc.IS_CHARGE_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0) AMOUNT_
         FROM
         elc_course_takes_t t1
         left JOIN elc_bills_t t2
