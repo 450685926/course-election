@@ -37,13 +37,17 @@
              SEMESTER_ semester,
              STUDENT_NUM_  studentId,
              STUDENT_NAME_ studentName,
+             COURSE_NUM_ teachingClassCode,
              COURSE_CODE_  courseCode,
              COURSE_NAME_  courseName,
              EXAM_WAY_ examType,
              CREDIT_ credit,
              SCORE_ finalScore,
              GRADE_POINT_ greadePoint,
-             IS_PASS_ isPass,
+             case IS_PASS_ 
+             when 'Y' then 1
+             else 0 end 
+             isPass,
              TEARCHER_CODE teacherId,
              TEARCHER_NAME_ teacherName
          FROM student_undergraduate_score_info_t
