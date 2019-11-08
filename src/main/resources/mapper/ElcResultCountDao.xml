@@ -101,7 +101,7 @@
 	  		(SELECT 
 	  			STUDENT_ID_
 			FROM 
-				elc_course_takes_t t2 
+				elc_course_takes_t_${index} t2 
 			WHERE 
 				CALENDAR_ID_ = #{query.calendarId} 
 				GROUP BY t2.STUDENT_ID_) t3
@@ -194,7 +194,7 @@
 	  		(SELECT 
 	  			STUDENT_ID_
 			FROM 
-				elc_course_takes_t t2 
+				elc_course_takes_t_${index} t2 
 			WHERE 
 				CALENDAR_ID_ = #{query.calendarId} 
 				GROUP BY t2.STUDENT_ID_) t3
@@ -277,7 +277,7 @@
 				SELECT 
 					t1.COURSE_CODE_
 		  		FROM 
-		  			elc_course_takes_t t1
+		  			elc_course_takes_t_${index} t1
 		  		LEFT JOIN  student_t t2
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
@@ -314,7 +314,7 @@
 				SELECT 
 					t1.ID_
 		  		FROM 
-		  			election_log_t t1
+		  			election_log_t_${index} t1
 		  		LEFT JOIN  student_t t2
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
@@ -350,7 +350,7 @@
 				SELECT 
 					t1.COURSE_CODE_
 		  		FROM 
-		  			elc_course_takes_t t1
+		  			elc_course_takes_t_${index} t1
 		  		LEFT JOIN  student_t t2
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
@@ -387,7 +387,7 @@
 				SELECT 
 					t1.*
 		  		FROM 
-		  			election_log_t t1
+		  			election_log_t_${index} t1
 		  		LEFT JOIN  student_t t2
 		 		ON 
 		 		t1.STUDENT_ID_ = t2.STUDENT_CODE_
