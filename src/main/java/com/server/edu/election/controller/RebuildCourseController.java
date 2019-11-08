@@ -363,7 +363,6 @@ public class RebuildCourseController
     @ApiOperation(value = "缴费订单单条查询")
     @GetMapping("payDetail/{id}")
     public RestResult<?> payDetailById(@PathVariable("id") @NotNull Long id) {
-        String studentCode = SessionUtils.getCurrentSession().realUid();
         List<StudentRePaymentDto> result = service.payDetailById(id);
         return RestResult.successData(result);
     }

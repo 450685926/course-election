@@ -55,8 +55,7 @@
   </select>
 
   <select id="payDetailById" resultType="com.server.edu.election.dto.StudentRePaymentDto">
-      SELECT
-        SELECT
+          SELECT
           eb.ID_ billId,
           ec.COURSE_CODE_ courseCode,
           ct.NAME_ courseName,
