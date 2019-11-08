@@ -894,8 +894,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<Long> ids = studentTable.stream()
                 .map(StudnetTimeTable::getTeachingClassId)
                 .collect(Collectors.toList());
+            List<PlanCourseTypeDto> planCourseTypeDtos = CultureSerivceInvoker.findPlanCourseTabBk(studentCode);
+            Map<String, String> compulsoryMap = planCourseTypeDtos.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, PlanCourseTypeDto::getCompulsory));
             for (StudnetTimeTable studnetTimeTable : studentTable)
             {
+                String courseCode = studnetTimeTable.getCourseCode();
+                String compulsory = compulsoryMap.get(courseCode);
+                studnetTimeTable.setCompulsory(compulsory);
                 List<TimeTableMessage> tableMessages = teacherLessonTableServiceServiceImpl.getTimeById(ids);
                 if (CollectionUtil.isNotEmpty(tableMessages))
                 {
@@ -1510,12 +1515,12 @@ public class ReportManagementServiceImpl implements ReportManagementService
         list.add(timeTable.getCourseCode());
         list.add(timeTable.getCourseName());
         list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
-        Integer isElective = timeTable.getIsElective();
-        if (isElective != null)
+        String compulsory = timeTable.getCompulsory();
+        if ("1".equals(compulsory))
         {
-            list.add(isElective == 1 ? "选修" : "必修");
+            list.add("选修");
         } else {
-            list.add("");
+            list.add("必修");
         }
         String assessmentMode = timeTable.getAssessmentMode();
         if (assessmentMode != null) {
@@ -1595,14 +1600,13 @@ public class ReportManagementServiceImpl implements ReportManagementService
         list.add(timeTable.getCourseCode());
         list.add(timeTable.getCourseName());
         list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
-//        Integer isElective = timeTable.getIsElective();
-//        if (isElective != null)
-//        {
-//            list.add(isElective == 1 ? "选修" : "必修");
-//        } else {
-//            list.add("");
-//        }
-        list.add("选修");
+        String compulsory = timeTable.getCompulsory();
+        if ("1".equals(compulsory))
+        {
+            list.add("选修");
+        } else {
+            list.add("必修");
+        }
         String assessmentMode = timeTable.getAssessmentMode();
         if (assessmentMode != null) {
             assessmentMode = dictionaryService.query("X_KSLX", assessmentMode);
