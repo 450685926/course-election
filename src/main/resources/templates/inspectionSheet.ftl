@@ -9,7 +9,7 @@
   <Author>Bear_Xiong</Author>
   <LastAuthor>Bear_Xiong</LastAuthor>
   <Created>2015-06-05T18:19:34Z</Created>
-  <LastSaved>2019-10-14T02:25:28Z</LastSaved>
+  <LastSaved>2019-11-08T08:03:26Z</LastSaved>
   <Version>16.00</Version>
  </DocumentProperties>
  <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
@@ -18,8 +18,8 @@
  <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
   <WindowHeight>12645</WindowHeight>
   <WindowWidth>22260</WindowWidth>
-  <WindowTopX>32760</WindowTopX>
-  <WindowTopY>32760</WindowTopY>
+  <WindowTopX>32767</WindowTopX>
+  <WindowTopY>32767</WindowTopY>
   <ProtectStructure>False</ProtectStructure>
   <ProtectWindows>False</ProtectWindows>
  </ExcelWorkbook>
@@ -32,12 +32,12 @@
    <NumberFormat/>
    <Protection/>
   </Style>
-  <Style ss:ID="s62">
-   <Alignment ss:Horizontal="Left" ss:Vertical="Bottom"/>
+  <Style ss:ID="s63">
+   <Alignment ss:Vertical="Bottom" ss:WrapText="1"/>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s64">
-   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+  <Style ss:ID="s73">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom" ss:WrapText="1"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
     <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -46,8 +46,8 @@
    </Borders>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s66">
-   <Alignment ss:Horizontal="Left" ss:Vertical="Bottom"/>
+  <Style ss:ID="s74">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom" ss:WrapText="1"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
     <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -56,8 +56,18 @@
    </Borders>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s68">
-   <Alignment ss:Horizontal="Left" ss:Vertical="Center"/>
+  <Style ss:ID="s75">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Center" ss:WrapText="1"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <NumberFormat ss:Format="@"/>
+  </Style>
+  <Style ss:ID="s76">
+   <Alignment ss:Vertical="Bottom" ss:WrapText="1"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
     <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -69,53 +79,50 @@
  </Styles>
  <Worksheet ss:Name="Sheet1">
   <Table ss:ExpandedColumnCount="8"  x:FullColumns="1"
-   x:FullRows="1" ss:StyleID="s62" ss:DefaultColumnWidth="54"
-   ss:DefaultRowHeight="14.25">
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="78.75"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="136.5"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="94.5"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="138"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="209.25"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="68.25"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="106.5"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="87.75"/>
+   x:FullRows="1" ss:StyleID="s63" ss:DefaultColumnWidth="54">
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="96"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="142.5" ss:Span="2"/>
+   <Column ss:Index="5" ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="210"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="67.5"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="106.5"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="132"/>
    <Row>
-    <Cell ss:MergeAcross="7" ss:StyleID="s64"><Data ss:Type="String">${title}</Data></Cell>
+    <Cell ss:MergeAcross="7" ss:StyleID="s73"><Data ss:Type="String">${title}</Data></Cell>
    </Row>
    <Row>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">校区</Data></Cell>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">开课院系</Data></Cell>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">课程代码</Data></Cell>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">课程名称</Data></Cell>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">考试时间</Data></Cell>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">考试人数</Data></Cell>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">教室名称</Data></Cell>
-    <Cell ss:StyleID="s64"><Data ss:Type="String">监考老师</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">校区</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">开课学院</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">课程代码</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">课程名称</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">考试时间</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">考试人数</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">教室名称</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">监考老师</Data></Cell>
    </Row>
 <#list listSheet as item>
    <Row>
-    <Cell ss:MergeDown="${item["rowNumber"]}" ss:StyleID="s68"><Data ss:Type="String">${item["campus"]}(${item["day"]}号)</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${item["dto"].faculty}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${item["dto"].courseCode}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${item["dto"].courseName}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${item["dto"].examTime?default("")}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${item["dto"].roomNumber?default("")}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${item["dto"].roomName?default("")}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${item["dto"].teacherName?default("")}</Data></Cell>
+    <Cell ss:MergeDown="${item["rowNumber"]}" ss:StyleID="s75"><Data ss:Type="String">${item["campus"]}(${item["day"]}号)</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${item["dto"].faculty?replace(",","&#x000A;")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${item["dto"].courseCode?replace(",","&#x000A;")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${item["dto"].courseName?replace(",","&#x000A;")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${item["dto"].examTime?default("")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${item["dto"].roomNumber?default("")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${item["dto"].roomName?default("")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${item["dto"].teacherName?default("")}</Data></Cell>
    </Row>
-<#if item["list"]?size gt 0 >
-<#list item["list"] as myItem>
+ <#if item["list"]?size gt 0 >
+  <#list item["list"] as myItem>
    <Row>
-    <Cell ss:Index="2" ss:StyleID="s66"><Data ss:Type="String">${myItem.faculty}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${myItem.courseCode}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${myItem.courseName}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${myItem.examTime?default("")}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${myItem.roomNumber?default("")}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${myItem.roomName?default("")}</Data></Cell>
-    <Cell ss:StyleID="s66"><Data ss:Type="String">${myItem.teacherName?default("")}</Data></Cell>
+    <Cell ss:Index="2" ss:StyleID="s76"><Data ss:Type="String">${myItem.faculty}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.courseCode}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.courseName}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.examTime?default("")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.roomNumber?default("")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.roomName?default("")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.teacherName?default("")}</Data></Cell>
    </Row>
 </#list>
-</#if>
+  </#if>
 </#list>
   </Table>
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
@@ -127,15 +134,15 @@
    <Print>
     <ValidPrinterInfo/>
     <PaperSizeIndex>9</PaperSizeIndex>
-    <HorizontalResolution>600</HorizontalResolution>
-    <VerticalResolution>600</VerticalResolution>
+    <HorizontalResolution>300</HorizontalResolution>
+    <VerticalResolution>300</VerticalResolution>
    </Print>
    <Selected/>
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveRow>9</ActiveRow>
-     <ActiveCol>1</ActiveCol>
+     <ActiveRow>10</ActiveRow>
+     <ActiveCol>7</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>

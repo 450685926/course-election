@@ -267,7 +267,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      * @date: 2019/2/13 16:19
      */
     @Override
-
     public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
@@ -840,6 +839,34 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         Example example = new Example(ElcCourseTake.class);
         example.createCriteria().andIn("id",ids);
         courseTakeDao.updateByExampleSelective(courseTake,example);
+    }
+
+    /**
+     * @Description: 缴费订单查看
+     * @author kan yuanfeng
+     * @date 2019/11/7 16:34
+     */
+    @Override
+    public PageResult<StudentRePaymentDto> payDetail(PageCondition<StudentRePaymentDto> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
+        Page<StudentRePaymentDto> page =  (Page<StudentRePaymentDto>)elcBillDao.payDetail(condition.getCondition());
+        return new PageResult<>(page);
+    }
+
+    /**
+     * @Description: 缴费订单查看(订单id)
+     * @author kan yuanfeng
+     * @date 2019/11/7 16:34
+     */
+    @Override
+    public List<StudentRePaymentDto> payDetailById(Long id) {
+        ElcBill elcBill = elcBillDao.selectByPrimaryKey(id);
+        StudentRePaymentDto dto = new StudentRePaymentDto();
+        dto.setBillId(id);
+        dto.setIndex(TableIndexUtil.getIndex(elcBill.getCalendarId()));
+        List<StudentRePaymentDto> studentRePaymentDtos = elcBillDao.payDetailById(dto);
+        return studentRePaymentDtos;
     }
 
     private GeneralExcelDesigner getDesignByStuId() {

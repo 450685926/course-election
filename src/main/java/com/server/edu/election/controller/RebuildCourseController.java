@@ -349,4 +349,21 @@ public class RebuildCourseController
         service.payResult(rebuildCourseNoChargeLists);
         return RestResult.success();
     }
+
+    @ApiOperation(value = "缴费订单查看")
+    @PostMapping("payDetail")
+    public RestResult<PageResult<StudentRePaymentDto>> payDetail(@RequestBody PageCondition<StudentRePaymentDto> condition) {
+        Assert.notNull(condition.getCondition().getCalendarId(),"common.parameterError");
+        String studentCode = SessionUtils.getCurrentSession().realUid();
+        condition.getCondition().setStudentCode(studentCode);
+        PageResult<StudentRePaymentDto> result = service.payDetail(condition);
+        return RestResult.successData(result);
+    }
+
+    @ApiOperation(value = "缴费订单单条查询")
+    @GetMapping("payDetail/{id}")
+    public RestResult<?> payDetailById(@PathVariable("id") @NotNull Long id) {
+        List<StudentRePaymentDto> result = service.payDetailById(id);
+        return RestResult.successData(result);
+    }
 }

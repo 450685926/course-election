@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -374,6 +375,17 @@ public class CultureSerivceInvoker
             }
         }
         return result;
+    }
+
+    /**查询本科生必选修字段查询*/
+    public static List<PlanCourseTypeDto> findPlanCourseTabBk(String studentId)
+    {
+        @SuppressWarnings("unchecked")
+        List<PlanCourseTypeDto> list = ServicePathEnum.CULTURESERVICE
+                .getForObject("/bclCulturePlan/findPlanCourseTabBk?studentId={studentId}",
+                        List.class,
+                        studentId);
+        return list;
     }
 
 }
