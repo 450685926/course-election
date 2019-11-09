@@ -40,17 +40,10 @@
         and (t1.OPERATOR_CODE_ like concat('%',#{operator},'%') or t1.OPERATOR_NAME_ like concat('%',#{operator},'%') )
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(operatorStratTime)">
-        <![CDATA[ and t1.CREATE_AT_ >= #{operatorStratTime} ]]>
+        <![CDATA[ and DATE_FORMAT(t1.CREATE_AT_,'%Y-%m-%d') = DATE_FORMAT(#{operatorStratTime},'%Y-%m-%d')]]>
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(operatorEndTime)">
-        <![CDATA[ and t1.CREATE_AT_ <= #{operatorEndTime} ]]>
-      </if>
-
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examStartTime)">
-        <![CDATA[ and t2.EXAM_DATE_ >= #{examStartTime} ]]>
-      </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examEndTime)">
-        <![CDATA[ and t2.EXAM_DATE_ <= #{examEndTime} ]]>
+        <![CDATA[ and DATE_FORMAT(t2.EXAM_DATE_,'%Y-%m-%d') = DATE_FORMAT(#{examStartTime},'%Y-%m-%d')]]>
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projId)">
         and t2.PROJ_ID_ = #{projId}
