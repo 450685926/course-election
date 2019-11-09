@@ -50,6 +50,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
@@ -285,7 +286,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setCalendarId(calendarId);
                 if (calendarId != null) {
-                    List<TeachingClassCache> tcList = elcCourseTakeDao.findTeachClass(studentId, calendarId, courseCode);
+                	Integer index =TableIndexUtil.getIndex(dto.getCalendarId());
+                    List<TeachingClassCache> tcList = elcCourseTakeDao.findBkTeachClass(studentId, calendarId, courseCode,index);
                     if (CollectionUtil.isNotEmpty(tcList)) {
                         Set<String> names = tcList.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
                         lesson.setTeacherName(String.join(",", names));
@@ -298,7 +300,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         teachClassIds.add(teachClassId);
                     }
                 }
-                
                 c.setCourse(lesson);
                 c.setScore(studentScore.getFinalScore());
                 boolean excellent = false;

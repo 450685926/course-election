@@ -29,7 +29,8 @@
   </resultMap>
   <select id="selectCourseList" parameterType="com.server.edu.election.entity.CourseOpen" resultMap="affinityMap">
 		SELECT
-			t1.ID_,
+			DISTINCT
+			<!-- t1.ID_, -->
 			t2.ID_ courseId,
 			t1.COURSE_CODE_,
 			t1.COURSE_NAME_,

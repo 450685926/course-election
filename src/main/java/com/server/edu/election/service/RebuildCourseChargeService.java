@@ -87,5 +87,14 @@ public interface RebuildCourseChargeService {
      * @date 2019/11/7 9:22
      */
     void payCallback(JSONObject jsonObject);
+
+    /**
+     * @Description: 缴费订单查看
+     * @author kan yuanfeng
+     * @date 2019/11/7 16:34
+     */
+    PageResult<StudentRePaymentDto> payDetail(PageCondition<StudentRePaymentDto> condition);
+
+    List<StudentRePaymentDto> payDetailById(Long id);
 }
 

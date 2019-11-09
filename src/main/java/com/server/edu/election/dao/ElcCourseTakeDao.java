@@ -3,15 +3,32 @@ package com.server.edu.election.dao;
 import java.util.List;
 import java.util.Set;
 
-import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.Course;
-import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
+import com.server.edu.election.dto.ClassCodeToTeacher;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseLimitDto;
+import com.server.edu.election.dto.ElcMedWithdrawDto;
+import com.server.edu.election.dto.ElcStudentCourseDto;
+import com.server.edu.election.dto.ElcStudentDto;
+import com.server.edu.election.dto.LoserStuElcCourse;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
+import com.server.edu.election.dto.PayResultDto;
+import com.server.edu.election.dto.RebuildCourseDto;
+import com.server.edu.election.dto.ReportManagementCondition;
+import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StudentRePaymentDto;
+import com.server.edu.election.dto.StudentRebuildFeeDto;
+import com.server.edu.election.dto.StudentSchoolTimetab;
+import com.server.edu.election.dto.StudnetTimeTable;
+import com.server.edu.election.dto.TeacherTimeTable;
+import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
@@ -243,6 +260,9 @@ public interface ElcCourseTakeDao
     List<TeachingClassCache> findTeachClass(@Param("studentId") String studentId, @Param("calendarId") Long calendarId, @Param("courseCode") String courseCode);
 
 
+    /**本科生已完成课程信息查询*/
+    List<TeachingClassCache> findBkTeachClass(@Param("studentId") String studentId, @Param("calendarId") Long calendarId, @Param("courseCode") String courseCode,@Param("index") Integer index);
+    
     List<ElcCourseTakeVo> findElcCourseTakeByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
     /**
      * 研究生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
@@ -250,6 +270,13 @@ public interface ElcCourseTakeDao
      * @return
      */
     List<TimeTableMessage> findCourseArrange(@Param("list") List<Long> list);
+
+    /**
+     * 本科生查询学生课程安排，比较课程安排是否冲突使用,不区分老师
+     * @param list
+     * @return
+     */
+    List<TimeTableMessage> findCourseArrangeBk(@Param("list") List<Long> list);
 
     /**研究生查询教师课程安排*/
     List<TimeTableMessage> findTeachingArrange(@Param("teachingClassIds") Set<Long> ids, @Param("teacherCode") String teacherCode);

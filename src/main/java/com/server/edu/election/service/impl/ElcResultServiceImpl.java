@@ -634,6 +634,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
 			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
+			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumber = elcResultCountDao.getElcNumber(condition);
 			for (ElcResultDto elcResultDto : elcResultList) {
 				
@@ -647,6 +648,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setFaculty(condition.getFaculty() == null ? "" : condition.getFaculty());
 				query.setEnrolSeason(condition.getEnrolSeason()  == null ? "" : condition.getEnrolSeason());
 				query.setCalendarId(condition.getCalendarId());
+				query.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 				query.setManagerDeptId(condition.getManagerDeptId());
 				query.setDegreeType(elcResultDto.getDegreeType() == null ? "" : elcResultDto.getDegreeType());
 				query.setFormLearning(elcResultDto.getFormLearning() == null ? "" : elcResultDto.getFormLearning());
@@ -671,6 +673,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		}else{
 			//从学院维度查询
 			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
+			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
 			for (ElcResultDto elcResultDto : eleResultByFacultyList) {
 				//该学院该专业查询条件
@@ -688,6 +691,7 @@ public class ElcResultServiceImpl implements ElcResultService
 				query.setTrainingCategory(condition.getTrainingCategory() == null ? "" : condition.getTrainingCategory());
 				query.setTrainingLevel(condition.getTrainingLevel() == null ? "" : condition.getTrainingLevel());
 				query.setCalendarId(condition.getCalendarId());
+				query.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 				query.setManagerDeptId(condition.getManagerDeptId());
 				
 				//根据条件查询查询已将选课学生人数

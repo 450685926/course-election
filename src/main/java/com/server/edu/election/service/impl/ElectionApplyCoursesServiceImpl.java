@@ -167,7 +167,7 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 		List<ElectionApplyCourses> electionApplyCourses = electionApplyCoursesDao.selectByExample(example);
 		if (CollectionUtil.isNotEmpty(electionApplyCourses)) {
 			Set<String> collect = electionApplyCourses.stream().map(ElectionApplyCourses::getCourseCode).collect(Collectors.toSet());
-			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg(String.join(",", courseCodes))));
+			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg(String.join(",", collect))));
 		}
 		int result = electionApplyCoursesDao.insertList(list);
 		if(result<=Constants.ZERO) {

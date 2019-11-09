@@ -49,8 +49,7 @@ public class CourseOpenDto extends CourseOpen
     private String teachingClassRemark;
     
     private Long courseLabelId;
-    
-    @Code2Text(translator=TeacherTranslator.class)
+    @Code2Text(translator=TeacherTranslator.class,dataType = Code2Text.DataType.SPLIT)
     private String teacherCode;
     //教学班预留人数
     private Integer reserveNumber;
