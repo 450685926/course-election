@@ -324,7 +324,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Integer roomCapacity = examRoom.getRoomCapacity();
         List<GraduateExamMonitorTeacher> graduateExamMonitorTeacherList = monitorTeacherDao.checkTeacherNumber(roomCapacity, dptId);
         if(CollectionUtil.isEmpty(graduateExamMonitorTeacherList)){
-            throw new ParameterValidateException("请先去监考老师数量设置页面设置相应的监考老师数量");
+            throw new ParameterValidateException("请联系管理员在监考老师设置页面设置监考老师人数");
         }
         GraduateExamMonitorTeacher monitorTeacher = graduateExamMonitorTeacherList.get(0);
         Integer teacherNumber = monitorTeacher.getTeacherNumber();
