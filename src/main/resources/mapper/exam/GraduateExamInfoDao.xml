@@ -501,7 +501,7 @@
       JOIN graduate_exam_info_room_t t ON i.ID_ = t.EXAM_INFO_ID_
       JOIN graduate_exam_room_t r ON r.ID_ = t.EXAM_ROOM_ID_
 	  WHERE
-          i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType}
+          i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType} and i.PROJ_ID_ = #{projId}
     </select>
 
     <select id="checkPublicExamTimeSame" parameterType="com.server.edu.exam.entity.GraduateExamInfo" resultMap="BaseResultMap">

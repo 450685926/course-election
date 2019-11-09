@@ -19,10 +19,7 @@ import com.server.edu.election.vo.RollBookList;
 import com.server.edu.exam.dao.GraduateExamInfoDao;
 import com.server.edu.exam.dao.GraduateExamRoomDao;
 import com.server.edu.exam.dao.GraduateExamStudentDao;
-import com.server.edu.exam.dto.ExportExamInfoDto;
-import com.server.edu.exam.dto.ExportStuDto;
-import com.server.edu.exam.dto.GraduateTeachingClassDto;
-import com.server.edu.exam.dto.PropertySheetDto;
+import com.server.edu.exam.dto.*;
 import com.server.edu.exam.entity.GraduateExamRoom;
 import com.server.edu.exam.query.GraduateExamMessageQuery;
 import com.server.edu.exam.service.GraduateExamMessageService;
@@ -209,7 +206,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
     @Override
     public ExcelResult exportCheckTable(Long calendarId,Integer examType,String calendarName) {
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType);
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId);
         String key = "exportCheckTableZip";
         int total = examRoomIds.size();
         ExcelResult rs = new ExcelResult();
@@ -560,7 +558,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
     @Override
     public ExcelResult exportCheckTableFreemarker(Long calendarId, Integer examType, String calendarName) {
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType);
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId);
         String key = "exportCheckTableFreemarkerZip";
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);
@@ -698,14 +697,23 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
         }
 
-        GraduateExamRoom item = roomDao.getExamRoomNumber(examRoomId);
+
+        List<ExamRoomDto> examRoomNumber = roomDao.getExamRoomCampus(examRoomId);
+        StringBuilder stringBuilder = new StringBuilder();
+        if(CollectionUtil.isNotEmpty(examRoomNumber)){
+            ExamRoomDto examRoomDto = examRoomNumber.get(0);
+            String s = examRoomDto.getCampus();
+            String roomName = examRoomDto.getRoomName();
+            String campus = dictionaryService.query("X_XQ", s, SessionUtils.getLang());
+            for (ExamRoomDto roomDto : examRoomNumber) {
+                stringBuilder.append(String.format("%s(%s)_", roomDto.getCourseName(),roomDto.getCourseCode()));
+            }
+            stringBuilder.append(campus).append("_").append(roomName).append(".xls");
+        }
 
         FileUtil.mkdirs(cacheDirectory);
         FileUtil.deleteFile(cacheDirectory, 2);
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        String dateNowStr = sdf.format(date);
-        String fileName =  "考场（"+item.getRoomName()+"）签到表("+dateNowStr+").xls";
+        String fileName =  stringBuilder.toString();
         String path = cacheDirectory + fileName;
         String title = "同济大学" + exportExamInfoDto.getCalendarName() + "研究生课程考试名单";
         Map<String,Object> myMap = new HashMap<>();
