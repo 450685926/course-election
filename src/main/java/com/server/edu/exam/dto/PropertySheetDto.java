@@ -25,6 +25,15 @@ public class PropertySheetDto extends GraduateExamRoom {
     private Long calendarId;
     private Date examDate;
     private String day;
+    private String dayStr;
+
+    public String getDayStr() {
+        return dayStr;
+    }
+
+    public void setDayStr(String dayStr) {
+        this.dayStr = dayStr;
+    }
 
     public String getDay() {
         return day;

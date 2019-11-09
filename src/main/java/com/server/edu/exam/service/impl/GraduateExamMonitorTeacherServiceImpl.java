@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.constants.DeleteStatus;
 import com.server.edu.exam.dao.GraduateExamMonitorTeacherDao;
 import com.server.edu.exam.entity.GraduateExamMonitorTeacher;
@@ -108,9 +109,10 @@ public class GraduateExamMonitorTeacherServiceImpl implements GraduateExamMonito
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         Example example = new Example(GraduateExamMonitorTeacher.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andLessThanOrEqualTo("studentMaxNumber",roomCapcity);
-        criteria.andGreaterThanOrEqualTo("studentMinNumber",roomCapcity);
+        criteria.andLessThanOrEqualTo("studentMinNumber",roomCapcity);
+        criteria.andGreaterThanOrEqualTo("studentMaxNumber",roomCapcity);
         criteria.andEqualTo("projId",dptId);
+        criteria.andEqualTo("deleteStatus", DeleteStatus.NOT_DELETE);
         List<GraduateExamMonitorTeacher> teachers = teacherDao.selectByExample(example);
         if(CollectionUtil.isNotEmpty(teachers)){
             GraduateExamMonitorTeacher monitorTeacher = teachers.get(0);

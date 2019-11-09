@@ -24,6 +24,24 @@ public class ExamRoomDto extends GraduateExamRoom {
     private Integer weekDay;
     private String examTime;
     private Long examRoomId;
+    private String courseCode;
+    private String courseName;
+
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
 
     public Integer getWeekNumber() {
         return weekNumber;
