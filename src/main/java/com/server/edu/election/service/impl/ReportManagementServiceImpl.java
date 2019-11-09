@@ -660,8 +660,8 @@ public class ReportManagementServiceImpl implements ReportManagementService
             }
             pre.setStudentsList(student);
             //星期多行展示
-            //pre.setSize(student.size());
-            pre.setSize(Constants.ONE);
+            pre.setSize(student.size());
+//            pre.setSize(Constants.ONE);
         }
         //        SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
         //        pre.setCalendarName(schoolCalendarVo.getFullName());

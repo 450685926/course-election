@@ -265,12 +265,17 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             List<Course> courses = elcCourseTakeDao.findCourses(courseCodes);
             Map<String, Course> map = courses.stream().collect(Collectors.toMap(Course::getCode, s -> s));
             List<Long> teachClassIds = new ArrayList<>();
+            List<SchoolCalendarVo> schoolCalendarVos = SchoolCalendarCacheUtil.getAll();
             for (ScoreStudentResultVo studentScore : stuScore)
             {
             	SchoolCalendar sc = new SchoolCalendar();
             	sc.setYear(studentScore.getAcademicYear().intValue());
             	sc.setTerm(studentScore.getSemester().intValue());
-            	SchoolCalendarVo schoolCalendarVo =SchoolCalendarCacheUtil.getSchoolCalendarVo(sc);
+            	SchoolCalendarVo schoolCalendarVo = new SchoolCalendarVo();
+            	if(CollectionUtil.isNotEmpty(schoolCalendarVos)) {
+            		schoolCalendarVo = schoolCalendarVos.stream().filter(c->c.getYear().equals(studentScore.getAcademicYear().intValue()))
+            				.filter(c->c.getTerm().equals(studentScore.getSemester().intValue())).findFirst().orElse(null);
+            	}
                 Long calendarId = schoolCalendarVo.getId();
                 String courseCode = studentScore.getCourseCode();
                 CompletedCourse c = new CompletedCourse();
@@ -403,8 +408,11 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     public Map<Long, List<ClassTimeUnit>> groupByTime(List<Long> teachClassIds)
     {
         Map<Long, List<ClassTimeUnit>> map = new HashMap<>();
+        List<TeacherClassTimeRoom> list = new ArrayList<>();
         //按周数拆分的选课数据集合
-        List<TeacherClassTimeRoom> list = classDao.getClassTimes(teachClassIds);
+        if(CollectionUtil.isNotEmpty(teachClassIds)) {
+        	list = classDao.getClassTimes(teachClassIds);
+        }
         if (CollectionUtil.isEmpty(list))
         {
             return map;
