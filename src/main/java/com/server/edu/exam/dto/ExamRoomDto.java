@@ -26,6 +26,15 @@ public class ExamRoomDto extends GraduateExamRoom {
     private Long examRoomId;
     private String courseCode;
     private String courseName;
+    private Long examInfoId;
+
+    public Long getExamInfoId() {
+        return examInfoId;
+    }
+
+    public void setExamInfoId(Long examInfoId) {
+        this.examInfoId = examInfoId;
+    }
 
     public String getCourseCode() {
         return courseCode;

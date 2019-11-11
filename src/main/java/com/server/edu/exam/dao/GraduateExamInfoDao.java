@@ -95,7 +95,7 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
     * @author bear
     * @date 2019/9/17 11:45
     */
-    List<ExamRoomDto> getExamRoomByExamInfoId(Long examInfoId);
+    List<ExamRoomDto> getExamRoomByExamInfoId(List<String> list);
 
     /**
      * 通过考场主键查询对应课程数

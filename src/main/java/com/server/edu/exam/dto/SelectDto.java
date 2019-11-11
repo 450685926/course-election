@@ -22,6 +22,15 @@ public class SelectDto implements Serializable {
     private Long examInfoId;
     private String campus;
     private List<String> facultys;
+    private String examInfoIds;
+
+    public String getExamInfoIds() {
+        return examInfoIds;
+    }
+
+    public void setExamInfoIds(String examInfoIds) {
+        this.examInfoIds = examInfoIds;
+    }
 
     public List<String> getFacultys() {
         return facultys;

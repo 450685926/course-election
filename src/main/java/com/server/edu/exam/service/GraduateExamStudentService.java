@@ -90,7 +90,7 @@ public interface GraduateExamStudentService {
     * @author bear
     * @date 2019/9/17 11:38
     */
-    List<ExamRoomDto> getExamRoomByExamInfoId(Long examInfoId);
+    List<ExamRoomDto> getExamRoomByExamInfoId(String examInfoId);
 
     /**
     * examSituation 考试情况 1 正常 2 缓考 3 补考 4 重修 5旷考

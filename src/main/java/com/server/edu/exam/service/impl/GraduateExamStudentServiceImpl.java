@@ -243,11 +243,12 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
     }
 
     @Override
-    public List<ExamRoomDto> getExamRoomByExamInfoId(Long examInfoId) {
-        if(examInfoId == null){
+    public List<ExamRoomDto> getExamRoomByExamInfoId(String examInfoIds) {
+        if(StringUtils.isBlank(examInfoIds)){
             throw new ParameterValidateException("入参有误");
         }
-        List<ExamRoomDto> list = examInfoDao.getExamRoomByExamInfoId(examInfoId);
+        List<String> ids = Arrays.asList(examInfoIds.split(","));
+        List<ExamRoomDto> list = examInfoDao.getExamRoomByExamInfoId(ids);
         return list;
     }
 
