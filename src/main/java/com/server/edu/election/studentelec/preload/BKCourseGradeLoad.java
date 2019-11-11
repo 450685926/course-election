@@ -291,7 +291,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setCalendarId(calendarId);
                 if (calendarId != null) {
-                	Integer index =TableIndexUtil.getIndex(dto.getCalendarId());
+                	Integer index =TableIndexUtil.getIndex(calendarId);
                     List<TeachingClassCache> tcList = elcCourseTakeDao.findBkTeachClass(studentId, calendarId, courseCode,index);
                     if (CollectionUtil.isNotEmpty(tcList)) {
                         Set<String> names = tcList.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
