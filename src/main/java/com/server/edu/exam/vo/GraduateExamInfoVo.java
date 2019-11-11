@@ -36,6 +36,17 @@ public class GraduateExamInfoVo extends GraduateExamInfo {
 
     private Integer mode;
 
+    /**合考添加课程使用*/
+    private List<String> courseCodes;
+
+    public List<String> getCourseCodes() {
+        return courseCodes;
+    }
+
+    public void setCourseCodes(List<String> courseCodes) {
+        this.courseCodes = courseCodes;
+    }
+
     public Integer getMode() {
         return mode;
     }

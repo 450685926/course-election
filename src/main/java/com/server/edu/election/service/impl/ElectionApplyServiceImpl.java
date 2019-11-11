@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
@@ -82,6 +84,71 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         return pageInfo;
     }
     
+
+	@Override
+	public PageResult<ElectionApplyVo> applyUnList(PageCondition<ElectionApplyDto> condition) {
+		ElectionApplyDto dto = condition.getCondition();
+		Page<ElectionApplyVo> applylist = electionApplyDao.applyUnList(dto);
+		Session session = SessionUtils.getCurrentSession();
+        if (CollectionUtil.isNotEmpty(applylist))
+        {
+            Example roundExample = new Example(ElectionRounds.class);
+            roundExample.setOrderByClause("BEGIN_TIME_ ASC");
+            Example.Criteria roundCriteria = roundExample.createCriteria();
+            roundCriteria.andEqualTo("calendarId", dto.getCalendarId());
+            roundCriteria.andEqualTo("projectId", dto.getProjectId());
+            roundCriteria.andEqualTo("electionObj", Constants.DEPART_ADMIN);
+            Date date = new Date();
+            roundCriteria.andGreaterThanOrEqualTo("beginTime", date);
+            roundCriteria.andLessThanOrEqualTo("endTime", date);
+            roundCriteria.andEqualTo("openFlag", Constants.ONE);
+            ElectionRounds electionRounds =
+                elecRoundsDao.selectOneByExample(roundExample);
+            for (ElectionApplyVo electionApplyVo : applylist)
+            {
+                electionApplyVo.setStatus(Constants.ZERO);
+                if (session.isAcdemicDean() || electionRounds != null)
+                {
+                    electionApplyVo.setStatus(Constants.ONE);
+                }
+            }
+        }
+        
+		return new PageResult<ElectionApplyVo>(applylist);
+	}
+
+
+	@Override
+	public PageResult<ElectionApplyVo> alreadyApplyList(PageCondition<ElectionApplyDto> condition) {
+		ElectionApplyDto dto = condition.getCondition();
+		Page<ElectionApplyVo> applylist = electionApplyDao.alreadyApplyList(dto);
+		Session session = SessionUtils.getCurrentSession();
+        if (CollectionUtil.isNotEmpty(applylist))
+        {
+            Example roundExample = new Example(ElectionRounds.class);
+            roundExample.setOrderByClause("BEGIN_TIME_ ASC");
+            Example.Criteria roundCriteria = roundExample.createCriteria();
+            roundCriteria.andEqualTo("calendarId", dto.getCalendarId());
+            roundCriteria.andEqualTo("projectId", dto.getProjectId());
+            roundCriteria.andEqualTo("electionObj", Constants.DEPART_ADMIN);
+            Date date = new Date();
+            roundCriteria.andGreaterThanOrEqualTo("beginTime", date);
+            roundCriteria.andLessThanOrEqualTo("endTime", date);
+            roundCriteria.andEqualTo("openFlag", Constants.ONE);
+            ElectionRounds electionRounds =
+                elecRoundsDao.selectOneByExample(roundExample);
+            for (ElectionApplyVo electionApplyVo : applylist)
+            {
+                electionApplyVo.setStatus(Constants.ZERO);
+                if (session.isAcdemicDean() || electionRounds != null)
+                {
+                    electionApplyVo.setStatus(Constants.ONE);
+                }
+            }
+        }
+        
+		return new PageResult<ElectionApplyVo>(applylist);
+	}
     
     @Override
 	public PageInfo<ElectionApplyVo> stuApplyCourseList(
@@ -262,4 +329,5 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         ElecContextUtil
             .setElecApplyCourse(studentId, electionApplys);
     }
+
 }

@@ -974,7 +974,7 @@ public class TeacherLessonTableServiceServiceImpl
                     teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
                 }
                 
-                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" "+roomID;
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
                 time.setDayOfWeek(dayOfWeek);
                 time.setTimeStart(timeStart);

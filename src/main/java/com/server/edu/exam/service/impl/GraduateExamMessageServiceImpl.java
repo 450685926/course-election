@@ -19,10 +19,7 @@ import com.server.edu.election.vo.RollBookList;
 import com.server.edu.exam.dao.GraduateExamInfoDao;
 import com.server.edu.exam.dao.GraduateExamRoomDao;
 import com.server.edu.exam.dao.GraduateExamStudentDao;
-import com.server.edu.exam.dto.ExportExamInfoDto;
-import com.server.edu.exam.dto.ExportStuDto;
-import com.server.edu.exam.dto.GraduateTeachingClassDto;
-import com.server.edu.exam.dto.PropertySheetDto;
+import com.server.edu.exam.dto.*;
 import com.server.edu.exam.entity.GraduateExamRoom;
 import com.server.edu.exam.query.GraduateExamMessageQuery;
 import com.server.edu.exam.service.GraduateExamMessageService;
@@ -209,7 +206,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
     @Override
     public ExcelResult exportCheckTable(Long calendarId,Integer examType,String calendarName) {
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType);
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId);
         String key = "exportCheckTableZip";
         int total = examRoomIds.size();
         ExcelResult rs = new ExcelResult();
@@ -310,6 +308,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -318,6 +317,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + i)).getFaculty());
@@ -332,6 +332,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -340,6 +341,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + 1 + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + 1 + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + 1 + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + 1 + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + 1 + i)).getFaculty());
@@ -352,9 +354,12 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                 exportStuDto.setOrder(list.get(divNum).getOrderStu());
                 exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassCode());
+                exportStuDto.setTeachingClassName(list.get(divNum).getTeachingClassName());
                 exportStuDto.setStudentCode(list.get(divNum).getStudentCode());
                 exportStuDto.setStudentName(list.get(divNum).getStudentName());
                 exportStuDto.setFaculty(list.get(divNum).getFaculty());
+                exportStuDto.setCourseCode(list.get(divNum).getCourseCode());
+                exportStuDto.setCourseName(list.get(divNum).getCourseName());
                 dataList.add(exportStuDto);
             }
 
@@ -375,7 +380,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
         design.setOverviews(strings);
         design.addCell("序号", "order");
-        design.addCell("教学班号", "teachingClassCode");
+        design.addCell("教学班号", "teachingClassName");
         design.addCell("学号", "studentCode");
         design.addCell("姓名", "studentName");
         if("zip".equals(type)){
@@ -392,7 +397,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
 
         design.addCell("序号", "order_R");
-        design.addCell("教学班号", "teachingClassCode_R");
+        design.addCell("教学班号", "teachingClassName_R");
         design.addCell("学号", "studentCode_R");
         design.addCell("姓名", "studentName_R");
         if("zip".equals(type)){
@@ -433,13 +438,21 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                 try {
                 for (PropertySheetDto propertySheetDto : SheetDto) {
                     String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
-                    String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
                     propertySheetDto.setFaculty(s);
-                    propertySheetDto.setCampus(campus);
                 }
-                    SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                    String fullName = calendarVo.getFullName();
-                    Map<String, List<PropertySheetDto>> sheetMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus));
+                SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                String fullName = calendarVo.getFullName();
+                Map<String, List<PropertySheetDto>> sheetMaps = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus,TreeMap::new,Collectors.toList()));
+
+                List<Map<String, Object>> sheetMap = new ArrayList<>();
+                for (String s : sheetMaps.keySet()) {
+                    Map<String, Object> mapStr = new HashMap<>();
+                    String campus = dictionaryService.query("X_XQ", s, SessionUtils.getLang());
+                    List<PropertySheetDto> propertySheetDtos = sheetMaps.get(s);
+                    mapStr.put("campus",campus);
+                    mapStr.put("list",propertySheetDtos);
+                    sheetMap.add(mapStr);
+                }
                 Map<String,Object> map = new HashMap<>();
                 String title = fullName+"研究生考试安排表";
                 map.put("sheetMap",sheetMap);
@@ -491,25 +504,25 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                 for (PropertySheetDto propertySheetDto : SheetDto) {
                     Date examDate = propertySheetDto.getExamDate();
-                    String day = getDay(examDate);
+                    String str = getDay(examDate);
                     String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
-                    String campus = dictionaryService.query("X_XQ", propertySheetDto.getCampus(), SessionUtils.getLang());
                     propertySheetDto.setFaculty(s);
-                    propertySheetDto.setCampus(campus);
-                    propertySheetDto.setDay(day);
+                    propertySheetDto.setDay(str.split(",")[1]);
+                    propertySheetDto.setDayStr(str.split(",")[0]);
                 }
                 SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 String fullName = calendarVo.getFullName();
                 String title = fullName+"研究生考试巡考工作安排表";
-                Map<String, List<PropertySheetDto>> dayMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getDay));
+                Map<String, List<PropertySheetDto>> dayMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getDayStr,TreeMap::new,Collectors.toList()));
                 List<Map<String,Object>> listSheet = new ArrayList<>();
-                for (String day : dayMap.keySet()) {
-                    List<PropertySheetDto> propertySheetDtos = dayMap.get(day);
-                    Map<String, List<PropertySheetDto>> campusMap = propertySheetDtos.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus));
-                    for (String campus : campusMap.keySet()) {
+                for (String days : dayMap.keySet()) {
+                    List<PropertySheetDto> propertySheetDtos = dayMap.get(days);
+                    Map<String, List<PropertySheetDto>> campusMap = propertySheetDtos.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus,TreeMap::new,Collectors.toList()));
+                    for (String campusCode : campusMap.keySet()) {
                         Map<String,Object> map = new HashMap<>();
-                        List<PropertySheetDto> list = campusMap.get(campus);
-                        map.put("day",day);
+                        List<PropertySheetDto> list = campusMap.get(campusCode);
+                        String campus = dictionaryService.query("X_XQ", campusCode, SessionUtils.getLang());
+                        map.put("day",list.get(0).getDay());
                         map.put("campus",campus);
                         map.put("dto",list.get(0));
                         map.put("list",list.subList(1,list.size()));
@@ -545,7 +558,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
     @Override
     public ExcelResult exportCheckTableFreemarker(Long calendarId, Integer examType, String calendarName) {
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType);
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId);
         String key = "exportCheckTableFreemarkerZip";
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);
@@ -592,10 +606,14 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
     }
 
     private String getDay(Date examDate){
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String dateStr = format.format(examDate);
         Calendar cal = Calendar.getInstance();
         cal.setTime(examDate);
         String day = String.valueOf(cal.get(Calendar.DAY_OF_MONTH));
-        return day;
+        return dateStr+","+day;
+
     }
 
 
@@ -620,6 +638,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -628,6 +647,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + i)).getFaculty());
@@ -642,6 +662,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder(list.get(i).getOrderStu());
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
                     exportStuDto.setStudentName(list.get(i).getStudentName());
                     exportStuDto.setFaculty(list.get(i).getFaculty());
@@ -650,6 +671,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                     exportStuDto.setOrder_R(list.get((divNum + 1 + i)).getOrderStu());
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + 1 + i)).getTeachingClassCode());
+                    exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + 1 + i)).getStudentCode());
                     exportStuDto.setStudentName_R(list.get((divNum + 1 + i)).getStudentName());
                     exportStuDto.setFaculty_R(list.get((divNum + 1 + i)).getFaculty());
@@ -662,22 +684,36 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
                 exportStuDto.setOrder(list.get(divNum).getOrderStu());
                 exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassCode());
+                exportStuDto.setTeachingClassName(list.get((divNum)).getTeachingClassName());
                 exportStuDto.setStudentCode(list.get(divNum).getStudentCode());
                 exportStuDto.setStudentName(list.get(divNum).getStudentName());
                 exportStuDto.setFaculty(list.get(divNum).getFaculty());
+                exportStuDto.setCourseCode(list.get(divNum).getCourseCode());
+                exportStuDto.setCourseName(list.get(divNum).getCourseName());
+                exportStuDto.setCourseCode(list.get(divNum).getCourseCode());
+                exportStuDto.setCourseName(list.get(divNum).getCourseName());
                 dataList.add(exportStuDto);
             }
 
         }
 
-        GraduateExamRoom item = roomDao.getExamRoomNumber(examRoomId);
+
+        List<ExamRoomDto> examRoomNumber = roomDao.getExamRoomCampus(examRoomId);
+        StringBuilder stringBuilder = new StringBuilder();
+        if(CollectionUtil.isNotEmpty(examRoomNumber)){
+            ExamRoomDto examRoomDto = examRoomNumber.get(0);
+            String s = examRoomDto.getCampus();
+            String roomName = examRoomDto.getRoomName();
+            String campus = dictionaryService.query("X_XQ", s, SessionUtils.getLang());
+            for (ExamRoomDto roomDto : examRoomNumber) {
+                stringBuilder.append(String.format("%s(%s)_", roomDto.getCourseName(),roomDto.getCourseCode()));
+            }
+            stringBuilder.append(campus).append("_").append(roomName).append(".xls");
+        }
 
         FileUtil.mkdirs(cacheDirectory);
         FileUtil.deleteFile(cacheDirectory, 2);
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        String dateNowStr = sdf.format(date);
-        String fileName =  "考场（"+item.getRoomName()+"）签到表("+dateNowStr+").xls";
+        String fileName =  stringBuilder.toString();
         String path = cacheDirectory + fileName;
         String title = "同济大学" + exportExamInfoDto.getCalendarName() + "研究生课程考试名单";
         Map<String,Object> myMap = new HashMap<>();

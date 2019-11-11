@@ -11,7 +11,7 @@ import java.util.Date;
 public class GraduateExamTransTime {
 
     public static String transTime(Date examDate,String examStartTime,String examEndTime,Integer weekNumber,Integer weekDay){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String format = simpleDateFormat.format(examDate);
         String weekDayStr = transWeek(weekDay);
         return format + " 第" + weekNumber + "周 " + weekDayStr + " "+ examStartTime + "-" + examEndTime;

@@ -37,7 +37,7 @@
         select t1.CALENDAR_ID_ calendarId,t1.COURSE_CODE_ courseCode,t2.NAME_ courseName,t3.CAMPUS_ campus,t2.COLLEGE_ faculty,
         t2.NATURE_ nature,t2.TRAINING_LEVEL_ trainingLevel,t2.FORM_LEARNING_ formLearning,t2.CREDITS_ credits,t4.EXAM_TIME_ examTime,
         count(t1.ID_) totalNumber,t4.EXAM_ROOMS_ examRooms,t4.ACTUAL_NUMBER_ actualNumber,t4.ID_ id,t4.EXAM_DATE_ examDate,GROUP_CONCAT(DISTINCT t3.NAME_ ORDER BY t3.CODE_ asc ) teachingClassName,
-        t4.EXAM_START_TIME_ examStartTime,t4.EXAM_END_TIME_ examEndTime,t4.WEEK_NUMBER_ weekNumber,t2.MANAGER_DEPT_ID_ projId,
+        t4.EXAM_START_TIME_ examStartTime,t4.EXAM_END_TIME_ examEndTime,t4.WEEK_NUMBER_ weekNumber,t2.MANAGER_DEPT_ID_ projId,t4.REMARK_ remark,
         t4.WEEK_DAY_ weekDay,t4.ClASS_NODE_ classNode,t4.EXAM_STATUS_ examStatus,t4.NOTICE_ notice,t4.ACTUAL_CALENDAR_ID_ actualCalendarId
         from
         elc_course_takes_t_${mode} t1
@@ -55,6 +55,12 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(addCourse)">
                 and ( t4.EXAM_ROOMS_ = 0 or t4.EXAM_ROOMS_ is null )
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCodes)">
+                and t1.COURSE_CODE_ not in
+                <foreach collection="courseCodes" item="courseCode" open="(" separator="," close=")">
+                    #{courseCode}
+                </foreach>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t2.COLLEGE_ = #{faculty}
@@ -103,13 +109,14 @@
         group by
         t1.COURSE_CODE_,
         t3.CAMPUS_
+        order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
     <select id="listGraduateExamInfoMakeUp" resultType="com.server.edu.exam.vo.GraduateExamInfoVo"
             parameterType="com.server.edu.exam.vo.GraduateExamInfoVo">
         select t1.CALENDAR_ID_ calendarId,t1.COURSE_CODE_ courseCode,t2.NAME_ courseName,t3.CAMPUS_ campus,t2.COLLEGE_ faculty,
         t2.NATURE_ nature,t2.TRAINING_LEVEL_ trainingLevel,t2.CREDITS_ credits,t2.MANAGER_DEPT_ID_ projId,
-        t4.ACTUAL_CALENDAR_ID_ actualCalendarId,t4.EXAM_START_TIME_ examStartTime,t4.EXAM_END_TIME_ examEndTime,
+        t4.ACTUAL_CALENDAR_ID_ actualCalendarId,t4.EXAM_START_TIME_ examStartTime,t4.EXAM_END_TIME_ examEndTime,t4.REMARK_ remark,
         t2.FORM_LEARNING_ formLearning,count(t1.ID_) totalNumber,t4.EXAM_ROOMS_ examRooms,t4.ACTUAL_NUMBER_ actualNumber,t4.WEEK_NUMBER_ weekNumber,t4.WEEK_DAY_ weekDay,
         t4.ID_ id,t4.EXAM_DATE_ examDate,t4.EXAM_STATUS_ examStatus,t4.EXAM_TIME_ examTime,t4.ClASS_NODE_ classNode,t4.NOTICE_ notice,GROUP_CONCAT(DISTINCT t3.NAME_ ORDER BY t3.CODE_ asc ) teachingClassName
         from
@@ -125,6 +132,15 @@
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
                 and t3.CAMPUS_ = #{campus}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(addCourse)">
+                and ( t4.EXAM_ROOMS_ = 0 or t4.EXAM_ROOMS_ is null )
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCodes)">
+                and t1.COURSE_CODE_ not in
+                <foreach collection="courseCodes" item="courseCode" open="(" separator="," close=")">
+                    #{courseCode}
+                </foreach>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t2.COLLEGE_ = #{faculty}
@@ -174,6 +190,7 @@
         group by
         t1.COURSE_CODE_,
         t3.CAMPUS_
+        order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
   <select id="listMyExam" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
@@ -246,10 +263,10 @@
           #{faculty}
         </foreach>
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(infoRoomIds)">
-        and t5.ID_ in
-        <foreach collection="infoRoomIds" item="infoRoomId" open="(" separator="," close=")">
-          #{infoRoomId}
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
+        and t1.ID_ in
+        <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
+          #{examInfoId}
         </foreach>
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examStartTime)">
@@ -444,6 +461,7 @@
           t4.NAME_ courseName,
           t1.ROOM_NAME_ roomName,
           t2.TEACHING_CLASS_CODE_ teachingClassCode,
+          t2.TEACHING_CLASS_NAME_ teachingClassName,
           t2.STUDENT_CODE_ studentCode,
           t5.NAME_ studentName,
           t5.FACULTY_ faculty,
@@ -458,9 +476,8 @@
         LEFT JOIN course_t t4 ON t3.COURSE_CODE_ = t4.CODE_
         LEFT JOIN student_t t5 ON t5.STUDENT_CODE_ = t2.STUDENT_CODE_
         WHERE
-          t3.CALENDAR_ID_ = #{calendarId} and t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1 and t3.EXAM_STATUS_ = 2
-        ORDER BY
-          t2.TEACHING_CLASS_CODE_ ASC
+           t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
+          ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
       ) t,
      (SELECT @i := 0) d
   </select>
@@ -484,7 +501,7 @@
       JOIN graduate_exam_info_room_t t ON i.ID_ = t.EXAM_INFO_ID_
       JOIN graduate_exam_room_t r ON r.ID_ = t.EXAM_ROOM_ID_
 	  WHERE
-          i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType}
+          i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType} and i.PROJ_ID_ = #{projId}
     </select>
 
     <select id="checkPublicExamTimeSame" parameterType="com.server.edu.exam.entity.GraduateExamInfo" resultMap="BaseResultMap">

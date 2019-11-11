@@ -2,6 +2,7 @@ package com.server.edu.exam.dao;
 
 import com.github.pagehelper.Page;
 import com.server.edu.exam.dto.ExamInfoRoomDto;
+import com.server.edu.exam.dto.ExamRoomDto;
 import com.server.edu.exam.dto.PropertySheetDto;
 import com.server.edu.exam.dto.SelectDto;
 import com.server.edu.exam.entity.GraduateExamRoom;
@@ -31,6 +32,8 @@ public interface GraduateExamRoomDao extends Mapper<GraduateExamRoom> ,MySqlMapp
 
     /**校验考场人数是否已满*/
     int checkNum(Long id);
+
+    List<ExamRoomDto> getExamRoomCampus(Long examRoomId);
 
     GraduateExamRoom getExamRoomNumber(Long examRoomId);
 

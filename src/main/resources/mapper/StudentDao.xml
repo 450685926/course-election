@@ -151,6 +151,8 @@
 				where 
 				COURSE_ID_ =#{courseId}
 			)
+			and t1.LEAVE_SCHOOL_ = 1
+			and t1.MANAGER_DEPT_ID_ = '1'
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
 	        and t1.STUDENT_CODE_ like concat('%',#{studentCode},'%')
 	    </if>
@@ -177,6 +179,12 @@
 	    </if>
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
 	    	and t1.IS_OVERSEAS_= #{isOverseas} 
+	    </if>
+	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentIds)">
+	    	and t1.STUDENT_CODE_ in 
+	    	<foreach item="studentId" collection="studentIds" index="index" open="(" separator="," close=")">
+		          #{studentId}
+		    </foreach>
 	    </if>
     </select>
     <select id="selectElcInvincibleStds" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
@@ -209,7 +217,7 @@
 					STUDENT_ID_
 				FROM
 					elc_invincible_stds_t
-			)
+			) and t1.LEAVE_SCHOOL_ = 1 and t1.MANAGER_DEPT_ID_ = 1
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentCode)">
 			       and  t1.STUDENT_CODE_ =#{studentCode}
 			    </if>

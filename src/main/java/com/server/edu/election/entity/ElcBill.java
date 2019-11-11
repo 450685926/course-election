@@ -56,6 +56,22 @@ public class ElcBill implements Serializable {
     @Column(name = "CREATED_AT_")
     private Date createdAt;
 
+    /**
+     * @Description: 支付标识 true支付，false未支付
+     * @author kan yuanfeng
+     * @date 2019/11/7 10:06
+     */
+    @Transient
+    private Boolean flag;
+
+    public Boolean getFlag() {
+        return flag;
+    }
+
+    public void setFlag(Boolean flag) {
+        this.flag = flag;
+    }
+
     private static final long serialVersionUID = 1L;
 
     /**

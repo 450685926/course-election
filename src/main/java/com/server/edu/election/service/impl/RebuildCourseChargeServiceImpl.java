@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -22,8 +23,12 @@ import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.util.CommonConstant;
 import com.server.edu.election.util.TableIndexUtil;
-import com.server.edu.election.vo.*;
+import com.server.edu.election.vo.ElcLogVo;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
+import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
+import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -35,6 +40,8 @@ import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +53,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +64,7 @@ import java.util.stream.Collectors;
 @Service
 @Primary
 public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeService {
+    private Logger LOG = LoggerFactory.getLogger(RebuildCourseChargeServiceImpl.class);
 
     @Autowired
     private RebuildCourseChargeDao courseChargeDao;
@@ -258,7 +267,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      * @date: 2019/2/13 16:19
      */
     @Override
-
     public PageResult<StudentVo> findCourseNoChargeStudentList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
@@ -321,20 +329,29 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public void moveRecycleCourseToNoChargeList(
-            List<RebuildCourseNoChargeList> list) {
+    public List<RebuildCourseNoChargeList> moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list) {
         if (CollectionUtil.isEmpty(list)) {
             throw new ParameterValidateException("common.parameterError");
         }
+        //有冲突的数据集合
+        List<RebuildCourseNoChargeList> conflictList = new ArrayList<>();
         for (RebuildCourseNoChargeList noChargeList : list) {
-            recoverClass(noChargeList);
+            //判断加课有没有成功
+            Boolean aBoolean = recoverClass(noChargeList);
+            if (!aBoolean){
+                conflictList.add(noChargeList);
+            }
         }
         /**从回收站删除*/
-        courseChargeDao.recoveryDataFromRecycleCourse(list);
+        list.removeAll(conflictList);
+        if (CollectionUtil.isNotEmpty(list)){
+            courseChargeDao.recoveryDataFromRecycleCourse(list);
+        }
+        return conflictList;
     }
 
     @Transactional
-    private void recoverClass(RebuildCourseNoChargeList noChargeList) {
+    private Boolean recoverClass(RebuildCourseNoChargeList noChargeList) {
         String studentCode = noChargeList.getStudentCode();
         String courseCode = noChargeList.getCourseCode();
         Long calendarId = noChargeList.getCalendarId();
@@ -348,8 +365,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentCode);
         record.setCourseCode(courseCode);
+        record.setCalendarId(calendarId);
         int selectCount = courseTakeDao.selectCount(record);
-        if (selectCount == 0) {
+        if (selectCount < 1) {
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(calendarId);
             take.setChooseObj(chooseObj);
@@ -368,15 +386,20 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             log.setCourseCode(courseCode);
             log.setCourseName(courseName);
             Session currentSession = SessionUtils.getCurrentSession();
+            LOG.info("currentSession Uid ============="+currentSession.getUid());
             log.setCreateBy(currentSession.getUid());
             log.setCreatedAt(new Date());
             log.setCreateIp(currentSession.getIp());
+            LOG.info("currentSession ip ============="+currentSession.getIp());
             log.setMode(chooseObj != 1 ? ElcLogVo.MODE_2 : ElcLogVo.MODE_1);
             log.setStudentId(studentCode);
             log.setTeachingClassCode(teachingClassCode);
             log.setTurn(turn);
             log.setType(ElcLogVo.TYPE_1);
             elcLogDao.insertSelective(log);
+            return true;
+        }else {
+            return false;
         }
     }
 
@@ -632,51 +655,58 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     *@return: 
     *@Author: bear
     *@date: 2019/5/27 11:15
-    */
+     */
     @Override
-    public List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto) {
-        List<StudentRePaymentDto> paymentDtoList=new ArrayList<>();
-        String studentCode = studentRePaymentDto.getStudentCode();
+    public PageResult<StudentRePaymentDto> findStuRePayment(PageCondition<StudentRePaymentDto> pageCondition) {
+        PageResult<StudentRePaymentDto> paymentDtoList=new PageResult<>();
+        //String studentCode = studentRePaymentDto.getStudentCode();
         /**是否在不缴费学生类型中*/
-        boolean retake = isNoNeedPayForRetake(studentCode);
+        // todo 因为毕业证书类型现在取不到，暂时无法判断是否需要收费
+        /*boolean retake = isNoNeedPayForRetake(studentCode);
         if(retake){
             return null;
+        }*/
+        //去收费标准查询，是否需要缴费
+        List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(pageCondition.getCondition().getStudentCode());
+        if (CollectionUtil.isNotEmpty(rebuildCourseChargeList) && rebuildCourseChargeList.get(0).getIsCharge().equals(1)){
+            //查询该学期缴费的课程及缴费状态
+            PageHelper.startPage(pageCondition.getPageNum_(), pageCondition.getPageSize_());
+            Page<StudentRePaymentDto> page = (Page<StudentRePaymentDto>)courseTakeDao.findByStuIdAndCId(pageCondition.getCondition());
+            //设置单价
+            if (CollectionUtil.isNotEmpty(page.getResult())){
+                page.getResult().forEach(p -> p.setUnitPrice(rebuildCourseChargeList.get(0).getUnitPrice()));
+            }
+            paymentDtoList = new PageResult<>(page);
         }
-        //不再不缴费学生类型中，查询重修课程并且判断是否需要缴费
-        List<ElcCourseTakeVo> courseTakes=courseTakeDao.findStuRebuildCourse(studentRePaymentDto);
-        //没有重修课程
-        if(CollectionUtil.isEmpty(courseTakes)){
-            return null;
-        }
-        //查询收费单价
-        Student record = new Student();
-        record.setStudentCode(studentCode);
-        Student student = studentDao.selectOne(record);
-        String trainingLevel = student.getTrainingLevel();
-        String formLearning = student.getFormLearning();
-        RebuildCourseCharge prices = courseChargeDao.findPrice(trainingLevel,formLearning);
-        if(prices == null || prices.getIsCharge()==0){
-            return null;
-        }
-
-        for (ElcCourseTakeVo courseTake : courseTakes) {
-            double credits=courseTake.getCredits();
-            int unitPrice= prices.getUnitPrice();
-            double payable =  (unitPrice*credits);
-            StudentRePaymentDto paymentDto=new StudentRePaymentDto();
-            paymentDto.setCourseCode(courseTake.getCourseCode());
-            paymentDto.setCourseName(courseTake.getCourseName());
-            paymentDto.setStudentCode(studentRePaymentDto.getStudentCode());
-            paymentDto.setCredits(credits);
-            paymentDto.setUnitPrice(unitPrice);
-            paymentDto.setCalendarId(studentRePaymentDto.getCalendarId());
-            paymentDto.setPayable(payable);
-            paymentDto.setBillId(courseTake.getBillId());
-            paymentDto.setPaid(courseTake.getPaid());
-            paymentDtoList.add(paymentDto);
-        }
-
         return paymentDtoList;
+
+//        //查询收费单价
+//        Student record = new Student();
+//        record.setStudentCode(studentCode);
+//        Student student = studentDao.selectOne(record);
+//        String trainingLevel = student.getTrainingLevel();
+//        String formLearning = student.getFormLearning();
+//        RebuildCourseCharge prices = courseChargeDao.findPrice(trainingLevel,formLearning);
+//        if(prices == null || prices.getIsCharge()==0){
+//            return null;
+//        }
+//
+//        for (ElcCourseTakeVo courseTake : courseTakes) {
+//            double credits=courseTake.getCredits();
+//            int unitPrice= prices.getUnitPrice();
+//            double payable =  (unitPrice*credits);
+//            StudentRePaymentDto paymentDto=new StudentRePaymentDto();
+//            paymentDto.setCourseCode(courseTake.getCourseCode());
+//            paymentDto.setCourseName(courseTake.getCourseName());
+//            paymentDto.setStudentCode(studentRePaymentDto.getStudentCode());
+//            paymentDto.setCredits(credits);
+//            paymentDto.setUnitPrice(unitPrice);
+//            paymentDto.setCalendarId(studentRePaymentDto.getCalendarId());
+//            paymentDto.setPayable(payable);
+//            paymentDto.setBillId(courseTake.getBillId());
+//            paymentDto.setPaid(courseTake.getPaid());
+//            paymentDtoList.add(paymentDto);
+//        }
     }
 
     /**
@@ -732,17 +762,111 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     //解析对账结果
                     List<PayResult> results = payResult.stream().filter(r -> r.getPayFlag() && StringUtils.isNotBlank(r.getPaystate())).collect(Collectors.toList());
                     List<PayResultDto> payResultDtoList = new ArrayList<>();
+                    List<ElcBill> elcBillList = new ArrayList<>();
                     results.forEach(r ->{
                         PayResultDto payResultDto = new PayResultDto();
                         BeanUtils.copyProperties(r,payResultDto);
                         payResultDto.setIndex(index);
                         payResultDto.setPaid(("4".equals(payResultDto.getPaystate())?1:0));
                         payResultDtoList.add(payResultDto);
+                        //账单金额已缴金额处理
+                        ElcBill elcBill = new ElcBill();
+                        elcBill.setBillNum(payResultDto.getBillno());
+                        elcBill.setFlag(("4".equals(payResultDto.getPaystate())?true:false));
+                        elcBillList.add(elcBill);
                     });
                     courseTakeDao.setPayStatusBatch(payResultDtoList);
+                    //账单金额已缴金额处理
+                    elcBillDao.updatePayBatch(elcBillList);
                 }
             }
         }
+    }
+
+    /**
+     * @Description: 重修缴费回调接口
+     * @author kan yuanfeng
+     * @date 2019/11/7 9:22
+     */
+    @Override
+    @Transactional
+    public void payCallback(JSONObject jsonObject) {
+        //参数校验
+        /*json.put(CommonConstant.PAY_CODE_BILLNO, queryPay.get(CommonConstant.PAY_CODE_BILLNO));   // 订单号
+        json.put(CommonConstant.PAY_CODE_RETURNMSG, queryPay.get(CommonConstant.PAY_CODE_RETURNMSG));  //返回信息
+        json.put(CommonConstant.PAY_CODE_PAYSTATE, queryPay.get(CommonConstant.PAY_CODE_PAYSTATE));  //订单状态（1：缴费失败 4：缴费成功）
+        json.put(CommonConstant.PAY_CODE_STUID, queryPay.get(CommonConstant.PAY_CODE_STUID));  //学生ID
+        json.put(CommonConstant.PAY_CODE_FEEITEMID, queryPay.get(CommonConstant.PAY_CODE_FEEITEMID));  //缴费编码
+        json.put(CommonConstant.PAY_CODE_SIGN, queryPay.get(CommonConstant.PAY_CODE_SIGN));  // 签名
+        json.put(CommonConstant.PAY_CALLBACKDATA, queryPay.get(CommonConstant.PAY_CALLBACKDATA));  // 回调数据*/
+        String billNo = jsonObject.getString(CommonConstant.PAY_CODE_BILLNO);
+        String reTurnmsg = jsonObject.getString(CommonConstant.PAY_CODE_RETURNMSG);
+        String payState = jsonObject.getString(CommonConstant.PAY_CODE_PAYSTATE);
+        String studentId = jsonObject.getString(CommonConstant.PAY_CODE_STUID);
+        String callBackData = jsonObject.getString(CommonConstant.PAY_CALLBACKDATA);
+        if (StringUtils.isBlank(billNo) || StringUtils.isBlank(payState)
+            ||StringUtils.isBlank(studentId) || StringUtils.isBlank(callBackData)){
+            throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
+        }
+        //解析callBackData
+        /**
+         * callBackData内容
+         * put("id":"1,2")
+         * put("price":"700")
+         */
+        Map callDate = JSON.parseObject(callBackData, Map.class);
+        String id = (String)callDate.get("id");
+        String[] split = StringUtils.split(id, ",");
+        ElcCourseTake elcCourseTake = courseTakeDao.selectByPrimaryKey(Long.valueOf(split[0]));
+        //保存订单
+        ElcBill elcBill = new ElcBill();
+        elcBill.setStudentId(studentId);
+        elcBill.setCalendarId(elcCourseTake.getCalendarId());
+        elcBill.setBillNum(billNo);
+        String price = (String) callDate.get("price");
+        elcBill.setAmount(Double.valueOf(price));
+        elcBill.setRemark(reTurnmsg);
+        elcBill.setPay(("4".equals(payState)?Double.valueOf(price):0));
+        elcBillDao.insertSelective(elcBill);
+        //更新缴费信息
+        List<Long> ids = new ArrayList<>();
+        for (int i = 0; i <split.length ; i++) {
+            ids.add(Long.valueOf(split[i]));
+        }
+        ElcCourseTake courseTake = new ElcCourseTake();
+        courseTake.setPaid(("4".equals(payState)?1:0));
+        courseTake.setBillId(elcBill.getId());
+        Example example = new Example(ElcCourseTake.class);
+        example.createCriteria().andIn("id",ids);
+        courseTakeDao.updateByExampleSelective(courseTake,example);
+    }
+
+    /**
+     * @Description: 缴费订单查看
+     * @author kan yuanfeng
+     * @date 2019/11/7 16:34
+     */
+    @Override
+    public PageResult<StudentRePaymentDto> payDetail(PageCondition<StudentRePaymentDto> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
+        Page<StudentRePaymentDto> page =  (Page<StudentRePaymentDto>)elcBillDao.payDetail(condition.getCondition());
+        return new PageResult<>(page);
+    }
+
+    /**
+     * @Description: 缴费订单查看(订单id)
+     * @author kan yuanfeng
+     * @date 2019/11/7 16:34
+     */
+    @Override
+    public List<StudentRePaymentDto> payDetailById(Long id) {
+        ElcBill elcBill = elcBillDao.selectByPrimaryKey(id);
+        StudentRePaymentDto dto = new StudentRePaymentDto();
+        dto.setBillId(id);
+        dto.setIndex(TableIndexUtil.getIndex(elcBill.getCalendarId()));
+        List<StudentRePaymentDto> studentRePaymentDtos = elcBillDao.payDetailById(dto);
+        return studentRePaymentDtos;
     }
 
     private GeneralExcelDesigner getDesignByStuId() {

@@ -17,7 +17,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.entity.SchoolCalendar;
 import com.server.edu.common.entity.Teacher;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.common.vo.StudentScoreVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
@@ -48,6 +50,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.util.CalUtil;
@@ -122,7 +125,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             throw new RuntimeException(msg);
         }
         // 加载成绩
-//        loadScore(context, studentInfo, studentId, stu);
+        //loadScore(context, studentInfo, studentId, stu);
         loadScoreTemp(context, studentInfo, studentId, stu);
         
         //得到校历id
@@ -250,7 +253,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     	
     	StudentScoreDto dto = new StudentScoreDto();
     	dto.setStudentId(studentId);
-    	dto.setCalendarId(context.getCalendarId());
+//    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
         
@@ -262,11 +265,19 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             List<Course> courses = elcCourseTakeDao.findCourses(courseCodes);
             Map<String, Course> map = courses.stream().collect(Collectors.toMap(Course::getCode, s -> s));
             List<Long> teachClassIds = new ArrayList<>();
+            List<SchoolCalendarVo> schoolCalendarVos = SchoolCalendarCacheUtil.getAll();
             for (ScoreStudentResultVo studentScore : stuScore)
             {
-                Long calendarId = studentScore.getCalendarId();
+            	SchoolCalendar sc = new SchoolCalendar();
+            	sc.setYear(studentScore.getAcademicYear().intValue());
+            	sc.setTerm(studentScore.getSemester().intValue());
+            	SchoolCalendarVo schoolCalendarVo = new SchoolCalendarVo();
+            	if(CollectionUtil.isNotEmpty(schoolCalendarVos)) {
+            		schoolCalendarVo = schoolCalendarVos.stream().filter(c->c.getYear().equals(studentScore.getAcademicYear().intValue()))
+            				.filter(c->c.getTerm().equals(studentScore.getSemester().intValue())).findFirst().orElse(null);
+            	}
+                Long calendarId = schoolCalendarVo.getId();
                 String courseCode = studentScore.getCourseCode();
-                
                 CompletedCourse c = new CompletedCourse();
                 TeachingClassCache lesson = new TeachingClassCache();
                 lesson.setCourseCode(courseCode);
@@ -280,7 +291,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setCalendarId(calendarId);
                 if (calendarId != null) {
-                    List<TeachingClassCache> tcList = elcCourseTakeDao.findTeachClass(studentId, calendarId, courseCode);
+                	Integer index =TableIndexUtil.getIndex(calendarId);
+                    List<TeachingClassCache> tcList = elcCourseTakeDao.findBkTeachClass(studentId, calendarId, courseCode,index);
                     if (CollectionUtil.isNotEmpty(tcList)) {
                         Set<String> names = tcList.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
                         lesson.setTeacherName(String.join(",", names));
@@ -293,7 +305,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         teachClassIds.add(teachClassId);
                     }
                 }
-                
                 c.setCourse(lesson);
                 c.setScore(studentScore.getFinalScore());
                 boolean excellent = false;
@@ -397,8 +408,11 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     public Map<Long, List<ClassTimeUnit>> groupByTime(List<Long> teachClassIds)
     {
         Map<Long, List<ClassTimeUnit>> map = new HashMap<>();
+        List<TeacherClassTimeRoom> list = new ArrayList<>();
         //按周数拆分的选课数据集合
-        List<TeacherClassTimeRoom> list = classDao.getClassTimes(teachClassIds);
+        if(CollectionUtil.isNotEmpty(teachClassIds)) {
+        	list = classDao.getClassTimes(teachClassIds);
+        }
         if (CollectionUtil.isEmpty(list))
         {
             return map;
