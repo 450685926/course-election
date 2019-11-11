@@ -74,13 +74,16 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
-        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,t2.TRAINING_LEVEL_,
-        t3.NAME_ as courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
+        t2.NAME_,t2.PROFESSION_,t2.GRADE_,
+        t2.TRAINING_LEVEL_,
+        t3.FACULTY_,
+        t3.COURSE_NAME_ AS courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
         from elc_course_takes_t_${query.index} t1
         join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ 
+	     AND t3.CALENDAR_ID_ = t1.CALENDAR_ID_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
         <where>
