@@ -75,4 +75,11 @@ public interface ReportManagementService {
 	 */
 	ExcelResult exportGraduteRollBookZipList3(List<String> ids) ;
 
+    /**
+     * 导出学生课表pdf--本科生
+     * @param calendarId
+     * @param studentCode
+     * @return
+     */
+    RestResult<String> exportStudentTimetab(Long calendarId, String studentCode) throws Exception;
 }

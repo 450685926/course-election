@@ -15,4 +15,5 @@ public interface GraduateExamMonitorTeacherService {
 
     PageResult<GraduateExamMonitorTeacher> listGraduateMonitorTeacher(PageCondition<GraduateExamMonitorTeacher> monitorTeacher);
 
+    GraduateExamMonitorTeacher getMonitotTeacherNumber(Integer roomCapcity);
 }

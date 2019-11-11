@@ -74,13 +74,16 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
-        t2.NAME_,t2.PROFESSION_,t2.GRADE_, t3.COLLEGE_ FACULTY_,t2.TRAINING_LEVEL_,
-        t3.NAME_ as courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
+        t2.NAME_,t2.PROFESSION_,t2.GRADE_,
+        t2.TRAINING_LEVEL_,
+        t3.FACULTY_,
+        t3.COURSE_NAME_ AS courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
         from elc_course_takes_t_${query.index} t1
         join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ 
+	     AND t3.CALENDAR_ID_ = t1.CALENDAR_ID_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
         <where>
@@ -489,6 +492,7 @@
         FROM `elc_course_takes_t` el
         LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
         where el.TEACHING_CLASS_ID_= #{id,jdbcType=BIGINT}
+        order by el.STUDENT_ID_
     </select>
 
     <select id="findClassTimeAndRoom" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -826,6 +830,7 @@
         st.STUDENT_CODE_ = t2.STUDENT_ID_
         AND t2.ROUNDS_ID_ IN (
         SELECT ID_ FROM election_rounds_t WHERE CALENDAR_ID_=#{calendarId}
+        and st.LEAVE_SCHOOL_ = 1
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
             AND MODE_=#{mode}
         </if>
@@ -1250,7 +1255,7 @@
         left join elc_no_elect_reason_t t2 on (t1.STUDENT_CODE_=t2.STUDENT_ID_ and t2.CALENDAR_ID_=#{calendarId})
         <where>
             t1.STUDENT_CODE_ not in (select STUDENT_ID_ from elc_course_takes_t where CALENDAR_ID_=#{calendarId} group
-            by STUDENT_ID_)
+            by STUDENT_ID_) and t1.LEAVE_SCHOOL_ = 1
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
                 and t1.GRADE_ =#{grade}
             </if>
@@ -1704,6 +1709,22 @@
         and ec.CALENDAR_ID_ = #{calendarId}
         and ec.COURSE_CODE_ = #{courseCode}
     </select>
+    
+    <select id="findBkTeachClass" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+        SELECT
+                ec.TEACHING_CLASS_ID_ teachClassId,
+				tc.CODE_ teachClassCode,
+				tc.NAME_ teachClassName,
+				tc.REMARK_ remark,
+				te.TEACHER_NAME_ teacherName
+        FROM elc_course_takes_t_${index} ec
+		left join teaching_class_t tc on ec.TEACHING_CLASS_ID_ = tc.ID_
+		left join teaching_class_teacher_t te on ec.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_ and te.TYPE_ = 0
+        WHERE
+        ec.STUDENT_ID_ = #{studentId}
+        and ec.CALENDAR_ID_ = #{calendarId}
+        and ec.COURSE_CODE_ = #{courseCode}
+    </select>
 
     <select id="findElcCourseTakeByStudentId" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
         select
@@ -1724,6 +1745,23 @@
         <foreach item="item" collection="list" separator="," open="(" close=")">
             #{item}
         </foreach>
+        group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
+        order by t1.DAY_OF_WEEK_,t1.TIME_START_
+    </select>
+
+    <select id="findCourseArrangeBk" resultType="com.server.edu.election.dto.TimeTableMessage">
+        select
+        t0.ID_ teachingClassId,t1.DAY_OF_WEEK_ dayOfWeek, t1.TIME_START_ timeStart, t1.TIME_END_ timeEnd,
+        t2.ROOM_ID_ roomId,GROUP_CONCAT(t2.WEEK_NUMBER_ ORDER BY t2.WEEK_NUMBER_ asc) weekNum
+        from teaching_class_t t0
+        join teaching_class_arrange_time_t t1 on t1.TEACHING_CLASS_ID_ = t0.ID_
+        join teaching_class_arrange_room_t t2 on t2.ARRANGE_TIME_ID_ = t1.ID_
+        where
+        t0.ID_ in
+        <foreach item="item" collection="list" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        and t0.DEPLOY_FLAG_ &gt; 0
         group by t2.ARRANGE_TIME_ID_,t1.TIME_START_,t1.TIME_END_
         order by t1.DAY_OF_WEEK_,t1.TIME_START_
     </select>
@@ -1790,7 +1828,8 @@
         t1.`MODE_`,
         t1.`BILL_ID_`,
         t2.BILL_NUM_,
-        t2.`PAY_`,
+        if(t1.PAID_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0) PAY_,
+--         t2.`PAY_`,
         t2.`CREATED_AT_` payTime,
         t3.`NAME_` studentName,
         t3.`FACULTY_`,
@@ -1800,9 +1839,10 @@
         t7.`CREDITS_`,
         t7.`CALENDAR_ID_` couCalendarId,
         t7.IS_ELECTIVE_ nature,
-        if(t2.ID_ is null,
-        (if(rc.IS_CHARGE_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0)),
-        t2.AMOUNT_)	AMOUNT_
+--         if(t2.ID_ is null,
+--         (if(rc.IS_CHARGE_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0)),
+--         t2.AMOUNT_)	AMOUNT_
+        if(rc.IS_CHARGE_ = 1,rc.UNIT_PRICE_*t7.CREDITS_,0) AMOUNT_
         FROM
         elc_course_takes_t t1
         left JOIN elc_bills_t t2
@@ -1886,7 +1926,31 @@
           LEFT JOIN elc_med_withdraw_t t4 ON t4.STUDENT_ID_ = t1.STUDENT_ID_ 
 	      AND t4.TEACHING_CLASS_ID_ = t2.ID_  
 		WHERE t1.`STUDENT_ID_` = #{studentId}
-		  AND t1.`CALENDAR_ID_` = #{calendarId} 
+		  AND t1.`CALENDAR_ID_` = #{calendarId}
+		UNION ALL 
+		SELECT 
+		  0 AS id,
+		  t1.`TEACHING_CLASS_ID_`,
+		  t1.STUDENT_ID_,
+		  t2.`CODE_` teachingClassCode,
+		  t2.NAME_  teachingClassName,
+		  t3.COURSE_CODE_,
+		  t3.`COURSE_NAME_` courseName,
+		  t3.`CREDITS_`,
+		  t3.PERIOD_,
+		  t2.`CAMPUS_`,
+		  t1.`ID_` medWithdrawId 
+		FROM
+		  elc_med_withdraw_t t1 
+		  JOIN teaching_class_t t2 
+		    ON t1.`TEACHING_CLASS_ID_` = t2.`ID_` 
+		  JOIN `course_open_t` t3 
+		    ON (
+		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
+		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
+		    ) 
+		WHERE t1.`STUDENT_ID_` = #{studentId}
+		  AND t1.`CALENDAR_ID_` = #{calendarId}  
   </select>
 
     <select id="findNoChargeListByStuId" parameterType="com.server.edu.election.dto.RebuildCourseDto"
@@ -1927,13 +1991,36 @@
     <!--批量设置支付状态-->
     <update id="setPayStatusBatch" parameterType="java.util.List">
         <foreach collection="list" item="item" index="index"  separator=";">
-            update elc_course_takes_t_${index} ec
+            update elc_course_takes_t_${item.index} ec
             JOIN elc_bills_t eb on
             ec.BILL_ID_ = eb.ID_
             <set>
-                ec.PAID_ = #{paid}
+                ec.PAID_ = #{item.paid}
             </set>
-            where eb.BILL_NUM_ = #{billno}
+            where eb.BILL_NUM_ = #{item.billno}
         </foreach>
     </update>
+
+    <select id="findIsPass" resultType="int">
+        select isPass from v_student_plan_course where studentId= #{studentId}
+		  and courseCode = #{courseCode}
+    </select>
+
+    <select id="findByStuIdAndCId" resultType="com.server.edu.election.dto.StudentRePaymentDto">
+        SELECT
+        el.ID_ id,
+        el.COURSE_CODE_ courseCode,
+        el.PAID_ paid,
+        c.CREDITS_ credits,
+        c.NAME_ courseName
+        FROM elc_course_takes_t el
+        left JOIN course_t c
+        on el.COURSE_CODE_ = c.CODE_
+        WHERE  el.COURSE_TAKE_TYPE_ = 2
+        and el.CALENDAR_ID_ = #{calendarId}
+        and el.STUDENT_ID_ = #{studentCode}
+        <if test="paid !=null">
+            and el.PAID_ = #{paid}
+        </if>
+    </select>
 </mapper>

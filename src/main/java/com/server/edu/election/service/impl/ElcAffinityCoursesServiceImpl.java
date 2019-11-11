@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -151,12 +152,18 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         StudentDto student =
                 new StudentDto();
         student.setCourseId(elcAffinityCoursesVo.getCourseId());
+        student.setStudentIds(elcAffinityCoursesVo.getStudentIds());
         List<Student> selectUnElcStudents = studentDao.selectUnElcStudents(student);
         List<String> stuIds = selectUnElcStudents.stream().map(Student::getStudentCode).collect(Collectors.toList());
         
         //查找用户添加的学生名单,拿到可以添加的学生名单
         List<String> listExistStu = elecRoundStuDao.listExistStu(stuIds, session.getCurrentManageDptId());
-        
+        if (CollectionUtil.isEmpty(listExistStu)) {
+        	 throw new ParameterValidateException(
+                     I18nUtil.getMsg("common.saveError",
+                         I18nUtil.getMsg("elcAffinity.courses")));
+		}
+        //查找学生
         listExistStu.forEach(temp -> {
             ElcAffinityCoursesStds elcAffinityCoursesStds =
                 new ElcAffinityCoursesStds();

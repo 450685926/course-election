@@ -157,6 +157,23 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
+//        List<ElcCourseTakeVo> list2 = listPage.getResult();
+//        if (CollectionUtil.isNotEmpty(list2)) {
+//			Iterator<ElcCourseTakeVo> iterator = list2.iterator();
+//			while (iterator.hasNext()) {
+//				ElcCourseTakeVo takeVo = iterator.next();
+//				page.getCondition().setStudentId(takeVo.getStudentId());
+//				page.getCondition().setTeachingClassCode(takeVo.getTeachingClassCode());
+//				List<ElcLog> listLogs = elcLogDao.getElectionLog(page.getCondition());
+//				if (CollectionUtil.isNotEmpty(listLogs)) {
+//					takeVo.setElectionMode(listLogs.get(0).getMode());
+//				}else {
+//					if(page.getCondition().getMode() != null) {
+//						iterator.remove();
+//					}
+//				}
+//			}
+//		}
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
     }
@@ -239,18 +256,30 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long teachingClassId = vo.getTeachingClassId();
         String courseName = vo.getCourseName();
         String teachingClassCode = vo.getTeachingClassCode();
-        
-        ElcCourseTake record = new ElcCourseTake();
-        record.setStudentId(studentId);
-        record.setCourseCode(courseCode);
-        int selectCount = courseTakeDao.selectCount(record);
-        if (selectCount == 0)
+        // 查询当前学期是否选过这门课程
+        int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
+        if (count == 0)
         {
+            ElcCourseTake record = new ElcCourseTake();
+            record.setStudentId(studentId);
+            record.setCourseCode(courseCode);
+            int selectCount = courseTakeDao.selectCount(record);
             ElcCourseTake take = new ElcCourseTake();
+            // 判断是否是第一次上该课程
+            if (selectCount == 0) {
+                take.setCourseTakeType(CourseTakeType.NORMAL.type());
+            } else {
+                int isPass = courseTakeDao.findIsPass(studentId, courseCode);
+                // 判断学生是否重修
+                if (isPass == 0) {
+                    take.setCourseTakeType(CourseTakeType.RETAKE.type());
+                } else {
+                    take.setCourseTakeType(CourseTakeType.NORMAL.type());
+                }
+            }
             take.setCalendarId(calendarId);
             take.setChooseObj(ChooseObj.ADMIN.type());
             take.setCourseCode(courseCode);
-            take.setCourseTakeType(CourseTakeType.NORMAL.type());
             take.setCreatedAt(date);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachingClassId);

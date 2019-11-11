@@ -1,5 +1,6 @@
 package com.server.edu.election.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.RebuildCourseDto;
@@ -43,7 +44,7 @@ public interface RebuildCourseChargeService {
     PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition);
 
     /**从回收站回复数据*/
-    void moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
+    List<RebuildCourseNoChargeList> moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
 
 
     /**导出未缴费重修名单*/
@@ -57,7 +58,7 @@ public interface RebuildCourseChargeService {
 
     boolean isNoNeedPayForRetake(String studentId);
 
-    List<StudentRePaymentDto> findStuRePayment(StudentRePaymentDto studentRePaymentDto);
+    PageResult<StudentRePaymentDto> findStuRePayment(PageCondition<StudentRePaymentDto> studentRePaymentDto);
 
     /**
      * @Description: 根据学号查询重修详情
@@ -79,5 +80,21 @@ public interface RebuildCourseChargeService {
      * @date 2019/10/22 11:26
      */
     void payResult(List<RebuildCourseNoChargeList> studentRebuildFeeDtoList);
+
+    /**
+     * @Description: 重修缴费回调接口
+     * @author kan yuanfeng
+     * @date 2019/11/7 9:22
+     */
+    void payCallback(JSONObject jsonObject);
+
+    /**
+     * @Description: 缴费订单查看
+     * @author kan yuanfeng
+     * @date 2019/11/7 16:34
+     */
+    PageResult<StudentRePaymentDto> payDetail(PageCondition<StudentRePaymentDto> condition);
+
+    List<StudentRePaymentDto> payDetailById(Long id);
 }
 

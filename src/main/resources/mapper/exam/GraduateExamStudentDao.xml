@@ -26,6 +26,7 @@
       t1.ROOM_ID_ roomId,
       t1.ROOM_NAME_ roomName,
       t2.TEACHING_CLASS_CODE_ teachingClassCode,
+      t2.TEACHING_CLASS_NAME_ teachingClassName,
       t2.STUDENT_CODE_ studentCode,
       t5.NAME_ studentName,
       t5.FACULTY_ faculty,
@@ -38,7 +39,7 @@
     left join student_t t5 on t5.STUDENT_CODE_ = t2.STUDENT_CODE_
     WHERE
      	t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
-   	ORDER BY t2.TEACHING_CLASS_CODE_ ASC
+   	ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
   </select>
 
   <select id="listStudent" resultType="com.server.edu.exam.dto.NoExamStudent" parameterType="com.server.edu.exam.query.StudentQuery">
@@ -47,7 +48,7 @@
       t2.ID_ teachingClassId,t2.NAME_ teachingClassName,t2.CODE_ teachingClassCode,t6.ID_ examInfoId
       from graduate_exam_info_t t6
       left join elc_course_takes_t_${mode} t1 on t1.CALENDAR_ID_ = t6.CALENDAR_ID_ and t1.COURSE_CODE_ = t6.COURSE_CODE_
-      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_ and t6.CAMPUS_ = t2.CAMPUS_
+      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
       left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_ID_
       <where>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
@@ -56,9 +57,9 @@
             #{examInfoId}
           </foreach>
         </if>
-        <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">-->
-          <!--and t3.CAMPUS_ = #{campus}-->
-        <!--</if>-->
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+          and t2.CAMPUS_ = #{campus}
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
           and t3.FACULTY_ = #{faculty}
         </if>
@@ -97,7 +98,7 @@
         where t7.STUDENT_ID_ = t1.STUDENT_ID_ and t7.CALENDAR_ID_ = t6.CALENDAR_ID_ and t7.COURSE_CODE_ = t6.COURSE_CODE_ and t7.RELEASE_TYPE_ = 1
         )
       </where>
-    order by t2.ID_ desc
+    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc
   </select>
   <select id="listSelectStudent" resultType="com.server.edu.exam.dto.SelectDto" parameterType="com.server.edu.exam.dto.SelectDto">
     select STUDENT_CODE_ studentCode, NAME_ studentName from student_t
@@ -113,7 +114,7 @@
       t2.ID_ teachingClassId,t2.NAME_ teachingClassName,t2.CODE_ teachingClassCode,t6.ID_ examInfoId
       from graduate_exam_info_t t6
       left join graduate_exam_apply_examination_t t1 on t1.CALENDAR_ID_ = t6.CALENDAR_ID_ and t1.COURSE_CODE_ = t6.COURSE_CODE_
-      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_ and t6.CAMPUS_ = t2.CAMPUS_
+      left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
       left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_CODE_
       <where>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
@@ -122,9 +123,9 @@
             #{examInfoId}
           </foreach>
         </if>
-        <!--<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">-->
-          <!--and t3.CAMPUS_ = #{campus}-->
-        <!--</if>-->
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+          and t2.CAMPUS_ = #{campus}
+        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
           and t3.FACULTY_ = #{faculty}
         </if>
@@ -161,7 +162,7 @@
         )
         and t1.APPLY_STATUS_ = 4
       </where>
-    order by t2.ID_ desc
+    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc
   </select>
 
   <update id="updateExamStudentRemark" parameterType="java.util.List">
@@ -253,7 +254,7 @@
   </update>
 
   <select id="listStudentInfo"  resultType="com.server.edu.exam.dto.ExamStudentInfoAndDate">
-      select t2.ID_ examInfoId,t2.CAMPUS_ campus,t2.COURSE_CODE_ courseCode,t2.EXAM_DATE_ examDate,
+      select t2.ID_ examInfoId,t2.CAMPUS_ campus,t2.COURSE_CODE_ courseCode,t2.EXAM_DATE_ examDate,t2.EXAM_TIME_ examTime,
       t2.EXAM_START_TIME_ examStartTime,t2.EXAM_END_TIME_ examEndTime,t1.STUDENT_CODE_ studentCode,t3.NAME_ courseName
       from graduate_exam_student_t t1
       left join graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_

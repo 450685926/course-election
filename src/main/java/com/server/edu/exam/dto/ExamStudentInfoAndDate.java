@@ -16,6 +16,15 @@ public class ExamStudentInfoAndDate {
     private String studentCode;
     private String courseCode;
     private String courseName;
+    private String examTime;
+
+    public String getExamTime() {
+        return examTime;
+    }
+
+    public void setExamTime(String examTime) {
+        this.examTime = examTime;
+    }
 
     public String getCourseName() {
         return courseName;

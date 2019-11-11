@@ -6,6 +6,7 @@ package com.server.edu.election.dto;
  * @create: 2019-05-27 10:52
  */
 public class StudentRePaymentDto{
+    private Long id;
     private Long calendarId;
     private String courseCode;
     private String courseName;
@@ -15,6 +16,41 @@ public class StudentRePaymentDto{
     private Integer paid;
     private String studentCode;
     private Long billId;
+    private Integer index;
+    private Double price;
+    private String billNum;
+
+    public String getBillNum() {
+        return billNum;
+    }
+
+    public void setBillNum(String billNum) {
+        this.billNum = billNum;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getBillId() {
         return billId;

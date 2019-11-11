@@ -48,19 +48,13 @@ public class GraduateExamAuthServiceImpl implements GraduateExamAuthService {
                 || CollectionUtil.isEmpty(authVo.getOpenColleges()) || authVo.getExamType() == null){
             throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
         }
-
-        //判断数据是否重复
+        //直接删除该数据
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         Example example = new Example(GraduateExamAuth.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("calendarId",authVo.getCalendarId());
         criteria.andEqualTo("deleteStatus", DeleteStatus.NOT_DELETE);
         criteria.andEqualTo("projId",dptId);
-        int i = authDao.selectCountByExample(example);
-        if (i>0){
-            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("graduateExam.auth")));
-        }
-
+        authDao.deleteByExample(example);
         //插入
         insert(authVo,dptId);
 

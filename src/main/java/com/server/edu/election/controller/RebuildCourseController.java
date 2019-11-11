@@ -1,5 +1,6 @@
 package com.server.edu.election.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.log.LogRecord;
@@ -20,6 +21,7 @@ import com.server.edu.election.vo.StudentVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +54,7 @@ import java.util.List;
 @RequestMapping("/rebuildCourse")
 public class RebuildCourseController
 {
-    
+
     @Autowired
     private RebuildCourseChargeService service;
     
@@ -210,10 +213,22 @@ public class RebuildCourseController
     
     @ApiOperation(value = "从回收站恢复到未缴费的课程名单")
     @PostMapping("/moveRecycleCourseToNoChargeList")
-    public RestResult<?> moveRecycleCourseToNoChargeList(
-        @RequestBody List<RebuildCourseNoChargeList> list)
-    {
-        service.moveRecycleCourseToNoChargeList(list);
+    public RestResult<?> moveRecycleCourseToNoChargeList(@RequestBody List<RebuildCourseNoChargeList> list) {
+        List<RebuildCourseNoChargeList> conflictList = service.moveRecycleCourseToNoChargeList(list);
+        if (CollectionUtil.isNotEmpty(conflictList)){
+            //有冲突数据
+            StringBuilder sb = new StringBuilder();
+            sb.append("一共恢复数据"+list.size()+"条，成功恢复"+(list.size()-conflictList.size())+"条。");
+            sb.append("有冲突的"+conflictList.size()+"条。");
+            sb.append("冲突数据为:");
+            List<String> sList = new ArrayList<>();
+            conflictList.forEach(c ->{
+                 String s =  c.getStudentName()+"("+c.getStudentCode()+")的"+c.getCourseName()+"("+c.getCourseCode()+")课程";
+                 sList.add(s);
+            });
+            sb.append(StringUtils.join(sList,","));
+            return RestResult.success(sb.toString());
+        }
         return RestResult.success();
     }
     
@@ -273,18 +288,14 @@ public class RebuildCourseController
     
     @ApiOperation(value = "学生重修缴费明细")
     @PostMapping("/findStuRePayment")
-    public RestResult<List<StudentRePaymentDto>> findStuRePayment(
-        @RequestBody StudentRePaymentDto studentRePaymentDto)
-    {
-        if (studentRePaymentDto.getCalendarId() == null)
-        {
+    public RestResult<PageResult<StudentRePaymentDto>> findStuRePayment(@RequestBody PageCondition<StudentRePaymentDto> condition) {
+        if (condition.getCondition().getCalendarId() == null) {
             throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
         }
         String studentCode = SessionUtils.getCurrentSession().realUid();
-        studentRePaymentDto.setStudentCode(studentCode);
-        List<StudentRePaymentDto> list =
-            service.findStuRePayment(studentRePaymentDto);
-        return RestResult.successData(list);
+        condition.getCondition().setStudentCode(studentCode);
+        PageResult<StudentRePaymentDto> result = service.findStuRePayment(condition);
+        return RestResult.successData(result);
     }
 
     /**
@@ -314,6 +325,19 @@ public class RebuildCourseController
     }
 
     /**
+     * @Description: 重修缴费回调接口
+     * @author kan yuanfeng
+     * @date 2019/11/7 9:22
+     */
+    @PostMapping("payCallback")
+    public RestResult<?> payCallback(@RequestBody JSONObject jsonObject){
+        Assert.notNull(jsonObject,"common.parameterError");
+        service.payCallback(jsonObject);
+        return RestResult.success();
+
+    }
+
+    /**
      * @Description: 财务对账(通过账单号)
      * @author kan yuanfeng
      * @date 2019/10/22 11:26
@@ -324,5 +348,22 @@ public class RebuildCourseController
         //学期(必填)，账单id
         service.payResult(rebuildCourseNoChargeLists);
         return RestResult.success();
+    }
+
+    @ApiOperation(value = "缴费订单查看")
+    @PostMapping("payDetail")
+    public RestResult<PageResult<StudentRePaymentDto>> payDetail(@RequestBody PageCondition<StudentRePaymentDto> condition) {
+        Assert.notNull(condition.getCondition().getCalendarId(),"common.parameterError");
+        String studentCode = SessionUtils.getCurrentSession().realUid();
+        condition.getCondition().setStudentCode(studentCode);
+        PageResult<StudentRePaymentDto> result = service.payDetail(condition);
+        return RestResult.successData(result);
+    }
+
+    @ApiOperation(value = "缴费订单单条查询")
+    @GetMapping("payDetail/{id}")
+    public RestResult<?> payDetailById(@PathVariable("id") @NotNull Long id) {
+        List<StudentRePaymentDto> result = service.payDetailById(id);
+        return RestResult.successData(result);
     }
 }

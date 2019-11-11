@@ -14,4 +14,65 @@
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
+
+  <!--批量设置支付状态-->
+  <update id="updatePayBatch" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index"  separator=";">
+      update elc_bills_t eb
+      <set>
+        <if test="item.flag">
+          eb.PAY_ = eb.AMOUNT_
+        </if>
+        <if test="!item.flag">
+          eb.PAY_ = 0
+        </if>
+      </set>
+      where eb.BILL_NUM_ = #{item.billNum}
+    </foreach>
+  </update>
+
+  <select id="payDetail" resultType="com.server.edu.election.dto.StudentRePaymentDto">
+      SELECT
+        eb.ID_ billId,
+        GROUP_CONCAT(ec.COURSE_CODE_) courseCode,
+        GROUP_CONCAT(ct.NAME_) courseName,
+        sum(ct.CREDITS_) credits,
+        rc.UNIT_PRICE_ unitPrice,
+        eb.BILL_NUM_ billNum,
+        sum(ct.CREDITS_)*rc.UNIT_PRICE_ price,
+        ec.PAID_ paid
+        FROM elc_bills_t eb
+        left JOIN student_t st
+        on eb.STUDENT_ID_ = st.STUDENT_CODE_
+        left JOIN rebuild_course_charge_t rc
+        on st.TRAINING_LEVEL_ = rc.TRAINING_LEVEL_ and st.FORM_LEARNING_ = rc.FORM_LEARNING_
+        left JOIN elc_course_takes_t_${index} ec
+        on eb.ID_ = ec.BILL_ID_
+        left JOIN course_t ct
+        on ec.COURSE_CODE_ = ct.CODE_
+        WHERE eb.STUDENT_ID_ = #{studentCode} and eb.CALENDAR_ID_ = #{calendarId}
+        GROUP BY eb.ID_
+  </select>
+
+  <select id="payDetailById" resultType="com.server.edu.election.dto.StudentRePaymentDto">
+          SELECT
+          eb.ID_ billId,
+          ec.COURSE_CODE_ courseCode,
+          ct.NAME_ courseName,
+          ct.CREDITS_ credits,
+          rc.UNIT_PRICE_ unitPrice,
+          eb.BILL_NUM_ billNum,
+          ct.CREDITS_*rc.UNIT_PRICE_ price,
+          ec.PAID_ paid
+          FROM elc_bills_t eb
+          left JOIN student_t st
+          on eb.STUDENT_ID_ = st.STUDENT_CODE_
+          left JOIN rebuild_course_charge_t rc
+          on st.TRAINING_LEVEL_ = rc.TRAINING_LEVEL_ and st.FORM_LEARNING_ = rc.FORM_LEARNING_
+          left JOIN elc_course_takes_t_${index} ec
+          on eb.ID_ = ec.BILL_ID_
+          left JOIN course_t ct
+          on ec.COURSE_CODE_ = ct.CODE_
+          WHERE eb.ID_ = #{billId}
+  </select>
 </mapper>

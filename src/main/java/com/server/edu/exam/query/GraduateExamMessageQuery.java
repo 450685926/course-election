@@ -24,14 +24,14 @@ public class GraduateExamMessageQuery implements Serializable {
     private List<String> facultys;
     private String projId;
 
-    private List<Long> infoRoomIds;
+    private List<Long> examInfoIds;
 
-    public List<Long> getInfoRoomIds() {
-        return infoRoomIds;
+    public List<Long> getExamInfoIds() {
+        return examInfoIds;
     }
 
-    public void setInfoRoomIds(List<Long> infoRoomIds) {
-        this.infoRoomIds = infoRoomIds;
+    public void setExamInfoIds(List<Long> examInfoIds) {
+        this.examInfoIds = examInfoIds;
     }
 
     public Long getCalendarId() {

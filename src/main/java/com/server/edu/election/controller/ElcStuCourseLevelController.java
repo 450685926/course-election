@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.server.edu.dictionary.service.DictionaryService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -67,6 +68,9 @@ public class ElcStuCourseLevelController
     
     @Autowired
     private StudentDao studentDao;
+
+    @Autowired
+    private DictionaryService dictionaryService;
     
     /**
      * 上课名单列表
@@ -160,6 +164,7 @@ public class ElcStuCourseLevelController
                 public Object handler(String value)
                 {
                     value = StringUtils.trim(value);
+                    value = value.split("\\.")[0];
                     Student stu = studentDao.findStudentByCode(value);
                     if(stu == null) {
                         return null;
@@ -174,7 +179,9 @@ public class ElcStuCourseLevelController
                     {
                         String value1 = StringUtils.trim(value);
                         CourseLevelDto findFirst = coursesLevel.stream()
-                            .filter(p -> {return StringUtils.equalsIgnoreCase(p.getLevelName(), value1);})
+                            .filter(p -> {return StringUtils.equalsIgnoreCase
+                                    (dictionaryService.query("X_KCKM", p.getName()) + dictionaryService.query("X_CJDJ", p.getLevel()),
+                                    value1);})
                             .findFirst()
                             .orElse(null);
                         if(null == findFirst) {
