@@ -270,10 +270,7 @@
         </foreach>
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examStartTime)">
-        <![CDATA[ and t1.EXAM_DATE_ >= #{examStartTime} ]]>
-      </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examEndTime)">
-        <![CDATA[ and t1.EXAM_DATE_ <= #{examEndTime} ]]>
+        <![CDATA[ and DATE_FORMAT(t1.EXAM_DATE_,'%Y-%m-%d') = DATE_FORMAT(#{examStartTime},'%Y-%m-%d')]]>
       </if>
       and t1.EXAM_STATUS_ = 2
     </where>
@@ -356,16 +353,9 @@
                 or t4.CODE_ like concat('%',#{keyword},'%') or t4.NAME_ like concat('%',#{keyword},'%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examStartTime)">
-                <![CDATA[
-				and t3.EXAM_DATE_ >= #{examStartTime}
-				   ]]>
+                <![CDATA[ and DATE_FORMAT(t3.EXAM_DATE_,'%Y-%m-%d') = DATE_FORMAT(#{examStartTime},'%Y-%m-%d') ]]>
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examEndTime)">
-                <![CDATA[
-				and t3.EXAM_DATE_ <= #{examEndTime}
-				   ]]>
-            </if>
-            and t3.EXAM_STATUS_ = 2 and t6.TYPE_ = 0
+            and t3.EXAM_STATUS_ = 2
         </where>
         GROUP BY t1.ID_
     </select>
