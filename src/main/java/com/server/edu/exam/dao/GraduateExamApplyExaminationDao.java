@@ -16,4 +16,6 @@ public interface GraduateExamApplyExaminationDao extends Mapper<GraduateExamAppl
 
     void updateByList(@Param("list") List<Long> applyExamination, @Param("applyStatus") int applyStatus,@Param("aduitOpinions") String aduitOpinions);
 
+    Page<GraduateExamApplyExaminationVo> listGraduateMakeUp(GraduateExamApplyExaminationVo condition);
+
 }
