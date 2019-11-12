@@ -134,10 +134,7 @@
                 and t2.FORM_LEARNING_= #{query.formLearning}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-                and t3.COLLEGE_ = #{query.faculty}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
-                and t3.CODE_ = #{query.courseCode}
+                and t3.FACULTY_ = #{query.faculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
                 and t3.NAME_ = #{query.courseName}
@@ -146,7 +143,7 @@
                 and t3.NATURE_ = #{query.nature}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
-                and t3.CODE_ = #{query.courseCode}
+                and t3.COURSE_CODE_ = #{query.courseCode}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
                 and t3.LABEL_ = #{query.label}
@@ -155,7 +152,7 @@
                 and t3.IS_ELECTIVE_ = #{query.isElective}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
-                and t3.CODE_ IN
+                and t3.COURSE_CODE_ IN
                 <foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">
                     #{code}
                 </foreach>
