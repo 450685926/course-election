@@ -71,8 +71,8 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
 
-    @Autowired
-    private ElecYjsServiceImpl elecYjsServiceImpl;
+//    @Autowired
+//    private ElecYjsServiceImpl elecYjsServiceImpl;
 
     @Override
     @Transactional
@@ -277,11 +277,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
             elcLogDao.insertSelective(log);
-            try {
-                elecYjsServiceImpl.updateSelectCourse(studentId,courseCode, ElectRuleType.ELECTION);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+//                elecYjsServiceImpl.updateSelectCourse(studentId,courseCode, ElectRuleType.ELECTION);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         } else if (rebuildCourseVo.getStatus() == 1) {
             Long id = rebuildCourseVo.getTeachingClassId();
             List<Long> list = new ArrayList<>(1);
@@ -297,11 +297,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             // 添加选课日志
             log.setType(ElcLogVo.TYPE_2);
             elcLogDao.insertSelective(log);
-            try {
-                elecYjsServiceImpl.updateSelectCourse(studentId,courseCode, ElectRuleType.WITHDRAW);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+//                elecYjsServiceImpl.updateSelectCourse(studentId,courseCode, ElectRuleType.WITHDRAW);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.statusError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
