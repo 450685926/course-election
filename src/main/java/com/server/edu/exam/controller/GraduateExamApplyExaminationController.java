@@ -1,6 +1,7 @@
 package com.server.edu.exam.controller;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.ExamMakeUp;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.exam.dto.SelectDto;
@@ -63,6 +64,12 @@ public class GraduateExamApplyExaminationController {
     @PostMapping("/applyCourseList")
     public RestResult<PageResult<SelectDto>> applyCourseList(@RequestBody PageCondition<SelectDto> condition){
         PageResult<SelectDto> pageResult = applyExaminationService.applyCourseList(condition);
+        return RestResult.successData(pageResult);
+    }
+
+    @PostMapping("/makeUpCourseList")
+    public RestResult<PageResult<ExamMakeUp>> makeUpCourseList(@RequestBody PageCondition<ExamMakeUp> condition){
+        PageResult<ExamMakeUp> pageResult = applyExaminationService.makeUpCourseList(condition);
         return RestResult.successData(pageResult);
     }
 
