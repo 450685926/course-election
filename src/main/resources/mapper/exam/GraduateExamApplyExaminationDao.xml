@@ -183,4 +183,43 @@
     </where>
   </select>
 
+  <select id="makeUpCourseList" parameterType="com.server.edu.common.entity.ExamMakeUp" resultType="com.server.edu.common.entity.ExamMakeUp">
+    select t1.ID_ id,t1.CALENDAR_ID_ calendarId,t1.APPLY_SOURCE_ applySource,t1.STUDENT_CODE_ studentCode,t1.COURSE_CODE_ courseCode,t1.APPLY_TYPE_ applyType,t1.APPLY_STATUS_ appLyStatus,
+    t1.PROJ_ID_ projId,t1.TEACHING_CLASS_ID_ teachingClassId,t2.NAME_ courseName,t2.COLLEGE_ couFaculty,t3.NAME_ studentName,t3.FACULTY_ stuFaculty,t3.CAMPUS_ campus,t4.NAME_ teachingClassName
+    from graduate_exam_apply_examination_t t1
+    left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
+    left join student_t t3 on t1.STUDENT_CODE_ = t3.STUDENT_CODE_
+    left join teaching_class_t t4 on t1.TEACHING_CLASS_ID_ = t4.ID_
+    <where>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+        and ( t1.STUDENT_CODE_ like concat ('%', #{keyword},'%') or t1.COURSE_CODE_ like concat ('%', #{keyword},'%')
+        or t2.NAME_ like concat ('%', #{keyword},'%') or t3.NAME_ like concat ('%', #{keyword},'%'))
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projId)">
+        and t1.PROJ_ID_ = #{projId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(applySource)">
+        and t1.APPLY_SOURCE_ = #{applySource}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+        and t1.CALENDAR_ID_ = #{calendarId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(applyType)">
+        and t1.APPLY_TYPE_ = #{applyType}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(applyStatus)">
+        and t1.APPLY_STATUS_ = #{applyStatus}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuFaculty)">
+        and t3.FACULTY_ = #{stuFaculty}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(couFaculty)">
+        and t2.COLLEGE_ = #{couFaculty}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+        and t3.CAMPUS_ = #{campus}
+      </if>
+    </where>
+  </select>
+
 </mapper>

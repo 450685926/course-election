@@ -1,6 +1,7 @@
 package com.server.edu.exam.dao;
 
 import com.github.pagehelper.Page;
+import com.server.edu.common.entity.ExamMakeUp;
 import com.server.edu.exam.dto.GraduateExamStudentDto;
 import com.server.edu.exam.entity.GraduateExamApplyExamination;
 import com.server.edu.exam.vo.GraduateExamApplyExaminationVo;
@@ -18,4 +19,5 @@ public interface GraduateExamApplyExaminationDao extends Mapper<GraduateExamAppl
 
     Page<GraduateExamApplyExaminationVo> listGraduateMakeUp(GraduateExamApplyExaminationVo condition);
 
+    Page<ExamMakeUp> makeUpCourseList(ExamMakeUp condition);
 }

@@ -3,6 +3,7 @@ package com.server.edu.exam.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.ExamMakeUp;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
@@ -354,6 +355,13 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
         }else{
             page =  examStudentDao.listApplyCourseListMakeUp(selectDto);
         }
+        return new PageResult<>(page);
+    }
+
+    @Override
+    public PageResult<ExamMakeUp> makeUpCourseList(PageCondition<ExamMakeUp> condition) {
+        PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
+        Page<ExamMakeUp> page = applyExaminationDao.makeUpCourseList(condition.getCondition());
         return new PageResult<>(page);
     }
 
