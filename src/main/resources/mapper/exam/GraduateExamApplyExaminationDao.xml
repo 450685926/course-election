@@ -85,7 +85,7 @@
 
   <select id="listGraduateMakeUp" parameterType="com.server.edu.exam.vo.GraduateExamApplyExaminationVo" resultMap="VoBaseResultMap">
     select t6.ID_,t6.CALENDAR_ID_,t6.APPLY_SOURCE_,t6.STUDENT_CODE_,t6.COURSE_CODE_,t6.APPLY_TYPE_,t6.APPLY_STATUS_,t6.APPLY_REASON_,t6.ADUIT_OPINIONS_,
-    t6.COURSE_NAME_,t7.NAME_ studentName,t7.CAMPUS_ campus,t7.FACULTY_ collenge
+    t6.COURSE_NAME_ courseName,t7.NAME_ studentName,t7.CAMPUS_ campus,t7.FACULTY_ collenge
     from
       (SELECT
           t1.CALENDAR_ID_ CALENDAR_ID_,

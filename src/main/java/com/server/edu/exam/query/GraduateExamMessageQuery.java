@@ -24,6 +24,8 @@ public class GraduateExamMessageQuery implements Serializable {
     private List<String> facultys;
     private String projId;
 
+    private List<Long> infoRoomIds;
+
     private List<Long> examInfoIds;
 
     public List<Long> getExamInfoIds() {
@@ -32,6 +34,14 @@ public class GraduateExamMessageQuery implements Serializable {
 
     public void setExamInfoIds(List<Long> examInfoIds) {
         this.examInfoIds = examInfoIds;
+    }
+
+    public List<Long> getInfoRoomIds() {
+        return infoRoomIds;
+    }
+
+    public void setInfoRoomIds(List<Long> infoRoomIds) {
+        this.infoRoomIds = infoRoomIds;
     }
 
     public Long getCalendarId() {

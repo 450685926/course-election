@@ -176,4 +176,7 @@ public interface GraduateExamInfoService {
     * @date 2019/10/18 16:16
     */
     Restrict checkExamStudentsConflict(List<GraduateExamStudent> list);
+
+    /**编辑排考设置*/
+    EditGraduateExam editGraduateExam(Long id);
 }

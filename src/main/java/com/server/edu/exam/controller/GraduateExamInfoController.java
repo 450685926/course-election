@@ -181,4 +181,11 @@ public class GraduateExamInfoController {
         GraduateExamStudentNumber number = examInfoService.getExamStudentNumber(studentNumber);
         return RestResult.successData(number);
     }
+
+
+    @GetMapping("/editGraduateExam")
+    public RestResult<EditGraduateExam> editGraduateExam(@RequestParam Long id){
+        EditGraduateExam  item = examInfoService.editGraduateExam(id);
+        return RestResult.successData(item);
+    }
 }
