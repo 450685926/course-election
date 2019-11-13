@@ -19,7 +19,6 @@ import org.springframework.util.Assert;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElcLogDao;
@@ -179,13 +178,13 @@ public class ElecBkServiceImpl implements ElecBkService
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
-                this.saveElc(context, teachClass, ElectRuleType.ELECTION);
                 // 判断是否有重修课
                 if (!hasRetakeCourse && RetakeCourseUtil
                     .isRetakeCourseBk(context, teachClass.getCourseCode()))
                 {
                     hasRetakeCourse = true;
                 }
+                this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse);
             }
         }
         // 判断学生是否要重修缴费
@@ -255,7 +254,7 @@ public class ElecBkServiceImpl implements ElecBkService
             {
                 this.saveElc(context,
                     teachClass.getCourse(),
-                    ElectRuleType.WITHDRAW);
+                    ElectRuleType.WITHDRAW,false);
                 // 删除缓存中的数据
                 Iterator<SelectedCourse> iterator = selectedCourses.iterator();
                 while (iterator.hasNext())
@@ -275,7 +274,7 @@ public class ElecBkServiceImpl implements ElecBkService
     @Transactional
     @Override
     public void saveElc(ElecContextBk context, TeachingClassCache teachClass,
-        ElectRuleType type)
+        ElectRuleType type,boolean hasRetakeCourse)
     {
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
@@ -292,11 +291,12 @@ public class ElecBkServiceImpl implements ElecBkService
         
         Integer logType = ElcLogVo.TYPE_1;
         
-        Integer courseTakeType =
-            Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())
-                ? CourseTakeType.RETAKE.type()
-                : CourseTakeType.NORMAL.type();
+//        Integer courseTakeType =
+//            Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())
+//                ? CourseTakeType.RETAKE.type()
+//                : CourseTakeType.NORMAL.type();
         
+        Integer courseTakeType = hasRetakeCourse==true?2:1;
         if (ElectRuleType.ELECTION.equals(type))
         {
             if (dataProvider.containsRule(roundId,
