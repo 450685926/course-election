@@ -149,7 +149,11 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         {
             elecRoundStuDao.delete(roundId, studentCodes);
         }else{
-        	elecRoundStuDao.deleteAll(roundId);
+            List<String> stu = elecRoundStuDao.findStuByRoundId(roundId);
+            if (CollectionUtil.isEmpty(stu)) {
+                throw new ParameterValidateException("无可移除名单");
+            }
+            elecRoundStuDao.deleteAll(roundId);
         }
     }
     
