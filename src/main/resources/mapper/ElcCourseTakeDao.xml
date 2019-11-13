@@ -137,7 +137,7 @@
                 and t3.FACULTY_ = #{query.faculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
-                and t3.NAME_ = #{query.courseName}
+                and t3.COURSE_NAME_ = #{query.courseName}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
                 and t3.NATURE_ = #{query.nature}
