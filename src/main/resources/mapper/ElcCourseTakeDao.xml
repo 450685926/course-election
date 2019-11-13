@@ -53,7 +53,7 @@
         <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel"/>
         <result column="medWithdrawId" jdbcType="BIGINT" property="medWithdrawId"/>
         <result column="courseLabel" jdbcType="VARCHAR" property="courseLabel"/>
-        <result column="MODE_" jdbcType="INTEGER" property="electionMode"/>
+        <result column="MODE" jdbcType="INTEGER" property="electionMode"/>
         <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
     </resultMap>
 
@@ -74,6 +74,7 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
+        t6.MODE as MODE,
         t2.NAME_,t2.PROFESSION_,t2.GRADE_,
         t2.TRAINING_LEVEL_,
         t3.FACULTY_,
@@ -85,7 +86,12 @@
         JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ 
 	     AND t3.CALENDAR_ID_ = t1.CALENDAR_ID_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+       left join (select MODE_ MODE,STUDENT_ID_ STUDENT_ID,COURSE_CODE_ COURSE_CODE,TEACHING_CLASS_CODE_ TEACHING_CLASS_CODE
+       from election_log_t_${query.index} where TYPE_ = 1
+        group by STUDENT_ID_ , COURSE_CODE_, TEACHING_CLASS_CODE_ order by CREATED_AT_ DESC)t6
+        ON (t6.STUDENT_ID = t1.STUDENT_ID_ and t6.TEACHING_CLASS_CODE = t4.CODE_ and t6.COURSE_CODE = t1.COURSE_CODE_)
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
+      
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
                 and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
@@ -100,7 +106,7 @@
                 and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
-                and t1.MODE_ = #{query.mode}
+                and t6.MODE = #{query.mode}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
                 and t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=BIGINT}
@@ -167,7 +173,11 @@
                 and t4.CAMPUS_ =#{query.campus,jdbcType=BIGINT}
             </if>
         </where>
-        order by CREATED_AT_ DESC, t1.STUDENT_ID_
+        order by CREATED_AT_ DESC, t1.STUDENT_ID_ 
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.endRow)">
+        	limit ${query.startRow},${query.endRow}
+       </if>
+        
     </select>
 
     <select id="courseTakeNameList" resultMap="VoResultMap">
