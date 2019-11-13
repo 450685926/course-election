@@ -28,6 +28,6 @@ public interface ElecBkService
      * @see [类、类#方法、类#成员]
      */
     void saveElc(ElecContextBk context, TeachingClassCache teachClass,
-        ElectRuleType type);
+        ElectRuleType type,boolean hasRetakeCourse);
     
 }
