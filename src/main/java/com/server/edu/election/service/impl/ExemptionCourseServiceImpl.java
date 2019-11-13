@@ -40,6 +40,7 @@ import com.server.edu.dictionary.DictCache;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ExemptionApplyConditionDao;
@@ -73,6 +74,7 @@ import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.PlanCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElecFirstLanguageContrastVo;
@@ -154,6 +156,10 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
     
     @Autowired
     private RedisTemplate<String, List<DictCache>> redisTemplate;
+    
+    
+    @Autowired
+    private ElecYjsServiceImpl elecYjsServiceImpl;
     
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -496,8 +502,19 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 				if (exemptionApplyManage1 != null) {
 					exemptionApplyManage1.setExamineResult(SUCCESS_STATUS);
 					applyDao.updateByPrimaryKey(exemptionApplyManage1);
+					try {
+						elecYjsServiceImpl.updateSelectCourse(exemptionApplyManage1.getStudentCode(),exemptionApplyManage1.getCourseCode(),ElectRuleType.ELECTION);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}else{
 					applyDao.insertSelective(exemptionApplyManage);
+					try {
+						elecYjsServiceImpl.updateSelectCourse(exemptionApplyManage.getStudentCode(),exemptionApplyManage.getCourseCode(),ElectRuleType.ELECTION);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
 				}
 			}
 		}
@@ -899,6 +916,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
         			if(code != 200){
         				return "common.editError";
         			}
+        			try {
+		    			elecYjsServiceImpl.updateSelectCourse(exemptionApplyManage.getStudentCode(),exemptionApplyManage.getCourseCode(),ElectRuleType.ELECTION);
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    		}
 				}
         		for (ExemptionApplyManage exemptionApplyManage : exemptionApplyManageVo) {
         			idss.add(exemptionApplyManage.getId());
@@ -1377,6 +1399,11 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 	        			return RestResult.fail("common.editError","");
 	        		}
 					applyDao.insertSelective(exemptionApplyManage);
+					try {
+		    			elecYjsServiceImpl.updateSelectCourse(exemptionApplyManage.getStudentCode(),exemptionApplyManage.getCourseCode(),ElectRuleType.ELECTION);
+		    		} catch (Exception e) {
+		    			e.printStackTrace();
+		    		}
 				}
 			}
     		 applicationContext
@@ -1486,6 +1513,12 @@ public class ExemptionCourseServiceImpl implements ExemptionCourseService{
 			applyDao.deleteExemptionApply(effectiveIds);
 			for (Long id : effectiveIds) {
 				ExemptionApplyManage applyRecord = applyDao.selectByPrimaryKey(id);
+				try {
+					elecYjsServiceImpl.updateSelectCourse(applyRecord.getStudentCode(),applyRecord.getCourseCode(),ElectRuleType.WITHDRAW);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 				if (applyRecord != null) {
 					applicationContext
 					.publishEvent(new ElectLoadEvent(applyRecord.getCalendarId(), applyRecord.getStudentCode()));

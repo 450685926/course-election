@@ -155,9 +155,14 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         student.setStudentIds(elcAffinityCoursesVo.getStudentIds());
         List<Student> selectUnElcStudents = studentDao.selectUnElcStudents(student);
         List<String> stuIds = selectUnElcStudents.stream().map(Student::getStudentCode).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(stuIds)) {
+       	 throw new ParameterValidateException(
+                    I18nUtil.getMsg("common.exist",""));
+		}
         
         //查找用户添加的学生名单,拿到可以添加的学生名单
         List<String> listExistStu = elecRoundStuDao.listExistStu(stuIds, session.getCurrentManageDptId());
+//      List<String> listExistStu = elecRoundStuDao.listExistStu(stuIds, "1");
         if (CollectionUtil.isEmpty(listExistStu)) {
         	 throw new ParameterValidateException(
                      I18nUtil.getMsg("common.saveError",
