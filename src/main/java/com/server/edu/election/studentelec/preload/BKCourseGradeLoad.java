@@ -124,7 +124,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
-        // 加载成绩
+        // 加载成绩已完成和未通过的课程
         //loadScore(context, studentInfo, studentId, stu);
         loadScoreTemp(context, studentInfo, studentId, stu);
         
@@ -132,6 +132,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         Long calendarId = request.getCalendarId();
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        
         //选课集合
         this.loadSelectedCourses(studentId, selectedCourses, calendarId);
         
@@ -355,8 +356,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     public void loadSelectedCourses(String studentId,
         Set<SelectedCourse> selectedCourses, Long calendarId)
     {
+    	Integer index =TableIndexUtil.getIndex(calendarId);
         List<ElcCourseTakeVo> courseTakes =
-            elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
+            elcCourseTakeDao.findBkSelectedCourses(studentId, calendarId,index);
         String name = SchoolCalendarCacheUtil.getName(calendarId);
         // 获取学历年
         if (CollectionUtil.isNotEmpty(courseTakes))
@@ -383,11 +385,10 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setTeachClassCode(c.getTeachingClassCode());
                 lesson.setFaculty(c.getFaculty());
                 lesson.setTerm(c.getTerm());
+                lesson.setCompulsory(c.getCompulsory());
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
-                
                 course.setCourse(lesson);
-                
                 course.setLabel(c.getLabel());
                 course.setChooseObj(c.getChooseObj());
                 course.setCourseTakeType(c.getCourseTakeType());

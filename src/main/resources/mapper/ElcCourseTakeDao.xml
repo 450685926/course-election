@@ -55,6 +55,7 @@
         <result column="courseLabel" jdbcType="VARCHAR" property="courseLabel"/>
         <result column="MODE" jdbcType="INTEGER" property="electionMode"/>
         <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
+        <result column="compulsory" jdbcType="VARCHAR" property="compulsory"/>
     </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
@@ -908,6 +909,28 @@
             and t1.STUDENT_ID_ = #{studentId}
         </where>
     </select>
+    
+    <select id="findBkSelectedCourses" resultMap="VoResultMap">
+        select
+        t1.*,op.NATURE_ NATURE,
+        op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,t3.TERM_,
+        t3.LABEL_, t4.PERIOD_,
+        t3.ASSESSMENT_MODE_,
+        t4.CODE_ as teachingClassCode,
+        t4.NAME_ as teachingClassName,
+        op.IS_ELECTIVE_ as isPublicCourse,
+        t5.compulsory
+        from elc_course_takes_t_${index} t1
+        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
+        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+        join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+        join v_student_plan_course t5 on t5.studentId = t1.STUDENT_ID_ and t5.courseCode = t1.COURSE_CODE_ 
+        <where>
+            t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+            and t1.STUDENT_ID_ = #{studentId}
+        </where>
+    </select>
+    
     <select id="findAllSelectedCourses" resultMap="VoResultMap">
         select
         t1.*,op.NATURE_ NATURE,
