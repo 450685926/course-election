@@ -580,4 +580,14 @@
         </foreach>
         GROUP BY t1.COURSE_CODE_
     </select>
+
+    <select id="findExamInfoIds" parameterType="java.util.List" resultType="java.lang.Long">
+        select ID_ from graduate_exam_info_t
+        where
+        <foreach collection="list" item="item"  separator="or" >
+            (
+            CALENDAR_ID_ = #{item.calendarId} and COURSE_CODE_ = #{item.courseCode} and PROJ_ID_ = #{item.projId} and CAMPUS_ =#{item.campus} and EXAM_TYPE_ =#{item.examType}
+            )
+        </foreach>
+    </select>
 </mapper>
