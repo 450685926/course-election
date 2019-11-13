@@ -911,6 +911,46 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         return restrict;
     }
 
+    @Override
+    public EditGraduateExam editGraduateExam(Long id) {
+        if( id == null){
+            throw new ParameterValidateException("入参有误");
+        }
+
+        //通过Id 查找合考的课程信息
+       List<Long> examInfoIds = examInfoDao.findCourseMesaage(id);
+        if(CollectionUtil.isEmpty(examInfoIds)){
+            throw new ParameterValidateException("入参有误");
+        }
+        Long calendarId = examInfoDao.selectByPrimaryKey(examInfoIds.get(0)).getCalendarId();
+        Integer mode = (int) (calendarId % 6);
+        EditGraduateExam editGraduateExam = new EditGraduateExam();
+        editGraduateExam.setExamInfoIds(StringUtils.join(",",examInfoIds));
+        List<GraduateExamInfoVo> list = examInfoDao.editGraduateExam(examInfoIds,mode);
+        if(CollectionUtil.isNotEmpty(list)){
+            editGraduateExam.setInfoVoList(list);
+            GraduateExamInfoVo vo = list.get(0);
+            String examStartTime = vo.getExamStartTime();
+            String examEndTime = vo.getExamEndTime();
+            editGraduateExam.setActualCalendarId(vo.getActualCalendarId());
+            editGraduateExam.setClassNode(vo.getClassNode());
+            editGraduateExam.setExamDate(vo.getExamDate());
+            editGraduateExam.setExamStartTime(examStartTime);
+            editGraduateExam.setExamEndTime(examEndTime);
+            editGraduateExam.setWeekDay(vo.getWeekDay());
+            editGraduateExam.setWeekNumber(vo.getWeekNumber());
+           if(StringUtils.isNotBlank(examStartTime)){
+               editGraduateExam.setStartHour(Integer.parseInt(examStartTime.split(":")[0]));
+               editGraduateExam.setStartMinute(Integer.parseInt(examStartTime.split(":")[1]));
+           }
+           if(StringUtils.isNotBlank(examEndTime)){
+               editGraduateExam.setEndHour(Integer.parseInt(examEndTime.split(":")[0]));
+               editGraduateExam.setEndMinute(Integer.parseInt(examEndTime.split(":")[1]));
+           }
+        }
+        return editGraduateExam;
+    }
+
     //返回冲突的Id
     private Long checkTime(GraduateExamInfo examInfo, ExamStudentInfoAndDate date) {
         Date examDate = examInfo.getExamDate();
