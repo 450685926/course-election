@@ -572,7 +572,7 @@
         <foreach collection="list" item="examInfoId" open="(" separator="," close=")">
             #{examInfoId}
         </foreach>
-        GROUP BY t1.COURSE_CODE_
+        GROUP BY  t1.ID_
     </select>
 
     <select id="findExamInfoIds" parameterType="java.util.List" resultType="java.lang.Long">

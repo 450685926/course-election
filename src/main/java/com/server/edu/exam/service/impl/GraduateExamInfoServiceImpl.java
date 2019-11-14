@@ -934,12 +934,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         //通过Id 查找合考的课程信息
        List<Long> examInfoIds = examInfoDao.findCourseMesaage(id);
         if(CollectionUtil.isEmpty(examInfoIds)){
-            throw new ParameterValidateException("入参有误");
+            examInfoIds.add(id);
         }
         Long calendarId = examInfoDao.selectByPrimaryKey(examInfoIds.get(0)).getCalendarId();
         Integer mode = (int) (calendarId % 6);
         EditGraduateExam editGraduateExam = new EditGraduateExam();
-        editGraduateExam.setExamInfoIds(StringUtils.join(",",examInfoIds));
+        editGraduateExam.setExamInfoIds(StringUtils.join(examInfoIds,","));
         List<GraduateExamInfoVo> list = examInfoDao.editGraduateExam(examInfoIds,mode);
         if(CollectionUtil.isNotEmpty(list)){
             editGraduateExam.setInfoVoList(list);

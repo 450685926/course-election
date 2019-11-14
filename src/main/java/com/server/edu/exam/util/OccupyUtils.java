@@ -21,17 +21,20 @@ import java.util.stream.Collectors;
 public class OccupyUtils {
     public static void addOccupy(List<GraduateExamRoom> room, GraduateExamInfo examInfo,String remark) {
         ArrayList<OccupationParam> occupationParams = new ArrayList<>();
+        String[] start = examInfo.getExamStartTime().split(":");
+        String[] end = examInfo.getExamEndTime().split(":");
+        Integer startHour = Integer.parseInt(start[0]);
+        Integer startMinute = Integer.parseInt(start[1]);
+        Integer endHour = Integer.parseInt(end[0]);
+        Integer endMinute = Integer.parseInt(end[1]);
+        List<String> classNodes = Arrays.asList(examInfo.getClassNode().split(","));
+        int startTime = Integer.parseInt(classNodes.get(0));
+        int endTime = Integer.parseInt(classNodes.get(classNodes.size() - 1));
 
         for (GraduateExamRoom examRoom : room) {
-
-            //Long bussniessId = Long.valueOf(infoId + examRoom.getRoomId());
             OccupationParamsBuilder builder = new OccupationParamsBuilder(Usage.ExamArrange, examRoom.getId(), examInfo.getActualCalendarId(), IgnorePolicy.None);
-
-            List<String> classNodes = Arrays.asList(examInfo.getClassNode().split(","));
-            int startTime = Integer.parseInt(classNodes.get(0));
-            int endTime = Integer.parseInt(classNodes.get(classNodes.size() - 1));
             builder.occupy(examRoom.getRoomId(), ResourceType.Classroom, remark, examInfo.getCampus())
-                    .addTime(WeekDay.valueOf(examInfo.getWeekDay()), startTime, endTime, Arrays.asList(examInfo.getWeekNumber()));
+                    .addTime(WeekDay.valueOf(examInfo.getWeekDay()), startTime, endTime, Arrays.asList(examInfo.getWeekNumber()),startHour,startMinute,endHour,endMinute);
             List<OccupationParam> params = builder.build(); // 这个参数就可以传递给对应的接口了
             occupationParams.add(params.get(0));
         }
@@ -46,16 +49,23 @@ public class OccupyUtils {
     public static void addTeaOccupy(List<GraduateExamTeacher> teachers, GraduateExamInfo examInfo) {
         ArrayList<OccupationParam> occupationParams = new ArrayList<>();
 
+        String[] start = examInfo.getExamStartTime().split(":");
+        String[] end = examInfo.getExamEndTime().split(":");
+        Integer startHour = Integer.parseInt(start[0]);
+        Integer startMinute = Integer.parseInt(start[1]);
+        Integer endHour = Integer.parseInt(end[0]);
+        Integer endMinute = Integer.parseInt(end[1]);
+
+        List<String> classNodes = Arrays.asList(examInfo.getClassNode().split(","));
+        int startTime = Integer.parseInt(classNodes.get(0));
+        int endTime = Integer.parseInt(classNodes.get(classNodes.size() - 1));
+
         for (GraduateExamTeacher teacher : teachers) {
 
             OccupationParamsBuilder builder = new OccupationParamsBuilder(Usage.ExamArrange, teacher.getExamRoomId(), examInfo.getActualCalendarId(), IgnorePolicy.None);
 
-            List<String> classNodes = Arrays.asList(examInfo.getClassNode().split(","));
-            int startTime = Integer.parseInt(classNodes.get(0));
-            int endTime = Integer.parseInt(classNodes.get(classNodes.size() - 1));
-
             builder.occupy(teacher.getTeacherCode(), ResourceType.Teacher, "添加研究生排考占用", examInfo.getCampus())
-                    .addTime(WeekDay.valueOf(examInfo.getWeekDay()), startTime, endTime, Arrays.asList(examInfo.getWeekNumber()));
+                    .addTime(WeekDay.valueOf(examInfo.getWeekDay()), startTime, endTime, Arrays.asList(examInfo.getWeekNumber()),startHour,startMinute,endHour,endMinute);
             List<OccupationParam> params = builder.build(); // 这个参数就可以传递给对应的接口了
             occupationParams.add(params.get(0));
         }
