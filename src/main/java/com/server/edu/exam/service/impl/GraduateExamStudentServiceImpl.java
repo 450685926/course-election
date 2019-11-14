@@ -203,15 +203,29 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         }
         GraduateExamInfo examInfo = examInfoDao.selectByPrimaryKey(condition.getExamInfoId());
         condition.setExamType(examInfo.getExamType());
-        //查询该学生是否修读该课程
-        ExamStudentAddDto addDto = examInfoDao.findStudentElcCourseTake(condition);
-        if(addDto == null){
-            throw new ParameterValidateException("该学生没有修读这个课程或该课程已经有成绩不能排考");
+        ExamStudentAddDto addDto = new ExamStudentAddDto();
+        if(examInfo.getExamType().equals(ApplyStatus.FINAL_EXAM)){
+            //查询该学生是否已经有成绩
+           int i =  examStudentDao.findStudentScoreByCondition(condition);
+           if(i > 0){
+               throw new ParameterValidateException("该学生该课程已经有成绩，不能添加应考学生");
+           }
+            //查询该学生是否修读该课程
+            addDto = examInfoDao.findStudentElcCourseTake(condition);
+            if(addDto == null){
+                throw new ParameterValidateException("该学生没有修读这个课程，不能添加应考学生");
+            }
+        }else{
+            //查询该学生是课程补缓考审核通过
+            addDto = applyExaminationDao.findStudentMakeUp(condition);
+            if(addDto == null){
+                throw new ParameterValidateException("补缓考通过列表没有该学生，不能添加应考学生");
+            }
         }
         //查询该学生是否已经排考了
         int i = examInfoDao.findStudentByInfoId(condition.getCalendarId(),condition.getCourseCode(),condition.getStudentCode());
         if(i > 0){
-            throw new ParameterValidateException("该学生课程已经排考");
+            throw new ParameterValidateException("该学生课程已经排考，不能再次添加应考学生");
         }
         GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(condition.getExamRoomId());
         if(examRoom.getRoomNumber() + 1 > examRoom.getRoomCapacity()){

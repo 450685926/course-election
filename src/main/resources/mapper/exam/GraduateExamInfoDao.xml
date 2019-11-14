@@ -374,12 +374,6 @@
     left join teaching_class_t t2 on t2.ID_ = t1.TEACHING_CLASS_ID_
     <where>
         t1.STUDENT_ID_ = #{studentCode} and t1.CALENDAR_ID_ = #{calendarId} and t1.COURSE_CODE_ = #{courseCode}
-
-        <if test=" examType == 1 ">
-            and t1.STUDENT_ID_ not in (
-            select t3.STUDENT_ID_ from score_student_result_t t3 where t3.CALENDAR_ID_ = #{calendarId} and t3.STUDENT_ID_ = #{studentCode} and t3.COURSE_CODE_ = #{courseCode} and t3.RELEASE_TYPE_ = 1
-            )
-        </if>
     </where>
   </select>
 
