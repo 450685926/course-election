@@ -147,6 +147,12 @@ public interface ElcCourseTakeDao
         @Param("studentId") String studentId,
         @Param("calendarId") Long calendarId);
     
+    /**本科生已选择课程信息*/
+    List<ElcCourseTakeVo> findBkSelectedCourses(
+        @Param("studentId") String studentId,
+        @Param("calendarId") Long calendarId,
+        @Param("index") Integer index);
+    
     /**未申请期中退课课程信息*/
     List<ElcCourseTakeVo> findUnApplyCourses(
         @Param("studentId") String studentId,

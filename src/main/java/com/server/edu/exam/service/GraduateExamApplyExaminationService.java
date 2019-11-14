@@ -1,6 +1,7 @@
 package com.server.edu.exam.service;
 
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.ExamMakeUp;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.exam.dto.SelectDto;
 import com.server.edu.exam.entity.GraduateExamApplyExamination;
@@ -27,4 +28,8 @@ public interface GraduateExamApplyExaminationService {
 
     /**补缓考代理申请课程下拉列表*/
     PageResult<SelectDto> applyCourseList(PageCondition<SelectDto> selectDto);
+
+    /**补缓考对外提交接口*/
+    PageResult<ExamMakeUp> makeUpCourseList(PageCondition<ExamMakeUp> condition);
+
 }

@@ -68,10 +68,10 @@ public class OccupyUtils {
 
     }
 
-    public static void delOccupy(Long bussniessId, GraduateExamInfo examInfo) {
+    public static void delOccupy( GraduateExamInfo examInfo,Object ... businessIds) {
 
         OccupationParamsBuilder builder = new OccupationParamsBuilder(Usage.ExamArrange, examInfo.getActualCalendarId());
-        List<OccupationParam> params = builder.buildDeleteParams(bussniessId);
+        List<OccupationParam> params = builder.buildDeleteParams(businessIds);
 
         RestResult<List<ConflictMessage>> result = BaseresServiceExamInvoker.delOccupy(params);
         if (result.getCode() != 200) {

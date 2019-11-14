@@ -102,6 +102,10 @@ public class ElcCourseTakeQuery
     private String campus;
     
     private Integer index;
+    
+    private Integer startRow;
+    
+    private Integer endRow;
 
     
     public Integer getIndex() {
@@ -390,6 +394,22 @@ public class ElcCourseTakeQuery
 
 	public void setCampus(String campus) {
 		this.campus = campus;
+	}
+
+	public Integer getStartRow() {
+		return startRow;
+	}
+
+	public void setStartRow(Integer startRow) {
+		this.startRow = startRow;
+	}
+
+	public Integer getEndRow() {
+		return endRow;
+	}
+
+	public void setEndRow(Integer endRow) {
+		this.endRow = endRow;
 	}
 
 

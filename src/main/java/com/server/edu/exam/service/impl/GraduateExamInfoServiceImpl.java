@@ -6,6 +6,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.WorkTime;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchCalendarTimeVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SpringUtils;
@@ -29,7 +30,6 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.excel.CellValueHandler;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
@@ -136,7 +136,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
 
     @Override
     @Transactional
-    public ExamSaveTimeRebackDto insertTime(List<GraduateExamInfo> examInfo) {
+    public RestResult<ExamSaveTimeRebackDto> insertTime(List<GraduateExamInfo> examInfo) {
         if (CollectionUtil.isEmpty(examInfo)) {
             throw new ParameterValidateException("入参有误");
         }
@@ -148,6 +148,10 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Integer weekDay = null;
         String classNode = "";
         Long actualCalendarId = null;
+        Integer startHour = null;
+        Integer endHour = null;
+        Integer startMinute = null;
+        Integer endMinute = null;
 
         String examTime = "";
         //时间地点
@@ -159,6 +163,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
              weekDay = info.getWeekDay();
              classNode = info.getClassNode();
              actualCalendarId = info.getActualCalendarId();
+            String[] start = examStartTime.split(":");
+            String[] end = examEndTime.split(":");
+            startHour = Integer.parseInt(start[0]);
+            startMinute = Integer.parseInt(start[1]);
+            endHour = Integer.parseInt(end[0]);
+            endMinute = Integer.parseInt(end[1]);
             if (examDate == null || StringUtils.isBlank(examStartTime)
                     || StringUtils.isBlank(examEndTime) || info.getCalendarId() == null
                     || StringUtils.isBlank(info.getCourseCode()) || StringUtils.isBlank(info.getCampus())
@@ -205,7 +215,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 GraduateExamInfo item = examInfoDao.selectByPrimaryKey(existInfo.getId());
                 if(!graduateExamInfo.getExamTime().equals(item.getExamTime())){
                     if(item.getExamRooms() != null && item.getExamRooms() > 0 ){
-                        throw new ParameterValidateException("变更排考时间,请先删除考场,然后再次保存时间");
+                        //throw new ParameterValidateException("变更排考时间,请先删除考场,然后再次保存时间");
+                        return RestResult.fail("您确定要修改排考时间吗?此操作将清除原考场信息,是否继续?");
                     }
                 }
                 graduateExamInfo.setExamRooms(item.getExamRooms());
@@ -223,7 +234,11 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         dto.setWeekDay(weekDay);
         dto.setClassNode(classNode);
         dto.setActualCalendarId(actualCalendarId);
-        return dto;
+        dto.setStartHour(startHour);
+        dto.setStartMinute(startMinute);
+        dto.setEndHour(endHour);
+        dto.setEndMinute(endMinute);
+        return RestResult.successData(dto);
     }
 
     //检验公共课相同课程时间必须一致
@@ -555,8 +570,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         infoRoomDao.deleteByExample(infoRoom);
 
         // 删除教室占用
-        Long bussniessId = ids.get(0);
-        OccupyUtils.delOccupy(bussniessId, examInfo);
+        OccupyUtils.delOccupy( examInfo,ids.toArray());
 
     }
 
@@ -909,6 +923,72 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             }
         }
         return restrict;
+    }
+
+    @Override
+    public EditGraduateExam editGraduateExam(Long id) {
+        if( id == null){
+            throw new ParameterValidateException("入参有误");
+        }
+
+        //通过Id 查找合考的课程信息
+       List<Long> examInfoIds = examInfoDao.findCourseMesaage(id);
+        if(CollectionUtil.isEmpty(examInfoIds)){
+            throw new ParameterValidateException("入参有误");
+        }
+        Long calendarId = examInfoDao.selectByPrimaryKey(examInfoIds.get(0)).getCalendarId();
+        Integer mode = (int) (calendarId % 6);
+        EditGraduateExam editGraduateExam = new EditGraduateExam();
+        editGraduateExam.setExamInfoIds(StringUtils.join(",",examInfoIds));
+        List<GraduateExamInfoVo> list = examInfoDao.editGraduateExam(examInfoIds,mode);
+        if(CollectionUtil.isNotEmpty(list)){
+            editGraduateExam.setInfoVoList(list);
+            GraduateExamInfoVo vo = list.get(0);
+            String examStartTime = vo.getExamStartTime();
+            String examEndTime = vo.getExamEndTime();
+            editGraduateExam.setActualCalendarId(vo.getActualCalendarId());
+            editGraduateExam.setClassNode(vo.getClassNode());
+            editGraduateExam.setExamDate(vo.getExamDate());
+            editGraduateExam.setExamStartTime(examStartTime);
+            editGraduateExam.setExamEndTime(examEndTime);
+            editGraduateExam.setWeekDay(vo.getWeekDay());
+            editGraduateExam.setWeekNumber(vo.getWeekNumber());
+           if(StringUtils.isNotBlank(examStartTime)){
+               editGraduateExam.setStartHour(Integer.parseInt(examStartTime.split(":")[0]));
+               editGraduateExam.setStartMinute(Integer.parseInt(examStartTime.split(":")[1]));
+           }
+           if(StringUtils.isNotBlank(examEndTime)){
+               editGraduateExam.setEndHour(Integer.parseInt(examEndTime.split(":")[0]));
+               editGraduateExam.setEndMinute(Integer.parseInt(examEndTime.split(":")[1]));
+           }
+        }
+        return editGraduateExam;
+    }
+
+    @Override
+    @Transactional
+    public RestResult<ExamSaveTimeRebackDto> saveExamTimeAndDeleteExamRoom(List<GraduateExamInfo> examInfo) {
+        if(CollectionUtil.isEmpty(examInfo)){
+            throw new ParameterValidateException("入参有误");
+        }
+        List<Long> examInfoIds = examInfoDao.findExamInfoIds(examInfo);
+        if(CollectionUtil.isNotEmpty(examInfoIds)){
+            Example example = new Example(GraduateExamInfoRoom.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andIn("examInfoId",examInfoIds);
+            List<GraduateExamInfoRoom> graduateExamInfoRooms = infoRoomDao.selectByExample(example);
+            List<Long> ids = new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(graduateExamInfoRooms)){
+                Set<Long> examRoomIds = graduateExamInfoRooms.stream().map(vo -> vo.getExamRoomId()).collect(Collectors.toSet());
+                ids.addAll(examRoomIds);
+            }
+            //根据id 删除考场
+            this.deleteRoom(ids,StringUtils.join(examInfoIds,","));
+            //保存时间
+            return this.insertTime(examInfo);
+
+        }
+        return null;
     }
 
     //返回冲突的Id

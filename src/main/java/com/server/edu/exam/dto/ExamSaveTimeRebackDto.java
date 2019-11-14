@@ -15,6 +15,60 @@ public class ExamSaveTimeRebackDto implements Serializable {
     private Integer weekDay;
     private String classNode;
     private Long actualCalendarId;
+    private Integer startHour;
+    private Integer endHour;
+    private Integer startMinute;
+    private Integer endMinute;
+    private String examStartTime;
+    private String examEndTime;
+
+    public Integer getStartHour() {
+        return startHour;
+    }
+
+    public void setStartHour(Integer startHour) {
+        this.startHour = startHour;
+    }
+
+    public Integer getEndHour() {
+        return endHour;
+    }
+
+    public void setEndHour(Integer endHour) {
+        this.endHour = endHour;
+    }
+
+    public Integer getStartMinute() {
+        return startMinute;
+    }
+
+    public void setStartMinute(Integer startMinute) {
+        this.startMinute = startMinute;
+    }
+
+    public Integer getEndMinute() {
+        return endMinute;
+    }
+
+    public void setEndMinute(Integer endMinute) {
+        this.endMinute = endMinute;
+    }
+
+    public String getExamStartTime() {
+        return examStartTime;
+    }
+
+    public void setExamStartTime(String examStartTime) {
+        this.examStartTime = examStartTime;
+    }
+
+    public String getExamEndTime() {
+        return examEndTime;
+    }
+
+    public void setExamEndTime(String examEndTime) {
+        this.examEndTime = examEndTime;
+    }
 
     public Long getActualCalendarId() {
         return actualCalendarId;

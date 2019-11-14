@@ -14,6 +14,7 @@ import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
@@ -57,6 +58,9 @@ public class RebuildCourseController
 
     @Autowired
     private RebuildCourseChargeService service;
+
+    @Autowired
+    private ElcCourseTakeService courseTakeService;
     
     private static Logger LOG =
         LoggerFactory.getLogger(ExemptionController.class);
@@ -214,11 +218,12 @@ public class RebuildCourseController
     @ApiOperation(value = "从回收站恢复到未缴费的课程名单")
     @PostMapping("/moveRecycleCourseToNoChargeList")
     public RestResult<?> moveRecycleCourseToNoChargeList(@RequestBody List<RebuildCourseNoChargeList> list) {
+        int size = list.size();
         List<RebuildCourseNoChargeList> conflictList = service.moveRecycleCourseToNoChargeList(list);
         if (CollectionUtil.isNotEmpty(conflictList)){
             //有冲突数据
             StringBuilder sb = new StringBuilder();
-            sb.append("一共恢复数据"+list.size()+"条，成功恢复"+(list.size()-conflictList.size())+"条。");
+            sb.append("一共恢复数据"+ size +"条，成功恢复"+(size -conflictList.size())+"条。");
             sb.append("有冲突的"+conflictList.size()+"条。");
             sb.append("冲突数据为:");
             List<String> sList = new ArrayList<>();
@@ -229,6 +234,21 @@ public class RebuildCourseController
             sb.append(StringUtils.join(sList,","));
             return RestResult.success(sb.toString());
         }
+       /* Long calendarId = add.getCalendarId();
+        List<String> studentIds = add.getStudentIds();
+        List<Long> teachingClassIds = add.getTeachingClassIds();
+        Integer mode = add.getMode();*/
+       /* ElcCourseTakeAddDto add = new ElcCourseTakeAddDto();
+        add.setCalendarId(list.get(0).getCalendarId());
+        List<String> studentIds = new ArrayList<>();
+        List<Long> teachingClassIds = new ArrayList<>();
+        list.forEach(l ->{
+            studentIds.add(l.getStudentCode());
+            teachingClassIds.add(l.getTeachingClassId());
+        });
+        add.setStudentIds(studentIds);
+        add.setTeachingClassIds(teachingClassIds);
+        String s = courseTakeService.add(add);*/
         return RestResult.success();
     }
     
