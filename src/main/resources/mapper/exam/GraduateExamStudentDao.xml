@@ -390,4 +390,9 @@
     GROUP BY
     t6.TEACHING_CLASS_ID_
   </select>
+
+  <select id="findStudentScoreByCondition" parameterType="com.server.edu.exam.dto.ExamStudentAddDto" resultType="int">
+    select COUNT(*) from score_student_result_t
+    where CALENDAR_ID_ =#{calendarId} and STUDENT_ID_ =#{studentCode} and COURSE_CODE_ =#{courseCode} and RELEASE_TYPE_ = 1
+  </select>
 </mapper>
