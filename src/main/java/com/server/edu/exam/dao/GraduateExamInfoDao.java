@@ -136,4 +136,5 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
 
     List<GraduateExamInfoVo> editGraduateExam(@Param("list") List<Long> list,@Param("mode") Integer mode);
 
+    List<Long> findExamInfoIds(@Param("list") List<GraduateExamInfo> list);
 }

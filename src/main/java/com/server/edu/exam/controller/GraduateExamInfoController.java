@@ -64,8 +64,7 @@ public class GraduateExamInfoController {
 
     @PostMapping("/saveExamTime")
     public RestResult<ExamSaveTimeRebackDto> insertTime(@RequestBody List<GraduateExamInfo> examInfo) {
-        ExamSaveTimeRebackDto dto = examInfoService.insertTime(examInfo);
-        return RestResult.successData(dto);
+        return examInfoService.insertTime(examInfo);
     }
 
     @PostMapping("/saveExamRoom")
@@ -187,5 +186,10 @@ public class GraduateExamInfoController {
     public RestResult<EditGraduateExam> editGraduateExam(@RequestParam Long id){
         EditGraduateExam  item = examInfoService.editGraduateExam(id);
         return RestResult.successData(item);
+    }
+
+    @PostMapping("/saveExamTimeAndDeleteExamRoom")
+    public RestResult<ExamSaveTimeRebackDto> saveExamTimeAndDeleteExamRoom(@RequestBody List<GraduateExamInfo> examInfo) {
+        return examInfoService.saveExamTimeAndDeleteExamRoom(examInfo);
     }
 }
