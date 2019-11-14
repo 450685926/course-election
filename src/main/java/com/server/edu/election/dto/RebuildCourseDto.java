@@ -1,9 +1,10 @@
 package com.server.edu.election.dto;
 
-import com.server.edu.dictionary.annotation.Code2Text;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
+
+import com.server.edu.dictionary.annotation.Code2Text;
 
 /**
  * @description:
@@ -43,8 +44,19 @@ public class RebuildCourseDto {
     private String deptId;
 
     private Integer paid;
+    
+    private Integer type;
+    
 
-    public Integer getPaid() {
+    public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public Integer getPaid() {
         return paid;
     }
 

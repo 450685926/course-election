@@ -9,6 +9,7 @@ import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.RebuildCourseDto;
@@ -22,6 +23,7 @@ import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.RetakeCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
@@ -68,6 +70,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Autowired
     private TeachingClassTeacherDao teachingClassTeacherDao;
+
+//    @Autowired
+//    private ElecYjsServiceImpl elecYjsServiceImpl;
 
     @Override
     @Transactional
@@ -272,6 +277,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             log.setType(ElcLogVo.TYPE_1);
             // 添加选课日志
             elcLogDao.insertSelective(log);
+//            try {
+//                elecYjsServiceImpl.updateSelectCourse(studentId,courseCode, ElectRuleType.ELECTION);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         } else if (rebuildCourseVo.getStatus() == 1) {
             Long id = rebuildCourseVo.getTeachingClassId();
             List<Long> list = new ArrayList<>(1);
@@ -287,6 +297,11 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
             // 添加选课日志
             log.setType(ElcLogVo.TYPE_2);
             elcLogDao.insertSelective(log);
+//            try {
+//                elecYjsServiceImpl.updateSelectCourse(studentId,courseCode, ElectRuleType.WITHDRAW);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.statusError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }

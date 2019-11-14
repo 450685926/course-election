@@ -263,17 +263,20 @@
           #{faculty}
         </foreach>
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
-        and t1.ID_ in
-        <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
-          #{examInfoId}
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(infoRoomIds)">
+        and t5.ID_ in
+        <foreach collection="infoRoomIds" item="infoRoomId" open="(" separator="," close=")">
+          #{infoRoomId}
         </foreach>
       </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examInfoIds)">
+            or t1.ID_ in
+            <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
+                #{examInfoId}
+            </foreach>
+        </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examStartTime)">
-        <![CDATA[ and t1.EXAM_DATE_ >= #{examStartTime} ]]>
-      </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examEndTime)">
-        <![CDATA[ and t1.EXAM_DATE_ <= #{examEndTime} ]]>
+        <![CDATA[ and DATE_FORMAT(t1.EXAM_DATE_,'%Y-%m-%d') = DATE_FORMAT(#{examStartTime},'%Y-%m-%d')]]>
       </if>
       and t1.EXAM_STATUS_ = 2
     </where>
@@ -292,8 +295,8 @@
 
     <select id="ListCourse" resultType="com.server.edu.exam.dto.SelectDto"
             parameterType="com.server.edu.exam.dto.SelectDto">
-        select t1.ID_ examInfoId,t1.COURSE_CODE_ courseCode,t2.NAME_ courseName,t1.CAMPUS_ campus from
-        graduate_exam_info_t t1
+        select  t1.COURSE_CODE_ courseCode,t2.NAME_ courseName ,GROUP_CONCAT(t1.ID_) examInfoIds
+        from graduate_exam_info_t t1
         left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
@@ -308,8 +311,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
                 and (t2.CODE_ like concat ('%',#{keyword},'%') or t2.NAME_ like concat ('%',#{keyword},'%'))
             </if>
-            and t1.EXAM_STATUS_ = 2
+            and t1.EXAM_STATUS_ >= 1
         </where>
+        GROUP BY t1.COURSE_CODE_
     </select>
 
     <select id="listExamStudent" parameterType="com.server.edu.exam.query.GraduateExamStudentQuery"
@@ -356,16 +360,9 @@
                 or t4.CODE_ like concat('%',#{keyword},'%') or t4.NAME_ like concat('%',#{keyword},'%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examStartTime)">
-                <![CDATA[
-				and t3.EXAM_DATE_ >= #{examStartTime}
-				   ]]>
+                <![CDATA[ and DATE_FORMAT(t3.EXAM_DATE_,'%Y-%m-%d') = DATE_FORMAT(#{examStartTime},'%Y-%m-%d') ]]>
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examEndTime)">
-                <![CDATA[
-				and t3.EXAM_DATE_ <= #{examEndTime}
-				   ]]>
-            </if>
-            and t3.EXAM_STATUS_ = 2 and t6.TYPE_ = 0
+            and t3.EXAM_STATUS_ = 2
         </where>
         GROUP BY t1.ID_
     </select>
@@ -401,13 +398,17 @@
 	t3.ROOM_ID_ roomId,
 	t3.ROOM_NAME_ roomName,
 	t3.ROOM_CAPACITY_ roomCapacity,
-	t3.ROOM_NUMBER_ roomNumber
+	t3.ROOM_NUMBER_ roomNumber,
+    t1.ID_ examInfoId
     FROM
         graduate_exam_info_t t1
     LEFT JOIN graduate_exam_info_room_t t2 ON t1.ID_ = t2.EXAM_INFO_ID_
     LEFT JOIN graduate_exam_room_t t3 ON t3.ID_ = t2.EXAM_ROOM_ID_
     WHERE
-	t1.ID_ = #{examInfoId}
+	t1.ID_ in
+	<foreach collection="list" item="examInfoId" open="(" close=")" separator=",">
+        #{examInfoId}
+    </foreach>
   </select>
 
     <select id="listExamInfos" resultType="com.server.edu.exam.dto.ExamInfoRoomDto">
@@ -521,4 +522,72 @@
         </foreach>
     </select>
 
+    <select id="findCourseMesaage" parameterType="java.lang.Long" resultType="java.lang.Long">
+        SELECT DISTINCT
+                EXAM_INFO_ID_
+            FROM
+                graduate_exam_info_room_t
+            WHERE
+                EXAM_ROOM_ID_ IN (SELECT
+                EXAM_ROOM_ID_
+            FROM
+                graduate_exam_info_room_t
+            WHERE
+                EXAM_INFO_ID_ = #{id})
+    </select>
+
+    <select id="editGraduateExam"  resultType="com.server.edu.exam.vo.GraduateExamInfoVo">
+        SELECT
+            t1.CALENDAR_ID_ calendarId,
+            t1.COURSE_CODE_ courseCode,
+            t2.NAME_ courseName,
+            t1.CAMPUS_ campus,
+            t2.COLLEGE_ faculty,
+            t2.NATURE_ nature,
+            t2.TRAINING_LEVEL_ trainingLevel,
+            t2.FORM_LEARNING_ formLearning,
+            t2.CREDITS_ credits,
+            count(t3.ID_) totalNumber,
+            t1.ACTUAL_NUMBER_ actualNumber,
+            t1.ID_ id,
+            t1.EXAM_DATE_ examDate,
+            GROUP_CONCAT(
+                DISTINCT t4.NAME_
+                ORDER BY
+                    t4.CODE_ ASC
+            ) teachingClassName,
+            t1.EXAM_START_TIME_ examStartTime,
+            t1.EXAM_END_TIME_ examEndTime,
+            t1.WEEK_NUMBER_ weekNumber,
+            t1.PROJ_ID_ projId,
+            t1.REMARK_ remark,
+            t1.WEEK_DAY_ weekDay,
+            t1.ClASS_NODE_ classNode,
+            t1.EXAM_STATUS_ examStatus,
+            t1.NOTICE_ notice,
+            t1.ACTUAL_CALENDAR_ID_ actualCalendarId
+        FROM
+            graduate_exam_info_t t1
+        LEFT JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
+        LEFT JOIN elc_course_takes_t_${mode} t3 ON t1.CALENDAR_ID_ = t3.CALENDAR_ID_
+        AND t1.COURSE_CODE_ = t3.COURSE_CODE_
+        LEFT JOIN teaching_class_t t4 ON t3.TEACHING_CLASS_ID_ = t4.ID_
+        WHERE
+            t1.CAMPUS_ = t4.CAMPUS_
+        AND t1.ID_ in
+        <foreach collection="list" item="examInfoId" open="(" separator="," close=")">
+            #{examInfoId}
+        </foreach>
+        GROUP BY t1.COURSE_CODE_
+    </select>
+
+    <select id="findExamInfoIds" parameterType="java.util.List" resultType="java.lang.Long">
+        select ID_ from graduate_exam_info_t
+        where
+        <foreach collection="list" item="item"  separator="or" >
+            (
+            CALENDAR_ID_ = #{item.calendarId} and COURSE_CODE_ = #{item.courseCode} and PROJ_ID_ = #{item.projId} and CAMPUS_ =#{item.campus} and EXAM_TYPE_ =#{item.examType}
+            )
+        </foreach>
+    </select>
 </mapper>

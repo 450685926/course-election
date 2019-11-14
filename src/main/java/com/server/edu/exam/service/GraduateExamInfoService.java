@@ -2,6 +2,7 @@ package com.server.edu.exam.service;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.exam.dto.*;
 import com.server.edu.exam.entity.*;
 import com.server.edu.exam.query.GraduateExamAutoStudent;
@@ -44,7 +45,7 @@ public interface GraduateExamInfoService {
     * @author bear
     * @date 2019/9/3 10:47
     */
-    ExamSaveTimeRebackDto insertTime(List<GraduateExamInfo> examInfo);
+    RestResult<ExamSaveTimeRebackDto> insertTime(List<GraduateExamInfo> examInfo);
 
     /**
     * 保存排考教室
@@ -176,4 +177,9 @@ public interface GraduateExamInfoService {
     * @date 2019/10/18 16:16
     */
     Restrict checkExamStudentsConflict(List<GraduateExamStudent> list);
+
+    /**编辑排考设置*/
+    EditGraduateExam editGraduateExam(Long id);
+
+    RestResult<ExamSaveTimeRebackDto> saveExamTimeAndDeleteExamRoom(List<GraduateExamInfo> examInfo);
 }

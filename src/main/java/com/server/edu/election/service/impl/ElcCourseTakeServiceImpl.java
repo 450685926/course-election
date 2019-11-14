@@ -27,6 +27,7 @@ import org.springframework.util.MultiValueMap;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
@@ -154,27 +155,19 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
         cond.setIncludeCourseCodes(includeCodes);
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+//        PageHelper.startPage( page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
-        Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
-//        List<ElcCourseTakeVo> list2 = listPage.getResult();
-//        if (CollectionUtil.isNotEmpty(list2)) {
-//			Iterator<ElcCourseTakeVo> iterator = list2.iterator();
-//			while (iterator.hasNext()) {
-//				ElcCourseTakeVo takeVo = iterator.next();
-//				page.getCondition().setStudentId(takeVo.getStudentId());
-//				page.getCondition().setTeachingClassCode(takeVo.getTeachingClassCode());
-//				List<ElcLog> listLogs = elcLogDao.getElectionLog(page.getCondition());
-//				if (CollectionUtil.isNotEmpty(listLogs)) {
-//					takeVo.setElectionMode(listLogs.get(0).getMode());
-//				}else {
-//					if(page.getCondition().getMode() != null) {
-//						iterator.remove();
-//					}
-//				}
-//			}
-//		}
-        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        List<ElcCourseTakeVo> listPage1 = courseTakeDao.listPage(cond);
+        Integer startRow = (page.getPageNum_()-1)*page.getPageSize_();
+        Integer endRow = page.getPageSize_();
+        cond.setStartRow(startRow);
+        cond.setEndRow(endRow);
+        List<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
+        PageResult<ElcCourseTakeVo> result = new PageResult<>();
+        result.setPageNum_(page.getPageNum_());
+        result.setList(listPage);
+        result.setPageSize_(page.getPageSize_());
+        result.setTotal_(listPage1.size());
         return result;
     }
 
