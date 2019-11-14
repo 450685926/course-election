@@ -82,6 +82,15 @@ public class ElcCourseTakeVo extends ElcCourseTake
     @Code2Text(transformer="K_BKKCXZ")
     private Integer isElective;
     
+    private String compulsory;
+    
+	public String getCompulsory() {
+		return compulsory;
+	}
+
+	public void setCompulsory(String compulsory) {
+		this.compulsory = compulsory;
+	}
 
 	public Integer getIsElective() {
         return isElective;
