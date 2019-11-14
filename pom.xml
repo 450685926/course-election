@@ -256,6 +256,10 @@
 	<build>
 		<plugins>
 			<plugin>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <version>3.3</version>
+	        </plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
