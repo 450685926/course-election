@@ -730,6 +730,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public ExcelWriterUtil exportByStuId(RebuildCourseDto rebuildCourseDto) throws Exception {
+        rebuildCourseDto.setIndex(TableIndexUtil.getIndex(rebuildCourseDto.getCalendarId()));
         Page<RebuildCourseNoChargeList> list = courseTakeDao.findNoChargeListByStuId(rebuildCourseDto);
         GeneralExcelDesigner design = getDesignByStuId();
         List<JSONObject> convertList = JacksonUtil.convertList(list);
