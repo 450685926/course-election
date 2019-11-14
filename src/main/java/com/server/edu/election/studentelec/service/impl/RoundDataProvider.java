@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.validator.Assert;
@@ -63,11 +64,24 @@ public class RoundDataProvider
     @Autowired
     private StringRedisTemplate strTemplate;
     
+    public static ScheduledExecutorService ex = Executors.newScheduledThreadPool(1);
+    
     public RoundDataProvider()
     {
+    	// 更新redis中缓存的过期时间
+        ex.scheduleAtFixedRate(() -> {
+            try
+            {
+            	load();
+            }
+            catch (Exception e)
+            {
+            	logger.error(e.getMessage(), e);
+            }
+        }, 1, 1, TimeUnit.MINUTES);
     }
     
-    @Scheduled(cron = "0 0/1 * * * *")
+//    @Scheduled(cron = "0 0/1 * * * *")
     public void load()
     {
         /*
