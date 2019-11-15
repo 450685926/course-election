@@ -175,11 +175,11 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-			String boy = "无";
+			String boy = "1";
 			if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
 				boy = vo.getNumberMale().toString();
 			}
-			String girl = "无";
+			String girl = "1";
 			if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
 				girl = vo.getNumberFemale().toString();
 			}
