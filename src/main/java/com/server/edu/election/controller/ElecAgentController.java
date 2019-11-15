@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,6 +14,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +55,9 @@ public class ElecAgentController
     
     @Autowired
     private RoundDataProvider dataProvider;
+    
+    @Autowired
+    private RedisTemplate redisTemplate;
     
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -178,6 +183,16 @@ public class ElecAgentController
             elecRequest.getStudentId(),
             ElecStatus.Init);
         
+        return RestResult.success();
+    }
+    
+    
+    @ApiOperation(value = "清除选课所有缓存数据")
+    @PostMapping("/clearElecCache")
+    public RestResult<?> clearElecCache()
+    {
+    	Set<String> keys = redisTemplate.keys("elec:" + "*");
+        redisTemplate.delete(keys);
         return RestResult.success();
     }
     
