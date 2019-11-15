@@ -269,22 +269,24 @@ public class ElcCourseTakeController
         throws Exception
     {
         ValidatorUtil.validateAndThrow(query);
-        
+
         PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
         page.setCondition(query);
         page.setPageNum_(1);
         page.setPageSize_(1000);
-        
+
         List<ElcCourseTakeVo> datas = new ArrayList<>();
         
         PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
-        while (datas.size() < res.getTotal_())
-        {
-            datas.addAll(res.getList());
-            page.setPageNum_(page.getPageNum_() + 1);
-            if (datas.size() < res.getTotal_())
+        if (CollectionUtil.isEmpty(query.getIds())) {
+            while (datas.size() < res.getTotal_())
             {
-                res = courseTakeService.listPage(page);
+                datas.addAll(res.getList());
+                page.setPageNum_(page.getPageNum_() + 1);
+                if (datas.size() < res.getTotal_())
+                {
+                    res = courseTakeService.listPage(page);
+                }
             }
         }
         List<JSONObject> convertList = JacksonUtil.convertList(datas);
@@ -292,11 +294,12 @@ public class ElcCourseTakeController
         design.addCell("学号", "studentId");
         design.addCell("姓名", "studentName");
         design.addCell("课程序号", "teachingClassCode");
-        design.addCell("课程代码", "courseCode");
+//        design.addCell("课程代码", "courseCode");
         design.addCell("课程名称", "courseName");
-        design.addCell("专业", "professionI18n");
+        design.addCell("开课学院", "facultyI18n");
+//        design.addCell("专业", "professionI18n");
         design.addCell("校区", "campusI18n");
-        design.addCell("课程类别", "courseLabel");
+        design.addCell("课程性质", "isElectiveI18n");
         design.addCell("学分", "credits");
         design.addCell("修读类别", "courseTakeTypeI18n");
         design.setDatas(convertList);
