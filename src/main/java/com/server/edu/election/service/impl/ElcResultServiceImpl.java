@@ -127,8 +127,15 @@ public class ElcResultServiceImpl implements ElcResultService
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
     {
+    	ElcResultQuery condition = page.getCondition();
+    	
+    	Session session = SessionUtils.getCurrentSession();
+    	//通过session信息获取访问接口人员角色
+    	if (!session.isAdmin() && StringUtils.equals(session.getCurrentRole(), "1")) {
+    		condition.setFaculty(session.getFaculty());
+		}
+    	
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        ElcResultQuery condition = page.getCondition();
         Page<TeachingClassVo> listPage = null;
         listPage = getListPage(condition, listPage);
         List<TeachingClassVo> list = listPage.getResult();

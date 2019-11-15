@@ -113,7 +113,10 @@
                 and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
-                and t6.MODE = #{query.mode}
+                and t1.MODE_ = #{query.mode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.electionMode)">
+                and t6.MODE = #{query.electionMode}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
                 and t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=BIGINT}
