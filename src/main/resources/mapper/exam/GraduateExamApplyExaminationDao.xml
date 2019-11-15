@@ -115,9 +115,6 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projId)">
         and t2.MANAGER_DEPT_ID_ = #{projId}
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-        and ( t2.CODE_ like concat ('%', #{keyword},'%') or t2.NAME_ like concat ('%', #{keyword},'%') )
-      </if>
       AND t1.IS_PASS_ = 0
       AND t1.RELEASE_TYPE_ = 1
     </where>
@@ -146,9 +143,6 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projId)">
               and t4.PROJ_ID_ = #{projId}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-              and ( t5.CODE_ like concat ('%', #{keyword},'%') or t5.NAME_ like concat ('%', #{keyword},'%') )
-            </if>
             AND t4.APPLY_TYPE_ = 2
           </where>
       ) t6
@@ -174,7 +168,8 @@
         and t6.APPLY_TYPE_ = #{applyType}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-        and ( t7.STUDENT_CODE_ like concat ('%', #{keyword},'%') or t7.NAME_ like concat ('%', #{keyword},'%') )
+        and ( t7.STUDENT_CODE_ like concat ('%', #{keyword},'%') or t7.NAME_ like concat ('%', #{keyword},'%')
+        or t6.COURSE_NAME_ like concat ('%', #{keyword},'%') or t6.COURSE_CODE_ like concat ('%', #{keyword},'%') )
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(facultys)">
         and t7.FACULTY_ in
