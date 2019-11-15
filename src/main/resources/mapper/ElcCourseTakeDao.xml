@@ -94,6 +94,12 @@
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
       
         <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.ids)">
+                and t1.ID_ IN
+                <foreach collection="query.ids" open="(" separator="," close=")" item="id">
+                    #{id}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
                 and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
             </if>

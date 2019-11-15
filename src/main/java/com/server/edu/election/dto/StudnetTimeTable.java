@@ -22,6 +22,7 @@ public class StudnetTimeTable{
     private String courseCode;
     private String courseName;
     private String courseType;
+    @Code2Text(transformer = "X_KSLX")
     private String assessmentMode;
     private String isExemptionCourse;
     private Double credits;
