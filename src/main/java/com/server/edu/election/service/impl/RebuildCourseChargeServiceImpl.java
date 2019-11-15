@@ -296,6 +296,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             take.setStudentId(courseNoChargeList.getStudentCode());
             take.setCalendarId(courseNoChargeList.getCalendarId());
             take.setTeachingClassId(courseNoChargeList.getTeachingClassId());
+            take.setTurn(courseNoChargeList.getTurn());
             takes.add(take);
         }
         courseTakeService.withdraw(takes);
