@@ -67,21 +67,21 @@ public class RoundDataProvider
     {
     }
     
-    @Scheduled(cron = "0 0/1 * * * *")
+//    @Scheduled(cron = "0 0/4 * * * *")
     public void load()
     {
         /*
          * roundId -> lessonId -> json
          */
-        Long caKey = 0L;
-        String key = "dataLoad";
-        Boolean setIfAbsent = ElecContextUtil.tryLock(caKey, key);
-        if (!Boolean.TRUE.equals(setIfAbsent))
-        {
-            return;
-        }
-        try
-        {
+//        Long caKey = 0L;
+//        String key = "dataLoad";
+//        Boolean setIfAbsent = ElecContextUtil.tryLock(caKey, key);
+//        if (!Boolean.TRUE.equals(setIfAbsent))
+//        {
+//            return;
+//        }
+//        try
+//        {
             // 缓存所有选课规则
             ruleCacheService.cacheAllRule();
             /** 一小时后即将开始的选课参数 */
@@ -110,11 +110,12 @@ public class RoundDataProvider
                 classCacheService.cacheAllTeachClass(calendarId);
                 applyCoursesServiceImpl.setToCache(calendarId);
             }
-        }
-        finally
-        {
-            ElecContextUtil.unlock(caKey, key);
-        }
+            
+//        }
+//        finally
+//        {
+//            ElecContextUtil.unlock(caKey, key);
+//        }
     }
     
     /**

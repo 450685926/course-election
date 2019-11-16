@@ -1679,19 +1679,21 @@ public class ReportManagementServiceImpl implements ReportManagementService
         for (StudnetTimeTable studnetTimeTable : studentTimetab) {
             credits += studnetTimeTable.getCredits();
             List<TimeTableMessage> timeTableList = studnetTimeTable.getTimeTableList();
-            for (TimeTableMessage timeTableMessage : timeTableList) {
-                TimeTable timeTable = new TimeTable();
-                timeTable.setDayOfWeek(timeTableMessage.getDayOfWeek());
-                timeTable.setTimeStart(timeTableMessage.getTimeStart());
-                timeTable.setTimeEnd(timeTableMessage.getTimeEnd());
-                StringBuffer sb = new StringBuffer();
-                sb.append(timeTableMessage.getTeacherName()).
-                        append(timeTableMessage.getCourseName()).
-                        append(timeTableMessage.getWeekNum()).
-                        append(ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId())).
-                        append(dictionaryService.query("X_XQ", timeTableMessage.getCampus()));
-                timeTable.setValue(sb.toString());
-                tables.add(timeTable);
+            if (timeTableList != null) {
+                for (TimeTableMessage timeTableMessage : timeTableList) {
+                    TimeTable timeTable = new TimeTable();
+                    timeTable.setDayOfWeek(timeTableMessage.getDayOfWeek());
+                    timeTable.setTimeStart(timeTableMessage.getTimeStart());
+                    timeTable.setTimeEnd(timeTableMessage.getTimeEnd());
+                    StringBuffer sb = new StringBuffer();
+                    sb.append(timeTableMessage.getTeacherName()).
+                            append(timeTableMessage.getCourseName()).
+                            append(timeTableMessage.getWeekNum()).
+                            append(ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId())).
+                            append(dictionaryService.query("X_XQ", timeTableMessage.getCampus()));
+                    timeTable.setValue(sb.toString());
+                    tables.add(timeTable);
+                }
             }
         }
         List<TimeTable> timtable = getTimtable(tables);

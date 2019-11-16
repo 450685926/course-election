@@ -122,19 +122,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
         cond.setIncludeCourseCodes(includeCodes);
-//        PageHelper.startPage( page.getPageSize_());
+        PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
-        List<ElcCourseTakeVo> listPage1 = courseTakeDao.listPage(cond);
-        Integer startRow = (page.getPageNum_()-1)*page.getPageSize_();
-        Integer endRow = page.getPageSize_();
-        cond.setStartRow(startRow);
-        cond.setEndRow(endRow);
-        List<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
-        PageResult<ElcCourseTakeVo> result = new PageResult<>();
-        result.setPageNum_(page.getPageNum_());
-        result.setList(listPage);
-        result.setPageSize_(page.getPageSize_());
-        result.setTotal_(listPage1.size());
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
+        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+
         return result;
     }
 

@@ -106,6 +106,8 @@ public class ElcCourseTakeQuery
     private Integer startRow;
     
     private Integer endRow;
+    
+    private Integer electionMode;
 
     
     public Integer getIndex() {
@@ -412,5 +414,12 @@ public class ElcCourseTakeQuery
 		this.endRow = endRow;
 	}
 
+	public Integer getElectionMode() {
+		return electionMode;
+	}
+
+	public void setElectionMode(Integer electionMode) {
+		this.electionMode = electionMode;
+	}
 
 }

@@ -178,6 +178,8 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                 studentCodes.add(info.getStudentId());
             }
             elecRoundStuDao.delete(stu.getRoundId(), studentCodes);
+        } else {
+            throw new ParameterValidateException("无可移除名单或没有匹配的学生");
         }
     }
 }
