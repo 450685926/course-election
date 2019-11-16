@@ -306,7 +306,7 @@ public class ElcCourseTakeController
         ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
         
         return ExportUtil
-            .exportExcel(excelUtil, cacheDirectory, "ShangKeMingDanExport.xls");
+            .exportExcel(excelUtil, cacheDirectory, "上课名单.xls");
     }
     
     @ApiOperation(value = "修改修读类别")
