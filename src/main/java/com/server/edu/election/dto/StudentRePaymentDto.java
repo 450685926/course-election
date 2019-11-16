@@ -1,11 +1,15 @@
 package com.server.edu.election.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
+
 /**
  * @description: 学生缴费详情
  * @author: bear
  * @create: 2019-05-27 10:52
  */
 public class StudentRePaymentDto{
+	@JSONField(serializeUsing= ToStringSerializer.class)
     private Long id;
     private Long calendarId;
     private String courseCode;

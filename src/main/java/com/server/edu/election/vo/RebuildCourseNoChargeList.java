@@ -1,5 +1,7 @@
 package com.server.edu.election.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -17,6 +19,7 @@ public class RebuildCourseNoChargeList implements Serializable{
      * 
      */
     private static final long serialVersionUID = 1L;
+    @JSONField(serializeUsing= ToStringSerializer.class)
     private Long id;
     private Long calendarId;
     private String studentCode;
