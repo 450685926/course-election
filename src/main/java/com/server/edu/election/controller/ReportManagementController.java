@@ -302,7 +302,7 @@ public class ReportManagementController
 
     @GetMapping(value = "/exportStudentTimetab")
     @ApiResponses({
-            @ApiResponse(code = 200, response = File.class, message = "导出学生课表pdf--研究生")})
+            @ApiResponse(code = 200, response = File.class, message = "导出学生课表pdf--本科生")})
     public ResponseEntity<Resource> exportStudentTimetab(
             @RequestParam("calendarId") Long calendarId,
             @RequestParam("studentCode") String studentCode)
