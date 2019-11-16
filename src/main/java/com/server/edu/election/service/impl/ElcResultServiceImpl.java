@@ -216,7 +216,6 @@ public class ElcResultServiceImpl implements ElcResultService
 	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage) {
 		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
-        		condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
         		listPage = classDao.listScreeningPage(condition);
         	}else {
                 List<String> includeCodes = new ArrayList<>();
