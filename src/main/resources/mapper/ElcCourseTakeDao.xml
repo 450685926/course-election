@@ -53,7 +53,7 @@
         <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel"/>
         <result column="medWithdrawId" jdbcType="BIGINT" property="medWithdrawId"/>
         <result column="courseLabel" jdbcType="VARCHAR" property="courseLabel"/>
-        <result column="CHOOSE_OBJ_" jdbcType="INTEGER" property="electionMode"/>
+        <result column="CHOOSE_OBJ" jdbcType="INTEGER" property="electionMode"/>
         <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
         <result column="compulsory" jdbcType="VARCHAR" property="compulsory"/>
     </resultMap>
@@ -75,6 +75,7 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
+        
         t2.NAME_,t2.PROFESSION_,t2.GRADE_,
         t2.TRAINING_LEVEL_,
         t3.FACULTY_,
