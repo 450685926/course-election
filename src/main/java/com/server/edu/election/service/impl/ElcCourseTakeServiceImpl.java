@@ -298,13 +298,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             if (selectCount == 0) {
                 take.setCourseTakeType(CourseTakeType.NORMAL.type());
             } else {
-                int isPass = courseTakeDao.findIsPass(studentId, courseCode);
-                // 判断学生是否重修
-                if (isPass == 0) {
-                    take.setCourseTakeType(CourseTakeType.RETAKE.type());
-                } else {
-                    take.setCourseTakeType(CourseTakeType.NORMAL.type());
-                }
+                take.setCourseTakeType(CourseTakeType.RETAKE.type());
             }
             take.setCalendarId(calendarId);
             take.setChooseObj(ChooseObj.ADMIN.type());
