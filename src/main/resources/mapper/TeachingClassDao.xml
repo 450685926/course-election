@@ -397,6 +397,13 @@
   	select * from teaching_class_t where id_ = #{teachingClassId} and ELC_NUMBER_ > NUMBER_
   </select>
 
+  <select id="findTeachingClasses" resultMap="BaseResultMap">
+  	select * from teaching_class_t where id_ in
+      <foreach collection="list" item="#{teachingClassId}" open="(" close=")" separator=",">
+          #{teachingClassId}
+      </foreach>
+  </select>
+
   <select id="selectSuggestProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">
     select GRADE_ as grade,PROFESSION_ as profession,NUMBER_ as number 
     from teaching_class_suggest_profession_t where TEACHING_CLASS_ID_ = #{teachingClassId}
