@@ -179,7 +179,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
         // 教学班容量与上课时间冲突校验
-        if (status.intValue() != 1) {
+        if (status == null || status != 1) {
             List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(teachingClassIds);
             int size = studentIds.size();
             // 教学班容量校验

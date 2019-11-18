@@ -398,9 +398,9 @@
   </select>
 
   <select id="findTeachingClasses" resultMap="BaseResultMap">
-  	select * from teaching_class_t where id_ in
-      <foreach collection="list" item="#{teachingClassId}" open="(" close=")" separator=",">
-          #{teachingClassId}
+  	select * from teaching_class_t where ID_ in
+      <foreach collection="list" item="id" open="(" close=")" separator=",">
+          #{id}
       </foreach>
   </select>
 
