@@ -125,6 +125,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
+        for (ElcCourseTakeVo elcCourseTakeVo : listPage) {
+			if (elcCourseTakeVo.getChooseObj().intValue() == 1) {
+				elcCourseTakeVo.setElectionMode(1);
+			}else{
+				elcCourseTakeVo.setElectionMode(2);
+			}
+		}
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
 
         return result;
