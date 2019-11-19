@@ -6,9 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.util.DateUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -223,43 +220,15 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
                         I18nUtil.getMsg("elcMedWithdraw.teachingClassError"));
             }
             //课程结束周小于等于不得退课
-            SchoolCalendarVo schoolCalendarVo = BaseresServiceInvoker.getSchoolCalendarById(elcCourseTake.getCalendarId());
-            //如果选课规则没有校历时间,抛出异常
-            if(null==schoolCalendarVo){
-                throw new ParameterValidateException( I18nUtil.getMsg("elcMedWithdraw.courseEndWeek"));
-            }
-            //将此规则的开始校历时间包装成Date对象
-            Date date = new Date(schoolCalendarVo.getBeginDay()) ;
-            //获取课程的开始周数
-           int startWeek =  teachingClassVo.getStartWeek();
-           //小于等于不得退课获取退课规则的的周数
-           int week = elcMedWithdrawRules.getCourseEndWeek();
-            //获取最早退课周数时间点1
-           long minTime =  DateUtil.addDay(date,(startWeek+week)*7 ).getTime();
-           //获获取当前时间
-            long nowTime = new Date(). getTime();
-           //如果当前时间小于规则时间,不可以退课
-            if(nowTime<minTime){
-                throw new ParameterValidateException(
-                        I18nUtil.getMsg("elcMedWithdraw.courseEndWeek"));
-            }
-            //如果退课时间不在退课规则范围内,不可以退课
-            long beginTime =  elcMedWithdrawRules.getBeginTime().getTime();//规则开始时间
-            long endTime =  elcMedWithdrawRules.getBeginTime().getTime();//规则结束时间
-            if(nowTime>endTime||nowTime<beginTime){
-                throw new ParameterValidateException(
-                        I18nUtil.getMsg("elcMedWithdraw.outRuleTime"));
-            }
-
-           /* int week = new Becimal(teachingClassVo.getPeriod())
-                   .divide(new BigDecimal(teachingClassVo.getWeekHour()),
+            int week = new BigDecimal(teachingClassVo.getPeriod())
+                .divide(new BigDecimal(teachingClassVo.getWeekHour()),
                     BigDecimal.ROUND_HALF_UP)
                 .intValue();
             if (elcMedWithdrawRules.getCourseEndWeek() > week)
             {
                 throw new ParameterValidateException(
                         I18nUtil.getMsg("elcMedWithdraw.courseEndWeek"));
-            }*/
+            }
             //外语强化班不得退课
             if (elcMedWithdrawRules.getEnglishCourse())
             {
