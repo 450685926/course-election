@@ -503,7 +503,7 @@
                   #{faculty}
               </foreach>
           </if>
-          and i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType} and i.PROJ_ID_ = #{projId}
+          and i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType} and i.PROJ_ID_ = #{projId} and i.EXAM_STATUS_ = 2
       </where>
     </select>
 
