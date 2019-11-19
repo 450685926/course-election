@@ -138,23 +138,23 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
                 design.addCell("校区", "campus");
                 design.addCell("考试地点", "roomName");
                 design.addCell("考试时间", "examTime");
-                design.addCell("考试情况", "examSituation").setValueHandler(new CellValueHandler() {
-                    @Override
-                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
-                        if("1".equals(s)){
-                            return "正常";
-                        }else if("2".equals(s)){
-                            return "缓考";
-                        }else if("3".equals(s)){
-                            return "补考";
-                        }else if("4".equals(s)){
-                            return "重修";
-                        }else if("5".equals(s)){
-                            return "旷考";
-                        }
-                        return s;
-                    }
-                });
+//                design.addCell("考试情况", "examSituation").setValueHandler(new CellValueHandler() {
+//                    @Override
+//                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
+//                        if("1".equals(s)){
+//                            return "正常";
+//                        }else if("2".equals(s)){
+//                            return "缓考";
+//                        }else if("3".equals(s)){
+//                            return "补考";
+//                        }else if("4".equals(s)){
+//                            return "重修";
+//                        }else if("5".equals(s)){
+//                            return "旷考";
+//                        }
+//                        return s;
+//                    }
+//                });
                 design.addCell("课程序号", "teachingClassCode");
                 design.addCell("教师", "teacherName");
                 design.addCell("备注信息", "remark");

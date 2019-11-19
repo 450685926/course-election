@@ -69,6 +69,8 @@ public interface Constants
     
     public static final Integer AUTOTYPE = 2;
     
+    /** 2018级及以后学分门数限制   年级 */
+    public static final Integer GRADE = 2018;
     
 
 }

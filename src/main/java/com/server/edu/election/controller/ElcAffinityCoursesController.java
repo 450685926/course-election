@@ -25,6 +25,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcAffinityCoursesService;
 import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
+import com.server.edu.util.async.AsyncResult;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -186,6 +187,24 @@ public class ElcAffinityCoursesController
         LOG.info("batchAddStudent.start");
         int result = elcAffinityCoursesService.batchAddStudent(studentDto);
         return RestResult.successData(result);
+    }
+    
+    /**
+     * 批量添加学生（异步）
+     * 
+     * @param 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "批量添加学生（异步）")
+    @PostMapping("/asyncBatchAddStudent")
+    public RestResult<?> asyncBatchAddStudent(
+    		@RequestBody  @Valid StudentDto studentDto)
+    				throws Exception
+    {
+    	LOG.info("batchAddStudent.start");
+    	AsyncResult result = elcAffinityCoursesService.asyncBatchAddStudent(studentDto);
+    	return RestResult.successData(result);
     }
     
     /**

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,9 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
-
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 @Service
 public class ElecRoundStuServiceImpl implements ElecRoundStuService
 {
@@ -42,6 +45,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
 
     @Autowired
     private ElcNoGraduateStdsDao noGraduateStdsDao;
+    
+    @Autowired
+    private RedisTemplate<String, AsyncResult> redisTemplate;
     
     @Override
     public PageResult<Student4Elc> listPage(
@@ -145,6 +151,58 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         }
     }
     
+
+    @Transactional
+	@Override
+	public AsyncResult addByConditionBK(ElecRoundStuQuery stu) {
+    	AsyncResult result = AsyncProcessUtil.submitTask("addStudentByConditionBK", new AsyncExecuter() {
+			
+			@Override
+			public void execute() {
+				AsyncResult result = this.getResult();
+				Session session = SessionUtils.getCurrentSession();
+		        stu.setProjectId(session.getCurrentManageDptId());
+//		        stu.setProjectId("1");
+		        // 1普通选课 2实践选课
+		        if(RoundMode.NORMAL.eq(stu.getMode()) || RoundMode.ShiJian.eq(stu.getMode())){ //来源学生
+
+		            List<Student4Elc> listStudent =
+		                    elecRoundStuDao.listNotExistStudent(stu);
+		            result.setTotal(listStudent.size());
+		            if (CollectionUtil.isNotEmpty(listStudent))
+		            {
+		            	int i = 0;
+		                for (Student4Elc info : listStudent)
+		                {
+		                	i = i + 1;
+		                    elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
+		                    result.setDoneCount(i);
+		                    redisTemplate.opsForValue().getAndSet("commonAsyncProcessKey-"+result.getKey(), result);
+		                }
+		                result.setMsg("添加成功");
+		            } else {
+		            	result.setMsg("没有匹配的学生");
+		            }
+		        }else{//选课学生来源与结业表
+		            List<String> stringList = elecRoundStuDao.notExistStudent(stu);
+		            if(CollectionUtil.isNotEmpty(stringList)){
+		            	int i = 0;
+		                for (String s : stringList) {
+		                	i = i++;
+		                    elecRoundStuDao.add(stu.getRoundId(), s);
+		                    result.setDoneCount(i);
+		                }
+		                result.setMsg("添加成功");
+		            } else {
+		            	result.setMsg("没有匹配的学生");
+		            }
+		        }
+				
+			}
+		});
+    	return result;
+	}
+    
     @Transactional
     @Override
     public void delete(Long roundId, List<String> studentCodes)
@@ -182,4 +240,5 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             throw new ParameterValidateException("无可移除名单或没有匹配的学生");
         }
     }
+
 }

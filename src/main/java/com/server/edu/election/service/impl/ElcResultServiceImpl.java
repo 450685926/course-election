@@ -912,8 +912,19 @@ public class ElcResultServiceImpl implements ElcResultService
 	public void saveProportion(TeachingClassVo teachingClassVo) {
 		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
 		attr.setTeachingClassId(teachingClassVo.getId());
-		attr.setNumberMale(teachingClassVo.getNumberMale());
-		attr.setNumberFemale(teachingClassVo.getNumberFemale());
+		int numberMale = teachingClassVo.getNumberMale();
+		int numberFemale = teachingClassVo.getNumberFemale();
+        if(numberMale % numberFemale == 0){
+            numberMale = numberMale / numberFemale ;
+            numberFemale =1;
+        }
+        //如果女比例可以被男比例除尽
+        else if(numberFemale % numberMale == 0){
+            numberFemale = numberFemale / numberMale ;
+            numberMale = 1;
+        }
+		attr.setNumberMale(numberMale);
+		attr.setNumberFemale(numberFemale);
 		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());

@@ -72,7 +72,18 @@ public class TeachingClassCache extends ElecCourse
 		this.replaceCourse = replaceCourse;
 	}
 
-	public String getTerm()
+    //教学班预留人数
+    private Integer reserveNumber;
+
+    public Integer getReserveNumber() {
+        return reserveNumber;
+    }
+
+    public void setReserveNumber(Integer reserveNumber) {
+        this.reserveNumber = reserveNumber;
+    }
+
+    public String getTerm()
     {
         return term;
     }

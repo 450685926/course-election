@@ -49,8 +49,18 @@ public class ElcCourseTakeAddDto
     private String studentId;
     
     private String teachingClassCode;
-    
-    
+
+    //为1为强制加课，0或者null为第一次进来，需进行校验
+    private Integer status;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     public Long getCalendarId()
     {
         return calendarId;

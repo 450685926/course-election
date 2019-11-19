@@ -21,7 +21,7 @@
 		t4.IS_ELECTIVE_ nature,
 		t4.FACULTY_ faculty,
 		t4.CREDITS_ credits,
-		GROUP_CONCAT(distinct t6.TEACHER_CODE_) teacherName
+		GROUP_CONCAT(distinct  concat(t6.TEACHER_NAME_,'(' ,t6.TEACHER_CODE_,')' )) teacherName
 		FROM
 		(
 		SELECT
@@ -80,7 +80,7 @@
 		t4.IS_ELECTIVE_ nature,
 		t4.FACULTY_ faculty,
 		t4.CREDITS_ credits,
-		GROUP_CONCAT(distinct t6.TEACHER_CODE_) teacherName
+		GROUP_CONCAT(distinct  concat(t6.TEACHER_NAME_,'(' ,t6.TEACHER_CODE_,')' )) teacherName
 		FROM
 		(
 		SELECT

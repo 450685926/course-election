@@ -180,6 +180,7 @@ public class TeachClassCacheService extends AbstractCacheService
             //设置研究生学年跟开课学期，勿删
             tc.setTerm(lesson.getTerm());
             tc.setCalendarName(year);
+            tc.setReserveNumber(lesson.getReserveNumber());
             
             numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);

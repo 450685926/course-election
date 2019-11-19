@@ -493,10 +493,18 @@
 	   r.ID_
       FROM
 	   graduate_exam_info_t i
+      LEFT join course_t t1 on i.COURSE_CODE_ = t1.CODE_
       JOIN graduate_exam_info_room_t t ON i.ID_ = t.EXAM_INFO_ID_
       JOIN graduate_exam_room_t r ON r.ID_ = t.EXAM_ROOM_ID_
-	  WHERE
-          i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType} and i.PROJ_ID_ = #{projId}
+	  <where>
+          <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(list)">
+           and  t1.COLLEGE_ in
+              <foreach collection="list" item="faculty" open="(" close=")" separator=",">
+                  #{faculty}
+              </foreach>
+          </if>
+          and i.CALENDAR_ID_ = #{calendarId} and i.EXAM_TYPE_ = #{examType} and i.PROJ_ID_ = #{projId} and i.EXAM_STATUS_ = 2
+      </where>
     </select>
 
     <select id="checkPublicExamTimeSame" parameterType="com.server.edu.exam.entity.GraduateExamInfo" resultMap="BaseResultMap">

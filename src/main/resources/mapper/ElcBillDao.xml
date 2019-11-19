@@ -46,7 +46,7 @@
         on eb.STUDENT_ID_ = st.STUDENT_CODE_
         left JOIN rebuild_course_charge_t rc
         on st.TRAINING_LEVEL_ = rc.TRAINING_LEVEL_ and st.FORM_LEARNING_ = rc.FORM_LEARNING_
-        left JOIN elc_course_takes_t_${index} ec
+        JOIN elc_course_takes_t_${index} ec
         on eb.ID_ = ec.BILL_ID_
         left JOIN course_t ct
         on ec.COURSE_CODE_ = ct.CODE_

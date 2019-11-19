@@ -163,4 +163,6 @@ public interface ElcCourseTakeService
     Integer removedCourse(List<ElcCourseTake> value);
 
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
+
+	Integer getRetakeNumber(String studentId,Long calendarId);
 }

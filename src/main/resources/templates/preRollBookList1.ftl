@@ -164,7 +164,7 @@
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="Number">${item_index + 1}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.studentCode}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.exportName}</Data></Cell>
-    <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.sex}</Data></Cell>
+    <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.sexStr}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="Number">${item.grade}</Data></Cell>
     <Cell ss:StyleID="s63" ss:MergeDown="${lineNumber}"><Data ss:Type="String">${item.faculty}</Data></Cell>
        <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>

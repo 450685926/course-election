@@ -126,7 +126,7 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
 
     GraduateExamStudentNumber getExamInfoNumber(List<Long> list);
 
-     List<Long> getExamRoomIds(@Param("calendarId") Long calendarId, @Param("examType") Integer examType,@Param("projId") String projId);
+     List<Long> getExamRoomIds(@Param("calendarId") Long calendarId, @Param("examType") Integer examType,@Param("projId") String projId,@Param("list") List<String> list);
 
     List<GraduateExamInfo> checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo);
 

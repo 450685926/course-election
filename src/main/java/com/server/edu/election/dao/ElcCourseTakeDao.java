@@ -328,4 +328,6 @@ public interface ElcCourseTakeDao
     int findIsPass(@Param("studentId")String studentId, @Param("courseCode") String courseCode);
 
     List<StudentRePaymentDto> findByStuIdAndCId(StudentRePaymentDto studentRePaymentDto);
+
+	List<Integer> getRetakeNumber(@Param("studentId") String studentId, int index);
 }
