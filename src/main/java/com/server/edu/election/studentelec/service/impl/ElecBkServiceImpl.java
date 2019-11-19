@@ -339,15 +339,15 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
-            if (round.getTurn() != Constants.THIRD_TURN
-                && round.getTurn() != Constants.FOURTH_TURN)
-            {
+//            if (round.getTurn() != Constants.THIRD_TURN
+//                && round.getTurn() != Constants.FOURTH_TURN)
+//            {
                 int count = classDao.decrElcNumber(teachClassId);
                 if (count > 0)
                 {
                     dataProvider.decrElcNumber(teachClassId);
                 }
-            }
+//            }
         }
         
         // 添加选课日志
