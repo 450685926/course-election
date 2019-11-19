@@ -124,9 +124,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 String.format("student not find studentId=%s", studentId);
             throw new RuntimeException(msg);
         }
+        // 学生替代课程
+        ElcCouSubsDto dto = new ElcCouSubsDto();
+        dto.setStudentId(studentId);
+        List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
+
         // 加载成绩已完成和未通过的课程
         //loadScore(context, studentInfo, studentId, stu);
-        loadScoreTemp(context, studentInfo, studentId, stu);
+        loadScoreTemp(context, studentInfo, studentId, stu,list);
         
         //得到校历id
         Long calendarId = request.getCalendarId();
@@ -154,10 +159,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
         
-        //6. 学生替代课程
-        ElcCouSubsDto dto = new ElcCouSubsDto();
-        dto.setStudentId(studentId);
-        List<ElcCouSubsVo> list = elcCouSubsDao.selectElcNoGradCouSubs(dto);
+        //6. 保存学生替代课程
         context.getReplaceCourses().addAll(list);
     }
 
@@ -248,7 +250,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
      * @see [类、类#方法、类#成员]
      */
     private void loadScoreTemp(ElecContextBk context, StudentInfoCache studentInfo,
-        String studentId, Student stu)
+        String studentId, Student stu,List<ElcCouSubsVo> list)
     {
 //        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
     	
@@ -257,7 +259,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
-        
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScore))
@@ -283,11 +284,15 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 TeachingClassCache lesson = new TeachingClassCache();
                 lesson.setCourseCode(courseCode);
                 Course co = map.get(courseCode);
+                ElcCouSubsVo elcCouSubsVo = list.stream().filter(elc->courseCode.equals(elc.getOrigsCourseCode())).findFirst().orElse(null);
                 if (co != null) {
                     lesson.setCourseName(co.getName());
                     lesson.setNature(co.getNature());
                     lesson.setFaculty(co.getCollege());
                     lesson.setTerm(co.getTerm());
+                }
+                if(elcCouSubsVo!=null) {
+                	lesson.setReplaceCourse(elcCouSubsVo.getSubCourseCode());
                 }
                 lesson.setCredits(studentScore.getCredit());
                 lesson.setCalendarId(calendarId);

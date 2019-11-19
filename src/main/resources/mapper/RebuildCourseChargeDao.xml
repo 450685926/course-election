@@ -120,6 +120,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and co.IS_ELECTIVE_ = #{nature,jdbcType=VARCHAR}
             </if>
+            <if test="type !=null and type !=0">
+                and co.TYPE_ = #{type}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
                 and re.ID_ in
                 <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">

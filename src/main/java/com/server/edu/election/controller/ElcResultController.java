@@ -29,6 +29,7 @@ import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcScreeningLabel;
 import com.server.edu.election.entity.ElcTeachingClassBind;
 import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.entity.TeachingClassChange;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.vo.ElcResultCountVo;
@@ -412,6 +413,21 @@ public class ElcResultController
     		logger.info("export.start");
             ExcelResult result = elcResultService.teachClassPageExport(condition);
             return RestResult.successData(result);
-        }   
+        }
+    
+    /**
+     * 转移学生
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "转移学生")
+    @PostMapping("/changeStudentClass")
+    public RestResult<?> changeStudentClass(@RequestBody @Valid TeachingClassChange condition)
+    {
+        elcResultService.changeStudentClass(condition);
+        
+        return RestResult.success();
+    }
     
 }

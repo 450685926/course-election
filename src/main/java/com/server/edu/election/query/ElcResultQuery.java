@@ -161,6 +161,17 @@ public class ElcResultQuery
 
 	/**分库分表标识*/
 	private Integer index;
+	
+	/**转移教学班列表标识*/
+	private Integer isChange;
+	
+	public Integer getIsChange() {
+		return isChange;
+	}
+
+	public void setIsChange(Integer isChange) {
+		this.isChange = isChange;
+	}
 
 	public Integer getIndex() {
 		return index;
