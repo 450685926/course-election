@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
@@ -54,6 +55,9 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     
     @Autowired
     private ElecRoundStuDao elecRoundStuDao;
+    
+    @Autowired
+    private RedisTemplate<String, AsyncResult> redisTemplate;
     
     @Override
     public PageInfo<ElcAffinityCoursesVo> list(
@@ -237,6 +241,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
 		            });
 		            resultCount = elcAffinityCoursesStdsDao.batchInsert(stuList);
 		            result.setDoneCount(resultCount);
+		            redisTemplate.opsForValue().getAndSet("commonAsyncProcessKey-"+result.getKey(), result);
 		            if (resultCount <= Constants.ZERO)
 		            {
 		            	result.setMsg(I18nUtil.getMsg("common.saveError",
