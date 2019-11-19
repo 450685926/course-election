@@ -106,7 +106,7 @@
       LEFT JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
       LEFT JOIN graduate_exam_apply_examination_t t3 ON t1.CALENDAR_ID_ = t3.CALENDAR_ID_
       AND t1.STUDENT_ID_ = t3.STUDENT_CODE_
-      AND t1.COURSE_CODE_ = t2.CODE_
+      AND t1.COURSE_CODE_ = t3.COURSE_CODE_
       AND t3.APPLY_TYPE_ = 3
     <where>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
