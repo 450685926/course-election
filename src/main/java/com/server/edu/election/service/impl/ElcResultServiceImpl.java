@@ -175,29 +175,15 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-			int boy = 1;
+			String boy = "1";
 			if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
-				boy = vo.getNumberMale();
+				boy = vo.getNumberMale().toString();
 			}
-            int girl = 1;
+			String girl = "1";
 			if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
-				girl = vo.getNumberFemale();
+				girl = vo.getNumberFemale().toString();
 			}
-            String proportion ;
-			//如果男比例可以被女比例除尽
-			if(boy % girl == 0){
-			    int sign = boy / girl ;
-                proportion = sign +"/1";
-            }
-            //如果女比例可以被男比例除尽
-            else if(girl % boy == 0){
-                int sign = girl / boy ;
-                proportion = "1/" + sign;
-            }
-            //如果男女比例不可以除尽
-            else{
-                proportion = boy +"/" +girl;
-            }
+			String proportion = boy +"/" +girl;
 			vo.setProportion(proportion);
 		}
 	}
@@ -891,8 +877,19 @@ public class ElcResultServiceImpl implements ElcResultService
 	public void saveProportion(TeachingClassVo teachingClassVo) {
 		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
 		attr.setTeachingClassId(teachingClassVo.getId());
-		attr.setNumberMale(teachingClassVo.getNumberMale());
-		attr.setNumberFemale(teachingClassVo.getNumberFemale());
+		int numberMale = teachingClassVo.getNumberMale();
+		int numberFemale = teachingClassVo.getNumberFemale();
+        if(numberMale % numberFemale == 0){
+            numberMale = numberMale / numberFemale ;
+            numberFemale =1;
+        }
+        //如果女比例可以被男比例除尽
+        else if(numberFemale % numberMale == 0){
+            numberFemale = numberFemale / numberMale ;
+            numberMale = 1;
+        }
+		attr.setNumberMale(numberMale);
+		attr.setNumberFemale(numberFemale);
 		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
