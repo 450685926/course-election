@@ -17,6 +17,7 @@ import com.server.edu.election.vo.CourseConflictVo;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.excel.export.ExcelResult;
 
 /**
  * 已选课名单
@@ -165,4 +166,6 @@ public interface ElcCourseTakeService
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
 
 	Integer getRetakeNumber(String studentId,Long calendarId);
+
+    ExcelResult export(ElcCourseTakeQuery query);
 }
