@@ -175,15 +175,29 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-			String boy = "1";
+			int boy = 1;
 			if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
-				boy = vo.getNumberMale().toString();
+				boy = vo.getNumberMale();
 			}
-			String girl = "1";
+            int girl = 1;
 			if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
-				girl = vo.getNumberFemale().toString();
+				girl = vo.getNumberFemale();
 			}
-			String proportion = boy +"/" +girl;
+            String proportion ;
+			//如果男比例可以被女比例除尽
+			if(boy % girl == 0){
+			    int sign = boy / girl ;
+                proportion = sign +"/1";
+            }
+            //如果女比例可以被男比例除尽
+            else if(girl % boy == 0){
+                int sign = girl / boy ;
+                proportion = "1/" + sign;
+            }
+            //如果男女比例不可以除尽
+            else{
+                proportion = boy +"/" +girl;
+            }
 			vo.setProportion(proportion);
 		}
 	}
