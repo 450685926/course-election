@@ -65,6 +65,10 @@ public interface Constants
     /** 优*/
     public static final String EXCELLENT = "优";
     
+    public static final Integer RECYCLETYPE = 1;
+    
+    public static final Integer AUTOTYPE = 2;
+    
     
 
 }

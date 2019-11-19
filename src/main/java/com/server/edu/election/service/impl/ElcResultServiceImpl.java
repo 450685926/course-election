@@ -15,7 +15,9 @@ import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.entity.*;
@@ -29,6 +31,7 @@ import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -44,6 +47,7 @@ import com.server.edu.welcomeservice.util.ExcelEntityExport;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -95,6 +99,14 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ExcelStoreConfig excelStoreConfig;
+    
+    @Autowired
+    private ElcLogDao elcLogDao;
+    
+    @Autowired
+    private ElcCourseTakeService elcCourseTakeService;
+    
+    @Autowired
     // 文件缓存目录
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -122,6 +134,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private DictionaryService dictionaryService;
+    
+    @Autowired
+    private RebuildCourseRecycleDao rebuildCourseRecycleDao;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -625,6 +640,26 @@ public class ElcResultServiceImpl implements ElcResultService
                 t.setTeachingClassId(teachingClassId);
                 values.add(t);
             }
+            Example example = new Example(ElcCourseTake.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("calendarId", calendarId);
+            criteria.andEqualTo("teachingClassId", teachingClassId);
+            criteria.andIn("studentId", removeStus);
+            List<ElcCourseTake> elcCourseTakes = courseTakeDao.selectByExample(example);
+            if(CollectionUtil.isEmpty(elcCourseTakes)) {
+            	throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",
+                        I18nUtil.getMsg("学生选课")));
+            }
+            List<RebuildCourseRecycle> rebuildCourseRecycles = new ArrayList<>();
+            for(ElcCourseTake elcCourseTake:elcCourseTakes) {
+            	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
+            	BeanUtils.copyProperties(elcCourseTake, rebuildCourseRecycle);
+            	rebuildCourseRecycle.setStudentCode(elcCourseTake.getStudentId());
+            	rebuildCourseRecycle.setId(null);
+            	rebuildCourseRecycle.setType(Constants.AUTOTYPE);
+            	rebuildCourseRecycles.add(rebuildCourseRecycle);
+            }
+            rebuildCourseRecycleDao.insertList(rebuildCourseRecycles);
             courseTakeService.withdraw(values);
         }
     }
@@ -997,6 +1032,31 @@ public class ElcResultServiceImpl implements ElcResultService
         design.addCell(I18nUtil.getMsg("teachClassPageExport.remark"), "remark");
         design.addCell(I18nUtil.getMsg("teachClassPageExport.bindClassId"), "bindClassId");
         return design;
+	}
+	
+	@Override
+	@Transactional
+	public void changeStudentClass(TeachingClassChange condition) {
+		Session session = SessionUtils.getCurrentSession();
+		Example example = new Example(ElcCourseTake.class); 
+        example.createCriteria()
+        .andEqualTo("calendarId", condition.getCalendarId())
+        .andIn("studentId", condition.getStudentIds())
+        .andEqualTo("teachingClassId", condition.getOldTeachingClassId());
+        List<ElcCourseTake> elcCourseTakes = courseTakeDao.selectByExample(example);
+        if(CollectionUtil.isEmpty(elcCourseTakes)) {
+        	throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",
+                    I18nUtil.getMsg("学生选课")));
+        }
+        List<Long> teachingClassIds = new ArrayList<Long>();
+        teachingClassIds.add(condition.getNewTeachingClassId());
+        elcCourseTakeService.withdraw(elcCourseTakes);
+        ElcCourseTakeAddDto dto = new ElcCourseTakeAddDto();
+        dto.setStudentIds(condition.getStudentIds());
+        dto.setTeachingClassIds(teachingClassIds);
+        dto.setCalendarId(condition.getCalendarId());
+        dto.setMode(RoundMode.NORMAL.mode());
+        elcCourseTakeService.add(dto);                                                             
 	}
 	
 }

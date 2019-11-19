@@ -60,9 +60,19 @@ public class TeachingClassCache extends ElecCourse
     @Code2Text(transformer = "X_KKXQ")
     private String term;
     
-    private  Integer manArrangeFlag;
+    private Integer manArrangeFlag;
     
-    public String getTerm()
+    private String replaceCourse;
+    
+    public String getReplaceCourse() {
+		return replaceCourse;
+	}
+
+	public void setReplaceCourse(String replaceCourse) {
+		this.replaceCourse = replaceCourse;
+	}
+
+	public String getTerm()
     {
         return term;
     }
