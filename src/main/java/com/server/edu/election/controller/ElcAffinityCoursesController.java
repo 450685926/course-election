@@ -197,7 +197,7 @@ public class ElcAffinityCoursesController
      * @see [类、类#方法、类#成员]
      */
     @ApiOperation(value = "批量添加学生（异步）")
-    @PostMapping("/batchAddStudent")
+    @PostMapping("/asyncBatchAddStudent")
     public RestResult<?> asyncBatchAddStudent(
     		@RequestBody  @Valid StudentDto studentDto)
     				throws Exception

@@ -68,8 +68,8 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
         //已选课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
      
-        //学生已经重修的门数
-        Integer retakeNumber = elcCourseTakeService.getRetakeNumber(studentInfo.getStudentId());
+        //学生本学期已经重修的门数
+        Integer retakeNumber = elcCourseTakeService.getRetakeNumber(studentInfo.getStudentId(),request.getCalendarId());
         
         boolean isReTakeCourse = RetakeCourseUtil.isRetakeCourseBk(context,
         		courseClass.getCourseCode());

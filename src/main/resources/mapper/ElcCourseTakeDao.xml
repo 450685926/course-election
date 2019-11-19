@@ -2066,7 +2066,7 @@
     <select id="getRetakeNumber" resultType="java.util.List">
         SELECT
         count(ID_)
-        FROM elc_course_takes_t el
+        FROM elc_course_takes_t_${index} el
         WHERE  el.COURSE_TAKE_TYPE_ = 2
         AND el.STUDENT_ID_ = ${studentId}
        	GROUP BY el.COURSE_CODE_
