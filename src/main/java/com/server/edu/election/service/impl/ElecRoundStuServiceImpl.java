@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,6 @@ import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.async.AsyncExecuter;
 import com.server.edu.util.async.AsyncProcessUtil;
 import com.server.edu.util.async.AsyncResult;
-
 @Service
 public class ElecRoundStuServiceImpl implements ElecRoundStuService
 {
@@ -45,6 +45,9 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
 
     @Autowired
     private ElcNoGraduateStdsDao noGraduateStdsDao;
+    
+    @Autowired
+    private RedisTemplate<String, AsyncResult> redisTemplate;
     
     @Override
     public PageResult<Student4Elc> listPage(
@@ -171,9 +174,10 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
 		            	int i = 0;
 		                for (Student4Elc info : listStudent)
 		                {
-		                	i = i++;
+		                	i = i + 1;
 		                    elecRoundStuDao.add(stu.getRoundId(), info.getStudentId());
 		                    result.setDoneCount(i);
+		                    redisTemplate.opsForValue().getAndSet("commonAsyncProcessKey-"+result.getKey(), result);
 		                }
 		                result.setMsg("添加成功");
 		            } else {
