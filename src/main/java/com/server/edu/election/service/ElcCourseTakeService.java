@@ -164,5 +164,5 @@ public interface ElcCourseTakeService
 
     PageResult<ElcStudentVo> removedCourseList(PageCondition<ElcCourseTakeQuery> studentId);
 
-	Integer getRetakeNumber(String studentId);
+	Integer getRetakeNumber(String studentId,Long calendarId);
 }

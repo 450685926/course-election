@@ -329,5 +329,5 @@ public interface ElcCourseTakeDao
 
     List<StudentRePaymentDto> findByStuIdAndCId(StudentRePaymentDto studentRePaymentDto);
 
-	List<Integer> getRetakeNumber(@Param("studentId") String studentId);
+	List<Integer> getRetakeNumber(@Param("studentId") String studentId, int index);
 }
