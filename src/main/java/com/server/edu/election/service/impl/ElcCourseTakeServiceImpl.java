@@ -10,6 +10,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.common.vo.StudentScoreVo;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
@@ -39,6 +40,10 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.excel.GeneralExcelDesigner;
+import com.server.edu.util.excel.export.ExcelExecuter;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +101,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private ElecYjsServiceImpl elecYjsServiceImpl;
+
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @Value("${cache.directory}")
     private String cacheDirectory;
@@ -1356,5 +1364,71 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<Integer> retakeNumber = courseTakeDao.getRetakeNumber(studentId,index);
 		return retakeNumber.size();
 	}
+
+    @Override
+    public ExcelResult export(ElcCourseTakeQuery query) {
+        ExcelResult excelResult =
+                ExportExcelUtils.submitTask("classList", new ExcelExecuter()
+                {
+                    @Override
+                    public GeneralExcelDesigner getExcelDesigner()
+                    {
+                        ExcelResult result = this.getResult();
+                        PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
+                        page.setCondition(query);
+                        page.setPageNum_(1);
+                        page.setPageSize_(1000);
+                        int pageNum = 0;
+                        List<ElcCourseTakeVo> datas = new ArrayList<>();
+                        PageResult<ElcCourseTakeVo> res = listPage(page);
+                        datas.addAll(res.getList());
+                        if (CollectionUtil.isEmpty(query.getIds())) {
+                            while (datas.size() < res.getTotal_())
+                            {
+                                page.setPageNum_(page.getPageNum_() + 1);
+                                if (datas.size() < res.getTotal_())
+                                {
+                                    res = listPage(page);
+                                }
+                                datas.addAll(res.getList());
+                            }
+                        }
+                        result.setTotal((int)res.getTotal_());
+                        this.updateResult(result);
+                        //组装excel
+                        GeneralExcelDesigner design = getDesign();
+                        //将数据放入excel对象中
+                        design.setDatas(datas);
+                        result.setDoneCount(datas.size());
+                        return design;
+                    }
+                });
+        return excelResult;
+    }
+
+    private GeneralExcelDesigner getDesign()
+    {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell("学号", "studentId");
+        design.addCell("姓名", "studentName");
+        design.addCell("课程序号", "teachingClassCode");
+        design.addCell("课程名称", "courseName");
+        design.addCell("课程名称", "courseName");
+        design.addCell("开课学院", "faculty")
+                .setValueHandler((value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value); });
+        design.addCell("校区", "campus")
+                .setValueHandler((value, rawData, cell) -> {
+                    return dictionaryService.query("X_XQ", value); });
+        design.addCell("课程性质", "isElective")
+                .setValueHandler((value, rawData, cell) -> {
+                    return dictionaryService.query("K_BKKCXZ", value); });
+        design.addCell("学分", "credits");
+        design.addCell("修读类别", "courseTakeType")
+                .setValueHandler((value, rawData, cell) -> {
+                    return dictionaryService.query("X_XDLX", value); });
+        return design;
+    }
 
 }

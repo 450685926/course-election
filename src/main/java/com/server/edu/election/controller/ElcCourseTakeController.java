@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.util.excel.export.ExcelResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -261,53 +262,64 @@ public class ElcCourseTakeController
             .body(resource);
     }
     
-    @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "导出")})
-    @PostMapping(value = "/export")
-    public ResponseEntity<Resource> export(
-        @RequestBody ElcCourseTakeQuery query)
-        throws Exception
+//    @ApiResponses({
+//        @ApiResponse(code = 200, response = File.class, message = "导出")})
+//    @PostMapping(value = "/export")
+//    public ResponseEntity<Resource> export(
+//        @RequestBody ElcCourseTakeQuery query)
+//        throws Exception
+//    {
+//        ValidatorUtil.validateAndThrow(query);
+//
+//        PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
+//        page.setCondition(query);
+//        page.setPageNum_(1);
+//        page.setPageSize_(1000);
+//
+//        List<ElcCourseTakeVo> datas = new ArrayList<>();
+//
+//        PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
+//        datas.addAll(res.getList());
+//        if (CollectionUtil.isEmpty(query.getIds())) {
+//            while (datas.size() < res.getTotal_())
+//            {
+//                page.setPageNum_(page.getPageNum_() + 1);
+//                if (datas.size() < res.getTotal_())
+//                {
+//                    res = courseTakeService.listPage(page);
+//                }
+//                datas.addAll(res.getList());
+//            }
+//        }
+//        List<JSONObject> convertList = JacksonUtil.convertList(datas);
+//        GeneralExcelDesigner design = new GeneralExcelDesigner();
+//        design.addCell("学号", "studentId");
+//        design.addCell("姓名", "studentName");
+//        design.addCell("课程序号", "teachingClassCode");
+////        design.addCell("课程代码", "courseCode");
+//        design.addCell("课程名称", "courseName");
+//        design.addCell("开课学院", "facultyI18n");
+////        design.addCell("专业", "professionI18n");
+//        design.addCell("校区", "campusI18n");
+//        design.addCell("课程性质", "isElectiveI18n");
+//        design.addCell("学分", "credits");
+//        design.addCell("修读类别", "courseTakeTypeI18n");
+//        design.setDatas(convertList);
+//        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
+//
+//        return ExportUtil
+//            .exportExcel(excelUtil, cacheDirectory, "上课名单.xls");
+//    }
+
+    @ApiOperation(value = "导出上课名单")
+    @PostMapping("/export")
+    public RestResult<ExcelResult> exportRollBookList(
+            @RequestBody ElcCourseTakeQuery query)
+            throws Exception
     {
         ValidatorUtil.validateAndThrow(query);
-
-        PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
-        page.setCondition(query);
-        page.setPageNum_(1);
-        page.setPageSize_(1000);
-
-        List<ElcCourseTakeVo> datas = new ArrayList<>();
-        
-        PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
-        datas.addAll(res.getList());
-        if (CollectionUtil.isEmpty(query.getIds())) {
-            while (datas.size() < res.getTotal_())
-            {
-                page.setPageNum_(page.getPageNum_() + 1);
-                if (datas.size() < res.getTotal_())
-                {
-                    res = courseTakeService.listPage(page);
-                }
-                datas.addAll(res.getList());
-            }
-        }
-        List<JSONObject> convertList = JacksonUtil.convertList(datas);
-        GeneralExcelDesigner design = new GeneralExcelDesigner();
-        design.addCell("学号", "studentId");
-        design.addCell("姓名", "studentName");
-        design.addCell("课程序号", "teachingClassCode");
-//        design.addCell("课程代码", "courseCode");
-        design.addCell("课程名称", "courseName");
-        design.addCell("开课学院", "facultyI18n");
-//        design.addCell("专业", "professionI18n");
-        design.addCell("校区", "campusI18n");
-        design.addCell("课程性质", "isElectiveI18n");
-        design.addCell("学分", "credits");
-        design.addCell("修读类别", "courseTakeTypeI18n");
-        design.setDatas(convertList);
-        ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        
-        return ExportUtil
-            .exportExcel(excelUtil, cacheDirectory, "上课名单.xls");
+        ExcelResult export = courseTakeService.export(query);
+        return RestResult.successData(export);
     }
     
     @ApiOperation(value = "修改修读类别")
