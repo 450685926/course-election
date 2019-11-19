@@ -177,7 +177,7 @@
   </select>
 
     <select id="listScreeningPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
-    select * from (
+    select t8.* from (
     select distinct
     t1.ID_,
 	t1.CODE_,
@@ -205,11 +205,11 @@
     from
 	teaching_class_t t1
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
-	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
+	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1
 	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
 	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
-	left join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
-    left join elc_course_takes_t_${index} t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_ and t7.CALENDAR_ID_ =#{calendarId})
+    join elc_course_takes_t_${index} t7 on t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_
+    left join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
     <where>
       t1.DELETE_STATUS_ = 0
       and t3.CALENDAR_ID_ = #{calendarId}
@@ -395,6 +395,13 @@
 
   <select id="selectOversize" resultMap="BaseResultMap">
   	select * from teaching_class_t where id_ = #{teachingClassId} and ELC_NUMBER_ > NUMBER_
+  </select>
+
+  <select id="findTeachingClasses" resultMap="BaseResultMap">
+  	select * from teaching_class_t where ID_ in
+      <foreach collection="list" item="id" open="(" close=")" separator=",">
+          #{id}
+      </foreach>
   </select>
 
   <select id="selectSuggestProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">

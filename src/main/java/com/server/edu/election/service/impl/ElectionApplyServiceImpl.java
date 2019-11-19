@@ -166,6 +166,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     @Transactional
     public int reply(ElectionApply electionApply)
     {
+    	electionApply.setApply(Constants.TOW);
         int result =
             electionApplyDao.updateByPrimaryKeySelective(electionApply);
         if (result <= 0)

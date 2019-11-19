@@ -278,15 +278,16 @@ public class ElcCourseTakeController
         List<ElcCourseTakeVo> datas = new ArrayList<>();
         
         PageResult<ElcCourseTakeVo> res = courseTakeService.listPage(page);
+        datas.addAll(res.getList());
         if (CollectionUtil.isEmpty(query.getIds())) {
             while (datas.size() < res.getTotal_())
             {
-                datas.addAll(res.getList());
                 page.setPageNum_(page.getPageNum_() + 1);
                 if (datas.size() < res.getTotal_())
                 {
                     res = courseTakeService.listPage(page);
                 }
+                datas.addAll(res.getList());
             }
         }
         List<JSONObject> convertList = JacksonUtil.convertList(datas);

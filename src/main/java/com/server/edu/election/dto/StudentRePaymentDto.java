@@ -1,7 +1,7 @@
 package com.server.edu.election.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.server.edu.common.jackson.LongJsonSerializer;
 
 /**
  * @description: 学生缴费详情
@@ -9,7 +9,7 @@ import com.alibaba.fastjson.serializer.ToStringSerializer;
  * @create: 2019-05-27 10:52
  */
 public class StudentRePaymentDto{
-	@JSONField(serializeUsing= ToStringSerializer.class)
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
     private Long calendarId;
     private String courseCode;

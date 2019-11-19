@@ -144,5 +144,5 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
 
     String findTrainingLevel(@Param("teachingClassId") Long teachingClassId);
 
-
+    List<TeachingClass> findTeachingClasses(List<Long> list);
 }

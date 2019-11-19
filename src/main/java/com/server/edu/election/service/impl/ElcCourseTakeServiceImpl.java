@@ -26,6 +26,9 @@ import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.election.util.TableIndexUtil;
@@ -125,6 +128,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
+        for (ElcCourseTakeVo elcCourseTakeVo : listPage) {
+			if (elcCourseTakeVo.getChooseObj().intValue() == 1) {
+				elcCourseTakeVo.setElectionMode(1);
+			}else{
+				elcCourseTakeVo.setElectionMode(2);
+			}
+		}
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
 
         return result;
@@ -164,19 +174,90 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     public String add(ElcCourseTakeAddDto add)
     {
-        StringBuilder sb = new StringBuilder();
-        Date date = new Date();
+        Integer status = add.getStatus();
+        List<Long> teachingClassIds = add.getTeachingClassIds();
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
-        List<Long> teachingClassIds = add.getTeachingClassIds();
+        // 教学班容量与上课时间冲突校验
+        if (status == null || status != 1) {
+            List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(teachingClassIds);
+            int size = studentIds.size();
+            // 教学班容量校验
+            List<String> codes = new ArrayList<>(teachingClassIds.size());
+            for (TeachingClass teachingClass : teachingClasses) {
+                if (teachingClass.getElcNumber() + teachingClass.getReserveNumber() + size> teachingClass.getNumber()) {
+                    codes.add(teachingClass.getCode());
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            if (CollectionUtil.isNotEmpty(codes)) {
+                sb.append("教学班").append(String.join(",",codes)).append("容量超出上限,");
+            }
+            // 要添加课程的上课时间查询
+            List<TimeTableMessage> courseArrangeBk = courseTakeDao.findCourseArrangeBk(teachingClassIds);
+            // 上课时间是否冲突校验
+            if (CollectionUtil.isNotEmpty(courseArrangeBk)) {
+                List<String> list = new ArrayList<>(size);
+                loop:for (String studentId : studentIds)
+                {
+                    ElecContextBk context = new ElecContextBk(studentId, calendarId);
+                    Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+                    List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
+                    if (CollectionUtil.isNotEmpty(selectedCourses)) {
+                        for (SelectedCourse selectedCours : selectedCourses) {
+                            List<ClassTimeUnit> times = selectedCours.getCourse().getTimes();
+                            classTimeUnits.addAll(times);
+                        }
+                    }
+                    for (TimeTableMessage timeTableMessage : courseArrangeBk) {
+                        String weekNum = timeTableMessage.getWeekNum();
+                        String[] split = weekNum.split(",");
+                        Set<String> set = new HashSet<>(Arrays.asList(split));
+                        Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                        Integer timeStart = timeTableMessage.getTimeStart();
+                        Integer timeEnd = timeTableMessage.getTimeEnd();
+                        int size1 = set.size();
+                        for (ClassTimeUnit classTimeUnit : classTimeUnits) {
+                            List<Integer> weeks = classTimeUnit.getWeeks();
+                            Set<String> weekStu = weeks.stream().map(s -> String.valueOf(s)).collect(Collectors.toSet());
+                            int size2 = weekStu.size();
+                            int size3 = size1 + size2;
+                            Set<String> all = new HashSet<>(size3);
+                            // 上课周冲突
+                            if (size3 > all.size() ) {
+                                // 判断上课天是否一样
+                                if (dayOfWeek.intValue() == classTimeUnit.getDayOfWeek()) {
+                                    // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
+                                    int start = classTimeUnit.getTimeStart();
+                                    int end = classTimeUnit.getTimeEnd();
+                                    if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                                        list.add(studentId);
+                                        continue loop;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (CollectionUtil.isNotEmpty(list)) {
+                    sb.append("要添加的课程上课时间与学生").append(String.join(",", list)).append("已选课程上课时间冲突，");
+                }
+            }
+            if (sb.length() > 0)
+            {
+//            return sb.substring(0, sb.length() - 1);
+                return sb.append("您确定要添加吗？").toString();
+            }
+        }
+        //加课
+        Date date = new Date();
         Integer mode = add.getMode();
-        for (String studentId : studentIds)
-        {
+        for (String studentId : studentIds) {
             for (int i = 0; i < teachingClassIds.size(); i++)
             {
                 Long teachingClassId = teachingClassIds.get(i);
                 ElcCourseTakeVo vo = courseTakeDao
-                    .getTeachingClassInfo(calendarId, teachingClassId, null);
+                        .getTeachingClassInfo(calendarId, teachingClassId, null);
                 if (null != vo && vo.getCourseCode() != null)
                 {
                     addTake(date, calendarId, studentId, vo, mode);
@@ -188,18 +269,14 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     {
                         code = vo.getTeachingClassCode();
                     }
-                    sb.append("教学班[" + code + "]对应的课程不存在,");
+                    throw new ParameterValidateException("教学班[" + code + "]对应的课程不存在,");
+//                    sb.append(");
                 }
             }
         }
-        
-        if (sb.length() > 0)
-        {
-            return sb.substring(0, sb.length() - 1);
-        }
         return StringUtils.EMPTY;
     }
-    
+
     @Transactional
     private void addTake(Date date, Long calendarId, String studentId,
         ElcCourseTakeVo vo, Integer mode)
@@ -221,13 +298,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             if (selectCount == 0) {
                 take.setCourseTakeType(CourseTakeType.NORMAL.type());
             } else {
-                int isPass = courseTakeDao.findIsPass(studentId, courseCode);
-                // 判断学生是否重修
-                if (isPass == 0) {
-                    take.setCourseTakeType(CourseTakeType.RETAKE.type());
-                } else {
-                    take.setCourseTakeType(CourseTakeType.NORMAL.type());
-                }
+                take.setCourseTakeType(CourseTakeType.RETAKE.type());
             }
             take.setCalendarId(calendarId);
             take.setChooseObj(ChooseObj.ADMIN.type());
