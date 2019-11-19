@@ -31,6 +31,9 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 
 import tk.mybatis.mapper.entity.Example;
 
@@ -212,6 +215,42 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         return result;
     }
     
+
+	@Override
+	public AsyncResult asyncBatchAddStudent(StudentDto studentDto) {
+		AsyncResult result = AsyncProcessUtil.submitTask("asyncBatchAddStudent", new AsyncExecuter() {
+			
+			@Override
+			public void execute() {
+				AsyncResult result = this.getResult();
+				List<Student> list = studentDao.selectUnElcStudents(studentDto);
+		        int resultCount = 0;
+		        result.setTotal(list.size());
+		        if(CollectionUtil.isNotEmpty(list)) {
+		            List<ElcAffinityCoursesStds> stuList = new ArrayList<>();
+		            list.forEach(temp -> {
+		                ElcAffinityCoursesStds elcAffinityCoursesStds =
+		                    new ElcAffinityCoursesStds();
+		                elcAffinityCoursesStds.setCourseId(studentDto.getCourseId());
+		                elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
+		                stuList.add(elcAffinityCoursesStds);
+		            });
+		            resultCount = elcAffinityCoursesStdsDao.batchInsert(stuList);
+		            result.setDoneCount(resultCount);
+		            if (resultCount <= Constants.ZERO)
+		            {
+		            	result.setMsg(I18nUtil.getMsg("common.saveError",
+		                        I18nUtil.getMsg("elcAffinity.courses")));
+		                /*throw new ParameterValidateException(
+		                    I18nUtil.getMsg("common.saveError",
+		                        I18nUtil.getMsg("elcAffinity.courses")));*/
+		            }
+		        }
+			}}
+		);
+		return result;
+	}
+	
     @Override
     public int deleteStudent(ElcAffinityCoursesVo vo)
     {

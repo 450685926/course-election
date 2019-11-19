@@ -1350,4 +1350,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
     }
 
+	@Override
+	public Integer getRetakeNumber(String studentId,Long calendarId) {
+        int index = TableIndexUtil.getIndex(calendarId);
+        List<Integer> retakeNumber = courseTakeDao.getRetakeNumber(studentId,index);
+		return retakeNumber.size();
+	}
+
 }

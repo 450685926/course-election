@@ -25,7 +25,7 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractElecRuleExceutorBk {
         Integer chooseObj = request.getChooseObj();
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         String courseCode = courseClass.getCourseCode();
-        if (StringUtils.isNotBlank(courseCode) && chooseObj == null)
+        if (StringUtils.isNotBlank(courseCode) && chooseObj != null)
         {
             for (SelectedCourse selectedCours : selectedCourses) {
                 TeachingClassCache course = selectedCours.getCourse();
