@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
@@ -88,6 +89,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	@Override
 	public PageResult<ElectionApplyVo> applyUnList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.applyUnList(dto);
 		Session session = SessionUtils.getCurrentSession();
         if (CollectionUtil.isNotEmpty(applylist))
@@ -121,6 +123,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	@Override
 	public PageResult<ElectionApplyVo> alreadyApplyList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.alreadyApplyList(dto);
 		Session session = SessionUtils.getCurrentSession();
         if (CollectionUtil.isNotEmpty(applylist))
