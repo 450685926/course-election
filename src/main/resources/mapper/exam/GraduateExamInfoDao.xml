@@ -396,8 +396,8 @@
     t1.ID_ examInfoId
     FROM
         graduate_exam_info_t t1
-    LEFT JOIN graduate_exam_info_room_t t2 ON t1.ID_ = t2.EXAM_INFO_ID_
-    LEFT JOIN graduate_exam_room_t t3 ON t3.ID_ = t2.EXAM_ROOM_ID_
+     JOIN graduate_exam_info_room_t t2 ON t1.ID_ = t2.EXAM_INFO_ID_
+     JOIN graduate_exam_room_t t3 ON t3.ID_ = t2.EXAM_ROOM_ID_
     WHERE
 	t1.ID_ in
 	<foreach collection="list" item="examInfoId" open="(" close=")" separator=",">

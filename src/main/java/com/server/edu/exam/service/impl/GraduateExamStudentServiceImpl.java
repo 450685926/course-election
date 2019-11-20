@@ -183,6 +183,9 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         }
         int size = condition.size();
         GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(examRoomId);
+        if(examRoom.getRoomNumber().intValue() == examRoom.getRoomCapacity().intValue()){
+            throw new ParameterValidateException("该考场已满，请选择其他考场");
+        }
         if(size + examRoom.getRoomNumber() > examRoom.getRoomCapacity()){
             throw new ParameterValidateException("该教室剩余容量有限，不能同时更换这么多学生");
         }
