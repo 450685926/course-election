@@ -91,8 +91,8 @@
 		        and t4.MANAGER_DEPT_ID_ = #{projectId}
 		    </if>
 		    <if test="minLimitCredits > 0 or maxLimitCredits > 0">
-		        and t1.TOTAL_LIMIT_CREDITS_ <![CDATA[ >= ]]> #{minLimitCredits}
-		        and t1.TOTAL_LIMIT_CREDITS_ <![CDATA[ <= ]]> #{maxLimitCredits}
+		        and t1.NEW_LIMIT_CREDITS_ <![CDATA[ >= ]]> #{minLimitCredits}
+		        and t1.NEW_LIMIT_CREDITS_ <![CDATA[ <= ]]> #{maxLimitCredits}
 		    </if>
 		    <if test="minRebuild > 0 or maxRebuild > 0">
 		        and t1.REBUILD_LIMIT_NUMBER_ <![CDATA[ >= ]]> #{minRebuild}
