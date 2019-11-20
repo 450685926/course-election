@@ -89,8 +89,12 @@ public class ElcCourseTakeYjsController
     public RestResult<PageResult<ElcCourseTakeVo>> graduatePage(
             @RequestBody PageCondition<ElcCourseTakeQuery> condition)
     {
-        ValidatorUtil.validateAndThrow(condition.getCondition());
-
+        ElcCourseTakeQuery query = condition.getCondition();
+        ValidatorUtil.validateAndThrow(query);
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            query.setFaculty(session.getFaculty());
+        }
         PageResult<ElcCourseTakeVo> list =
                 courseTakeService.graduatePage(condition);
 
