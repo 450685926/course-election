@@ -182,6 +182,46 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     public String add(ElcCourseTakeAddDto add)
     {
+        StringBuilder sb = new StringBuilder();
+        Date date = new Date();
+        Long calendarId = add.getCalendarId();
+        List<String> studentIds = add.getStudentIds();
+        List<Long> teachingClassIds = add.getTeachingClassIds();
+        Integer mode = add.getMode();
+        for (String studentId : studentIds)
+        {
+            for (int i = 0; i < teachingClassIds.size(); i++)
+            {
+                Long teachingClassId = teachingClassIds.get(i);
+                ElcCourseTakeVo vo = courseTakeDao
+                        .getTeachingClassInfo(calendarId, teachingClassId, null);
+                if (null != vo && vo.getCourseCode() != null)
+                {
+                    addTake(date, calendarId, studentId, vo, mode);
+                }
+                else
+                {
+                    String code = teachingClassId.toString();
+                    if (vo != null)
+                    {
+                        code = vo.getTeachingClassCode();
+                    }
+                    sb.append("教学班[" + code + "]对应的课程不存在,");
+                }
+            }
+        }
+
+        if (sb.length() > 0)
+        {
+            return sb.substring(0, sb.length() - 1);
+        }
+        return StringUtils.EMPTY;
+    }
+
+    @Transactional
+    @Override
+    public String addCourseBk(ElcCourseTakeAddDto add)
+    {
         Integer status = add.getStatus();
         List<Long> teachingClassIds = add.getTeachingClassIds();
         Long calendarId = add.getCalendarId();

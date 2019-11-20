@@ -60,7 +60,9 @@ public interface ElcCourseTakeService
      * @see [类、类#方法、类#成员]
      */
     String add(ElcCourseTakeAddDto add);
-    
+
+    String addCourseBk(ElcCourseTakeAddDto add);
+
     /**
      * 
      * 通过Excel添加

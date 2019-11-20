@@ -115,9 +115,20 @@ public class ElcCourseTakeController
     public RestResult<?> add(@RequestBody ElcCourseTakeAddDto value)
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
-        
+
         String msg = courseTakeService.add(value);
-        
+
+        return RestResult.success(msg);
+    }
+
+    @ApiOperation(value = "学生上课名单加课")
+    @PostMapping("/addCourseBk")
+    public RestResult<?> addCourseBk(@RequestBody ElcCourseTakeAddDto value)
+    {
+        ValidatorUtil.validateAndThrow(value, AddGroup.class);
+
+        String msg = courseTakeService.addCourseBk(value);
+
         return RestResult.success(msg);
     }
     
