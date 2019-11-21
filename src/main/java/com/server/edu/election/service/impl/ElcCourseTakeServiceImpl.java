@@ -188,6 +188,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<String> studentIds = add.getStudentIds();
         List<Long> teachingClassIds = add.getTeachingClassIds();
         Integer mode = add.getMode();
+        List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(teachingClassIds);
+        if (teachingClasses.size() != teachingClassIds.size()) {
+            throw new ParameterValidateException("教学班不存在");
+        }
         for (String studentId : studentIds)
         {
             for (int i = 0; i < teachingClassIds.size(); i++)
@@ -226,9 +230,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         List<Long> teachingClassIds = add.getTeachingClassIds();
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
+        List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(teachingClassIds);
+        if (teachingClasses.size() != teachingClassIds.size()) {
+            throw new ParameterValidateException("教学班不存在");
+        }
         // 教学班容量与上课时间冲突校验
         if (status == null || status != 1) {
-            List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(teachingClassIds);
             int size = studentIds.size();
             // 教学班容量校验
             List<String> codes = new ArrayList<>(teachingClassIds.size());
