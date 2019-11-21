@@ -15,7 +15,8 @@
 			t3.COURSE_NAME_ courseName,
 			t3.COURSE_NAME_EN_ courseNameEn,
 			t3.TRAINING_LEVEL_ trainingLevel,
-			t3.CREDITS_ credits
+			t3.CREDITS_ credits,
+	  		t3.FACULTY_
 		FROM
 			elc_affinity_courses_t t1
 		JOIN course_t t2 ON t1.COURSE_ID_ = t2.ID_
