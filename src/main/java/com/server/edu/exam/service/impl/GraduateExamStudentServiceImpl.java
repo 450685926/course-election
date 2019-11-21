@@ -242,6 +242,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         studentDto.setTeachingClassName(addDto.getTeachingClassName());
         studentDto.setExamInfoId(condition.getExamInfoId());
         studentDto.setRoomId(examRoom.getRoomId());
+        studentDto.setRoomName(examRoom.getRoomName());
         //排考时间冲突检验
         List<GraduateExamStudent> list = new ArrayList<>();
         GraduateExamStudent student = new GraduateExamStudent();
@@ -362,11 +363,11 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examInfoDao.updateActualNumberById(examInfoId,symbol);
     }
 
-    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long roomId){
+    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long examRoomId){
         GraduateExamStudent examStudent = new GraduateExamStudent();
         Date date = new Date();
         examStudent.setStudentCode(graduateExamStudentDto.getStudentCode());
-        examStudent.setExamRoomId(roomId);
+        examStudent.setExamRoomId(examRoomId);
         examStudent.setTeachingClassId(graduateExamStudentDto.getTeachingClassId());
         examStudent.setExamSituation(ApplyStatus.EXAM_SITUATION_NORMAL);
         examStudent.setTeachingClassCode(graduateExamStudentDto.getTeachingClassCode());
@@ -376,11 +377,11 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examStudent.setExamInfoId(graduateExamStudentDto.getExamInfoId());
         examStudentDao.insert(examStudent);
         // 排考
-        graduateExamStudentDto.setExamRoomId(roomId);
+        graduateExamStudentDto.setExamRoomId(examRoomId);
         this.updateActualNumber(graduateExamStudentDto,ApplyStatus.EXAM_ADD);
         this.insertExamLog(graduateExamStudentDto,ApplyStatus.EXAM_LOG_YES);
         //更新新教室的排考人数
-        GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(roomId);
+        GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(examRoomId);
         examRoom.setRoomNumber(examRoom.getRoomNumber() + 1);
         roomDao.updateByPrimaryKey(examRoom);
 
