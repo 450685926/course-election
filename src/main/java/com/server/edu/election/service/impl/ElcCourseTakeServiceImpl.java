@@ -1422,26 +1422,33 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     {
                         ExcelResult result = this.getResult();
                         PageCondition<ElcCourseTakeQuery> page = new PageCondition<>();
-                        page.setCondition(query);
-                        page.setPageNum_(1);
-                        page.setPageSize_(1000);
-                        int pageNum = 0;
                         List<ElcCourseTakeVo> datas = new ArrayList<>();
-                        PageResult<ElcCourseTakeVo> res = listPage(page);
-                        datas.addAll(res.getList());
+                        page.setCondition(query);
+                        int pageNum = 0;
+                        page.setPageNum_(pageNum);
                         if (CollectionUtil.isEmpty(query.getIds())) {
-                            while (datas.size() < res.getTotal_())
+                            while (true)
                             {
-                                page.setPageNum_(page.getPageNum_() + 1);
-                                if (datas.size() < res.getTotal_())
-                                {
-                                    res = listPage(page);
-                                }
+                                pageNum++;
+                                page.setPageNum_(pageNum);
+                                page.setPageSize_(300);
+                                PageResult<ElcCourseTakeVo> res = listPage(page);
+                                result.setTotal((int)res.getTotal_());
                                 datas.addAll(res.getList());
+                                Double count = datas.size()/1.5;
+                                result.setDoneCount(count.intValue());
+                                this.updateResult(result);
+                                if (datas.size() == res.getTotal_())
+                                {
+                                    break;
+                                }
                             }
+                        } else {
+                            page.setPageSize_(1000);
+                            PageResult<ElcCourseTakeVo> res = listPage(page);
+                            datas.addAll(res.getList());
+                            result.setTotal((int)res.getTotal_());
                         }
-                        result.setTotal((int)res.getTotal_());
-                        this.updateResult(result);
                         //组装excel
                         GeneralExcelDesigner design = getDesign();
                         //将数据放入excel对象中
