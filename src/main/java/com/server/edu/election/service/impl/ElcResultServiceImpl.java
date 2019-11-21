@@ -15,7 +15,6 @@ import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
-import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.dao.*;
@@ -28,10 +27,10 @@ import com.server.edu.election.service.impl.resultFilter.ClassElcConditionFilter
 import com.server.edu.election.service.impl.resultFilter.GradAndPreFilter;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
-import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -39,6 +38,9 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -101,9 +103,6 @@ public class ElcResultServiceImpl implements ElcResultService
     private ExcelStoreConfig excelStoreConfig;
     
     @Autowired
-    private ElcLogDao elcLogDao;
-    
-    @Autowired
     private ElcCourseTakeService elcCourseTakeService;
     
     @Autowired
@@ -137,6 +136,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private RebuildCourseRecycleDao rebuildCourseRecycleDao;
+    
+    @Autowired
+    private RoundCacheService roundCacheService;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -1068,6 +1070,47 @@ public class ElcResultServiceImpl implements ElcResultService
         dto.setCalendarId(condition.getCalendarId());
         dto.setMode(RoundMode.NORMAL.mode());
         elcCourseTakeService.add(dto);                                                             
+	}
+	
+	
+	@Override
+	@Transactional
+	public AsyncResult autoBatchRemove(BatchAutoRemoveDto dto) {
+		//判断轮次是否存在
+		ElectionRounds round = roundCacheService.getRound(dto.getRoundId());
+		if(round==null) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",
+                    I18nUtil.getMsg("轮次")));
+		}
+		Example example = new Example(ElcCourseTake.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("calendarId", dto.getCalendarId());
+		criteria.andEqualTo("turn", round.getTurn());
+		criteria.andEqualTo("chooseObj", round.getElectionObj());
+		List<ElcCourseTake> elcCourseTakes =courseTakeDao.selectByExample(example);
+		if(CollectionUtil.isEmpty(elcCourseTakes)) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",
+                    I18nUtil.getMsg("轮次对应选课")));
+		}
+		AsyncResult resul = AsyncProcessUtil.submitTask("importCampus", new AsyncExecuter() {
+            @Override
+            public void execute() {
+                AsyncResult result = this.getResult();
+            	List<Long> teachingClassIds = elcCourseTakes.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
+            	result.setTotal(teachingClassIds.size());
+            	int num = 0;
+        		for(Long teachingClassId :teachingClassIds) {
+        			AutoRemoveDto autoRemoveDto = new AutoRemoveDto();
+        			BeanUtils.copyProperties(dto, autoRemoveDto);
+        			autoRemoveDto.setTeachingClassId(teachingClassId);
+        			autoRemove(autoRemoveDto);
+        			num++;
+        			result.setDoneCount(num);
+        			this.updateResult(result);
+        		}
+            }
+        });
+		return resul;
 	}
 	
 }

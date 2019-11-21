@@ -4,6 +4,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.BatchAutoRemoveDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcScreeningLabel;
@@ -13,6 +14,7 @@ import com.server.edu.election.entity.TeachingClassChange;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
 
 public interface ElcResultService
@@ -138,6 +140,8 @@ public interface ElcResultService
 	 * @return
 	 */
 	void changeStudentClass(TeachingClassChange condition);
+	
+	AsyncResult autoBatchRemove(BatchAutoRemoveDto dto);
 	
 	
 	
