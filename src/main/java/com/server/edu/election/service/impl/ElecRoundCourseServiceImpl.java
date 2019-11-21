@@ -52,6 +52,11 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         Page<CourseOpenDto> listPage;
         if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listPage(query);
+            if (CollectionUtil.isNotEmpty(listPage)){
+                for (CourseOpenDto courseOpenDto: listPage) {
+                    getTeacgerName(courseOpenDto);
+                }
+            }
         }else {
         	listPage = roundCourseDao.listPageGraduate(query);
 		}
@@ -74,8 +79,10 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         ElecRoundCourseQuery query = condition.getCondition();
         if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listUnAddPage(query,practicalCourse);
-            for (CourseOpenDto courseOpenDto: listPage) {
-                getTeacgerName(courseOpenDto);
+        	if (CollectionUtil.isNotEmpty(listPage)){
+                for (CourseOpenDto courseOpenDto: listPage) {
+                    getTeacgerName(courseOpenDto);
+                }
             }
 		}else {
 			listPage = roundCourseDao.listUnAddPageGraduate(query);
