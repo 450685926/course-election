@@ -34,6 +34,7 @@ public class NoSelectCourseStdsDto{
     private String studentName;
 
     /** 学籍变动信息 */
+    @Code2Text(transformer = "G_XJDL")
     private String stdStatusChanges;
 
     /** 未选课原因 */
