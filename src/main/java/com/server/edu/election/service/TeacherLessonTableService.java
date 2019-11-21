@@ -40,7 +40,9 @@ public interface TeacherLessonTableService
      * @return
      */
     RestResult<String> exportTeacherTimetabPdf(Long calendarId,  String teacherCode, String projectId) throws DocumentException, IOException;
-    
+
+    RestResult<String> exportTeacherTimetabPdfBk(Long calendarId,  String teacherCode) throws DocumentException, IOException;
+
     /**查询课表对应教师详细信息*/
     List<ClassTeacherDto> findStudentAndTeacherTime( Long teachingClassId);
 
