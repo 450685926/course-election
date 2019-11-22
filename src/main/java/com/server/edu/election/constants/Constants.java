@@ -72,5 +72,10 @@ public interface Constants
     /** 2018级及以后学分门数限制   年级 */
     public static final Integer GRADE = 2018;
     
+    /**选课申请*/
+    public static final Integer APPLY = 0;
+    /** 选课申请拒绝*/
+    public static final Integer REJECT = 2;
+    
 
 }
