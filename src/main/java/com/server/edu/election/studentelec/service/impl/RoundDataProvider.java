@@ -352,6 +352,20 @@ public class RoundDataProvider
     }
     
     /**
+     * 增加教学班第三、四轮人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int incrementDrawNumber(Long teachClassId)
+    {
+        return classCacheService.incrementDrawNumber(teachClassId);
+    }
+    
+    
+    
+    /**
      * 减少教学班人数
      * 
      * @param teachClassId

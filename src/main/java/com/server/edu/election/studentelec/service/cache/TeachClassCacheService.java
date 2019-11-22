@@ -446,7 +446,6 @@ public class TeachClassCacheService extends AbstractCacheService
             teachClassId.toString());
         return num;
     }
-    
     /**
      * 增加教学班人数
      * 
@@ -466,6 +465,25 @@ public class TeachClassCacheService extends AbstractCacheService
             .intValue();
     }
     
+    /**
+     * 增加第三、四轮教学班退课人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int incrementDrawNumber(Long teachClassId)
+    {
+        if (teachClassId == null)
+        {
+            return 0;
+        }
+        HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+        return opsClassNum
+            .increment(Keys.getWitdthDrawNumberKey(), teachClassId.toString(), 1)
+            .intValue();
+    }
+    
     public int decrElecNumber(Long teachClassId)
     {
         if (teachClassId == null)
@@ -475,6 +493,20 @@ public class TeachClassCacheService extends AbstractCacheService
         HashOperations<String, String, Integer> opsClassNum = opsClassNum();
         return opsClassNum
             .increment(Keys.getClassElecNumberKey(),
+                teachClassId.toString(),
+                -1)
+            .intValue();
+    }
+    
+    public int decrWitdhDrawNumber(Long teachClassId)
+    {
+        if (teachClassId == null)
+        {
+            return 0;
+        }
+        HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+        return opsClassNum
+            .increment(Keys.getWitdthDrawNumberKey(),
                 teachClassId.toString(),
                 -1)
             .intValue();
