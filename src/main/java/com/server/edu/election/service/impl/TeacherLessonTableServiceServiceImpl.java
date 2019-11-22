@@ -872,57 +872,6 @@ public class TeacherLessonTableServiceServiceImpl
         return list;
     }
 
-    private List<String> getTimeTableListBk(StudnetTimeTable timeTable)
-    {
-        List<String> list = new ArrayList<String>(12);
-        list.add(timeTable.getCourseCode());
-        list.add(timeTable.getCourseName());
-        list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
-        String compulsory = timeTable.getCompulsory();
-        if ("1".equals(compulsory))
-        {
-            list.add("必修");
-        } else {
-            list.add("选修");
-        }
-        String assessmentMode = timeTable.getAssessmentMode();
-        if (assessmentMode != null) {
-            assessmentMode = dictionaryService.query("X_KSLX", assessmentMode);
-        } else {
-            assessmentMode = "";
-        }
-        list.add(assessmentMode);
-        Double credits = timeTable.getCredits();
-        String credit;
-        if (credits == null) {
-            credit = "";
-        } else {
-            credit = String.valueOf(credits);
-        }
-        list.add(credit);
-        list.add(timeTable.getTeacherName());
-        list.add(timeTable.getClassTime());
-        String room = timeTable.getClassRoom();
-        if (room != null) {
-            room = ClassroomCacheUtil.getRoomName(room);
-        } else {
-            room = "";
-        }
-        list.add(room);
-        String campus = timeTable.getCampus();
-        if (campus != null) {
-            campus = dictionaryService.query("X_XQ", campus);
-        } else {
-            campus = "";
-        }
-        list.add(campus);
-        list.add(timeTable.getRemark());
-        return list;
-    }
-
-
-
-
     /**
      *上课时间冲突合并
      * @param list
