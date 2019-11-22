@@ -88,21 +88,21 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
          Page<NoSelectCourseStdsDto> electCourseList;
          if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && Constants.PROJ_UNGRADUATE.equals(deptId)) {
              electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
-             /*List<NoSelectCourseStdsDto> result = electCourseList.getResult();
+             List<NoSelectCourseStdsDto> result = electCourseList.getResult();
              if (CollectionUtil.isNotEmpty(result)) {
 	             List<String> studentCodes = result.stream().map(NoSelectCourseStdsDto::getStudentCode).collect(Collectors.toList());
-	             List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCode(studentCodes);
+	             List<AbnormalTypeElection> list = StudentServiceInvoker.getAbnormalTypeByStudentCodeBK(studentCodes);
 
 	             Iterator<NoSelectCourseStdsDto> iterator = result.iterator();
 	             while (iterator.hasNext()) {
 	            	 NoSelectCourseStdsDto stdsDto = iterator.next();
 	            	 for (AbnormalTypeElection abnormalTypeElection : list) {
 						if (StringUtils.equals(stdsDto.getStudentCode(), abnormalTypeElection.getStudentCode())) {
-							stdsDto.setStdStatusChanges(abnormalTypeElection.getTypeName());
+							stdsDto.setStdStatusChanges(abnormalTypeElection.getAbnormalClassCode());
 						}
 					 }
 				}
-            }*/
+            }
          }else {
         	 if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
         	            && !session.isAdmin() && session.isAcdemicDean()) { // 教务员

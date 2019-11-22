@@ -188,7 +188,7 @@ public class TeacherLessonTableController
     
     @GetMapping(value = "/exportTeacherTimetabPdf")
     @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "导出教师课表pdf--研究生")})
+        @ApiResponse(code = 200, response = File.class, message = "导出教师课表pdf")})
     public ResponseEntity<Resource> exportTeacherTimetabPdf(
         @RequestParam("calendarId") Long calendarId,
         @RequestParam("teacherCode") String teacherCode,
@@ -205,9 +205,15 @@ public class TeacherLessonTableController
 		}
     	
         LOG.info("exportTeacherTimetabPdf.start");
-        RestResult<String> restResult =
-            lessonTableService.exportTeacherTimetabPdf(calendarId, teacherCode,projectId);
-        
+        RestResult<String> restResult;
+        // 老师课表本科研究生区别导出
+    	if ("1".equals(projectId)) {
+            restResult =
+                    lessonTableService.exportTeacherTimetabPdfBk(calendarId, teacherCode);
+        } else {
+            restResult =
+                    lessonTableService.exportTeacherTimetabPdf(calendarId, teacherCode,projectId);
+        }
         if (ResultStatus.SUCCESS.code() == restResult.getCode()
             && !"".equals(restResult.getData()))
         {
