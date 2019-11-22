@@ -158,7 +158,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
-        
         //6. 保存学生替代课程
         context.getReplaceCourses().addAll(list);
     }

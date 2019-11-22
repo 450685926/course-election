@@ -63,6 +63,12 @@ public class Keys
         return String.format("elec-classNum1");
     }
     
+    /**第三、四轮退课人数key elec-witdthDrawNum1*/
+    public static String getWitdthDrawNumberKey()
+    {
+        return String.format("elec-witdthDrawNum1");
+    }
+    
     /**轮次规则Key*/
     public static String getRuleKey()
     {

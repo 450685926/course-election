@@ -38,6 +38,7 @@
   	<result column="teachClassName" jdbcType="VARCHAR" property="teachingClassName" />
   	<result column="manArrangeFlag" jdbcType="INTEGER" property="manArrangeFlag" />
   	<result column="COURSE_LABEL_NAME_" jdbcType="VARCHAR" property="courseLabelName" />
+  	<result column="thirdWithdrawNumber" jdbcType="VARCHAR" property="thirdWithdrawNumber" />
   </resultMap>
   
   <select id="listPage" resultMap="CourseOpenDtoMap">
@@ -352,7 +353,7 @@
   	  select 
   	  	op.*,cl.ID_ AS teachingClassId, cl.CODE_ AS teachingClassCode ,cl.CAMPUS_ AS campus,cl.CLASS_TYPE_ AS teachClassType,
   	  	cl.NUMBER_ AS maxNumber,cl.ELC_NUMBER_ AS currentNumber,cl.REMARK_ AS remark,cl.RESERVE_NUMBER_ AS reserveNumber,cl.REMARK_ AS teachClassRemark,cl.NAME_ AS teachClassName,
-  	  	cl.MAN_ARRANGE_FLAG_ AS manArrangeFlag
+  	  	cl.MAN_ARRANGE_FLAG_ AS manArrangeFlag,cl.THIRD_WITHDRAW_NUMBER thirdWithdrawNumber
   	  from course_open_t op
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0 and cl.DELETE_STATUS_ =0)

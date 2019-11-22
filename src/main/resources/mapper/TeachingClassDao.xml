@@ -389,6 +389,10 @@
   <update id="decrElcNumber">
   	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - 1 where id_ = #{teachingClassId} and ELC_NUMBER_ > 0
   </update>
+  
+  <update id="increDrawNumber">
+  	update teaching_class_t set THIRD_WITHDRAW_NUMBER = THIRD_WITHDRAW_NUMBER + 1 where id_ = #{teachingClassId} 
+  </update>
 
   <update id="increElcNumberList">
   	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ + 1 where id_ in

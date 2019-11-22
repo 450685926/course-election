@@ -41,6 +41,7 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.bk.LimitCountCheckerRule;
 import com.server.edu.election.studentelec.service.ElecBkService;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -75,6 +76,9 @@ public class ElecBkServiceImpl implements ElecBkService
     
     @Autowired
     private ElectionApplyService electionApplyService;
+    
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
     
     @SuppressWarnings("rawtypes")
     @Override
@@ -339,14 +343,19 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
-            if (round.getTurn() != Constants.THIRD_TURN
-                && round.getTurn() != Constants.FOURTH_TURN)
+            int count = classDao.decrElcNumber(teachClassId);
+            if (count > 0)
             {
-                int count = classDao.decrElcNumber(teachClassId);
-                if (count > 0)
-                {
-                    dataProvider.decrElcNumber(teachClassId);
-                }
+                dataProvider.decrElcNumber(teachClassId);
+            }
+            if (round.getTurn() == Constants.THIRD_TURN
+                || round.getTurn() == Constants.FOURTH_TURN)
+            {
+            	count= classDao.increDrawNumber(teachClassId);
+            	 if (count > 0)
+                 {
+                     dataProvider.incrementDrawNumber(teachClassId);
+                 }
             }
         }
         
@@ -374,7 +383,6 @@ public class ElecBkServiceImpl implements ElecBkService
                 .update(studentId, round.getCalendarId(), courseCode);
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
-            
             respose.getSuccessCourses().add(teachClassId);
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTurn(round.getTurn());
@@ -382,6 +390,8 @@ public class ElecBkServiceImpl implements ElecBkService
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
         }
+        // 更新缓存中教学班人数
+        teachClassCacheService.updateTeachingClassNumber(teachClassId);
     }
     
 }

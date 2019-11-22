@@ -9,6 +9,7 @@ import com.server.edu.election.dto.ElcNumberSetDto;
 import com.server.edu.election.entity.ElcNumberSet;
 import com.server.edu.election.service.ElcNumberSetService;
 import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -56,6 +57,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
         ElcNumberSetDto elcNumberSetDto = new ElcNumberSetDto();
         elcNumberSetDto.setCalendarId(calendarId);
         elcNumberSetDto.setTurns(turns);
+        elcNumberSetDto.setType(ElcLogVo.TYPE_2);
         int result = 0;
         log.info("start select list");
 		elcNumberSetDto.setIndex(TableIndexUtil.getIndex(calendarId));
