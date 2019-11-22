@@ -14,6 +14,15 @@ public class ExportExamInfoDto {
     private String courseName;
     private String examTime;
     private String examRoom;
+    private Long examInfoId;
+
+    public Long getExamInfoId() {
+        return examInfoId;
+    }
+
+    public void setExamInfoId(Long examInfoId) {
+        this.examInfoId = examInfoId;
+    }
 
     public Long getCalendarId() {
         return calendarId;

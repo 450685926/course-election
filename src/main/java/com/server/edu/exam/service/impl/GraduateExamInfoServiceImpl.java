@@ -243,19 +243,19 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
 
     //检验公共课相同课程时间必须一致
     private void checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo) {
-        List<GraduateExamInfo> info = examInfoDao.checkPublicExamTimeSame(graduateExamInfo);
+        List<GraduateExamInfoVo> info = examInfoDao.checkPublicExamTimeSame(graduateExamInfo);
         if(CollectionUtil.isNotEmpty(info)){
-            GraduateExamInfo examInfo = info.get(0);
+            GraduateExamInfoVo examInfo = info.get(0);
             if(info.size() == 1){
                     if(!examInfo.getCampus().equals(graduateExamInfo.getCampus())){
                         if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                            throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                            throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
                         }
                     }
             }else{
 
                 if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                    throw new ParameterValidateException("公共课课程代码"+examInfo.getCourseCode()+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                    throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
                 }
             }
         }
@@ -575,11 +575,11 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
     }
 
     @Override
-    public List<ExamStudent> listExamStudentById(Long id) {
-        if (id == null) {
+    public List<ExamStudent> listExamStudentById(Long examRoomId,Long examInfoId) {
+        if (examRoomId == null) {
             throw new ParameterValidateException("入参有误");
         }
-        List<ExamStudent> list = studentDao.listExamStudentById(id);
+        List<ExamStudent> list = studentDao.listExamStudentById(examRoomId,examInfoId);
         return list;
     }
 

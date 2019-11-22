@@ -122,13 +122,13 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
 
     void updateActualNumberById(@Param("examInfoId") Long examInfoId, @Param("symbol") Integer symbol);
 
-    List<ExamStudent> listExamStus(@Param("calendarId") Long calendarId, @Param("id") Long id);
+    List<ExamStudent> listExamStus( @Param("id") Long id,@Param("examInfoId") Long examInfoId);
 
     GraduateExamStudentNumber getExamInfoNumber(List<Long> list);
 
-     List<Long> getExamRoomIds(@Param("calendarId") Long calendarId, @Param("examType") Integer examType,@Param("projId") String projId,@Param("list") List<String> list);
+     List<ExportExamInfoDto> getExamRoomIds(@Param("calendarId") Long calendarId, @Param("examType") Integer examType,@Param("projId") String projId,@Param("list") List<String> list);
 
-    List<GraduateExamInfo> checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo);
+    List<GraduateExamInfoVo> checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo);
 
     List<SelectDto> findCourse(@Param("list") List<Long> ids);
 

@@ -30,7 +30,9 @@
     </resultMap>
 
     <resultMap id="VoBaseResultMap" type="com.server.edu.exam.vo.GraduateExamInfoVo"
-               extends="BaseResultMap"></resultMap>
+               extends="BaseResultMap">
+        <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName"/>
+    </resultMap>
 
     <select id="listGraduateExamInfoFinal" resultType="com.server.edu.exam.vo.GraduateExamInfoVo"
             parameterType="com.server.edu.exam.vo.GraduateExamInfoVo">
@@ -216,6 +218,7 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(examSituation)">
         and t3.EXAM_SITUATION_ = #{examSituation}
       </if>
+        and t1.EXAM_STATUS_ = 2
     </where>
   </select>
 
@@ -225,13 +228,14 @@
     tt.ROOM_NAME_ roomName,tt.ROOM_NUMBER_ roomNumber,tt.EXAM_INFO_ID_ examInfoId,tt.EXAM_TIME_ examTime,tt.EXAM_ROOM_ID_ examRoomId,tt.TEACHER_CODE_ teacherCode,tt.TEACHER_NAME_ teacherName
     from
     (select t1.CALENDAR_ID_,t1.COURSE_CODE_,t4.NAME_,t4.NATURE_,t4.COLLEGE_,t5.ID_ INFO_ROOM_ID_,
-    t1.CAMPUS_,t4.TRAINING_LEVEL_,t4.CREDITS_,t2.ROOM_ID_,t2.ROOM_NAME_,t2.ROOM_NUMBER_,
-    t1.ID_ EXAM_INFO_ID_,t1.EXAM_TIME_,t2.ID_ EXAM_ROOM_ID_,GROUP_CONCAT(t3.TEACHER_CODE_) TEACHER_CODE_,GROUP_CONCAT(t3.TEACHER_NAME_) TEACHER_NAME_
+    t1.CAMPUS_,t4.TRAINING_LEVEL_,t4.CREDITS_,t2.ROOM_ID_,t2.ROOM_NAME_,COUNT(DISTINCT t6.ID_) ROOM_NUMBER_,
+    t1.ID_ EXAM_INFO_ID_,t1.EXAM_TIME_,t2.ID_ EXAM_ROOM_ID_,GROUP_CONCAT(DISTINCT t3.TEACHER_CODE_) TEACHER_CODE_,GROUP_CONCAT(DISTINCT t3.TEACHER_NAME_) TEACHER_NAME_,
     from graduate_exam_info_t t1
     LEFT JOIN graduate_exam_info_room_t t5 on t1.ID_ = t5.EXAM_INFO_ID_
     left join graduate_exam_room_t t2 on t5.EXAM_ROOM_ID_ = t2.ID_
     left join graduate_exam_teacher_t t3 on t2.ID_ = t3.EXAM_ROOM_ID_
     left join course_t t4 on t1.COURSE_CODE_ = t4.CODE_
+    LEFT JOIN graduate_exam_student_t t6 on t6.EXAM_INFO_ID_ = t1.ID_ and t6.EXAM_ROOM_ID_ = t2.ID_
     <where>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
         and t1.CALENDAR_ID_ = #{calendarId}
@@ -288,7 +292,7 @@
         or tt.TEACHER_NAME_ like concat ('%', #{keyword},'%') or tt.TEACHER_CODE_ like concat ('%', #{keyword},'%'))
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-        and (tt.TEACHER_CODE_ like concat ('%', #{teacherCode},'%'))
+        and (tt.TEACHER_CODE_ like concat ('%', #{teacherCode},'%') and tt.TEACHER_NAME_ like concat ('%', #{teacherCode},'%'))
       </if>
     </where>
   </select>
@@ -471,7 +475,7 @@
         LEFT JOIN course_t t4 ON t3.COURSE_CODE_ = t4.CODE_
         LEFT JOIN student_t t5 ON t5.STUDENT_CODE_ = t2.STUDENT_CODE_
         WHERE
-           t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
+           t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1 and t2.EXAM_INFO_ID_ =#{examInfoId}
           ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
       ) t,
      (SELECT @i := 0) d
@@ -487,10 +491,9 @@
         </foreach>
     </select>
 
-    <select id="getExamRoomIds" resultType="java.lang.Long">
+    <select id="getExamRoomIds" resultType="com.server.edu.exam.dto.ExportExamInfoDto">
       SELECT
-	   DISTINCT
-	   r.ID_
+        t.EXAM_INFO_ID_ examInfoId, t.EXAM_ROOM_ID_ examRoomId
       FROM
 	   graduate_exam_info_t i
       LEFT join course_t t1 on i.COURSE_CODE_ = t1.CODE_
@@ -507,8 +510,8 @@
       </where>
     </select>
 
-    <select id="checkPublicExamTimeSame" parameterType="com.server.edu.exam.entity.GraduateExamInfo" resultMap="BaseResultMap">
-        select t1.* from
+    <select id="checkPublicExamTimeSame" parameterType="com.server.edu.exam.entity.GraduateExamInfo" resultMap="VoBaseResultMap">
+        select t1.*,t2.NAME_ COURSE_NAME_ from
         graduate_exam_info_t t1
         left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
         where t1.CALENDAR_ID_ = #{calendarId} and t1.COURSE_CODE_ = #{courseCode} and t1.EXAM_TYPE_ = #{examType}

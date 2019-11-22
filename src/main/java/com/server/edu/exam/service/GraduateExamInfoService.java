@@ -117,7 +117,7 @@ public interface GraduateExamInfoService {
     * @author bear
     * @date 2019/9/5 16:08
     */
-    List<ExamStudent> listExamStudentById(Long id);
+    List<ExamStudent> listExamStudentById(Long examRoomId,Long examInfoId);
 
     /**
     * 通过学期，课程查询教学班
