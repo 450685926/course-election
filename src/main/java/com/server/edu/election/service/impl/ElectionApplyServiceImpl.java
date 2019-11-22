@@ -172,12 +172,14 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     	electionApply.setApply(Constants.TOW);
         int result =
             electionApplyDao.updateByPrimaryKeySelective(electionApply);
+        
         if (result <= 0)
         {
             throw new ParameterValidateException(
                 I18nUtil.getMsg("common.saveError",
                     I18nUtil.getMsg("electionApply.reply")));
         }
+        this.updateCache(electionApply.getStudentId(), electionApply.getCalendarId());
         return result;
     }
     
@@ -234,6 +236,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         Long calendarId = elecRounds.getCalendarId();
         criteria.andEqualTo("calendarId", calendarId);
         criteria.andEqualTo("courseCode", courseCode);
+        criteria.andNotEqualTo("apply", Constants.APPLY);
         ElectionApply apply = electionApplyDao.selectOneByExample(example);
         if (apply != null)
         {

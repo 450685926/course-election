@@ -145,6 +145,8 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
                     I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.info")));
         }
         result = elcCourseTakeDao.deleteByPrimaryKey(id);
+        //减少选课人数
+        result =teachingClassDao.decrElcNumber(elcCourseTake.getTeachingClassId());
         applicationContext.publishEvent(new ElectLoadEvent(
         		elcCourseTake.getCalendarId(), elcCourseTake.getStudentId()));
 		return result;
@@ -175,6 +177,8 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
             throw new ParameterValidateException(
                     I18nUtil.getMsg("common.saveError",I18nUtil.getMsg("elcMedWithdraw.elcinfo")));
 		}
+        // 增加选课人数
+		teachingClassDao.increElcNumber(elcCourseTake.getTeachingClassId());
 		result = elcMedWithdrawDao.deleteByPrimaryKey(medWithdrawId);
         applicationContext.publishEvent(new ElectLoadEvent(
         		elcCourseTake.getCalendarId(), elcCourseTake.getStudentId()));

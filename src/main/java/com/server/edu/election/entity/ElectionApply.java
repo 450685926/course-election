@@ -42,7 +42,7 @@ public class ElectionApply implements Serializable {
     private String courseCode;
 
     /**
-     * 是否同意(0否,1是)
+     * 是否同意(0草稿,1待选,2驳回)
      */
     @Column(name = "APPLY_")
     private Integer apply;

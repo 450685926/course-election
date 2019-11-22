@@ -3,6 +3,8 @@ package com.server.edu.election.studentelec.cache;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.Column;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -74,8 +76,21 @@ public class TeachingClassCache extends ElecCourse
 
     //教学班预留人数
     private Integer reserveNumber;
+    
+    /**
+     * 选课第三、四轮退课人数
+     */
+    private Integer thirdWithdrawNumber;
+    
+    public Integer getThirdWithdrawNumber() {
+		return thirdWithdrawNumber;
+	}
 
-    public Integer getReserveNumber() {
+	public void setThirdWithdrawNumber(Integer thirdWithdrawNumber) {
+		this.thirdWithdrawNumber = thirdWithdrawNumber;
+	}
+
+	public Integer getReserveNumber() {
         return reserveNumber;
     }
 

@@ -1070,7 +1070,6 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Override
 	@Transactional
 	public void changeStudentClass(TeachingClassChange condition) {
-		Session session = SessionUtils.getCurrentSession();
 		Example example = new Example(ElcCourseTake.class); 
         example.createCriteria()
         .andEqualTo("calendarId", condition.getCalendarId())
