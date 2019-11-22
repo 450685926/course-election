@@ -126,8 +126,8 @@ public class GraduateExamInfoController {
     }
 
     @GetMapping("/getExamStudentByRoomId")
-    public RestResult<List<ExamStudent>> getExamStudentByRoomId(@RequestParam Long examRoomId) {
-        List<ExamStudent> list = examInfoService.listExamStudentById(examRoomId);
+    public RestResult<List<ExamStudent>> getExamStudentByRoomId(@RequestParam Long examRoomId,@RequestParam Long examInfoId) {
+        List<ExamStudent> list = examInfoService.listExamStudentById(examRoomId,examInfoId);
         return RestResult.successData(list);
     }
 

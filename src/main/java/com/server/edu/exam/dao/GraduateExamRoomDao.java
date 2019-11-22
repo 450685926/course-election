@@ -33,7 +33,7 @@ public interface GraduateExamRoomDao extends Mapper<GraduateExamRoom> ,MySqlMapp
     /**校验考场人数是否已满*/
     int checkNum(Long id);
 
-    List<ExamRoomDto> getExamRoomCampus(Long examRoomId);
+    List<ExamRoomDto> getExamRoomCampus(@Param("examRoomId") Long examRoomId,@Param("examInfoId") Long examInfoId);
 
     GraduateExamRoom getExamRoomNumber(Long examRoomId);
 

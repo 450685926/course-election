@@ -16,6 +16,7 @@ import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.impl.ReportManagementServiceImpl;
 import com.server.edu.election.vo.RollBookList;
+import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.dao.GraduateExamInfoDao;
 import com.server.edu.exam.dao.GraduateExamRoomDao;
 import com.server.edu.exam.dao.GraduateExamStudentDao;
@@ -106,8 +107,13 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         }
         Session session = SessionUtils.getCurrentSession();
         String dptId = session.getCurrentManageDptId();
-        List<String> facultys = session.getGroupData().get(GroupDataEnum.department.getValue());
-        examMessage.setFacultys(facultys);
+        if(ApplyStatus.TEACHER_ROLE.equals(session.getCurrentRole())){
+            examMessage.setTeacherCode(session.realUid());
+            examMessage.setTeacherName(session.realName());
+        }else{
+            List<String> facultys = session.getGroupData().get(GroupDataEnum.department.getValue());
+            examMessage.setFacultys(facultys);
+        }
         examMessage.setProjId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<GraduateExamMessage> page = examInfoDao.listGraduateExamMessage(examMessage);
@@ -192,14 +198,22 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
     @Override
     public ExcelResult exportStuList(ExportExamInfoDto exportStu) {
-
-        ExcelResult excelResult = ExportExcelUtils.submitTask("examStuList", new ExcelExecuter() {
+        String key = "examStudentListKey";
+        ExcelResult rs = new ExcelResult();
+        rs.setStatus(false);
+        rs.setCreateTime(System.currentTimeMillis());
+        String newKey = key + rs.getCreateTime();
+        rs.setKey(newKey);
+        redisTemplate.opsForValue().set(newKey, rs);
+        redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
+        ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
             @Override
-            public GeneralExcelDesigner getExcelDesigner() {
-                return exportStu(exportStu,"excle");
+            public File getFile() {
+                String path = creatFile(exportStu, "one");
+                return new File(path);
             }
-        },"diy");
-        return excelResult;
+        },".xls");
+        return  rs;
     }
 
 
@@ -208,9 +222,9 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
     public ExcelResult exportCheckTable(Long calendarId,Integer examType,String calendarName) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         List<String> list = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId,list);
+        List<ExportExamInfoDto> infoRooms = examInfoDao.getExamRoomIds(calendarId, examType,dptId,list);
         String key = "exportCheckTableZip";
-        int total = examRoomIds.size();
+        int total = infoRooms.size();
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);
         rs.setCreateTime(System.currentTimeMillis());
@@ -227,14 +241,12 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
             public File getFile() {
                 try {
                     List<File> fileList = new ArrayList<>();
-                    for (Long  examRoomId: examRoomIds) {
-                        ExportExamInfoDto exportExamInfoDto = new ExportExamInfoDto();
+                    for (ExportExamInfoDto  exportExamInfoDto: infoRooms) {
                         exportExamInfoDto.setCalendarId(calendarId);
-                        exportExamInfoDto.setExamRoomId(examRoomId);
                         exportExamInfoDto.setCalendarName(calendarName);
                         GeneralExcelDesigner designer = exportStu(exportExamInfoDto,"zip");
                        // designer.getOverviews()
-                        GraduateExamRoom examRoom = roomDao.getExamRoomNumber(examRoomId);
+                        GraduateExamRoom examRoom = roomDao.getExamRoomNumber(exportExamInfoDto.getExamRoomId());
 
                         FileUtil.mkdirs(cacheDirectory);
                         Date date = new Date();
@@ -290,10 +302,15 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
     private GeneralExcelDesigner exportStu(ExportExamInfoDto exportExamInfoDto, String type) {
         ArrayList<ExportStuDto> dataList = new ArrayList<>();
-        List<ExamStudent> list = examInfoDao.listExamStus(exportExamInfoDto.getCalendarId(), exportExamInfoDto.getExamRoomId());
+        List<ExamStudent> list = examInfoDao.listExamStus(exportExamInfoDto.getExamRoomId(),exportExamInfoDto.getExamInfoId());
         StringBuilder examTime = new StringBuilder();
         String examRoom ="";
         if(list.size()>0){
+            try {
+                list = SpringUtils.convert(list);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             Date date = list.get(0).getExamDate();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String dateStr = sdf.format(date);
@@ -561,7 +578,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
     public ExcelResult exportCheckTableFreemarker(Long calendarId, Integer examType, String calendarName) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         List<String> list = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId,list);
+        List<ExportExamInfoDto> infoRooms = examInfoDao.getExamRoomIds(calendarId, examType,dptId,list);
         String key = "exportCheckTableFreemarkerZip";
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);
@@ -575,12 +592,10 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
             public File getFile() {
                 try {
                     List<File> fileList = new ArrayList<>();
-                    for (Long  examRoomId: examRoomIds) {
-                        ExportExamInfoDto exportExamInfoDto = new ExportExamInfoDto();
+                    for (ExportExamInfoDto  exportExamInfoDto: infoRooms) {
                         exportExamInfoDto.setCalendarId(calendarId);
-                        exportExamInfoDto.setExamRoomId(examRoomId);
                         exportExamInfoDto.setCalendarName(calendarName);
-                        String path = creatFile(exportExamInfoDto,examRoomId);
+                        String path = creatFile(exportExamInfoDto,"batch");
                         fileList.add(new File(path));
                     }
                     ZipUtil.createZip(fileList, cacheDirectory+"checkTable.zip");
@@ -619,17 +634,23 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
     }
 
 
-    private String creatFile(ExportExamInfoDto exportExamInfoDto,Long examRoomId){
+    private String creatFile(ExportExamInfoDto exportExamInfoDto,String type){
         ArrayList<ExportStuDto> dataList = new ArrayList<>();
-        List<ExamStudent> list = examInfoDao.listExamStus(exportExamInfoDto.getCalendarId(), exportExamInfoDto.getExamRoomId());
+        List<ExamStudent> list = examInfoDao.listExamStus(exportExamInfoDto.getExamRoomId(),exportExamInfoDto.getExamInfoId());
         StringBuilder examTime = new StringBuilder();
         String examRoom ="";
         if(list.size()>0){
+            try {
+                list = SpringUtils.convert(list);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             Date date = list.get(0).getExamDate();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String dateStr = sdf.format(date);
             examTime.append(dateStr).append(" ").append(list.get(0).getExamStartTime()).append("-").append(list.get(0).getExamEndTime());
             examRoom = list.get(0).getRoomName();
+
         }
         if (list != null) {
             int divNum = list.size() / 2;
@@ -700,10 +721,14 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         }
 
 
-        List<ExamRoomDto> examRoomNumber = roomDao.getExamRoomCampus(examRoomId);
+        List<ExamRoomDto> examRoomNumber = roomDao.getExamRoomCampus(exportExamInfoDto.getExamRoomId(),exportExamInfoDto.getExamInfoId());
         StringBuilder stringBuilder = new StringBuilder();
+        String courseCode = "";
+        String courseName = "";
         if(CollectionUtil.isNotEmpty(examRoomNumber)){
             ExamRoomDto examRoomDto = examRoomNumber.get(0);
+            courseCode = examRoomDto.getCourseCode();
+            courseName = examRoomDto.getCourseName();
             String s = examRoomDto.getCampus();
             String roomName = examRoomDto.getRoomName();
             String campus = dictionaryService.query("X_XQ", s, SessionUtils.getLang());
@@ -720,11 +745,17 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         String title = "同济大学" + exportExamInfoDto.getCalendarName() + "研究生课程考试名单";
         Map<String,Object> myMap = new HashMap<>();
         myMap.put("title",title);
+        myMap.put("courseCode",courseCode);
+        myMap.put("courseName",courseName);
         myMap.put("examTime",examTime);
         myMap.put("examRoom",examRoom);
         myMap.put("dataList",dataList);
         try {
-            Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate("attendanceSheet.ftl");
+            String templateName = "attendanceSheet.ftl";
+            if(type.equals("one")){
+                templateName = "examStudentList.ftl";
+            }
+            Template tpl = freeMarkerConfigurer.getConfiguration().getTemplate(templateName);
             Writer  out = new BufferedWriter(
                     new OutputStreamWriter(new FileOutputStream(path), "UTF-8"));
             tpl.process(myMap, out);
