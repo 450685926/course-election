@@ -227,7 +227,7 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
             if (elcMedWithdrawRules.getCourseEndWeek() > week)
             {
                 throw new ParameterValidateException(
-                        I18nUtil.getMsg("elcMedWithdraw.courseEndWeek"));
+                        I18nUtil.getMsg("elcMedWithdraw.courseEndWeek",elcMedWithdrawRules.getCourseEndWeek()));
             }
             //外语强化班不得退课
             if (elcMedWithdrawRules.getEnglishCourse())
