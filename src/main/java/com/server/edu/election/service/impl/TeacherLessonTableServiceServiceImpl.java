@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.election.dto.*;
 import com.server.edu.election.vo.TeachingClassTeacherVo;
+import com.server.edu.exception.ParameterValidateException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -696,8 +697,11 @@ public class TeacherLessonTableServiceServiceImpl
         //正常文字
         //Font name1 = new Font(bfChinese, 12, Font.BOLD, BaseColor.GRAY);
         Font name2 = new Font(bfChinese, 12, Font.NORMAL);
-        Teacher teacher = TeacherCacheUtil.getTeacher(teacherCode);
-        String teacherName = teacher.getName();
+        TeachingClassTeacherVo teacher = teachingClassTeacherDao.findTeacher(teacherCode);
+        if (teacher == null) {
+            throw new ParameterValidateException("找不到与" + teacherCode + "对应的教师");
+        }
+        String teacherName = teacher.getTeacherName();
         String fileName = new StringBuffer("").append(cacheDirectory)
                 .append("//")
                 .append(System.currentTimeMillis())
