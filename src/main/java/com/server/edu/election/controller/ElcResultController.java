@@ -37,6 +37,7 @@ import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.async.AsyncProcessUtil;
 import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
 
@@ -205,6 +206,13 @@ public class ElcResultController
         throws Exception
     {
     	AsyncResult asyncResult = elcResultService.autoBatchRemove(dto);
+        return RestResult.successData(asyncResult);
+    }
+    
+    @ApiOperation(value = "查询批量自动剔除状态")
+    @GetMapping("/findAutoBatchRemove")
+    public RestResult<AsyncResult> findAutoBatchRemove(@RequestParam String key){
+        AsyncResult asyncResult = AsyncProcessUtil.getResult(key);
         return RestResult.successData(asyncResult);
     }
     
