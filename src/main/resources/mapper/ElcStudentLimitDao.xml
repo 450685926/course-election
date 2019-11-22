@@ -16,7 +16,8 @@
     <result column="UPDATED_AT" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
   <select id="getLimitStudents" parameterType="com.server.edu.election.dto.ElcStudentLimitDto" resultType="com.server.edu.election.vo.ElcStudentLimitVo">
-		SELECT  
+		select * from (
+		SELECT
 		      id,
 			  studentId,
 			  calendarId,
@@ -101,15 +102,15 @@
 		    </where>
 		GROUP BY
 			t1.STUDENT_ID_
-		) t5 
+		) t5 )t6
 		<where>
 		 	<if test="minSelectedCredits > 0 or maxSelectedCredits > 0">
-		        and t5.selectedCredits <![CDATA[ >= ]]> #{minSelectedCredits}
-		        and t5.selectedCredits <![CDATA[ <= ]]> #{maxSelectedCredits}
+		        and t6.selectedCredits <![CDATA[ >= ]]> #{minSelectedCredits}
+		        and t6.selectedCredits <![CDATA[ <= ]]> #{maxSelectedCredits}
 		    </if>
 		 	<if test="minSelectedRebuild > 0 or maxSelectedRebuild > 0">
-		        and t5.selectedRebuild <![CDATA[ >= ]]> #{minSelectedRebuild}
-		        and t5.selectedRebuild <![CDATA[ <= ]]> #{maxSelectedRebuild}
+		        and t6.selectedRebuild <![CDATA[ >= ]]> #{minSelectedRebuild}
+		        and t6.selectedRebuild <![CDATA[ <= ]]> #{maxSelectedRebuild}
 		    </if>
 		</where>
   </select>
