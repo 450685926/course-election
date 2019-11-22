@@ -192,12 +192,12 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-			String boy = "1";
-			if(vo.getNumberMale()!=null&&vo.getNumberMale()!=0) {
+			String boy = "无";
+			if(vo.getNumberMale()!=null) {
 				boy = vo.getNumberMale().toString();
 			}
-			String girl = "1";
-			if(vo.getNumberFemale()!=null&&vo.getNumberFemale()!=0) {
+			String girl = "无";
+			if(vo.getNumberFemale()!=null) {
 				girl = vo.getNumberFemale().toString();
 			}
 			String proportion = boy +"/" +girl;
@@ -879,6 +879,20 @@ public class ElcResultServiceImpl implements ElcResultService
 		attr.setTrainingCategory(teachingClassVo.getLimitTrainingCategory());
 		attr.setFaculty(teachingClassVo.getLimitFaculty());
 		attr.setIsDivsex(teachingClassVo.getLimitIsDivsex());
+		String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
+		//all
+		if("1".equals(limitIsDivsex)){
+            attr.setNumberMale(1);
+            attr.setNumberFemale(1);
+        }//boy
+        else if("2".equals(limitIsDivsex)){
+            attr.setNumberMale(1);
+            attr.setNumberFemale(0);
+        }//girl
+        else if("3".equals(limitIsDivsex)){
+            attr.setNumberMale(0);
+            attr.setNumberFemale(1);
+        }
 		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
@@ -916,7 +930,13 @@ public class ElcResultServiceImpl implements ElcResultService
 		attr.setTeachingClassId(teachingClassVo.getId());
 		int numberMale = teachingClassVo.getNumberMale();
 		int numberFemale = teachingClassVo.getNumberFemale();
-        if(numberMale % numberFemale == 0){
+		if(numberMale==0){
+            numberFemale = 1;
+        }
+        else if(numberFemale==0){
+            numberMale = 1;
+        }
+        else if(numberMale % numberFemale == 0){
             numberMale = numberMale / numberFemale ;
             numberFemale =1;
         }

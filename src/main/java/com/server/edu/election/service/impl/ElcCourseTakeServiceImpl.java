@@ -1468,7 +1468,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         design.addCell("姓名", "studentName");
         design.addCell("课程序号", "teachingClassCode");
         design.addCell("课程名称", "courseName");
-        design.addCell("课程名称", "courseName");
         design.addCell("开课学院", "faculty")
                 .setValueHandler((value, rawData, cell) -> {
                     return dictionaryService.query("X_YX", value); });

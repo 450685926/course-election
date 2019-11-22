@@ -109,6 +109,12 @@ public class StudentServiceInvoker {
         RestResult<List<AbnormalTypeElection>> list = ServicePathEnum.STUDENT.postForObject("/applyType/getAbnormalTypeByStudentCode",JSONArray.parseArray(JSON.toJSONString(studentCodes)), RestResult.class);
         return list.getData();
     }
+
+    public static List<AbnormalTypeElection> getAbnormalTypeByStudentCodeBK(List<String> studentCodes) {
+        @SuppressWarnings("unchecked")
+        List<AbnormalTypeElection> list = ServicePathEnum.STUDENT.postForObject("/applyType/getAbnormalTypeByStudentCodeBK",JSONArray.parseArray(JSON.toJSONString(studentCodes)),List.class );
+        return list;
+    }
 }
     
     
