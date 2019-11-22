@@ -233,23 +233,33 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
                    int pageNum = 0;
                    pageCondition.setPageNum_(pageNum);
                    List<NoSelectCourseStdsDto> list = new ArrayList<>();
-                   while (true)
-                   {
-                       pageNum++;
-                       pageCondition.setPageNum_(pageNum);
-                       PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
-                       list.addAll(electCourseList.getList());
-
-                       result.setTotal((int)electCourseList.getTotal_());
-                       Double count = list.size() / 1.5;
-                       result.setDoneCount(count.intValue());
-                       this.updateResult(result);
-
-                       if (electCourseList.getTotal_() <= list.size())
+                   List<String> studentCodeList = condition.getListStudentCode();
+                   if(null==studentCodeList||studentCodeList.size()==0){
+                       while (true)
                        {
-                           break;
+                           pageNum++;
+                           pageCondition.setPageNum_(pageNum);
+                           PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
+                           list.addAll(electCourseList.getList());
+
+                           result.setTotal((int)electCourseList.getTotal_());
+                           Double count = list.size() / 1.5;
+                           result.setDoneCount(count.intValue());
+                           this.updateResult(result);
+
+                           if (electCourseList.getTotal_() <= list.size())
+                           {
+                               break;
+                           }
+                       }
+                   }else{
+                       for(String string:studentCodeList){
+                           pageCondition.getCondition().setStudentCode(string);
+                           PageResult<NoSelectCourseStdsDto> electCourseList = findElectCourseList(pageCondition);
+                           list.addAll(electCourseList.getList());
                        }
                    }
+
                    //组装excel
                    GeneralExcelDesigner design = getDesign();
                    //将数据放入excel对象中

@@ -3,6 +3,8 @@ package com.server.edu.election.dto;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
+import java.util.List;
+
 /**
  * @description: 未选课学生
  * @author: bear
@@ -29,6 +31,8 @@ public class NoSelectCourseStdsDto{
     
     /** 学生学号 */
     private String studentCode;
+    /** 学生学号list */
+    private List<String> ListStudentCode;
     
     /** 学生姓名 */
     private String studentName;
@@ -204,7 +208,15 @@ public class NoSelectCourseStdsDto{
 		this.uId = uId;
 	}
 
-	@Override
+    public List<String> getListStudentCode() {
+        return ListStudentCode;
+    }
+
+    public void setListStudentCode(List<String> listStudentCode) {
+        ListStudentCode = listStudentCode;
+    }
+
+    @Override
 	public String toString() {
 		return "NoSelectCourseStdsDto [calendarId=" + calendarId + ", grade=" + grade + ", faculty=" + faculty
 				+ ", major=" + major + ", studentCategory=" + studentCategory + ", studentCode=" + studentCode
