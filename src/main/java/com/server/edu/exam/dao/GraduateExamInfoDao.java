@@ -137,4 +137,10 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
     List<GraduateExamInfoVo> editGraduateExam(@Param("list") List<Long> list,@Param("mode") Integer mode);
 
     List<Long> findExamInfoIds(@Param("list") List<GraduateExamInfo> list);
+
+    /**查询已发布的学生考试课程信息（可以不排考）*/
+    Page<MyGraduateExam> listMyExamTimeFinal(MyGraduateExam condition);
+
+    /**查询已发布的学生考试课程信息（可以不排考）*/
+    Page<MyGraduateExam> listMyExamTimeMakeUp(MyGraduateExam condition);
 }
