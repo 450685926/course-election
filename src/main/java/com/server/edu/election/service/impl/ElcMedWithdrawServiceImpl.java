@@ -39,6 +39,7 @@ import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcMedWithdrawService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcMedWithdrawRuleRefCourVo;
@@ -78,6 +79,10 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
     
     @Autowired
     private ApplicationContext applicationContext;
+    
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+    
 	@Override
 	public PageInfo<ElcCourseTakeVo> page(PageCondition<ElcMedWithdrawDto> condition) {
 		// TODO Auto-generated method stub
@@ -147,6 +152,8 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
         result = elcCourseTakeDao.deleteByPrimaryKey(id);
         //减少选课人数
         result =teachingClassDao.decrElcNumber(elcCourseTake.getTeachingClassId());
+        // 更新缓存中教学班人数
+        teachClassCacheService.updateTeachingClassNumber(elcCourseTake.getTeachingClassId());
         applicationContext.publishEvent(new ElectLoadEvent(
         		elcCourseTake.getCalendarId(), elcCourseTake.getStudentId()));
 		return result;
@@ -179,6 +186,8 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
 		}
         // 增加选课人数
 		teachingClassDao.increElcNumber(elcCourseTake.getTeachingClassId());
+        // 更新缓存中教学班人数
+        teachClassCacheService.updateTeachingClassNumber(elcCourseTake.getTeachingClassId());
 		result = elcMedWithdrawDao.deleteByPrimaryKey(medWithdrawId);
         applicationContext.publishEvent(new ElectLoadEvent(
         		elcCourseTake.getCalendarId(), elcCourseTake.getStudentId()));
