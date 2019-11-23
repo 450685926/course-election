@@ -207,7 +207,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
     @Override
     public ExcelResult exportCheckTable(Long calendarId,Integer examType,String calendarName) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId);
+        List<String> list = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId,list);
         String key = "exportCheckTableZip";
         int total = examRoomIds.size();
         ExcelResult rs = new ExcelResult();
@@ -559,7 +560,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
     @Override
     public ExcelResult exportCheckTableFreemarker(Long calendarId, Integer examType, String calendarName) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId);
+        List<String> list = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+        List<Long> examRoomIds = examInfoDao.getExamRoomIds(calendarId, examType,dptId,list);
         String key = "exportCheckTableFreemarkerZip";
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);

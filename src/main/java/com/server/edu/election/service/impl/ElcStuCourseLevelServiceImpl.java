@@ -83,6 +83,15 @@ public class ElcStuCourseLevelServiceImpl implements ElcStuCourseLevelService
     @Override
     public void update(ElcStuCouLevel couLevel)
     {
+        Example example = new Example(ElcStuCouLevel.class);
+        String studentId = couLevel.getStudentId();
+        example.createCriteria()
+                .andEqualTo("studentId", studentId);
+        List<ElcStuCouLevel> elcStuCouLevels = couLevelDao.selectByExample(example);
+        if (CollectionUtil.isNotEmpty(elcStuCouLevels)) {
+            throw new ParameterValidateException(
+                    I18nUtil.getMsg("common.exist", studentId));
+        }
         couLevel.setUpdatedAt(new Date());
         this.couLevelDao.updateByPrimaryKeySelective(couLevel);
     }

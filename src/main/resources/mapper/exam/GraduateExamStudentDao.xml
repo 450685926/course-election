@@ -286,7 +286,7 @@
   </select>
 
   <select id="listApplyListMakeUp" parameterType="com.server.edu.exam.dto.SelectDto" resultType="com.server.edu.exam.dto.SelectDto">
-    select t2.STUDENT_CODE_ studentCode,t2.NAME_ studentName
+    select DISTINCT t2.STUDENT_CODE_ studentCode,t2.NAME_ studentName
     from score_student_result_t t1
     left join student_t t2 on t2.STUDENT_CODE_ = t1.STUDENT_ID_
     left join course_t t3 on t1.COURSE_CODE_ = t3.CODE_
@@ -389,5 +389,10 @@
     LEFT JOIN teaching_class_teacher_t t6 ON t5.ID_ = t6.TEACHING_CLASS_ID_
     GROUP BY
     t6.TEACHING_CLASS_ID_
+  </select>
+
+  <select id="findStudentScoreByCondition" parameterType="com.server.edu.exam.dto.ExamStudentAddDto" resultType="int">
+    select COUNT(*) from score_student_result_t
+    where CALENDAR_ID_ =#{calendarId} and STUDENT_ID_ =#{studentCode} and COURSE_CODE_ =#{courseCode} and RELEASE_TYPE_ = 1
   </select>
 </mapper>

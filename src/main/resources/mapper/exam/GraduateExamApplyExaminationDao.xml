@@ -73,7 +73,7 @@
         </foreach>
       </if>
     </where>
-    order by t1.ID_ desc
+    order by t1.APPLY_STATUS_ asc,t1.CREATE_AT_ desc
   </select>
 
   <update id="updateByList">
@@ -85,7 +85,7 @@
 
   <select id="listGraduateMakeUp" parameterType="com.server.edu.exam.vo.GraduateExamApplyExaminationVo" resultMap="VoBaseResultMap">
     select t6.ID_,t6.CALENDAR_ID_,t6.APPLY_SOURCE_,t6.STUDENT_CODE_,t6.COURSE_CODE_,t6.APPLY_TYPE_,t6.APPLY_STATUS_,t6.APPLY_REASON_,t6.ADUIT_OPINIONS_,
-    t6.COURSE_NAME_ courseName,t7.NAME_ studentName,t7.CAMPUS_ campus,t7.FACULTY_ collenge
+    t6.COURSE_NAME_ courseName,t7.NAME_ studentName,t7.CAMPUS_ campus,t7.FACULTY_ collenge,t6.CREATE_AT_
     from
       (SELECT
           t1.CALENDAR_ID_ CALENDAR_ID_,
@@ -97,6 +97,7 @@
           t3.APPLY_REASON_ APPLY_REASON_,
           t3.ADUIT_OPINIONS_ ADUIT_OPINIONS_,
           t3.REMARK_ REMARK_PK_,
+          t3.CREATE_AT_ CREATE_AT_,
           t1.TEACHING_CLASS_ID_ TEACHING_CLASS_ID_,
           t2.NAME_ COURSE_NAME_,
           t1.ID_ ID_
@@ -105,7 +106,7 @@
       LEFT JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
       LEFT JOIN graduate_exam_apply_examination_t t3 ON t1.CALENDAR_ID_ = t3.CALENDAR_ID_
       AND t1.STUDENT_ID_ = t3.STUDENT_CODE_
-      AND t1.COURSE_CODE_ = t2.CODE_
+      AND t1.COURSE_CODE_ = t3.COURSE_CODE_
       AND t3.APPLY_TYPE_ = 3
     <where>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
@@ -113,9 +114,6 @@
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projId)">
         and t2.MANAGER_DEPT_ID_ = #{projId}
-      </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-        and ( t2.CODE_ like concat ('%', #{keyword},'%') or t2.NAME_ like concat ('%', #{keyword},'%') )
       </if>
       AND t1.IS_PASS_ = 0
       AND t1.RELEASE_TYPE_ = 1
@@ -131,6 +129,7 @@
               t4.APPLY_REASON_ APPLY_REASON_,
               t4.ADUIT_OPINIONS_ ADUIT_OPINIONS_,
               t4.REMARK_ REMARK_,
+              t4.CREATE_AT_ CREATE_AT_,
               t4.TEACHING_CLASS_ID_ TEACHING_CLASS_ID_,
               t5.NAME_ COURSE_NAME_,
               t4.ID_ ID_
@@ -143,9 +142,6 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projId)">
               and t4.PROJ_ID_ = #{projId}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-              and ( t5.CODE_ like concat ('%', #{keyword},'%') or t5.NAME_ like concat ('%', #{keyword},'%') )
             </if>
             AND t4.APPLY_TYPE_ = 2
           </where>
@@ -172,7 +168,8 @@
         and t6.APPLY_TYPE_ = #{applyType}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-        and ( t7.STUDENT_CODE_ like concat ('%', #{keyword},'%') or t7.NAME_ like concat ('%', #{keyword},'%') )
+        and ( t7.STUDENT_CODE_ like concat ('%', #{keyword},'%') or t7.NAME_ like concat ('%', #{keyword},'%')
+        or t6.COURSE_NAME_ like concat ('%', #{keyword},'%') or t6.COURSE_CODE_ like concat ('%', #{keyword},'%') )
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(facultys)">
         and t7.FACULTY_ in
@@ -181,6 +178,7 @@
         </foreach>
       </if>
     </where>
+    order by t6.APPLY_STATUS_ asc,t6.CREATE_AT_ desc
   </select>
 
   <select id="makeUpCourseList" parameterType="com.server.edu.common.entity.ExamMakeUp" resultType="com.server.edu.common.entity.ExamMakeUp">
@@ -222,4 +220,10 @@
     </where>
   </select>
 
+  <select id="findStudentMakeUp" parameterType="com.server.edu.exam.dto.ExamStudentAddDto" resultType="com.server.edu.exam.dto.ExamStudentAddDto">
+    select t1.STUDENT_CODE_ studentCode,t1.TEACHING_CLASS_ID_ teachingClassId,t2.CODE_ teachingClassCode,t2.NAME_ teachingClassName
+    from graduate_exam_apply_examination_t t1
+    left join teaching_class_t t2 on t2.ID_ = t1.TEACHING_CLASS_ID_
+    where t1.STUDENT_CODE_ = #{studentCode} and t1.CALENDAR_ID_ = #{calendarId} and t1.COURSE_CODE_ = #{courseCode} and t1.APPLY_STATUS_ = 4
+  </select>
 </mapper>

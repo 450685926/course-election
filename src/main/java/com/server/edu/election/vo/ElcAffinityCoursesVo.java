@@ -23,6 +23,10 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
     
     //学分
     private Double credits;
+
+    //开课学院
+    @Code2Text(transformer = "X_YX")
+    private String faculty;
     
     @NotEmpty
     private List<String> studentIds;
@@ -84,7 +88,12 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
 	public void setCourseCode(String courseCode) {
 		this.courseCode = courseCode;
 	}
-    
-    
-    
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
 }

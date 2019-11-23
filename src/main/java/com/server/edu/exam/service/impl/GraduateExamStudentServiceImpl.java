@@ -138,23 +138,23 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
                 design.addCell("校区", "campus");
                 design.addCell("考试地点", "roomName");
                 design.addCell("考试时间", "examTime");
-                design.addCell("考试情况", "examSituation").setValueHandler(new CellValueHandler() {
-                    @Override
-                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
-                        if("1".equals(s)){
-                            return "正常";
-                        }else if("2".equals(s)){
-                            return "缓考";
-                        }else if("3".equals(s)){
-                            return "补考";
-                        }else if("4".equals(s)){
-                            return "重修";
-                        }else if("5".equals(s)){
-                            return "旷考";
-                        }
-                        return s;
-                    }
-                });
+//                design.addCell("考试情况", "examSituation").setValueHandler(new CellValueHandler() {
+//                    @Override
+//                    public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
+//                        if("1".equals(s)){
+//                            return "正常";
+//                        }else if("2".equals(s)){
+//                            return "缓考";
+//                        }else if("3".equals(s)){
+//                            return "补考";
+//                        }else if("4".equals(s)){
+//                            return "重修";
+//                        }else if("5".equals(s)){
+//                            return "旷考";
+//                        }
+//                        return s;
+//                    }
+//                });
                 design.addCell("课程序号", "teachingClassCode");
                 design.addCell("教师", "teacherName");
                 design.addCell("备注信息", "remark");
@@ -183,6 +183,9 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         }
         int size = condition.size();
         GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(examRoomId);
+        if(examRoom.getRoomNumber().intValue() == examRoom.getRoomCapacity().intValue()){
+            throw new ParameterValidateException("该考场已满，请选择其他考场");
+        }
         if(size + examRoom.getRoomNumber() > examRoom.getRoomCapacity()){
             throw new ParameterValidateException("该教室剩余容量有限，不能同时更换这么多学生");
         }
@@ -203,15 +206,29 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         }
         GraduateExamInfo examInfo = examInfoDao.selectByPrimaryKey(condition.getExamInfoId());
         condition.setExamType(examInfo.getExamType());
-        //查询该学生是否修读该课程
-        ExamStudentAddDto addDto = examInfoDao.findStudentElcCourseTake(condition);
-        if(addDto == null){
-            throw new ParameterValidateException("该学生没有修读这个课程或该课程已经有成绩不能排考");
+        ExamStudentAddDto addDto = new ExamStudentAddDto();
+        if(examInfo.getExamType().equals(ApplyStatus.FINAL_EXAM)){
+            //查询该学生是否已经有成绩
+           int i =  examStudentDao.findStudentScoreByCondition(condition);
+           if(i > 0){
+               throw new ParameterValidateException("该学生该课程已经有成绩，不能添加应考学生");
+           }
+            //查询该学生是否修读该课程
+            addDto = examInfoDao.findStudentElcCourseTake(condition);
+            if(addDto == null){
+                throw new ParameterValidateException("该学生没有修读这个课程，不能添加应考学生");
+            }
+        }else{
+            //查询该学生是课程补缓考审核通过
+            addDto = applyExaminationDao.findStudentMakeUp(condition);
+            if(addDto == null){
+                throw new ParameterValidateException("补缓考审核通过列表没有对应学生课程，不能添加应考学生");
+            }
         }
         //查询该学生是否已经排考了
         int i = examInfoDao.findStudentByInfoId(condition.getCalendarId(),condition.getCourseCode(),condition.getStudentCode());
         if(i > 0){
-            throw new ParameterValidateException("该学生课程已经排考");
+            throw new ParameterValidateException("该学生课程已经排考，不能再次添加应考学生");
         }
         GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(condition.getExamRoomId());
         if(examRoom.getRoomNumber() + 1 > examRoom.getRoomCapacity()){
@@ -225,6 +242,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         studentDto.setTeachingClassName(addDto.getTeachingClassName());
         studentDto.setExamInfoId(condition.getExamInfoId());
         studentDto.setRoomId(examRoom.getRoomId());
+        studentDto.setRoomName(examRoom.getRoomName());
         //排考时间冲突检验
         List<GraduateExamStudent> list = new ArrayList<>();
         GraduateExamStudent student = new GraduateExamStudent();
@@ -345,11 +363,11 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examInfoDao.updateActualNumberById(examInfoId,symbol);
     }
 
-    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long roomId){
+    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long examRoomId){
         GraduateExamStudent examStudent = new GraduateExamStudent();
         Date date = new Date();
         examStudent.setStudentCode(graduateExamStudentDto.getStudentCode());
-        examStudent.setExamRoomId(roomId);
+        examStudent.setExamRoomId(examRoomId);
         examStudent.setTeachingClassId(graduateExamStudentDto.getTeachingClassId());
         examStudent.setExamSituation(ApplyStatus.EXAM_SITUATION_NORMAL);
         examStudent.setTeachingClassCode(graduateExamStudentDto.getTeachingClassCode());
@@ -359,11 +377,11 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examStudent.setExamInfoId(graduateExamStudentDto.getExamInfoId());
         examStudentDao.insert(examStudent);
         // 排考
-        graduateExamStudentDto.setExamRoomId(roomId);
+        graduateExamStudentDto.setExamRoomId(examRoomId);
         this.updateActualNumber(graduateExamStudentDto,ApplyStatus.EXAM_ADD);
         this.insertExamLog(graduateExamStudentDto,ApplyStatus.EXAM_LOG_YES);
         //更新新教室的排考人数
-        GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(roomId);
+        GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(examRoomId);
         examRoom.setRoomNumber(examRoom.getRoomNumber() + 1);
         roomDao.updateByPrimaryKey(examRoom);
 

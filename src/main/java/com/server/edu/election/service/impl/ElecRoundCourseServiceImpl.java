@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import com.server.edu.common.entity.Teacher;
+import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,11 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         Page<CourseOpenDto> listPage;
         if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listPage(query);
+            if (CollectionUtil.isNotEmpty(listPage)){
+                for (CourseOpenDto courseOpenDto: listPage) {
+                    getTeacgerName(courseOpenDto);
+                }
+            }
         }else {
         	listPage = roundCourseDao.listPageGraduate(query);
 		}
@@ -72,6 +79,11 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         ElecRoundCourseQuery query = condition.getCondition();
         if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
         	listPage = roundCourseDao.listUnAddPage(query,practicalCourse);
+        	if (CollectionUtil.isNotEmpty(listPage)){
+                for (CourseOpenDto courseOpenDto: listPage) {
+                    getTeacgerName(courseOpenDto);
+                }
+            }
 		}else {
 			listPage = roundCourseDao.listUnAddPageGraduate(query);
 		}
@@ -79,7 +91,30 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         
         return result;
     }
-    
+    private void getTeacgerName(CourseOpenDto vo) {
+        if(StringUtils.isNotBlank(vo.getTeacherCode())) {
+            String[] codes = vo.getTeacherCode().split(",");
+            List<Teacher> teachers = new ArrayList<Teacher>();
+            for (String code : codes) {
+                teachers.addAll(TeacherCacheUtil.getTeachers(code));
+            }
+            if(CollectionUtil.isNotEmpty(teachers)) {
+                StringBuilder stringBuilder = new StringBuilder();
+                for(Teacher teacher:teachers) {
+                    if(teacher!=null) {
+                        stringBuilder.append(teacher.getName());
+                        stringBuilder.append("(");
+                        stringBuilder.append(teacher.getCode());
+                        stringBuilder.append(")");
+                        stringBuilder.append(",");
+                    }
+                }
+                if(stringBuilder.length()>Constants.ZERO) {
+                    vo.setTeacherCode(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+                }
+            }
+        }
+    }
     @Override
     public PageResult<CourseOpenDto> listTeachingClassPage(
         PageCondition<ElecRoundCourseQuery> condition)

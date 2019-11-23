@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -16,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.validator.Assert;
@@ -64,38 +63,25 @@ public class RoundDataProvider
     @Autowired
     private StringRedisTemplate strTemplate;
     
-    public static ScheduledExecutorService ex = Executors.newScheduledThreadPool(1);
-    
     public RoundDataProvider()
     {
-    	// 更新redis中缓存的过期时间
-        ex.scheduleAtFixedRate(() -> {
-            try
-            {
-            	load();
-            }
-            catch (Exception e)
-            {
-            	logger.error(e.getMessage(), e);
-            }
-        }, 1, 1, TimeUnit.MINUTES);
     }
     
-//    @Scheduled(cron = "0 0/1 * * * *")
+//    @Scheduled(cron = "0 0/4 * * * *")
     public void load()
     {
         /*
          * roundId -> lessonId -> json
          */
-        Long caKey = 0L;
-        String key = "dataLoad";
-        Boolean setIfAbsent = ElecContextUtil.tryLock(caKey, key);
-        if (!Boolean.TRUE.equals(setIfAbsent))
-        {
-            return;
-        }
-        try
-        {
+//        Long caKey = 0L;
+//        String key = "dataLoad";
+//        Boolean setIfAbsent = ElecContextUtil.tryLock(caKey, key);
+//        if (!Boolean.TRUE.equals(setIfAbsent))
+//        {
+//            return;
+//        }
+//        try
+//        {
             // 缓存所有选课规则
             ruleCacheService.cacheAllRule();
             /** 一小时后即将开始的选课参数 */
@@ -124,11 +110,12 @@ public class RoundDataProvider
                 classCacheService.cacheAllTeachClass(calendarId);
                 applyCoursesServiceImpl.setToCache(calendarId);
             }
-        }
-        finally
-        {
-            ElecContextUtil.unlock(caKey, key);
-        }
+            
+//        }
+//        finally
+//        {
+//            ElecContextUtil.unlock(caKey, key);
+//        }
     }
     
     /**
@@ -363,6 +350,20 @@ public class RoundDataProvider
     {
         return classCacheService.incrementElecNumber(teachClassId);
     }
+    
+    /**
+     * 增加教学班第三、四轮人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int incrementDrawNumber(Long teachClassId)
+    {
+        return classCacheService.incrementDrawNumber(teachClassId);
+    }
+    
+    
     
     /**
      * 减少教学班人数

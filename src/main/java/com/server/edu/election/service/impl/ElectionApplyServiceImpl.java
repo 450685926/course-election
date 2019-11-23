@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
@@ -88,6 +89,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	@Override
 	public PageResult<ElectionApplyVo> applyUnList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.applyUnList(dto);
 		Session session = SessionUtils.getCurrentSession();
         if (CollectionUtil.isNotEmpty(applylist))
@@ -121,6 +123,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	@Override
 	public PageResult<ElectionApplyVo> alreadyApplyList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.alreadyApplyList(dto);
 		Session session = SessionUtils.getCurrentSession();
         if (CollectionUtil.isNotEmpty(applylist))
@@ -166,14 +169,17 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     @Transactional
     public int reply(ElectionApply electionApply)
     {
+    	electionApply.setApply(Constants.TOW);
         int result =
             electionApplyDao.updateByPrimaryKeySelective(electionApply);
+        
         if (result <= 0)
         {
             throw new ParameterValidateException(
                 I18nUtil.getMsg("common.saveError",
                     I18nUtil.getMsg("electionApply.reply")));
         }
+        this.updateCache(electionApply.getStudentId(), electionApply.getCalendarId());
         return result;
     }
     
@@ -230,6 +236,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         Long calendarId = elecRounds.getCalendarId();
         criteria.andEqualTo("calendarId", calendarId);
         criteria.andEqualTo("courseCode", courseCode);
+        criteria.andNotEqualTo("apply", Constants.APPLY);
         ElectionApply apply = electionApplyDao.selectOneByExample(example);
         if (apply != null)
         {

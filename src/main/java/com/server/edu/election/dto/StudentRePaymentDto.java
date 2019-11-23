@@ -1,11 +1,15 @@
 package com.server.edu.election.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.server.edu.common.jackson.LongJsonSerializer;
+
 /**
  * @description: 学生缴费详情
  * @author: bear
  * @create: 2019-05-27 10:52
  */
 public class StudentRePaymentDto{
+    @JsonSerialize(using = LongJsonSerializer.class)
     private Long id;
     private Long calendarId;
     private String courseCode;

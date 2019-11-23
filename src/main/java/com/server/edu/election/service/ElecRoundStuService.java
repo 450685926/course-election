@@ -6,6 +6,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
+import com.server.edu.util.async.AsyncResult;
 
 /**
  * 可选课学生
@@ -38,6 +39,14 @@ public interface ElecRoundStuService
     void addByCondition(ElecRoundStuQuery condition);
     
     /**
+     * 通过条件添加学生
+     * 
+     * @param condition
+     * @see [类、类#方法、类#成员]
+     */
+	AsyncResult addByConditionBK(ElecRoundStuQuery condition);
+    
+    /**
      * 删除可选课学生
      * 
      * @param roundId
@@ -53,4 +62,6 @@ public interface ElecRoundStuService
      * @see [类、类#方法、类#成员]
      */
     void deleteByCondition(ElecRoundStuQuery condition);
+
+
 }
