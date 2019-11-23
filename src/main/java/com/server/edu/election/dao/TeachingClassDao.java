@@ -138,6 +138,13 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     
     int batchDecrElcNumber(List<TeachingClassVo> list);
     
+    /**
+     * 批量修改第三四轮教学班退课人数
+     * @param list
+     * @return
+     */
+    int batchAddDrawNumber(List<TeachingClassVo> list);
+    
     int updateReserveProportion(List<TeachingClass> list);
 
     List<ElcStudentVo> findClassCodeAndFaculty(@Param("teachingClassIds") List<Long> ids);

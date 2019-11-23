@@ -804,7 +804,7 @@ public class TeacherLessonTableServiceServiceImpl
     }
 
     /**
-     * 创建学生选课列表table
+     * 创建教师选课列表table
      * @throws IOException
      */
     private PdfPTable createTeacherTimeListBk(List<TeacherTimeTable> list,
@@ -855,8 +855,16 @@ public class TeacherLessonTableServiceServiceImpl
         list.add(teacherTimeTable.getClassCode());
         list.add(teacherTimeTable.getCourseName());
         list.add(teacherTimeTable.getCourseLabelName());
-        list.add(String.valueOf(teacherTimeTable.getWeekHour()));
-        list.add(String.valueOf(teacherTimeTable.getCredits()));
+        if (teacherTimeTable.getWeekHour() == null) {
+            list.add("");
+        } else {
+            list.add(teacherTimeTable.getWeekHour() + "");
+        }
+        if (teacherTimeTable.getCredits() == null) {
+            list.add("");
+        } else {
+            list.add(teacherTimeTable.getCredits() + "");
+        }
         String teachingLanguage = teacherTimeTable.getTeachingLanguage();
         if (teachingLanguage != null) {
             teachingLanguage = dictionaryService.query("X_SKYY", teachingLanguage);
@@ -872,6 +880,12 @@ public class TeacherLessonTableServiceServiceImpl
             room = "";
         }
         list.add(room);
+        Integer elcNumber = teacherTimeTable.getElcNumber();
+        if (elcNumber == null) {
+            list.add("");
+        } else {
+            list.add(elcNumber + "");
+        }
         list.add(teacherTimeTable.getRemark());
         return list;
     }
