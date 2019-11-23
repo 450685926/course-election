@@ -60,7 +60,21 @@ public class CourseOpenDto extends CourseOpen
     private Integer manArrangeFlag;
     
     private String courseLabelName;
+    /**
+     * 选课第三、四轮退课人数
+     */
+    private Integer thirdWithdrawNumber;
     
+    
+    
+	public Integer getThirdWithdrawNumber() {
+		return thirdWithdrawNumber;
+	}
+
+	public void setThirdWithdrawNumber(Integer thirdWithdrawNumber) {
+		this.thirdWithdrawNumber = thirdWithdrawNumber;
+	}
+
 	public Integer getReserveNumber() {
 		return reserveNumber;
 	}
