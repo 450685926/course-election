@@ -23,18 +23,22 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.BatchAutoRemoveDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.election.dto.ReserveDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcScreeningLabel;
 import com.server.edu.election.entity.ElcTeachingClassBind;
 import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.entity.TeachingClassChange;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcResultService;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
 
 import io.swagger.annotations.ApiOperation;
@@ -194,6 +198,22 @@ public class ElcResultController
     {
         elcResultService.autoRemove(dto);
         return RestResult.success();
+    }
+    
+    @ApiOperation(value = "批量自动剔除超过人数")
+    @PostMapping("/autoBatchRemove")
+    public RestResult<?> autoBatchRemove(@RequestBody @Valid BatchAutoRemoveDto dto)
+        throws Exception
+    {
+    	AsyncResult asyncResult = elcResultService.autoBatchRemove(dto);
+        return RestResult.successData(asyncResult);
+    }
+    
+    @ApiOperation(value = "查询批量自动剔除状态")
+    @GetMapping("/findAutoBatchRemove")
+    public RestResult<AsyncResult> findAutoBatchRemove(@RequestParam String key){
+        AsyncResult asyncResult = AsyncProcessUtil.getResult(key);
+        return RestResult.successData(asyncResult);
     }
     
     @ApiOperation(value = "学生选课结果统计")
@@ -412,6 +432,21 @@ public class ElcResultController
     		logger.info("export.start");
             ExcelResult result = elcResultService.teachClassPageExport(condition);
             return RestResult.successData(result);
-        }   
+        }
+    
+    /**
+     * 转移学生
+     * 
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "转移学生")
+    @PostMapping("/changeStudentClass")
+    public RestResult<?> changeStudentClass(@RequestBody @Valid TeachingClassChange condition)
+    {
+        elcResultService.changeStudentClass(condition);
+        
+        return RestResult.success();
+    }
     
 }

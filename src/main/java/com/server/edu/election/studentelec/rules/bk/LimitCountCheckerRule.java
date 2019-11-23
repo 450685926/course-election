@@ -33,9 +33,10 @@ public class LimitCountCheckerRule extends AbstractElecRuleExceutorBk
     {
         Long teachClassId = courseClass.getTeachClassId();
         Integer maxNumber = courseClass.getMaxNumber();
+        Integer reserveNumber = courseClass.getReserveNumber();
         Integer currentNumber = dataProvider.getElecNumber(teachClassId);
         if (maxNumber != null && currentNumber != null
-            && currentNumber + 1 <= maxNumber)
+            && currentNumber + reserveNumber + 1 <= maxNumber)
         {
             return true;
         }

@@ -108,6 +108,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
         and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
       </if>
+      <if test="isChange !=null and isChange ==1">
+        and t1.ID_ != #{teachingClassId}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
         and t3.IS_ELECTIVE_ = #{isElective}
       </if>
@@ -177,7 +180,7 @@
   </select>
 
     <select id="listScreeningPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
-    select * from (
+    select t8.* from (
     select distinct
     t1.ID_,
 	t1.CODE_,
@@ -194,22 +197,23 @@
 	t1.RESERVE_NUMBER_,
 	t1.ASSISTANT_NUMBER_,
 	t1.REMARK_,
-    t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
+    t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_,
     t3.FACULTY_,
     t3.NATURE_,
+    t3.IS_ELECTIVE_,
     label.LABEL_NAME_
     ,CASE WHEN t7.TURN_ = 1 THEN
     count(t7.ID_) END firstTurnNum,
     CASE WHEN t7.TURN_ = 2 THEN
-	count(t7.ID_) END secondTurnNum
+	count(t7.ID_) END secondTurnNum,
+	GROUP_CONCAT(DISTINCT t8.`TEACHER_CODE_`) teacherCodes
     from
 	teaching_class_t t1
-	join teaching_task_t_${index} t2 ON t2.ID_ = t1.TASK_ID_
-	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
-	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
-	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
-	left join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
-    left join elc_course_takes_t_${index} t7 on (t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_ and t7.CALENDAR_ID_ =#{calendarId})
+	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1
+    join elc_course_takes_t_${index} t7 on t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_
+    left join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
+    LEFT JOIN teaching_class_teacher_t t8 ON t8.TEACHING_CLASS_ID_ = t1.ID_ AND t8.`TYPE_` = 0
     <where>
       t1.DELETE_STATUS_ = 0
       and t3.CALENDAR_ID_ = #{calendarId}
@@ -385,6 +389,10 @@
   <update id="decrElcNumber">
   	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - 1 where id_ = #{teachingClassId} and ELC_NUMBER_ > 0
   </update>
+  
+  <update id="increDrawNumber">
+  	update teaching_class_t set THIRD_WITHDRAW_NUMBER = THIRD_WITHDRAW_NUMBER + 1 where id_ = #{teachingClassId} 
+  </update>
 
   <update id="increElcNumberList">
   	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ + 1 where id_ in
@@ -395,6 +403,13 @@
 
   <select id="selectOversize" resultMap="BaseResultMap">
   	select * from teaching_class_t where id_ = #{teachingClassId} and ELC_NUMBER_ > NUMBER_
+  </select>
+
+  <select id="findTeachingClasses" resultMap="BaseResultMap">
+  	select * from teaching_class_t where ID_ in
+      <foreach collection="list" item="id" open="(" close=")" separator=",">
+          #{id}
+      </foreach>
   </select>
 
   <select id="selectSuggestProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">
@@ -486,6 +501,14 @@
       separator=";">
       update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - #{item.withdrawNum} where
       id_ = #{item.id} and ELC_NUMBER_ > 0
+    </foreach>
+   </update>
+   
+   <update id="batchAddDrawNumber" parameterType="java.util.List">
+    <foreach item="item" collection="list" index="index"
+      separator=";">
+      update teaching_class_t set THIRD_WITHDRAW_NUMBER = THIRD_WITHDRAW_NUMBER + #{item.withdrawNum} where
+      id_ = #{item.id}
     </foreach>
    </update>
 

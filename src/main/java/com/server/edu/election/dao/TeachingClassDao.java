@@ -64,6 +64,15 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     int decrElcNumber(@Param("teachingClassId") Long teachingClassId);
+    
+    /**
+     * 对第三、四轮退课人数进行自增，不会判断限制人数
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int increDrawNumber(@Param("teachingClassId") Long teachingClassId);
 
     /**
      *
@@ -129,6 +138,13 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     
     int batchDecrElcNumber(List<TeachingClassVo> list);
     
+    /**
+     * 批量修改第三四轮教学班退课人数
+     * @param list
+     * @return
+     */
+    int batchAddDrawNumber(List<TeachingClassVo> list);
+    
     int updateReserveProportion(List<TeachingClass> list);
 
     List<ElcStudentVo> findClassCodeAndFaculty(@Param("teachingClassIds") List<Long> ids);
@@ -144,5 +160,5 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
 
     String findTrainingLevel(@Param("teachingClassId") Long teachingClassId);
 
-
+    List<TeachingClass> findTeachingClasses(List<Long> list);
 }

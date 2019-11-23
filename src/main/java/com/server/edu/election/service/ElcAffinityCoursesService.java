@@ -10,6 +10,7 @@ import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.vo.CourseOpenVo;
 import com.server.edu.election.vo.ElcAffinityCoursesVo;
+import com.server.edu.util.async.AsyncResult;
 
 public interface ElcAffinityCoursesService
 {
@@ -33,4 +34,6 @@ public interface ElcAffinityCoursesService
     int deleteStudent(ElcAffinityCoursesVo elcAffinityCoursesVo);
     
     int batchDeleteStudent(Long courseId);
+
+	AsyncResult asyncBatchAddStudent(StudentDto studentDto);
 }

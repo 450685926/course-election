@@ -82,13 +82,23 @@ public class GraduateExamMakeUpQueryServiceImpl implements GraduateExamMakeUpQue
                 design.addCell("申请来源", "applySource").setValueHandler(new CellValueHandler() {
                     @Override
                     public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
-                        return "1".equals(s) ? "学生申请" : "代理申请";
+                        if("1".equals(s)){
+                            return  "学生申请";
+                        }else if("2".equals(s)){
+                            return  "代理申请";
+                        }
+                        return s;
                     }
                 });
-                design.addCell("申请状态", "applyType").setValueHandler(new CellValueHandler() {
+                design.addCell("申请类型", "applyType").setValueHandler(new CellValueHandler() {
                     @Override
                     public String handler(String s, Object o, GeneralExcelCell generalExcelCell) {
-                        return "2".equals(s) ? "补考" : "缓考";
+                        if("2".equals(s)){
+                            return  "缓考";
+                        }else if("3".equals(s)){
+                            return  "补考";
+                        }
+                        return s;
                     }
                 });
                 design.addCell("审核状态", "applyStatus").setValueHandler(new CellValueHandler() {

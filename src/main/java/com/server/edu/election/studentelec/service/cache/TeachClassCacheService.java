@@ -180,6 +180,7 @@ public class TeachClassCacheService extends AbstractCacheService
             //设置研究生学年跟开课学期，勿删
             tc.setTerm(lesson.getTerm());
             tc.setCalendarName(year);
+            tc.setReserveNumber(lesson.getReserveNumber());
             
             numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);
@@ -446,6 +447,25 @@ public class TeachClassCacheService extends AbstractCacheService
         return num;
     }
     
+    
+    /**
+     * 获取第三、四轮教学班退课人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public Integer getWitdthDrawNumber(Long teachClassId)
+    {
+        if (teachClassId == null)
+        {
+            return 0;
+        }
+        HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+        Integer num = opsClassNum.get(Keys.getWitdthDrawNumberKey(),
+            teachClassId.toString());
+        return num;
+    }
     /**
      * 增加教学班人数
      * 
@@ -465,6 +485,25 @@ public class TeachClassCacheService extends AbstractCacheService
             .intValue();
     }
     
+    /**
+     * 增加第三、四轮教学班退课人数
+     * 
+     * @param teachClassId 教学班ID
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public int incrementDrawNumber(Long teachClassId)
+    {
+        if (teachClassId == null)
+        {
+            return 0;
+        }
+        HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+        return opsClassNum
+            .increment(Keys.getWitdthDrawNumberKey(), teachClassId.toString(), 1)
+            .intValue();
+    }
+    
     public int decrElecNumber(Long teachClassId)
     {
         if (teachClassId == null)
@@ -474,6 +513,20 @@ public class TeachClassCacheService extends AbstractCacheService
         HashOperations<String, String, Integer> opsClassNum = opsClassNum();
         return opsClassNum
             .increment(Keys.getClassElecNumberKey(),
+                teachClassId.toString(),
+                -1)
+            .intValue();
+    }
+    
+    public int decrWitdhDrawNumber(Long teachClassId)
+    {
+        if (teachClassId == null)
+        {
+            return 0;
+        }
+        HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+        return opsClassNum
+            .increment(Keys.getWitdthDrawNumberKey(),
                 teachClassId.toString(),
                 -1)
             .intValue();
@@ -492,5 +545,26 @@ public class TeachClassCacheService extends AbstractCacheService
     	}
     	return publicCourses;
 	}
+    
+    /**
+     * 更新教学班人数
+     * @param teachClassId
+     * @return
+     */
+    public void updateTeachingClassNumber(Long teachClassId) {
+        TeachingClassCache teachingClassCache = getTeachClassByTeachClassId(teachClassId);
+        if (teachingClassCache != null) {
+        	// 实时获取选课人数
+        	Integer elecNumber = getElecNumber(teachClassId);
+        	if(elecNumber!=null) {
+        		teachingClassCache.setCurrentNumber(elecNumber);
+        	}
+        	Integer thirdWithdrawNumber = getWitdthDrawNumber(teachClassId);
+        	if(thirdWithdrawNumber!=null) {
+            	teachingClassCache.setThirdWithdrawNumber(thirdWithdrawNumber);
+        	}
+        	saveTeachClassCache(teachClassId, teachingClassCache);
+		}
+    }
 
 }

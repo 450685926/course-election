@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,10 +45,14 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.ExportUtil;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelCell;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelResult;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
 
@@ -132,6 +138,22 @@ public class ElecRoundStuController
         elecRoundStuService.addByCondition(condition);
         
         return RestResult.success();
+    }
+    
+    /**
+     * 条件添加可选课学生（本科）
+     *
+     * @param round
+     * @return
+     */
+    @ApiOperation(value = "条件添加可选课学生（本科）")
+    @PutMapping("/addByConditionBK")
+    public RestResult<?> addByConditionBK(
+    		@RequestBody @Valid ElecRoundStuQuery condition)
+    {
+    	AsyncResult resul = elecRoundStuService.addByConditionBK(condition);
+    	
+    	return RestResult.successData(resul);
     }
     
     /**
@@ -318,4 +340,9 @@ public class ElecRoundStuController
             .exportExcel(excelUtil, cacheDirectory, "yanJiuShengKeXuanKeMingDanDaoChu.xls");
     }
     
+    @GetMapping("/result/{key}")
+    public RestResult<AsyncResult> findSyndromeStatus(@PathVariable String key){
+        AsyncResult asyncResult = AsyncProcessUtil.getResult(key);
+        return RestResult.successData(asyncResult);
+    }
 }

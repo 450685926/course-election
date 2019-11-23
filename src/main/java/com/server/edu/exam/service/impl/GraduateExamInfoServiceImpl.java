@@ -216,7 +216,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 if(!graduateExamInfo.getExamTime().equals(item.getExamTime())){
                     if(item.getExamRooms() != null && item.getExamRooms() > 0 ){
                         //throw new ParameterValidateException("变更排考时间,请先删除考场,然后再次保存时间");
-                        return RestResult.fail("您确定要修改排考时间吗?此操作将清除原考场信息,是否继续?");
+                        return RestResult.success("您确定要修改排考时间吗?此操作将清除原考场信息,是否继续?");
                     }
                 }
                 graduateExamInfo.setExamRooms(item.getExamRooms());
@@ -934,12 +934,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         //通过Id 查找合考的课程信息
        List<Long> examInfoIds = examInfoDao.findCourseMesaage(id);
         if(CollectionUtil.isEmpty(examInfoIds)){
-            throw new ParameterValidateException("入参有误");
+            examInfoIds.add(id);
         }
         Long calendarId = examInfoDao.selectByPrimaryKey(examInfoIds.get(0)).getCalendarId();
         Integer mode = (int) (calendarId % 6);
         EditGraduateExam editGraduateExam = new EditGraduateExam();
-        editGraduateExam.setExamInfoIds(StringUtils.join(",",examInfoIds));
+        editGraduateExam.setExamInfoIds(StringUtils.join(examInfoIds,","));
         List<GraduateExamInfoVo> list = examInfoDao.editGraduateExam(examInfoIds,mode);
         if(CollectionUtil.isNotEmpty(list)){
             editGraduateExam.setInfoVoList(list);

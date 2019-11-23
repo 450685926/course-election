@@ -84,4 +84,6 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
      * @date 2019/9/9 10:57
      */
     Page<TeachingClassDto> listTeachingClass(GraduateExamRoomsQuery classQuery);
+
+    int findStudentScoreByCondition(ExamStudentAddDto condition);
 }
