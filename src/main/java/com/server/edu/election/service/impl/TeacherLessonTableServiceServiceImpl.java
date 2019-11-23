@@ -804,7 +804,7 @@ public class TeacherLessonTableServiceServiceImpl
     }
 
     /**
-     * 创建学生选课列表table
+     * 创建教师选课列表table
      * @throws IOException
      */
     private PdfPTable createTeacherTimeListBk(List<TeacherTimeTable> list,
@@ -872,6 +872,12 @@ public class TeacherLessonTableServiceServiceImpl
             room = "";
         }
         list.add(room);
+        Integer elcNumber = teacherTimeTable.getElcNumber();
+        if (elcNumber == null) {
+            list.add("");
+        } else {
+            list.add(elcNumber + "");
+        }
         list.add(teacherTimeTable.getRemark());
         return list;
     }
