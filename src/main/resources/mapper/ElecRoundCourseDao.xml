@@ -38,7 +38,7 @@
   	<result column="teachClassName" jdbcType="VARCHAR" property="teachingClassName" />
   	<result column="manArrangeFlag" jdbcType="INTEGER" property="manArrangeFlag" />
   	<result column="COURSE_LABEL_NAME_" jdbcType="VARCHAR" property="courseLabelName" />
-  	<result column="thirdWithdrawNumber" jdbcType="VARCHAR" property="thirdWithdrawNumber" />
+  	<result column="thirdWithdrawNumber" jdbcType="INTEGER" property="thirdWithdrawNumber" />
   </resultMap>
   
   <select id="listPage" resultMap="CourseOpenDtoMap">
@@ -359,7 +359,7 @@
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0 and cl.DELETE_STATUS_ =0)
 	  where
 		 op.CALENDAR_ID_ = #{calendarId}
-		 and and op.PROJ_ID_ =1
+		 and op.PROJ_ID_ =1
 	  union
 	 SELECT
 		distinct op1.*, cl1.ID_ AS teachingClassId,
