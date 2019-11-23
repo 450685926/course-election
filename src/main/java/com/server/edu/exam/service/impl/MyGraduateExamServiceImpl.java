@@ -144,6 +144,33 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         }
     }
 
+    @Override
+    public PageResult<MyGraduateExam> listMyExamTime(PageCondition<MyGraduateExam> myExam) {
+        MyGraduateExam condition = myExam.getCondition();
+        if(condition.getCalendarId() == null || condition.getExamType() == null){
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        Session session = SessionUtils.getCurrentSession();
+        String dptId = session.getCurrentManageDptId();
+        String studentCode = session.realUid();
+        Student student = studentDao.findStudentByCode(studentCode);
+        if(student == null){
+            throw new ParameterValidateException("该学生不存在学籍中");
+        }
+        int mode = (int)(condition.getCalendarId() % 6 );
+        condition.setStudentCode(studentCode);
+        condition.setProjId(dptId);
+        condition.setMode(mode);
+        Page<MyGraduateExam> page = new Page<>();
+        PageHelper.startPage(myExam.getPageNum_(),myExam.getPageSize_());
+        if(condition.getExamType().equals(ApplyStatus.FINAL_EXAM)){
+             page = examInfoDao.listMyExamTimeFinal(condition);
+        }else{
+            page = examInfoDao.listMyExamTimeMakeUp(condition);
+        }
+        return new PageResult<>(page);
+    }
+
     private void cancelApplyByOne(MyGraduateExam myExam,Integer applyType,List<GraduateExamApplyExamination> list){
         Example example = new Example(GraduateExamApplyExamination.class);
         Example.Criteria criteria = example.createCriteria();

@@ -595,4 +595,40 @@
             )
         </foreach>
     </select>
+
+    <select id="listMyExamTimeFinal" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
+        select tt.CALENDAR_ID_ calendarId,tt.STUDENT_ID_ studentCode,tt.COURSE_CODE_ courseCode,tt.TEACHING_CLASS_ID_ teachingClassId,tt.NAME_ courseName,
+        ss.EXAM_TIME_ examTime,ss.ROOM_ID_ roomId,ss.ROOM_NAME_ roomName,ss.REMARK_ remark,ss.NOTICE_REMARK_ noticeRemark,ss.EXAM_SITUATION_ examSituation
+         from
+            (select t1.CALENDAR_ID_,t1.STUDENT_ID_,t1.COURSE_CODE_,t1.TEACHING_CLASS_ID_,t2.CAMPUS_,t3.NAME_ from elc_course_takes_t_${mode} t1
+            LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
+            LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
+            where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_ID_ = #{studentCode} and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_ID_ not in (
+            select STUDENT_ID_ from score_student_result_t where STUDENT_ID_ =#{studentCode} and COURSE_CODE_ = t1.COURSE_CODE_ and CALENDAR_ID_ = #{calendarId}
+            )
+            ) tt
+            JOIN
+            (select t1.COURSE_CODE_,t1.CAMPUS_,t1.EXAM_TIME_,t3.ROOM_ID_,t3.ROOM_NAME_,t2.STUDENT_CODE_,t1.REMARK_ NOTICE_REMARK_,t2.EXAM_SITUATION_ , t2.REMARK_  from graduate_exam_info_t t1
+            LEFT JOIN graduate_exam_student_t t2 on t1.ID_ = t2.EXAM_INFO_ID_ and t2.STUDENT_CODE_  =#{studentCode}
+            LEFT JOIN graduate_exam_room_t t3 on t3.ID_ = t2.EXAM_ROOM_ID_
+            where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projId} and EXAM_TYPE_ = #{examType} and EXAM_STATUS_ = 2) ss
+            on tt.COURSE_CODE_ = ss.COURSE_CODE_ and tt.CAMPUS_ = ss.CAMPUS_
+    </select>
+
+    <select id="listMyExamTimeMakeUp" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
+        select tt.CALENDAR_ID_ calendarId,tt.STUDENT_ID_ studentCode,tt.COURSE_CODE_ courseCode,tt.TEACHING_CLASS_ID_ teachingClassId,tt.NAME_ courseName,
+        ss.EXAM_TIME_ examTime,ss.ROOM_ID_ roomId,ss.ROOM_NAME_ roomName,ss.REMARK_ remark,ss.NOTICE_REMARK_ noticeRemark,ss.EXAM_SITUATION_ examSituation
+         from
+            (
+            select t1.CALENDAR_ID_,t1.STUDENT_CODE_,t1.COURSE_CODE_,t1.TEACHING_CLASS_ID_,t2.CAMPUS_,t3.NAME_ from graduate_exam_apply_examination_t t1
+            LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
+            LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
+            where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_CODE_ = #{studentCode} and t1.PROJ_ID_ = #{projId}) tt
+            JOIN
+            (select t1.COURSE_CODE_,t1.CAMPUS_,t1.EXAM_TIME_,t3.ROOM_ID_,t3.ROOM_NAME_,t2.STUDENT_CODE_,t1.REMARK_ NOTICE_REMARK_,t2.EXAM_SITUATION_ , t2.REMARK_ from graduate_exam_info_t t1
+            LEFT JOIN graduate_exam_student_t t2 on t1.ID_ = t2.EXAM_INFO_ID_ and t2.STUDENT_CODE_ = #{studentCode}
+            LEFT JOIN graduate_exam_room_t t3 on t3.ID_ = t2.EXAM_ROOM_ID_
+            where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projId} and EXAM_TYPE_ = #{examType} and EXAM_STATUS_ = 2) ss
+            on tt.COURSE_CODE_ = ss.COURSE_CODE_ and tt.CAMPUS_ = ss.CAMPUS_;
+    </select>
 </mapper>

@@ -33,4 +33,6 @@ public interface MyGraduateExamService {
     * @date 2019/10/14 15:45
     */
     void addGraduateApplyList(List<MyGraduateExam> myExam,Integer examType,String applyReason);
+
+    PageResult<MyGraduateExam> listMyExamTime(PageCondition<MyGraduateExam> myExam);
 }
