@@ -855,8 +855,16 @@ public class TeacherLessonTableServiceServiceImpl
         list.add(teacherTimeTable.getClassCode());
         list.add(teacherTimeTable.getCourseName());
         list.add(teacherTimeTable.getCourseLabelName());
-        list.add(String.valueOf(teacherTimeTable.getWeekHour()));
-        list.add(String.valueOf(teacherTimeTable.getCredits()));
+        if (teacherTimeTable.getWeekHour() == null) {
+            list.add("");
+        } else {
+            list.add(teacherTimeTable.getWeekHour() + "");
+        }
+        if (teacherTimeTable.getCredits() == null) {
+            list.add("");
+        } else {
+            list.add(teacherTimeTable.getCredits() + "");
+        }
         String teachingLanguage = teacherTimeTable.getTeachingLanguage();
         if (teachingLanguage != null) {
             teachingLanguage = dictionaryService.query("X_SKYY", teachingLanguage);
