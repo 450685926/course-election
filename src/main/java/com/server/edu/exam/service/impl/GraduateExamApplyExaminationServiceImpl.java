@@ -256,13 +256,16 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
         //补考
         List<GraduateExamApplyExamination> scores = collect.get(ApplyStatus.EXAM_SITUATION_MAKE_UP);
 
-        if(StringUtils.isBlank(aduitOpinions)){
-            aduitOpinions = "学校审核通过";
-        }
-
         if(CollectionUtil.isNotEmpty(examInfos)){
+
             //学校审核通过，缓考变更期末考试状态,学校审核不通过或学院审核不通过只变更remark信息
             if(applyStatus.equals(ApplyStatus.SCHOOL_EXAMINE_PASS)){
+                String str = "缓考申请审核通过";
+                if(StringUtils.isBlank(aduitOpinions)){
+                    aduitOpinions = str;
+                }else{
+                    aduitOpinions = str + "(" + aduitOpinions + ")";
+                }
                 //变更考试状态,删减考场人数
                 GraduateExamApplyExamination examinationVo = examInfos.get(0);
                 Long calendarId = examinationVo.getCalendarId();
@@ -297,7 +300,9 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
                 }
 
             }else if(applyStatus.equals(ApplyStatus.SCHOOL_EXAMINE_NOT_PASS) || applyStatus.equals(ApplyStatus.COLLEGE_EXAMINE_NOT_PASS)){
+                String str = "缓考申请审核不通过";
                 if(StringUtils.isNotBlank(aduitOpinions)){
+                    aduitOpinions = str + "(" + aduitOpinions + ")";
                     examStudentDao.updateExamStudentRemark(examInfos,aduitOpinions);
                 }
 
@@ -306,6 +311,17 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
 
         if(CollectionUtil.isNotEmpty(scores)){
             //回写补考信息
+            String str = "";
+            if(applyStatus.equals(ApplyStatus.SCHOOL_EXAMINE_PASS)){
+                str = "补考申请审核通过";
+            }else if(applyStatus.equals(ApplyStatus.SCHOOL_EXAMINE_NOT_PASS) || applyStatus.equals(ApplyStatus.COLLEGE_EXAMINE_NOT_PASS)){
+                 str = "补考申请审核不通过";
+            }
+            if(StringUtils.isBlank(aduitOpinions)){
+                aduitOpinions = str;
+            }else{
+                aduitOpinions = str + "(" + aduitOpinions + ")";
+            }
             if(StringUtils.isNotBlank(aduitOpinions)){
                 examStudentDao.updateStudentScoreMessage(scores,aduitOpinions);
             }
@@ -378,13 +394,14 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
 
         //学院代理申请,回写相应数据remark 为审核中
         if(applyExamination.getApplyStatus().equals(ApplyStatus.COLLEGE_EXAMINE_PASS)){
-            String aduitOpinions = "审核中";
             //补考
             List<GraduateExamApplyExamination> list = new ArrayList<>();
             list.add(applyExamination);
             if(applyExamination.getApplyType().equals(ApplyStatus.EXAM_SITUATION_MAKE_UP)){
+                String aduitOpinions = "补考申请审核中";
                 examStudentDao.updateStudentScoreMessage(list,aduitOpinions);
             }else{
+                String aduitOpinions = "缓考申请审核中";
                 examStudentDao.updateExamStudentRemark(list,aduitOpinions);
             }
         }
