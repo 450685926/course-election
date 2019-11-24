@@ -495,12 +495,20 @@
 		GROUP BY
 			t2.ID_
    </select>
-
+   
    <update id="batchDecrElcNumber" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"
       separator=";">
       update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - #{item.withdrawNum} where
       id_ = #{item.id} and ELC_NUMBER_ > 0
+    </foreach>
+   </update>
+   
+   <update id="batchClearDrawNumber" parameterType="java.util.List">
+    <foreach item="item" collection="list" index="index"
+      separator=";">
+      update teaching_class_t set THIRD_WITHDRAW_NUMBER = 0 where
+      id_ = #{item.id}
     </foreach>
    </update>
    
