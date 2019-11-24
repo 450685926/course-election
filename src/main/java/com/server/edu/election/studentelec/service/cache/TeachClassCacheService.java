@@ -151,6 +151,7 @@ public class TeachClassCacheService extends AbstractCacheService
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, ElecCourse> publicCourseMap = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
+        Map<String, Integer> drawMap = new HashMap<>();
         for (CourseOpenDto lesson : teachClasss)
         {
             Long teachingClassId = lesson.getTeachingClassId();
@@ -175,6 +176,7 @@ public class TeachClassCacheService extends AbstractCacheService
                 lesson.getIsElective() == Constants.ONE ? true : false);
             tc.setFaculty(lesson.getFaculty());
             tc.setCalendarId(lesson.getCalendarId());
+            tc.setThirdWithdrawNumber(lesson.getThirdWithdrawNumber());
             List<ClassTimeUnit> times = gradeLoad.concatTime(collect, tc);
             tc.setTimes(times);
             //设置研究生学年跟开课学期，勿删
@@ -183,6 +185,7 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setReserveNumber(lesson.getReserveNumber());
             
             numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
+            drawMap.put(teachingClassId.toString(), tc.getThirdWithdrawNumber());
             map.put(teachingClassId.toString(), tc);
             // 公共选修课
             if (tc.isPublicElec() && !publicCourseMap.containsKey(tc.getCourseCode()))
@@ -195,6 +198,10 @@ public class TeachClassCacheService extends AbstractCacheService
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
         strTemplate
             .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);
+        // 缓存第三、四轮退课人数
+        opsClassNum().putAll(Keys.getWitdthDrawNumberKey(), drawMap);
+        strTemplate
+            .expire(Keys.getWitdthDrawNumberKey(), timeout, TimeUnit.MINUTES);
         // 缓存教学班信息
         String key = Keys.getClassKey();
         opsTeachClass().putAll(key, map);
@@ -533,6 +540,19 @@ public class TeachClassCacheService extends AbstractCacheService
     }
     
     /**
+     * 清空第三、四轮教学班退课人数
+     * @param teachClassId
+     */
+    public void clearWitdhDrawNumber(Map<String, Integer> drawMap)
+    {
+        if (drawMap != null)
+        {
+            HashOperations<String, String, Integer> opsClassNum = opsClassNum();
+            opsClassNum.putAll(Keys.getWitdthDrawNumberKey(),drawMap);
+        }
+    }
+    
+    /**
      * 获取当前学期的公共选修课
      * @param calendarId
      * @return
@@ -563,6 +583,19 @@ public class TeachClassCacheService extends AbstractCacheService
         	if(thirdWithdrawNumber!=null) {
             	teachingClassCache.setThirdWithdrawNumber(thirdWithdrawNumber);
         	}
+        	saveTeachClassCache(teachClassId, teachingClassCache);
+		}
+    }
+    
+    /**
+     * 释放第三、四轮退课人数
+     * @param teachClassId
+     * @return
+     */
+    public void updateDrawNumber(Long teachClassId) {
+        TeachingClassCache teachingClassCache = getTeachClassByTeachClassId(teachClassId);
+        if (teachingClassCache != null) {
+        	teachingClassCache.setThirdWithdrawNumber(Constants.ZERO);
         	saveTeachClassCache(teachClassId, teachingClassCache);
 		}
     }
