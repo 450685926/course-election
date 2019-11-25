@@ -243,19 +243,29 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
 
     //检验公共课相同课程时间必须一致
     private void checkPublicExamTimeSame(GraduateExamInfo graduateExamInfo) {
-        List<GraduateExamInfoVo> info = examInfoDao.checkPublicExamTimeSame(graduateExamInfo);
-        if(CollectionUtil.isNotEmpty(info)){
-            GraduateExamInfoVo examInfo = info.get(0);
-            if(info.size() == 1){
+        //根据权限开关判断公共课是否一定需要时间一致
+        String projId = graduateExamInfo.getProjId();
+        Example example = new Example(GraduateExamAuth.class);
+        example.createCriteria().andEqualTo("projId",projId)
+                .andEqualTo("deleteStatus",DeleteStatus.NOT_DELETE);
+        GraduateExamAuth auth = authDao.selectOneByExample(example);
+        //如果时间必须相同（校验）,否则不校验
+        if(ApplyStatus.PASS_INT.equals(auth.getTimeSame())){
+
+            List<GraduateExamInfoVo> info = examInfoDao.checkPublicExamTimeSame(graduateExamInfo);
+            if(CollectionUtil.isNotEmpty(info)){
+                GraduateExamInfoVo examInfo = info.get(0);
+                if(info.size() == 1){
                     if(!examInfo.getCampus().equals(graduateExamInfo.getCampus())){
                         if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
                             throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
                         }
                     }
-            }else{
+                }else{
 
-                if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                    throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                    if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
+                        throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                    }
                 }
             }
         }
