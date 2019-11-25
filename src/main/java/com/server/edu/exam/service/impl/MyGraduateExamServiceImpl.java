@@ -135,10 +135,11 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         }
 
         if(CollectionUtil.isNotEmpty(list)){
-            String aduitOpinions = "审核中";
             if(applyType.equals(ApplyStatus.EXAM_SITUATION_MAKE_UP)){
+                String aduitOpinions = "补考申请审核中";
                 examStudentDao.updateStudentScoreMessage(list,aduitOpinions);
             }else{
+                String aduitOpinions = "缓考申请审核中";
                 examStudentDao.updateExamStudentRemark(list,aduitOpinions);
             }
         }
