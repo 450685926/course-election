@@ -16,9 +16,18 @@ public class RollBookConditionDto {
     private String teacherCode;
     private String courseNature;
     private String classCode;
+    private List<String> classCodeList;
     private String isElective;
     private String projectId;
     private List<Long> ids;//导出列表id集合
+
+    public List<String> getClassCodeList() {
+        return classCodeList;
+    }
+
+    public void setClassCodeList(List<String> classCodeList) {
+        this.classCodeList = classCodeList;
+    }
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
