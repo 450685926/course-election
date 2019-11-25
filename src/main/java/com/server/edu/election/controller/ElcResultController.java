@@ -1,21 +1,19 @@
 package com.server.edu.election.controller;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.election.vo.TeachingClassLimitVo;
+import com.server.edu.exception.ParameterValidateException;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
@@ -448,5 +446,32 @@ public class ElcResultController
         
         return RestResult.success();
     }
-    
+
+    @ApiOperation(value = "修改某个教学班选课限制")
+    @PostMapping("/{id}/class/updateLimit")
+    public RestResult updateClassLimit(@PathVariable("id") Long teachingClassId, @RequestBody @Valid TeachingClassLimitVo classVo) throws Exception {
+
+        try
+        {
+            elcResultService.updateClassLimit(teachingClassId, classVo);
+        } catch (ParameterValidateException e)
+        {
+            return RestResult.error(e.getMessage());
+        }
+        return RestResult.success();
+    }
+
+    @ApiOperation(value = "查找某个教学班选课限制")
+    @PostMapping("/{id}/class/selectLimit")
+    public RestResult selectClassLimit(@PathVariable("id") Long teachingClassId, @RequestBody @Valid TeachingClassLimitVo classVo) throws Exception {
+
+        try
+        {
+            elcResultService.updateClassLimit(teachingClassId, classVo);
+        } catch (ParameterValidateException e)
+        {
+            return RestResult.error(e.getMessage());
+        }
+        return RestResult.success();
+    }
 }
