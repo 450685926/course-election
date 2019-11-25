@@ -36,7 +36,7 @@
 
   <delete id="deleteByClassId" parameterType="java.lang.Long">
     delete from teaching_class_elective_restrict_attr_t
-    where TEACHING_CLASS_ID_ = #{classId,jdbcType=BIGINT}
+    where TEACHING_CLASS_ID_ = #{teachingClassId,jdbcType=BIGINT}
   </delete>
   
 </mapper>
