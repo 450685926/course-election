@@ -8,6 +8,7 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
+import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,19 @@ import java.util.Set;
 @Component("OnlyCanWithdrawOfTurnRule")
 public class OnlyCanWithdrawOfTurnRule extends AbstractElecRuleExceutorBk {
 
+    @Override
+    public int getOrder()
+    {
+        return RulePriority.SECOND.ordinal();
+    }
+
     @Autowired
     private RoundDataProvider dataProvider;
 
     @Override
-    public boolean checkRule(ElecContextBk context, TeachingClassCache courseClass) {
+    public boolean checkRule(ElecContextBk context,
+                             TeachingClassCache courseClass)
+    {
         ElecRequest request = context.getRequest();
         Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);

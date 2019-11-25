@@ -31,4 +31,6 @@ public interface TeachingClassElectiveRestrictAttrDao
      */
     List<String> selectRestrictStudent(
         @Param("teachingClassId") Long teachingClassId);
+
+    void deleteByClassId(Long classId);
 }

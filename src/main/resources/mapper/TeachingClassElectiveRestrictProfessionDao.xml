@@ -16,4 +16,10 @@
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
+  <delete id="deleteByClassId" parameterType="java.lang.Long">
+    delete from teaching_class_elective_restrict_profession_t
+    where TEACHING_CLASS_ID_ = #{classId,jdbcType=BIGINT}
+  </delete>
+
+
 </mapper>
