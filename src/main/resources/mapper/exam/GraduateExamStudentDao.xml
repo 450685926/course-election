@@ -38,7 +38,7 @@
     LEFT JOIN course_t t4 on t3.COURSE_CODE_ = t4.CODE_
     left join student_t t5 on t5.STUDENT_CODE_ = t2.STUDENT_CODE_
     WHERE
-     	t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
+     	t1.ID_ = #{examRoomId} and t2.EXAM_SITUATION_ = 1 and t2.EXAM_INFO_ID_ = #{examInfoId}
    	ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
   </select>
 

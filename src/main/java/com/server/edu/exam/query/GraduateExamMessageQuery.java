@@ -21,12 +21,21 @@ public class GraduateExamMessageQuery implements Serializable {
     private Long roomId;
     private String keyword;
     private String teacherCode;
+    private String teacherName;
     private List<String> facultys;
     private String projId;
 
     private List<Long> infoRoomIds;
 
     private List<Long> examInfoIds;
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
 
     public List<Long> getExamInfoIds() {
         return examInfoIds;

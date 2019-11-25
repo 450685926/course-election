@@ -17,7 +17,7 @@ import tk.mybatis.mapper.common.MySqlMapper;
 import java.util.List;
 
 public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySqlMapper<GraduateExamStudent> {
-    List<ExamStudent> listExamStudentById(Long id);
+    List<ExamStudent> listExamStudentById(@Param("examRoomId") Long examRoomId,@Param("examInfoId") Long examInfoId);
 
     Page<NoExamStudent> listStudent(StudentQuery studentQuery);
 

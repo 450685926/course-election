@@ -8,7 +8,9 @@ import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ElcNumberSetDto;
 import com.server.edu.election.entity.ElcNumberSet;
 import com.server.edu.election.service.ElcNumberSetService;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
@@ -26,7 +28,9 @@ import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,6 +50,9 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
     @Autowired
     private ThreadPoolTaskExecutor poolTaskExecutor;
     
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+    
     @Override
     @Transactional
     public int releaseAll(Long calendarId)
@@ -56,6 +63,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
         ElcNumberSetDto elcNumberSetDto = new ElcNumberSetDto();
         elcNumberSetDto.setCalendarId(calendarId);
         elcNumberSetDto.setTurns(turns);
+        elcNumberSetDto.setType(ElcLogVo.TYPE_2);
         int result = 0;
         log.info("start select list");
 		elcNumberSetDto.setIndex(TableIndexUtil.getIndex(calendarId));
@@ -65,8 +73,17 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
         { 
         	List<TeachingClassVo> decrElcNumberList =list.stream().filter(c->c.getId()!=null).collect(Collectors.toList());
         	if(CollectionUtil.isNotEmpty(decrElcNumberList)) {
-                result = teachingClassDao.batchDecrElcNumber(decrElcNumberList);
+                result = teachingClassDao.batchClearDrawNumber(decrElcNumberList);
                 log.info("end clear data sucesess");
+                if(result>0) {
+                	Map<String, Integer> drawMap = new HashMap<>();
+                	for(TeachingClassVo vo:decrElcNumberList) {
+                		// 释放第三、四轮退课人数
+                        teachClassCacheService.updateDrawNumber(vo.getId());
+                        drawMap.put(vo.getId().toString(), Constants.ZERO);
+                	}
+                	teachClassCacheService.clearWitdhDrawNumber(drawMap);
+                }
         	}
         }
         if (result < Constants.ZERO)

@@ -209,6 +209,22 @@ public class TeachingClass extends BaseEntity
     private Integer endWeek;
     
     /**
+     * 选课第三、四轮退课人数
+     */
+    @Column(name = "THIRD_WITHDRAW_NUMBER")
+    private Integer thirdWithdrawNumber;
+    
+    
+    
+    public Integer getThirdWithdrawNumber() {
+		return thirdWithdrawNumber;
+	}
+
+	public void setThirdWithdrawNumber(Integer thirdWithdrawNumber) {
+		this.thirdWithdrawNumber = thirdWithdrawNumber;
+	}
+
+	/**
      * 获取主键（自增）
      *
      * @return ID_ - 主键（自增）

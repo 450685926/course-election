@@ -35,7 +35,7 @@
   <Style ss:ID="s62">
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s99">
+  <Style ss:ID="s82">
    <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -45,7 +45,7 @@
    </Borders>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s100">
+  <Style ss:ID="s83">
    <Alignment ss:Horizontal="Left" ss:Vertical="Bottom"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -56,7 +56,18 @@
    <Font ss:FontName="等线" x:CharSet="134" ss:Size="11" ss:Color="#000000"/>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s102">
+  <Style ss:ID="s84">
+   <Alignment ss:Horizontal="Left" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="等线" x:CharSet="134" ss:Size="11" ss:Color="#000000"/>
+   <NumberFormat ss:Format="@"/>
+  </Style>
+  <Style ss:ID="s85">
    <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -66,7 +77,7 @@
    </Borders>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s103">
+  <Style ss:ID="s86">
    <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -77,7 +88,7 @@
    <Font ss:FontName="等线" x:CharSet="134" ss:Size="11" ss:Color="#000000"/>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s104">
+  <Style ss:ID="s87">
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
     <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -86,7 +97,7 @@
    </Borders>
    <NumberFormat ss:Format="@"/>
   </Style>
-  <Style ss:ID="s105">
+  <Style ss:ID="s88">
    <Borders>
     <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
     <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>
@@ -98,61 +109,55 @@
   </Style>
  </Styles>
  <Worksheet ss:Name="Sheet1">
-  <Table ss:ExpandedColumnCount="12"  x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="10"  x:FullColumns="1"
    x:FullRows="1" ss:StyleID="s62" ss:DefaultColumnWidth="54"
    ss:DefaultRowHeight="14.25">
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="30"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="67.5"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="82.5"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="97.5"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="135"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="75"/>
+   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="105"/>
+   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="140.25"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="30"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="67.5"/>
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="82.5"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="97.5"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="135"/>
-   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="75"/>
+   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="105"/>
+   <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="138.75"/>
    <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="11" ss:StyleID="s99"><Data ss:Type="String">${title}</Data></Cell>
+    <Cell ss:MergeAcross="9" ss:StyleID="s82"><Data ss:Type="String">${title}</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="2" ss:StyleID="s100"><Data ss:Type="String">课程代码：${courseCode}</Data></Cell>
-    <Cell ss:MergeAcross="2" ss:StyleID="s100"><Data ss:Type="String">课程名称：${courseName}</Data></Cell>
-    <Cell ss:MergeAcross="3" ss:StyleID="s100"><Data ss:Type="String">考试时间：${examTime}</Data></Cell>
-    <Cell ss:MergeAcross="1" ss:StyleID="s100"><Data ss:Type="String">考试地点：${examRoom}</Data></Cell>
+    <Cell ss:MergeAcross="2" ss:StyleID="s83"><Data ss:Type="String">课程代码：${courseCode}</Data></Cell>
+    <Cell ss:MergeAcross="1" ss:StyleID="s83"><Data ss:Type="String">课程名称：${courseName}</Data></Cell>
+    <Cell ss:MergeAcross="3" ss:StyleID="s83"><Data ss:Type="String">考试时间：${examTime}</Data></Cell>
+    <Cell ss:StyleID="s84"><Data ss:Type="String">考试地点：${examRoom}</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s102"><Data ss:Type="String">序号</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">教学班号</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">学号</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">姓名</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">学院</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">签到</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">序号</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">教学班号</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">学号</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">姓名</Data></Cell>
-    <Cell ss:StyleID="s103"><Data ss:Type="String">学院</Data></Cell>
-    <Cell ss:StyleID="s102"><Data ss:Type="String">签到</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">序号</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">教学班号</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">学号</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">姓名</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">学院</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">序号</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">教学班号</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">学号</Data></Cell>
+    <Cell ss:StyleID="s85"><Data ss:Type="String">姓名</Data></Cell>
+    <Cell ss:StyleID="s86"><Data ss:Type="String">学院</Data></Cell>
    </Row>
 <#if dataList?size gt 0>
-    <#list dataList as item>
+ <#list dataList as item>
    <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s104"><Data ss:Type="String">${item.order?default("")}</Data></Cell>
-    <Cell ss:StyleID="s104"><Data ss:Type="String">${item.teachingClassName?default("")}</Data></Cell>
-    <Cell ss:StyleID="s105"><Data ss:Type="String">${item.studentCode?default("")}</Data></Cell>
-    <Cell ss:StyleID="s105"><Data ss:Type="String">${item.studentName?default("")}</Data></Cell>
-    <Cell ss:StyleID="s105"><Data ss:Type="String">${item.faculty?default("")}</Data></Cell>
-    <Cell ss:StyleID="s104"/>
-    <Cell ss:StyleID="s104"><Data ss:Type="String">${item.order_R?default("")}</Data></Cell>
-    <Cell ss:StyleID="s104"><Data ss:Type="String">${item.teachingClassName_R?default("")}</Data></Cell>
-    <Cell ss:StyleID="s104"><Data ss:Type="String">${item.studentCode_R?default("")}</Data></Cell>
-    <Cell ss:StyleID="s104"><Data ss:Type="String">${item.studentName_R?default("")}</Data></Cell>
-    <Cell ss:StyleID="s104"><Data ss:Type="String">${item.faculty_R?default("")}</Data></Cell>
-    <Cell ss:StyleID="s104"/>
+    <Cell ss:StyleID="s87"><Data ss:Type="String">${item.order?default("")}</Data></Cell>
+    <Cell ss:StyleID="s87"><Data ss:Type="String">${item.teachingClassName?default("")}</Data></Cell>
+    <Cell ss:StyleID="s88"><Data ss:Type="String">${item.studentCode?default("")}</Data></Cell>
+    <Cell ss:StyleID="s88"><Data ss:Type="String">${item.studentName?default("")}</Data></Cell>
+    <Cell ss:StyleID="s88"><Data ss:Type="String">${item.faculty?default("")}</Data></Cell>
+    <Cell ss:StyleID="s87"><Data ss:Type="String">${item.order_R?default("")}</Data></Cell>
+    <Cell ss:StyleID="s87"><Data ss:Type="String">${item.teachingClassName_R?default("")}</Data></Cell>
+    <Cell ss:StyleID="s87"><Data ss:Type="String">${item.studentCode_R?default("")}</Data></Cell>
+    <Cell ss:StyleID="s87"><Data ss:Type="String">${item.studentName_R?default("")}</Data></Cell>
+    <Cell ss:StyleID="s87"><Data ss:Type="String">${item.faculty_R?default("")}</Data></Cell>
    </Row>
-    </#list>
+ </#list>
 </#if>
   </Table>
   <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
@@ -172,8 +177,8 @@
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveRow>9</ActiveRow>
-     <ActiveCol>3</ActiveCol>
+     <ActiveRow>10</ActiveRow>
+     <ActiveCol>4</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>

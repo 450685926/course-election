@@ -1,13 +1,16 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -18,10 +21,15 @@ import java.util.Set;
 @Component("OnlyCanWithdrawOfTurnRule")
 public class OnlyCanWithdrawOfTurnRule extends AbstractElecRuleExceutorBk {
 
+    @Autowired
+    private RoundDataProvider dataProvider;
 
     @Override
     public boolean checkRule(ElecContextBk context, TeachingClassCache courseClass) {
         ElecRequest request = context.getRequest();
+        Long roundId = request.getRoundId();
+        ElectionRounds round = dataProvider.getRound(roundId);
+
         Integer chooseObj = request.getChooseObj();
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         String courseCode = courseClass.getCourseCode();
@@ -32,7 +40,9 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractElecRuleExceutorBk {
                 if (courseCode.equals(course.getCourseCode())) {
                     Integer obj = selectedCours.getChooseObj();
                     if (obj != null && obj.intValue() == chooseObj.intValue()) {
-                        return true;
+                        if (round.getTurn() != null && selectedCours.getTurn() != null && round.getTurn().intValue() == selectedCours.getTurn()){
+                            return true;
+                        }
                     }
                 }
             }

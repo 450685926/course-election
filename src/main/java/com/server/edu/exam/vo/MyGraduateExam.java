@@ -23,6 +23,33 @@ public class MyGraduateExam implements Serializable {
     private String examTime;
     private Long examInfoId;
     private Long teachingClassId;
+    private String projId;
+    private Integer mode;
+    private String noticeRemark;
+
+    public String getNoticeRemark() {
+        return noticeRemark;
+    }
+
+    public void setNoticeRemark(String noticeRemark) {
+        this.noticeRemark = noticeRemark;
+    }
+
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
+    public String getProjId() {
+        return projId;
+    }
+
+    public void setProjId(String projId) {
+        this.projId = projId;
+    }
 
     public Long getTeachingClassId() {
         return teachingClassId;

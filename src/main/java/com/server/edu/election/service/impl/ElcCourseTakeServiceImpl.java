@@ -31,7 +31,9 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.*;
@@ -107,6 +109,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Value("${cache.directory}")
     private String cacheDirectory;
+    
+    @Autowired
+    private RoundDataProvider dataProvider;
+    
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -381,6 +389,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             log.setTurn(0);
             log.setType(ElcLogVo.TYPE_1);
             this.elcLogDao.insertSelective(log);
+            // 更新缓存中教学班人数
+            teachClassCacheService.updateTeachingClassNumber(teachingClassId);
             //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
@@ -579,8 +589,19 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .andEqualTo("teachingClassId", teachingClassId);
             courseTakeDao.deleteByExample(example);
             //减少选课人数
-            classDao.decrElcNumber(teachingClassId);
-            
+            int count =classDao.decrElcNumber(teachingClassId);
+            //保存第三、四轮退课人数
+            if (turn == Constants.THIRD_TURN
+                    || turn == Constants.FOURTH_TURN)
+            {
+            	 count= classDao.increDrawNumber(teachingClassId);
+            	 if (count > 0)
+                 {
+                     dataProvider.incrementDrawNumber(teachingClassId);
+                 }
+            }
+            // 更新缓存中教学班人数
+            teachClassCacheService.updateTeachingClassNumber(teachingClassId);
             ElcCourseTakeVo vo = null;
             String key = calendarId + "-" + teachingClassId;
             if (!classInfoMap.containsKey(key))
@@ -1467,7 +1488,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         design.addCell("学号", "studentId");
         design.addCell("姓名", "studentName");
         design.addCell("课程序号", "teachingClassCode");
-        design.addCell("课程名称", "courseName");
         design.addCell("课程名称", "courseName");
         design.addCell("开课学院", "faculty")
                 .setValueHandler((value, rawData, cell) -> {

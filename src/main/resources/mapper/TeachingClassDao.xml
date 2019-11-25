@@ -389,6 +389,10 @@
   <update id="decrElcNumber">
   	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - 1 where id_ = #{teachingClassId} and ELC_NUMBER_ > 0
   </update>
+  
+  <update id="increDrawNumber">
+  	update teaching_class_t set THIRD_WITHDRAW_NUMBER = THIRD_WITHDRAW_NUMBER + 1 where id_ = #{teachingClassId} 
+  </update>
 
   <update id="increElcNumberList">
   	update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ + 1 where id_ in
@@ -491,12 +495,28 @@
 		GROUP BY
 			t2.ID_
    </select>
-
+   
    <update id="batchDecrElcNumber" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"
       separator=";">
       update teaching_class_t set ELC_NUMBER_ = ELC_NUMBER_ - #{item.withdrawNum} where
       id_ = #{item.id} and ELC_NUMBER_ > 0
+    </foreach>
+   </update>
+   
+   <update id="batchClearDrawNumber" parameterType="java.util.List">
+    <foreach item="item" collection="list" index="index"
+      separator=";">
+      update teaching_class_t set THIRD_WITHDRAW_NUMBER = 0 where
+      id_ = #{item.id}
+    </foreach>
+   </update>
+   
+   <update id="batchAddDrawNumber" parameterType="java.util.List">
+    <foreach item="item" collection="list" index="index"
+      separator=";">
+      update teaching_class_t set THIRD_WITHDRAW_NUMBER = THIRD_WITHDRAW_NUMBER + #{item.withdrawNum} where
+      id_ = #{item.id}
     </foreach>
    </update>
 
