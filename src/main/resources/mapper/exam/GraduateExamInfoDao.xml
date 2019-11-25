@@ -612,11 +612,11 @@
             LEFT JOIN graduate_exam_student_t t2 on t1.ID_ = t2.EXAM_INFO_ID_ and t2.STUDENT_CODE_  =#{studentCode}
             LEFT JOIN graduate_exam_room_t t3 on t3.ID_ = t2.EXAM_ROOM_ID_
             where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projId} and EXAM_TYPE_ = #{examType} and EXAM_STATUS_ = 2) ss
-            on tt.COURSE_CODE_ = ss.COURSE_CODE_ and tt.CAMPUS_ = ss.CAMPUS_
+            on tt.COURSE_CODE_ = ss.COURSE_CODE_
     </select>
 
     <select id="listMyExamTimeMakeUp" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
-        select tt.CALENDAR_ID_ calendarId,tt.STUDENT_ID_ studentCode,tt.COURSE_CODE_ courseCode,tt.TEACHING_CLASS_ID_ teachingClassId,tt.NAME_ courseName,
+        select tt.CALENDAR_ID_ calendarId,tt.STUDENT_CODE_ studentCode,tt.COURSE_CODE_ courseCode,tt.TEACHING_CLASS_ID_ teachingClassId,tt.NAME_ courseName,
         ss.EXAM_TIME_ examTime,ss.ROOM_ID_ roomId,ss.ROOM_NAME_ roomName,ss.REMARK_ remark,ss.NOTICE_REMARK_ noticeRemark,ss.EXAM_SITUATION_ examSituation
          from
             (
@@ -629,6 +629,6 @@
             LEFT JOIN graduate_exam_student_t t2 on t1.ID_ = t2.EXAM_INFO_ID_ and t2.STUDENT_CODE_ = #{studentCode}
             LEFT JOIN graduate_exam_room_t t3 on t3.ID_ = t2.EXAM_ROOM_ID_
             where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projId} and EXAM_TYPE_ = #{examType} and EXAM_STATUS_ = 2) ss
-            on tt.COURSE_CODE_ = ss.COURSE_CODE_ and tt.CAMPUS_ = ss.CAMPUS_;
+            on tt.COURSE_CODE_ = ss.COURSE_CODE_
     </select>
 </mapper>
