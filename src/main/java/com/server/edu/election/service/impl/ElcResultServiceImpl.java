@@ -156,9 +156,9 @@ public class ElcResultServiceImpl implements ElcResultService
     		condition.setFaculty(session.getFaculty());
 		}
     	
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+//        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<TeachingClassVo> listPage = null;
-        listPage = getListPage(condition, listPage);
+        listPage = getListPage(condition, listPage, page);
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
     		// 添加教室容量
@@ -234,10 +234,11 @@ public class ElcResultServiceImpl implements ElcResultService
 		    }
 	}
 
-	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage) {
+	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage, PageCondition<ElcResultQuery> page) {
 		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
         		condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
+                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listScreeningPage(condition);
         	}else {
                 List<String> includeCodes = new ArrayList<>();
@@ -260,6 +261,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
                 condition.setIncludeCodes(includeCodes);
+                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listPage(condition);
 			}
 		}
