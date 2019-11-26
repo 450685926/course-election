@@ -321,6 +321,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
              remark = builder.substring(0, builder.length() - 1)+"排考";
         }
 
+        if(remark.length() > 256){
+            throw new ParameterValidateException("合考课程过多,无法进行合考");
+        }
         OccupyUtils.addOccupy(room, examInfo,remark);
 
     }
