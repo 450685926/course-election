@@ -9,6 +9,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.dto.ExportPreCondition;
 import com.server.edu.election.dto.PreViewRollDto;
@@ -579,6 +580,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         List<String> list = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
         List<ExportExamInfoDto> infoRooms = examInfoDao.getExamRoomIds(calendarId, examType,dptId,list);
+        String name = SchoolCalendarCacheUtil.getName(calendarId);
         String key = "exportCheckTableFreemarkerZip";
         ExcelResult rs = new ExcelResult();
         rs.setStatus(false);
@@ -594,7 +596,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                     List<File> fileList = new ArrayList<>();
                     for (ExportExamInfoDto  exportExamInfoDto: infoRooms) {
                         exportExamInfoDto.setCalendarId(calendarId);
-                        exportExamInfoDto.setCalendarName(calendarName);
+                        exportExamInfoDto.setCalendarName(name);
                         String path = creatFile(exportExamInfoDto,"batch");
                         fileList.add(new File(path));
                     }

@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.constants.DeleteStatus;
 import com.server.edu.exam.dao.GraduateExamMakeUpAuthDao;
 import com.server.edu.exam.entity.GraduateExamMakeUpAuth;
@@ -54,7 +55,13 @@ public class GraduateExamMakeUpAuthServiceImpl implements GraduateExamMakeUpAuth
         //重复性检验
         int i = this.checkConflict(makeUpAuth);
         if(i > 0){
-            throw new ParameterValidateException("研究生补缓考权限已经存在，不能再次添加");
+            if(ApplyStatus.EXAM_SITUATION_MAKE_UP.equals(makeUpAuth.getApplyType())){
+                throw new ParameterValidateException("研究生补考权限已经存在，不能再次添加");
+
+            }else{
+                throw new ParameterValidateException("研究生缓考权限已经存在，不能再次添加");
+
+            }
         }
         //入库
         makeUpAuth.setCreateAt(new Date());

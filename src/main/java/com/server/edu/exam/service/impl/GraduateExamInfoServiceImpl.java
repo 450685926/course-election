@@ -153,7 +153,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Integer startMinute = null;
         Integer endMinute = null;
 
-        String examTime = null;
+        String examTime = "";
         //时间地点
         if(info.getNotice() == ApplyStatus.NOT_EXAMINE){
             Date examDate = info.getExamDate();
