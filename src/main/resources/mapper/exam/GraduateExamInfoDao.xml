@@ -597,7 +597,7 @@
     </select>
 
     <select id="listMyExamTimeFinal" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
-        select t1.STUDENT_CODE_ studentCode,t2.CALENDAR_ID_ calendarId,t2.COURSE_CODE_ courseCode,t4.NAME_ courseName,t2.EXAM_TIME_ examTime,t3.ROOM_ID_ roomId,t3.ROOM_NAME_ roomName,t1.TEACHING_CLASS_ID_ teachingClassId,t1.EXAM_SITUATION_ examSituation
+        select t1.STUDENT_CODE_ studentCode,t2.CALENDAR_ID_ calendarId,t2.COURSE_CODE_ courseCode,t4.NAME_ courseName,t2.EXAM_TIME_ examTime,t3.ROOM_ID_ roomId,t3.ROOM_NAME_ roomName,t1.TEACHING_CLASS_ID_ teachingClassId,t1.EXAM_SITUATION_ examSituation,t1.REMARK_ remark
         from graduate_exam_student_t t1
         join graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
         join course_t t4 on t2.COURSE_CODE_ = t4.CODE_
@@ -626,7 +626,7 @@
     </select>
 
     <select id="listMyExamTimeMakeUp" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
-        select t1.STUDENT_CODE_ studentCode,t2.CALENDAR_ID_ calendarId,t2.COURSE_CODE_ courseCode,t4.NAME_ courseName,t2.EXAM_TIME_ examTime,t3.ROOM_ID_ roomId,t3.ROOM_NAME_ roomName,t1.TEACHING_CLASS_ID_ teachingClassId,t1.EXAM_SITUATION_ examSituation
+        select t1.STUDENT_CODE_ studentCode,t2.CALENDAR_ID_ calendarId,t2.COURSE_CODE_ courseCode,t4.NAME_ courseName,t2.EXAM_TIME_ examTime,t3.ROOM_ID_ roomId,t3.ROOM_NAME_ roomName,t1.TEACHING_CLASS_ID_ teachingClassId,t1.EXAM_SITUATION_ examSituation,t1.REMARK_ remark
         from graduate_exam_student_t t1
         join graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
         join course_t t4 on t2.COURSE_CODE_ = t4.CODE_
