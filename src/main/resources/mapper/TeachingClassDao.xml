@@ -62,6 +62,7 @@
   <select id="listPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
     select distinct
     t1.ID_,
+    t1.TASK_ID_,
 	t1.CODE_,
 	t1.NAME_,
 	t1.ASSESSMENT_MODE_,
