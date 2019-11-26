@@ -460,18 +460,4 @@ public class ElcResultController
         }
         return RestResult.success();
     }
-
-    @ApiOperation(value = "查找某个教学班选课限制")
-    @PostMapping("/{id}/class/selectLimit")
-    public RestResult selectClassLimit(@PathVariable("id") Long teachingClassId, @RequestBody @Valid TeachingClassLimitVo classVo) throws Exception {
-
-        try
-        {
-            elcResultService.updateClassLimit(teachingClassId, classVo);
-        } catch (ParameterValidateException e)
-        {
-            return RestResult.error(e.getMessage());
-        }
-        return RestResult.success();
-    }
 }

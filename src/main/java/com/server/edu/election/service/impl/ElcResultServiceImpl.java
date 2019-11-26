@@ -78,6 +78,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElcAffinityCoursesStdsDao affinityCoursesStdsDao;
+
+    @Autowired
+    private TeachingClassSuggestStudentDao suggestStudentDao;
     
     @Autowired
     private TeachingClassElectiveRestrictAttrDao classElectiveRestrictAttrDao;
@@ -1136,6 +1139,17 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
     public void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo) {
         classVo.setId(teachingClassId);
+        // 更新配课建议学生
+        if(classVo.getLstSuggestStud()!=null){
+            suggestStudentDao.deleteByClassId(classVo.getId());
+        }
+        if (CollectionUtil.isNotEmpty(classVo.getLstSuggestStud()))
+        {
+            classVo.getLstSuggestStud().forEach(student -> {
+                student.setTeachingClassId(classVo.getId());
+                suggestStudentDao.insertSelective(student);
+            });
+        }
         // 更新选课限制专业
         if(classVo.getLstElectiveProf()!=null){
             professionDao.deleteByClassId(teachingClassId);
