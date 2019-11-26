@@ -162,6 +162,9 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         condition.setStudentCode(studentCode);
         condition.setProjId(dptId);
         condition.setMode(mode);
+        //查询已排考的课程
+        List<String> examCourseCode =  examStudentDao.findExamStuCourseCode(condition);
+        condition.setCourseCodes(examCourseCode);
         Page<MyGraduateExam> page = new Page<>();
         PageHelper.startPage(myExam.getPageNum_(),myExam.getPageSize_());
         if(condition.getExamType().equals(ApplyStatus.FINAL_EXAM)){
@@ -181,7 +184,11 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         criteria.andEqualTo("applyType", applyType);
         GraduateExamApplyExamination examApplyExamination = applyExaminationDao.selectOneByExample(example);
         if(examApplyExamination == null){
-            throw new ParameterValidateException(myExam.getCourseCode()+"该课程并没有申请补缓考，无法取消");
+            if(ApplyStatus.EXAM_SITUATION_MAKE_UP.equals(applyType)){
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程并没有申请补考，不需要取消");
+            }else{
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程并没有申请缓考，不需要取消");
+            }
         }else{
             Integer applyStatus = examApplyExamination.getApplyStatus();
             //待审核可以取消(删除该条数据)
@@ -189,11 +196,11 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
                 list.add(examApplyExamination);
                 applyExaminationDao.deleteByExample(example);
             }else if(applyStatus == 2 ){
-                throw new ParameterValidateException("该课程申请正在审批中，无法取消");
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程申请正在审批中，不需要取消");
             }else if(applyStatus == 4){
-                throw new ParameterValidateException("该课程申请已经通过，无法取消");
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程申请已经通过，无法取消");
             }else{
-                throw new ParameterValidateException("该课程申请不通过，不需要取消");
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程申请不通过，不需要取消");
             }
         }
     }
