@@ -27,7 +27,9 @@
   </cache>
 
   <cache alias="teachingClassCache" uses-template="heap-cache">
-
+    <expiry>
+      <ttl unit="seconds">60</ttl>
+    </expiry>
   </cache>
 
 </config>
