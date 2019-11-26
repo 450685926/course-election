@@ -84,6 +84,13 @@ public class GraduateExamStudentController {
         return RestResult.successData(restrict);
     }
 
+    @PostMapping("/getRoomsByCourseCode")
+    public RestResult<List<ExamRoomDto>> getRoomsByCourseCode(@RequestBody ExamStudentAddDto condition){
+        List<ExamRoomDto> list = examStudentService.getRoomsByInfoId(condition);
+        return RestResult.successData(list);
+    }
+
+
     @GetMapping("/getExamRoomByExamInfoId")
     public RestResult<List<ExamRoomDto>> getExamRoomByExamInfoId(@RequestParam String examInfoIds){
         List<ExamRoomDto> list = examStudentService.getExamRoomByExamInfoId(examInfoIds);

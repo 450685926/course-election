@@ -53,4 +53,11 @@ public class MyGraduateExamController {
         return RestResult.success();
     }
 
+    @PostMapping("/listMyExamTime")
+    public RestResult<PageResult<MyGraduateExam>> listMyExamTime(@RequestBody PageCondition<MyGraduateExam> myExam){
+        PageResult<MyGraduateExam> pageResult = myGraduateExamService.listMyExamTime(myExam);
+        return RestResult.successData(pageResult);
+    }
+
+
 }

@@ -38,7 +38,7 @@
     LEFT JOIN course_t t4 on t3.COURSE_CODE_ = t4.CODE_
     left join student_t t5 on t5.STUDENT_CODE_ = t2.STUDENT_CODE_
     WHERE
-     	t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1
+     	t1.ID_ = #{examRoomId} and t2.EXAM_SITUATION_ = 1 and t2.EXAM_INFO_ID_ = #{examInfoId}
    	ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
   </select>
 
@@ -249,7 +249,7 @@
   <update id="updateStudentScoreMessage">
     <foreach collection="list" item="item" separator=";">
       update score_student_result_t SET REMARK_PK_ = #{aduitOpinions}
-      where CALENDAR_ID_ = #{item.calendarId} and COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and TEACHING_CLASS_ID_ = #{item.teachingClassId}
+      where CALENDAR_ID_ = #{item.calendarId} and COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and TEACHING_CLASS_ID_ = #{item.teachingClassId} and IS_PASS_ = 0
     </foreach>
   </update>
 
@@ -394,5 +394,11 @@
   <select id="findStudentScoreByCondition" parameterType="com.server.edu.exam.dto.ExamStudentAddDto" resultType="int">
     select COUNT(*) from score_student_result_t
     where CALENDAR_ID_ =#{calendarId} and STUDENT_ID_ =#{studentCode} and COURSE_CODE_ =#{courseCode} and RELEASE_TYPE_ = 1
+  </select>
+
+  <select id="findExamStuCourseCode" parameterType="com.server.edu.exam.vo.MyGraduateExam" resultType="java.lang.String">
+    select t2.COURSE_CODE_ from graduate_exam_student_t t1
+      JOIN  graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
+      where t2.CALENDAR_ID_ = #{calendarId} and t2.PROJ_ID_ = #{projId}  and t2.EXAM_STATUS_ = 2 and t1.STUDENT_CODE_ = #{studentCode}  and t2.EXAM_TYPE_ = #{examType}
   </select>
 </mapper>

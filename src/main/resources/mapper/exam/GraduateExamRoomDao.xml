@@ -80,13 +80,13 @@
     where t1.ID_ = #{id} and t1.ROOM_CAPACITY_ > t1.ROOM_NUMBER_
   </update>
 
-  <select id="getExamRoomCampus" parameterType="java.lang.Long" resultType="com.server.edu.exam.dto.ExamRoomDto">
+  <select id="getExamRoomCampus" resultType="com.server.edu.exam.dto.ExamRoomDto">
     select t1.ROOM_NAME_ roomName,t3.COURSE_CODE_ courseCode,t4.NAME_ courseName,t3.CAMPUS_ campus
     from graduate_exam_room_t t1
     left join graduate_exam_info_room_t t2 on t1.ID_ = t2.EXAM_ROOM_ID_
     left join graduate_exam_info_t t3 on t2.EXAM_INFO_ID_ = t3.ID_
     left join course_t t4 on t3.COURSE_CODE_ = t4.CODE_
-    where t1.ID_ = #{examRoomId}
+    where t1.ID_ = #{examRoomId} and t3.ID_ =#{examInfoId}
     order by t3.COURSE_CODE_ asc
   </select>
 

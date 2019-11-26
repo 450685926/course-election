@@ -21,13 +21,14 @@
     <result column="DELETE_STATUS_" jdbcType="INTEGER" property="deleteStatus" />
     <result column="PROJ_ID_" jdbcType="VARCHAR" property="projId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="TIME_SAME_" jdbcType="INTEGER" property="timeSame" />
   </resultMap>
 
   <resultMap id="VoBaseResultMap" type="com.server.edu.exam.vo.GraduateExamAuthVo" extends="BaseResultMap"></resultMap>
 
   <sql id="Base_List">
     ID_,CALENDAR_ID_,BEGIN_TIME_,END_TIME_,TRAINING_LEVEL_,COURSE_NATURE_,EXAM_TYPE_,TRAINING_CATEGORY_,DEGREE_TYPE_,
-    FORM_LEARNING_,OPEN_COLLEGE_,CREATE_AT_,UPDATE_AT_,DELETE_STATUS_,PROJ_ID_,REMARK_
+    FORM_LEARNING_,OPEN_COLLEGE_,CREATE_AT_,UPDATE_AT_,DELETE_STATUS_,PROJ_ID_,REMARK_,TIME_SAME_
   </sql>
 
   <select id="listGraduateExamAuth" resultMap="VoBaseResultMap" parameterType="com.server.edu.exam.vo.GraduateExamAuthVo">

@@ -27,7 +27,7 @@ public class GraduateExamMakeUpAuth implements Serializable {
     private Long calendarId;
 
     /**
-     * 申请类型 1 补考 2 缓考
+     * 申请类型 3 补考 2 缓考
      */
     @Column(name = "APPLY_TYPE_")
     private Integer applyType;

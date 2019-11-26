@@ -100,4 +100,9 @@ public interface GraduateExamStudentService {
     * @date 2019/9/29 14:57
     */
     void setExamStudentSituatiion(List<GraduateExamStudentDto> condition, Integer examSituation);
+
+    /**
+     * 更换考场
+     * */
+    List<ExamRoomDto> getRoomsByInfoId(ExamStudentAddDto condition);
 }

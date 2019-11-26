@@ -22,6 +22,7 @@ public class ApplyStatus {
     public static final Integer CONSTANTS_INT = 2;
     public static final Integer PASS_INT = 1;
     public static final Integer NOT_PASS_INT = 0;
+    public static final String TEACHER_ROLE = "2";
 
     /**考试类型 1 期末考试 2 补缓考*/
     public static final Integer FINAL_EXAM = 1;
