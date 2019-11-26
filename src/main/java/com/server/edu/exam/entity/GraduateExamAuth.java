@@ -117,6 +117,12 @@ public class GraduateExamAuth implements Serializable {
     @Column(name = "REMARK_")
     private String remark;
 
+    /**
+     * 备注 1 相同 0 不同
+     */
+    @Column(name = "TIME_SAME_")
+    private Integer timeSame;
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -407,6 +413,14 @@ public class GraduateExamAuth implements Serializable {
         this.remark = remark == null ? null : remark.trim();
     }
 
+    public Integer getTimeSame() {
+        return timeSame;
+    }
+
+    public void setTimeSame(Integer timeSame) {
+        this.timeSame = timeSame;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -429,6 +443,7 @@ public class GraduateExamAuth implements Serializable {
         sb.append(", deleteStatus=").append(deleteStatus);
         sb.append(", projId=").append(projId);
         sb.append(", remark=").append(remark);
+        sb.append(", timeSame=").append(timeSame);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

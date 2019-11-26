@@ -937,7 +937,7 @@
         join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
         join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
-        join v_student_plan_course t5 on t5.studentId = t1.STUDENT_ID_ and t5.courseCode = t1.COURSE_CODE_ 
+        left join v_student_plan_course t5 on t5.studentId = t1.STUDENT_ID_ and t5.courseCode = t1.COURSE_CODE_
         <where>
             t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             and t1.STUDENT_ID_ = #{studentId}
