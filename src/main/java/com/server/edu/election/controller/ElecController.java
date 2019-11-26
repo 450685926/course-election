@@ -30,7 +30,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -133,7 +132,7 @@ public class ElecController
     
     @ApiOperation(value = "获取课程对应的教学班数据")
     @PostMapping("/getTeachClass")
-    @Cacheable(value = "teachingClassCache", key ="#roundId+'-'+#courseCode" )
+    //@Cacheable(value = "teachingClassCache", key ="#roundId+'-'+#courseCode" )
     public RestResult<List<TeachingClassCache>> getTeachClass(
         @RequestParam("roundId") @NotNull Long roundId,
         @RequestParam("courseCode") @NotBlank String courseCode)
