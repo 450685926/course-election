@@ -126,7 +126,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
                             .collect(Collectors.toList());
                 }
                 //还要判断是否优替代的通过课程todo
-                if (CollectionUtil.isNotEmpty(completedCourses)) {
+                if (CollectionUtil.isNotEmpty(noGradCouSubsCourses)) {
                     elcCouSubs =
                             noGradCouSubsCourses.stream()
                                     .filter(c -> courseCode.equals(c.getSubCourseId()))
