@@ -8,6 +8,7 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
+import com.server.edu.election.studentelec.rules.AbstractWithdrwRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.RulePriority;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +21,7 @@ import java.util.Set;
  * 只能退本轮次的课
  */
 @Component("OnlyCanWithdrawOfTurnRule")
-public class OnlyCanWithdrawOfTurnRule extends AbstractElecRuleExceutorBk {
+public class OnlyCanWithdrawOfTurnRule extends AbstractWithdrwRuleExceutorBk {
 
     @Override
     public int getOrder()
@@ -32,16 +33,14 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractElecRuleExceutorBk {
     private RoundDataProvider dataProvider;
 
     @Override
-    public boolean checkRule(ElecContextBk context,
-                             TeachingClassCache courseClass)
-    {
+    public boolean checkRule(ElecContextBk context, SelectedCourse selectedCourse) {
         ElecRequest request = context.getRequest();
         Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
 
         Integer chooseObj = request.getChooseObj();
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        String courseCode = courseClass.getCourseCode();
+        String courseCode = selectedCourse.getCourse().getCourseCode();
         if (StringUtils.isNotBlank(courseCode) && chooseObj != null)
         {
             for (SelectedCourse selectedCours : selectedCourses) {
@@ -58,7 +57,7 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractElecRuleExceutorBk {
         }
         ElecRespose respose = context.getRespose();
         respose.getFailedReasons()
-                .put(courseClass.getCourseCodeAndClassCode(),
+                .put(courseCode,
                         I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
         return false;
     }
