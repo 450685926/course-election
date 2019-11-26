@@ -604,7 +604,7 @@
         JOIN graduate_exam_room_t t3 on t1.EXAM_ROOM_ID_ = t3.ID_
         where STUDENT_CODE_ = #{studentCode} and t2.PROJ_ID_ = #{projId} and t2.EXAM_TYPE_ = #{examType} and t2.EXAM_STATUS_ = 2 and CALENDAR_ID_ = #{calendarId}
         UNION
-        select t5.STUDENT_ID_ studentCode,t4.CALENDAR_ID_ calendarId,t4.COURSE_CODE_ courseCode,t5.NAME_ courseName,IF(LENGTH(t4.EXAM_TIME_) > 0,t4.EXAM_TIME_,t4.REMARK_) examTime,NULL,NULL,NULL,NULL
+        select t5.STUDENT_ID_ studentCode,t4.CALENDAR_ID_ calendarId,t4.COURSE_CODE_ courseCode,t5.NAME_ courseName,IF(LENGTH(t4.EXAM_TIME_) > 0,t4.EXAM_TIME_,t4.REMARK_) examTime,NULL,NULL,NULL,NULL,NULL
         from
         (select t1.CALENDAR_ID_,t1.COURSE_CODE_,t2.CAMPUS_,t1.STUDENT_ID_,t3.NAME_ from elc_course_takes_t_${mode} t1
         LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
@@ -633,7 +633,7 @@
         JOIN graduate_exam_room_t t3 on t1.EXAM_ROOM_ID_ = t3.ID_
         where STUDENT_CODE_ = #{studentCode} and t2.PROJ_ID_ = #{projId} and t2.EXAM_TYPE_ = #{examType} and t2.EXAM_STATUS_ = 2 and CALENDAR_ID_ = #{calendarId}
         UNION
-        select t5.STUDENT_CODE_ studentCode,t4.CALENDAR_ID_ calendarId,t4.COURSE_CODE_ courseCode,t5.NAME_ courseName,IF(LENGTH(t4.EXAM_TIME_) > 0,t4.EXAM_TIME_,t4.REMARK_) examTime,NULL,NULL,NULL,NULL from
+        select t5.STUDENT_CODE_ studentCode,t4.CALENDAR_ID_ calendarId,t4.COURSE_CODE_ courseCode,t5.NAME_ courseName,IF(LENGTH(t4.EXAM_TIME_) > 0,t4.EXAM_TIME_,t4.REMARK_) examTime,NULL,NULL,NULL,NULL,NULL from
         (select t1.CALENDAR_ID_,t1.COURSE_CODE_,t2.CAMPUS_,t1.STUDENT_CODE_,t3.NAME_ from graduate_exam_apply_examination_t t1
         LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
         LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_

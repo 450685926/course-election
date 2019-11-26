@@ -399,6 +399,6 @@
   <select id="findExamStuCourseCode" parameterType="com.server.edu.exam.vo.MyGraduateExam" resultType="java.lang.String">
     select t2.COURSE_CODE_ from graduate_exam_student_t t1
       JOIN  graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
-      where t2.CALENDAR_ID_ = #{calendarId} and t2.PROJ_ID_ = #{projId}  and t2.EXAM_STATUS_ = 2 and t1.STUDENT_CODE_ = #{studentCode} and t1.EXAM_SITUATION_ = 1 and t2.EXAM_TYPE_ = #{examType}
+      where t2.CALENDAR_ID_ = #{calendarId} and t2.PROJ_ID_ = #{projId}  and t2.EXAM_STATUS_ = 2 and t1.STUDENT_CODE_ = #{studentCode}  and t2.EXAM_TYPE_ = #{examType}
   </select>
 </mapper>
