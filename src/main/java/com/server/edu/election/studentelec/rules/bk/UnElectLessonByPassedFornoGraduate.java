@@ -1,9 +1,12 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.entity.ElcCouSubs;
+import com.server.edu.election.vo.ElcCouSubsVo;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -41,22 +44,35 @@ public class UnElectLessonByPassedFornoGraduate
                 //通过课程还要查找是否优替代的课程
                 Set<CompletedCourse> completedCourses =
                     context.getCompletedCourses();
+                Set<ElcCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
+                List<CompletedCourse> list = new ArrayList<>();
+                ElcCouSubs elcCouSubs = null;
+                String courseCode = courseClass.getCourseCode();
                 if (CollectionUtil.isNotEmpty(completedCourses))
                 {
-                    List<CompletedCourse> list = completedCourses.stream()
-                        .filter(temp -> courseClass.getCourseCode()
+                    list = completedCourses.stream()
+                        .filter(temp -> courseCode
                             .equals(temp.getCourse().getCourseCode()))
                         .collect(Collectors.toList());
-                    if (CollectionUtil.isNotEmpty(list))
-                    {
-                        ElecRespose respose = context.getRespose();
-                        respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
-                                I18nUtil.getMsg(
-                                    "ruleCheck.unElectLessonByPassedFornoGraduate"));
-                        return false;
-                    }
                 }
+                //还要判断是否优替代的通过课程todo
+                if (CollectionUtil.isNotEmpty(noGradCouSubsCourses)) {
+                    elcCouSubs =
+                            noGradCouSubsCourses.stream()
+                                    .filter(c -> courseCode.equals(c.getSubCourseId()))
+                                    .findFirst()
+                                    .orElse(null);
+
+                }
+                if (CollectionUtil.isEmpty(list) && elcCouSubs == null) {
+                    return true;
+                }
+                ElecRespose respose = context.getRespose();
+                respose.getFailedReasons()
+                        .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil.getMsg(
+                                        "ruleCheck.unElectLessonByPassedFornoGraduate"));
+                return false;
             }
         }
         return true;
