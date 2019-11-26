@@ -26,4 +26,8 @@
     </expiry>
   </cache>
 
+  <cache alias="teachingClassCache" uses-template="heap-cache">
+
+  </cache>
+
 </config>
