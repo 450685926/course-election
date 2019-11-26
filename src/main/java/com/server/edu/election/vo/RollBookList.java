@@ -31,8 +31,17 @@ public class RollBookList {
     @Code2Text(DictTypeEnum.X_YX)
     private String faculty;
     private String teacherName;
+    private String teacherCodeAndName;
     @Code2Text(transformer = "K_BKKCXZ")
     private String isElective;
+
+    public String getTeacherCodeAndName() {
+        return teacherCodeAndName;
+    }
+
+    public void setTeacherCodeAndName(String teacherCodeAndName) {
+        this.teacherCodeAndName = teacherCodeAndName;
+    }
 
     public String getCourseNature() {
         return courseNature;
