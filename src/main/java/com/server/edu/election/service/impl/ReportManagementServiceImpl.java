@@ -537,7 +537,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
                         if (CollectionUtil.isNotEmpty(rollBookLists))
                         {
-                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
+                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherCodeAndName).collect(Collectors.toSet());
                             String teacherName = String.join(",", collect);
                             bookList.setTeacherName(teacherName);
                         }
