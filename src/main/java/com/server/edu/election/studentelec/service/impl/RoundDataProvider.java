@@ -125,7 +125,7 @@ public class RoundDataProvider
      * @param round 轮次信息(不能为null)
      * @see [类、类#方法、类#成员]
      */
-    //@CacheEvict(value = "teachingClassCache",allEntries=true)
+    @CacheEvict(value = "teachingClassCache",allEntries=true)
     public void updateRoundCache(Long roundId)
     {
         Assert.notNull(roundId, "roundId can not be null");
