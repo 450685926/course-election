@@ -2,6 +2,7 @@ package com.server.edu.election.service.impl;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -262,12 +263,19 @@ public class TeacherLessonTableServiceServiceImpl
                     teacherTimeTable.setClassRoom(classRoom);
                 }
 
+                teacherTimeTable.setWeekHour(formatDouble(Optional.ofNullable(teacherTimeTable.getWeekHour()).orElse(0.0)));
+                teacherTimeTable.setCredits(formatDouble(Optional.ofNullable(teacherTimeTable.getCredits()).orElse(0.0)));
+
             }
 
         }
         return classTimeAndRoom;
     }
-    
+
+    private double formatDouble(double d){
+        BigDecimal b = new BigDecimal(d);
+        return b.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
     /**
     *@Description: 登陆获取教师课表
     *@Param:
