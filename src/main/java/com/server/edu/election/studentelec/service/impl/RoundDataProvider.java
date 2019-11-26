@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -124,6 +125,7 @@ public class RoundDataProvider
      * @param round 轮次信息(不能为null)
      * @see [类、类#方法、类#成员]
      */
+    @CacheEvict(value = "teachingClassCache",allEntries=true)
     public void updateRoundCache(Long roundId)
     {
         Assert.notNull(roundId, "roundId can not be null");

@@ -1,25 +1,5 @@
 package com.server.edu.election.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.servicecomb.provider.rest.common.RestSchema;
-import org.hibernate.validator.constraints.NotBlank;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
@@ -41,10 +21,24 @@ import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @SwaggerDefinition(info = @Info(title = "学生选课", version = ""))
 @RestSchema(schemaId = "ElecController")
@@ -139,6 +133,7 @@ public class ElecController
     
     @ApiOperation(value = "获取课程对应的教学班数据")
     @PostMapping("/getTeachClass")
+    @Cacheable(value = "teachingClassCache", key ="#roundId+'-'+#courseCode" )
     public RestResult<List<TeachingClassCache>> getTeachClass(
         @RequestParam("roundId") @NotNull Long roundId,
         @RequestParam("courseCode") @NotBlank String courseCode)
