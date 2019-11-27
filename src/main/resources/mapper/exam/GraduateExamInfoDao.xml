@@ -620,6 +620,9 @@
                     #{courseCode}
                 </foreach>
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(notice)">
+                and t4.NOTICE_ = #{notice}
+            </if>
             and t4.PROJ_ID_ = #{projId} and t4.EXAM_STATUS_ = 2 and t4.EXAM_TYPE_ = #{examType}
         </where>
 
@@ -645,6 +648,9 @@
                 <foreach collection="courseCodes" item="courseCode" open="(" separator="," close=")">
                     #{courseCode}
                 </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(notice)">
+                and t4.NOTICE_ = #{notice}
             </if>
             and t4.PROJ_ID_ = #{projId} and t4.EXAM_STATUS_ = 2 and t4.EXAM_TYPE_ = #{examType}
         </where>
