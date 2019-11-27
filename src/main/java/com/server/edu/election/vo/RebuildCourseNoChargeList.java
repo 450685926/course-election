@@ -46,6 +46,7 @@ public class RebuildCourseNoChargeList implements Serializable{
     @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
 
+    private String labelName;
     /**培养计划对应课程Id*/
     private Long planCourseId;
 
@@ -313,5 +314,13 @@ public class RebuildCourseNoChargeList implements Serializable{
 
     public void setCourseFaculty(String courseFaculty) {
         this.courseFaculty = courseFaculty;
+    }
+
+    public String getLabelName() {
+        return labelName;
+    }
+
+    public void setLabelName(String labelName) {
+        this.labelName = labelName;
     }
 }
