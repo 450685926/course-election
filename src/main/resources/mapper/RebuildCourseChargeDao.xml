@@ -85,11 +85,13 @@
         te.COURSE_LABEL_ID_ label,
         co.CREDITS_ credits,
         co.IS_ELECTIVE_ nature,
+        esl.LABEL_NAME_ labelName,
         CONCAT(te.START_WEEK_,'-',te.END_WEEK_,'周',te.PERIOD_,'学时') courseArr
         FROM rebuild_course_recycle_t re
         LEFT JOIN student_t st on re.STUDENT_CODE_=st.STUDENT_CODE_
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
         left join teaching_class_t te on te.ID_=re.TEACHING_CLASS_ID_
+        left join elc_screening_label_t esl on re.CALENDAR_ID_ = esl.CALENDAR_ID_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}

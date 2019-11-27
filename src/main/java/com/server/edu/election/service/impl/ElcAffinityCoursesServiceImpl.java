@@ -171,7 +171,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         List<String> stuIds = selectUnElcStudents.stream().map(Student::getStudentCode).collect(Collectors.toList());
         if (CollectionUtil.isEmpty(stuIds)) {
        	 throw new ParameterValidateException(
-                    I18nUtil.getMsg("common.exist",""));
+                    I18nUtil.getMsg("输入学号无效或已经存在",""));
 		}
         
         //查找用户添加的学生名单,拿到可以添加的学生名单
