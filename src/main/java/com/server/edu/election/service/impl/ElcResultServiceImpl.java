@@ -34,6 +34,7 @@ import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcAffinityCoursesStdsVo;
 import com.server.edu.election.vo.ElcResultCountVo;
+import com.server.edu.election.vo.TeachingClassLimitVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -79,6 +80,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElcAffinityCoursesStdsDao affinityCoursesStdsDao;
+
+    @Autowired
+    private TeachingClassSuggestStudentDao suggestStudentDao;
     
     @Autowired
     private TeachingClassElectiveRestrictAttrDao classElectiveRestrictAttrDao;
@@ -157,9 +161,9 @@ public class ElcResultServiceImpl implements ElcResultService
     		condition.setFaculty(session.getFaculty());
 		}
     	
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+//        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<TeachingClassVo> listPage = null;
-        listPage = getListPage(condition, listPage);
+        listPage = getListPage(condition, listPage, page);
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
     		// 添加教室容量
@@ -235,10 +239,11 @@ public class ElcResultServiceImpl implements ElcResultService
 		    }
 	}
 
-	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage) {
+	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage, PageCondition<ElcResultQuery> page) {
 		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
         		condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
+                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listScreeningPage(condition);
         	}else {
                 List<String> includeCodes = new ArrayList<>();
@@ -261,6 +266,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
                 condition.setIncludeCodes(includeCodes);
+                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listPage(condition);
 			}
 		}
@@ -1095,7 +1101,6 @@ public class ElcResultServiceImpl implements ElcResultService
         elcCourseTakeService.add(dto);                                                             
 	}
 	
-	
 	@Override
 	@Transactional
 	public AsyncResult autoBatchRemove(BatchAutoRemoveDto dto) {
@@ -1148,4 +1153,49 @@ public class ElcResultServiceImpl implements ElcResultService
 		return chooseObj;
 	}
 	
+    @Override
+    @Transactional
+    public void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo) {
+        classVo.setId(teachingClassId);
+        // 更新配课建议学生
+        if(classVo.getLstSuggestStud()!=null){
+            suggestStudentDao.deleteByClassId(classVo.getId());
+        }
+        if (CollectionUtil.isNotEmpty(classVo.getLstSuggestStud()))
+        {
+            classVo.getLstSuggestStud().forEach(student -> {
+                student.setTeachingClassId(classVo.getId());
+                suggestStudentDao.insertSelective(student);
+            });
+        }
+        // 更新选课限制专业
+        if(classVo.getLstElectiveProf()!=null){
+            professionDao.deleteByClassId(teachingClassId);
+        }
+        if (CollectionUtil.isNotEmpty(classVo.getLstElectiveProf()))
+        {
+            classVo.getLstElectiveProf().forEach(restrict -> {
+                restrict.setTeachingClassId(classVo.getId());
+                professionDao.insertSelective(restrict);
+            });
+        }
+        // 选课限制
+        if (classVo.getElectiveRestrictAttr() != null && classVo.getElectiveRestrictAttr().getId() != null && classVo.getElectiveRestrictAttr().getId() > 0)
+        {
+            classElectiveRestrictAttrDao.updateByPrimaryKey(classVo.getElectiveRestrictAttr());
+        } else
+        {
+            // 先删除，保证不会出现重复的记录
+            classElectiveRestrictAttrDao.deleteByClassId(classVo.getId());
+            if (classVo.getElectiveRestrictAttr() == null)
+            {
+                classVo.setElectiveRestrictAttr(new TeachingClassElectiveRestrictAttr());
+            }
+            classVo.getElectiveRestrictAttr().setTeachingClassId(classVo.getId());
+            classVo.getElectiveRestrictAttr().setCreatedAt(new Date());
+            classVo.getElectiveRestrictAttr().setUpdatedAt(new Date());
+            classElectiveRestrictAttrDao.insertSelective(classVo.getElectiveRestrictAttr());
+        }
+    }
+
 }

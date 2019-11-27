@@ -135,13 +135,45 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         }
 
         if(CollectionUtil.isNotEmpty(list)){
-            String aduitOpinions = "审核中";
             if(applyType.equals(ApplyStatus.EXAM_SITUATION_MAKE_UP)){
+                String aduitOpinions = "补考申请审核中";
                 examStudentDao.updateStudentScoreMessage(list,aduitOpinions);
             }else{
+                String aduitOpinions = "缓考申请审核中";
                 examStudentDao.updateExamStudentRemark(list,aduitOpinions);
             }
         }
+    }
+
+    @Override
+    public PageResult<MyGraduateExam> listMyExamTime(PageCondition<MyGraduateExam> myExam) {
+        MyGraduateExam condition = myExam.getCondition();
+        if(condition.getCalendarId() == null || condition.getExamType() == null){
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        Session session = SessionUtils.getCurrentSession();
+        String dptId = session.getCurrentManageDptId();
+        String studentCode = session.realUid();
+        Student student = studentDao.findStudentByCode(studentCode);
+        if(student == null){
+            throw new ParameterValidateException("该学生不存在学籍中");
+        }
+        int mode = (int)(condition.getCalendarId() % 6 );
+        condition.setStudentCode(studentCode);
+        condition.setProjId(dptId);
+        condition.setMode(mode);
+        condition.setNotice(ApplyStatus.PASS_INT);
+        //查询已排考的课程
+        List<String> examCourseCode =  examStudentDao.findExamStuCourseCode(condition);
+        condition.setCourseCodes(examCourseCode);
+        Page<MyGraduateExam> page = new Page<>();
+        PageHelper.startPage(myExam.getPageNum_(),myExam.getPageSize_());
+        if(condition.getExamType().equals(ApplyStatus.FINAL_EXAM)){
+             page = examInfoDao.listMyExamTimeFinal(condition);
+        }else{
+            page = examInfoDao.listMyExamTimeMakeUp(condition);
+        }
+        return new PageResult<>(page);
     }
 
     private void cancelApplyByOne(MyGraduateExam myExam,Integer applyType,List<GraduateExamApplyExamination> list){
@@ -153,7 +185,11 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         criteria.andEqualTo("applyType", applyType);
         GraduateExamApplyExamination examApplyExamination = applyExaminationDao.selectOneByExample(example);
         if(examApplyExamination == null){
-            throw new ParameterValidateException(myExam.getCourseCode()+"该课程并没有申请补缓考，无法取消");
+            if(ApplyStatus.EXAM_SITUATION_MAKE_UP.equals(applyType)){
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程并没有申请补考，不需要取消");
+            }else{
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程并没有申请缓考，不需要取消");
+            }
         }else{
             Integer applyStatus = examApplyExamination.getApplyStatus();
             //待审核可以取消(删除该条数据)
@@ -161,11 +197,11 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
                 list.add(examApplyExamination);
                 applyExaminationDao.deleteByExample(example);
             }else if(applyStatus == 2 ){
-                throw new ParameterValidateException("该课程申请正在审批中，无法取消");
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程申请正在审批中，不需要取消");
             }else if(applyStatus == 4){
-                throw new ParameterValidateException("该课程申请已经通过，无法取消");
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程申请已经通过，无法取消");
             }else{
-                throw new ParameterValidateException("该课程申请不通过，不需要取消");
+                throw new ParameterValidateException(myExam.getCourseCode()+"该课程申请不通过，不需要取消");
             }
         }
     }

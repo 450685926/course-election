@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.servicecomb.springboot.starter.provider.EnableServiceComb;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -19,6 +20,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 @MapperScan({"com.server.edu.*.dao","com.server.edu.*.*.dao"})
 @EnableServiceComb
 @EnableScheduling
+@EnableCaching
 public class ServiceApplication
 {
     @Bean

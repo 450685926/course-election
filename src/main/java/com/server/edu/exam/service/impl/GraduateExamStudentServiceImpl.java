@@ -289,6 +289,22 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
 
     }
 
+    @Override
+    public List<ExamRoomDto> getRoomsByInfoId(ExamStudentAddDto condition) {
+        if(condition.getCalendarId() == null || condition.getExamType() == null || StringUtils.isBlank(condition.getCourseCode())){
+            throw new ParameterValidateException("入参有误");
+        }
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        condition.setProjId(dptId);
+        List<Long> examInfoIds = examInfoDao.findExamInfoIdsByCourseCode(condition);
+        List<ExamRoomDto> list = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(examInfoIds)){
+            List<String> collect = examInfoIds.stream().map(vo -> String.valueOf(vo)).collect(Collectors.toList());
+             list = examInfoDao.getExamRoomByExamInfoId(collect);
+        }
+        return list;
+    }
+
     private void setExamSituationByOne(GraduateExamStudentDto dto, Integer examSituation,Session currentSession) {
 
         //正常状态变为缓考

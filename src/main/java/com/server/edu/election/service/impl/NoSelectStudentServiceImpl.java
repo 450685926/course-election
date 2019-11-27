@@ -286,10 +286,10 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
                    (value, rawData, cell) -> {
                        return dictionaryService.query("G_ZY", value, SessionUtils.getLang());
                    });
-           design.addCell(I18nUtil.getMsg("noElection.trainingCategory"), "trainingCategory").setValueHandler(
+           /*design.addCell(I18nUtil.getMsg("noElection.trainingCategory"), "trainingCategory").setValueHandler(
         		   (value, rawData, cell) -> {
         			   return dictionaryService.query("X_PYLB", value, SessionUtils.getLang());
-        		   });
+        		   });*/
            design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
            design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
            return design;

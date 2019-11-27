@@ -10,6 +10,7 @@ import com.server.edu.exam.query.StudentQuery;
 import com.server.edu.exam.vo.ExamStudent;
 import com.server.edu.exam.vo.GraduateExamApplyExaminationVo;
 import com.server.edu.exam.vo.GraduateExamStudentVo;
+import com.server.edu.exam.vo.MyGraduateExam;
 import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
@@ -17,7 +18,7 @@ import tk.mybatis.mapper.common.MySqlMapper;
 import java.util.List;
 
 public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySqlMapper<GraduateExamStudent> {
-    List<ExamStudent> listExamStudentById(Long id);
+    List<ExamStudent> listExamStudentById(@Param("examRoomId") Long examRoomId,@Param("examInfoId") Long examInfoId);
 
     Page<NoExamStudent> listStudent(StudentQuery studentQuery);
 
@@ -86,4 +87,12 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
     Page<TeachingClassDto> listTeachingClass(GraduateExamRoomsQuery classQuery);
 
     int findStudentScoreByCondition(ExamStudentAddDto condition);
+    /**
+     * 查询已排考的课程
+     * @param classQuery
+     * @return
+     * @author bear
+     * @date 2019/9/9 10:57
+     */
+    List<String> findExamStuCourseCode(MyGraduateExam condition);
 }

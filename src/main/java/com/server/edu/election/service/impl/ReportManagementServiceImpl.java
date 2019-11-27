@@ -464,22 +464,32 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     int pageNum = 0;
                     pageCondition.setPageNum_(pageNum);
                     List<RollBookList> list = new ArrayList<>();
-                    while (true)
-                    {
-                        pageNum++;
-                        pageCondition.setPageNum_(pageNum);
-                        PageResult<RollBookList> rollBookList =
-                            findRollBookList(pageCondition);
-                        list.addAll(rollBookList.getList());
-
-                        result.setTotal((int)rollBookList.getTotal_());
-                        Double count = list.size() / 1.5;
-                        result.setDoneCount(count.intValue());
-                        this.updateResult(result);
-
-                        if (rollBookList.getTotal_() <= list.size())
+                    List<String> classCodeList = condition.getClassCodeList();
+                    if(null==classCodeList||classCodeList.size()==0){
+                        while (true)
                         {
-                            break;
+                            pageNum++;
+                            pageCondition.setPageNum_(pageNum);
+                            PageResult<RollBookList> rollBookList =
+                                    findRollBookList(pageCondition);
+                            list.addAll(rollBookList.getList());
+
+                            result.setTotal((int)rollBookList.getTotal_());
+                            Double count = list.size() / 1.5;
+                            result.setDoneCount(count.intValue());
+                            this.updateResult(result);
+
+                            if (rollBookList.getTotal_() <= list.size())
+                            {
+                                break;
+                            }
+                        }
+                    }else{
+                        for(String string:classCodeList){
+                            pageCondition.getCondition().setClassCode(string);
+                            PageResult<RollBookList> rollBookList =
+                                    findRollBookList(pageCondition);
+                            list.addAll(rollBookList.getList());
                         }
                     }
                     //组装excel
@@ -527,7 +537,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
                         if (CollectionUtil.isNotEmpty(rollBookLists))
                         {
-                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
+                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherCodeAndName).collect(Collectors.toSet());
                             String teacherName = String.join(",", collect);
                             bookList.setTeacherName(teacherName);
                         }
