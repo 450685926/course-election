@@ -52,7 +52,7 @@ public class UnElectLessonByPassedFornoGraduate
                 {
                     list = completedCourses.stream()
                         .filter(temp -> courseCode
-                            .equals(temp.getCourse().getCourseCode()) && temp.getIsPass().intValue() == 1)
+                            .equals(temp.getCourse().getCourseCode()))
                         .collect(Collectors.toList());
                 }
                 //还要判断是否优替代的通过课程todo
