@@ -162,6 +162,7 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         condition.setStudentCode(studentCode);
         condition.setProjId(dptId);
         condition.setMode(mode);
+        condition.setNotice(ApplyStatus.PASS_INT);
         //查询已排考的课程
         List<String> examCourseCode =  examStudentDao.findExamStuCourseCode(condition);
         condition.setCourseCodes(examCourseCode);
