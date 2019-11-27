@@ -6,6 +6,7 @@ import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.ClassroomN;
 import com.server.edu.common.entity.Teacher;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -157,11 +158,12 @@ public class ElcResultServiceImpl implements ElcResultService
     	
     	Session session = SessionUtils.getCurrentSession();
     	//通过session信息获取访问接口人员角色
-    	if (!session.isAdmin() && StringUtils.equals(session.getCurrentRole(), "1")) {
-    		condition.setFaculty(session.getFaculty());
+    	if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(condition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                condition.setFaculties(deptIds);
+            }
 		}
-    	
-//        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<TeachingClassVo> listPage = null;
         listPage = getListPage(condition, listPage, page);
         List<TeachingClassVo> list = listPage.getResult();
