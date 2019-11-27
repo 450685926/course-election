@@ -75,7 +75,6 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
-        
         t2.NAME_,t2.PROFESSION_,t2.GRADE_,
         t2.TRAINING_LEVEL_,
         t3.FACULTY_,
@@ -149,6 +148,12 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
                 and t2.FORM_LEARNING_= #{query.formLearning}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculties)">
+                and t3.FACULTY_ in
+                <foreach collection="query.faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
                 and t3.FACULTY_ = #{query.faculty}
