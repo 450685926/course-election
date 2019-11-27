@@ -157,6 +157,12 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
       </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+        and t3.FACULTY_ in
+        <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+            #{fy}
+        </foreach>
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t3.FACULTY_ = #{faculty}
       </if>
@@ -269,6 +275,12 @@
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+        and t3.FACULTY_ in
+        <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+            #{fy}
+        </foreach>
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t3.FACULTY_ = #{faculty}
