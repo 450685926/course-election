@@ -292,7 +292,7 @@
         or tt.TEACHER_NAME_ like concat ('%', #{keyword},'%') or tt.TEACHER_CODE_ like concat ('%', #{keyword},'%'))
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-        and (tt.TEACHER_CODE_ like concat ('%', #{teacherCode},'%') and tt.TEACHER_NAME_ like concat ('%', #{teacherCode},'%'))
+        and (tt.TEACHER_CODE_ like concat ('%', #{teacherCode},'%') and tt.TEACHER_NAME_ like concat ('%', #{teacherName},'%'))
       </if>
     </where>
   </select>
