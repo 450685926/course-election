@@ -11,6 +11,7 @@ import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.config.DoubleHandler;
@@ -526,7 +527,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
                 }
                 //组装excel
-                GeneralExcelDesigner design = getDesignThere();
+                GeneralExcelDesigner design = null;
+                if (condition.getType().intValue() == Constants.ONE){
+                    design = getDesignThere();
+                }else{
+                    design = getDesignElec();
+                }
+
                 //将数据放入excel对象中
                 design.setDatas(list);
                 result.setDoneCount(list.size());
@@ -630,6 +637,42 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     }
                     return value;
                 });
+        return design;
+    }
+    private GeneralExcelDesigner getDesignElec() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
+        design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                    return dict;
+                });
+        design.addCell(I18nUtil.getMsg("exemptionApply.major"), "profession").setValueHandler(
+                (value, rawData, cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.G_ZY.getType(), value);
+                    return dict;
+                });
+        design.addCell(I18nUtil.getMsg("rebuildCourse.courseIndex"), "teachingClassCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("rollBookManage.courseOpenFaculty"), "courseFaculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_YX.getType(), value);
+                    return dict;
+                });
+        design.addCell(I18nUtil.getMsg("exemptionApply.turn"), "courseTakeType").setValueHandler(
+                (value, rawData, cell) -> {
+                    String dict = dictionaryService
+                            .query(DictTypeEnum.X_XDLX.getType(), value);
+                    return dict;
+                });
+        design.addCell(I18nUtil.getMsg("修读类别"), "turn");
+        design.addCell("筛选标签", "labelName");
+
         return design;
     }
 
