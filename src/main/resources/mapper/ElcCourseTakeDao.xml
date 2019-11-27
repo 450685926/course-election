@@ -655,6 +655,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and st.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and st.FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
                 and st.PROFESSION_ =#{profession,jdbcType=VARCHAR}
             </if>
@@ -1068,6 +1074,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t3.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and t3.COLLEGE_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
                 and t3.CODE_ like concat('%',#{courseCode,jdbcType=VARCHAR},'%')
             </if>
@@ -1216,6 +1228,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and op.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and op.FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and op.NATURE_ =#{nature,jdbcType=VARCHAR}
             </if>
@@ -1316,6 +1334,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t1.FACULTY_ =#{faculty}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and t1.FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
                 and t1.PROFESSION_ =#{major}
             </if>
@@ -1342,6 +1366,12 @@
             and LEAVE_SCHOOL_ = '1'
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and FACULTY_ =#{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
                 and PROFESSION_ =#{major}
