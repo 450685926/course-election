@@ -1156,15 +1156,14 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
     @Transactional
     public void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo) {
-        classVo.setId(teachingClassId);
         // 更新配课建议学生
         if(classVo.getLstSuggestStud()!=null){
-            suggestStudentDao.deleteByClassId(classVo.getId());
+            suggestStudentDao.deleteByClassId(teachingClassId);
         }
         if (CollectionUtil.isNotEmpty(classVo.getLstSuggestStud()))
         {
             classVo.getLstSuggestStud().forEach(student -> {
-                student.setTeachingClassId(classVo.getId());
+                student.setTeachingClassId(teachingClassId);
                 suggestStudentDao.insertSelective(student);
             });
         }
@@ -1175,7 +1174,7 @@ public class ElcResultServiceImpl implements ElcResultService
         if (CollectionUtil.isNotEmpty(classVo.getLstElectiveProf()))
         {
             classVo.getLstElectiveProf().forEach(restrict -> {
-                restrict.setTeachingClassId(classVo.getId());
+                restrict.setTeachingClassId(teachingClassId);
                 professionDao.insertSelective(restrict);
             });
         }
@@ -1186,12 +1185,12 @@ public class ElcResultServiceImpl implements ElcResultService
         } else
         {
             // 先删除，保证不会出现重复的记录
-            classElectiveRestrictAttrDao.deleteByClassId(classVo.getId());
+            classElectiveRestrictAttrDao.deleteByClassId(teachingClassId);
             if (classVo.getElectiveRestrictAttr() == null)
             {
                 classVo.setElectiveRestrictAttr(new TeachingClassElectiveRestrictAttr());
             }
-            classVo.getElectiveRestrictAttr().setTeachingClassId(classVo.getId());
+            classVo.getElectiveRestrictAttr().setTeachingClassId(teachingClassId);
             classVo.getElectiveRestrictAttr().setCreatedAt(new Date());
             classVo.getElectiveRestrictAttr().setUpdatedAt(new Date());
             classElectiveRestrictAttrDao.insertSelective(classVo.getElectiveRestrictAttr());
