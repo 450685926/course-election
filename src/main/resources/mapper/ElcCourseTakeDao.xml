@@ -83,7 +83,7 @@
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
         from elc_course_takes_t_${query.index} t1
         join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ 
+        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ and IS_OPEN_ = 1
 	     AND t3.CALENDAR_ID_ = t1.CALENDAR_ID_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_

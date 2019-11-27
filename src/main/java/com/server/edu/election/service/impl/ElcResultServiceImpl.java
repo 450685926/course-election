@@ -1006,7 +1006,7 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Transactional
 	public void updateClassBind(ElcTeachingClassBind elcTeachingClassBind) {
 		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
-		if(bind!=null) {
+		if(bind==null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
                     I18nUtil.getMsg("election.elcTeachingClassBind")));
 		}
@@ -1161,9 +1161,7 @@ public class ElcResultServiceImpl implements ElcResultService
     @Transactional
     public void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo) {
         // 更新配课建议学生
-        if(classVo.getLstSuggestStud()!=null){
-            suggestStudentDao.deleteByClassId(teachingClassId);
-        }
+        suggestStudentDao.deleteByClassId(teachingClassId);
         if (CollectionUtil.isNotEmpty(classVo.getLstSuggestStud()))
         {
             classVo.getLstSuggestStud().forEach(student -> {
@@ -1172,9 +1170,7 @@ public class ElcResultServiceImpl implements ElcResultService
             });
         }
         // 更新选课限制专业
-        if(classVo.getLstElectiveProf()!=null){
-            professionDao.deleteByClassId(teachingClassId);
-        }
+        professionDao.deleteByClassId(teachingClassId);
         if (CollectionUtil.isNotEmpty(classVo.getLstElectiveProf()))
         {
             classVo.getLstElectiveProf().forEach(restrict -> {
