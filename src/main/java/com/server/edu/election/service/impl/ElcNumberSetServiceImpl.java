@@ -20,17 +20,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,7 +120,8 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
      * 每天指定时间执行
      * 每天定时安排任务进行执行 
      */
-    @Scheduled(cron = "0 0/1 * * * *")
+    //先注掉
+    //@Scheduled(cron = "0 0/1 * * * *")
     public void executeEightAtNightPerDay()
     {
         String key = "ElcNumberSetTimer";
