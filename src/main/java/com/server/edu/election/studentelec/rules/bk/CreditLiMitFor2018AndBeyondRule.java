@@ -118,26 +118,18 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 				}
 			}else{
 				//如果没有个选限制，查询选课常量
-				 Example example = new Example(ElectionConstants.class);
-				 Criteria createCriteria = example.createCriteria();
-				 createCriteria.andEqualTo("key",MAXRETAKECOURSECOUNT);
-				 createCriteria.andEqualTo("managerDeptId",request.getProjectId());
-				 ElectionConstants selectOneByExample = electionConstantsDao.selectOneByExample(example);
-				 
-				 Example example1 = new Example(ElectionConstants.class);
-				 Criteria createCriteria1 = example.createCriteria();
-				 createCriteria1.andEqualTo("key",MAXNEWCREDITS);
-				 createCriteria1.andEqualTo("managerDeptId",request.getProjectId());
-				 ElectionConstants selectOneByExample1 = electionConstantsDao.selectOneByExample(example1);
-				 
-				 
-				 if (sumCredits.doubleValue() > Double.parseDouble(selectOneByExample.getValue())) {
+				String rebuildCourseNumber = electionConstantsDao.findRebuildCourseNumber();
+
+				String newCreditsLimit = electionConstantsDao.findNewCreditsLimit();
+
+
+				if (sumCredits.doubleValue() > Double.parseDouble(newCreditsLimit)) {
         			 ElecRespose respose = context.getRespose();
         	            respose.getFailedReasons()
         	                .put(courseClass.getCourseCodeAndClassCode(),
         	                    I18nUtil.getMsg("ruleCheck.creditLiMit.newLimitCredits"));
         			return false;
-				} else if ( retakeNumber  > Integer.parseInt(selectOneByExample1.getValue())) {
+				} else if ( retakeNumber  > Integer.parseInt(rebuildCourseNumber)) {
 					ElecRespose respose = context.getRespose();
 					respose.getFailedReasons()
 						.put(courseClass.getCourseCodeAndClassCode(),
