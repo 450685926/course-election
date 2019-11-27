@@ -20,6 +20,15 @@ public class RollBookConditionDto {
     private String isElective;
     private String projectId;
     private List<Long> ids;//导出列表id集合
+    private List<String> faculties;
+
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
 
     public List<String> getClassCodeList() {
         return classCodeList;

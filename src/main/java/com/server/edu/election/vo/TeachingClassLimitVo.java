@@ -9,7 +9,7 @@ import com.server.edu.election.entity.TeachingClassSuggestStudent;
 import java.util.List;
 
 @CodeI18n
-public class TeachingClassLimitVo extends TeachingClass
+public class TeachingClassLimitVo
 {
 
 	/**

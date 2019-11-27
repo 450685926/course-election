@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,12 +33,19 @@ public class MedRuleRefCourServiceImpl implements MedRuleRefCourService {
 	private ElcMedWithdrawRuleRefCourDao elcMedWithdrawRuleRefCourDao;
 	@Override
 	public PageInfo<ElcMedWithdrawRuleRefCourVo> list(PageCondition<ElcMedWithdrawRuleRefCourDto> condition){
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMedWithdrawRuleRefCourDto elcMedWithdrawRuleRefCourDto = condition.getCondition();
 		if(elcMedWithdrawRuleRefCourDto.getCalendarId()==null||elcMedWithdrawRuleRefCourDto.getMedWithdrawRuleId()==null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
 		}
+		Session session = SessionUtils.getCurrentSession();
+		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+			if (StringUtils.isBlank(elcMedWithdrawRuleRefCourDto.getFaculty())) {
+				List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+				elcMedWithdrawRuleRefCourDto.setFaculties(deptIds);
+			}
+		}
 		List<ElcMedWithdrawRuleRefCourVo> list = new ArrayList<>();
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		if(elcMedWithdrawRuleRefCourDto.getIsOpen() == ElcMedWithdrawRuleRefCourDto.ISOPEN) {
 			list =elcMedWithdrawRuleRefCourDao.selectMedRuleRefCours(condition.getCondition());
 		}else {

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.enums.GroupDataEnum;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,12 +82,19 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
      public PageResult<NoSelectCourseStdsDto> findElectCourseList(PageCondition<NoSelectCourseStdsDto> condition) {
     	 Session session = SessionUtils.getCurrentSession();
     	 String deptId = session.getCurrentManageDptId();
-//    	 String deptId = "1";
-         condition.getCondition().setDeptId(deptId);
+         NoSelectCourseStdsDto noSelectCourseStdsDto = condition.getCondition();
+         noSelectCourseStdsDto.setDeptId(deptId);
+         //通过session信息获取访问接口人员角色
+         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+             if (StringUtils.isBlank(noSelectCourseStdsDto.getFaculty())) {
+                 List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                 noSelectCourseStdsDto.setFaculties(deptIds);
+             }
+         }
          PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
 
          Page<NoSelectCourseStdsDto> electCourseList;
-         if (org.apache.commons.lang.StringUtils.isNotEmpty(deptId) && Constants.PROJ_UNGRADUATE.equals(deptId)) {
+         if (StringUtils.isNotEmpty(deptId) && Constants.PROJ_UNGRADUATE.equals(deptId)) {
              electCourseList = courseTakeDao.findNoSelectCourseStds(condition.getCondition());
              List<NoSelectCourseStdsDto> result = electCourseList.getResult();
              if (CollectionUtil.isNotEmpty(result)) {
