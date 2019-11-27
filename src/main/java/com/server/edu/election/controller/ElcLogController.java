@@ -1,10 +1,13 @@
 package com.server.edu.election.controller;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.Valid;
 
+import com.server.edu.common.enums.GroupDataEnum;
+import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,6 +60,10 @@ public class ElcLogController
             ids.addAll(condition2.getStudentIds());
             condition2.getStudentIds().clear();
             condition2.getStudentIds().addAll(ids);
+        }
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            condition2.setFaculties(deptIds);
         }
         PageResult<ElcLogVo> list = service.listPage(condition);
         
