@@ -114,8 +114,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         }else{
             List<String> facultys = session.getGroupData().get(GroupDataEnum.department.getValue());
             examMessage.setFacultys(facultys);
+            examMessage.setProjId(dptId);
         }
-        examMessage.setProjId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<GraduateExamMessage> page = examInfoDao.listGraduateExamMessage(examMessage);
         if(CollectionUtil.isNotEmpty(page)){
