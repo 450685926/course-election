@@ -15,6 +15,7 @@ import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.dao.*;
@@ -31,6 +32,7 @@ import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcAffinityCoursesStdsVo;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -139,6 +141,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private RoundCacheService roundCacheService;
+    
+    @Autowired
+    private ElecRoundsDao elecRoundsDao;
     
     @Override
     public PageResult<TeachingClassVo> listPage(
@@ -533,16 +538,15 @@ public class ElcResultServiceImpl implements ElcResultService
             List<String> invincibleStdIds =
                 invincibleStdsDao.selectAllStudentId();
             // 优先学生
-            List<ElcAffinityCoursesStds> affinityCoursesStds =
-                affinityCoursesStdsDao.selectAll();
+            List<ElcAffinityCoursesStdsVo> affinityCoursesStds =
+                affinityCoursesStdsDao.getStudentByCourseId(course);
             Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
-                .map(aff -> aff.getCourseId() + "-" + aff.getStudentId())
+                .map(aff -> aff.getCourseCode() + "-" + aff.getStudentId())
                 .collect(toSet());
-            
             List<Student> normalStus = new ArrayList<>();
             List<Student> invincibleStus = new ArrayList<>();
             List<Student> affinityStus = new ArrayList<>();
-            //把学生分类(普通学生、优先学生、特殊学生)
+            //把学生分类(普通学生、特殊学生、优先学生)
             for (ElcCourseTake take : takes)
             {
                 String courseCode = take.getCourseCode();
@@ -598,7 +602,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     gradAndPreFilter.execute(stuList, removeStus);
                     elcConditionFilter.execute(stuList, removeStus);
                     
-                    if (CollectionUtil.isEmpty(stuList))
+                    if (CollectionUtil.isNotEmpty(stuList))
                     {
                         //执行完后人数还是超过上限则进行随机删除
                         int overSize = (invincibleStus.size()
@@ -1105,17 +1109,17 @@ public class ElcResultServiceImpl implements ElcResultService
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("calendarId", dto.getCalendarId());
 		criteria.andEqualTo("turn", round.getTurn());
-		criteria.andEqualTo("chooseObj", round.getElectionObj());
-		List<ElcCourseTake> elcCourseTakes =courseTakeDao.selectByExample(example);
-		if(CollectionUtil.isEmpty(elcCourseTakes)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",
-                    I18nUtil.getMsg("轮次对应选课")));
+		criteria.andEqualTo("chooseObj", getChooseObj(round.getElectionObj()));
+		criteria.andEqualTo("mode", round.getMode());
+		Integer index =TableIndexUtil.getIndex(dto.getCalendarId());
+		List<Long> teachingClassIds =courseTakeDao.selectClassByRoundId(round.getId(),dto.getCalendarId(),index);
+		if(CollectionUtil.isEmpty(teachingClassIds)) {
+			throw new ParameterValidateException("该轮次没有选课数据");
 		}
 		AsyncResult resul = AsyncProcessUtil.submitTask("importCampus", new AsyncExecuter() {
             @Override
             public void execute() {
                 AsyncResult result = this.getResult();
-            	List<Long> teachingClassIds = elcCourseTakes.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
             	result.setTotal(teachingClassIds.size());
             	int num = 0;
         		for(Long teachingClassId :teachingClassIds) {
@@ -1130,6 +1134,18 @@ public class ElcResultServiceImpl implements ElcResultService
             }
         });
 		return resul;
+	}
+	
+	private int getChooseObj(String electionObj) {
+		Integer chooseObj = null;
+		if("ADMIN".equals(electionObj)) {
+			chooseObj = 3;
+		}else if ("DEPART_ADMIN".equals(electionObj)) {
+			chooseObj = 2;
+		}else {
+			chooseObj = 1;
+		}
+		return chooseObj;
 	}
 	
 }
