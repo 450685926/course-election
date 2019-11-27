@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,7 @@ import com.server.edu.util.async.AsyncExecuter;
 import com.server.edu.util.async.AsyncProcessUtil;
 import com.server.edu.util.async.AsyncResult;
 
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -55,6 +59,9 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     
     @Autowired
     private ElecRoundStuDao elecRoundStuDao;
+
+    @Autowired
+    private SqlSessionFactory factory;
     
     @Autowired
     private RedisTemplate<String, AsyncResult> redisTemplate;
@@ -220,6 +227,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
 
+    @Transactional
 	@Override
 	public AsyncResult asyncBatchAddStudent(StudentDto studentDto) {
 		AsyncResult result = AsyncProcessUtil.submitTask("asyncBatchAddStudent", new AsyncExecuter() {
@@ -239,17 +247,40 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
 		                elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
 		                stuList.add(elcAffinityCoursesStds);
 		            });
-		            resultCount = elcAffinityCoursesStdsDao.batchInsert(stuList);
+
+                    SqlSession session = factory.openSession(ExecutorType.BATCH,false);
+                    ElcAffinityCoursesStdsDao mapper = session.getMapper(ElcAffinityCoursesStdsDao.class);
+                    for (int i = 0; i <stuList.size() ; i++) {
+                        mapper.insert(stuList.get(i));
+                        if(i%40==0){//每40条提交一次防止内存溢出
+                            result.setDoneCount(i+1);
+                            String counts = String.format("已经添加成功的数据", i+1);
+                            result.setMsg(counts);
+                            redisTemplate.opsForValue().getAndSet("commonAsyncProcessKey-"+result.getKey(), result);
+                            session.commit();
+                            session.clearCache();
+                        }
+                    }
+                    session.commit();
+                    session.clearCache();
+
+
+
+
+
+
+		            /*resultCount = elcAffinityCoursesStdsDao.batchInsert(stuList);
 		            result.setDoneCount(resultCount);
 		            redisTemplate.opsForValue().getAndSet("commonAsyncProcessKey-"+result.getKey(), result);
 		            if (resultCount <= Constants.ZERO)
 		            {
 		            	result.setMsg(I18nUtil.getMsg("common.saveError",
 		                        I18nUtil.getMsg("elcAffinity.courses")));
-		                /*throw new ParameterValidateException(
+		                throw new ParameterValidateException(
 		                    I18nUtil.getMsg("common.saveError",
-		                        I18nUtil.getMsg("elcAffinity.courses")));*/
-		            }
+		                        I18nUtil.getMsg("elcAffinity.courses")));
+
+		            }*/
 		        }
 			}}
 		);

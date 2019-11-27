@@ -76,6 +76,10 @@
         re.CHOOSE_OBJ_ chooseObj,
         re.PAID_ paid,
         st.NAME_ studentName,
+        st.GRADE_ grade,
+        st.FACULTY_ faculty,
+        st.PROFESSION_ profession,
+        co.COLLEGE_ college,
         re.COURSE_CODE_ courseCode,
         co.NAME_ courseName,
         te.COURSE_LABEL_ID_ label,
@@ -116,6 +120,18 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
                 and co.NAME_ = #{courseName,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and st.GRADE_ = #{grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and st.FACULTY_ = #{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                and st.PROFESSION_ = #{profession,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseFaculty)">
+                and co.COLLEGE_ = #{courseFaculty,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and co.IS_ELECTIVE_ = #{nature,jdbcType=VARCHAR}
