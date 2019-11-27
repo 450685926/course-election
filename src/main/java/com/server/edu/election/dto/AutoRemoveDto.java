@@ -19,7 +19,7 @@ public class AutoRemoveDto
     @NotNull
     private Long teachingClassId;
     
-    /**删除特殊学生*/
+    /**是否不删除特殊学生*/
     private Boolean invincibleStu;
     
     /**删除选先学生*/
