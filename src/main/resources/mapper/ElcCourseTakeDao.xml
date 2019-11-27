@@ -2068,7 +2068,7 @@
         <if test="paid !=null">
             and el.PAID_ = #{paid}
         </if>
-    </select>
+    </select> 
     <select id="getRetakeNumber" resultType="java.util.List">
         SELECT
         count(ID_)
@@ -2076,5 +2076,21 @@
         WHERE  el.COURSE_TAKE_TYPE_ = 2
         AND el.STUDENT_ID_ = ${studentId}
        	GROUP BY el.COURSE_CODE_
+    </select>
+   <select id="selectClassByRoundId" resultType="java.util.List">
+		SELECT DISTINCT
+			t1.TEACHING_CLASS_ID_
+		FROM
+			elc_course_takes_t_${index} t1
+		WHERE
+			t1.TEACHING_CLASS_ID_ IN (
+				SELECT
+					t.TEACHING_CLASS_ID_
+				FROM
+					election_rounds_cour_t t
+				WHERE
+					t.ROUNDS_ID_ = #{roundId}
+			)
+		AND t1.CALENDAR_ID_ = {calendarId}
     </select>
 </mapper>
