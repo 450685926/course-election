@@ -313,8 +313,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition) {
-//        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        String dptId = "1";
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         condition.getCondition().setDeptId(dptId);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> recycleCourse =
