@@ -549,8 +549,11 @@ public class ElcResultServiceImpl implements ElcResultService
             Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
                 .map(aff -> aff.getCourseCode() + "-" + aff.getStudentId())
                 .collect(toSet());
+            //普通学生集合
             List<Student> normalStus = new ArrayList<>();
+            //特殊学生集合
             List<Student> invincibleStus = new ArrayList<>();
+            //优先学生集合
             List<Student> affinityStus = new ArrayList<>();
             //把学生分类(普通学生、特殊学生、优先学生)
             for (ElcCourseTake take : takes)
@@ -577,7 +580,7 @@ public class ElcResultServiceImpl implements ElcResultService
             {
                 invincibleStus.clear();
             }
-            if (dto.getAffinityStu())
+            if (!Boolean.TRUE.equals(dto.getAffinityStu()))
             {
                 affinityStus.clear();
             }
