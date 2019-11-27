@@ -573,15 +573,14 @@ public class ElcResultServiceImpl implements ElcResultService
                 }
             }
             
-            if (!Boolean.TRUE.equals(dto.getInvincibleStu()))
+            if (dto.getInvincibleStu())
             {
                 invincibleStus.clear();
             }
-            if (!Boolean.TRUE.equals(dto.getAffinityStu()))
+            if (dto.getAffinityStu())
             {
                 affinityStus.clear();
             }
-            
             List<String> removeStus = new ArrayList<>();
             if (invincibleStus.size() + affinityStus.size()
                 + normalStus.size() > teachingClass.getNumber())
