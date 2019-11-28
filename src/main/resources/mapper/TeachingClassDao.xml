@@ -546,7 +546,7 @@
    <update id="updateReserveProportion" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"
       separator=";">
-      update teaching_class_t set RESERVE_NUMBER_ = #{item.reserveNumber} where
+      update teaching_class_t set RESERVE_NUMBER_ = #{item.reserveNumber} ,RESERVE_NUMBER_RATE_ = #{item.reserveNumberRate} where
       ID_ = #{item.id}
     </foreach>
    </update>
