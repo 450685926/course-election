@@ -62,7 +62,7 @@ public class ElcRebuildChargeTimeSetServiceImpl implements ElcRebuildChargeTimeS
 	public void checkTime(Long calendarId) {
 		Example example = new Example(ElcRebuildChargeTimeSet.class);
 		Date date = new Date();
-		example.createCriteria().andEqualTo("calendarId",108L)
+		example.createCriteria().andEqualTo("calendarId",calendarId)
 				.andEqualTo("status",1)
 				.andLessThanOrEqualTo("strattime",date)
 				.andGreaterThanOrEqualTo("endtime",date);
