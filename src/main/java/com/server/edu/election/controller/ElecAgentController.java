@@ -8,6 +8,8 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.election.entity.ElcRoundCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -77,9 +79,28 @@ public class ElecAgentController
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime()))
             {
+                Long id = round.getId();
+                // 教务员过滤
+                Session session = SessionUtils.getCurrentSession();
+                if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+                    List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                    ElcRoundCondition roundCondition = dataProvider.getRoundCondition(id);
+                    String facultys = roundCondition.getFacultys();
+                    if (StringUtils.isNotBlank(facultys)) {
+                        boolean flag = true;
+                        for (String deptId : deptIds) {
+                            if (facultys.contains(deptId)) {
+                                flag = false;
+                            }
+                        }
+                        if (flag) {
+                            continue;
+                        }
+                    }
+                }
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
                 List<ElectionRuleVo> rules =
-                    dataProvider.getRules(round.getId());
+                    dataProvider.getRules(id);
                 vo.setRuleVos(rules);
                 data.add(vo);
             }

@@ -3,6 +3,8 @@ package com.server.edu.election.service.impl;
 import java.util.Date;
 import java.util.List;
 
+import com.server.edu.common.enums.GroupDataEnum;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,9 +91,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	@Override
 	public PageResult<ElectionApplyVo> applyUnList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.applyUnList(dto);
-		Session session = SessionUtils.getCurrentSession();
         if (CollectionUtil.isNotEmpty(applylist))
         {
             Example roundExample = new Example(ElectionRounds.class);
@@ -281,7 +283,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         ElectionApply apply = electionApplyDao.selectOneByExample(example);
         if (apply != null)
         {
-            apply.setApply(Constants.ZERO);
+            apply.setApply(Constants.AGENTELC);
             electionApplyDao.updateByPrimaryKeySelective(apply);
         }
         
@@ -332,7 +334,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
-        
         ElecContextUtil
             .setElecApplyCourse(studentId, electionApplys);
     }

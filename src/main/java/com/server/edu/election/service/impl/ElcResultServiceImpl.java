@@ -485,6 +485,7 @@ public class ElcResultServiceImpl implements ElcResultService
         	for(TeachingClass temp:teachingClasses) {
         		int reserveNumber = new BigDecimal(temp.getNumber()).multiply(reserveProportion).divide(hundred, BigDecimal.ROUND_UP).intValue();
         		temp.setReserveNumber(reserveNumber);
+        		temp.setReserveNumberRate(reserveProportion.doubleValue());
         	}
         	classDao.updateReserveProportion(teachingClasses);
     	}

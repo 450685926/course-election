@@ -664,13 +664,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                             .query(DictTypeEnum.X_YX.getType(), value);
                     return dict;
                 });
-        design.addCell(I18nUtil.getMsg("exemptionApply.turn"), "courseTakeType").setValueHandler(
+        design.addCell(I18nUtil.getMsg("修读类别"), "courseTakeType").setValueHandler(
                 (value, rawData, cell) -> {
                     String dict = dictionaryService
                             .query(DictTypeEnum.X_XDLX.getType(), value);
                     return dict;
                 });
-        design.addCell(I18nUtil.getMsg("修读类别"), "turn");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.turn"), "turn");
         design.addCell("筛选标签", "labelName");
 
         return design;

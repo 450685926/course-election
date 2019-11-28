@@ -42,7 +42,7 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t2.FACULTY_ = #{faculty}
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
         and t2.PROFESSION_ = #{profession}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
