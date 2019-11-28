@@ -229,7 +229,7 @@
     from
     (select t1.CALENDAR_ID_,t1.COURSE_CODE_,t4.NAME_,t4.NATURE_,t4.COLLEGE_,t5.ID_ INFO_ROOM_ID_,
     t1.CAMPUS_,t4.TRAINING_LEVEL_,t4.CREDITS_,t2.ROOM_ID_,t2.ROOM_NAME_,COUNT(DISTINCT t6.ID_) ROOM_NUMBER_,
-    t1.ID_ EXAM_INFO_ID_,t1.EXAM_TIME_,t2.ID_ EXAM_ROOM_ID_,GROUP_CONCAT(DISTINCT t3.TEACHER_CODE_) TEACHER_CODE_,GROUP_CONCAT(DISTINCT t3.TEACHER_NAME_) TEACHER_NAME_
+    t1.ID_ EXAM_INFO_ID_,IF(LENGTH(t1.EXAM_TIME_) > 0 ,t1.EXAM_TIME_,t1.REMARK_) EXAM_TIME_,t2.ID_ EXAM_ROOM_ID_,GROUP_CONCAT(DISTINCT t3.TEACHER_CODE_) TEACHER_CODE_,GROUP_CONCAT(DISTINCT t3.TEACHER_NAME_) TEACHER_NAME_
     from graduate_exam_info_t t1
     LEFT JOIN graduate_exam_info_room_t t5 on t1.ID_ = t5.EXAM_INFO_ID_
     left join graduate_exam_room_t t2 on t5.EXAM_ROOM_ID_ = t2.ID_
@@ -292,7 +292,7 @@
         or tt.TEACHER_NAME_ like concat ('%', #{keyword},'%') or tt.TEACHER_CODE_ like concat ('%', #{keyword},'%'))
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
-        and (tt.TEACHER_CODE_ like concat ('%', #{teacherCode},'%') and tt.TEACHER_NAME_ like concat ('%', #{teacherCode},'%'))
+        and (tt.TEACHER_CODE_ like concat ('%', #{teacherCode},'%') and tt.TEACHER_NAME_ like concat ('%', #{teacherName},'%'))
       </if>
     </where>
   </select>
@@ -597,38 +597,68 @@
     </select>
 
     <select id="listMyExamTimeFinal" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
-        select tt.CALENDAR_ID_ calendarId,tt.STUDENT_ID_ studentCode,tt.COURSE_CODE_ courseCode,tt.TEACHING_CLASS_ID_ teachingClassId,tt.NAME_ courseName,
-        ss.EXAM_TIME_ examTime,ss.ROOM_ID_ roomId,ss.ROOM_NAME_ roomName,ss.REMARK_ remark,ss.EXAM_SITUATION_ examSituation
-         from
-            (select t1.CALENDAR_ID_,t1.STUDENT_ID_,t1.COURSE_CODE_,t1.TEACHING_CLASS_ID_,t2.CAMPUS_,t3.NAME_ from elc_course_takes_t_${mode} t1
-            LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
-            LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
-            where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_ID_ = #{studentCode} and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_ID_ not in (
-            select STUDENT_ID_ from score_student_result_t where STUDENT_ID_ =#{studentCode} and COURSE_CODE_ = t1.COURSE_CODE_ and CALENDAR_ID_ = #{calendarId}
-            )
-            ) tt
-            JOIN
-            (select t1.COURSE_CODE_,t1.CAMPUS_,IF(LENGTH(t1.EXAM_TIME_) > 0,t1.EXAM_TIME_,t1.REMARK_) EXAM_TIME_,t3.ROOM_ID_,t3.ROOM_NAME_,t2.STUDENT_CODE_,t2.EXAM_SITUATION_ , t2.REMARK_  from graduate_exam_info_t t1
-            LEFT JOIN graduate_exam_student_t t2 on t1.ID_ = t2.EXAM_INFO_ID_ and t2.STUDENT_CODE_  =#{studentCode}
-            LEFT JOIN graduate_exam_room_t t3 on t3.ID_ = t2.EXAM_ROOM_ID_
-            where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projId} and EXAM_TYPE_ = #{examType} and EXAM_STATUS_ = 2) ss
-            on tt.COURSE_CODE_ = ss.COURSE_CODE_
+        select t1.STUDENT_CODE_ studentCode,t2.CALENDAR_ID_ calendarId,t2.COURSE_CODE_ courseCode,t4.NAME_ courseName,t2.EXAM_TIME_ examTime,t3.ROOM_ID_ roomId,t3.ROOM_NAME_ roomName,t1.TEACHING_CLASS_ID_ teachingClassId,t1.EXAM_SITUATION_ examSituation,t1.REMARK_ remark
+        from graduate_exam_student_t t1
+        join graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
+        join course_t t4 on t2.COURSE_CODE_ = t4.CODE_
+        JOIN graduate_exam_room_t t3 on t1.EXAM_ROOM_ID_ = t3.ID_
+        where STUDENT_CODE_ = #{studentCode} and t2.PROJ_ID_ = #{projId} and t2.EXAM_TYPE_ = #{examType} and t2.EXAM_STATUS_ = 2 and CALENDAR_ID_ = #{calendarId}
+        UNION
+        select t5.STUDENT_ID_ studentCode,t4.CALENDAR_ID_ calendarId,t4.COURSE_CODE_ courseCode,t5.NAME_ courseName,IF(LENGTH(t4.EXAM_TIME_) > 0,t4.EXAM_TIME_,t4.REMARK_) examTime,NULL,NULL,NULL,NULL,NULL
+        from
+        (select t1.CALENDAR_ID_,t1.COURSE_CODE_,t2.CAMPUS_,t1.STUDENT_ID_,t3.NAME_ from elc_course_takes_t_${mode} t1
+        LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
+        LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
+        where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_ID_ = #{studentCode} and t3.MANAGER_DEPT_ID_ =#{projId}
+         and t1.COURSE_CODE_ not in ( select COURSE_CODE_ from score_student_result_t where STUDENT_ID_ =#{studentCode} and COURSE_CODE_ = t1.COURSE_CODE_ and CALENDAR_ID_ = #{calendarId}
+        )) t5
+        join graduate_exam_info_t t4 on t5.COURSE_CODE_ = t4.COURSE_CODE_ and t5.CAMPUS_ = t4.CAMPUS_ and t5.CALENDAR_ID_ = t4.CALENDAR_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCodes)">
+                and t4.COURSE_CODE_ not in
+                <foreach collection="courseCodes" item="courseCode" open="(" separator="," close=")">
+                    #{courseCode}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(notice)">
+                and t4.NOTICE_ = #{notice}
+            </if>
+            and t4.PROJ_ID_ = #{projId} and t4.EXAM_STATUS_ = 2 and t4.EXAM_TYPE_ = #{examType}
+        </where>
+
     </select>
 
     <select id="listMyExamTimeMakeUp" resultType="com.server.edu.exam.vo.MyGraduateExam" parameterType="com.server.edu.exam.vo.MyGraduateExam">
-        select tt.CALENDAR_ID_ calendarId,tt.STUDENT_CODE_ studentCode,tt.COURSE_CODE_ courseCode,tt.TEACHING_CLASS_ID_ teachingClassId,tt.NAME_ courseName,
-        ss.EXAM_TIME_ examTime,ss.ROOM_ID_ roomId,ss.ROOM_NAME_ roomName,ss.REMARK_ remark,ss.EXAM_SITUATION_ examSituation
-         from
-            (
-            select t1.CALENDAR_ID_,t1.STUDENT_CODE_,t1.COURSE_CODE_,t1.TEACHING_CLASS_ID_,t2.CAMPUS_,t3.NAME_ from graduate_exam_apply_examination_t t1
-            LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
-            LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
-            where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_CODE_ = #{studentCode} and t1.PROJ_ID_ = #{projId}) tt
-            JOIN
-            (select t1.COURSE_CODE_,t1.CAMPUS_,IF(LENGTH(t1.EXAM_TIME_) > 0,t1.EXAM_TIME_,t1.REMARK_) EXAM_TIME_,t3.ROOM_ID_,t3.ROOM_NAME_,t2.STUDENT_CODE_,t2.EXAM_SITUATION_ , t2.REMARK_ from graduate_exam_info_t t1
-            LEFT JOIN graduate_exam_student_t t2 on t1.ID_ = t2.EXAM_INFO_ID_ and t2.STUDENT_CODE_ = #{studentCode}
-            LEFT JOIN graduate_exam_room_t t3 on t3.ID_ = t2.EXAM_ROOM_ID_
-            where CALENDAR_ID_ = #{calendarId} and PROJ_ID_ = #{projId} and EXAM_TYPE_ = #{examType} and EXAM_STATUS_ = 2) ss
-            on tt.COURSE_CODE_ = ss.COURSE_CODE_
+        select t1.STUDENT_CODE_ studentCode,t2.CALENDAR_ID_ calendarId,t2.COURSE_CODE_ courseCode,t4.NAME_ courseName,t2.EXAM_TIME_ examTime,t3.ROOM_ID_ roomId,t3.ROOM_NAME_ roomName,t1.TEACHING_CLASS_ID_ teachingClassId,t1.EXAM_SITUATION_ examSituation,t1.REMARK_ remark
+        from graduate_exam_student_t t1
+        join graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
+        join course_t t4 on t2.COURSE_CODE_ = t4.CODE_
+        JOIN graduate_exam_room_t t3 on t1.EXAM_ROOM_ID_ = t3.ID_
+        where STUDENT_CODE_ = #{studentCode} and t2.PROJ_ID_ = #{projId} and t2.EXAM_TYPE_ = #{examType} and t2.EXAM_STATUS_ = 2 and CALENDAR_ID_ = #{calendarId}
+        UNION
+        select t5.STUDENT_CODE_ studentCode,t4.CALENDAR_ID_ calendarId,t4.COURSE_CODE_ courseCode,t5.NAME_ courseName,IF(LENGTH(t4.EXAM_TIME_) > 0,t4.EXAM_TIME_,t4.REMARK_) examTime,NULL,NULL,NULL,NULL,NULL from
+        (select t1.CALENDAR_ID_,t1.COURSE_CODE_,t2.CAMPUS_,t1.STUDENT_CODE_,t3.NAME_ from graduate_exam_apply_examination_t t1
+        LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
+        LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
+        where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_CODE_ = #{studentCode} and t1.PROJ_ID_ = #{projId} and t1.APPLY_STATUS_ = 4) t5
+        join graduate_exam_info_t t4 on t5.COURSE_CODE_ = t4.COURSE_CODE_ and t5.CAMPUS_ = t4.CAMPUS_ and t5.CALENDAR_ID_ = t4.CALENDAR_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCodes)">
+                and t4.COURSE_CODE_ not in
+                <foreach collection="courseCodes" item="courseCode" open="(" separator="," close=")">
+                    #{courseCode}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(notice)">
+                and t4.NOTICE_ = #{notice}
+            </if>
+            and t4.PROJ_ID_ = #{projId} and t4.EXAM_STATUS_ = 2 and t4.EXAM_TYPE_ = #{examType}
+        </where>
     </select>
+
+    <select id="findExamInfoIdsByCourseCode" parameterType="com.server.edu.exam.dto.ExamStudentAddDto" resultType="java.lang.Long">
+        select ID_ from graduate_exam_info_t
+        where CALENDAR_ID_ =#{calendarId} and COURSE_CODE_ =#{courseCode} and EXAM_TYPE_ =#{examType} and PROJ_ID_ =#{projId}
+    </select>
+
 </mapper>

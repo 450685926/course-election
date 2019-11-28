@@ -1,7 +1,12 @@
 package com.server.edu.election.studentelec.service.impl;
 
+import java.util.List;
 import java.util.Objects;
 
+import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,6 +181,15 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public Student findStuRound(Long roundId, String studentId)
     {
         Student stu = stuDao.findStuRound(roundId, studentId);
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            if (stu != null && deptIds.contains(stu.getFaculty())) {
+                return stu;
+            } else {
+                return null;
+            }
+        }
         return stu;
     }
     

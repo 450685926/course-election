@@ -226,6 +226,7 @@ public class RoundCacheService extends AbstractCacheService
         	}else {
         		boolean matchConditionGraduteFlag = contains(con.getTrainingCategorys(), student.getTrainingCategory())
         				&& contains(con.getDegreeTypes(), student.getDegreeType())
+                        && contains(con.getMajors(), student.getProfession())
         				&& contains(con.getFormLearnings(), student.getFormLearning());
         		
         		if (!matchConditionFlag || !matchConditionGraduteFlag) {

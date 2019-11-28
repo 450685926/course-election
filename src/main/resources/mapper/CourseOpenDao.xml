@@ -34,7 +34,6 @@
 			t2.ID_ courseId,
 			t1.COURSE_CODE_,
 			t1.COURSE_NAME_,
-			t1.COURSE_NAME_EN_,
 			t1.TRAINING_LEVEL_,
 			t1.CREDITS_,
 			t1.PERIOD_,

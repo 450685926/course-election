@@ -15,6 +15,15 @@ public class ExamStudentAddDto {
     private Long examRoomId;
     private Long examInfoId;
     private Integer examType;
+    private String projId;
+
+    public String getProjId() {
+        return projId;
+    }
+
+    public void setProjId(String projId) {
+        this.projId = projId;
+    }
 
     public Integer getExamType() {
         return examType;

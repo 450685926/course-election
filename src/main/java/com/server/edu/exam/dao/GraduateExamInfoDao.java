@@ -143,4 +143,8 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
 
     /**查询已发布的学生考试课程信息（可以不排考）*/
     Page<MyGraduateExam> listMyExamTimeMakeUp(MyGraduateExam condition);
+
+    /**更换考场查询课程的所有id*/
+    List<Long> findExamInfoIdsByCourseCode(ExamStudentAddDto condition);
+
 }

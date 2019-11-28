@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 
 /**
@@ -46,7 +47,24 @@ public class RebuildCourseDto {
     private Integer paid;
     
     private Integer type;
-    
+
+    private Integer turn;
+
+    /**
+     * 专业
+     * @return
+     */
+    @Code2Text(DictTypeEnum.G_ZY)
+    private String profession;
+
+    /**
+     * 开课学院
+     */
+    @Code2Text(DictTypeEnum.X_YX)
+    private String courseFaculty;
+
+    @Code2Text(DictTypeEnum.X_XDLX)
+    private Integer courseTakeType;
 
     public Integer getType() {
 		return type;
@@ -297,4 +315,37 @@ public class RebuildCourseDto {
     {
         this.mode = mode;
     }
+
+    public Integer getTurn() {
+        return turn;
+    }
+
+    public void setTurn(Integer turn) {
+        this.turn = turn;
+    }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    public void setProfession(String profession) {
+        this.profession = profession;
+    }
+
+    public String getCourseFaculty() {
+        return courseFaculty;
+    }
+
+    public void setCourseFaculty(String courseFaculty) {
+        this.courseFaculty = courseFaculty;
+    }
+
+    public Integer getCourseTakeType() {
+        return courseTakeType;
+    }
+
+    public void setCourseTakeType(Integer courseTakeType) {
+        this.courseTakeType = courseTakeType;
+    }
+
 }

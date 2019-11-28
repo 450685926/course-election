@@ -1,7 +1,9 @@
 package com.server.edu.exam.vo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @description: 我的考试
@@ -25,14 +27,24 @@ public class MyGraduateExam implements Serializable {
     private Long teachingClassId;
     private String projId;
     private Integer mode;
-    private String noticeRemark;
+    //已排考课程
+    private List<String> courseCodes = new ArrayList<>();
+    private Integer notice;
 
-    public String getNoticeRemark() {
-        return noticeRemark;
+    public List<String> getCourseCodes() {
+        return courseCodes;
     }
 
-    public void setNoticeRemark(String noticeRemark) {
-        this.noticeRemark = noticeRemark;
+    public void setCourseCodes(List<String> courseCodes) {
+        this.courseCodes = courseCodes;
+    }
+
+    public Integer getNotice() {
+        return notice;
+    }
+
+    public void setNotice(Integer notice) {
+        this.notice = notice;
     }
 
     public Integer getMode() {

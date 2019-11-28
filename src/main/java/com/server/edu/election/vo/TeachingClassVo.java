@@ -107,6 +107,12 @@ public class TeachingClassVo extends TeachingClass
      */
     private String bindClassId;
 
+	/**
+	 * 绑定班级序号
+	 * @return
+	 */
+	private String bindClassCode;
+
 	@Code2Text(transformer="K_BKKCXZ")
 	private Integer isElective;
 
@@ -323,5 +329,12 @@ public class TeachingClassVo extends TeachingClass
 	public void setTimeAndRoom(String timeAndRoom) {
 		this.timeAndRoom = timeAndRoom;
 	}
-	
+
+	public String getBindClassCode() {
+		return bindClassCode;
+	}
+
+	public void setBindClassCode(String bindClassCode) {
+		this.bindClassCode = bindClassCode;
+	}
 }

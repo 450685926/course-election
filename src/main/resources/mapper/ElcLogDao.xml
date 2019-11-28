@@ -83,6 +83,12 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.deptId)">
             and t2.MANAGER_DEPT_ID_ = #{query.deptId}
         </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculties)">
+            and t2.FACULTY_ in
+            <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                #{fy}
+            </foreach>
+        </if>
   	</where>
   	order by t1.CREATED_AT_ DESC
   </select>

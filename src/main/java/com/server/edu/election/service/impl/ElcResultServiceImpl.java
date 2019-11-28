@@ -6,6 +6,7 @@ import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.ClassroomN;
 import com.server.edu.common.entity.Teacher;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -15,6 +16,7 @@ import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.dao.*;
@@ -31,6 +33,7 @@ import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcAffinityCoursesStdsVo;
 import com.server.edu.election.vo.ElcResultCountVo;
 import com.server.edu.election.vo.TeachingClassLimitVo;
 import com.server.edu.election.vo.TeachingClassVo;
@@ -144,6 +147,9 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private RoundCacheService roundCacheService;
     
+    @Autowired
+    private ElecRoundsDao elecRoundsDao;
+    
     @Override
     public PageResult<TeachingClassVo> listPage(
         PageCondition<ElcResultQuery> page)
@@ -152,13 +158,14 @@ public class ElcResultServiceImpl implements ElcResultService
     	
     	Session session = SessionUtils.getCurrentSession();
     	//通过session信息获取访问接口人员角色
-    	if (!session.isAdmin() && StringUtils.equals(session.getCurrentRole(), "1")) {
-    		condition.setFaculty(session.getFaculty());
+    	if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(condition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                condition.setFaculties(deptIds);
+            }
 		}
-    	
-        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<TeachingClassVo> listPage = null;
-        listPage = getListPage(condition, listPage);
+        listPage = getListPage(condition, listPage, page);
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
     		// 添加教室容量
@@ -234,10 +241,11 @@ public class ElcResultServiceImpl implements ElcResultService
 		    }
 	}
 
-	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage) {
+	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage, PageCondition<ElcResultQuery> page) {
 		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
         		condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
+                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listScreeningPage(condition);
         	}else {
                 List<String> includeCodes = new ArrayList<>();
@@ -260,6 +268,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
                 condition.setIncludeCodes(includeCodes);
+                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listPage(condition);
 			}
 		}
@@ -537,16 +546,18 @@ public class ElcResultServiceImpl implements ElcResultService
             List<String> invincibleStdIds =
                 invincibleStdsDao.selectAllStudentId();
             // 优先学生
-            List<ElcAffinityCoursesStds> affinityCoursesStds =
-                affinityCoursesStdsDao.selectAll();
+            List<ElcAffinityCoursesStdsVo> affinityCoursesStds =
+                affinityCoursesStdsDao.getStudentByCourseId(course);
             Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
-                .map(aff -> aff.getCourseId() + "-" + aff.getStudentId())
+                .map(aff -> aff.getCourseCode() + "-" + aff.getStudentId())
                 .collect(toSet());
-            
+            //普通学生集合
             List<Student> normalStus = new ArrayList<>();
+            //特殊学生集合
             List<Student> invincibleStus = new ArrayList<>();
+            //优先学生集合
             List<Student> affinityStus = new ArrayList<>();
-            //把学生分类(普通学生、优先学生、特殊学生)
+            //把学生分类(普通学生、特殊学生、优先学生)
             for (ElcCourseTake take : takes)
             {
                 String courseCode = take.getCourseCode();
@@ -567,7 +578,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 }
             }
             
-            if (!Boolean.TRUE.equals(dto.getInvincibleStu()))
+            if (dto.getInvincibleStu())
             {
                 invincibleStus.clear();
             }
@@ -575,7 +586,6 @@ public class ElcResultServiceImpl implements ElcResultService
             {
                 affinityStus.clear();
             }
-            
             List<String> removeStus = new ArrayList<>();
             if (invincibleStus.size() + affinityStus.size()
                 + normalStus.size() > teachingClass.getNumber())
@@ -602,7 +612,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     gradAndPreFilter.execute(stuList, removeStus);
                     elcConditionFilter.execute(stuList, removeStus);
                     
-                    if (CollectionUtil.isEmpty(stuList))
+                    if (CollectionUtil.isNotEmpty(stuList))
                     {
                         //执行完后人数还是超过上限则进行随机删除
                         int overSize = (invincibleStus.size()
@@ -996,7 +1006,7 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Transactional
 	public void updateClassBind(ElcTeachingClassBind elcTeachingClassBind) {
 		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
-		if(bind!=null) {
+		if(bind==null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
                     I18nUtil.getMsg("election.elcTeachingClassBind")));
 		}
@@ -1095,7 +1105,6 @@ public class ElcResultServiceImpl implements ElcResultService
         elcCourseTakeService.add(dto);                                                             
 	}
 	
-	
 	@Override
 	@Transactional
 	public AsyncResult autoBatchRemove(BatchAutoRemoveDto dto) {
@@ -1109,17 +1118,17 @@ public class ElcResultServiceImpl implements ElcResultService
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("calendarId", dto.getCalendarId());
 		criteria.andEqualTo("turn", round.getTurn());
-		criteria.andEqualTo("chooseObj", round.getElectionObj());
-		List<ElcCourseTake> elcCourseTakes =courseTakeDao.selectByExample(example);
-		if(CollectionUtil.isEmpty(elcCourseTakes)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",
-                    I18nUtil.getMsg("轮次对应选课")));
+		criteria.andEqualTo("chooseObj", getChooseObj(round.getElectionObj()));
+		criteria.andEqualTo("mode", round.getMode());
+		Integer index =TableIndexUtil.getIndex(dto.getCalendarId());
+		List<Long> teachingClassIds =courseTakeDao.selectClassByRoundId(round.getId(),dto.getCalendarId(),index);
+		if(CollectionUtil.isEmpty(teachingClassIds)) {
+			throw new ParameterValidateException("该轮次没有选课数据");
 		}
-		AsyncResult resul = AsyncProcessUtil.submitTask("importCampus", new AsyncExecuter() {
+		AsyncResult resul = AsyncProcessUtil.submitTask("autoBatchRemove", new AsyncExecuter() {
             @Override
             public void execute() {
                 AsyncResult result = this.getResult();
-            	List<Long> teachingClassIds = elcCourseTakes.stream().map(ElcCourseTake::getTeachingClassId).collect(Collectors.toList());
             	result.setTotal(teachingClassIds.size());
             	int num = 0;
         		for(Long teachingClassId :teachingClassIds) {
@@ -1135,29 +1144,37 @@ public class ElcResultServiceImpl implements ElcResultService
         });
 		return resul;
 	}
-
+	
+	private int getChooseObj(String electionObj) {
+		Integer chooseObj = null;
+		if("ADMIN".equals(electionObj)) {
+			chooseObj = 3;
+		}else if ("DEPART_ADMIN".equals(electionObj)) {
+			chooseObj = 2;
+		}else {
+			chooseObj = 1;
+		}
+		return chooseObj;
+	}
+	
     @Override
+    @Transactional
     public void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo) {
-        classVo.setId(teachingClassId);
         // 更新配课建议学生
-        if(classVo.getLstSuggestStud()!=null){
-            suggestStudentDao.deleteByClassId(classVo.getId());
-        }
+        suggestStudentDao.deleteByClassId(teachingClassId);
         if (CollectionUtil.isNotEmpty(classVo.getLstSuggestStud()))
         {
             classVo.getLstSuggestStud().forEach(student -> {
-                student.setTeachingClassId(classVo.getId());
+                student.setTeachingClassId(teachingClassId);
                 suggestStudentDao.insertSelective(student);
             });
         }
         // 更新选课限制专业
-        if(classVo.getLstElectiveProf()!=null){
-            professionDao.deleteByClassId(teachingClassId);
-        }
+        professionDao.deleteByClassId(teachingClassId);
         if (CollectionUtil.isNotEmpty(classVo.getLstElectiveProf()))
         {
             classVo.getLstElectiveProf().forEach(restrict -> {
-                restrict.setTeachingClassId(classVo.getId());
+                restrict.setTeachingClassId(teachingClassId);
                 professionDao.insertSelective(restrict);
             });
         }
@@ -1168,12 +1185,12 @@ public class ElcResultServiceImpl implements ElcResultService
         } else
         {
             // 先删除，保证不会出现重复的记录
-            classElectiveRestrictAttrDao.deleteByClassId(classVo.getId());
+            classElectiveRestrictAttrDao.deleteByClassId(teachingClassId);
             if (classVo.getElectiveRestrictAttr() == null)
             {
                 classVo.setElectiveRestrictAttr(new TeachingClassElectiveRestrictAttr());
             }
-            classVo.getElectiveRestrictAttr().setTeachingClassId(classVo.getId());
+            classVo.getElectiveRestrictAttr().setTeachingClassId(teachingClassId);
             classVo.getElectiveRestrictAttr().setCreatedAt(new Date());
             classVo.getElectiveRestrictAttr().setUpdatedAt(new Date());
             classElectiveRestrictAttrDao.insertSelective(classVo.getElectiveRestrictAttr());

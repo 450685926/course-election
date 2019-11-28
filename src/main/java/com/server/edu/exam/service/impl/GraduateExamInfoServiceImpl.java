@@ -153,7 +153,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Integer startMinute = null;
         Integer endMinute = null;
 
-        String examTime = null;
+        String examTime = "";
         //时间地点
         if(info.getNotice() == ApplyStatus.NOT_EXAMINE){
             Date examDate = info.getExamDate();
@@ -321,6 +321,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
              remark = builder.substring(0, builder.length() - 1)+"排考";
         }
 
+        if(remark.length() > 256){
+            throw new ParameterValidateException("合考课程过多,无法进行合考");
+        }
         OccupyUtils.addOccupy(room, examInfo,remark);
 
     }

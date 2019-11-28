@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
@@ -141,6 +142,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
         }
         cond.setIncludeCourseCodes(includeCodes);
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(cond.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                cond.setFaculties(deptIds);
+            }
+        }
         PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
