@@ -4,6 +4,9 @@ import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcPeFreeStds;
+
+import java.util.List;
+
 @CodeI18n
 public class ElcPeFreeStdsDto extends ElcPeFreeStds {
     private static final long serialVersionUID = 1L;
@@ -70,7 +73,18 @@ public class ElcPeFreeStdsDto extends ElcPeFreeStds {
     private String codeAndName;
     
     private String projectId;
-    
+
+    private List<String> faculties;
+
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
+
+
     public String getCodeAndName() {
 		return codeAndName;
 	}

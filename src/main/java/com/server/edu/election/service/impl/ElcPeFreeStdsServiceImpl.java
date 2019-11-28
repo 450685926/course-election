@@ -2,6 +2,10 @@ package com.server.edu.election.service.impl;
 
 import java.util.List;
 
+import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -31,9 +35,16 @@ public class ElcPeFreeStdsServiceImpl implements ElcPeFreeStdsService
     public PageInfo<ElcPeFreeStdsVo> list(
         PageCondition<ElcPeFreeStdsDto> condition)
     {
+        ElcPeFreeStdsDto elcPeFreeStdsDto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            elcPeFreeStdsDto.setFaculties(deptIds);
+        }
+
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         List<ElcPeFreeStdsVo> list =
-            elcPeFreeStdsDao.selectElcPeFreeStds(condition.getCondition());
+            elcPeFreeStdsDao.selectElcPeFreeStds(elcPeFreeStdsDto);
         PageInfo<ElcPeFreeStdsVo> pageInfo = new PageInfo<>(list);
         return pageInfo;
     }
@@ -71,9 +82,15 @@ public class ElcPeFreeStdsServiceImpl implements ElcPeFreeStdsService
     public PageInfo<ElcPeFreeStdsVo> addStudentInfo(
         PageCondition<ElcPeFreeStdsDto> condition)
     {
+        ElcPeFreeStdsDto elcPeFreeStdsDto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            elcPeFreeStdsDto.setFaculties(deptIds);
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         List<ElcPeFreeStdsVo> list =
-            elcPeFreeStdsDao.selectElcStudents(condition.getCondition());
+            elcPeFreeStdsDao.selectElcStudents(elcPeFreeStdsDto);
         PageInfo<ElcPeFreeStdsVo> pageInfo = new PageInfo<>(list);
         return pageInfo;
     }

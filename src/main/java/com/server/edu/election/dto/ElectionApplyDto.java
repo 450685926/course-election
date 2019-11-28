@@ -3,6 +3,9 @@ package com.server.edu.election.dto;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElectionApply;
+
+import java.util.List;
+
 @CodeI18n
 public class ElectionApplyDto extends  ElectionApply{
     private static final long serialVersionUID = 1L;
@@ -29,10 +32,17 @@ public class ElectionApplyDto extends  ElectionApply{
      */
     @Code2Text(transformer = "G_ZY")
     private String profession;
-    
-    
-    
-    
+
+	private List<String> faculties;
+
+	public List<String> getFaculties() {
+		return faculties;
+	}
+
+	public void setFaculties(List<String> faculties) {
+		this.faculties = faculties;
+	}
+
 	public String getTrainingLevel() {
 		return trainingLevel;
 	}
