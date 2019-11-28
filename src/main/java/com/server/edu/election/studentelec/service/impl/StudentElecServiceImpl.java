@@ -2,8 +2,11 @@ package com.server.edu.election.studentelec.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.election.entity.ElcRoundCondition;
+import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang.StringUtils;
@@ -180,17 +183,49 @@ public class StudentElecServiceImpl extends AbstractCacheService
     @Override
     public Student findStuRound(Long roundId, String studentId)
     {
-        Student stu = stuDao.findStuRound(roundId, studentId);
-        Session session = SessionUtils.getCurrentSession();
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-            if (stu != null && deptIds.contains(stu.getFaculty())) {
-                return stu;
-            } else {
-                return null;
+        Student stu = stuDao.findStudentByCode(studentId);
+        if (stu != null) {
+            ElcRoundCondition roundCondition = dataProvider.getRoundCondition(roundId);
+            if (compare(roundCondition.getCampus(), stu.getCampus())
+                    && compare(roundCondition.getFacultys(), stu.getFaculty())
+                    && compare(roundCondition.getGrades(), stu.getGrade() + "")
+                    && compare(roundCondition.getTrainingLevels(), stu.getTrainingLevel())
+
+            ) {
+                List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+                if (CollectionUtil.isNotEmpty(rules)) {
+                    List<String> collect = rules.stream().map(ElectionRuleVo::getServiceName).collect(Collectors.toList());
+                    if (collect.contains("MustInElectableListRule")) {
+                        Student student = stuDao.findStuRound(roundId, studentId);
+                        if (student == null) {
+                            return null;
+                        }
+                    }
+                }
+            }
+            Session session = SessionUtils.getCurrentSession();
+            if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                if (stu.getFaculty() != null && deptIds.contains(stu.getFaculty())) {
+                    return stu;
+                } else {
+                    return null;
+                }
             }
         }
         return stu;
     }
-    
+
+    /**
+     * 比较学生是否符合轮次筛选条件
+     * @param round 轮次学院，年级等条件
+     * @param stu 学生学院，年级等条件
+     * @return
+     */
+    private boolean compare(String round, String stu) {
+        if (StringUtils.isNotBlank(round) && (StringUtils.isBlank(stu) || !round.contains(stu))) {
+            return false;
+        }
+        return true;
+    }
 }
