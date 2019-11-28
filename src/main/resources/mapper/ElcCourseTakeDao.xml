@@ -2126,6 +2126,6 @@
 				WHERE
 					t.ROUNDS_ID_ = #{roundId}
 			)
-		AND t1.CALENDAR_ID_ = {calendarId}
+		AND t1.CALENDAR_ID_ = #{calendarId}
     </select>
 </mapper>

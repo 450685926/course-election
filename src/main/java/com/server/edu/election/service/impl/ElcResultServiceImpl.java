@@ -1125,7 +1125,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		if(CollectionUtil.isEmpty(teachingClassIds)) {
 			throw new ParameterValidateException("该轮次没有选课数据");
 		}
-		AsyncResult resul = AsyncProcessUtil.submitTask("importCampus", new AsyncExecuter() {
+		AsyncResult resul = AsyncProcessUtil.submitTask("autoBatchRemove", new AsyncExecuter() {
             @Override
             public void execute() {
                 AsyncResult result = this.getResult();
