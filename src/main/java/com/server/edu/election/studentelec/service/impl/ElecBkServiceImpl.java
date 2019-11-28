@@ -285,8 +285,8 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRespose respose = context.getRespose();
         Date date = new Date();
         String studentId = stu.getStudentId();
-        
         Long roundId = request.getRoundId();
+
         ElectionRounds round = dataProvider.getRound(roundId);
         Long teachClassId = teachClass.getTeachClassId();
         String TeachClassCode = teachClass.getTeachClassCode();

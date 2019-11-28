@@ -6,6 +6,7 @@ import com.ibm.icu.math.BigDecimal;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.ClassroomN;
 import com.server.edu.common.entity.Teacher;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -157,11 +158,12 @@ public class ElcResultServiceImpl implements ElcResultService
     	
     	Session session = SessionUtils.getCurrentSession();
     	//通过session信息获取访问接口人员角色
-    	if (!session.isAdmin() && StringUtils.equals(session.getCurrentRole(), "1")) {
-    		condition.setFaculty(session.getFaculty());
+    	if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(condition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                condition.setFaculties(deptIds);
+            }
 		}
-    	
-//        PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<TeachingClassVo> listPage = null;
         listPage = getListPage(condition, listPage, page);
         List<TeachingClassVo> list = listPage.getResult();
@@ -549,8 +551,11 @@ public class ElcResultServiceImpl implements ElcResultService
             Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
                 .map(aff -> aff.getCourseCode() + "-" + aff.getStudentId())
                 .collect(toSet());
+            //普通学生集合
             List<Student> normalStus = new ArrayList<>();
+            //特殊学生集合
             List<Student> invincibleStus = new ArrayList<>();
+            //优先学生集合
             List<Student> affinityStus = new ArrayList<>();
             //把学生分类(普通学生、特殊学生、优先学生)
             for (ElcCourseTake take : takes)
@@ -573,7 +578,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 }
             }
             
-            if (!Boolean.TRUE.equals(dto.getInvincibleStu()))
+            if (dto.getInvincibleStu())
             {
                 invincibleStus.clear();
             }
@@ -581,7 +586,6 @@ public class ElcResultServiceImpl implements ElcResultService
             {
                 affinityStus.clear();
             }
-            
             List<String> removeStus = new ArrayList<>();
             if (invincibleStus.size() + affinityStus.size()
                 + normalStus.size() > teachingClass.getNumber())
@@ -1002,7 +1006,7 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Transactional
 	public void updateClassBind(ElcTeachingClassBind elcTeachingClassBind) {
 		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
-		if(bind!=null) {
+		if(bind==null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
                     I18nUtil.getMsg("election.elcTeachingClassBind")));
 		}
@@ -1121,7 +1125,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		if(CollectionUtil.isEmpty(teachingClassIds)) {
 			throw new ParameterValidateException("该轮次没有选课数据");
 		}
-		AsyncResult resul = AsyncProcessUtil.submitTask("importCampus", new AsyncExecuter() {
+		AsyncResult resul = AsyncProcessUtil.submitTask("autoBatchRemove", new AsyncExecuter() {
             @Override
             public void execute() {
                 AsyncResult result = this.getResult();
@@ -1156,26 +1160,21 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
     @Transactional
     public void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo) {
-        classVo.setId(teachingClassId);
         // 更新配课建议学生
-        if(classVo.getLstSuggestStud()!=null){
-            suggestStudentDao.deleteByClassId(classVo.getId());
-        }
+        suggestStudentDao.deleteByClassId(teachingClassId);
         if (CollectionUtil.isNotEmpty(classVo.getLstSuggestStud()))
         {
             classVo.getLstSuggestStud().forEach(student -> {
-                student.setTeachingClassId(classVo.getId());
+                student.setTeachingClassId(teachingClassId);
                 suggestStudentDao.insertSelective(student);
             });
         }
         // 更新选课限制专业
-        if(classVo.getLstElectiveProf()!=null){
-            professionDao.deleteByClassId(teachingClassId);
-        }
+        professionDao.deleteByClassId(teachingClassId);
         if (CollectionUtil.isNotEmpty(classVo.getLstElectiveProf()))
         {
             classVo.getLstElectiveProf().forEach(restrict -> {
-                restrict.setTeachingClassId(classVo.getId());
+                restrict.setTeachingClassId(teachingClassId);
                 professionDao.insertSelective(restrict);
             });
         }
@@ -1186,12 +1185,12 @@ public class ElcResultServiceImpl implements ElcResultService
         } else
         {
             // 先删除，保证不会出现重复的记录
-            classElectiveRestrictAttrDao.deleteByClassId(classVo.getId());
+            classElectiveRestrictAttrDao.deleteByClassId(teachingClassId);
             if (classVo.getElectiveRestrictAttr() == null)
             {
                 classVo.setElectiveRestrictAttr(new TeachingClassElectiveRestrictAttr());
             }
-            classVo.getElectiveRestrictAttr().setTeachingClassId(classVo.getId());
+            classVo.getElectiveRestrictAttr().setTeachingClassId(teachingClassId);
             classVo.getElectiveRestrictAttr().setCreatedAt(new Date());
             classVo.getElectiveRestrictAttr().setUpdatedAt(new Date());
             classElectiveRestrictAttrDao.insertSelective(classVo.getElectiveRestrictAttr());

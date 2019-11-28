@@ -91,7 +91,9 @@ public class ElcResultQuery
      * 开课学院
      */
     private String faculty;
-    
+
+    private List<String> faculties;
+
     /**
      * 专业
      */
@@ -164,7 +166,15 @@ public class ElcResultQuery
 	
 	/**转移教学班列表标识*/
 	private Integer isChange;
-	
+
+	public List<String> getFaculties() {
+		return faculties;
+	}
+
+	public void setFaculties(List<String> faculties) {
+		this.faculties = faculties;
+	}
+
 	public Integer getIsChange() {
 		return isChange;
 	}

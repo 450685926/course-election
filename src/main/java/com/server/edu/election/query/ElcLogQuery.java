@@ -24,6 +24,16 @@ public class ElcLogQuery extends ElcLog
     private Integer courseType;
     
     private List<String> speCourseCodes;
+
+    private List<String> faculties;
+
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
     
     public List<String> getStudentIds()
     {

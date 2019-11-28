@@ -72,6 +72,16 @@ public class NoSelectCourseStdsDto{
     /** 登录人ID */
     private String uId;
 
+    private List<String> faculties;
+
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
+
     public String getRole() {
 		return role;
 	}

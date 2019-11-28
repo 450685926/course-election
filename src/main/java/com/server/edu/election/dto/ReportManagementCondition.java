@@ -1,5 +1,7 @@
 package com.server.edu.election.dto;
 
+import java.util.List;
+
 /**
  * @description: 报表管理查询条件
  * @author: bear
@@ -16,6 +18,16 @@ public class ReportManagementCondition extends ExemptionCourseScoreDto
     private Integer isRebuildCourse;
     
     private String projectId;
+
+    private List<String> faculties;
+
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
     
     public Integer getElectCourseStatus()
     {

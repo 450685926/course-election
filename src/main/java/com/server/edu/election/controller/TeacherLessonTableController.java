@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.common.enums.GroupDataEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
@@ -84,7 +85,10 @@ public class TeacherLessonTableController
         else if (StringUtils.equals(session.getCurrentRole(), "1")
             && !session.isAdmin() && session.isAcdemicDean())
         {
-            classCodeToTeacher.setFaculty(session.getFaculty());
+            if (StringUtils.isBlank(classCodeToTeacher.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                classCodeToTeacher.setFaculties(deptIds);
+            }
             classTeacher =
                 lessonTableService.findTeacherTimeTableByRole(condition);
         }
