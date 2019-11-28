@@ -27,6 +27,7 @@
     <result column="DEPLOY_FLAG_" jdbcType="INTEGER" property="deployFlag" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="RESERVE_NUMBER_" jdbcType="INTEGER" property="reserveNumber" />
+    <result column="RESERVE_NUMBER_RATE_" jdbcType="DOUBLE" property="reserveNumberRate" />
     <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
@@ -76,6 +77,7 @@
 	t1.NUMBER_,
 	t1.ELC_NUMBER_,
 	t1.RESERVE_NUMBER_,
+	t1.RESERVE_NUMBER_RATE_,
 	t1.ASSISTANT_NUMBER_,
 	t1.REMARK_,
 	t8.BIND_CLASS_ID_,

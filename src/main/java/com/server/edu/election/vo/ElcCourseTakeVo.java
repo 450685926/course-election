@@ -83,6 +83,11 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private Integer isElective;
     
     private String compulsory;
+
+    @Code2Text(transformer = "G_XBIE")
+    private String sex;
+
+    private Integer turn;
     
 	public String getCompulsory() {
 		return compulsory;
@@ -325,5 +330,22 @@ public class ElcCourseTakeVo extends ElcCourseTake
 	public void setElectionMode(Integer electionMode) {
 		this.electionMode = electionMode;
 	}
-	
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    @Override
+    public Integer getTurn() {
+        return turn;
+    }
+
+    @Override
+    public void setTurn(Integer turn) {
+        this.turn = turn;
+    }
 }
