@@ -556,7 +556,10 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             logDao.insertList(logList);
         }
         //this.insertExamLog(examStudents,ApplyStatus.EXAM_LOG_NO);
-        studentDao.deleteByExample(example);
+        Example deleteExample = new Example(GraduateExamStudent.class);
+        Example.Criteria deleteCriteria = deleteExample.createCriteria();
+        deleteCriteria.andIn("examRoomId", ids);
+        studentDao.deleteByExample(deleteExample);
         //删除监考老师,
         //todo 释放教师占用资源
         Example exampleTeacher = new Example(GraduateExamTeacher.class);
