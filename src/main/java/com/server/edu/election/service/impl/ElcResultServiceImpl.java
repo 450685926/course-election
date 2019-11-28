@@ -995,12 +995,14 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Override
 	@Transactional
 	public void saveClassBind(ElcTeachingClassBind elcTeachingClassBind) {
-		ElcTeachingClassBind bind =bindDao.selectOne(elcTeachingClassBind);
-		if(bind!=null) {
-            throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
+        Example example = new Example(ElcTeachingClassBind.class);
+        example.createCriteria().andEqualTo("teachingClassId",elcTeachingClassBind.getTeachingClassId());
+        List<ElcTeachingClassBind> elcTeachingClassBinds = bindDao.selectByExample(example);
+        if(CollectionUtil.isNotEmpty(elcTeachingClassBinds)) {
+            throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",
                     I18nUtil.getMsg("election.elcTeachingClassBind")));
 		}
-		bindDao.insertSelective(bind);
+		bindDao.insertSelective(elcTeachingClassBind);
 	}
 	@Override
 	@Transactional
