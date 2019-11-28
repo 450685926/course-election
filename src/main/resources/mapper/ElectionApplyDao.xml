@@ -168,12 +168,6 @@
 	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 	        and t2.COLLEGE_ = #{faculty}
 	    </if>
-		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
-			and t2.COLLEGE_ in
-			<foreach collection="faculties" open="(" separator="," close=")" item="fy">
-				#{fy}
-			</foreach>
-		</if>
 	</where>
   </select>
 </mapper>
