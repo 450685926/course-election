@@ -1629,7 +1629,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private List<String> getTimeTableListBk(StudnetTimeTable timeTable)
     {
         List<String> list = new ArrayList<String>(12);
-        list.add(timeTable.getCourseCode());
+        list.add(timeTable.getClassCode());
         list.add(timeTable.getCourseName());
         list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
         String compulsory = timeTable.getCompulsory();
