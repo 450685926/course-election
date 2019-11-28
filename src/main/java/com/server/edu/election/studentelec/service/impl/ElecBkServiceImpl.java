@@ -193,8 +193,9 @@ public class ElecBkServiceImpl implements ElecBkService
         }
         // 判断学生是否要重修缴费
         String studentId = context.getStudentInfo().getStudentId();
-        if (!hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
+        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
         {
+
             context.getRespose().getData().put("retakePay", "true");
         }
     }
