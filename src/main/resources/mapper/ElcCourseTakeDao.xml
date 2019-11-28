@@ -2112,7 +2112,7 @@
         AND el.STUDENT_ID_ = ${studentId}
        	GROUP BY el.COURSE_CODE_
     </select>
-   <select id="selectClassByRoundId" resultType="java.util.List">
+   <select id="selectClassByRoundId" resultType="java.lang.Long">
 		SELECT DISTINCT
 			t1.TEACHING_CLASS_ID_
 		FROM
