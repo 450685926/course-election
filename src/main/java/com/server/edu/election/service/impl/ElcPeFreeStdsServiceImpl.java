@@ -36,12 +36,6 @@ public class ElcPeFreeStdsServiceImpl implements ElcPeFreeStdsService
         PageCondition<ElcPeFreeStdsDto> condition)
     {
         ElcPeFreeStdsDto elcPeFreeStdsDto = condition.getCondition();
-        Session session = SessionUtils.getCurrentSession();
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-            elcPeFreeStdsDto.setFaculties(deptIds);
-        }
-
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         List<ElcPeFreeStdsVo> list =
             elcPeFreeStdsDao.selectElcPeFreeStds(elcPeFreeStdsDto);
@@ -83,11 +77,6 @@ public class ElcPeFreeStdsServiceImpl implements ElcPeFreeStdsService
         PageCondition<ElcPeFreeStdsDto> condition)
     {
         ElcPeFreeStdsDto elcPeFreeStdsDto = condition.getCondition();
-        Session session = SessionUtils.getCurrentSession();
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-            elcPeFreeStdsDto.setFaculties(deptIds);
-        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         List<ElcPeFreeStdsVo> list =
             elcPeFreeStdsDao.selectElcStudents(elcPeFreeStdsDto);

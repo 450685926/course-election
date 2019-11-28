@@ -92,11 +92,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
 	public PageResult<ElectionApplyVo> applyUnList(PageCondition<ElectionApplyDto> condition) {
 		ElectionApplyDto dto = condition.getCondition();
         Session session = SessionUtils.getCurrentSession();
-        //通过session信息获取访问接口人员角色
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
-            dto.setFaculties(deptIds);
-        }
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<ElectionApplyVo> applylist = electionApplyDao.applyUnList(dto);
         if (CollectionUtil.isNotEmpty(applylist))

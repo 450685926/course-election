@@ -42,12 +42,6 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t2.FACULTY_ = #{faculty}
       </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
-            and t2.FACULTY_ in
-            <foreach collection="faculties" open="(" separator="," close=")" item="fy">
-                #{fy}
-            </foreach>
-        </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
         and t2.PROFESSION_ = #{profession}
       </if>
@@ -116,12 +110,6 @@
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t1.FACULTY_ = #{faculty}
-      </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
-          and t1.FACULTY_ in
-          <foreach collection="faculties" open="(" separator="," close=")" item="fy">
-              #{fy}
-          </foreach>
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
         and t1.PROFESSION_ = #{profession}

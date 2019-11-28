@@ -33,16 +33,6 @@ public class ElectionApplyDto extends  ElectionApply{
     @Code2Text(transformer = "G_ZY")
     private String profession;
 
-	private List<String> faculties;
-
-	public List<String> getFaculties() {
-		return faculties;
-	}
-
-	public void setFaculties(List<String> faculties) {
-		this.faculties = faculties;
-	}
-
 	public String getTrainingLevel() {
 		return trainingLevel;
 	}
