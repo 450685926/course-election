@@ -288,7 +288,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         ElectionApply apply = electionApplyDao.selectOneByExample(example);
         if (apply != null)
         {
-            apply.setApply(Constants.ZERO);
+            apply.setApply(Constants.AGENTELC);
             electionApplyDao.updateByPrimaryKeySelective(apply);
         }
         
@@ -339,7 +339,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         aCriteria.andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
             electionApplyDao.selectByExample(aExample);
-        
         ElecContextUtil
             .setElecApplyCourse(studentId, electionApplys);
     }

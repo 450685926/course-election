@@ -74,6 +74,9 @@ public interface Constants
     
     /**选课申请*/
     public static final Integer APPLY = 0;
+    
+    /**选课申请代选*/
+    public static final Integer AGENTELC= 1;
     /** 选课申请拒绝*/
     public static final Integer REJECT = 2;
     
