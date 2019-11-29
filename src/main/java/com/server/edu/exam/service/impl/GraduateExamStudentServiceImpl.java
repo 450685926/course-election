@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.exam.constants.ApplyStatus;
@@ -11,6 +12,7 @@ import com.server.edu.exam.dao.*;
 import com.server.edu.exam.dto.*;
 import com.server.edu.exam.entity.*;
 import com.server.edu.exam.query.GraduateExamStudentQuery;
+import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
 import com.server.edu.exam.service.GraduateExamApplyExaminationService;
 import com.server.edu.exam.service.GraduateExamInfoService;
 import com.server.edu.exam.service.GraduateExamStudentService;
@@ -322,6 +324,8 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
             //排考日志
             this.insertExamLog(dto,ApplyStatus.EXAM_LOG_NO);
             //申请直接进入补缓考审核列表
+            SchoolCalendarVo preOrNextTerm = BaseresServiceExamInvoker.getPreOrNextTerm(dto.getCalendarId(), true);
+            dto.setExamCalendarId(preOrNextTerm.getId());
             this.insertAppLyExam(dto,currentSession,examSituation);
 
         }
