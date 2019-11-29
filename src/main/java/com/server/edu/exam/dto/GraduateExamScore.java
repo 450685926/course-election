@@ -12,6 +12,15 @@ public class GraduateExamScore implements Serializable {
     private String studentCode;
     private Long teachingClassId;
     private String courseCode;
+    private Integer isPass;
+
+    public Integer getIsPass() {
+        return isPass;
+    }
+
+    public void setIsPass(Integer isPass) {
+        this.isPass = isPass;
+    }
 
     public Long getCalendarId() {
         return calendarId;

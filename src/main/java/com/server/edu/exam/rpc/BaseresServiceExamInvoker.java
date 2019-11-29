@@ -8,6 +8,7 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.vo.SchCalendarTimeVo;
+import com.server.edu.common.vo.SchoolCalendarVo;
 
 import java.util.List;
 
@@ -48,19 +49,17 @@ public class BaseresServiceExamInvoker {
         return result;
     }
 
-    //public static RestResult<List<ConflictMessage>> getTeaOccupy(OccupationParam<Long> propties) {
-    //    RestResult<List<ConflictMessage>> result =
-    //            ServicePathEnum.BASESERVICE.postForObject(
-    //                    "/occupations/teacher",
-    //                    propties,RestResult.class);
-    //    return result;
-    //}
-    //
-    //public static RestResult<List<ConflictMessage>> delTeaOccupy(OccupationParam<Long> propties) {
-    //    RestResult<List<ConflictMessage>> result =
-    //            ServicePathEnum.BASESERVICE.postForObject(
-    //                    "/occupations/teacher/delete",
-    //                    propties,RestResult.class);
-    //    return result;
-    //}
+    public static SchoolCalendarVo getPreOrNextTerm(Long calendarId,Boolean flag) {
+        RestResult<SchoolCalendarVo> result =
+                ServicePathEnum.BASESERVICE.getForObject(
+                        "/schoolCalendar/getPreOrNextTerm?calendarId={calendarId}&flag={flag}",
+                        RestResult.class,calendarId,flag);
+        if (null != result
+                && ResultStatus.SUCCESS.code() == result.getCode()) {
+            return result.getData();
+        }
+        return null;
+    }
+
+
 }

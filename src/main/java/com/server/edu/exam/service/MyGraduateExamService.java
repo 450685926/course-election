@@ -35,4 +35,6 @@ public interface MyGraduateExamService {
     void addGraduateApplyList(List<MyGraduateExam> myExam,Integer examType,String applyReason);
 
     PageResult<MyGraduateExam> listMyExamTime(PageCondition<MyGraduateExam> myExam);
+
+    Boolean checkMakeUp(String studentCode,String courseCode);
 }

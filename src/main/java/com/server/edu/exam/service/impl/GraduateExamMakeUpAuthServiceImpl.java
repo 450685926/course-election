@@ -104,7 +104,11 @@ public class GraduateExamMakeUpAuthServiceImpl implements GraduateExamMakeUpAuth
                 makeUpAuth.setProjId(dptId);
                 int i = this.checkConflict(makeUpAuth);
                 if(i > 0 ){
-                    throw new ParameterValidateException("研究生补缓考权限已经存在，不能编辑");
+                    if(ApplyStatus.EXAM_SITUATION_MAKE_UP.equals(makeUpAuth.getApplyType())){
+                        throw new ParameterValidateException("研究生补考权限已经存在，不能编辑");
+                    }else{
+                        throw new ParameterValidateException("研究生缓考权限已经存在，不能编辑");
+                    }
                 }
                 makeUpAuth.setUpdateAt(new Date());
                 makeUpAuthDao.updateByPrimaryKeySelective(makeUpAuth);
@@ -172,7 +176,7 @@ public class GraduateExamMakeUpAuthServiceImpl implements GraduateExamMakeUpAuth
     private int checkConflict(GraduateExamMakeUpAuth makeUpAuth){
         Example example = new Example(GraduateExamMakeUpAuth.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("calendarId",makeUpAuth.getCalendarId());
+        //criteria.andEqualTo("calendarId",makeUpAuth.getCalendarId());
         criteria.andEqualTo("applyType",makeUpAuth.getApplyType());
         criteria.andEqualTo("projId",makeUpAuth.getProjId());
         criteria.andEqualTo("deleteStatus", DeleteStatus.NOT_DELETE);
