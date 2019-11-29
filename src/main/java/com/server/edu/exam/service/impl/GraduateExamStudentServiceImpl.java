@@ -352,6 +352,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
     private void insertAppLyExam(GraduateExamStudentDto dto, Session currentSession,Integer examSituation) {
         GraduateExamApplyExamination apply = new GraduateExamApplyExamination();
         apply.setCalendarId(dto.getCalendarId());
+        apply.setExamCalendarId(dto.getExamCalendarId());
         apply.setStudentCode(dto.getStudentCode());
         apply.setApplySource(ApplyStatus.APPLY_SOURCE_OTHER);
         apply.setCourseCode(dto.getCourseCode());
