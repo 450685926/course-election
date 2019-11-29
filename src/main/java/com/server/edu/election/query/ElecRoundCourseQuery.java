@@ -22,6 +22,9 @@ public class ElecRoundCourseQuery
     
     private String projectId;
     
+    /** 教学班编号（课程序号） */
+    private String teachingClassCode;
+    
     private String courseCode;
     
     private String courseName;
@@ -188,6 +191,14 @@ public class ElecRoundCourseQuery
 
 	public void setCampus(String campus) {
 		this.campus = campus;
+	}
+
+	public String getTeachingClassCode() {
+		return teachingClassCode;
+	}
+
+	public void setTeachingClassCode(String teachingClassCode) {
+		this.teachingClassCode = teachingClassCode;
 	}
     
 }

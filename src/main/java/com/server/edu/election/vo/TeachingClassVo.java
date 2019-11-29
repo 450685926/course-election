@@ -18,7 +18,7 @@ public class TeachingClassVo extends TeachingClass
     private Double credits;
     
     private List<String> ids;
-    
+
     private String teacherName;
     
     private int withdrawNum;
@@ -56,7 +56,7 @@ public class TeachingClassVo extends TeachingClass
     private List<TimeAndRoom> timeTableList;
     
     private String timeAndRoom;
-    
+
     private Long calendarId;
     
     private String limitFaculty;
@@ -100,12 +100,18 @@ public class TeachingClassVo extends TeachingClass
      * 教师code集合字符串
      */
     private String teacherCodes;
-    
+
     /**
      * 绑定班级Id
      * @return
      */
     private String bindClassId;
+
+	/**
+	 * 绑定班级序号
+	 * @return
+	 */
+	private String bindClassCode;
 
 	@Code2Text(transformer="K_BKKCXZ")
 	private Integer isElective;
@@ -323,5 +329,12 @@ public class TeachingClassVo extends TeachingClass
 	public void setTimeAndRoom(String timeAndRoom) {
 		this.timeAndRoom = timeAndRoom;
 	}
-	
+
+	public String getBindClassCode() {
+		return bindClassCode;
+	}
+
+	public void setBindClassCode(String bindClassCode) {
+		this.bindClassCode = bindClassCode;
+	}
 }

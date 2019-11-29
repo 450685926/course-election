@@ -96,5 +96,7 @@ public interface RebuildCourseChargeService {
     PageResult<StudentRePaymentDto> payDetail(PageCondition<StudentRePaymentDto> condition);
 
     List<StudentRePaymentDto> payDetailById(Long id);
+
+    boolean hasRetakeCourseNoPay(Long calendarId, String studentId);
 }
 

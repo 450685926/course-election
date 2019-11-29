@@ -50,6 +50,12 @@
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 				and t4.FACULTY_= #{faculty}
 			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+				and t4.FACULTY_ in
+				<foreach collection="faculties" open="(" separator="," close=")" item="fy">
+					#{fy}
+				</foreach>
+			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
 				and t4.IS_ELECTIVE_= #{nature}
 			</if>
@@ -108,6 +114,12 @@
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 				and t4.FACULTY_= #{faculty}
+			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+				and t4.FACULTY_ in
+				<foreach collection="faculties" open="(" separator="," close=")" item="fy">
+					#{fy}
+				</foreach>
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
 				and t4.IS_ELECTIVE_= #{nature}

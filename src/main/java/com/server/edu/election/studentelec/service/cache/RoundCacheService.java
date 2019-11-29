@@ -177,7 +177,7 @@ public class RoundCacheService extends AbstractCacheService
     private StudentDao studentDao;
     
     /**<ul>
-     * 	 <li>判断学生的校区、学院、年级、专业、培养层次是否匹配轮次条件(本科生)
+     * 	 <li>判断学生的校区、学院、年级、培养层次是否匹配轮次条件(本科生)
      * 	 <li>判断学生的校区、学院、年级、专业、培养层次、培养类别、学位类型、学习形式是否匹配轮次条件（研究生）
      * <ul>
      * @param roundId
@@ -216,7 +216,7 @@ public class RoundCacheService extends AbstractCacheService
         	boolean matchConditionFlag = contains(con.getCampus(), student.getCampus())
         			&& (contains(con.getFacultys(), student.getFaculty()) || contains(con.getFacultys(), "99999")) // 全校
         			&& contains(con.getGrades(), student.getGrade().toString())
-        			&& contains(con.getMajors(), student.getProfession())
+//        			&& contains(con.getMajors(), student.getProfession())
         			&& contains(con.getTrainingLevels(),student.getTrainingLevel());
         	
         	if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
@@ -226,6 +226,7 @@ public class RoundCacheService extends AbstractCacheService
         	}else {
         		boolean matchConditionGraduteFlag = contains(con.getTrainingCategorys(), student.getTrainingCategory())
         				&& contains(con.getDegreeTypes(), student.getDegreeType())
+                        && contains(con.getMajors(), student.getProfession())
         				&& contains(con.getFormLearnings(), student.getFormLearning());
         		
         		if (!matchConditionFlag || !matchConditionGraduteFlag) {
@@ -235,6 +236,57 @@ public class RoundCacheService extends AbstractCacheService
         	return true;
         }
         return true;
+    }
+    
+    /**
+     * 判断本研互选学生的校区、学院、年级、专业、培养层次、培养类别、学位类型、学习形式是否匹配轮次条件
+     * @param roundId
+     * @param studentId
+     * @param projectId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsMutualStuCondition(Long roundId, String studentId,String projectId)
+    {
+    	if (null == roundId || StringUtils.isBlank(studentId))
+    	{
+    		return false;
+    	}
+    	Student student = null;
+    	
+    	HashOperations<String, String, String> ops = strTemplate.opsForHash();
+    	String key = "elecStudentTempRedisKey";
+    	String text = ops.get(key, studentId);
+    	if (StringUtils.isBlank(text))
+    	{
+    		student = studentDao.selectByPrimaryKey(studentId);
+    		if (null == student)
+    		{
+    			return false;
+    		}
+    		ops.put(key, studentId, JSON.toJSONString(student));
+    		strTemplate.expire(key, 1, TimeUnit.HOURS);
+    	}
+    	else
+    	{
+    		student = JSON.parseObject(text, Student.class);
+    	}
+    	
+    	ElcRoundCondition con = getRoundCondition(roundId);
+    	if (con != null)
+    	{
+    		boolean matchConditionFlag = contains(con.getCampus(), student.getCampus())
+    				&& (contains(con.getFacultys(), student.getFaculty()) || contains(con.getFacultys(), "99999")) // 全校
+    				&& contains(con.getGrades(), student.getGrade().toString())
+        			&& contains(con.getMajors(), student.getProfession())
+    				&& contains(con.getTrainingLevels(),student.getTrainingLevel())
+    				&& contains(con.getTrainingCategorys(), student.getTrainingCategory())
+    				&& contains(con.getDegreeTypes(), student.getDegreeType())
+					&& contains(con.getFormLearnings(), student.getFormLearning())
+		    		&& contains(con.getResearchDirection(), student.getResearchDirection());
+    		return matchConditionFlag;
+    	}
+    	return true;
     }
     
     boolean contains(String source, String taget)

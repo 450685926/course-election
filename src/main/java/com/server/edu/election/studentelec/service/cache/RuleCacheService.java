@@ -42,7 +42,7 @@ public class RuleCacheService extends AbstractCacheService
     private StringRedisTemplate redisTemplate;
     
     /**
-     * 设置选课規則，把所有启用的规则都放到缓存中（本科生26个，研究生8个）
+     * 设置选课規則，把所有启用的规则都放到缓存中（本科生26个，研究生8个,本研互选9个）
      */
     public void cacheAllRule()
     {
@@ -76,7 +76,7 @@ public class RuleCacheService extends AbstractCacheService
         List<ElectionRuleVo> ruleList = new ArrayList<ElectionRuleVo>();
         List<ElectionRuleVo> rules = ruleDao.selectByRoundId(roundId);
         for (ElectionRuleVo electionRuleVo : rules) {
-			if (electionRuleVo.getStatus().intValue() == Constants.ONE) {
+			if (electionRuleVo.getStatus().intValue() == Constants.ONE || electionRuleVo.getStatus().intValue() == Constants.TOW) {
 				ruleList.add(electionRuleVo);
 			}
 		}

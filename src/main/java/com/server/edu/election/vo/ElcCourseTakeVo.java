@@ -60,6 +60,9 @@ public class ElcCourseTakeVo extends ElcCourseTake
     @Code2Text(DictTypeEnum.X_YX)
     private String faculty;
 
+    @Code2Text(DictTypeEnum.X_YX)
+    private String studentFaculty;
+
     @Code2Text(DictTypeEnum.X_KCFL)
     private String label;
 
@@ -83,8 +86,21 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private Integer isElective;
     
     private String compulsory;
-    
-	public String getCompulsory() {
+
+    @Code2Text(transformer = "G_XBIE")
+    private String sex;
+
+    private Integer turn;
+
+    public String getStudentFaculty() {
+        return studentFaculty;
+    }
+
+    public void setStudentFaculty(String studentFaculty) {
+        this.studentFaculty = studentFaculty;
+    }
+
+    public String getCompulsory() {
 		return compulsory;
 	}
 
@@ -325,5 +341,22 @@ public class ElcCourseTakeVo extends ElcCourseTake
 	public void setElectionMode(Integer electionMode) {
 		this.electionMode = electionMode;
 	}
-	
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    @Override
+    public Integer getTurn() {
+        return turn;
+    }
+
+    @Override
+    public void setTurn(Integer turn) {
+        this.turn = turn;
+    }
 }

@@ -156,9 +156,9 @@ public class ElectionApply implements Serializable {
     }
 
     /**
-     * 设置是否同意(0否,1是)
+     * 设置是否同意(0草稿,1待选,2驳回)
      *
-     * @param apply 是否同意(0否,1是)
+     * @param apply (0草稿,1待选,2驳回)
      */
     public void setApply(Integer apply) {
         this.apply = apply;

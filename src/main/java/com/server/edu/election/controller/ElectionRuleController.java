@@ -54,6 +54,24 @@ public class ElectionRuleController
         List<ElectionRule> ruleList = service.list(electionRuleDto);
         return RestResult.successData(ruleList);
     }
+    
+	 /**
+     * 本研互选选课规则
+     * 
+     * @param electionRuleDto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "本研互选选课规则")
+    @PostMapping("/mutualRuleList")
+    public RestResult<List<ElectionRule>> mutualRuleList(
+        @RequestBody ElectionRuleDto electionRuleDto)
+        throws Exception
+    {
+        LOG.info("mutualRuleList.start");
+        List<ElectionRule> ruleList = service.mutualRuleList(electionRuleDto);
+        return RestResult.successData(ruleList);
+    }
 
     /**
      * 研究生重修选课规则

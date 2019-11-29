@@ -181,6 +181,13 @@ public class TeachingClass extends BaseEntity
     @Column(name = "RESERVE_NUMBER_")
     private Integer reserveNumber;
 
+
+    /**
+     * 教学班预留人数比例
+     */
+    @Column(name = "RESERVE_NUMBER_RATE_")
+    private Double reserveNumberRate;
+
     /**
      * 创建时间
      */
@@ -719,5 +726,12 @@ public class TeachingClass extends BaseEntity
     {
         this.name = name;
     }
-    
+
+    public Double getReserveNumberRate() {
+        return reserveNumberRate;
+    }
+
+    public void setReserveNumberRate(Double reserveNumberRate) {
+        this.reserveNumberRate = reserveNumberRate;
+    }
 }

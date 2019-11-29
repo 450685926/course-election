@@ -11,7 +11,9 @@ public enum RoundMode
     /**结业生 3*/
     JieYe(3),
     /**留学结业生 4*/
-    LiuXueJieYe(4);
+    LiuXueJieYe(4),
+	/**本研互选*/
+	BenYanHuXuan(5);
     
     private int mode;
     

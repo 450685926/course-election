@@ -57,7 +57,6 @@ public class ElecController
     @Autowired
     private TeachClassCacheService teachClassCacheService;
 
-    
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
     public RestResult<List<ElectionRoundsVo>> getRounds(
@@ -195,7 +194,6 @@ public class ElecController
         return RestResult.successData(response);
     }
     
-    
     @ApiOperation(value = "获取本科生公共选修课程")
     @PostMapping("/getPublicCourses")
     public RestResult<Set<ElecCourse>> getPublicCourses(
@@ -203,12 +201,11 @@ public class ElecController
     {
     	ElectionRounds electionRounds = dataProvider.getRound(roundId);
     	if(electionRounds==null) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("election.round"))); 
+			throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("election.round")));
     	}
     	Set<ElecCourse> elecCourses = teachClassCacheService.getPublicCourses(electionRounds.getCalendarId());
         return RestResult.successData(elecCourses);
     }
 
 
-    
 }
