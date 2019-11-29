@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.mutual.dao.ElecMutualRoundsDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.entity.ElectionRounds">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="TURN_" jdbcType="INTEGER" property="turn" />
+    <result column="ELECTION_OBJ_" jdbcType="VARCHAR" property="electionObj" />
+    <result column="MODE_" jdbcType="INTEGER" property="mode" />
+    <result column="MANAGER_DEPT_ID_" jdbcType="VARCHAR" property="projectId" />
+    <result column="NAME_" jdbcType="VARCHAR" property="name" />
+    <result column="OPEN_FLAG_" jdbcType="INTEGER" property="openFlag" />
+    <result column="BEGIN_TIME_" jdbcType="TIMESTAMP" property="beginTime" />
+    <result column="END_TIME_" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="CREATED_AT_" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
+    <result column="DELETE_STATUS_" jdbcType="INTEGER" property="deleteStatus" />
+  </resultMap>
+  
+  <resultMap id="DtoBaseResultMap" type="com.server.edu.election.vo.ElectionRoundsVo" extends="BaseResultMap">
+  	<result column="elcCourseNum" jdbcType="INTEGER" property="elcCourseNum" />
+  	<result column="GRADES_" jdbcType="VARCHAR" property="grades" />
+  </resultMap>
+  
+  <select id="listAllRefRuleId" resultType="long">
+	  	select ref.RULE_ID_ 
+	  	from election_rounds_ref_rule_t ref 
+	  	     left join election_rule_t rule on ref.RULE_ID_ = rule.ID_  
+	  	where ref.ROUNDS_ID_ = #{roundId}
+  </select>
+
+  <select id="listPage" resultMap="DtoBaseResultMap">
+  	select t1.*,
+  	       t2.GRADES_
+  	from election_rounds_t t1
+  	   left join election_rounds_condition_t t2 on t1.ID_ = t2.ROUND_ID_
+  	<where>
+  		t1.MANAGER_DEPT_ID_ = #{projectId}
+  		and t1.CALENDAR_ID_ = #{calendarId}
+  		and t1.MODE_ = #{mode}
+  		and (DELETE_STATUS_ = '0' or DELETE_STATUS_ is null)
+  	</where>
+  </select>
+  
+  <select id="getElcCourseNum" resultType="java.lang.Integer">
+	  	select count(TEACHING_CLASS_ID_) elcCourseNum
+	  	from election_rounds_cour_t
+	  	<where>
+	  		ROUNDS_ID_ = #{roundId}
+	  	</where>
+  </select>
+  
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.mutual.dao.ElcMutualCoursesDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.mutual.entity.ElcMutualCourses">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
+    <result column="BY_TYPE_" jdbcType="INTEGER" property="byType" />
+    <result column="IN_TYPE_" jdbcType="INTEGER" property="inType" />
+  </resultMap>
+  <resultMap type="com.server.edu.mutual.vo.ElcMutualCoursesVo" id="MutualCoursesMap" extends="BaseResultMap">
+    <result column="COURSE_ID_" jdbcType="VARCHAR" property="courseId" />
+    <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+    <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
+    <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+    <result column="NATURE_" jdbcType="VARCHAR" property="nature" />
+    <result column="IS_ELECTIVE_" jdbcType="VARCHAR" property="isElective" />
+    <result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode" />
+    <result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+    <result column="trainingLevel" jdbcType="DOUBLE" property="trainingLevel" />
+  </resultMap>
+  
+  <select id="getElcMutualCourseList" parameterType="com.server.edu.mutual.dto.ElcMutualCoursesDto" resultType="com.server.edu.mutual.vo.ElcMutualCoursesVo">
+		SELECT 
+		  t1.`ID_` id,
+		  t1.BY_TYPE_ byType,
+		  t1.IN_TYPE_ inType,
+		  t1.`CALENDAR_ID_` calendarId,
+		  t1.`COURSE_ID_` courseId,
+		  t2.`COURSE_CODE_` courseCode,
+		  t2.`COURSE_NAME_` courseName,
+		  t2.`TRAINING_LEVEL_` trainingLevel,
+		  t2.`CREDITS_` credits,
+		  t2.`FACULTY_` college,
+		  t2.`NATURE_` nature,
+		  t2.`IS_ELECTIVE_` isElective
+		FROM
+		  `elc_mutual_courses_t` t1 
+		  JOIN `course_open_t` t2 
+		    ON t1.`COURSE_ID_` = t2.`ID_` 
+		    AND t2.`PROJ_ID_` = #{projectId}
+		 <where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t1.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t1.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		        and t2.COURSE_CODE_ like concat ('%', #{courseCode},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		        and t2.COURSE_NAME_  like concat ('%', #{courseName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+		        and t2.TRAINING_LEVEL_  = #{trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
+		        and t2.FACULTY_  = #{college}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+		        and t2.NATURE_  = #{nature}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+		        and t2.IS_ELECTIVE_  = #{isElective}
+		    </if>
+		 </where>
+  </select>
+  
+    <select id="getElcMutualCourseCount" parameterType="com.server.edu.mutual.dto.ElcMutualCoursesDto" resultType="java.lang.Integer">
+		SELECT 
+		  count(t1.ID_)
+		FROM
+		  `elc_mutual_courses_t` t1 
+		  JOIN `course_t` t2 
+		    ON t1.`COURSE_ID_` = t2.`ID_` 
+		    AND t2.`MANAGER_DEPT_ID_` = #{projectId}
+		 <where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t1.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t1.IN_TYPE_  = #{inType}
+		    </if>		    
+		 </where>
+  </select>
+</mapper>
