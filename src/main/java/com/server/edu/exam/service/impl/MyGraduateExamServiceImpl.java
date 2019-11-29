@@ -5,14 +5,19 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.Student;
 import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.dao.GraduateExamApplyExaminationDao;
 import com.server.edu.exam.dao.GraduateExamInfoDao;
+import com.server.edu.exam.dao.GraduateExamMakeUpAuthDao;
 import com.server.edu.exam.dao.GraduateExamStudentDao;
 import com.server.edu.exam.entity.GraduateExamApplyExamination;
+import com.server.edu.exam.entity.GraduateExamMakeUpAuth;
+import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
 import com.server.edu.exam.service.GraduateExamApplyExaminationService;
 import com.server.edu.exam.service.MyGraduateExamService;
 import com.server.edu.exam.util.GraduateExamTransTime;
@@ -55,6 +60,9 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
 
     @Autowired
     private GraduateExamStudentDao examStudentDao;
+
+    @Autowired
+    private GraduateExamMakeUpAuthDao makeUpAuthDao;
 
     @Override
     public PageResult<MyGraduateExam> listMyExam(PageCondition<MyGraduateExam> myExam) {
@@ -110,10 +118,39 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         }
         Session currentSession = SessionUtils.getCurrentSession();
         String dptId = currentSession.getCurrentManageDptId();
+        //申请缓考，排考学期是申请学期的下一学期（补考根据权限开关获取开放的学期）
+        Long examCalendarId = 0L;
+        if(ApplyStatus.EXAM_SITUATION_SLOW.equals(applyType)){
+            Long calendarId = myExam.get(0).getCalendarId();
+            //远程调用获取下学期
+            SchoolCalendarVo preOrNextTerm = BaseresServiceExamInvoker.getPreOrNextTerm(calendarId, true);
+            examCalendarId = preOrNextTerm.getId();
+        }else{
+            //获取权限的学期
+            Example example = new Example(GraduateExamMakeUpAuth.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("applyType",applyType);
+            criteria.andEqualTo("projId",dptId);
+            GraduateExamMakeUpAuth graduateExamMakeUpAuth = makeUpAuthDao.selectOneByExample(example);
+            if(graduateExamMakeUpAuth == null){
+                throw new ParameterValidateException("目前还没有开放该申请权限");
+            }
+            examCalendarId = graduateExamMakeUpAuth.getCalendarId();
+        }
         List<GraduateExamApplyExamination> list = new ArrayList<>();
         for (MyGraduateExam myGraduateExam : myExam) {
             GraduateExamApplyExamination applyExamination = new GraduateExamApplyExamination();
-            applyExamination.setCalendarId(myGraduateExam.getCalendarId());
+            if(ApplyStatus.EXAM_SITUATION_SLOW.equals(applyType)){
+                applyExamination.setCalendarId(myGraduateExam.getCalendarId());
+            }else{
+                applyExamination.setCalendarId(examCalendarId);
+                //校验学生课程是否有资格申请补考
+               Boolean flag = this.checkMakeUp(currentSession.realUid(),myGraduateExam.getCourseCode());
+               if(!flag){
+                   throw new ParameterValidateException("课程:"+myGraduateExam.getCourseName()+",不满足申请补考的资格");
+               }
+            }
+            applyExamination.setExamCalendarId(examCalendarId);
             applyExamination.setApplySource(ApplyStatus.APPLY_SOURCE_MYSELF);
             applyExamination.setApplyStatus(ApplyStatus.NOT_EXAMINE);
             applyExamination.setProjId(dptId);
@@ -174,6 +211,15 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
             page = examInfoDao.listMyExamTimeMakeUp(condition);
         }
         return new PageResult<>(page);
+    }
+
+    @Override
+    public Boolean checkMakeUp(String studentCode, String courseCode) {
+       int i =  examStudentDao.checkMakeUp(studentCode,courseCode);
+       if(i > 1){
+           return false;
+       }
+        return true;
     }
 
     private void cancelApplyByOne(MyGraduateExam myExam,Integer applyType,List<GraduateExamApplyExamination> list){

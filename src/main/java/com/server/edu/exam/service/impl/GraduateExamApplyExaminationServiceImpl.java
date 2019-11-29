@@ -7,9 +7,11 @@ import com.server.edu.common.entity.ExamMakeUp;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.dao.*;
 import com.server.edu.exam.dto.ExamInfoRoomDto;
@@ -19,6 +21,7 @@ import com.server.edu.exam.entity.GraduateExamApplyExamination;
 import com.server.edu.exam.entity.GraduateExamLog;
 import com.server.edu.exam.entity.GraduateExamMakeUpAuth;
 import com.server.edu.exam.entity.GraduateExamStudent;
+import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
 import com.server.edu.exam.service.GraduateExamApplyExaminationService;
 import com.server.edu.exam.service.GraduateExamInfoService;
 import com.server.edu.exam.vo.GraduateExamApplyExaminationVo;
@@ -125,11 +128,17 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
         if(applyType.equals(ApplyStatus.EXAM_SITUATION_MAKE_UP)){
             //补考进行不及格成绩校验
             List<GraduateExamScore> examScore = examStudentDao.findStudentScore(applyExamination);
-            if(CollectionUtil.isEmpty(examScore)){
+            if(CollectionUtil.isEmpty(examScore) || examScore.size() > 1){
                 throw new ParameterValidateException("该生补考申请不满足条件");
+            }else{
+                int isPass = examScore.get(0).getIsPass();
+                if(isPass != 0){
+                    throw new ParameterValidateException("该生补考申请不满足条件");
+                }
+                Long teachingClassId = examScore.get(0).getTeachingClassId();
+                applyExamination.setTeachingClassId(teachingClassId);
+                applyExamination.setExamCalendarId(applyExamination.getCalendarId());
             }
-            Long teachingClassId = examScore.get(0).getTeachingClassId();
-            applyExamination.setTeachingClassId(teachingClassId);
         }else{
             MyGraduateExam myGraduateExam = new MyGraduateExam();
             myGraduateExam.setCalendarId(applyExamination.getCalendarId());
@@ -144,6 +153,8 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
                 List<MyGraduateExam> result = page.getResult();
                 MyGraduateExam graduateExam = result.get(0);
                 applyExamination.setTeachingClassId(graduateExam.getTeachingClassId());
+                SchoolCalendarVo preOrNextTerm = BaseresServiceExamInvoker.getPreOrNextTerm(applyExamination.getCalendarId(), true);
+                applyExamination.setExamCalendarId(preOrNextTerm.getId());
             }
         }
 
@@ -384,6 +395,7 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
 
     //校验是否重复申请或重新申请的条件
     private void checkApplyEffective(GraduateExamApplyExamination applyExamination,Session currentSession) {
+
         this.checkRepeat(applyExamination);
         //如果是学校代申请,那么需要缓考要变更相应状态,补考回写审核通过原因
         if(applyExamination.getApplyStatus().equals(ApplyStatus.SCHOOL_EXAMINE_PASS)){
