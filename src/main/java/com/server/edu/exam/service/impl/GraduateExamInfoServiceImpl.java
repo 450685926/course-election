@@ -887,7 +887,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         if(StringUtils.isNotBlank(restrict.getDescript())){
             msg = restrict.getDescript();
         }
-        return "成功分配" + matchList.size() + "学生" + "还有" + noMatchList.size() + "学生未分配。" + msg;
+        return "成功分配" + matchList.size() + "个学生," + "还有" + noMatchList.size() + "个学生未分配。" + msg;
     }
 
     @Override
