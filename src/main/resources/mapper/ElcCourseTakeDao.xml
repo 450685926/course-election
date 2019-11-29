@@ -2010,6 +2010,9 @@
 		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
 		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
 		    )
+		    JOIN elc_med_withdraw_rules_t t5 ON t5.CALENDAR_ID_ = t1.CALENDAR_ID_
+            JOIN elc_med_withdraw_rule_ref_cour_t t6 ON t6.MED_WITHDRAW_RULE_ID_ = t5.ID_
+            AND t1.TEACHING_CLASS_ID_ = t6.TEACHING_CLASS_ID_
           LEFT JOIN elc_med_withdraw_t t4 ON t4.STUDENT_ID_ = t1.STUDENT_ID_ 
 	      AND t4.TEACHING_CLASS_ID_ = t2.ID_  
 		WHERE t1.`STUDENT_ID_` = #{studentId}
