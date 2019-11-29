@@ -47,7 +47,16 @@ public class ElcMedWithdrawRuleRefCourDto extends ElcMedWithdrawRuleRefCour {
      * 课程名称
      */
     private String courseName;
-    
+
+	private List<String> faculties;
+
+	public List<String> getFaculties() {
+		return faculties;
+	}
+
+	public void setFaculties(List<String> faculties) {
+		this.faculties = faculties;
+	}
 
 	public String getTeachingClasscode() {
 		return teachingClasscode;

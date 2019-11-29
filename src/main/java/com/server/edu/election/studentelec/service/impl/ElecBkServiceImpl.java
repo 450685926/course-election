@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.server.edu.election.dao.*;
+import com.server.edu.election.entity.RebuildCourseRecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,6 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRounds;
@@ -46,6 +45,7 @@ import com.server.edu.election.studentelec.utils.RetakeCourseUtil;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
+import tk.mybatis.mapper.entity.Example;
 
 /**
  * 本科生选课
@@ -79,7 +79,7 @@ public class ElecBkServiceImpl implements ElecBkService
     
     @Autowired
     private TeachClassCacheService teachClassCacheService;
-    
+
     @SuppressWarnings("rawtypes")
     @Override
     public IElecContext doELec(ElecRequest request)
@@ -193,7 +193,7 @@ public class ElecBkServiceImpl implements ElecBkService
         }
         // 判断学生是否要重修缴费
         String studentId = context.getStudentInfo().getStudentId();
-        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId))
+        if (hasRetakeCourse && !chargeService.isNoNeedPayForRetake(studentId)&&chargeService.hasRetakeCourseNoPay(round.getCalendarId(),studentId))
         {
             context.getRespose().getData().put("retakePay", "true");
         }

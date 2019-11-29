@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,82 +38,113 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
     public boolean checkRule(ElecContextBk context,
         TeachingClassCache courseClass)
     {
-        /** 学生信息 */
-        StudentInfoCache studentInfo = context.getStudentInfo();
+//        /** 学生信息 */
+//        StudentInfoCache studentInfo = context.getStudentInfo();
+//        Set<ElcCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
+//        /** 已完成课程 */
+//        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+//        /**培养计划课程 */
+//        Set<PlanCourse> planCourses = context.getPlanCourses();
+//        /**学生信息 */
+//        long count = 0;
+//        if (courseClass.getTeachClassId() != null
+//            && CollectionUtil.isNotEmpty(completedCourses))
+//        {
+//            String courseCode = courseClass.getCourseCode();
+//            if (StringUtils.isNotBlank(courseCode))
+//            {
+//                //还要判断是否优替代的通过课程todo
+//                List<CompletedCourse> list = completedCourses.stream()
+//                    .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
+//                    .collect(Collectors.toList());
+//                if (studentInfo.isGraduate())
+//                {
+//                    ElcCouSubs elcCouSubs =
+//                        noGradCouSubsCourses.stream()
+//                            .filter(c -> courseCode.equals(c.getSubCourseId()))
+//                            .findFirst()
+//                            .orElse(null);
+//                    if (elcCouSubs != null)
+//                    {
+//                        count = completedCourses.stream()
+//                            .filter(c -> elcCouSubs.getOrigsCourseId()
+//                                .equals(c.getCourse().getCourseCode()))
+//                            .count();
+//                    }
+//                }
+//                else
+//                {
+//                    if (CollectionUtil.isNotEmpty(planCourses))
+//                    {
+//                        List<PlanCourse> subCourseCodes = planCourses.stream()
+//                            .filter(c -> StringUtils
+//                                .isNotBlank(c.getSubCourseCode()))
+//                            .collect(Collectors.toList());
+//                        if (CollectionUtil.isNotEmpty(subCourseCodes))
+//                        {
+//                            List<String> subCourses = subCourseCodes.stream()
+//                                .filter(c -> courseCode
+//                                    .equals(c.getSubCourseCode()))
+//                                .map(UnElectLessonByPassed::courseCode)
+//                                .collect(Collectors.toList());
+//                            if (CollectionUtil.isNotEmpty(subCourses))
+//                            {
+//                                count = completedCourses.stream()
+//                                    .filter(c -> subCourses
+//                                        .contains(c.getCourse().getCourseCode()))
+//                                    .count();
+//                            }
+//                        }
+//                    }
+//                }
+//                if (CollectionUtil.isEmpty(list) || count == 0)
+//                {
+//                    return true;
+//                }
+//                ElecRespose respose = context.getRespose();
+//                respose.getFailedReasons()
+//                    .put(courseClass.getCourseCodeAndClassCode(),
+//                        I18nUtil.getMsg("ruleCheck.unElectLessonByPassed"));
+//                return false;
+//            }
+//        }
+//
+//        return true;
         Set<ElcCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
         /** 已完成课程 */
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        /**培养计划课程 */
-        Set<PlanCourse> planCourses = context.getPlanCourses();
-        /**学生信息 */
-        long count = 0;
-        if (courseClass.getTeachClassId() != null
-            && CollectionUtil.isNotEmpty(completedCourses))
+        if (courseClass.getTeachClassId() != null)
         {
             String courseCode = courseClass.getCourseCode();
             if (StringUtils.isNotBlank(courseCode))
             {
-                //还要判断是否优替代的通过课程todo
-                List<CompletedCourse> list = completedCourses.stream()
-                    .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
-                    .collect(Collectors.toList());
-                if (studentInfo.isGraduate())
-                {
-                    ElcCouSubs elcCouSubs =
-                        noGradCouSubsCourses.stream()
-                            .filter(c -> courseCode.equals(c.getSubCourseId()))
-                            .findFirst()
-                            .orElse(null);
-                    if (elcCouSubs != null)
-                    {
-                        count = completedCourses.stream()
-                            .filter(c -> elcCouSubs.getOrigsCourseId()
-                                .equals(c.getCourse().getCourseCode()))
-                            .count();
-                    }
-                }
-                else
-                {
-                    if (CollectionUtil.isNotEmpty(planCourses))
-                    {
-                        List<PlanCourse> subCourseCodes = planCourses.stream()
-                            .filter(c -> StringUtils
-                                .isNotBlank(c.getSubCourseCode()))
+                List<CompletedCourse> list = new ArrayList<>();
+                ElcCouSubs elcCouSubs = null;
+                if (CollectionUtil.isNotEmpty(completedCourses)) {
+                    list = completedCourses.stream()
+                            .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
                             .collect(Collectors.toList());
-                        if (CollectionUtil.isNotEmpty(subCourseCodes))
-                        {
-                            List<String> subCourses = subCourseCodes.stream()
-                                .filter(c -> courseCode
-                                    .equals(c.getSubCourseCode()))
-                                .map(UnElectLessonByPassed::courseCode)
-                                .collect(Collectors.toList());
-                            if (CollectionUtil.isNotEmpty(subCourses))
-                            {
-                                count = completedCourses.stream()
-                                    .filter(c -> subCourses
-                                        .contains(c.getCourse().getCourseCode()))
-                                    .count();
-                            }
-                        }
-                    }
                 }
-                if (CollectionUtil.isEmpty(list) || count == 0)
-                {
+                //还要判断是否优替代的通过课程todo
+                if (CollectionUtil.isNotEmpty(noGradCouSubsCourses)) {
+                    elcCouSubs =
+                            noGradCouSubsCourses.stream()
+                                    .filter(c -> courseCode.equals(c.getSubCourseId()))
+                                    .findFirst()
+                                    .orElse(null);
+
+                }
+                if (CollectionUtil.isEmpty(list) && elcCouSubs == null) {
                     return true;
                 }
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(courseClass.getCourseCodeAndClassCode(),
-                        I18nUtil.getMsg("ruleCheck.unElectLessonByPassed"));
+                        .put(courseClass.getCourseCodeAndClassCode(),
+                                I18nUtil.getMsg("ruleCheck.unElectLessonByPassed"));
                 return false;
             }
         }
-        
+
         return true;
-    }
-    
-    static String courseCode(PlanCourse planc)
-    {
-        return planc.getCourse().getCourseCode();
     }
 }

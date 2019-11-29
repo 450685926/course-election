@@ -42,7 +42,7 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t2.FACULTY_ = #{faculty}
       </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
         and t2.PROFESSION_ = #{profession}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
@@ -84,7 +84,8 @@
 	FROM
 		student_t t1
 	where
-		STUDENT_CODE_ NOT IN (
+        t1.LEAVE_SCHOOL_ = 1
+        and STUDENT_CODE_ NOT IN (
 			SELECT
 				STUDENT_ID_
 			FROM

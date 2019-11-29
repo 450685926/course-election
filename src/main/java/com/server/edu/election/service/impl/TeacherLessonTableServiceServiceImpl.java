@@ -2,6 +2,7 @@ package com.server.edu.election.service.impl;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -262,12 +263,19 @@ public class TeacherLessonTableServiceServiceImpl
                     teacherTimeTable.setClassRoom(classRoom);
                 }
 
+                teacherTimeTable.setWeekHour(formatDouble(Optional.ofNullable(teacherTimeTable.getWeekHour()).orElse(0.0)));
+                teacherTimeTable.setCredits(formatDouble(Optional.ofNullable(teacherTimeTable.getCredits()).orElse(0.0)));
+
             }
 
         }
         return classTimeAndRoom;
     }
-    
+
+    private double formatDouble(double d){
+        BigDecimal b = new BigDecimal(d);
+        return b.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
     /**
     *@Description: 登陆获取教师课表
     *@Param:
@@ -804,7 +812,7 @@ public class TeacherLessonTableServiceServiceImpl
     }
 
     /**
-     * 创建学生选课列表table
+     * 创建教师选课列表table
      * @throws IOException
      */
     private PdfPTable createTeacherTimeListBk(List<TeacherTimeTable> list,
@@ -855,8 +863,16 @@ public class TeacherLessonTableServiceServiceImpl
         list.add(teacherTimeTable.getClassCode());
         list.add(teacherTimeTable.getCourseName());
         list.add(teacherTimeTable.getCourseLabelName());
-        list.add(String.valueOf(teacherTimeTable.getWeekHour()));
-        list.add(String.valueOf(teacherTimeTable.getCredits()));
+        if (teacherTimeTable.getWeekHour() == null) {
+            list.add("");
+        } else {
+            list.add(teacherTimeTable.getWeekHour() + "");
+        }
+        if (teacherTimeTable.getCredits() == null) {
+            list.add("");
+        } else {
+            list.add(teacherTimeTable.getCredits() + "");
+        }
         String teachingLanguage = teacherTimeTable.getTeachingLanguage();
         if (teachingLanguage != null) {
             teachingLanguage = dictionaryService.query("X_SKYY", teachingLanguage);
@@ -872,6 +888,12 @@ public class TeacherLessonTableServiceServiceImpl
             room = "";
         }
         list.add(room);
+        Integer elcNumber = teacherTimeTable.getElcNumber();
+        if (elcNumber == null) {
+            list.add("");
+        } else {
+            list.add(elcNumber + "");
+        }
         list.add(teacherTimeTable.getRemark());
         return list;
     }

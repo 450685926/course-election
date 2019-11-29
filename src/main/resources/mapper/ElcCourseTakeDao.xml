@@ -56,6 +56,8 @@
         <result column="CHOOSE_OBJ" jdbcType="INTEGER" property="electionMode"/>
         <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isElective"/>
         <result column="compulsory" jdbcType="VARCHAR" property="compulsory"/>
+        <result column="SEX_" jdbcType="VARCHAR" property="sex"/>
+        <result column="studentFaculty" jdbcType="VARCHAR" property="studentFaculty"/>
     </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
@@ -75,16 +77,16 @@
     <select id="listPage" resultMap="VoResultMap">
         select
         t1.*,
-        
         t2.NAME_,t2.PROFESSION_,t2.GRADE_,
-        t2.TRAINING_LEVEL_,
+        t2.TRAINING_LEVEL_,t2.SEX_,
+        t2.FACULTY_ studentFaculty,
         t3.FACULTY_,
         t3.COURSE_NAME_ AS courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
         from elc_course_takes_t_${query.index} t1
         join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ 
+        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ and IS_OPEN_ = 1
 	     AND t3.CALENDAR_ID_ = t1.CALENDAR_ID_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
@@ -151,7 +153,16 @@
                 and t2.FORM_LEARNING_= #{query.formLearning}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
-                and t3.FACULTY_ = #{query.faculty}
+                and t2.FACULTY_ = #{query.faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculties)">
+                and t3.FACULTY_ in
+                <foreach collection="query.faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
+                and t3.FACULTY_ = #{query.courseFaculty}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
                 and t3.COURSE_NAME_ = #{query.courseName}
@@ -650,6 +661,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and st.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and st.FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
                 and st.PROFESSION_ =#{profession,jdbcType=VARCHAR}
             </if>
@@ -937,7 +954,7 @@
         join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
         join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
-        join v_student_plan_course t5 on t5.studentId = t1.STUDENT_ID_ and t5.courseCode = t1.COURSE_CODE_ 
+        left join v_student_plan_course t5 on t5.studentId = t1.STUDENT_ID_ and t5.courseCode = t1.COURSE_CODE_
         <where>
             t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             and t1.STUDENT_ID_ = #{studentId}
@@ -1026,7 +1043,7 @@
     </select>
 
     <select id="findTeacherName" resultType="com.server.edu.election.vo.RollBookList" parameterType="java.util.List">
-        select TEACHING_CLASS_ID_ teachingClassId,TEACHER_NAME_ teacherName from teaching_class_teacher_t
+        select TEACHING_CLASS_ID_ teachingClassId,TEACHER_NAME_ teacherName,concat(TEACHER_NAME_,'(',TEACHER_CODE_,')') teacherCodeAndName from teaching_class_teacher_t
         <where>
             TEACHING_CLASS_ID_ in
             <foreach collection="list" open="(" separator="," close=")" item="id">
@@ -1062,6 +1079,12 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t3.COLLEGE_ =#{faculty,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and t3.COLLEGE_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
                 and t3.CODE_ like concat('%',#{courseCode,jdbcType=VARCHAR},'%')
@@ -1211,6 +1234,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and op.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and op.FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
                 and op.NATURE_ =#{nature,jdbcType=VARCHAR}
             </if>
@@ -1311,6 +1340,12 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and t1.FACULTY_ =#{faculty}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and t1.FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
                 and t1.PROFESSION_ =#{major}
             </if>
@@ -1337,6 +1372,12 @@
             and LEAVE_SCHOOL_ = '1'
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and FACULTY_ =#{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+                and FACULTY_ in
+                <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(major)">
                 and PROFESSION_ =#{major}
@@ -1969,6 +2010,9 @@
 		      t1.`COURSE_CODE_` = t3.`COURSE_CODE_` 
 		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
 		    )
+		    JOIN elc_med_withdraw_rules_t t5 ON t5.CALENDAR_ID_ = t1.CALENDAR_ID_
+            JOIN elc_med_withdraw_rule_ref_cour_t t6 ON t6.MED_WITHDRAW_RULE_ID_ = t5.ID_
+            AND t1.TEACHING_CLASS_ID_ = t6.TEACHING_CLASS_ID_
           LEFT JOIN elc_med_withdraw_t t4 ON t4.STUDENT_ID_ = t1.STUDENT_ID_ 
 	      AND t4.TEACHING_CLASS_ID_ = t2.ID_  
 		WHERE t1.`STUDENT_ID_` = #{studentId}
@@ -2068,13 +2112,29 @@
         <if test="paid !=null">
             and el.PAID_ = #{paid}
         </if>
-    </select>
-    <select id="getRetakeNumber" resultType="java.util.List">
+    </select> 
+    <select id="getRetakeNumber" resultType="java.lang.Integer">
         SELECT
         count(ID_)
         FROM elc_course_takes_t_${index} el
         WHERE  el.COURSE_TAKE_TYPE_ = 2
         AND el.STUDENT_ID_ = ${studentId}
        	GROUP BY el.COURSE_CODE_
+    </select>
+   <select id="selectClassByRoundId" resultType="java.lang.Long">
+		SELECT DISTINCT
+			t1.TEACHING_CLASS_ID_
+		FROM
+			elc_course_takes_t_${index} t1
+		WHERE
+			t1.TEACHING_CLASS_ID_ IN (
+				SELECT
+					t.TEACHING_CLASS_ID_
+				FROM
+					election_rounds_cour_t t
+				WHERE
+					t.ROUNDS_ID_ = #{roundId}
+			)
+		AND t1.CALENDAR_ID_ = #{calendarId}
     </select>
 </mapper>

@@ -113,7 +113,7 @@
       t3.TRAINING_CATEGORY_ trainingCategory,t3.DEGREE_TYPE_ degreeType,t3.FORM_LEARNING_ formLearning,t3.IS_OVERSEAS_ isOverseas,
       t2.ID_ teachingClassId,t2.NAME_ teachingClassName,t2.CODE_ teachingClassCode,t6.ID_ examInfoId
       from graduate_exam_info_t t6
-      left join graduate_exam_apply_examination_t t1 on t1.CALENDAR_ID_ = t6.CALENDAR_ID_ and t1.COURSE_CODE_ = t6.COURSE_CODE_
+      left join graduate_exam_apply_examination_t t1 on t1.EXAM_CALENDAR_ID_ = t6.CALENDAR_ID_ and t1.COURSE_CODE_ = t6.COURSE_CODE_
       left join teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
       left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_CODE_
       <where>
@@ -241,15 +241,15 @@
   </select>
 
   <select id="findStudentScore" resultType="com.server.edu.exam.dto.GraduateExamScore" parameterType="com.server.edu.exam.entity.GraduateExamApplyExamination">
-    select CALENDAR_ID_ calendarId,STUDENT_ID_ studentCode,COURSE_CODE_ courseCode,TEACHING_CLASS_ID_ teachingClassId
+    select STUDENT_ID_ studentCode,COURSE_CODE_ courseCode,TEACHING_CLASS_ID_ teachingClassId,IS_PASS_ isPass
     from score_student_result_t
-    where CALENDAR_ID_ = #{calendarId} and STUDENT_ID_ = #{studentCode} and COURSE_CODE_ = #{courseCode} and IS_PASS_ = 0 and RELEASE_TYPE_ = 1
+    where STUDENT_ID_ = #{studentCode} and COURSE_CODE_ = #{courseCode}  and RELEASE_TYPE_ = 1
   </select>
 
   <update id="updateStudentScoreMessage">
     <foreach collection="list" item="item" separator=";">
       update score_student_result_t SET REMARK_PK_ = #{aduitOpinions}
-      where CALENDAR_ID_ = #{item.calendarId} and COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and TEACHING_CLASS_ID_ = #{item.teachingClassId} and IS_PASS_ = 0
+      where  COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and TEACHING_CLASS_ID_ = #{item.teachingClassId} and IS_PASS_ = 0
     </foreach>
   </update>
 
@@ -401,5 +401,10 @@
       JOIN  graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
       join graduate_exam_room_t t3 on t1.EXAM_ROOM_ID_ = t3.ID_
       where t2.CALENDAR_ID_ = #{calendarId} and t2.PROJ_ID_ = #{projId}  and t2.EXAM_STATUS_ = 2 and t1.STUDENT_CODE_ = #{studentCode}  and t2.EXAM_TYPE_ = #{examType}
+  </select>
+
+  <select id="checkMakeUp" resultType="int">
+    select COUNT(*) from score_student_result_t
+    where STUDENT_ID_ =#{studentCode} and COURSE_CODE_ =#{courseCode} and RELEASE_TYPE_ = 1
   </select>
 </mapper>

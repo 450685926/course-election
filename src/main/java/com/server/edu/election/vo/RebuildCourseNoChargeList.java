@@ -46,11 +46,41 @@ public class RebuildCourseNoChargeList implements Serializable{
     @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
 
+    private String labelName;
     /**培养计划对应课程Id*/
     private Long planCourseId;
 
     /**账单Id*/
     private Long billId;
+
+    /**
+     * 年级
+     * @return
+     */
+    private Integer grade;
+
+    /**
+     * 学院
+     * @return
+     */
+    @Code2Text(DictTypeEnum.X_YX)
+    private String faculty;
+
+    /**
+     * 专业
+     * @return
+     */
+    @Code2Text(DictTypeEnum.G_ZY)
+    private String profession;
+
+    /**
+     * 开课学院
+     */
+    @Code2Text(DictTypeEnum.X_YX)
+    private String courseFaculty;
+
+
+
 
     public Long getBillId() {
         return billId;
@@ -252,5 +282,45 @@ public class RebuildCourseNoChargeList implements Serializable{
 
     public void setStartWeek(Integer startWeek) {
         this.startWeek = startWeek;
+    }
+
+    public Integer getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Integer grade) {
+        this.grade = grade;
+    }
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    public void setProfession(String profession) {
+        this.profession = profession;
+    }
+
+    public String getCourseFaculty() {
+        return courseFaculty;
+    }
+
+    public void setCourseFaculty(String courseFaculty) {
+        this.courseFaculty = courseFaculty;
+    }
+
+    public String getLabelName() {
+        return labelName;
+    }
+
+    public void setLabelName(String labelName) {
+        this.labelName = labelName;
     }
 }
