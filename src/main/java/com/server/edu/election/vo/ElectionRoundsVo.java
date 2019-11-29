@@ -10,6 +10,14 @@ public class ElectionRoundsVo extends ElectionRounds
     
     private List<ElectionRuleVo> ruleVos;
     
+    /**
+     * 可选课程数量
+     */
+    private Integer elcCourseNum;
+
+    private String grades;
+    
+    
     public ElectionRoundsVo()
     {
         
@@ -41,5 +49,21 @@ public class ElectionRoundsVo extends ElectionRounds
     {
         this.ruleVos = ruleVos;
     }
+
+	public Integer getElcCourseNum() {
+		return elcCourseNum;
+	}
+
+	public void setElcCourseNum(Integer elcCourseNum) {
+		this.elcCourseNum = elcCourseNum;
+	}
+
+	public String getGrades() {
+		return grades;
+	}
+
+	public void setGrades(String grades) {
+		this.grades = grades;
+	}
     
 }

@@ -7,7 +7,9 @@ import java.util.Set;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.entity.ScoreCountVo;
 import com.server.edu.common.entity.StudentScore;
+import com.server.edu.common.entity.StudentScoreChangeCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.ScoreStudentResultVo;
@@ -171,4 +173,20 @@ public class ScoreServiceInvoker {
                         jsonObject, List.class);
         return list;
     }
+
+  /**
+     * 查询学生当前学年学期的平均绩点
+     * @param studentCode
+     * @param calendarId
+     * @return
+     */
+    public static List<ScoreCountVo> listAvgScorePage2(PageCondition<StudentScoreChangeCondition> condition)
+    {
+    	@SuppressWarnings("unchecked")
+    	List<ScoreCountVo> restResult = ServicePathEnum.SCORESERVICE.postForObject(
+    			"/studentScoreCount/listAvgScorePage2",
+    			condition, List.class);
+    	return restResult;
+    }
+
 }

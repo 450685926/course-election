@@ -18,7 +18,7 @@ public class TeachingClassVo extends TeachingClass
     private Double credits;
     
     private List<String> ids;
-    
+
     private String teacherName;
     
     private int withdrawNum;
@@ -56,7 +56,7 @@ public class TeachingClassVo extends TeachingClass
     private List<TimeAndRoom> timeTableList;
     
     private String timeAndRoom;
-    
+
     private Long calendarId;
     
     private String limitFaculty;
@@ -100,7 +100,7 @@ public class TeachingClassVo extends TeachingClass
      * 教师code集合字符串
      */
     private String teacherCodes;
-    
+
     /**
      * 绑定班级Id
      * @return

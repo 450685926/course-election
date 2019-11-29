@@ -44,7 +44,7 @@ public class ElectionRounds implements Serializable {
     private String electionObj;
 
     /**
-     * 选课模式(1正常,2实践课,3结业生,4留学结业生)
+     * 选课模式(1正常,2实践课,3结业生,4留学结业生,5本研互选)
      */
     @NotNull
     @Column(name = "MODE_")
