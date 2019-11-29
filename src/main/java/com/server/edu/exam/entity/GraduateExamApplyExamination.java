@@ -20,7 +20,7 @@ public class GraduateExamApplyExamination implements Serializable {
     private Long id;
 
     /**
-     * 学期ID
+     * 申请学期ID
      */
     @Code2Text(translator = SchoolCalendarTranslator.class)
     @Column(name = "CALENDAR_ID_")
@@ -98,6 +98,14 @@ public class GraduateExamApplyExamination implements Serializable {
      */
     @Column(name = "REMARK_")
     private String remark;
+
+
+    /**
+     * 排考学期ID（缓考申请学期实际排考学期为下一学期）
+     */
+    @Code2Text(translator = SchoolCalendarTranslator.class)
+    @Column(name = "EXAM_CALENDAR_ID_")
+    private Long examCalendarId;
 
     private static final long serialVersionUID = 1L;
 
@@ -333,6 +341,14 @@ public class GraduateExamApplyExamination implements Serializable {
         this.teachingClassId = teachingClassId;
     }
 
+    public Long getExamCalendarId() {
+        return examCalendarId;
+    }
+
+    public void setExamCalendarId(Long examCalendarId) {
+        this.examCalendarId = examCalendarId;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -353,6 +369,7 @@ public class GraduateExamApplyExamination implements Serializable {
         sb.append(", createAt=").append(createAt);
         sb.append(", updateAt=").append(updateAt);
         sb.append(", remark=").append(remark);
+        sb.append(", examCalendarId=").append(examCalendarId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
