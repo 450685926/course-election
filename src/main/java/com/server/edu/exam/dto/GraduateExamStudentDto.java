@@ -30,6 +30,16 @@ public class GraduateExamStudentDto extends MyGraduateExam {
      */
     private Long examRoomId;
 
+    private Long examCalendarId;
+
+    public Long getExamCalendarId() {
+        return examCalendarId;
+    }
+
+    public void setExamCalendarId(Long examCalendarId) {
+        this.examCalendarId = examCalendarId;
+    }
+
     public String getTeachingClassName() {
         return teachingClassName;
     }
