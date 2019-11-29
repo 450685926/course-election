@@ -63,9 +63,9 @@ public class TeachingClassCache extends ElecCourse
     private String term;
     
     private Integer manArrangeFlag;
-    
+
     private String replaceCourse;
-    
+
     public String getReplaceCourse() {
 		return replaceCourse;
 	}

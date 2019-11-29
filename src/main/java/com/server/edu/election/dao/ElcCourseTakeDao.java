@@ -152,7 +152,7 @@ public interface ElcCourseTakeDao
         @Param("studentId") String studentId,
         @Param("calendarId") Long calendarId,
         @Param("index") Integer index);
-    
+
     /**未申请期中退课课程信息*/
     List<ElcCourseTakeVo> findUnApplyCourses(
         @Param("studentId") String studentId,
@@ -268,7 +268,7 @@ public interface ElcCourseTakeDao
 
     /**本科生已完成课程信息查询*/
     List<TeachingClassCache> findBkTeachClass(@Param("studentId") String studentId, @Param("calendarId") Long calendarId, @Param("courseCode") String courseCode,@Param("index") Integer index);
-    
+
     List<ElcCourseTakeVo> findElcCourseTakeByStudentId(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
     /**
      * 研究生查询学生课程安排，比较课程安排是否冲突使用,不区分老师

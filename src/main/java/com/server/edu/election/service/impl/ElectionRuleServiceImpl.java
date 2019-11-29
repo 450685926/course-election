@@ -61,7 +61,9 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         if (electionRuleDto.getStatus() != null)
         {
             criteria.andEqualTo("status", electionRuleDto.getStatus());
-        }
+        }else { // 不查询本研互选数据
+        	criteria.andNotEqualTo("status", Constants.TOW);
+		}
         if (StringUtils.isNotBlank(electionRuleDto.getName()))
         {
             criteria.andLike("name", "%"+electionRuleDto.getName()+"%");
@@ -69,6 +71,11 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         List<ElectionRule> list = electionRuleDao.selectByExample(example);
         return list;
     }
+    
+	@Override
+	public List<ElectionRule> mutualRuleList(ElectionRuleDto electionRuleDto) {
+		return electionRuleDao.select(electionRuleDto);
+	}
 
     /**
      * 在职研究生使用普研规则，部门写死
@@ -91,6 +98,7 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         list.add("不能超出人数上限");
         criteria.andIn("name", list);
         criteria.andEqualTo("managerDeptId",managerDeptId);
+        criteria.andNotEqualTo("status", Constants.TOW);
         List<ElectionRule> electionRules = electionRuleDao.selectByExample(example);
         List<ElectionRuleVo> ruleVos = new ArrayList<>(electionRules.size());
         for (ElectionRule electionRule : electionRules) {
@@ -256,5 +264,5 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         cacheUtil.cacheAllRule();
         return result;
     }
-    
+
 }

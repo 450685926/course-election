@@ -8,6 +8,7 @@ public interface Constants
 	 public static final int THREE = 3;
 	 public static final String EN_AUDIT = "EN_AUDIT";
 	 public static final String CREATE = "CREATE";
+	 
 	 /**普通班*/
 	 public static final String ORDINARY_CALSS = "1";
 	 /**重修班*/
@@ -62,12 +63,27 @@ public interface Constants
     
     /** 未缴费 */
     public static final Integer UN_PAID = 0;
+    
+    /** 本科生互选 */
+    public static final Integer BK_MUTUAL =1;
+    /** 研究生互选 */
+    public static final Integer GRADUATE_MUTUAL =2;
+    /** 本科生跨学科 */
+    public static final Integer BK_CROSS =3;
+
     /** 优*/
     public static final String EXCELLENT = "优";
     
     public static final Integer RECYCLETYPE = 1;
     
     public static final Integer AUTOTYPE = 2;
+    
+    public static final Integer FIRST = 1;
+    public static final Integer SECOND = 2;
+    public static final Integer THIRD = 3;
+
+    public static final String INSCHOOL = "1";
+
     
     /** 2018级及以后学分门数限制   年级 */
     public static final Integer GRADE = 2018;
