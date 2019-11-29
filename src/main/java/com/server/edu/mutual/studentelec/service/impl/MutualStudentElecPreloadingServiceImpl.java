@@ -17,7 +17,6 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.preload.DataProLoad;
-import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
@@ -39,9 +38,6 @@ public class MutualStudentElecPreloadingServiceImpl
     
     @Autowired
     private ApplicationContext applicationContext;
-    
-    @Autowired
-    private RoundDataProvider dataProvider;
     
     public MutualStudentElecPreloadingServiceImpl(
     	ElecMutualQueueService<ElecRequest> elecQueueService)
