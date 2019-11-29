@@ -12,6 +12,13 @@ import com.server.edu.election.vo.ElectionRuleVo;
 public interface ElectionRuleService{
     List<ElectionRule> list(ElectionRuleDto electionRuleDto);
 
+    /**
+     * 本研互选选课规则
+     * @param electionRuleDto
+     * @return
+     */
+    List<ElectionRule> mutualRuleList(ElectionRuleDto electionRuleDto);
+
     List<ElectionRuleVo> retakeRuleList(String managerDeptId);
 
     PageInfo<ElectionRule> page(PageCondition<ElectionRuleDto> condition);
@@ -39,5 +46,6 @@ public interface ElectionRuleService{
      * @see [类、类#方法、类#成员]
      */
     int batchUpdate(ElectionRuleDto electionRuleDto);
+
     
 }

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.entity.ElectionRounds;
@@ -163,7 +164,7 @@ public class RoundDataProvider
         roundCacheService.cacheRoundStu(roundId, timeout);
         //缓存轮次的上一学期
         String manageDptId = round.getProjectId();
-        if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE))
+        if (StringUtils.equals(manageDptId, Constants.PROJ_UNGRADUATE) && round.getMode().intValue() != RoundMode.BenYanHuXuan.mode())
         {
             cachePreSemester(round, timeout);
         }
@@ -405,6 +406,22 @@ public class RoundDataProvider
     {
         return roundCacheService
             .containsStuCondition(roundId, studentId, projectId);
+    }
+    
+    /**
+     * 判断本研互选学生的校区、学院、年级、专业、培养层次是否匹配轮次条件
+     * 
+     * @param roundId
+     * @param studentId
+     * @param projectId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsMutualStuCondition(Long roundId, String studentId,
+    		String projectId)
+    {
+    	return roundCacheService
+    			.containsMutualStuCondition(roundId, studentId, projectId);
     }
     
 }

@@ -356,7 +356,7 @@ public class CultureSerivceInvoker
         JSONObject param = new JSONObject();
         param.put("type", "2");
         param.put("page", "false");
-        param.put("categoryId", "categoryId");
+        param.put("categoryId", categoryId);
         
         Object restResult = 
             ServicePathEnum.CULTURESERVICE.postForObject("/coursesCategoryRel/list",param, Object.class);
