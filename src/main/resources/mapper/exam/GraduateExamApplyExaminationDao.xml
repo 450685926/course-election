@@ -18,6 +18,7 @@
     <result column="CREATE_AT_" jdbcType="TIMESTAMP" property="createAt" />
     <result column="UPDATE_AT_" jdbcType="TIMESTAMP" property="updateAt" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="EXAM_CALENDAR_ID_" jdbcType="BIGINT" property="examCalendarId" />
   </resultMap>
 
   <resultMap id="VoBaseResultMap" type="com.server.edu.exam.vo.GraduateExamApplyExaminationVo" extends="BaseResultMap">

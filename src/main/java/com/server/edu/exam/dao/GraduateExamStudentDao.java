@@ -95,4 +95,7 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
      * @date 2019/9/9 10:57
      */
     List<String> findExamStuCourseCode(MyGraduateExam condition);
+
+    /**查询成绩表课程成绩有几次记录*/
+    int checkMakeUp(@Param("studentCode") String studentCode,@Param("courseCode") String courseCode);
 }
