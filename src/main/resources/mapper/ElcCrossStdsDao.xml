@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.mutual.dao.ElcCrossStdsDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.mutual.entity.ElcCrossStds">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
+  </resultMap>
+  <select id="getCrossStds" parameterType="com.server.edu.mutual.dto.ElcMutualCrossStuDto" resultType="com.server.edu.mutual.vo.ElcMutualCrossStuVo">
+		SELECT
+		  t1.ID_ id,
+		  t1.`CALENDAR_ID_` calendarId,
+		  t1.`STUDENT_ID_` studentId,
+		  t2.`NAME_` studentName,
+		  t2.`SEX_` sex,
+		  t2.`TRAINING_LEVEL_` trainingLevel,
+		  t2.`FACULTY_` faculty,
+		  t2.`PROFESSION_` profession,
+		  t2.`GRADE_` grade,
+		  t2.`MANAGER_DEPT_ID_` projectId
+		FROM
+		  `elc_cross_stds_t` t1 
+		   JOIN `student_t` t2 
+		   ON t1.`STUDENT_ID_` = t2.`STUDENT_CODE_` 
+		<where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_ID_  = #{studentId}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+		        and t2.MANAGER_DEPT_ID_  = #{projectId}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+		        and t2.NAME_  = #{studentName}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+		        and t2.GRADE_  = #{grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+		        and t2.FACULTY_  = #{faculty}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+		        and t2.PROFESSION_  = #{profession}
+		    </if>			    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+		        and t2.TRAINING_LEVEL_  = #{trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+		        and t2.FACULTY_  = #{faculty}
+		    </if>
+		</where>  
+  </select>
+</mapper>
