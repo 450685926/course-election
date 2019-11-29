@@ -1,7 +1,12 @@
 package com.server.edu.election.studentelec.rules.bk;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.dao.ElcStudentLimitDao;
+import com.server.edu.election.entity.ElcStudentLimit;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,19 +41,12 @@ import tk.mybatis.mapper.entity.Example.Criteria;
 @Component("CreditLiMitFor2018AndBeyondRule")
 public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 {
-	@Autowired
-	private ElcStudentLimitService elcStudentLimitService;
-	
-	@Autowired
-	private ElcCourseTakeService elcCourseTakeService;
-	
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
-	
-    final String MAXRETAKECOURSECOUNT = "MAXRETAKECOURSECOUNT";
-    
-    final String MAXNEWCREDITS = "MAXNEWCREDITS";
-    
+
+	@Autowired
+	private ElcStudentLimitDao elcStudentLimitDao;
+
     @Override
     public int getOrder()
     {
@@ -67,88 +65,96 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
         
         //已选课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-     
-        //学生本学期已经重修的门数
-        Integer retakeNumber = elcCourseTakeService.getRetakeNumber(studentInfo.getStudentId(),request.getCalendarId());
-        
-        boolean isReTakeCourse = RetakeCourseUtil.isRetakeCourseBk(context,
-        		courseClass.getCourseCode());
-        //选择该课程之后的重修门数
-        if (isReTakeCourse) {
-        	retakeNumber = retakeNumber + 1;
-        }
-        //学生新选学分
-        Double sumCredits = 0d;
-        for (SelectedCourse selectedCourse : selectedCourses) {
-        	Double credits = selectedCourse.getCourse().getCredits();
-        	sumCredits = sumCredits + credits;
-		}
-        
-        //选择该课程之后的新选学分
-        sumCredits = sumCredits + courseClass.getCredits();
+
+		boolean count = RetakeCourseUtil.isRetakeCourseBk(context,
+				courseClass.getCourseCode());
+		String studentId = studentInfo.getStudentId();
+		Long calendarId = context.getCalendarId();
+		ElcStudentLimit elcStudentLimit = getLimitNum(studentId, calendarId);
         
         //学生年级
         Integer grade = studentInfo.getGrade();
         if (grade.intValue() >= Constants.GRADE) {
-			//查询个选限制(根据学生Id查询个选限制)
-        	PageCondition<ElcStudentLimitDto> condition = new PageCondition<>();
-        	ElcStudentLimitDto elcStudentLimitDto = new ElcStudentLimitDto();
-        	elcStudentLimitDto.setCalendarId(request.getCalendarId());
-        	elcStudentLimitDto.setStudentId(studentInfo.getStudentId());
-        	condition.setCondition(elcStudentLimitDto);
-        	PageInfo<ElcStudentLimitVo> limitStudents = elcStudentLimitService.getLimitStudents(condition);
-        	if (CollectionUtil.isNotEmpty(limitStudents.getList())) {
-				//判断学生个选限制是否满足要求
-        		ElcStudentLimitVo elcStudentLimitVo = limitStudents.getList().get(0);
-        		
-        		if (sumCredits.doubleValue() > elcStudentLimitVo.getNewLimitCredits()) {
-        			 ElecRespose respose = context.getRespose();
-        	            respose.getFailedReasons()
-        	                .put(courseClass.getCourseCodeAndClassCode(),
-        	                    I18nUtil.getMsg("ruleCheck.creditLiMit.newLimitCredits"));
-        			return false;
-				} else if ( retakeNumber  > elcStudentLimitVo.getRebuildLimitNumber()) {
-					ElecRespose respose = context.getRespose();
-					respose.getFailedReasons()
-						.put(courseClass.getCourseCodeAndClassCode(),
-							I18nUtil.getMsg("ruleCheck.creditLiMit.rebuildLimitNumber"));
-					return false;
-				}else{
+			if (count)
+			{//重修
+				int totalNumber = 0;
+				if(elcStudentLimit.getRebuildLimitNumber() != null) {
+					totalNumber = elcStudentLimit.getRebuildLimitNumber();
+				} else {
+					String number = electionConstantsDao.findRebuildCourseNumber();
+					if (StringUtils.isBlank(number))
+					{
+						return true;
+					}
+					totalNumber = Integer.valueOf(number);
+				}
+				Set<SelectedCourse> collect = selectedCourses.stream()
+						.filter(selectedCourse -> CourseTakeType.RETAKE
+								.eq(selectedCourse.getCourseTakeType()))
+						.collect(Collectors.toSet());
+				int size = collect.size();//已选重修门数
+				if (size + 1 <= totalNumber)
+				{
 					return true;
 				}
-			}else{
-				//如果没有个选限制，查询选课常量
-				 Example example = new Example(ElectionConstants.class);
-				 Criteria createCriteria = example.createCriteria();
-				 createCriteria.andEqualTo("key",MAXRETAKECOURSECOUNT);
-				 createCriteria.andEqualTo("managerDeptId",request.getProjectId());
-				 ElectionConstants selectOneByExample = electionConstantsDao.selectOneByExample(example);
-				 
-				 Example example1 = new Example(ElectionConstants.class);
-				 Criteria createCriteria1 = example.createCriteria();
-				 createCriteria1.andEqualTo("key",MAXNEWCREDITS);
-				 createCriteria1.andEqualTo("managerDeptId",request.getProjectId());
-				 ElectionConstants selectOneByExample1 = electionConstantsDao.selectOneByExample(example1);
-				 
-				 
-				 if (sumCredits.doubleValue() > Double.parseDouble(selectOneByExample.getValue())) {
-        			 ElecRespose respose = context.getRespose();
-        	            respose.getFailedReasons()
-        	                .put(courseClass.getCourseCodeAndClassCode(),
-        	                    I18nUtil.getMsg("ruleCheck.creditLiMit.newLimitCredits"));
-        			return false;
-				} else if ( retakeNumber  > Integer.parseInt(selectOneByExample1.getValue())) {
+				else
+				{
 					ElecRespose respose = context.getRespose();
 					respose.getFailedReasons()
-						.put(courseClass.getCourseCodeAndClassCode(),
-							I18nUtil.getMsg("ruleCheck.creditLiMit.rebuildLimitNumber"));
+							.put(courseClass.getCourseCodeAndClassCode(),
+									I18nUtil
+											.getMsg("ruleCheck.rebuildElecNumberLimit"));
 					return false;
-				}else{
-					return true;
 				}
 			}
+			else
+			{//新选
+				double num = 0.0;
+				if(elcStudentLimit.getNewLimitCredits() != null) {
+					num = elcStudentLimit.getNewLimitCredits();
+				}else {
+					String credits = electionConstantsDao.findNewCreditsLimit();
+					if (StringUtils.isBlank(credits))
+					{
+						return true;
+					}
+					num = Double.parseDouble(credits);
+				}
+				Set<SelectedCourse> collect = selectedCourses.stream()
+						.filter(selectedCourse -> CourseTakeType.NORMAL
+								.eq(selectedCourse.getCourseTakeType()))
+						.collect(Collectors.toSet());
+				double size = collect.stream()
+						.collect(
+								Collectors.summingDouble(c -> {return c.getCourse().getCredits();}));//已经新选学分
+				Double curCredits = courseClass.getCredits();//当前课程学分
+				if (curCredits + size <= num)
+				{
+					return true;
+				}
+				else
+				{
+					ElecRespose respose = context.getRespose();
+					respose.getFailedReasons()
+							.put(courseClass.getCourseCodeAndClassCode(),
+									I18nUtil.getMsg("ruleCheck.creditsLimit"));
+					return false;
+				}
+			}
+
 		}
         return true;
     }
-    
+
+	private ElcStudentLimit getLimitNum(String studentId, Long calendarId) {
+		Example example  = new Example(ElcStudentLimit.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("studentId", studentId);
+		criteria.andEqualTo("calendarId", calendarId);
+		ElcStudentLimit elcStudentLimit = elcStudentLimitDao.selectOneByExample(example);
+		if(elcStudentLimit==null) {
+			elcStudentLimit = new ElcStudentLimit();
+		}
+		return elcStudentLimit;
+	}
 }

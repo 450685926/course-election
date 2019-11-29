@@ -34,6 +34,15 @@ public class ClassCodeToTeacher {
     private Integer elcNumber;
     private String keyWord;//查询条件
     private String projectId;
+    private List<String> faculties;
+
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
 
     public String getProjectId() {
         return projectId;

@@ -13,6 +13,7 @@ import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.entity.TeachingClassChange;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.vo.ElcResultCountVo;
+import com.server.edu.election.vo.TeachingClassLimitVo;
 import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -142,7 +143,17 @@ public interface ElcResultService
 	void changeStudentClass(TeachingClassChange condition);
 	
 	AsyncResult autoBatchRemove(BatchAutoRemoveDto dto);
-	
 
+	/**
+	 * 修改某个教学班选课限制
+	 * @param teachingClassId
+	 * @param classVo
+	 */
+    void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo);
 
+	/**
+	 * 教学班已选人数男女生人数比例
+	 * @param elcResultQuery
+	 */
+	TeachingClassVo getMaleToFemaleRatio(ElcResultQuery elcResultQuery);
 }

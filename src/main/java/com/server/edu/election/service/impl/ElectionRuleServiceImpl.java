@@ -264,5 +264,5 @@ public class ElectionRuleServiceImpl implements ElectionRuleService
         cacheUtil.cacheAllRule();
         return result;
     }
-
+    
 }

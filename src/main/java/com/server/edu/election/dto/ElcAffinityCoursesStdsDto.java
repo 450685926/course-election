@@ -8,6 +8,16 @@ public class ElcAffinityCoursesStdsDto extends ElcAffinityCoursesStds{
     private String studentCode;
     
     private String studentName;
+    
+    private String courseCode;
+    
+	public String getCourseCode() {
+		return courseCode;
+	}
+
+	public void setCourseCode(String courseCode) {
+		this.courseCode = courseCode;
+	}
 
 	public String getStudentCode() {
 		return studentCode;

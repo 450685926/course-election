@@ -4,4 +4,5 @@ import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
 import tk.mybatis.mapper.common.Mapper;
 
 public interface TeachingClassElectiveRestrictProfessionDao extends Mapper<TeachingClassElectiveRestrictProfession> {
+    void deleteByClassId(Long classId);
 }

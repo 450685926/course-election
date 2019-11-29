@@ -12,7 +12,7 @@ public class ElcCourseTakeQuery
     public static final Integer PE_COURSE_TYPE = 1;
     /**英语课程类型*/
     public static final Integer EN_COURSE_TYPE = 2;
-
+    
     /**
      * 校历ID（学年学期）
      */
@@ -26,7 +26,9 @@ public class ElcCourseTakeQuery
     
     /**学生学院*/
     private String faculty;
-    
+
+    private List<String> faculties;
+
     private Integer sex;
 
     /**年级*/
@@ -109,7 +111,14 @@ public class ElcCourseTakeQuery
     
     private Integer electionMode;
 
-    
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
+
     public Integer getIndex() {
 		return index;
 	}

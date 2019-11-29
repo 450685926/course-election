@@ -1,9 +1,7 @@
 package com.server.edu.election.service.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -70,7 +68,6 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
     
     @Autowired
     private TeachingClassDao teachingClassDao;
-    
     @Autowired
     private ElcLogDao elcLogDao;
     
@@ -99,6 +96,9 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
     		dto.setStudentId(uid);
             elcCourseTakes =
                 elcCourseTakeDao.getElcMedWithdraw(dto);
+       }
+        for(ElcCourseTakeVo elcCourseTakeVo:elcCourseTakes){
+            elcCourseTakeVo.setTeachingName(teachingClassDao.findTeacherName(elcCourseTakeVo.getTeachingClassId()).stream().filter(Objects::nonNull).collect(Collectors.joining(",")));
         }
         PageInfo<ElcCourseTakeVo> pageInfo = new PageInfo<>(elcCourseTakes);
         return pageInfo;

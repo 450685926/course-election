@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
@@ -402,9 +403,17 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<StudentVo> findAllSchoolTimetab(
         PageCondition<ReportManagementCondition> condition)
     {
+        ReportManagementCondition reportManagementCondition = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(reportManagementCondition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                reportManagementCondition.setFaculties(deptIds);
+            }
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> allSchoolTimetab =
-            courseTakeDao.findAllSchoolTimetab(condition.getCondition());
+            courseTakeDao.findAllSchoolTimetab(reportManagementCondition);
         return new PageResult<>(allSchoolTimetab);
     }
 
@@ -464,22 +473,32 @@ public class ReportManagementServiceImpl implements ReportManagementService
                     int pageNum = 0;
                     pageCondition.setPageNum_(pageNum);
                     List<RollBookList> list = new ArrayList<>();
-                    while (true)
-                    {
-                        pageNum++;
-                        pageCondition.setPageNum_(pageNum);
-                        PageResult<RollBookList> rollBookList =
-                            findRollBookList(pageCondition);
-                        list.addAll(rollBookList.getList());
-
-                        result.setTotal((int)rollBookList.getTotal_());
-                        Double count = list.size() / 1.5;
-                        result.setDoneCount(count.intValue());
-                        this.updateResult(result);
-
-                        if (rollBookList.getTotal_() <= list.size())
+                    List<String> classCodeList = condition.getClassCodeList();
+                    if(null==classCodeList||classCodeList.size()==0){
+                        while (true)
                         {
-                            break;
+                            pageNum++;
+                            pageCondition.setPageNum_(pageNum);
+                            PageResult<RollBookList> rollBookList =
+                                    findRollBookList(pageCondition);
+                            list.addAll(rollBookList.getList());
+
+                            result.setTotal((int)rollBookList.getTotal_());
+                            Double count = list.size() / 1.5;
+                            result.setDoneCount(count.intValue());
+                            this.updateResult(result);
+
+                            if (rollBookList.getTotal_() <= list.size())
+                            {
+                                break;
+                            }
+                        }
+                    }else{
+                        for(String string:classCodeList){
+                            pageCondition.getCondition().setClassCode(string);
+                            PageResult<RollBookList> rollBookList =
+                                    findRollBookList(pageCondition);
+                            list.addAll(rollBookList.getList());
                         }
                     }
                     //组装excel
@@ -504,9 +523,17 @@ public class ReportManagementServiceImpl implements ReportManagementService
     public PageResult<RollBookList> findRollBookList(
         PageCondition<RollBookConditionDto> condition)
     {
+        RollBookConditionDto rollBookConditionDto = condition.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(rollBookConditionDto.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                rollBookConditionDto.setFaculties(deptIds);
+            }
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RollBookList> rollBookList =
-            courseTakeDao.findClassByTeacherCode(condition.getCondition());
+            courseTakeDao.findClassByTeacherCode(rollBookConditionDto);
         if (rollBookList != null)
         {
             List<RollBookList> result = rollBookList.getResult();
@@ -527,7 +554,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
                         if (CollectionUtil.isNotEmpty(rollBookLists))
                         {
-                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherName).collect(Collectors.toSet());
+                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherCodeAndName).collect(Collectors.toSet());
                             String teacherName = String.join(",", collect);
                             bookList.setTeacherName(teacherName);
                         }
@@ -1602,7 +1629,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
     private List<String> getTimeTableListBk(StudnetTimeTable timeTable)
     {
         List<String> list = new ArrayList<String>(12);
-        list.add(timeTable.getCourseCode());
+        list.add(timeTable.getClassCode());
         list.add(timeTable.getCourseName());
         list.add("2".equals(timeTable.getCourseType()) ? "是" : "否");
         String compulsory = timeTable.getCompulsory();

@@ -13,7 +13,7 @@
 		    t1.COURSE_ID_ courseId,
 			t3.COURSE_CODE_ courseCode,
 			t3.COURSE_NAME_ courseName,
-			t3.COURSE_NAME_EN_ courseNameEn,
+-- 			t3.COURSE_NAME_EN_ courseNameEn,
 			t3.TRAINING_LEVEL_ trainingLevel,
 			t3.CREDITS_ credits,
 	  		t3.FACULTY_ faculty

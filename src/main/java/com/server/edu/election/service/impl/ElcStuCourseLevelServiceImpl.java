@@ -87,8 +87,8 @@ public class ElcStuCourseLevelServiceImpl implements ElcStuCourseLevelService
         String studentId = couLevel.getStudentId();
         example.createCriteria()
                 .andEqualTo("studentId", studentId);
-        List<ElcStuCouLevel> elcStuCouLevels = couLevelDao.selectByExample(example);
-        if (CollectionUtil.isNotEmpty(elcStuCouLevels)) {
+        ElcStuCouLevel elcStuCouLevel = couLevelDao.selectOneByExample(example);
+        if (elcStuCouLevel != null && (couLevel.getId().longValue() != elcStuCouLevel.getId().longValue())) {
             throw new ParameterValidateException(
                     I18nUtil.getMsg("common.exist", studentId));
         }
