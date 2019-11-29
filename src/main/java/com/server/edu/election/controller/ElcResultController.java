@@ -460,4 +460,13 @@ public class ElcResultController
         }
         return RestResult.success();
     }
+
+    @ApiOperation(value = "教学班已选男女人数比例")
+    @PostMapping("/maleToFemaleRatio")
+    public RestResult<TeachingClassVo> getMaleToFemaleRatio(@RequestBody ElcResultQuery elcResultQuery)
+    {
+        TeachingClassVo teachingClassVo = elcResultService.getMaleToFemaleRatio(elcResultQuery);
+
+        return RestResult.successData(teachingClassVo);
+    }
 }

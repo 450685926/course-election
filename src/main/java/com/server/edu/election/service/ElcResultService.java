@@ -150,4 +150,10 @@ public interface ElcResultService
 	 * @param classVo
 	 */
     void updateClassLimit(Long teachingClassId, TeachingClassLimitVo classVo);
+
+	/**
+	 * 教学班已选人数男女生人数比例
+	 * @param elcResultQuery
+	 */
+	TeachingClassVo getMaleToFemaleRatio(ElcResultQuery elcResultQuery);
 }

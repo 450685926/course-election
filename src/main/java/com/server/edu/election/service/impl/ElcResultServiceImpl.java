@@ -12,11 +12,9 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.dictionary.service.DictionaryService;
-import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
-import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.dao.*;
@@ -1198,6 +1196,13 @@ public class ElcResultServiceImpl implements ElcResultService
             classVo.getElectiveRestrictAttr().setUpdatedAt(new Date());
             classElectiveRestrictAttrDao.insertSelective(classVo.getElectiveRestrictAttr());
         }
+    }
+
+    @Override
+    public TeachingClassVo getMaleToFemaleRatio(ElcResultQuery elcResultQuery) {
+
+        TeachingClassVo teachingClassVo = classDao.getMaleToFemaleRatio(elcResultQuery);
+        return teachingClassVo;
     }
 
 }
