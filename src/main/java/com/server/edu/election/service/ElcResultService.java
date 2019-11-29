@@ -143,8 +143,6 @@ public interface ElcResultService
 	
 	AsyncResult autoBatchRemove(BatchAutoRemoveDto dto);
 	
-	
-	
 
 
 }

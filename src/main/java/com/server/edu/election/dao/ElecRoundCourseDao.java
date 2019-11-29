@@ -135,8 +135,24 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
 	/**
 	 * 查询学年学期所有可选课程(研究生)
 	 * @param calendarId
+	 * @param projectId
 	 * @return
 	 */
 	List<CourseOpenDto> selectCorseGraduteByCalendarId(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
+	
+	/**
+	 * 查询学年学期所有可选课程(本科生)
+	 * @param calendarId
+	 * @return
+	 */
+	List<CourseOpenDto> selectCourseByCalendarId(@Param("calendarId") Long calendarId);
+	
+	/**
+	 * 查询学年学期所有可选课程(本研互选)
+	 * @param calendarId
+	 * @param projectId
+	 * @return
+	 */
+	List<CourseOpenDto> selectCourseByCalendarIdForMutual(@Param("calendarId") Long calendarId, @Param("projectId") String projectId);
 
 }
