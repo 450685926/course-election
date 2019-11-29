@@ -97,6 +97,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Value("${cache.directory}")
     private String cacheDirectory;
 
+    @Autowired
+    private RebuildCourseRecycleDao courseRecycleDao;
+
     /**
      * @Description: 查询收费管理
      * @Param:
@@ -954,5 +957,19 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                     return value;
                 });
         return design;
+    }
+
+    @Override
+    public boolean hasRetakeCourseNoPay(Long calendarId, String studentId) {
+        Example ex = new Example(RebuildCourseRecycle.class);
+        ex.createCriteria().andEqualTo("calendarId",calendarId);
+        ex.createCriteria().andEqualTo("studentCode",studentId);
+        List<RebuildCourseRecycle> rebuildCourseRecycles = courseRecycleDao.selectByExample(ex);
+        for (RebuildCourseRecycle rebuildCourseRecycle :rebuildCourseRecycles){
+            if (rebuildCourseRecycle.getPaid().intValue() == Constants.ZERO && rebuildCourseRecycle.getType().intValue() == Constants.ONE){
+                return true;
+            }
+        }
+        return false;
     }
 }
