@@ -166,7 +166,7 @@ public class Student implements Serializable
     
     
     /**
-     * 在校状态(校内在读、校外在读、不在读、离校)
+     * 在校状态(1 校内在读、2 校外在读、3 不在读、4 离校)
      */
     @Column(name = "LEAVE_SCHOOL_")
     private String leaveSchool;

@@ -180,8 +180,8 @@ public class ElecRoundServiceImpl implements ElecRoundService
         	dto.setDeleteStatus(Constants.DELETE_TRUE);
         	roundsDao.updateByPrimaryKeySelective(dto);
         	
-            roundsDao.deleteAllRefRule(id);//删除关联规则
-            elecRoundStuDao.deleteByRoundId(id);//删除可选课名单
+            //roundsDao.deleteAllRefRule(id);//删除关联规则
+            //elecRoundStuDao.deleteByRoundId(id);//删除可选课名单
             
             dataProvider.updateRoundCache(id);
         }

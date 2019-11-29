@@ -54,7 +54,7 @@ public class ElectionRule implements Serializable {
     private String remark;
 
     /**
-     * 是否启用0否，1是
+     * 是否启用0否，1是，2（本研互选标志位）
      */
     @NotNull
     @Column(name = "STATUS_")
