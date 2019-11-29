@@ -1085,10 +1085,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             }
             String[] courseNature = auth.getCourseNature().split(",");
             List<String> courseNatures = Arrays.asList(courseNature);
-            String[] trainingLevel = auth.getTrainingLevel().split(",");
-            List<String> trainingLevels = Arrays.asList(trainingLevel);
             vo.setCourseNatures(courseNatures);
-            vo.setTrainingLevels(trainingLevels);
         }
     }
 
