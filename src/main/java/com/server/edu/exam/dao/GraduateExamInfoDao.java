@@ -147,4 +147,5 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
     /**更换考场查询课程的所有id*/
     List<Long> findExamInfoIdsByCourseCode(ExamStudentAddDto condition);
 
+    List<GraduateExamInfoVo> editGraduateExamMakeUp(@Param("list") List<Long> examInfoIds);
 }
