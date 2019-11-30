@@ -249,7 +249,7 @@
   <update id="updateStudentScoreMessage">
     <foreach collection="list" item="item" separator=";">
       update score_student_result_t SET REMARK_PK_ = #{aduitOpinions}
-      where  COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and TEACHING_CLASS_ID_ = #{item.teachingClassId} and IS_PASS_ = 0
+      where  COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and IS_PASS_ = 0
     </foreach>
   </update>
 
