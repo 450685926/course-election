@@ -952,11 +952,18 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         if(CollectionUtil.isEmpty(examInfoIds)){
             examInfoIds.add(id);
         }
-        Long calendarId = examInfoDao.selectByPrimaryKey(examInfoIds.get(0)).getCalendarId();
+        GraduateExamInfo examInfo = examInfoDao.selectByPrimaryKey(examInfoIds.get(0));
+        Long calendarId = examInfo.getCalendarId();
         Integer mode = (int) (calendarId % 6);
         EditGraduateExam editGraduateExam = new EditGraduateExam();
         editGraduateExam.setExamInfoIds(StringUtils.join(examInfoIds,","));
-        List<GraduateExamInfoVo> list = examInfoDao.editGraduateExam(examInfoIds,mode);
+        List<GraduateExamInfoVo> list = new ArrayList<>();
+        //期末考试
+        if(ApplyStatus.FINAL_EXAM.equals(examInfo.getExamType())){
+            list = examInfoDao.editGraduateExam(examInfoIds,mode);
+        }else{
+            list = examInfoDao.editGraduateExamMakeUp(examInfoIds);
+        }
         if(CollectionUtil.isNotEmpty(list)){
             editGraduateExam.setInfoVoList(list);
             GraduateExamInfoVo vo = list.get(0);
