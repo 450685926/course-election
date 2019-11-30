@@ -258,13 +258,21 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 if(info.size() == 1){
                     if(!examInfo.getCampus().equals(graduateExamInfo.getCampus())){
                         if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                            throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                            String examTime = "时间地点学院通知";
+                            if(StringUtils.isNotBlank(examInfo.getExamTime())){
+                                examTime = examInfo.getExamTime();
+                            }
+                            throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样为:"+examTime);
                         }
                     }
                 }else{
 
                     if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                        throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                        String examTime = examInfo.getExamTime();
+                        if(StringUtils.isBlank(examTime)){
+                             examTime = "时间地点学院通知";
+                        }
+                        throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样为:"+examTime);
                     }
                 }
             }
