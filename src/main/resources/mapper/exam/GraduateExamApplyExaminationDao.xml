@@ -225,6 +225,6 @@
     select t1.STUDENT_CODE_ studentCode,t1.TEACHING_CLASS_ID_ teachingClassId,t2.CODE_ teachingClassCode,t2.NAME_ teachingClassName
     from graduate_exam_apply_examination_t t1
     left join teaching_class_t t2 on t2.ID_ = t1.TEACHING_CLASS_ID_
-    where t1.STUDENT_CODE_ = #{studentCode} and t1.CALENDAR_ID_ = #{calendarId} and t1.COURSE_CODE_ = #{courseCode} and t1.APPLY_STATUS_ = 4
+    where t1.STUDENT_CODE_ = #{studentCode} and t1.EXAM_CALENDAR_ID_ = #{calendarId} and t1.COURSE_CODE_ = #{courseCode} and t1.APPLY_STATUS_ = 4
   </select>
 </mapper>
