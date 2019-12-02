@@ -498,7 +498,7 @@ public class ElcResultServiceImpl implements ElcResultService
     public void batchSetReserveNum(ReserveDto reserveDto) {
     	TeachingClass teachingClass = new TeachingClass();
     	teachingClass.setReserveNumber(reserveDto.getReserveNumber());
-    	if(reserveDto.getReserveNumberRate() != null){
+    	if(reserveDto.getReserveNumberRate() == null){
             for (Long id : reserveDto.getIds()) {
                 TeachingClass teachingClass1 = teachingClassDao.selectByPrimaryKey(id);
                 teachingClass.setReserveNumberRate(teachingClass1.getNumber().intValue()==0?0.0:new BigDecimal(reserveDto.getReserveNumber()).divide(new BigDecimal(teachingClass1.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
