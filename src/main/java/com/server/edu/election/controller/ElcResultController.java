@@ -8,11 +8,14 @@ import javax.validation.constraints.NotNull;
 
 import com.server.edu.election.vo.TeachingClassLimitVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.server.edu.common.PageCondition;
@@ -431,7 +434,31 @@ public class ElcResultController
             ExcelResult result = elcResultService.teachClassPageExport(condition);
             return RestResult.successData(result);
         }
-    
+
+    /**
+     * 班级信息导出信息
+     *
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @GetMapping("/result/{key}")
+    public RestResult<ExcelResult> findSyndromeStatus(@PathVariable String key){
+        ExcelResult resultByKey = ExportExcelUtils.getResultByKey(key);
+        return RestResult.successData(resultByKey);
+    }
+
+    /**
+     * @Description: 下载
+     */
+    @ApiOperation(value = "导出excel下载文件")
+    @GetMapping("/download")
+    @ApiResponses({
+            @ApiResponse(code = 200, response = File.class, message = "导出excel下载文件")})
+    public ResponseEntity<Resource> download(@RequestParam("path") String path)
+            throws Exception
+    {
+        return ExportExcelUtils.export(path);
+    }
     /**
      * 转移学生
      * 

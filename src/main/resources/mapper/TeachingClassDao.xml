@@ -120,9 +120,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
         and t3.IS_ELECTIVE_ = #{isElective}
       </if>
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
-            and t3.TRAINING_LEVEL_ = #{trainingLevel}
-        </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+        and t3.TRAINING_LEVEL_ = #{trainingLevel}
+      </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
         and t1.COURSE_LABEL_ID_ = #{courseLabelId}
       </if>
@@ -180,6 +180,12 @@
             #{courseCode}
          </foreach>
   	  </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassIds)">
+        and t1.ID_ in
+        <foreach collection="teachingClassIds" open="(" separator="," close=")" item="teachingClassId">
+            #{teachingClassId}
+        </foreach>
+      </if>
   	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
   		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
   	  </if>
