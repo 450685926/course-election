@@ -249,7 +249,7 @@
   <update id="updateStudentScoreMessage">
     <foreach collection="list" item="item" separator=";">
       update score_student_result_t SET REMARK_PK_ = #{aduitOpinions}
-      where  COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and TEACHING_CLASS_ID_ = #{item.teachingClassId} and IS_PASS_ = 0
+      where  COURSE_CODE_ = #{item.courseCode} and STUDENT_ID_ = #{item.studentCode} and IS_PASS_ = 0
     </foreach>
   </update>
 
@@ -300,7 +300,7 @@
           #{faculty}
         </foreach>
       </if>
-      and t1.CALENDAR_ID_ = #{calendarId} and t1.IS_PASS_ = 0 and t1.RELEASE_TYPE_ = 1 and t3.MANAGER_DEPT_ID_ = #{projId}
+      and  t1.IS_PASS_ = 0 and t1.RELEASE_TYPE_ = 1 and t3.MANAGER_DEPT_ID_ = #{projId}
     </where>
   </select>
 
@@ -326,7 +326,7 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
         and ( t2.CODE_ like concat('%',#{keyword},'%') or t2.NAME_ like concat('%',#{keyword},'%'))
       </if>
-      and t1.IS_PASS_ = 0 and t1.RELEASE_TYPE_ = 1 and t1.STUDENT_ID_ = #{studentCode} and t1.CALENDAR_ID_ = #{calendarId} and t2.MANAGER_DEPT_ID_ = #{projId}
+      and t1.IS_PASS_ = 0 and t1.RELEASE_TYPE_ = 1 and t1.STUDENT_ID_ = #{studentCode}  and t2.MANAGER_DEPT_ID_ = #{projId}
     </where>
   </select>
 

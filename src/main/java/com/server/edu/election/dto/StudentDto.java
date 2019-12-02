@@ -22,6 +22,16 @@ public class StudentDto extends Student
     private List<String> studentIds;
     
     private String projectId;
+
+    private List<String> faculties;
+
+    public List<String> getFaculties() {
+        return faculties;
+    }
+
+    public void setFaculties(List<String> faculties) {
+        this.faculties = faculties;
+    }
     
     public String getStudentId()
     {

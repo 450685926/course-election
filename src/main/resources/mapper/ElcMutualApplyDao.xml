@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.mutual.dao.ElcMutualApplyDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.mutual.entity.ElcMutualApply">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
+    <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
+    <result column="APPLY_AT_" jdbcType="TIMESTAMP" property="applyAt" />
+    <result column="USER_ID_" jdbcType="VARCHAR" property="userId" />
+    <result column="STATUS_" jdbcType="INTEGER" property="status" />
+    <result column="MUTUAL_COURSE_ID_" jdbcType="BIGINT" property="mutualCourseId" />
+    <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
+    <result column="AUDIT_REASON_" jdbcType="VARCHAR" property="auditReason" />
+  </resultMap>
+  <resultMap type="com.server.edu.mutual.vo.ElcMutualApplyVo" id="MutualApplyMap" extends="BaseResultMap">
+      <result column="COURSE_ID_" jdbcType="VARCHAR" property="courseId" />
+      <result column="COURSE_CODE_" jdbcType="VARCHAR" property="courseCode" />
+      <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName" />
+      <result column="openCollege" jdbcType="VARCHAR" property="openCollege" />
+      <result column="NATURE_" jdbcType="VARCHAR" property="nature" />
+      <result column="IS_ELECTIVE_" jdbcType="VARCHAR" property="isElective" />
+      <result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode" />
+      <result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+      <result column="courseTrainingLevel" jdbcType="DOUBLE" property="courseTrainingLevel" />
+      <result column="studentName" jdbcType="VARCHAR" property="studentName" />
+      <result column="GRADE_" jdbcType="INTEGER" property="grade" />
+      <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+      <result column="college" jdbcType="VARCHAR" property="college" />
+      <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+      <result column="stuTrainingLevel" jdbcType="VARCHAR" property="stuTrainingLevel" />                              
+      <result column="STUDENT_CATEGORY_" jdbcType="VARCHAR" property="studentCategory" />                              
+      <result column="stuNumber" jdbcType="VARCHAR" property="stuNumber" />                             
+  </resultMap>
+  <select id="getElcMutualApplyList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
+		SELECT 
+		  t1.*,
+		  t4.`COURSE_CODE_`,
+		  t4.`COURSE_NAME_`,
+		  t4.`FACULTY_` openCollege,
+		  t4.`NATURE_`,
+		  t4.`IS_ELECTIVE_`,
+		  t3.`ASSESSMENT_MODE_`,
+		  t4.`CREDITS_`,
+		  t4.`TRAINING_LEVEL_` courseTrainingLevel
+		FROM
+		  `elc_mutual_apply_t` t1 
+		  JOIN `elc_mutual_courses_t` t2 ON t1.`MUTUAL_COURSE_ID_` = t2.`COURSE_ID_`
+		  JOIN course_open_t t4 on t2.`COURSE_ID_` = t4.`ID_`
+		  JOIN `course_t` t3 ON t3.CODE_ = t4.COURSE_CODE_
+		 <where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_ID_  = #{studentId}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t2.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t2.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		        and t4.COURSE_CODE_ like concat ('%', #{courseCode},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		        and t4.COURSE_NAME_ like concat ('%', #{courseName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+		        and t4.TRAINING_LEVEL_  = #{trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
+		        and t4.FACULTY_  = #{openCollege}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+		        and t4.NATURE_  = #{nature}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+		        and t4.IS_ELECTIVE_  = #{isElective}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
+		        and t4.PROJ_ID_ in  
+		        <foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">
+                    #{projectId}
+                </foreach>
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(status)">
+		        and t1.STATUS_  = #{status}
+		    </if>
+		 </where>
+  </select>
+  
+  <select id="getElcMutualCoursesForStu" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
+		SELECT 
+			  t1.`ID_`,
+			  t1.`COURSE_ID_`,
+			  t2.`COURSE_CODE_`,
+			  t2.`COURSE_NAME_`,
+			  t2.`FACULTY_` openCollege,
+			  t2.`NATURE_`,
+			  t2.`IS_ELECTIVE_`,
+			  t4.`ASSESSMENT_MODE_`,
+			  t2.`CREDITS_`,
+			  t2.`TRAINING_LEVEL_` courseTrainingLevel 
+		FROM elc_mutual_courses_t t1 
+		      JOIN course_open_t t2 ON t1.`COURSE_ID_` = t2.`ID_`
+		      left join course_t t4 on t2.COURSE_CODE_ = t4.CODE_ 
+		<where>
+		 t1.COURSE_ID_ NOT IN 
+		  (SELECT 
+		     t3.MUTUAL_COURSE_ID_ 
+		  FROM
+		     elc_mutual_apply_t t3 
+		  WHERE t3.`CALENDAR_ID_` = #{calendarId} AND t3.`STUDENT_ID_` = #{studentId}
+		    )
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t1.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t1.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		        and t2.COURSE_CODE_ like concat ('%', #{courseCode},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		        and t2.COURSE_NAME_ like concat ('%', #{courseName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWords)">
+		        and (t2.COURSE_CODE_ like concat ('%', #{keyWords},'%') or t2.COURSE_NAME_ like concat ('%', #{keyWords},'%'))
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+		        and t2.TRAINING_LEVEL_  = #{trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
+		        and t2.FACULTY_  = #{openCollege}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+		        and t2.NATURE_  = #{nature}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+		        and t2.IS_ELECTIVE_  = #{isElective}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
+		        and t2.PROJ_ID_ in  
+		        <foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">
+                    #{projectId}
+                </foreach>
+		    </if>
+		 </where>
+  </select>
+  
+  <select id="collegeApplyCourseList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
+		SELECT 
+		  t1.*,
+		  t2.COURSE_ID_,
+		  t5.`COURSE_CODE_`,
+		  t5.`COURSE_NAME_`,
+		  t5.`FACULTY_` openCollege,
+		  t5.`NATURE_`,
+		  t5.`IS_ELECTIVE_`,
+		  t3.`ASSESSMENT_MODE_`,
+		  t5.`CREDITS_`,
+		  t4.`TRAINING_LEVEL_` stuTrainingLevel,
+		  t4.`NAME_` studentName,
+		  t1.STUDENT_ID_ studentId, 
+		  t4.GRADE_,
+		  t4.PROFESSION_
+		FROM
+		  `elc_mutual_apply_t` t1 
+		  JOIN `elc_mutual_courses_t` t2 ON t1.`MUTUAL_COURSE_ID_` = t2.`COURSE_ID_`
+		  JOIN course_open_t t5 on t5.ID_ = t2.COURSE_ID_ 
+		  JOIN `course_t` t3 ON t3.`CODE_` = t5.`COURSE_CODE_`
+		  JOIN student_t t4 ON t1.`STUDENT_ID_` = t4.`STUDENT_CODE_`
+		 <where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    and t4.FACULTY_  = #{college}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+		        and t4.NAME_ like concat ('%', #{studentName},'%')
+		    </if>	    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t2.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t2.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		        and t5.COURSE_CODE_ like concat ('%', #{courseCode},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		        and t5.COURSE_NAME_ like concat ('%', #{courseName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
+		        and t5.FACULTY_  = #{openCollege}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
+		        and t5.PROJ_ID_ in  
+		        <foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">
+                    #{projectId}
+                </foreach>
+		    </if>
+   		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(status)">
+		        and t1.STATUS_  = #{status}
+		    </if>
+   		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+		        and t4.GRADE_  = #{grade}
+		    </if>
+   		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+		        and t4.PROFESSION_  = #{profession}
+		    </if>
+   		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuTrainingLevel)">
+		        and t4.TRAINING_LEVEL_  = #{stuTrainingLevel}
+		    </if>
+		 </where>
+  </select>
+  <select id="collegeApplyStuList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
+		SELECT 
+		  t1.`ID_`,
+		  t1.`STUDENT_ID_`,
+          t4.`NAME_` studentName,
+          t4.`GRADE_`,
+          t4.`FACULTY_`,
+          t4.`PROFESSION_`,
+          t4.`TRAINING_LEVEL_` stuTrainingLevel
+		FROM
+		  `elc_mutual_apply_t` t1 
+		  JOIN `elc_mutual_courses_t` t2 ON t1.`MUTUAL_COURSE_ID_` = t2.`COURSE_ID_`
+		  JOIN course_open_t t5 on t5.ID_ = t2.COURSE_ID_  
+		  JOIN `course_t` t3 ON t3.`CODE_` = t5.`COURSE_CODE_`
+		  JOIN `student_t` t4 ON t4.`STUDENT_CODE_` = t1.`STUDENT_ID_`
+		 <where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+		        and t4.NAME_ like concat ('%', #{studentName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t2.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t2.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
+		        and t5.PROJ_ID_ in  
+		        <foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">
+                    #{projectId}
+                </foreach>
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+		        and t4.GRADE_  = #{grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
+		        and t4.FACULTY_  = #{college}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+		        and t4.PROFESSION_  = #{profession}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuTrainingLevel)">
+		        and t4.TRAINING_LEVEL_  = #{stuTrainingLevel}
+		    </if>				    			    		    		    
+		 </where>
+		GROUP BY t1.`STUDENT_ID_`
+  </select>
+  
+   <select id="openCollegeApplyCourseList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
+		SELECT 
+		  t1.`ID_`,
+		  t1.`MUTUAL_COURSE_ID_`,
+		  t1.STATUS_,
+		  t1.REMARK_,
+		  t1.AUDIT_REASON_,
+		  t2.`COURSE_ID_`,
+		  t4.`COURSE_CODE_`,
+		  t4.`COURSE_NAME_`,
+		  t4.`NATURE_`,
+		  t4.IS_ELECTIVE_,
+		  t4.`CREDITS_`,
+		  t4.`TRAINING_LEVEL_` courseTrainingLevel,
+		  count(t1.STUDENT_ID_) stuNumber
+		FROM
+		  elc_mutual_apply_t t1 
+		  JOIN elc_mutual_courses_t t2 ON t1.MUTUAL_COURSE_ID_ = t2.COURSE_ID_
+		  JOIN course_open_t t4 ON t4.ID_ = t2.COURSE_ID_ 
+		  JOIN course_t t3 ON t3.CODE_ = t4.COURSE_CODE_
+		 <where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    and t4.FACULTY_ = #{openCollege}		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t2.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t2.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		        and t4.COURSE_CODE_ like concat ('%', #{courseCode},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		        and t4.COURSE_NAME_ like concat ('%', #{courseName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+		        and t4.TRAINING_LEVEL_  = #{trainingLevel}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+		        and t4.NATURE_  = #{nature}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+		        and t4.IS_ELECTIVE_  = #{isElective}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(status)">
+		        and t1.STATUS_ = #{status} 
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(statusArray)">
+		        and t1.STATUS_ in  
+		        <foreach item="status" collection="statusArray" open="(" close=")" separator=",">
+                     #{status}
+	            </foreach>
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+		        and t4.PROJ_ID_ = #{projectId}
+		    </if>
+		 </where>
+		 GROUP BY t4.COURSE_CODE_
+  </select>
+   <select id="openCollegeApplyStuList" parameterType="com.server.edu.mutual.dto.ElcMutualApplyDto" resultMap="MutualApplyMap">
+		SELECT 
+		  	 t1.`ID_`,
+	         t5.COURSE_CODE_,
+	         t5.COURSE_NAME_,
+		  	 t1.`STUDENT_ID_`,
+	         t4.`NAME_` studentName,
+	         t4.`GRADE_`,
+	         t4.`FACULTY_` college,
+	         t4.`PROFESSION_`,
+	         t1.REMARK_,
+		  	 t1.STATUS_,
+		  	 t4.STUDENT_CATEGORY_,
+		  	 t4.TRAINING_LEVEL_ stuTrainingLevel
+		FROM
+		  `elc_mutual_apply_t` t1 
+		  JOIN `elc_mutual_courses_t` t2 ON t1.`MUTUAL_COURSE_ID_` = t2.`COURSE_ID_`
+		  JOIN course_open_t t5 on t5.ID_ = t2.COURSE_ID_  
+		  JOIN `course_t` t3 ON t3.`CODE_` = t5.`COURSE_CODE_`
+		  JOIN `student_t` t4 ON t4.`STUDENT_CODE_` = t1.`STUDENT_ID_`
+		<where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    and t5.FACULTY_ = #{openCollege}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+		        and t4.NAME_ like concat ('%', #{studentName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		        and t5.COURSE_CODE_ like concat ('%', #{courseCode},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		        and t5.COURSE_NAME_ like concat ('%', #{courseName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t2.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t2.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+		        and t4.GRADE_  = #{grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
+		        and t4.FACULTY_  = #{college}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+		        and t4.PROFESSION_  = #{profession}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+		        and t5.PROJ_ID_ = #{projectId}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(statusArray)">
+		        and t1.STATUS_ in  
+		        <foreach item="status" collection="statusArray" open="(" close=")" separator=",">
+                     #{status}
+	            </foreach>
+		    </if>				    			    		    		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(status)">
+		        and t1.STATUS_ = #{status} 
+		    </if>				    			    		    		    
+		 </where>
+ 	</select>
+  
+</mapper>

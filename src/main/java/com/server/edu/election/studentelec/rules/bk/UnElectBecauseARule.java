@@ -36,24 +36,35 @@ public class UnElectBecauseARule extends AbstractElecRuleExceutorBk
         if (CollectionUtil.isNotEmpty(completedCourses)
             && courseClass.getTeachClassId() != null)
         {
+//            List<CompletedCourse> list = completedCourses.stream()
+//                .filter(temp -> temp.isExcellent() == true)
+//                .collect(Collectors.toList());
+//            if (CollectionUtil.isNotEmpty(list))
+//            {
+//                String courseCode = courseClass.getCourseCode();
+//                //还要判断是否有替代得优的课程todo
+//                long count = list.stream()
+//                    .filter(c -> courseCode.equals(c.getCourse().getCourseCode()))
+//                    .count();
+//                if (count > 0)
+//                {
+//                    ElecRespose respose = context.getRespose();
+//                    respose.getFailedReasons()
+//                        .put(courseClass.getCourseCodeAndClassCode(),
+//                            I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
+//                    return false;
+//                }
+//            }
             List<CompletedCourse> list = completedCourses.stream()
-                .filter(temp -> temp.isExcellent() == true)
-                .collect(Collectors.toList());
+                    .filter(temp -> temp.getCourse().getCourseCode().equals(courseClass.getCourseCode()) && temp.isExcellent() == true)
+                    .collect(Collectors.toList());
             if (CollectionUtil.isNotEmpty(list))
             {
-                String courseCode = courseClass.getCourseCode();
-                //还要判断是否有替代得优的课程todo
-                long count = list.stream()
-                    .filter(c -> courseCode.equals(c.getCourse().getCourseCode()))
-                    .count();
-                if (count > 0)
-                {
-                    ElecRespose respose = context.getRespose();
-                    respose.getFailedReasons()
+                ElecRespose respose = context.getRespose();
+                respose.getFailedReasons()
                         .put(courseClass.getCourseCodeAndClassCode(),
-                            I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
-                    return false;
-                }
+                                I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
+                return false;
             }
         }
         return true;

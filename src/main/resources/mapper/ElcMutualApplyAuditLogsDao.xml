@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.mutual.dao.ElcMutualApplyAuditLogsDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.mutual.entity.ElcMutualApplyAuditLogs">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
+    <result column="AUDIT_TYPE_" jdbcType="INTEGER" property="auditType" />
+    <result column="APPROVED_" jdbcType="INTEGER" property="approved" />
+    <result column="AUDIT_USER_ID_" jdbcType="VARCHAR" property="auditUserId" />
+    <result column="AUDIT_AT_" jdbcType="TIMESTAMP" property="auditAt" />
+    <result column="MU_APPLY_ID_" jdbcType="BIGINT" property="muApplyId" />
+    <result column="REASON_" jdbcType="LONGVARCHAR" property="reason" />
+  </resultMap>
+  
+  <resultMap id="ElcMutualApplyAuditLogsVoMap" type="com.server.edu.mutual.vo.ElcMutualApplyAuditLogsVo" extends="BaseResultMap">
+    <result column="STUDENT_ID_" jdbcType="INTEGER" property="studentId" />
+    <result column="APPLY_AT_" jdbcType="TIMESTAMP" property="applyAt" />
+    <result column="AUDIT_USER_ID_" jdbcType="VARCHAR" property="auditUserId" />
+    <result column="STATUS_" jdbcType="INTEGER" property="status" />
+  </resultMap>
+  
+  <select id="queryAuditLogList" parameterType="com.server.edu.mutual.vo.ElcMutualApplyAuditLogsVo" resultMap="ElcMutualApplyAuditLogsVoMap">
+		<choose>
+             <when test=" projectId == 1 ">
+                 SELECT * from elc_mutual_apply_audit_logs_t where ID_ = (
+                     (SELECT MAX(ID_) FROM elc_mutual_apply_audit_logs_t 
+                     where MU_APPLY_ID_ = #{muApplyId} and AUDIT_TYPE_ = 1)
+                 )
+		        union all
+             </when>
+        </choose>
+        SELECT * from elc_mutual_apply_audit_logs_t where ID_ = (
+            (SELECT MAX(ID_) FROM elc_mutual_apply_audit_logs_t 
+            where MU_APPLY_ID_ = #{muApplyId} and AUDIT_TYPE_ = 2)
+        )
+   </select>  
+  
+</mapper>

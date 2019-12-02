@@ -258,13 +258,21 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
                 if(info.size() == 1){
                     if(!examInfo.getCampus().equals(graduateExamInfo.getCampus())){
                         if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                            throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                            String examTime = "时间地点学院通知";
+                            if(StringUtils.isNotBlank(examInfo.getExamTime())){
+                                examTime = examInfo.getExamTime();
+                            }
+                            throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样为:"+examTime);
                         }
                     }
                 }else{
 
                     if(!graduateExamInfo.getExamTime().equals(examInfo.getExamTime())){
-                        throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样"+examInfo.getExamTime());
+                        String examTime = examInfo.getExamTime();
+                        if(StringUtils.isBlank(examTime)){
+                             examTime = "时间地点学院通知";
+                        }
+                        throw new ParameterValidateException("公共课课程:"+examInfo.getCourseName()+"("+examInfo.getCourseCode()+")"+"所有校区排考时间必须一样为:"+examTime);
                     }
                 }
             }
@@ -887,7 +895,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         if(StringUtils.isNotBlank(restrict.getDescript())){
             msg = restrict.getDescript();
         }
-        return "成功分配" + matchList.size() + "学生" + "还有" + noMatchList.size() + "学生未分配。" + msg;
+        return "成功分配" + matchList.size() + "个学生," + "还有" + noMatchList.size() + "个学生未分配。" + msg;
     }
 
     @Override
@@ -952,11 +960,18 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         if(CollectionUtil.isEmpty(examInfoIds)){
             examInfoIds.add(id);
         }
-        Long calendarId = examInfoDao.selectByPrimaryKey(examInfoIds.get(0)).getCalendarId();
+        GraduateExamInfo examInfo = examInfoDao.selectByPrimaryKey(examInfoIds.get(0));
+        Long calendarId = examInfo.getCalendarId();
         Integer mode = (int) (calendarId % 6);
         EditGraduateExam editGraduateExam = new EditGraduateExam();
         editGraduateExam.setExamInfoIds(StringUtils.join(examInfoIds,","));
-        List<GraduateExamInfoVo> list = examInfoDao.editGraduateExam(examInfoIds,mode);
+        List<GraduateExamInfoVo> list = new ArrayList<>();
+        //期末考试
+        if(ApplyStatus.FINAL_EXAM.equals(examInfo.getExamType())){
+            list = examInfoDao.editGraduateExam(examInfoIds,mode);
+        }else{
+            list = examInfoDao.editGraduateExamMakeUp(examInfoIds);
+        }
         if(CollectionUtil.isNotEmpty(list)){
             editGraduateExam.setInfoVoList(list);
             GraduateExamInfoVo vo = list.get(0);
@@ -1085,10 +1100,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             }
             String[] courseNature = auth.getCourseNature().split(",");
             List<String> courseNatures = Arrays.asList(courseNature);
-            String[] trainingLevel = auth.getTrainingLevel().split(",");
-            List<String> trainingLevels = Arrays.asList(trainingLevel);
             vo.setCourseNatures(courseNatures);
-            vo.setTrainingLevels(trainingLevels);
         }
     }
 
