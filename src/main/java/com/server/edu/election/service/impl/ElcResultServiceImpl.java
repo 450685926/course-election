@@ -167,7 +167,7 @@ public class ElcResultServiceImpl implements ElcResultService
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
     		// 添加教室容量
-    		Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(Collectors.toSet());
+    		Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(toSet());
     		List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
             for(TeachingClassVo vo: list) {
         	    //拼装教师
@@ -186,12 +186,15 @@ public class ElcResultServiceImpl implements ElcResultService
 				vo.setTimeTableList(tableMessages);
 				String timeAndRoom = "";
 				for (TimeAndRoom tAndR : tableMessages) {
+                    timeAndRoom = timeAndRoom + tAndR.getTimeAndRoom();
 					if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
 						ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
 						if (classroom != null) {
-							timeAndRoom = tAndR.getTimeAndRoom() + "/" + classroom.getName()+" ";
+							timeAndRoom = "/" + classroom.getName()+" ";
 						}
-					}
+					}else {
+                        timeAndRoom = timeAndRoom + " ";
+                    }
 				}
 				vo.setTimeAndRoom(timeAndRoom);
             }
@@ -447,6 +450,7 @@ public class ElcResultServiceImpl implements ElcResultService
         TeachingClass record = new TeachingClass();
         record.setId(teachingClassVo.getId());
         record.setNumber(teachingClassVo.getNumber());
+        record.setReserveNumberRate(teachingClassVo.getNumber().intValue()==0?0.0:new BigDecimal(teachingClassVo.getReserveNumber()).divide(new BigDecimal(teachingClassVo.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
         classDao.updateByPrimaryKeySelective(record);
         
         // 更新缓存中教学班人数上限
@@ -466,6 +470,7 @@ public class ElcResultServiceImpl implements ElcResultService
         TeachingClass record = new TeachingClass();
         record.setId(teachingClass.getId());
         record.setReserveNumber(teachingClass.getReserveNumber());
+        record.setReserveNumberRate(teachingClass.getNumber().intValue()==0?0.0:new BigDecimal(teachingClass.getReserveNumber()).divide(new BigDecimal(teachingClass.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
         classDao.updateByPrimaryKeySelective(record);
     }
     
@@ -493,6 +498,15 @@ public class ElcResultServiceImpl implements ElcResultService
     public void batchSetReserveNum(ReserveDto reserveDto) {
     	TeachingClass teachingClass = new TeachingClass();
     	teachingClass.setReserveNumber(reserveDto.getReserveNumber());
+    	if(reserveDto.getReserveNumberRate() != null){
+            for (Long id : reserveDto.getIds()) {
+                TeachingClass teachingClass1 = teachingClassDao.selectByPrimaryKey(id);
+                teachingClass.setReserveNumberRate(teachingClass1.getNumber().intValue()==0?0.0:new BigDecimal(reserveDto.getReserveNumber()).divide(new BigDecimal(teachingClass1.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+            }
+        }else{
+            teachingClass.setReserveNumberRate(reserveDto.getReserveNumberRate());
+        }
+
     	Example example = new Example(TeachingClass.class);
     	Example.Criteria criteria = example.createCriteria();
     	criteria.andIn("id", reserveDto.getIds());
@@ -501,6 +515,7 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
 	@Transactional
     public void release(ReserveDto reserveDto) {
+        reserveDto.setReserveNumberRate(Constants.RESERVENUMBERRATE);
     	batchSetReserveNum(reserveDto);
     }
     
@@ -512,6 +527,7 @@ public class ElcResultServiceImpl implements ElcResultService
     		List<Long> ids = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
     		ReserveDto reserveDto = new ReserveDto();
     		reserveDto.setIds(ids);
+            reserveDto.setReserveNumberRate(Constants.RESERVENUMBERRATE);
     		release(reserveDto);
     	}
     }
@@ -1053,7 +1069,12 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
                 //组装excel
-                GeneralExcelDesigner design = getDesign();
+                GeneralExcelDesigner design = null;
+                if(Constants.IS.equals(condition.getIsScreening())) {
+                    design = getDesignWhenIsScreening();
+                }else {
+                    design = getDesign();
+                }
                 //将数据放入excel对象中
                 design.setDatas(list);
                 result.setDoneCount(list.size());
@@ -1069,19 +1090,55 @@ public class ElcResultServiceImpl implements ElcResultService
         design.addCell(I18nUtil.getMsg("teachClassPageExport.code"), "code");
         design.addCell(I18nUtil.getMsg("teachClassPageExport.courseName"), "courseName");
         design.addCell(I18nUtil.getMsg("teachClassPageExport.teacherName"), "teacherName");
-        design.addCell(I18nUtil.getMsg("teachClassPageExport.timeAndRoom"), "timeAndRoom");
-        design.addCell(I18nUtil.getMsg("teachClassPageExport.classNumberStr"), "classNumberStr");
-        design.addCell(I18nUtil.getMsg("teachClassPageExport.elcNumber"), "elcNumber");
-        design.addCell(I18nUtil.getMsg("teachClassPageExport.number"), "number");
         design.addCell(I18nUtil.getMsg("teachClassPageExport.campus"), "campus").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("X_XQ", value, SessionUtils.getLang());
                 });
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.elcNumber"), "elcNumber");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.reserveNumber"), "reserveNumber");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.timeAndRoom"), "timeAndRoom");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.classNumberStr"), "classNumberStr");
         design.addCell(I18nUtil.getMsg("teachClassPageExport.remark"), "remark");
-        design.addCell(I18nUtil.getMsg("teachClassPageExport.bindClassId"), "bindClassId");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.bindClassCode"), "bindClassCode");
         return design;
 	}
-	
+
+    private GeneralExcelDesigner getDesignWhenIsScreening() {
+        GeneralExcelDesigner design = new GeneralExcelDesigner();
+        design.setNullCellValue("");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.code"), "code");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.courseName"), "courseName");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.isElective"), "isElective").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("K_BKKCXZ", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.faculty"), "faculty").setValueHandler(
+                (value, rawData, cell) -> {
+                    return dictionaryService.query("X_YX", value, SessionUtils.getLang());
+                });
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.credits"), "credits");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.teacherName"), "teacherName");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.elcNumber"), "elcNumber");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.number"), "number");
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.firstTurnNum"), "firstTurnNum").setValueHandler(
+                (value, rawData, cell) -> {
+                    if (value == null){
+                        return 0+"";
+                    }else {
+                        return value;
+                    }
+
+                });
+        design.addCell(I18nUtil.getMsg("teachClassPageExport.secondTurnNum"), "secondTurnNum").setValueHandler(
+                (value, rawData, cell) -> {
+                    if (value == null){
+                        return 0+"";
+                    }else {
+                        return value;
+                    }
+                });
+        return design;
+    }
 	@Override
 	@Transactional
 	public void changeStudentClass(TeachingClassChange condition) {
@@ -1204,5 +1261,4 @@ public class ElcResultServiceImpl implements ElcResultService
         TeachingClassVo teachingClassVo = classDao.getMaleToFemaleRatio(elcResultQuery);
         return teachingClassVo;
     }
-
 }
