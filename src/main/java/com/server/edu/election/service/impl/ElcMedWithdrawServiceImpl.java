@@ -132,9 +132,10 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
         BeanUtils.copyProperties(elcCourseTake, elcLog);
         elcLog.setId(null);
         elcLog.setCourseCode(teachingClassVo.getCourseCode());
-        elcLog.setCourseCode(teachingClassVo.getCourseName());
+        elcLog.setCourseName(teachingClassVo.getCourseName());
         elcLog.setTeachingClassCode(teachingClassVo.getCode());
         elcLog.setType(Constants.THREE);
+        elcLog.setCreateBy(SessionUtils.getCurrentSession().getUid());
         String ip  = SessionUtils.getCurrentSession().getIp();
         elcLog.setCreateIp(ip);
         int result = elcLogDao.insertSelective(elcLog);
