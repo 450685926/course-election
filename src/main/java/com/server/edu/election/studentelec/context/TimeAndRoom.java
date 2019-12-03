@@ -1,11 +1,15 @@
 package com.server.edu.election.studentelec.context;
 
+import java.io.Serializable;
+
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.dictionary.translator.ClassRoomTranslator;
 
 @CodeI18n
-public class TimeAndRoom {
+public class TimeAndRoom implements Serializable{
+    private static final long serialVersionUID = 1L;
+
     @Code2Text(translator = ClassRoomTranslator.class)
     private String roomId;
     

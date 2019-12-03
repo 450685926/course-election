@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.server.edu.dictionary.annotation.Code2Text;
@@ -9,8 +10,10 @@ import com.server.edu.dictionary.translator.ClassRoomTranslator;
 import com.server.edu.dictionary.translator.TeacherTranslator;
 
 @CodeI18n
-public class ClassTimeUnit
+public class ClassTimeUnit implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private Long teachClassId;
     
     private Long arrangeTimeId;
