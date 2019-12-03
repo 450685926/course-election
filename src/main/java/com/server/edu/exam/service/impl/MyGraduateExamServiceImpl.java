@@ -147,7 +147,7 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
                 //校验学生课程是否有资格申请补考
                Boolean flag = this.checkMakeUp(currentSession.realUid(),myGraduateExam.getCourseCode());
                if(!flag){
-                   throw new ParameterValidateException("课程:"+myGraduateExam.getCourseName()+",不满足申请补考的资格");
+                   throw new ParameterValidateException("课程:"+myGraduateExam.getCourseCode()+",不满足申请补考的资格");
                }
             }
             applyExamination.setExamCalendarId(examCalendarId);
