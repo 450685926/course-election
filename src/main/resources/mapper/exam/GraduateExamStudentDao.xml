@@ -39,7 +39,7 @@
     left join student_t t5 on t5.STUDENT_CODE_ = t2.STUDENT_CODE_
     WHERE
      	t1.ID_ = #{examRoomId} and t2.EXAM_SITUATION_ = 1 and t2.EXAM_INFO_ID_ = #{examInfoId}
-   	ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc
+   	ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc,t2.STUDENT_CODE_ asc
   </select>
 
   <select id="listStudent" resultType="com.server.edu.exam.dto.NoExamStudent" parameterType="com.server.edu.exam.query.StudentQuery">
@@ -98,7 +98,7 @@
         where t7.STUDENT_ID_ = t1.STUDENT_ID_ and t7.CALENDAR_ID_ = t6.CALENDAR_ID_ and t7.COURSE_CODE_ = t6.COURSE_CODE_ and t7.RELEASE_TYPE_ = 1
         )
       </where>
-    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc
+    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc,t1.STUDENT_ID_ asc
   </select>
   <select id="listSelectStudent" resultType="com.server.edu.exam.dto.SelectDto" parameterType="com.server.edu.exam.dto.SelectDto">
     select STUDENT_CODE_ studentCode, NAME_ studentName from student_t
@@ -162,7 +162,7 @@
         )
         and t1.APPLY_STATUS_ = 4
       </where>
-    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc
+    ORDER BY t6.COURSE_CODE_ asc ,t2.CODE_ asc,t1.STUDENT_CODE_ asc
   </select>
 
   <update id="updateExamStudentRemark" parameterType="java.util.List">
@@ -355,6 +355,7 @@
     select t7.STUDENT_ID_ from score_student_result_t t7
     where t7.STUDENT_ID_ = t1.STUDENT_ID_ and t7.CALENDAR_ID_ = t6.CALENDAR_ID_ and t7.COURSE_CODE_ = t6.COURSE_CODE_ and t7.RELEASE_TYPE_ = 1
     )
+    order by t1.COURSE_CODE_ asc,t5.CODE_ asc,t1.STUDENT_ID_ asc
   </select>
 
   <select id="listTeachingClass" resultType="com.server.edu.exam.dto.TeachingClassDto" parameterType="com.server.edu.exam.query.TeachingClassQuery">
@@ -389,6 +390,7 @@
     LEFT JOIN teaching_class_teacher_t t6 ON t5.ID_ = t6.TEACHING_CLASS_ID_
     GROUP BY
     t6.TEACHING_CLASS_ID_
+    order by t5.CODE_ asc
   </select>
 
   <select id="findStudentScoreByCondition" parameterType="com.server.edu.exam.dto.ExamStudentAddDto" resultType="int">
