@@ -31,7 +31,7 @@
     <logger name="java.sql.PreparedStatement" level="DEBUG"/>-->
     
     <!-- mybatis打印sql语句 -->
-    <logger name="com.server.edu.election.dao" level="DEBUG"></logger>
+    <logger name="com.server.edu.election.dao" level="INFO"></logger>
     <logger name="com.server.edu.commonservice.dao.ElcCourseTakeDao" level="ERROR"></logger>
 
     <!-- 日志输出级别 -->
