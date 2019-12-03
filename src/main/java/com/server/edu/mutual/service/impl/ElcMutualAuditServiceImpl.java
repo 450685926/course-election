@@ -309,4 +309,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		return list;
 	}
 
+	@Override
+	public List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto) {
+		return elcMutualApplyDao.getOpenCollegeAuditList(dto);
+	}
+
 }
