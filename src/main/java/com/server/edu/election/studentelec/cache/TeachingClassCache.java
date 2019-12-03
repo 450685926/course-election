@@ -1,9 +1,8 @@
 package com.server.edu.election.studentelec.cache;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-
-import javax.persistence.Column;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,8 +19,10 @@ import com.server.edu.election.studentelec.context.TimeAndRoom;
  * 
  */
 @CodeI18n
-public class TeachingClassCache extends ElecCourse
+public class TeachingClassCache extends ElecCourse implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private Long teachClassId;
     
     private String teachClassCode;
