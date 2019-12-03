@@ -722,7 +722,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
-			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
+			/*Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
 			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumber = elcResultCountDao.getElcNumber(condition);
 			for (ElcResultDto elcResultDto : elcResultList) {
@@ -758,10 +758,31 @@ public class ElcResultServiceImpl implements ElcResultService
 			elcResultCountVo.setList(elceResultByStudent.getList());
 			elcResultCountVo.setElcNumberByStudent(elcNumber);
 			elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
-			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
+			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);*/
+            condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
+            Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResultUpdate(condition);
+            Integer elcNumber = elcResultCountDao.getElcNumber(condition);
+            for (ElcResultDto elcResultDto : elcResultList) {
+                if (StringUtils.isNotEmpty(condition.getGrade())) {
+                }else{
+                    elcResultDto.setGrade("全部");
+                }
+                elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(elcResultDto.getNumberOfelectedPersons()).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - elcResultDto.getNumberOfelectedPersons());
+            }
+            Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
+            Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
+            PageResult<ElcResultDto> elceResultByStudent = new PageResult<>(elcResultList);
+            elcResultCountVo.setPageNum_(elceResultByStudent.getPageNum_());
+            elcResultCountVo.setPageSize_(elceResultByStudent.getPageSize_());
+            elcResultCountVo.setTotal_(elceResultByStudent.getTotal_());
+            elcResultCountVo.setList(elceResultByStudent.getList());
+            elcResultCountVo.setElcNumberByStudent(elcNumber);
+            elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
+            elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
 		}else{
 			//从学院维度查询
-			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
+			/*Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
 			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
 			for (ElcResultDto elcResultDto : eleResultByFacultyList) {
@@ -798,7 +819,28 @@ public class ElcResultServiceImpl implements ElcResultService
 			elcResultCountVo.setList(elceResultByFaculty.getList());
 			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
 			elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
-			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
+			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);*/
+            condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
+            Page<ElcResultDto>  eleResultByFacultyList = elcResultCountDao.getElcResultByFacultyUpdate(condition);
+            Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
+            for (ElcResultDto elcResultDto : eleResultByFacultyList) {
+                if (StringUtils.isNotEmpty(condition.getGrade())) {
+                }else{
+                    elcResultDto.setGrade("全部");
+                }
+                elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(elcResultDto.getNumberOfelectedPersons()).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - elcResultDto.getNumberOfelectedPersons());
+            }
+            Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
+            Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
+            PageResult<ElcResultDto> elceResultByFaculty = new PageResult<>(eleResultByFacultyList);
+            elcResultCountVo.setPageNum_(elceResultByFaculty.getPageNum_());
+            elcResultCountVo.setPageSize_(elceResultByFaculty.getPageSize_());
+            elcResultCountVo.setTotal_(elceResultByFaculty.getTotal_());
+            elcResultCountVo.setList(elceResultByFaculty.getList());
+            elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
+            elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
+            elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
 		}
 		return elcResultCountVo;
 	}
