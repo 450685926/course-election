@@ -49,7 +49,7 @@ public class GraduateExamMakeUpQueryServiceImpl implements GraduateExamMakeUpQue
         examinationVo.setFacultys(facultys);
         examinationVo.setProjId(dptId);
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<GraduateExamApplyExaminationVo> page = applyExaminationDao.listGraduateMakeUp(examinationVo);
+        Page<GraduateExamApplyExaminationVo> page = applyExaminationDao.listExamGraduateMakeUp(examinationVo);
         return new PageResult<>(page);
     }
 
