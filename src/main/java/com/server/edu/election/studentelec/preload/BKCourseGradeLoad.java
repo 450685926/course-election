@@ -313,7 +313,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 c.setCourse(lesson);
                 c.setScore(studentScore.getFinalScore());
                 boolean excellent = false;
-                if(Constants.EXCELLENT.equals(studentScore.isBestScore())) {
+                if(Constants.EXCELLENT.equals(studentScore.getFinalScore())) {
                 	excellent = true;
                 }
                 c.setExcellent(excellent);

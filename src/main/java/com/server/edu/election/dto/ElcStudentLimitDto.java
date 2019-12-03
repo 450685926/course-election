@@ -23,6 +23,8 @@ public class ElcStudentLimitDto extends ElcStudentLimit {
     /**培养层次*/
     @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
+
+	private List<String> studentIdList;
     
     /**年级*/
     private String grade;
@@ -180,5 +182,12 @@ public class ElcStudentLimitDto extends ElcStudentLimit {
 	public void setStudentCodes(List<String> studentCodes) {
 		this.studentCodes = studentCodes;
 	}
-	
+
+	public List<String> getStudentIdList() {
+		return studentIdList;
+	}
+
+	public void setStudentIdList(List<String> studentIdList) {
+		this.studentIdList = studentIdList;
+	}
 }
