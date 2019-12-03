@@ -855,6 +855,9 @@ public class ElcResultServiceImpl implements ElcResultService
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		//查询该条件下未选课学生名单
 		Page<Student4Elc> result = new Page<Student4Elc>();
+		if (StringUtils.equalsIgnoreCase(page.getCondition().getTrainingCategory(),"-1")){
+            page.getCondition().setTrainingCategory(null);
+        }
 		if(page.getCondition().getDimension().intValue() == Constants.ONE){
 			result = studentDao.getAllNonSelectedCourseStudent(page.getCondition());
 		}else{
