@@ -1027,7 +1027,7 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Date examDate = examInfo.getExamDate();
         Date examDateYes = date.getExamDate();
 
-        SimpleDateFormat formatParse = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat formatParse = new SimpleDateFormat("yyyy-MM-dd");
         String examDateStr = formatParse.format(examDate);
         String examDateYesStr = formatParse.format(examDateYes);
 
@@ -1039,18 +1039,19 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             String examStartTimeYes = date.getExamStartTime();
             String examndTimeYes = date.getExamEndTime();
 
-            String dateStr = examDateStr.substring(0, 10);
-            String examDateStart = dateStr + " " + examStartTime + ":00";
-            String examDateEnd = dateStr + " " + examEndTime + ":00";
+            //String dateStr = examDateStr.substring(0, 10);
+            String examDateStart = examDateStr + " " + examStartTime + ":00";
+            String examDateEnd = examDateStr + " " + examEndTime + ":00";
 
-            String examDateStartYes = dateStr + " " + examStartTimeYes + ":00";
-            String examDateEndYes = dateStr + " " + examndTimeYes + ":00";
+            String examDateStartYes = examDateStr + " " + examStartTimeYes + ":00";
+            String examDateEndYes = examDateStr + " " + examndTimeYes + ":00";
 
+            SimpleDateFormat transTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             try {
-                long startTime = formatParse.parse(examDateStart).getTime();
-                long endTime = formatParse.parse(examDateEnd).getTime();
-                long startTimeYes = formatParse.parse(examDateStartYes).getTime();
-                long endTimeYes = formatParse.parse(examDateEndYes).getTime();
+                long startTime = transTime.parse(examDateStart).getTime();
+                long endTime = transTime.parse(examDateEnd).getTime();
+                long startTimeYes = transTime.parse(examDateStartYes).getTime();
+                long endTimeYes = transTime.parse(examDateEndYes).getTime();
 
                 if( (startTime <= startTimeYes && endTime >= startTimeYes ) || ( startTimeYes <= startTime && startTime <= endTimeYes ) ){
                    return date.getExamInfoId();
