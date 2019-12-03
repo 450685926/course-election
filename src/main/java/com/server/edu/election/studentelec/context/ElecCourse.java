@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.context;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,8 +10,10 @@ import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 
 @CodeI18n
-public class ElecCourse
+public class ElecCourse implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**课程代码*/
     private String courseCode;
     
