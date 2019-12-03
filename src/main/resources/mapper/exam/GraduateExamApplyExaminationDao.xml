@@ -227,4 +227,51 @@
     left join teaching_class_t t2 on t2.ID_ = t1.TEACHING_CLASS_ID_
     where t1.STUDENT_CODE_ = #{studentCode} and t1.EXAM_CALENDAR_ID_ = #{calendarId} and t1.COURSE_CODE_ = #{courseCode} and t1.APPLY_STATUS_ = 4
   </select>
+
+  <select id="listExamGraduateMakeUp" parameterType="com.server.edu.exam.vo.GraduateExamApplyExaminationVo" resultMap="VoBaseResultMap">
+    SELECT
+    t4.*,t5.NAME_ courseName
+    FROM
+    graduate_exam_apply_examination_t t4
+    LEFT JOIN course_t t5 on t4.COURSE_CODE_ = t5.CODE_
+    LEFT JOIN student_t t7 on t4.STUDENT_CODE_ = t7.STUDENT_CODE_
+    <where>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+        and t4.EXAM_CALENDAR_ID_ = #{calendarId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projId)">
+        and t4.PROJ_ID_ = #{projId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+        and t7.CAMPUS_ = #{campus}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(collenge)">
+        and t7.FACULTY_ = #{collenge}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+        and t4.ID_ in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+          #{id}
+        </foreach>
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(applyStatus)">
+        and t4.APPLY_STATUS_ = #{applyStatus}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(applyType)">
+        and t4.APPLY_TYPE_ = #{applyType}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+        and ( t7.STUDENT_CODE_ like concat ('%', #{keyword},'%') or t7.NAME_ like concat ('%', #{keyword},'%')
+        or t5.NAME_ like concat ('%', #{keyword},'%') or t5.CODE_ like concat ('%', #{keyword},'%') )
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(facultys)">
+        and t7.FACULTY_ in
+        <foreach collection="facultys" item="faculty" open="(" separator="," close=")">
+          #{faculty}
+        </foreach>
+      </if>
+      and t4.APPLY_STATUS_ = 4
+      order by t4.APPLY_STATUS_ asc,t4.CREATE_AT_ desc
+    </where>
+  </select>
 </mapper>
