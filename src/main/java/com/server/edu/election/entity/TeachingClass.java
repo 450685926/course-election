@@ -1,5 +1,6 @@
 package com.server.edu.election.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -31,8 +32,9 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @CodeI18n
 @Table(name = "teaching_class_t")
-public class TeachingClass extends BaseEntity
+public class TeachingClass extends BaseEntity implements Serializable
 {
+	private static final long serialVersionUID = 1L;
     /**
      * 主键（自增）
      */
