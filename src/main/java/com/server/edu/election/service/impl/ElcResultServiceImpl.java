@@ -204,17 +204,33 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-			String boy = "无";
-			if(vo.getNumberMale()!=null) {
-				boy = vo.getNumberMale().toString();
-			}
-			String girl = "无";
-			if(vo.getNumberFemale()!=null) {
-				girl = vo.getNumberFemale().toString();
-			}
-			String proportion = boy +"/" +girl;
-			vo.setProportion(proportion);
+            //没有设置男女比例时，页面显示 无/无
+		    if(vo.getNumberMale()==null||vo.getNumberFemale()==null) {
+                vo.setProportion("无/无");
+                return;
+            }
+            //有设置男女比例时
+			int numberMale =vo.getNumberMale();
+            int numberFemale = vo.getNumberFemale();
+
+            if(numberMale==0){
+                numberFemale = 1;
+            }
+            else if(numberFemale==0){
+                numberMale = 1;
+            }
+            else if(numberMale % numberFemale == 0){
+                numberMale = numberMale / numberFemale ;
+                numberFemale =1;
+            }
+            //如果女比例可以被男比例除尽
+            else if(numberFemale % numberMale == 0){
+                numberFemale = numberFemale / numberMale ;
+                numberMale = 1;
+            }
+			vo.setProportion(String.valueOf(numberMale) +"/" +String.valueOf(numberFemale));
 		}
+
 	}
 
 	private void getTeacgerName(TeachingClassVo vo) {
@@ -959,21 +975,24 @@ public class ElcResultServiceImpl implements ElcResultService
 		attr.setTeachingClassId(teachingClassVo.getId());
 		int numberMale = teachingClassVo.getNumberMale();
 		int numberFemale = teachingClassVo.getNumberFemale();
-		if(numberMale==0){
-            numberFemale = 1;
+		//获取是否是男女班，男1 女2 不区分0
+        String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
+        if("1".equals(limitIsDivsex)&0==numberFemale){
+            throw new ParameterValidateException(I18nUtil.getMsg("election.male.error"));
+        }else if("2".equals(limitIsDivsex)&0==numberMale){
+            throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
-        else if(numberFemale==0){
-            numberMale = 1;
+        //获取实际人数
+        int elcNumber = teachingClassVo.getElcNumber();
+        if(numberMale==0){
+            numberFemale = elcNumber;
+        }else if(numberFemale==0){
+            numberMale = elcNumber;
+        }else{
+            numberMale = (numberMale/(numberMale+numberFemale))*elcNumber;
+            numberFemale = elcNumber-numberMale;
         }
-        else if(numberMale % numberFemale == 0){
-            numberMale = numberMale / numberFemale ;
-            numberFemale =1;
-        }
-        //如果女比例可以被男比例除尽
-        else if(numberFemale % numberMale == 0){
-            numberFemale = numberFemale / numberMale ;
-            numberMale = 1;
-        }
+
 		attr.setNumberMale(numberMale);
 		attr.setNumberFemale(numberFemale);
 		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
