@@ -28,7 +28,8 @@ public class ElcStudentLimitVo extends ElcStudentLimit {
     private String courseCode;
     
     private Long teachingClassId;
-    
+
+	@Code2Text(transformer = "K_XSFL")
     private String studentCategory;
     
     private String researchDirection;

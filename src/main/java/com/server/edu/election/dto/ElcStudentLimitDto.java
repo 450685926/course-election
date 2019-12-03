@@ -54,6 +54,16 @@ public class ElcStudentLimitDto extends ElcStudentLimit {
 	/**分库分表标识*/
 	private Integer index;
 
+	private List<String> faculties;
+
+	public List<String> getFaculties() {
+		return faculties;
+	}
+
+	public void setFaculties(List<String> faculties) {
+		this.faculties = faculties;
+	}
+
 	public Integer getIndex() {
 		return index;
 	}

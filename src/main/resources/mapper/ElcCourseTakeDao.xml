@@ -209,6 +209,7 @@
         t1.COURSE_CODE_,
         t1.TEACHING_CLASS_ID_,
         t1.COURSE_TAKE_TYPE_,
+        t1.CHOOSE_OBJ_,
         t1.TURN_,
         t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName
@@ -257,6 +258,14 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
                 and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like
                 concat('%',#{query.keyword},'%'))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
+                <if test="query.mode == 1">
+                    and t1.CHOOSE_OBJ_ = 1
+                </if>
+                <if test="query.mode != 1">
+                    and t1.CHOOSE_OBJ_ &gt; 1
+                </if>
             </if>
         </where>
         order by t1.STUDENT_ID_

@@ -914,13 +914,21 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 			condition.getCondition().getIncludeCourseCodes().add(condition.getCondition().getIncludeCourseCode());
 		}
 		condition.getCondition().setProjectId(currentSession.getCurrentManageDptId());
-		
+
 //		PageResult<ElcCourseTakeVo> list = listPage(condition);
 		PageResult<ElcCourseTakeVo> list = courseTakeNameList(condition);
 		
 		List<ElcCourseTakeVo> list2 = list.getList();
 		if (CollectionUtil.isNotEmpty(list2)) {
-			Iterator<ElcCourseTakeVo> iterator = list2.iterator();
+            for (ElcCourseTakeVo elcCourseTakeVo:list2) {
+                if (elcCourseTakeVo.getChooseObj().intValue() == 1) {
+                    elcCourseTakeVo.setElectionMode(1);
+                }else{
+                    elcCourseTakeVo.setElectionMode(2);
+                }
+            }
+
+			/*Iterator<ElcCourseTakeVo> iterator = list2.iterator();
 			while (iterator.hasNext()) {
 				ElcCourseTakeVo takeVo = iterator.next();
 				condition.getCondition().setStudentId(takeVo.getStudentId());
@@ -933,7 +941,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 						iterator.remove();
 					}
 				}
-			}
+			}*/
 		}
 		
 		list2.sort(Comparator.comparing(ElcCourseTakeVo::getStudentCode));

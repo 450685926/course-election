@@ -124,6 +124,7 @@ public class Student implements Serializable
     /**
      * 学生类别
      */
+    @Code2Text(transformer = "K_XSFL")
     @Column(name = "STUDENT_CATEGORY_")
     private String studentCategory;
     
