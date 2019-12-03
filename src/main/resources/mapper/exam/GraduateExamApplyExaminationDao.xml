@@ -225,7 +225,7 @@
 
   <select id="listExamGraduateMakeUp" parameterType="com.server.edu.exam.vo.GraduateExamApplyExaminationVo" resultMap="VoBaseResultMap">
     SELECT
-    t4.*,t5.NAME_ courseName
+    t4.*,t5.NAME_ courseName,t7.NAME_ studentName,t7.FACULTY_ collenge,t7.CAMPUS_ campus
     FROM
     graduate_exam_apply_examination_t t4
     LEFT JOIN course_t t5 on t4.COURSE_CODE_ = t5.CODE_
