@@ -98,4 +98,18 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
 
     /**查询成绩表课程成绩有几次记录*/
     int checkMakeUp(@Param("studentCode") String studentCode,@Param("courseCode") String courseCode);
+
+    /**我的考试来源选课数据（主体）*/
+    Page<MyGraduateExam> listCourseTake(MyGraduateExam condition);
+
+    /**已经排考时间地点*/
+    List<MyGraduateExam> findExamStudentAndCourse(MyGraduateExam condition);
+
+    List<MyGraduateExam> findExamNotice(@Param("list") List<MyGraduateExam> noExamCourse,@Param("examType") Integer examType,@Param("calendarId") Long calendarId);
+
+    /**代理申请缓考学生列表(没有排考也可以申请)*/
+    Page<SelectDto> listApplyListSlowAndCourseTake(SelectDto condition);
+
+    /**代理申请缓考学生列表(没有排考也可以申请)*/
+    Page<SelectDto> listApplyCourseListSlowAndCourseTake(SelectDto selectDto);
 }

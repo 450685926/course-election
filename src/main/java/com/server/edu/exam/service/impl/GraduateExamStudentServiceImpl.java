@@ -314,6 +314,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
             //更改状态
             GraduateExamStudent examStudent = examStudentDao.selectByPrimaryKey(dto.getExamStudentId());
             examStudent.setExamSituation(examSituation);
+            examStudent.setRemark("缓考申请审核通过");
             examStudentDao.updateByPrimaryKey(examStudent);
             //更新考场人数
             GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(dto.getExamRoomId());
