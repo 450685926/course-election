@@ -37,4 +37,7 @@ public interface MyGraduateExamService {
     PageResult<MyGraduateExam> listMyExamTime(PageCondition<MyGraduateExam> myExam);
 
     Boolean checkMakeUp(String studentCode,String courseCode);
+
+    /**列表展示我的考试（支持没有排考也展示）*/
+    PageResult<MyGraduateExam> listMyExamTimeAndCourse(PageCondition<MyGraduateExam> myExam);
 }
