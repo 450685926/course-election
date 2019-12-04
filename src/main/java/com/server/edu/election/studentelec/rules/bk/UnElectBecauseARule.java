@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.vo.ElcCouSubsVo;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -55,9 +56,39 @@ public class UnElectBecauseARule extends AbstractElecRuleExceutorBk
 //                    return false;
 //                }
 //            }
+            String courseCode = courseClass.getCourseCode();
+            //判断要选的课程是否是替代课程
+            Set<ElcCouSubsVo> noGradCouSubsCourses = context.getReplaceCourses();
+            ElcCouSubsVo elcCouSubs = null;
+            if (CollectionUtil.isNotEmpty(noGradCouSubsCourses)) {
+                elcCouSubs =
+                        noGradCouSubsCourses.stream()
+                                .filter(c -> courseCode.equals(c.getSubCourseCode()))
+                                .findFirst()
+                                .orElse(null);
+
+            }
+            // 如果是替代课程，判断被替代的课程是否得优
+            if (elcCouSubs != null) {
+                // 获取被替代的课程code
+                String origsCourseCode = elcCouSubs.getOrigsCourseCode();
+                // 判断被替代的课程是否得优
+                List<CompletedCourse> list = completedCourses.stream()
+                        .filter(temp -> origsCourseCode.equals(temp.getCourse().getCourseCode()) && temp.isExcellent() == true)
+                        .collect(Collectors.toList());
+                if (CollectionUtil.isNotEmpty(list)) {
+                    ElecRespose respose = context.getRespose();
+                    respose.getFailedReasons()
+                            .put(courseClass.getCourseCodeAndClassCode(),
+                                    I18nUtil.getMsg("ruleCheck.unElectBecauseA"));
+                    return false;
+                }
+            }
+            //判断要选的课程是否得优
             List<CompletedCourse> list = completedCourses.stream()
-                    .filter(temp -> temp.getCourse().getCourseCode().equals(courseClass.getCourseCode()) && temp.isExcellent() == true)
+                    .filter(temp -> temp.getCourse().getCourseCode().equals(courseCode) && temp.isExcellent() == true)
                     .collect(Collectors.toList());
+
             if (CollectionUtil.isNotEmpty(list))
             {
                 ElecRespose respose = context.getRespose();
