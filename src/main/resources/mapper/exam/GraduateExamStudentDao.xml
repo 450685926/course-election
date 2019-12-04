@@ -473,7 +473,7 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
         and ( t3.CODE_ like concat('%',#{keyword},'%') or t3.NAME_ like concat('%',#{keyword},'%'))
       </if>
-      and t1.CALENDAR_ID_ = #{calendarId}  and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_CODE_ = #{studentCode}
+      and t1.CALENDAR_ID_ = #{calendarId}  and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_ID_ = #{studentCode}
     </where>
   </select>
 
