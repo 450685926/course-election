@@ -409,4 +409,72 @@
     select COUNT(*) from score_student_result_t
     where STUDENT_ID_ =#{studentCode} and COURSE_CODE_ =#{courseCode} and RELEASE_TYPE_ = 1
   </select>
+
+  <select id="listCourseTake" parameterType="com.server.edu.exam.vo.MyGraduateExam" resultType="com.server.edu.exam.vo.MyGraduateExam">
+    SELECT
+          t1.CALENDAR_ID_ calendarId,t1.STUDENT_ID_ studentCode,t1.COURSE_CODE_ courseCode,t3.NAME_ courseName,t1.TEACHING_CLASS_ID_ teachingClassId,t2.APPLY_STATUS_ applyStatus,
+          t2.ADUIT_OPINIONS_ aduitOpinions,t4.CAMPUS_ campus
+      FROM
+          elc_course_takes_t_${mode} t1
+      LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
+      LEFT JOIN graduate_exam_apply_examination_t t2 ON t1.CALENDAR_ID_ = t2.CALENDAR_ID_
+      AND t1.STUDENT_ID_ = t2.STUDENT_CODE_
+      AND t1.COURSE_CODE_ = t2.COURSE_CODE_
+      LEFT JOIN teaching_class_t t4 on t1.TEACHING_CLASS_ID_ = t4.ID_
+      WHERE
+          t1.CALENDAR_ID_ = #{calendarId}
+      AND STUDENT_ID_ = #{studentCode}
+  </select>
+
+  <select id="findExamStudentAndCourse" parameterType="com.server.edu.exam.vo.MyGraduateExam" resultType="com.server.edu.exam.vo.MyGraduateExam">
+    select t3.COURSE_CODE_ courseCode,t3.EXAM_TIME_ examTime,t2.ROOM_ID_ roomId,t2.ROOM_NAME_ roomName,t1.EXAM_SITUATION_ examSituation,t1.REMARK_ remark
+    from graduate_exam_student_t t1
+    join graduate_exam_room_t t2 on t1.EXAM_ROOM_ID_ = t2.ID_
+    join graduate_exam_info_t t3 on t1.EXAM_INFO_ID_ = t3.ID_
+    where t1.STUDENT_CODE_ = #{studentCode} and t3.CALENDAR_ID_ = #{calendarId} and t3.EXAM_TYPE_ =#{examType} and t3.EXAM_STATUS_ = 2
+  </select>
+
+  <select id="findExamNotice" resultType="com.server.edu.exam.vo.MyGraduateExam">
+    select COURSE_CODE_ courseCode,IFNULL(REMARK_,'时间地点学院通知') examTime from
+    graduate_exam_info_t
+    where
+    <foreach collection="list" item="item"  separator="or"  open="(" close=")">
+      (
+        COURSE_CODE_ = #{item.courseCode} and CAMPUS_ = #{item.campus}
+      )
+    </foreach>
+    and CALENDAR_ID_ = #{calendarId} and EXAM_TYPE_ = #{examType} and NOTICE_ = 1 and EXAM_STATUS_ = 2
+  </select>
+
+  <select id="listApplyListSlowAndCourseTake" parameterType="com.server.edu.exam.dto.SelectDto" resultType="com.server.edu.exam.dto.SelectDto">
+    select DISTINCT t3.STUDENT_CODE_ studentCode,t3.NAME_ studentName
+    from elc_course_takes_t t1
+    left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
+    left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_ID_
+    <where>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+        and ( t3.STUDENT_CODE_ like concat('%',#{keyword},'%') or t3.NAME_ like concat('%',#{keyword},'%'))
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(facultys)">
+        and t3.FACULTY_ in
+        <foreach collection="facultys" item="faculty" open="(" close=")" separator=",">
+          #{faculty}
+        </foreach>
+      </if>
+      and t1.CALENDAR_ID_ = #{calendarId}  and t2.MANAGER_DEPT_ID_ = #{projId}
+    </where>
+  </select>
+
+  <select id="listApplyCourseListSlowAndCourseTake" parameterType="com.server.edu.exam.dto.SelectDto" resultType="com.server.edu.exam.dto.SelectDto">
+    select t3.CODE_ courseCode,t3.NAME_ courseName
+    from elc_course_takes_t t1
+    left join course_t t3 on t1.COURSE_CODE_ = t3.CODE_
+    <where>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+        and ( t3.CODE_ like concat('%',#{keyword},'%') or t3.NAME_ like concat('%',#{keyword},'%'))
+      </if>
+      and t1.CALENDAR_ID_ = #{calendarId}  and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_ID_ = #{studentCode}
+    </where>
+  </select>
+
 </mapper>

@@ -31,6 +31,34 @@ public class MyGraduateExam implements Serializable {
     private List<String> courseCodes = new ArrayList<>();
     private Integer notice;
 
+    private String aduitOpinions;
+    private Integer applyStatus;
+    private String campus;
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    public String getAduitOpinions() {
+        return aduitOpinions;
+    }
+
+    public void setAduitOpinions(String aduitOpinions) {
+        this.aduitOpinions = aduitOpinions;
+    }
+
+    public Integer getApplyStatus() {
+        return applyStatus;
+    }
+
+    public void setApplyStatus(Integer applyStatus) {
+        this.applyStatus = applyStatus;
+    }
+
     public List<String> getCourseCodes() {
         return courseCodes;
     }
