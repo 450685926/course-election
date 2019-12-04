@@ -450,7 +450,7 @@
     select DISTINCT t3.STUDENT_CODE_ studentCode,t3.NAME_ studentName
     from elc_course_takes_t t1
     left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
-    left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_CODE_
+    left join student_t t3 on t3.STUDENT_CODE_ = t1.STUDENT_ID_
     <where>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
         and ( t3.STUDENT_CODE_ like concat('%',#{keyword},'%') or t3.NAME_ like concat('%',#{keyword},'%'))
@@ -473,7 +473,7 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
         and ( t3.CODE_ like concat('%',#{keyword},'%') or t3.NAME_ like concat('%',#{keyword},'%'))
       </if>
-      and t1.CALENDAR_ID_ = #{calendarId}  and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_CODE_ = #{studentCode}
+      and t1.CALENDAR_ID_ = #{calendarId}  and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_ID_ = #{studentCode}
     </where>
   </select>
 
