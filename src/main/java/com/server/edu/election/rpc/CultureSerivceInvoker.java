@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.server.edu.common.dto.PlanCourseTypeDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.entity.BclHonorModule;
 import com.server.edu.common.entity.CourseLabelRelation;
 import com.server.edu.common.entity.Courses;
 import com.server.edu.common.entity.CulturePlan;
@@ -385,6 +386,17 @@ public class CultureSerivceInvoker
                 .getForObject("/bclCulturePlan/findPlanCourseTabBk?studentId={studentId}",
                         List.class,
                         studentId);
+        return list;
+    }
+    
+    /**查询本科生荣誉课程*/
+    public static List<BclHonorModule> findHonorCourseList(String StudentCode)
+    {
+        @SuppressWarnings("unchecked")
+        List<BclHonorModule> list = ServicePathEnum.CULTURESERVICE
+                .getForObject("/bclHonorModule/honorCourseList?StudentCode={StudentCode}",
+                        List.class,
+                        StudentCode);
         return list;
     }
 
