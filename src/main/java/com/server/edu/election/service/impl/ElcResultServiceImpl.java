@@ -228,6 +228,8 @@ public class ElcResultServiceImpl implements ElcResultService
                 numberFemale = numberFemale / numberMale ;
                 numberMale = 1;
             }
+            vo.setNumberFemale(numberFemale);
+            vo.setNumberMale(numberMale);
 			vo.setProportion(String.valueOf(numberMale) +"/" +String.valueOf(numberFemale));
 		}
 
@@ -1019,9 +1021,9 @@ public class ElcResultServiceImpl implements ElcResultService
 		int numberFemale = teachingClassVo.getNumberFemale();
 		//获取是否是男女班，男1 女2 不区分0
         String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
-        if("1".equals(limitIsDivsex)&0==numberFemale){
+        if("1".equals(limitIsDivsex)&0!=numberFemale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.male.error"));
-        }else if("2".equals(limitIsDivsex)&0==numberMale){
+        }else if("2".equals(limitIsDivsex)&0!=numberMale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
         //获取实际人数
@@ -1031,7 +1033,7 @@ public class ElcResultServiceImpl implements ElcResultService
         }else if(numberFemale==0){
             numberMale = elcNumber;
         }else{
-            numberMale = (numberMale/(numberMale+numberFemale))*elcNumber;
+            numberMale = (int)((((double)numberMale/(numberMale+numberFemale)))*elcNumber);
             numberFemale = elcNumber-numberMale;
         }
 
