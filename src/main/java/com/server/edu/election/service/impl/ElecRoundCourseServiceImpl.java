@@ -153,8 +153,10 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         for (CourseOpenDto courseOpenDto : listPage) {
             TeachingClassCache teachingClassCache =
                     dataProvider.getTeachClassByCalendarId(calendarId, courseOpenDto.getCourseCode(), courseOpenDto.getTeachingClassId());
-            List<TimeAndRoom> timeTableList = teachingClassCache.getTimeTableList();
-            courseOpenDto.setList(timeTableList);
+            if (teachingClassCache != null) {
+                List<TimeAndRoom> timeTableList = teachingClassCache.getTimeTableList();
+                courseOpenDto.setList(timeTableList);
+            }
         }
         PageResult<CourseOpenDto> result = new PageResult<>(listPage);
         
