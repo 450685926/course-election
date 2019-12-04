@@ -40,4 +40,11 @@ public interface ElcMutualApplyDao extends Mapper<ElcMutualApply>,MySqlMapper<El
 	 * @return
 	 */
 	List<ElcMutualApplyVo> openCollegeApplyStuList(ElcMutualApplyDto dto);
+
+	/**
+	 * 查询开课学院审核通过的课程列表
+	 * @param dto
+	 * @return
+	 */
+	List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto); 
 }
