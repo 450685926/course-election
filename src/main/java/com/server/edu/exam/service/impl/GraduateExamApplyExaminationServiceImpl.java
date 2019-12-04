@@ -357,7 +357,8 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
         Page<SelectDto> page = new Page<>();
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         if(examType.equals(ApplyStatus.EXAM_SITUATION_SLOW)){
-           page =  examStudentDao.listApplyListSlow(selectDto);
+           //page =  examStudentDao.listApplyListSlow(selectDto);
+           page =  examStudentDao.listApplyListSlowAndCourseTake(selectDto);
         }else{
             page =  examStudentDao.listApplyListMakeUp(selectDto);
         }
@@ -378,7 +379,8 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
         Page<SelectDto> page = new Page<>();
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         if(examType.equals(ApplyStatus.EXAM_SITUATION_SLOW)){
-            page =  examStudentDao.listApplyCourseListSlow(selectDto);
+            //page =  examStudentDao.listApplyCourseListSlow(selectDto);
+            page =  examStudentDao.listApplyCourseListSlowAndCourseTake(selectDto);
         }else{
             page =  examStudentDao.listApplyCourseListMakeUp(selectDto);
         }
