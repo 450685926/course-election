@@ -2,7 +2,6 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
-import com.server.edu.exam.vo.MyGraduateExam;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -57,7 +56,6 @@ public interface StudentDao extends Mapper<Student> {
 
     String findCampus(String studentCode);
 	Integer isTakeNum(@Param("courseCode") String courseCode);
-
 
 }
 
