@@ -1,5 +1,25 @@
 package com.server.edu.election.service.impl;
 
+import static java.util.stream.Collectors.toSet;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ibm.icu.math.BigDecimal;
@@ -17,9 +37,44 @@ import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
-import com.server.edu.election.dao.*;
-import com.server.edu.election.dto.*;
-import com.server.edu.election.entity.*;
+import com.server.edu.election.dao.ElcAffinityCoursesStdsDao;
+import com.server.edu.election.dao.ElcClassEditAuthorityDao;
+import com.server.edu.election.dao.ElcCourseSuggestSwitchDao;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcInvincibleStdsDao;
+import com.server.edu.election.dao.ElcResultCountDao;
+import com.server.edu.election.dao.ElcScreeningLabelDao;
+import com.server.edu.election.dao.ElcTeachingClassBindDao;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.dao.RebuildCourseRecycleDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
+import com.server.edu.election.dao.TeachingClassElectiveRestrictProfessionDao;
+import com.server.edu.election.dao.TeachingClassSuggestStudentDao;
+import com.server.edu.election.dao.TeachingClassTeacherDao;
+import com.server.edu.election.dto.AutoRemoveDto;
+import com.server.edu.election.dto.BatchAutoRemoveDto;
+import com.server.edu.election.dto.ClassTeacherDto;
+import com.server.edu.election.dto.ElcCourseTakeAddDto;
+import com.server.edu.election.dto.ElcResultDto;
+import com.server.edu.election.dto.ReserveDto;
+import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.dto.SuggestProfessionDto;
+import com.server.edu.election.entity.ElcClassEditAuthority;
+import com.server.edu.election.entity.ElcCourseSuggestSwitch;
+import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.ElcScreeningLabel;
+import com.server.edu.election.entity.ElcTeachingClassBind;
+import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.RebuildCourseRecycle;
+import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.entity.TeachingClassChange;
+import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
+import com.server.edu.election.entity.TeachingClassElectiveRestrictProfession;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElcResultService;
@@ -48,20 +103,8 @@ import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import tk.mybatis.mapper.entity.Example;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toSet;
 
 @Service
 public class ElcResultServiceImpl implements ElcResultService
@@ -228,6 +271,8 @@ public class ElcResultServiceImpl implements ElcResultService
                 numberFemale = numberFemale / numberMale ;
                 numberMale = 1;
             }
+            vo.setNumberFemale(numberFemale);
+            vo.setNumberMale(numberMale);
 			vo.setProportion(String.valueOf(numberMale) +"/" +String.valueOf(numberFemale));
 		}
 
@@ -598,7 +643,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 {
                     invincibleStus.add(stu);
                 }
-                else if (affinityCoursesStdSet
+                else if (dto.getAffinityStu() && affinityCoursesStdSet
                     .contains(courseCode + "-" + studentId))
                 {
                     affinityStus.add(stu);
@@ -613,10 +658,6 @@ public class ElcResultServiceImpl implements ElcResultService
             {
                 invincibleStus.clear();
             }
-            if (!Boolean.TRUE.equals(dto.getAffinityStu()))
-            {
-                affinityStus.clear();
-            }
             List<String> removeStus = new ArrayList<>();
             if (invincibleStus.size() + affinityStus.size()
                 + normalStus.size() > teachingClass.getNumber())
@@ -628,6 +669,9 @@ public class ElcResultServiceImpl implements ElcResultService
                     new ClassElcConditionFilter(dto,
                         classElectiveRestrictAttrDao);
                 elcConditionFilter.init();
+                
+                //1.删除普通学生
+                
                 
                 // 这里做三次的原因是因为有三种学生类型
                 for (int i = 0; i < 3; i++)
@@ -660,6 +704,8 @@ public class ElcResultServiceImpl implements ElcResultService
                             }
                             GradAndPreFilter
                                 .randomRemove(removeStus, limitNumber, stuList);
+                        }else {
+                        	break;
                         }
                     }
                 }
@@ -1022,9 +1068,9 @@ public class ElcResultServiceImpl implements ElcResultService
 		int numberFemale = teachingClassVo.getNumberFemale();
 		//获取是否是男女班，男1 女2 不区分0
         String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
-        if("1".equals(limitIsDivsex)&0==numberFemale){
+        if("1".equals(limitIsDivsex)&0!=numberFemale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.male.error"));
-        }else if("2".equals(limitIsDivsex)&0==numberMale){
+        }else if("2".equals(limitIsDivsex)&0!=numberMale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
         //获取实际人数
@@ -1034,7 +1080,7 @@ public class ElcResultServiceImpl implements ElcResultService
         }else if(numberFemale==0){
             numberMale = elcNumber;
         }else{
-            numberMale = (numberMale/(numberMale+numberFemale))*elcNumber;
+            numberMale = (int)((((double)numberMale/(numberMale+numberFemale)))*elcNumber);
             numberFemale = elcNumber-numberMale;
         }
 

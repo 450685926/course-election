@@ -646,6 +646,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         GeneralExcelDesigner design = new GeneralExcelDesigner();
         design.setNullCellValue("");
         design.addCell(I18nUtil.getMsg("exemptionApply.studentCode"), "studentCode");
+        design.addCell(I18nUtil.getMsg("exemptionApply.studentName"), "studentName");
         design.addCell(I18nUtil.getMsg("rebuildCourse.grade"), "grade");
         design.addCell(I18nUtil.getMsg("exemptionApply.faculty"), "faculty").setValueHandler(
                 (value, rawData, cell) -> {
