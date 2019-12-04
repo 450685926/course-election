@@ -82,6 +82,16 @@ public class ElcMutualApplyVo extends ElcMutualApply {
      */
     private Integer stuNumber;
     
+    /**
+     * 教学班编号
+     */
+    private String teachingClassCode;
+    
+    /**
+     * 教学班主键ID
+     */
+    private String teachingClassId;
+    
 	public String getStudentName() {
 		return studentName;
 	}
@@ -186,6 +196,18 @@ public class ElcMutualApplyVo extends ElcMutualApply {
 	}
 	public void setStuNumber(Integer stuNumber) {
 		this.stuNumber = stuNumber;
+	}
+	public String getTeachingClassCode() {
+		return teachingClassCode;
+	}
+	public void setTeachingClassCode(String teachingClassCode) {
+		this.teachingClassCode = teachingClassCode;
+	}
+	public String getTeachingClassId() {
+		return teachingClassId;
+	}
+	public void setTeachingClassId(String teachingClassId) {
+		this.teachingClassId = teachingClassId;
 	}
 	
 }

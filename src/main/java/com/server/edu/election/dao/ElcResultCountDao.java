@@ -72,5 +72,8 @@ public interface ElcResultCountDao extends Mapper<Student> {
 	Integer getElcNumberByFaculty(@Param("query")ElcResultQuery condition);
 
 	Integer getElcNumber(@Param("query")ElcResultQuery condition);
-	
+
+	Page<ElcResultDto> getElcResultUpdate(@Param("query") ElcResultQuery elcResult);
+
+	Page<ElcResultDto> getElcResultByFacultyUpdate(@Param("query")ElcResultQuery condition);
 }

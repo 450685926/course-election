@@ -119,22 +119,32 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
             if (StringUtils.isNotBlank(courseCode))
             {
                 List<CompletedCourse> list = new ArrayList<>();
-                ElcCouSubs elcCouSubs = null;
-                if (CollectionUtil.isNotEmpty(completedCourses)) {
-                    list = completedCourses.stream()
-                            .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
-                            .collect(Collectors.toList());
-                }
-                //还要判断是否优替代的通过课程todo
+                ElcCouSubsVo elcCouSubs = null;
+                //先判断是否是替代课程
                 if (CollectionUtil.isNotEmpty(noGradCouSubsCourses)) {
                     elcCouSubs =
                             noGradCouSubsCourses.stream()
-                                    .filter(c -> courseCode.equals(c.getSubCourseId()))
+                                    .filter(c -> courseCode.equals(c.getSubCourseCode()))
                                     .findFirst()
                                     .orElse(null);
 
                 }
-                if (CollectionUtil.isEmpty(list) && elcCouSubs == null) {
+                if (CollectionUtil.isNotEmpty(completedCourses)) {
+                    if (elcCouSubs == null) {
+                        list = completedCourses.stream()
+                                .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
+                                .collect(Collectors.toList());
+                    } else {
+                        String origsCourseCode = elcCouSubs.getOrigsCourseCode();
+                        // 判断被替代的课程是否已通过或该课程是否已通过
+                        list = completedCourses.stream()
+                                .filter(temp ->
+                                        (origsCourseCode.equals(temp.getCourse().getCourseCode()) || courseCode.equals(temp.getCourse().getCourseCode())))
+                                .collect(Collectors.toList());
+                    }
+
+                }
+                if (CollectionUtil.isEmpty(list)) {
                     return true;
                 }
                 ElecRespose respose = context.getRespose();

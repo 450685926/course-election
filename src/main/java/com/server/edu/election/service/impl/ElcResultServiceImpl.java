@@ -247,17 +247,35 @@ public class ElcResultServiceImpl implements ElcResultService
 
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
-			String boy = "无";
-			if(vo.getNumberMale()!=null) {
-				boy = vo.getNumberMale().toString();
-			}
-			String girl = "无";
-			if(vo.getNumberFemale()!=null) {
-				girl = vo.getNumberFemale().toString();
-			}
-			String proportion = boy +"/" +girl;
-			vo.setProportion(proportion);
+            //没有设置男女比例时，页面显示 无/无
+		    if(vo.getNumberMale()==null||vo.getNumberFemale()==null) {
+                vo.setProportion("无/无");
+                return;
+            }
+            //有设置男女比例时
+			int numberMale =vo.getNumberMale();
+            int numberFemale = vo.getNumberFemale();
+
+            if(numberMale==0){
+                numberFemale = 1;
+            }
+            else if(numberFemale==0){
+                numberMale = 1;
+            }
+            else if(numberMale % numberFemale == 0){
+                numberMale = numberMale / numberFemale ;
+                numberFemale =1;
+            }
+            //如果女比例可以被男比例除尽
+            else if(numberFemale % numberMale == 0){
+                numberFemale = numberFemale / numberMale ;
+                numberMale = 1;
+            }
+            vo.setNumberFemale(numberFemale);
+            vo.setNumberMale(numberMale);
+			vo.setProportion(String.valueOf(numberMale) +"/" +String.valueOf(numberFemale));
 		}
+
 	}
 
 	private void getTeacgerName(TeachingClassVo vo) {
@@ -750,7 +768,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		ElcResultCountVo elcResultCountVo = new ElcResultCountVo();
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		if(condition.getDimension().intValue() == Constants.ONE){
-			Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
+			/*Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResult(condition);
 			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumber = elcResultCountDao.getElcNumber(condition);
 			for (ElcResultDto elcResultDto : elcResultList) {
@@ -786,10 +804,31 @@ public class ElcResultServiceImpl implements ElcResultService
 			elcResultCountVo.setList(elceResultByStudent.getList());
 			elcResultCountVo.setElcNumberByStudent(elcNumber);
 			elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
-			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
+			elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);*/
+            condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
+            Page<ElcResultDto>  elcResultList = elcResultCountDao.getElcResultUpdate(condition);
+            Integer elcNumber = elcResultCountDao.getElcNumber(condition);
+            for (ElcResultDto elcResultDto : elcResultList) {
+                if (StringUtils.isNotEmpty(condition.getGrade())) {
+                }else{
+                    elcResultDto.setGrade("全部");
+                }
+                elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(elcResultDto.getNumberOfelectedPersons()).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - elcResultDto.getNumberOfelectedPersons());
+            }
+            Integer elcGateMumber = elcResultCountDao.getElcGateMumber(condition);
+            Integer elcPersonTime = elcResultCountDao.getElcPersonTime(condition);
+            PageResult<ElcResultDto> elceResultByStudent = new PageResult<>(elcResultList);
+            elcResultCountVo.setPageNum_(elceResultByStudent.getPageNum_());
+            elcResultCountVo.setPageSize_(elceResultByStudent.getPageSize_());
+            elcResultCountVo.setTotal_(elceResultByStudent.getTotal_());
+            elcResultCountVo.setList(elceResultByStudent.getList());
+            elcResultCountVo.setElcNumberByStudent(elcNumber);
+            elcResultCountVo.setElcGateMumberByStudent(elcGateMumber);
+            elcResultCountVo.setElcPersonTimeByStudent(elcPersonTime);
 		}else{
 			//从学院维度查询
-			Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
+			/*Page<ElcResultDto> eleResultByFacultyList = elcResultCountDao.getElcResultByFacult(condition);
 			condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
 			Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
 			for (ElcResultDto elcResultDto : eleResultByFacultyList) {
@@ -826,7 +865,28 @@ public class ElcResultServiceImpl implements ElcResultService
 			elcResultCountVo.setList(elceResultByFaculty.getList());
 			elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
 			elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
-			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
+			elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);*/
+            condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
+            Page<ElcResultDto>  eleResultByFacultyList = elcResultCountDao.getElcResultByFacultyUpdate(condition);
+            Integer elcNumberByFaculty = elcResultCountDao.getElcNumberByFaculty(condition);
+            for (ElcResultDto elcResultDto : eleResultByFacultyList) {
+                if (StringUtils.isNotEmpty(condition.getGrade())) {
+                }else{
+                    elcResultDto.setGrade("全部");
+                }
+                elcResultDto.setNumberOfelectedPersonsPoint(elcResultDto.getStudentNum().intValue()==0?new BigDecimal(0).doubleValue():new BigDecimal(elcResultDto.getNumberOfelectedPersons()).divide(new BigDecimal(elcResultDto.getStudentNum()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                elcResultDto.setNumberOfNonCandidates(elcResultDto.getStudentNum() - elcResultDto.getNumberOfelectedPersons());
+            }
+            Integer elcGateMumberByFaculty = elcResultCountDao.getElcGateMumberByFaculty(condition);
+            Integer elcPersonTimeByFaculty = elcResultCountDao.getElcPersonTimeByFaculty(condition);
+            PageResult<ElcResultDto> elceResultByFaculty = new PageResult<>(eleResultByFacultyList);
+            elcResultCountVo.setPageNum_(elceResultByFaculty.getPageNum_());
+            elcResultCountVo.setPageSize_(elceResultByFaculty.getPageSize_());
+            elcResultCountVo.setTotal_(elceResultByFaculty.getTotal_());
+            elcResultCountVo.setList(elceResultByFaculty.getList());
+            elcResultCountVo.setElcNumberByFaculty(elcNumberByFaculty);
+            elcResultCountVo.setElcGateMumberByFaculty(elcGateMumberByFaculty);
+            elcResultCountVo.setElcPersonTimeByFaculty(elcPersonTimeByFaculty);
 		}
 		return elcResultCountVo;
 	}
@@ -841,6 +901,9 @@ public class ElcResultServiceImpl implements ElcResultService
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
 		//查询该条件下未选课学生名单
 		Page<Student4Elc> result = new Page<Student4Elc>();
+		if (StringUtils.equalsIgnoreCase(page.getCondition().getTrainingCategory(),"-1")){
+            page.getCondition().setTrainingCategory(null);
+        }
 		if(page.getCondition().getDimension().intValue() == Constants.ONE){
 			result = studentDao.getAllNonSelectedCourseStudent(page.getCondition());
 		}else{
@@ -1003,21 +1066,24 @@ public class ElcResultServiceImpl implements ElcResultService
 		attr.setTeachingClassId(teachingClassVo.getId());
 		int numberMale = teachingClassVo.getNumberMale();
 		int numberFemale = teachingClassVo.getNumberFemale();
-		if(numberMale==0){
-            numberFemale = 1;
+		//获取是否是男女班，男1 女2 不区分0
+        String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
+        if("1".equals(limitIsDivsex)&0!=numberFemale){
+            throw new ParameterValidateException(I18nUtil.getMsg("election.male.error"));
+        }else if("2".equals(limitIsDivsex)&0!=numberMale){
+            throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
-        else if(numberFemale==0){
-            numberMale = 1;
+        //获取实际人数
+        int elcNumber = teachingClassVo.getElcNumber();
+        if(numberMale==0){
+            numberFemale = elcNumber;
+        }else if(numberFemale==0){
+            numberMale = elcNumber;
+        }else{
+            numberMale = (int)((((double)numberMale/(numberMale+numberFemale)))*elcNumber);
+            numberFemale = elcNumber-numberMale;
         }
-        else if(numberMale % numberFemale == 0){
-            numberMale = numberMale / numberFemale ;
-            numberFemale =1;
-        }
-        //如果女比例可以被男比例除尽
-        else if(numberFemale % numberMale == 0){
-            numberFemale = numberFemale / numberMale ;
-            numberMale = 1;
-        }
+
 		attr.setNumberMale(numberMale);
 		attr.setNumberFemale(numberFemale);
 		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
