@@ -49,5 +49,12 @@ public interface ElcMutualAuditService {
 	 * @return
 	 */ 
 	List<ElcMutualApplyAuditLogsVo> queryAuditLogList (ElcMutualApplyAuditLogsVo vo) throws IllegalAccessException, InvocationTargetException;
+
+	/**
+	 * 查询开课学院审核通过的课程列表
+	 * @param dto 
+	 * @return
+	 */
+	List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto);
 	
 }

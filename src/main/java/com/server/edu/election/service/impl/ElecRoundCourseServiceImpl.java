@@ -7,6 +7,9 @@ import java.util.Objects;
 
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +45,10 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 
     @Autowired
     private ElectionConstantsDao constantsDao;
-    
+
+    @Autowired
+    private RoundDataProvider dataProvider;
+
     @Override
     public PageResult<CourseOpenDto> listPage(
         PageCondition<ElecRoundCourseQuery> condition)
@@ -143,7 +149,13 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<CourseOpenDto> listPage =
             roundCourseDao.listTeachingClassPage(query);
-        
+        Long calendarId = query.getCalendarId();
+        for (CourseOpenDto courseOpenDto : listPage) {
+            TeachingClassCache teachingClassCache =
+                    dataProvider.getTeachClassByCalendarId(calendarId, courseOpenDto.getCourseCode(), courseOpenDto.getTeachingClassId());
+            List<TimeAndRoom> timeTableList = teachingClassCache.getTimeTableList();
+            courseOpenDto.setList(timeTableList);
+        }
         PageResult<CourseOpenDto> result = new PageResult<>(listPage);
         
         return result;
