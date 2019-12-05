@@ -66,6 +66,9 @@ public class TeachingClassCache extends ElecCourse implements Serializable
     private Integer manArrangeFlag;
 
     private String replaceCourse;
+    
+    /** 教师名称(教师工号) */
+    private String teacherNameAndCode;
 
     public String getReplaceCourse() {
 		return replaceCourse;
@@ -279,6 +282,14 @@ public class TeachingClassCache extends ElecCourse implements Serializable
 
 	public void setManArrangeFlag(Integer manArrangeFlag) {
 		this.manArrangeFlag = manArrangeFlag;
+	}
+	
+	public String getTeacherNameAndCode() {
+		return teacherNameAndCode;
+	}
+
+	public void setTeacherNameAndCode(String teacherNameAndCode) {
+		this.teacherNameAndCode = teacherNameAndCode;
 	}
 
 	@Override
