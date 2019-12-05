@@ -296,7 +296,7 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
             Example.Criteria criteriaAuth = exampleAuth.createCriteria();
             criteriaAuth.andEqualTo("applyType",applyType);
             criteriaAuth.andEqualTo("projId",session.getCurrentManageDptId());
-            GraduateExamMakeUpAuth graduateExamMakeUpAuth = makeUpAuthDao.selectOneByExample(example);
+            GraduateExamMakeUpAuth graduateExamMakeUpAuth = makeUpAuthDao.selectOneByExample(exampleAuth);
             if(graduateExamMakeUpAuth != null){
                 criteria.andEqualTo("calendarId",graduateExamMakeUpAuth.getCalendarId());
             }
