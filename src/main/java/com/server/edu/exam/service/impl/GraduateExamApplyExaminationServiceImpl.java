@@ -15,6 +15,7 @@ import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.dao.*;
 import com.server.edu.exam.dto.ExamInfoRoomDto;
+import com.server.edu.exam.dto.ExamStudentAddDto;
 import com.server.edu.exam.dto.GraduateExamScore;
 import com.server.edu.exam.dto.SelectDto;
 import com.server.edu.exam.entity.GraduateExamApplyExamination;
@@ -140,19 +141,15 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
                 applyExamination.setExamCalendarId(applyExamination.getCalendarId());
             }
         }else{
-            MyGraduateExam myGraduateExam = new MyGraduateExam();
-            myGraduateExam.setCalendarId(applyExamination.getCalendarId());
-            myGraduateExam.setStudentCode(applyExamination.getStudentCode());
-            myGraduateExam.setExamType(ApplyStatus.FINAL_EXAM);
-            myGraduateExam.setCourseCode(applyExamination.getCourseCode());
-            myGraduateExam.setExamSituation(ApplyStatus.EXAM_SITUATION_NORMAL);
-            Page<MyGraduateExam> page = examInfoDao.listMyExam(myGraduateExam);
-            if(CollectionUtil.isEmpty(page)){
+            ExamStudentAddDto studentAddDto = new ExamStudentAddDto();
+            studentAddDto.setCalendarId(applyExamination.getCalendarId());
+            studentAddDto.setStudentCode(applyExamination.getStudentCode());
+            studentAddDto.setCourseCode(applyExamination.getCourseCode());
+            ExamStudentAddDto addDto = examInfoDao.findStudentElcCourseTake(studentAddDto);
+            if(addDto == null){
                 throw new ParameterValidateException("该生缓考申请不满足条件");
             }else{
-                List<MyGraduateExam> result = page.getResult();
-                MyGraduateExam graduateExam = result.get(0);
-                applyExamination.setTeachingClassId(graduateExam.getTeachingClassId());
+                applyExamination.setTeachingClassId(addDto.getTeachingClassId());
                 SchoolCalendarVo preOrNextTerm = BaseresServiceExamInvoker.getPreOrNextTerm(applyExamination.getCalendarId(), true);
                 applyExamination.setExamCalendarId(preOrNextTerm.getId());
             }
