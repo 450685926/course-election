@@ -36,6 +36,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -147,7 +148,7 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
                 //校验学生课程是否有资格申请补考
                Boolean flag = this.checkMakeUp(currentSession.realUid(),myGraduateExam.getCourseCode());
                if(!flag){
-                   throw new ParameterValidateException("课程:"+myGraduateExam.getCourseName()+",不满足申请补考的资格");
+                   throw new ParameterValidateException("课程:"+myGraduateExam.getCourseCode()+",不满足申请补考的资格");
                }
             }
             applyExamination.setExamCalendarId(examCalendarId);
@@ -220,6 +221,70 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
            return false;
        }
         return true;
+    }
+
+    @Override
+    public PageResult<MyGraduateExam> listMyExamTimeAndCourse(PageCondition<MyGraduateExam> myExam) {
+        MyGraduateExam condition = myExam.getCondition();
+        if(condition.getCalendarId() == null || condition.getExamType() == null){
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        Session session = SessionUtils.getCurrentSession();
+        String dptId = session.getCurrentManageDptId();
+        String studentCode = session.realUid();
+        Student student = studentDao.findStudentByCode(studentCode);
+        if(student == null){
+            throw new ParameterValidateException("请用学生登陆");
+        }
+        int mode = (int)(condition.getCalendarId() % 6 );
+        condition.setStudentCode(studentCode);
+        condition.setProjId(dptId);
+        condition.setMode(mode);
+        condition.setNotice(ApplyStatus.PASS_INT);
+        Page<MyGraduateExam> page = new Page<>();
+        PageHelper.startPage(myExam.getPageNum_(),myExam.getPageSize_());
+        if(condition.getExamType().equals(ApplyStatus.FINAL_EXAM)){
+            page = examStudentDao.listCourseTake(condition);
+            if(CollectionUtil.isNotEmpty(page)){
+                //查询已经排考的课程
+                List<MyGraduateExam> examList = examStudentDao.findExamStudentAndCourse(condition);
+                List<MyGraduateExam> result = page.getResult();
+                if(CollectionUtil.isNotEmpty(examList)){
+                    List<String> examCourses = examList.stream().map(vo -> vo.getCourseCode()).collect(Collectors.toList());
+                    for (MyGraduateExam myGraduateExam : examList) {
+                        for (MyGraduateExam graduateExam : result) {
+                            if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
+                                graduateExam.setExamSituation(myGraduateExam.getExamSituation());
+                                graduateExam.setRoomId(myGraduateExam.getRoomId());
+                                graduateExam.setRoomName(myGraduateExam.getRoomName());
+                                graduateExam.setExamTime(myGraduateExam.getExamTime());
+                                graduateExam.setRemark(myGraduateExam.getRemark());
+                                break;
+                            }
+                        }
+                    }
+                    List<MyGraduateExam> noExamCourse = result.stream().filter(vo -> !examCourses.contains(vo.getCourseCode())).collect(Collectors.toList());
+                    if(CollectionUtil.isNotEmpty(noExamCourse)){
+                        List<MyGraduateExam> noList =  examStudentDao.findExamNotice(noExamCourse,condition.getExamType(),condition.getCalendarId());
+                        if(CollectionUtil.isNotEmpty(noList)){
+                            for (MyGraduateExam myGraduateExam : noList) {
+                                for (MyGraduateExam graduateExam : result) {
+                                    if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
+                                        graduateExam.setExamTime(myGraduateExam.getExamTime());
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        }else{
+            page = examInfoDao.listMyExamTimeMakeUp(condition);
+        }
+        return new PageResult<>(page);
     }
 
     private void cancelApplyByOne(MyGraduateExam myExam,Integer applyType,List<GraduateExamApplyExamination> list){

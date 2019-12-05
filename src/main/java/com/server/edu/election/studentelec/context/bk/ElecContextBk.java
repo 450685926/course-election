@@ -2,6 +2,7 @@ package com.server.edu.election.studentelec.context.bk;
 
 import java.util.Set;
 
+import com.server.edu.common.entity.BclHonorModule;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
@@ -56,6 +57,9 @@ public class ElecContextBk implements IElecContext
     
     /**学生的选课申请课程*/
     private Set<ElectionApply> elecApplyCourses;
+    
+    /** 个人荣誉课程 */
+    private Set<BclHonorModule> honorCourses;
        
     
     private ElecRequest request;
@@ -90,6 +94,7 @@ public class ElecContextBk implements IElecContext
         applyForDropCourses =
             this.contextUtil.getSet(APPLY_FOR_DROP_COURSES, ElecCourse.class);
         planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
+        honorCourses = this.contextUtil.getSet("HonorCourses", BclHonorModule.class);
         publicCourses =
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
         courseGroups =
@@ -119,6 +124,7 @@ public class ElecContextBk implements IElecContext
         this.contextUtil.updateMem(APPLY_FOR_DROP_COURSES,
             this.applyForDropCourses);
         this.contextUtil.updateMem("PlanCourses", this.planCourses);
+        this.contextUtil.updateMem("HonorCourses", this.honorCourses);
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
@@ -148,6 +154,7 @@ public class ElecContextBk implements IElecContext
         this.getSelectedCourses().clear();
         this.getApplyForDropCourses().clear();
         this.getPlanCourses().clear();
+        this.getHonorCourses().clear();
         this.getCourseGroups().clear();
         this.getPublicCourses().clear();
         this.getFailedCourse().clear();
@@ -192,6 +199,11 @@ public class ElecContextBk implements IElecContext
     public Set<PlanCourse> getPlanCourses()
     {
         return planCourses;
+    }
+    
+    public Set<BclHonorModule> getHonorCourses()
+    {
+        return honorCourses;
     }
     
     public Set<ElecCourse> getPublicCourses()

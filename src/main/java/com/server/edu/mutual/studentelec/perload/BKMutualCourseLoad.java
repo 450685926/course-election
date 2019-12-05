@@ -4,23 +4,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
+import com.server.edu.mutual.dao.ElecMutualRoundsDao;
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.service.ElcMutualAuditService;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.util.ProjectUtil;
 import com.server.edu.mutual.vo.ElcMutualApplyVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.BeanUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -50,16 +50,25 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 	
     @Autowired
     private ElcMutualAuditService elcMutualAuditService;
+    
+    @Autowired
+    private ElecMutualRoundsDao elecMutualRoundsDao;
 	
 	@Override
 	public void load(ElecContextMutualBk context) {
-		Session session = SessionUtils.getCurrentSession();
+//		Session session = SessionUtils.getCurrentSession();
+//		
+//		boolean isAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin(); // 管理员
+//		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean(); // 教务员
+//		boolean isStudent = session.isStudent();
 		
-		boolean isAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin(); // 管理员
-		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean(); // 教务员
-		boolean isStudent = session.isStudent();
+		ElecRequest request = context.getRequest();
+		String projectId = request.getProjectId();
+		String studentId = request.getStudentId();
+		Long roundId = request.getRoundId();
+		ElectionRounds round = elecMutualRoundsDao.selectByPrimaryKey(roundId);
+		String electionObj = round.getElectionObj();
 		
-		String projectId = session.getCurrentManageDptId();
 		LOG.info("---------BKMutualCourseLoad-------projectId:" + projectId);
 		LOG.info("---------BKMutualCourseLoad-------calendarId:" + context.getCalendarId());
 		LOG.info("---------BKMutualCourseLoad-------studentId:" + context.getStudentInfo().getStudentId());
@@ -71,7 +80,7 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 		dto.setMode(Constants.FIRST);
 		dto.setCalendarId(context.getCalendarId());
 		dto.setStatus(MutualApplyAuditStatus.AUDITED_APPROVED.status());
-		dto.setStudentId(context.getStudentInfo().getStudentId());
+		dto.setStudentId(studentId);
 		
 		List<ElcMutualApplyVo> list = elcMutualAuditService.getOpenCollegeAuditList(dto);
 		
@@ -87,7 +96,7 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 					
 					course.setCourse(cache);
 					// 选课对象(1学生，2教务员，3管理员)
-					course.setChooseObj(getChooseObj(isAdmin,isAcdemicDean,isStudent));
+					course.setChooseObj(getChooseObj(electionObj));
 					
 					set.add(course);
 				}
@@ -102,15 +111,24 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 	 * 获取选课对象
 	 * @return
 	 */
-	private Integer getChooseObj(boolean isAdmin, boolean isAcdemicDean, boolean isStudent) {
+	private Integer getChooseObj(String electionObj) {
+		// 选课对象(STU学生，DEPART_ADMIN教务员，MANAGER_ADMIN管理员)
 		Integer chooseObj = 0;
-		if (isAdmin) {
-			chooseObj = 3;
-		}else if (isAcdemicDean) {
-			chooseObj = 2;
-		}else if (isStudent){
-			chooseObj = 1;
+		
+		switch (electionObj) {
+			case "STU":
+				chooseObj = 1;
+				break;
+			case "DEPART_ADMIN":
+				chooseObj = 2;
+				break;
+			case "MANAGER_ADMIN":
+				chooseObj = 3;
+				break;
+			default:
+				break;
 		}
+		
 		return chooseObj;
 	}
 
