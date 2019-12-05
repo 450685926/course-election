@@ -8,7 +8,6 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcCourseTake;
 
 @CodeI18n
-@JsonSerialize(using = ToStringSerializer.class)
 public class ElcCourseTakeVo extends ElcCourseTake
 {
     private static final long serialVersionUID = 1L;
@@ -73,7 +72,8 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String assessmentMode;
 
     private String term;
-    
+
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long medWithdrawId;
     
     private String elcMedWithdrawStatus;
