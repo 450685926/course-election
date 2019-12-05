@@ -263,19 +263,13 @@ public class TeacherLessonTableServiceServiceImpl
                     teacherTimeTable.setClassRoom(classRoom);
                 }
 
-                teacherTimeTable.setWeekHour(formatDouble(Optional.ofNullable(teacherTimeTable.getWeekHour()).orElse(0.0)));
-                teacherTimeTable.setCredits(formatDouble(Optional.ofNullable(teacherTimeTable.getCredits()).orElse(0.0)));
-
             }
 
         }
         return classTimeAndRoom;
     }
 
-    private double formatDouble(double d){
-        BigDecimal b = new BigDecimal(d);
-        return b.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
-    }
+
     /**
     *@Description: 登陆获取教师课表
     *@Param:
@@ -1194,7 +1188,7 @@ public class TeacherLessonTableServiceServiceImpl
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
                 String teacherName="";
                 if(teachers != null) {
-                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
+                    teacherName = "没有";
                 }
                 
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
