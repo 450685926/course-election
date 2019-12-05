@@ -1,5 +1,6 @@
 package com.server.edu.mutual.vo;
 
+import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.mutual.entity.ElcMutualApply;
@@ -92,6 +93,34 @@ public class ElcMutualApplyVo extends ElcMutualApply {
      */
     private String teachingClassId;
     
+    /**校区*/
+    @Code2Text(DictTypeEnum.X_XQ)
+    private String campus;
+    
+    @Code2Text(transformer = "X_KKXQ")
+    private String term;
+    
+    /**是否必修*/
+    private String compulsory;
+    
+	public String getCompulsory() {
+		return compulsory;
+	}
+	public void setCompulsory(String compulsory) {
+		this.compulsory = compulsory;
+	}
+	public String getTerm() {
+		return term;
+	}
+	public void setTerm(String term) {
+		this.term = term;
+	}
+	public String getCampus() {
+		return campus;
+	}
+	public void setCampus(String campus) {
+		this.campus = campus;
+	}
 	public String getStudentName() {
 		return studentName;
 	}

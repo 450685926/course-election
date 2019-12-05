@@ -3,8 +3,6 @@ package com.server.edu.mutual.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +24,6 @@ import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -35,7 +32,6 @@ import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
 import com.server.edu.mutual.util.ProjectUtil;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
@@ -123,14 +119,12 @@ public class ElcMutualController {
         
         ElecContextMutualBk c =
             new ElecContextMutualBk(session.realUid(), round.getCalendarId());
-        
-        
-        Set<SelectedCourse> courses = c.getSelectedCourses();
-        courses.clear();
-        courses.addAll(c.getSelectedMutualCourses());
-        c.getSelectedMutualCourses().clear();
+//        
+//        Set<SelectedCourse> courses = c.getSelectedCourses();
+//        courses.clear();
+//        courses.addAll(c.getSelectedMutualCourses());
+//        c.getSelectedMutualCourses().clear();
 
         return RestResult.successData(c);
     }
- 
 }
