@@ -159,11 +159,16 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
                 lesson.setCompulsory("");
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
-                for (ClassTimeUnit time : times) {
-                	teacherNameAndCode = teacherNameAndCode + getTeacherInfo(time.getTeacherCode()) + ",";
-                }
-                LOG.info("--------------teacherNameAndCode----------------:" + teacherNameAndCode);
-                lesson.setTeacherNameAndCode(teacherNameAndCode.substring(0, teacherNameAndCode.length()-1));
+                if (CollectionUtil.isNotEmpty(times)) {
+                	for (ClassTimeUnit time : times) {
+                		String names = getTeacherInfo(time.getTeacherCode());
+                		if (StringUtils.isNotBlank(names)) {
+                			teacherNameAndCode = teacherNameAndCode + names + ",";
+						}
+                	}
+                	LOG.info("--------------teacherNameAndCode----------------:" + teacherNameAndCode);
+                	lesson.setTeacherNameAndCode(teacherNameAndCode.substring(0, teacherNameAndCode.length()-1));
+				}
 
                 course.setCourse(lesson);
 //                course.setLabel(vo.getLabel());
