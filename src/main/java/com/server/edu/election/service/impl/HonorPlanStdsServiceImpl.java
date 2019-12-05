@@ -14,12 +14,19 @@ import com.server.edu.election.service.HonorPlanStdsService;
 import com.server.edu.election.vo.HonorPlanStdsVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
@@ -35,7 +42,14 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
     private HonorPlanStdsDao honorPlanStdsDao;
 
     @Autowired
+    private SqlSessionFactory factory;
+
+    @Autowired
     private DictionaryService dictionaryService;
+
+    @Autowired
+    private RedisTemplate<String, AsyncResult> redisTemplate;
+
     @Override
     public PageResult<HonorPlanStdsVo> listPage(PageCondition<HonorPlanStdsQuery> page) {
         HonorPlanStdsQuery condition = page.getCondition();
@@ -43,6 +57,47 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<HonorPlanStdsVo> list = honorPlanStdsDao.pageList(condition);
         return new PageResult<HonorPlanStdsVo>(list);
+    }
+
+    @Override
+    public AsyncResult addList(List<HonorPlanStds> honorPlanStdsList) {
+        AsyncResult result = AsyncProcessUtil
+                .submitTask("asyncBatchAddHonorStds", new AsyncExecuter() {
+
+            @Override
+            public void execute() {
+                AsyncResult result = this.getResult();
+                int resultCount = 0;
+                result.setTotal(honorPlanStdsList.size());
+                if(CollectionUtil.isNotEmpty(honorPlanStdsList)) {
+                    SqlSession session = factory.openSession(ExecutorType.BATCH,false);
+                    HonorPlanStdsDao mapper = session.getMapper(HonorPlanStdsDao.class);
+                    for (int i = 0; i <honorPlanStdsList.size() ; i++) {
+                        Example example = new Example(HonorPlanStds.class);
+                        example.createCriteria()
+                                .andEqualTo("studentId",honorPlanStdsList.get(i).getStudentId());
+                        example.createCriteria()
+                                .andEqualTo("calendarId",honorPlanStdsList.get(i).getCalendarId());
+                        List<HonorPlanStds> honorPlanStds = honorPlanStdsDao.selectByExample(example);
+                        if (CollectionUtil.isEmpty(honorPlanStds))
+                        {
+                            mapper.insert(honorPlanStdsList.get(i));
+                        }
+                        if(i%40==0){//每40条提交一次防止内存溢出
+                            result.setDoneCount(i+1);
+                            String counts = String.format("已经添加成功的数据", i+1);
+                            result.setMsg(counts);
+                            redisTemplate.opsForValue().getAndSet("commonAsyncProcessKey-"+result.getKey(), result);
+                            session.commit();
+                            session.clearCache();
+                        }
+                    }
+                    session.commit();
+                    session.clearCache();
+                }
+            }}
+        );
+        return result;
     }
 
     @Override
@@ -144,7 +199,7 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
                     return dictionaryService.query("X_PYCC", value);
                 });
         design.addCell("年级", "grade");
-        design.addCell("学院", "facutly").setValueHandler(
+        design.addCell("学院", "faculty").setValueHandler(
                 (value, rawData, cell) -> {
                     return dictionaryService.query("X_YX", value);
                 });

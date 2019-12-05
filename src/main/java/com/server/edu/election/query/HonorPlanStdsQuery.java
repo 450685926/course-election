@@ -67,6 +67,10 @@ public class HonorPlanStdsQuery
 	@Code2Text(DictTypeEnum.G_ZY)
 	private String profession;
 
+	/**
+	 * 专业
+	 */
+	private String keyword;
 
 	public Long getId() {
 		return id;
@@ -154,5 +158,13 @@ public class HonorPlanStdsQuery
 
 	public void setProfession(String profession) {
 		this.profession = profession;
+	}
+
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
 	}
 }

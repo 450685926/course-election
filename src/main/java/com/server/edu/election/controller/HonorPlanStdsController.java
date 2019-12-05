@@ -4,12 +4,21 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
+import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.entity.HonorPlanStds;
 import com.server.edu.election.query.HonorPlanStdsQuery;
 import com.server.edu.election.service.HonorPlanStdsService;
 import com.server.edu.election.vo.HonorPlanStdsVo;
+import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncResult;
+import com.server.edu.util.excel.GeneralExcelUtil;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import com.server.edu.util.excel.parse.ExcelParseConfig;
+import com.server.edu.util.excel.parse.ExcelParseDesigner;
 import io.swagger.annotations.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -17,8 +26,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 @SwaggerDefinition(info = @Info(title = "荣誉课程组名单", version = ""))
 @RestSchema(schemaId = "HonorPlanStdsController")
@@ -135,4 +148,63 @@ public class HonorPlanStdsController
                         "attachment;filename=" + "HonorCourseMingDan.xls")
                 .body(resource);
     }
+
+    @PostMapping(value = "/upload")
+    public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
+                                @RequestPart(name = "calendarId") @NotNull Long calendarId)
+    {
+        if (file == null)
+        {
+            return RestResult.error("文件不能为空");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (!originalFilename.endsWith(".xls"))
+        {
+            return RestResult.error("请使用1999-2003(.xls)类型的Excel");
+        }
+
+        try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
+        {
+            ExcelParseDesigner designer = new ExcelParseDesigner();
+            designer.setDataStartRowIdx(1);
+            designer.setConfigs(new ArrayList<>());
+
+            designer.getConfigs().add(new ExcelParseConfig("studentId", 0));
+            designer.getConfigs().add(new ExcelParseConfig("honorPlanName", 2));
+            designer.getConfigs().add(new ExcelParseConfig("directionName", 3));
+
+            List<HonorPlanStds> parseExcel = GeneralExcelUtil
+                    .parseExcel(workbook, designer, HonorPlanStds.class);
+
+            List<HonorPlanStds> honorPlanStdsList = new ArrayList<>();
+            for (HonorPlanStds honorPlanStds : parseExcel)
+            {
+                String studentId = StringUtils.trim(honorPlanStds.getStudentId());
+                String directionName = StringUtils.trim(honorPlanStds.getDirectionName());
+                String honorPlanName = StringUtils.trim(honorPlanStds.getHonorPlanName());
+                if (StringUtils.isNotBlank(studentId)&&StringUtils.isNotBlank(honorPlanName))
+                {
+                    HonorPlanStds honorPlanStds1 = new HonorPlanStds();
+                    honorPlanStds1.setCalendarId(calendarId);
+                    honorPlanStds1.setDirectionName(directionName);
+                    honorPlanStds1.setHonorPlanName(honorPlanName);
+                    honorPlanStds1.setStudentId(studentId);
+                    honorPlanStdsList.add(honorPlanStds1);
+                }
+            }
+            if (CollectionUtil.isNotEmpty(honorPlanStdsList)) {
+                AsyncResult result = honorPlanStdsService.addList(honorPlanStdsList);
+                return RestResult.successData(result);
+            }else{
+                return RestResult.fail("file.notEmpty");
+            }
+        }
+        catch (Exception e)
+        {
+            return RestResult.error("解析文件错误" + e.getMessage());
+        }
+    }
+
+
 }

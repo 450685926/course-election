@@ -53,6 +53,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(directionName)">
                 and t1.DIRECTION_NAME_ = #{directionName}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
+            </if>
         </where>
     </select>
 

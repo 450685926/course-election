@@ -3,9 +3,13 @@ package com.server.edu.election.service;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.entity.HonorPlanStds;
 import com.server.edu.election.query.HonorPlanStdsQuery;
 import com.server.edu.election.vo.HonorPlanStdsVo;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
+
+import java.util.List;
 
 
 public interface HonorPlanStdsService
@@ -31,4 +35,11 @@ public interface HonorPlanStdsService
     RestResult<?> delete(HonorPlanStdsQuery honorPlanStds);
 
     ExcelResult export(HonorPlanStdsQuery condition);
+
+    /**
+     * 异步导入
+     * @param honorPlanStdsList
+     * @return
+     */
+    AsyncResult addList(List<HonorPlanStds> honorPlanStdsList);
 }
