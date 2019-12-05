@@ -219,19 +219,29 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 				pageCondition.setPageSize_(100);
 				int pageNum = Constants.ZERO;
 				List<Student> resultList = new ArrayList<>();
-				while(true) {
-                    pageNum++;
-                    pageCondition.setPageNum_(pageNum);
-                    PageInfo<Student> pageResult = getUnLimitStudents(pageCondition);
-                    resultList.addAll(pageResult.getList());
-                    result.setTotal((int)pageResult.getTotal());
-                    Double count = resultList.size() / 1.5;
-                    result.setDoneCount(count.intValue());
-                    this.updateResult(result);
-                    if(pageResult.getTotal() <= resultList.size()) {
-                        break;
+				List<String> studentIds = studentDto.getStudentIds();
+                if(null==studentIds||studentIds.size()==0){
+                    while(true) {
+                        pageNum++;
+                        pageCondition.setPageNum_(pageNum);
+                        PageInfo<Student> pageResult = getUnLimitStudents(pageCondition);
+                        resultList.addAll(pageResult.getList());
+                        result.setTotal((int)pageResult.getTotal());
+                        Double count = resultList.size() / 1.5;
+                        result.setDoneCount(count.intValue());
+                        this.updateResult(result);
+                        if(pageResult.getTotal() <= resultList.size()) {
+                            break;
+                        }
+                    }
+                }else{
+                    for(String string:studentIds){
+                        pageCondition.getCondition().setStudentId(string);
+                        PageInfo<Student> pageResult = getUnLimitStudents(pageCondition);
+                        resultList.addAll(pageResult.getList());
                     }
                 }
+
 				GeneralExcelDesigner design = new GeneralExcelDesigner();
 				design.setNullCellValue("");
 				design.addCell(I18nUtil.getMsg("elcStudentLimit.studentId"), "studentCode");

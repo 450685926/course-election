@@ -2,6 +2,8 @@ package com.server.edu.election.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.dictionary.translator.ClassRoomTranslator;
@@ -19,7 +21,9 @@ public class TeacherTimeTable {
     private String courseName;
     private Long courseLabel;
     private String courseLabelName;
+    @JsonSerialize(using = ToStringSerializer.class)
     private Double weekHour;
+    @JsonSerialize(using = ToStringSerializer.class)
     private Double credits;
     @Code2Text(transformer = "X_SKYY")
     private String teachingLanguage;
