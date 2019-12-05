@@ -1188,7 +1188,7 @@ public class TeacherLessonTableServiceServiceImpl
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
                 String teacherName="";
                 if(teachers != null) {
-                    teacherName = "没有";
+                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
                 }
                 
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
