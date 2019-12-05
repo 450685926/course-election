@@ -511,7 +511,7 @@ public class ElcResultServiceImpl implements ElcResultService
         TeachingClass record = new TeachingClass();
         record.setId(teachingClassVo.getId());
         record.setNumber(teachingClassVo.getNumber());
-        record.setReserveNumberRate((teachingClassVo.getNumber() == null|| teachingClassVo.getNumber().intValue()==0 )?0.0:new BigDecimal(teachingClassVo.getReserveNumber()).divide(new BigDecimal(teachingClassVo.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+        record.setReserveNumberRate((teachingClassVo.getNumber() == null|| teachingClassVo.getNumber().intValue()==0 || teachingClassVo.getReserveNumber() == null  )?0.0:new BigDecimal(teachingClassVo.getReserveNumber()).divide(new BigDecimal(teachingClassVo.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
         classDao.updateByPrimaryKeySelective(record);
         
         // 更新缓存中教学班人数上限
