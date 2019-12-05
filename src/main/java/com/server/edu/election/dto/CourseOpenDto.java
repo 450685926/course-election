@@ -67,14 +67,14 @@ public class CourseOpenDto extends CourseOpen
     private Integer thirdWithdrawNumber;
 
     // 上课时间地点
-    private List<TimeAndRoom> list;
+    private String timeAndRoom;
 
-    public List<TimeAndRoom> getList() {
-        return list;
+    public String getTimeAndRoom() {
+        return timeAndRoom;
     }
 
-    public void setList(List<TimeAndRoom> list) {
-        this.list = list;
+    public void setTimeAndRoom(String timeAndRoom) {
+        this.timeAndRoom = timeAndRoom;
     }
 
     public Integer getThirdWithdrawNumber() {
