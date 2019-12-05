@@ -96,7 +96,7 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
             List<GraduateExamApplyExamination> list = new ArrayList<>();
             for (MyGraduateExam myGraduateExam : myExam) {
                 myGraduateExam.setStudentCode(studentCode);
-                this.cancelApplyByOne(myGraduateExam,applyType,list);
+                this.cancelApplyByOne(myGraduateExam,applyType,list,session);
             }
 
             if(CollectionUtil.isNotEmpty(list)){
@@ -287,10 +287,22 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         return new PageResult<>(page);
     }
 
-    private void cancelApplyByOne(MyGraduateExam myExam,Integer applyType,List<GraduateExamApplyExamination> list){
+    private void cancelApplyByOne(MyGraduateExam myExam,Integer applyType,List<GraduateExamApplyExamination> list,Session session){
         Example example = new Example(GraduateExamApplyExamination.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("calendarId",myExam.getCalendarId());
+        if(ApplyStatus.EXAM_SITUATION_MAKE_UP.equals(applyType)){
+            //获取权限的学期
+            Example exampleAuth = new Example(GraduateExamMakeUpAuth.class);
+            Example.Criteria criteriaAuth = exampleAuth.createCriteria();
+            criteriaAuth.andEqualTo("applyType",applyType);
+            criteriaAuth.andEqualTo("projId",session.getCurrentManageDptId());
+            GraduateExamMakeUpAuth graduateExamMakeUpAuth = makeUpAuthDao.selectOneByExample(example);
+            if(graduateExamMakeUpAuth != null){
+                criteria.andEqualTo("calendarId",graduateExamMakeUpAuth.getCalendarId());
+            }
+        }else{
+            criteria.andEqualTo("calendarId",myExam.getCalendarId());
+        }
         criteria.andEqualTo("studentCode",myExam.getStudentCode());
         criteria.andEqualTo("courseCode",myExam.getCourseCode());
         criteria.andEqualTo("applyType", applyType);
