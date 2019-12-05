@@ -333,9 +333,9 @@ public class ElcCourseTakeVo extends ElcCourseTake
         this.courseLabel = courseLabel;
     }
 
-	public Long getStudentCode() {
+	/*public Long getStudentCode() {
 		return Long.parseLong(super.getStudentId());
-	}
+	}*/
 
 	public Integer getElectionMode() {
 		return electionMode;
