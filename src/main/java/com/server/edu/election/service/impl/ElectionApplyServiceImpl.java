@@ -247,7 +247,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         Example.Criteria cCriteria = cExample.createCriteria();
         cCriteria.andEqualTo("calendarId", calendarId);
         cCriteria.andEqualTo("courseCode", courseCode);
-        cCriteria.andEqualTo("mode", apply.getMode());
         ElectionApplyCourses electionApplyCourses =
             electionApplyCoursesDao.selectOneByExample(cExample);
         if(electionApplyCourses==null) {
