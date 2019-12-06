@@ -605,7 +605,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                     }
 
                     CountDownLatch down = new CountDownLatch(infoRooms.size());
-                    List<List<ExportExamInfoDto>> lists = splitList(infoRooms, 10);
+                    List<List<ExportExamInfoDto>> lists = splitList(infoRooms, 3);
                     for (List<ExportExamInfoDto> list : lists) {
                         executor.execute(() ->{
                             for (ExportExamInfoDto exportExamInfoDto : list) {
