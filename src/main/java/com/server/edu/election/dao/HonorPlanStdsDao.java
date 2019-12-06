@@ -9,6 +9,11 @@ import tk.mybatis.mapper.common.Mapper;
 
 public interface HonorPlanStdsDao extends Mapper<HonorPlanStds> {
 
+    /**
+     * 查询荣誉计划学生名单
+     * @param condition
+     * @return
+     */
     Page<HonorPlanStdsVo> pageList(HonorPlanStdsQuery condition);
 }
 
