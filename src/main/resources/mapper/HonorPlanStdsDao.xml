@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.server.edu.election.dao.HonorPlanStdsDao">
+  <resultMap id="BaseResultMap" type="com.server.edu.election.vo.HonorPlanStdsVo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <result column="STUDENT_CODE_" jdbcType="VARCHAR" property="studentId" />
+    <result column="NAME_" jdbcType="VARCHAR" property="studentName" />
+    <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
+    <result column="FACULTY_" jdbcType="VARCHAR" property="faculty" />
+    <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
+    <result column="GRADE_" jdbcType="INTEGER" property="grade" />
+  </resultMap>
+
+    <select id="pageList" parameterType="com.server.edu.election.query.HonorPlanStdsQuery" resultType="com.server.edu.election.vo.HonorPlanStdsVo">
+        SELECT
+        t1.ID_ id,
+        t1.STUDENT_ID_ studentId,
+        t1.HONOR_PLAN_NAME_ honorPlanName,
+        t1.DIRECTION_NAME_ directionName,
+        t1.CALENDAR_ID_ calendarId,
+        t2.NAME_ studentName,
+        t2.TRAINING_LEVEL_ trainingLevel,
+        t2.GRADE_ grade,
+        t2.FACULTY_ faculty,
+        t2.PROFESSION_ profession
+        FROM  honor_plan_stds_t t1
+        LEFT JOIN student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_
+        <where>
+            t1.CALENDAR_ID_ =#{calendarId}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+                and t1.ID_ in
+                <foreach collection="ids" open="(" separator="," close=")" item="id">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and t2.TRAINING_LEVEL_ = #{trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+                and t2.GRADE_ = #{grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+                and t2.FACULTY_ = #{faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+                and t2.PROFESSION_ = #{profession}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(honorPlanName)">
+                and t1.HONOR_PLAN_NAME_ = #{honorPlanName}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(directionName)">
+                and t1.DIRECTION_NAME_ = #{directionName}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
+            </if>
+        </where>
+    </select>
+
+</mapper>
