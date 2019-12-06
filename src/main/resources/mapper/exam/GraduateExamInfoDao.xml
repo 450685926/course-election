@@ -637,11 +637,11 @@
         where STUDENT_CODE_ = #{studentCode} and t2.PROJ_ID_ = #{projId} and t2.EXAM_TYPE_ = #{examType} and t2.EXAM_STATUS_ = 2 and CALENDAR_ID_ = #{calendarId}
         UNION
         select t5.STUDENT_CODE_ studentCode,t4.CALENDAR_ID_ calendarId,t4.COURSE_CODE_ courseCode,t5.NAME_ courseName,IF(LENGTH(t4.EXAM_TIME_) > 0,t4.EXAM_TIME_,t4.REMARK_) examTime,NULL,NULL,NULL,NULL,NULL from
-        (select t1.CALENDAR_ID_,t1.COURSE_CODE_,t2.CAMPUS_,t1.STUDENT_CODE_,t3.NAME_ from graduate_exam_apply_examination_t t1
+        (select t1.EXAM_CALENDAR_ID_,t1.COURSE_CODE_,t2.CAMPUS_,t1.STUDENT_CODE_,t3.NAME_ from graduate_exam_apply_examination_t t1
         LEFT JOIN teaching_class_t t2 on t1.TEACHING_CLASS_ID_ = t2.ID_
         LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
-        where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_CODE_ = #{studentCode} and t1.PROJ_ID_ = #{projId} and t1.APPLY_STATUS_ = 4) t5
-        join graduate_exam_info_t t4 on t5.COURSE_CODE_ = t4.COURSE_CODE_ and t5.CAMPUS_ = t4.CAMPUS_ and t5.CALENDAR_ID_ = t4.CALENDAR_ID_
+        where t1.EXAM_CALENDAR_ID_ = #{calendarId} and t1.STUDENT_CODE_ = #{studentCode} and t1.PROJ_ID_ = #{projId} and t1.APPLY_STATUS_ = 4) t5
+        join graduate_exam_info_t t4 on t5.COURSE_CODE_ = t4.COURSE_CODE_ and t5.CAMPUS_ = t4.CAMPUS_ and t5.EXAM_CALENDAR_ID_ = t4.CALENDAR_ID_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCodes)">
                 and t4.COURSE_CODE_ not in
