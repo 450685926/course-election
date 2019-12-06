@@ -64,6 +64,9 @@ import org.stringtemplate.v4.ST;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -589,17 +592,30 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         rs.setKey(newKey);
         redisTemplate.opsForValue().set(newKey, rs);
         redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
+
         ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
             @Override
             public File getFile() {
                 try {
                     List<File> fileList = new ArrayList<>();
+                    ExecutorService executor = Executors.newFixedThreadPool(32);
                     for (ExportExamInfoDto  exportExamInfoDto: infoRooms) {
                         exportExamInfoDto.setCalendarId(calendarId);
                         exportExamInfoDto.setCalendarName(name);
-                        String path = creatFile(exportExamInfoDto,"batch");
-                        fileList.add(new File(path));
                     }
+
+                    CountDownLatch down = new CountDownLatch(infoRooms.size());
+                    List<List<ExportExamInfoDto>> lists = splitList(infoRooms, 3);
+                    for (List<ExportExamInfoDto> list : lists) {
+                        executor.execute(() ->{
+                            for (ExportExamInfoDto exportExamInfoDto : list) {
+                                String path = creatFile(exportExamInfoDto, "batch");
+                                fileList.add(new File(path));
+                                down.countDown();
+                            }
+                        });
+                    }
+                    down.await();
                     ZipUtil.createZip(fileList, cacheDirectory+"checkTable.zip");
                     return new File(cacheDirectory+"checkTable.zip");
                 } catch (FileNotFoundException e) {
@@ -622,6 +638,29 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         },".zip");
         return  rs;
 
+    }
+
+    private List<List<ExportExamInfoDto>> splitList(List<ExportExamInfoDto> list, int size) {
+        if (null == list || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+        int listCount = (list.size() - 1) / size + 1;
+        int remaider = list.size() % listCount; // (先计算出余数)
+        int number = list.size() / listCount; // 然后是商
+        int offset = 0;// 偏移量
+        List<List<ExportExamInfoDto>> newList = new ArrayList<>(size);
+        for (int i = 0; i < listCount; i++) {
+            List<ExportExamInfoDto> value;
+            if (remaider > 0) {
+                value = list.subList(i * number + offset, (i + 1) * number + offset + 1);
+                remaider--;
+                offset++;
+            } else {
+                value = list.subList(i * number + offset, (i + 1) * number + offset);
+            }
+            newList.add(value);
+        }
+        return newList;
     }
 
     private String getDay(Date examDate){
