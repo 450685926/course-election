@@ -242,6 +242,9 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         condition.setMode(mode);
         condition.setNotice(ApplyStatus.PASS_INT);
         Page<MyGraduateExam> page = new Page<>();
+        //查询已排考的课程
+        List<String> examCourseCode =  examStudentDao.findExamStuCourseCode(condition);
+        condition.setCourseCodes(examCourseCode);
         PageHelper.startPage(myExam.getPageNum_(),myExam.getPageSize_());
         if(condition.getExamType().equals(ApplyStatus.FINAL_EXAM)){
             page = examStudentDao.listCourseTake(condition);
