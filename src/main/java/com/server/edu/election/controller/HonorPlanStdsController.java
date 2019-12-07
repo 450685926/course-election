@@ -71,7 +71,7 @@ public class HonorPlanStdsController
      */
     @ApiOperation(value = "荣誉课程组学生名单")
     @GetMapping("/hasHonorPlan")
-    public RestResult<Boolean> page(@RequestParam @NotNull String studentId,@RequestParam Long calendarId)
+    public RestResult<Boolean> hasHonorPlan(@RequestParam @NotNull String studentId,@RequestParam Long calendarId)
             throws Exception
     {
 
