@@ -188,7 +188,7 @@ public class TeachingClass extends BaseEntity implements Serializable
      * 教学班预留人数比例
      */
     @Column(name = "RESERVE_NUMBER_RATE_")
-    private Double reserveNumberRate;
+    private Integer reserveNumberRate;
 
     /**
      * 创建时间
@@ -729,11 +729,12 @@ public class TeachingClass extends BaseEntity implements Serializable
         this.name = name;
     }
 
-    public Double getReserveNumberRate() {
-        return reserveNumberRate;
-    }
+	public Integer getReserveNumberRate() {
+		return reserveNumberRate;
+	}
 
-    public void setReserveNumberRate(Double reserveNumberRate) {
-        this.reserveNumberRate = reserveNumberRate;
-    }
+	public void setReserveNumberRate(Integer reserveNumberRate) {
+		this.reserveNumberRate = reserveNumberRate;
+	}
+    
 }
