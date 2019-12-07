@@ -95,6 +95,8 @@ public interface Constants
     public static final Integer AGENTELC= 1;
     /** 选课申请拒绝*/
     public static final Integer REJECT = 2;
+
+    public static final double RESERVENUMBERRATE = 0d;
     
 
 }

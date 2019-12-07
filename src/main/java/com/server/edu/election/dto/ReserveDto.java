@@ -8,6 +8,7 @@ public class ReserveDto {
 	@NotEmpty
 	private List<Long> ids;
 	private int reserveNumber;
+	private Double reserveNumberRate;
 	private int reserveProportion;
 	public List<Long> getIds() {
 		return ids;
@@ -27,5 +28,12 @@ public class ReserveDto {
 	public void setReserveProportion(int reserveProportion) {
 		this.reserveProportion = reserveProportion;
 	}
-	
+
+	public Double getReserveNumberRate() {
+		return reserveNumberRate;
+	}
+
+	public void setReserveNumberRate(Double reserveNumberRate) {
+		this.reserveNumberRate = reserveNumberRate;
+	}
 }

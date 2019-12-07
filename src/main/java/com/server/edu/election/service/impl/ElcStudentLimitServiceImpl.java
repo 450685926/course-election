@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
@@ -18,11 +19,13 @@ import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcStudentLimitVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,8 +45,14 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	private ElcStudentLimitDao elcStudentLimitDao;
 	@Override
 	public PageInfo<Student> getUnLimitStudents(PageCondition<StudentDto> condition) {
+		StudentDto studentDto = condition.getCondition();
+		Session session = SessionUtils.getCurrentSession();
+		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+			List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+			studentDto.setFaculties(deptIds);
+		}
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-		List<Student> list = studentDao.getUnLimitStudents(condition.getCondition());
+		List<Student> list = studentDao.getUnLimitStudents(studentDto);
 		PageInfo<Student> pageInfo =new PageInfo<>(list);
 		return pageInfo;
 	}
@@ -74,10 +83,15 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 
 	@Override
 	public PageInfo<ElcStudentLimitVo> getLimitStudents(PageCondition<ElcStudentLimitDto> condition) {
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcStudentLimitDto dto  = condition.getCondition();
+		Session session = SessionUtils.getCurrentSession();
+		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+			List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+			dto.setFaculties(deptIds);
+		}
 		dto.setIndex(TableIndexUtil.getIndex(dto.getCalendarId()));
-		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(condition.getCondition());
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(dto);
 		PageInfo<ElcStudentLimitVo> pageInfo =new PageInfo<>(list);
 		return pageInfo;
 	}
@@ -118,6 +132,11 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 	public int deleteAll(ElcStudentLimitDto elcStudentLimitDto) {
 		int result = 0;
 		elcStudentLimitDto.setIndex(TableIndexUtil.getIndex(elcStudentLimitDto.getCalendarId()));
+		Session session = SessionUtils.getCurrentSession();
+		if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+			List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+			elcStudentLimitDto.setFaculties(deptIds);
+		}
 		List<ElcStudentLimitVo> list = elcStudentLimitDao.getLimitStudents(elcStudentLimitDto);
 		if(CollectionUtil.isNotEmpty(list)) {
 			List<Long> ids = list.stream().map(ElcStudentLimitVo::getId).collect(Collectors.toList());
@@ -139,19 +158,29 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 				pageCondition.setPageSize_(100);
 				int pageNum = Constants.ZERO;
 				List<ElcStudentLimitVo> resultList = new ArrayList<>();
-				while(true) {
-                    pageNum++;
-                    pageCondition.setPageNum_(pageNum);
-                    PageInfo<ElcStudentLimitVo> pageResult = getLimitStudents(pageCondition);
-                    resultList.addAll(pageResult.getList());
-                    result.setTotal((int)pageResult.getTotal());
-                    Double count = resultList.size() / 1.5;
-                    result.setDoneCount(count.intValue());
-                    this.updateResult(result);
-                    if(pageResult.getTotal() <= resultList.size()) {
-                        break;
-                    }
-                }
+				List<String> studentIdList = elcStudentLimitDto.getStudentIdList();
+				if(null==studentIdList||studentIdList.size()==0){
+					while(true) {
+						pageNum++;
+						pageCondition.setPageNum_(pageNum);
+						PageInfo<ElcStudentLimitVo> pageResult = getLimitStudents(pageCondition);
+						resultList.addAll(pageResult.getList());
+						result.setTotal((int)pageResult.getTotal());
+						Double count = resultList.size() / 1.5;
+						result.setDoneCount(count.intValue());
+						this.updateResult(result);
+						if(pageResult.getTotal() <= resultList.size()) {
+							break;
+						}
+					}
+				}else{
+					for(String string:studentIdList){
+						pageCondition.getCondition().setStudentId(string);
+						PageInfo<ElcStudentLimitVo> pageResult = getLimitStudents(pageCondition);
+						resultList.addAll(pageResult.getList());
+					}
+				}
+
 				GeneralExcelDesigner design = getDesign();
 				List<JSONObject> convertList = JacksonUtil.convertList(resultList);
 				design.setDatas(convertList);
@@ -190,19 +219,29 @@ public class ElcStudentLimitServiceImpl implements ElcStudentLimitService {
 				pageCondition.setPageSize_(100);
 				int pageNum = Constants.ZERO;
 				List<Student> resultList = new ArrayList<>();
-				while(true) {
-                    pageNum++;
-                    pageCondition.setPageNum_(pageNum);
-                    PageInfo<Student> pageResult = getUnLimitStudents(pageCondition);
-                    resultList.addAll(pageResult.getList());
-                    result.setTotal((int)pageResult.getTotal());
-                    Double count = resultList.size() / 1.5;
-                    result.setDoneCount(count.intValue());
-                    this.updateResult(result);
-                    if(pageResult.getTotal() <= resultList.size()) {
-                        break;
+				List<String> studentIds = studentDto.getStudentIds();
+                if(null==studentIds||studentIds.size()==0){
+                    while(true) {
+                        pageNum++;
+                        pageCondition.setPageNum_(pageNum);
+                        PageInfo<Student> pageResult = getUnLimitStudents(pageCondition);
+                        resultList.addAll(pageResult.getList());
+                        result.setTotal((int)pageResult.getTotal());
+                        Double count = resultList.size() / 1.5;
+                        result.setDoneCount(count.intValue());
+                        this.updateResult(result);
+                        if(pageResult.getTotal() <= resultList.size()) {
+                            break;
+                        }
+                    }
+                }else{
+                    for(String string:studentIds){
+                        pageCondition.getCondition().setStudentId(string);
+                        PageInfo<Student> pageResult = getUnLimitStudents(pageCondition);
+                        resultList.addAll(pageResult.getList());
                     }
                 }
+
 				GeneralExcelDesigner design = new GeneralExcelDesigner();
 				design.setNullCellValue("");
 				design.addCell(I18nUtil.getMsg("elcStudentLimit.studentId"), "studentCode");

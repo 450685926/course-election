@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +46,10 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
 
     @Autowired
     private ElectionConstantsDao constantsDao;
-    
+
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+
     @Override
     public PageResult<CourseOpenDto> listPage(
         PageCondition<ElecRoundCourseQuery> condition)
@@ -143,7 +150,17 @@ public class ElecRoundCourseServiceImpl implements ElecRoundCourseService
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<CourseOpenDto> listPage =
             roundCourseDao.listTeachingClassPage(query);
-        
+        for (CourseOpenDto courseOpenDto : listPage) {
+            TeachingClassCache teachingClassCache =
+                    teachClassCacheService.getTeachClassByTeachClassId(courseOpenDto.getTeachingClassId());
+            if (teachingClassCache != null) {
+                List<TimeAndRoom> timeTableList = teachingClassCache.getTimeTableList();
+                if (CollectionUtil.isNotEmpty(timeTableList)) {
+                    List<String> list = timeTableList.stream().map(TimeAndRoom::getTimeAndRoom).collect(Collectors.toList());
+                    courseOpenDto.setTimeAndRoom(String.join(",", list));
+                }
+            }
+        }
         PageResult<CourseOpenDto> result = new PageResult<>(listPage);
         
         return result;

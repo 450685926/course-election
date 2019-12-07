@@ -1,8 +1,6 @@
-package com.server.edu.election.studentelec.context.bk;
+package com.server.edu.mutual.studentelec.context;
 
 import java.util.Set;
-
-import com.server.edu.common.entity.BclHonorModule;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
@@ -10,6 +8,9 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
 
@@ -17,7 +18,7 @@ import com.server.edu.election.vo.ElcCouSubsVo;
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
  *
  */
-public class ElecContextBk implements IElecContext
+public class ElecContextMutualBk implements IElecContext
 {
 	/**选课申请课程*/
     public static final String ELEC_APPLY_COURSES = "elecApplyCourses";
@@ -58,9 +59,8 @@ public class ElecContextBk implements IElecContext
     /**学生的选课申请课程*/
     private Set<ElectionApply> elecApplyCourses;
     
-    /** 个人荣誉课程 */
-    private Set<BclHonorModule> honorCourses;
-       
+    /** 本研互选申请 审核通过的课程  */
+    private Set<SelectedCourse> selectedMutualCourses;
     
     private ElecRequest request;
     
@@ -68,19 +68,19 @@ public class ElecContextBk implements IElecContext
     
     private ElecContextUtil contextUtil;
     
-    public ElecContextBk(String studentId, Long calendarId,
+    public ElecContextMutualBk(String studentId, Long calendarId,
         ElecRequest elecRequest)
     {
         this(studentId, calendarId);
         this.request = elecRequest;
     }
     
-    public ElecContextBk()
+    public ElecContextMutualBk()
     {
         super();
     }
     
-    public ElecContextBk(String studentId, Long calendarId)
+    public ElecContextMutualBk(String studentId, Long calendarId)
     {
         this.calendarId = calendarId;
         this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);
@@ -94,7 +94,6 @@ public class ElecContextBk implements IElecContext
         applyForDropCourses =
             this.contextUtil.getSet(APPLY_FOR_DROP_COURSES, ElecCourse.class);
         planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
-        honorCourses = this.contextUtil.getSet("HonorCourses", BclHonorModule.class);
         publicCourses =
             this.contextUtil.getSet("publicCourses", ElecCourse.class);
         courseGroups =
@@ -104,6 +103,7 @@ public class ElecContextBk implements IElecContext
         applyCourse = ElecContextUtil.getApplyCourse(calendarId);
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
+        selectedMutualCourses = this.contextUtil.getSet("selectedMutualCourses", SelectedCourse.class);
     }
     
     /**
@@ -124,12 +124,12 @@ public class ElecContextBk implements IElecContext
         this.contextUtil.updateMem(APPLY_FOR_DROP_COURSES,
             this.applyForDropCourses);
         this.contextUtil.updateMem("PlanCourses", this.planCourses);
-        this.contextUtil.updateMem("HonorCourses", this.honorCourses);
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
         this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
+        this.contextUtil.updateMem("selectedMutualCourses", this.selectedMutualCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -154,7 +154,6 @@ public class ElecContextBk implements IElecContext
         this.getSelectedCourses().clear();
         this.getApplyForDropCourses().clear();
         this.getPlanCourses().clear();
-        this.getHonorCourses().clear();
         this.getCourseGroups().clear();
         this.getPublicCourses().clear();
         this.getFailedCourse().clear();
@@ -163,6 +162,7 @@ public class ElecContextBk implements IElecContext
         this.getApplyCourse().clear();
         this.getElecApplyCourses().clear();
         this.getReplaceCourses().clear();
+        this.getSelectedMutualCourses().clear();
     }
     
     public void courseClear()
@@ -199,11 +199,6 @@ public class ElecContextBk implements IElecContext
     public Set<PlanCourse> getPlanCourses()
     {
         return planCourses;
-    }
-    
-    public Set<BclHonorModule> getHonorCourses()
-    {
-        return honorCourses;
     }
     
     public Set<ElecCourse> getPublicCourses()
@@ -262,5 +257,13 @@ public class ElecContextBk implements IElecContext
     {
         return replaceCourses;
     }
+
+	public Set<SelectedCourse> getSelectedMutualCourses() {
+		return selectedMutualCourses;
+	}
+
+	public void setSelectedMutualCourses(Set<SelectedCourse> selectedMutualCourses) {
+		this.selectedMutualCourses = selectedMutualCourses;
+	}
     
 }
