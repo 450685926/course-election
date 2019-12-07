@@ -11,7 +11,7 @@ public class ElectionRoundsVo extends ElectionRounds
     private List<ElectionRuleVo> ruleVos;
     
     /**
-     * å¯é€‰è¯¾ç¨‹æ•°é‡
+     * ¿ÉÑ¡¿Î³ÌÊıÁ¿
      */
     private Integer elcCourseNum;
 

@@ -3,7 +3,6 @@ package com.server.edu.mutual.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +11,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,16 +23,18 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
 import com.server.edu.mutual.util.ProjectUtil;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -107,7 +109,7 @@ public class ElcMutualController {
     
     @ApiOperation(value = "获取本科生选课数据")
     @PostMapping("/{roundId}/getDataBk")
-    public RestResult<ElecContextBk> getDataBk(
+    public RestResult<ElecContextMutualBk> getDataBk(
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
@@ -119,10 +121,36 @@ public class ElcMutualController {
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundNotExistTip");
         
-        ElecContextBk c =
-            new ElecContextBk(session.realUid(), round.getCalendarId());
+        ElecContextMutualBk c =
+            new ElecContextMutualBk(session.realUid(), round.getCalendarId());
+//        
+//        Set<SelectedCourse> courses = c.getSelectedCourses();
+//        courses.clear();
+//        courses.addAll(c.getSelectedMutualCourses());
+//        c.getSelectedMutualCourses().clear();
 
         return RestResult.successData(c);
     }
- 
+    
+    @ApiOperation(value = "获取课程对应的教学班数据")
+    @PostMapping("/getTeachClass")
+    @Cacheable(value = "teachingClassCache", key ="#roundId+'-'+#courseCode" )
+    public RestResult<List<TeachingClassCache>> getTeachClass(
+        @RequestParam("roundId") @NotNull Long roundId,
+        @RequestParam("courseCode") @NotBlank String courseCode)
+    {
+        List<TeachingClassCache> teachClasss =
+            dataProvider.getTeachClasss(roundId, courseCode);
+        if (CollectionUtil.isNotEmpty(teachClasss))
+        {
+            for (TeachingClassCache teachClass : teachClasss)
+            {
+                Long teachClassId = teachClass.getTeachClassId();
+                Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+                teachClass.setCurrentNumber(elecNumber);
+            }
+        }
+        
+        return RestResult.successData(teachClasss);
+    }
 }

@@ -6,6 +6,7 @@ import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.dictionary.translator.TeacherTranslator;
 import com.server.edu.election.entity.CourseOpen;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 
 @CodeI18n
 public class CourseOpenDto extends CourseOpen
@@ -64,10 +65,19 @@ public class CourseOpenDto extends CourseOpen
      * 选课第三、四轮退课人数
      */
     private Integer thirdWithdrawNumber;
-    
-    
-    
-	public Integer getThirdWithdrawNumber() {
+
+    // 上课时间地点
+    private String timeAndRoom;
+
+    public String getTimeAndRoom() {
+        return timeAndRoom;
+    }
+
+    public void setTimeAndRoom(String timeAndRoom) {
+        this.timeAndRoom = timeAndRoom;
+    }
+
+    public Integer getThirdWithdrawNumber() {
 		return thirdWithdrawNumber;
 	}
 

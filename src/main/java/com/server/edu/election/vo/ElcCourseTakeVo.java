@@ -1,5 +1,7 @@
 package com.server.edu.election.vo;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -70,7 +72,8 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String assessmentMode;
 
     private String term;
-    
+
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long medWithdrawId;
     
     private String elcMedWithdrawStatus;
@@ -330,9 +333,9 @@ public class ElcCourseTakeVo extends ElcCourseTake
         this.courseLabel = courseLabel;
     }
 
-	public Long getStudentCode() {
+	/*public Long getStudentCode() {
 		return Long.parseLong(super.getStudentId());
-	}
+	}*/
 
 	public Integer getElectionMode() {
 		return electionMode;
