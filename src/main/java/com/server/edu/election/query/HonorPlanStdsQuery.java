@@ -32,12 +32,12 @@ public class HonorPlanStdsQuery
 	/**
 	 * 荣誉计划名称
 	 */
-	private Long honorPlanName;
+	private String honorPlanName;
 
 	/**
 	 * 课程方向名称
 	 */
-	private Long directionName;
+	private String directionName;
 
 	/**
 	 *姓名
@@ -104,19 +104,19 @@ public class HonorPlanStdsQuery
 		this.calendarId = calendarId;
 	}
 
-	public Long getHonorPlanName() {
+	public String getHonorPlanName() {
 		return honorPlanName;
 	}
 
-	public void setHonorPlanName(Long honorPlanName) {
+	public void setHonorPlanName(String honorPlanName) {
 		this.honorPlanName = honorPlanName;
 	}
 
-	public Long getDirectionName() {
+	public String getDirectionName() {
 		return directionName;
 	}
 
-	public void setDirectionName(Long directionName) {
+	public void setDirectionName(String directionName) {
 		this.directionName = directionName;
 	}
 

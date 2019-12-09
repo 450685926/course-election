@@ -236,7 +236,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         Long calendarId = elecRounds.getCalendarId();
         criteria.andEqualTo("calendarId", calendarId);
         criteria.andEqualTo("courseCode", courseCode);
-        criteria.andNotEqualTo("apply", Constants.APPLY);
+        criteria.andEqualTo("apply", Constants.APPLY);
         ElectionApply apply = electionApplyDao.selectOneByExample(example);
         if (apply != null)
         {
@@ -247,7 +247,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         Example.Criteria cCriteria = cExample.createCriteria();
         cCriteria.andEqualTo("calendarId", calendarId);
         cCriteria.andEqualTo("courseCode", courseCode);
-        cCriteria.andEqualTo("mode", apply.getMode());
         ElectionApplyCourses electionApplyCourses =
             electionApplyCoursesDao.selectOneByExample(cExample);
         if(electionApplyCourses==null) {
@@ -306,7 +305,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         criteria.andEqualTo("studentId", studentId);
         criteria.andEqualTo("calendarId", calendarId);
         criteria.andEqualTo("courseCode", courseCode);
-        criteria.andNotEqualTo("apply", Constants.APPLY);
+        criteria.andEqualTo("apply", Constants.APPLY);
         ElectionApply apply = electionApplyDao.selectOneByExample(example);
         if (apply == null)
         {

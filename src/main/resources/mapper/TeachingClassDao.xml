@@ -252,16 +252,16 @@
         and t1.ELC_NUMBER_ = t1.NUMBER_
       </if>
       <if test="minUpperNumber != null and minUpperNumber !=0">
-        and t1.NUMBER_ &gt; #{minUpperNumber}
+        and t1.NUMBER_ &gt;= #{minUpperNumber}
       </if>
       <if test="maxUpperNumber != null and maxUpperNumber !=0">
-        and t1.NUMBER_ &lt; #{maxUpperNumber}
+        and t1.NUMBER_ &lt;= #{maxUpperNumber}
       </if>
        <if test="minActualNumber != null and minActualNumber !=0">
-        and t1.ELC_NUMBER_ &gt; #{minActualNumber}
+        and t1.ELC_NUMBER_ &gt;= #{minActualNumber}
       </if>
       <if test="maxActualNumber != null and maxActualNumber !=0">
-        and t1.ELC_NUMBER_ &lt; #{maxActualNumber}
+        and t1.ELC_NUMBER_ &lt;= #{maxActualNumber}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
         and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}

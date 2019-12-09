@@ -42,4 +42,12 @@ public interface HonorPlanStdsService
      * @return
      */
     AsyncResult addList(List<HonorPlanStds> honorPlanStdsList);
+
+    /**
+     * 查看学生是否在本学期的荣誉计划名单内
+     * @param studentId
+     * @param calendarId
+     * @return
+     */
+    boolean fingStudentByStudentId(String studentId, Long calendarId);
 }
