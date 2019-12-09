@@ -24,6 +24,8 @@ import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.CommonConstant;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcLogVo;
@@ -46,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +72,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private RebuildCourseChargeDao courseChargeDao;
+
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     private RebuildCourseNoChargeTypeDao noChargeTypeDao;
@@ -402,6 +411,11 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             log.setTurn(turn);
             log.setType(ElcLogVo.TYPE_1);
             elcLogDao.insertSelective(log);
+            // 更新缓存中教学班人数
+            teachClassCacheService.updateTeachingClassNumber(teachingClassId);
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
+            applicationContext
+                    .publishEvent(new ElectLoadEvent(calendarId, studentCode));
             return true;
         }else {
             return false;
