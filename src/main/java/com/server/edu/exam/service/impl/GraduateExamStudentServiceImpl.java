@@ -179,8 +179,8 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
 
     @Override
     @Transactional
-    public void changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId) {
-        if(CollectionUtil.isEmpty(condition) || examRoomId == null){
+    public void changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId,Long examInfoId) {
+        if(CollectionUtil.isEmpty(condition) || examRoomId == null || examInfoId == null){
             throw new ParameterValidateException("入参有误");
         }
         int size = condition.size();
@@ -194,7 +194,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         for (GraduateExamStudentDto graduateExamStudentDto : condition) {
             //先删除原先考场下面的学生，并更新考场人数
             this.deleteExamStudent(graduateExamStudentDto);
-            this.updateExamStudentRoom(graduateExamStudentDto,examRoomId);
+            this.updateExamStudentRoom(graduateExamStudentDto,examRoomId,examInfoId);
         }
     }
 
@@ -258,7 +258,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
                 return restrict;
             }
         }
-        this.updateExamStudentRoom(studentDto,condition.getExamRoomId());
+        this.updateExamStudentRoom(studentDto,condition.getExamRoomId(),condition.getExamInfoId());
         return new Restrict();
     }
 
@@ -385,7 +385,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examInfoDao.updateActualNumberById(examInfoId,symbol);
     }
 
-    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long examRoomId){
+    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long examRoomId,Long examInfoId){
         GraduateExamStudent examStudent = new GraduateExamStudent();
         Date date = new Date();
         examStudent.setStudentCode(graduateExamStudentDto.getStudentCode());
@@ -396,16 +396,19 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examStudent.setTeachingClassName(graduateExamStudentDto.getTeachingClassName());
         examStudent.setCreateAt(date);
         examStudent.setUpdateAt(date);
-        examStudent.setExamInfoId(graduateExamStudentDto.getExamInfoId());
+        examStudent.setExamInfoId(examInfoId);
         examStudentDao.insert(examStudent);
+
         // 排考
-        graduateExamStudentDto.setExamRoomId(examRoomId);
+        graduateExamStudentDto.setExamInfoId(examInfoId);
         this.updateActualNumber(graduateExamStudentDto,ApplyStatus.EXAM_ADD);
-        this.insertExamLog(graduateExamStudentDto,ApplyStatus.EXAM_LOG_YES);
         //更新新教室的排考人数
         GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(examRoomId);
         examRoom.setRoomNumber(examRoom.getRoomNumber() + 1);
         roomDao.updateByPrimaryKey(examRoom);
+        graduateExamStudentDto.setRoomId(examRoom.getRoomId());
+        graduateExamStudentDto.setRoomName(examRoom.getRoomName());
+        this.insertExamLog(graduateExamStudentDto,ApplyStatus.EXAM_LOG_YES);
 
     }
 

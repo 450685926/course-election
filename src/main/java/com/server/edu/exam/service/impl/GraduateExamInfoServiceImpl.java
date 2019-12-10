@@ -903,7 +903,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         if (CollectionUtil.isEmpty(studentNumber.getExamInfoIds())) {
             throw new ParameterValidateException("入参有误");
         }
-        GraduateExamStudentNumber examStudentNumber = examInfoDao.getExamInfoNumber(studentNumber.getExamInfoIds());
+        List<Long> allCourseInfoIds = studentDao.finaAllExamCourseInfoIds(studentNumber.getExamInfoIds());
+        GraduateExamStudentNumber examStudentNumber = examInfoDao.getExamInfoNumber(allCourseInfoIds);
         if (studentNumber.getExamRoomId() != null) {
             GraduateExamRoom examRoom = roomDao.getExamRoomNumber(studentNumber.getExamRoomId());
             examStudentNumber.setRoomCapacity(examRoom.getRoomCapacity());
