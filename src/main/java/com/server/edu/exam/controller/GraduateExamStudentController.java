@@ -73,9 +73,9 @@ public class GraduateExamStudentController {
     }
 
     @PostMapping("/changeExamStudentRoom")
-    public RestResult<?> changeExamStudentRoom(@RequestBody List<GraduateExamStudentDto> condition,@RequestParam Long examRoomId){
-        examStudentService.changeExamStudentRoom(condition,examRoomId);
-        return RestResult.success();
+    public RestResult<?> changeExamStudentRoom(@RequestBody List<GraduateExamStudentDto> condition,@RequestParam Long examRoomId,@RequestParam Long examInfoId){
+        Restrict restrict = examStudentService.changeExamStudentRoom(condition,examRoomId,examInfoId);
+        return RestResult.successData(restrict);
     }
 
     @PostMapping("/addExamStudent")
