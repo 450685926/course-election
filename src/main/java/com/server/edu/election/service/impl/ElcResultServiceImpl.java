@@ -528,6 +528,12 @@ public class ElcResultServiceImpl implements ElcResultService
     @Override
     public void setReserveNum(TeachingClass teachingClass)
     {
+        TeachingClass teachingClass1 = classDao.selectByPrimaryKey(teachingClass.getId());
+        Integer number = (teachingClass1.getNumber() == null ? 0 : teachingClass1.getNumber());
+        Integer elcNumber = (teachingClass1.getElcNumber() == null ? 0 : teachingClass1.getElcNumber());
+        if (teachingClass.getReserveNumber().intValue() + elcNumber.intValue() > number.intValue()){
+            throw new ParameterValidateException(I18nUtil.getMsg("election.ReserveNum.error",""));
+        }
         TeachingClass record = new TeachingClass();
         record.setId(teachingClass.getId());
         record.setReserveNumber(teachingClass.getReserveNumber());
@@ -537,22 +543,34 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Override
 	@Transactional
-    public void setReserveProportion(ReserveDto reserveDto)
+    public List<TeachingClass> setReserveProportion(ReserveDto reserveDto)
     {
-    	BigDecimal reserveProportion = new BigDecimal(reserveDto.getReserveProportion());
-    	Example example = new Example(TeachingClass.class);
-    	Example.Criteria criteria = example.createCriteria();
-    	criteria.andIn("id", reserveDto.getIds());
-    	List<TeachingClass> teachingClasses = classDao.selectByExample(example);
-    	if(CollectionUtil.isNotEmpty(teachingClasses)) {
-        	BigDecimal hundred = new BigDecimal(Constants.HUNDRED);
-        	for(TeachingClass temp:teachingClasses) {
-        		int reserveNumber = new BigDecimal(temp.getNumber()).multiply(reserveProportion).divide(hundred, BigDecimal.ROUND_UP).intValue();
-        		temp.setReserveNumber(reserveNumber);
-        		temp.setReserveNumberRate(reserveProportion.doubleValue());
-        	}
-        	classDao.updateReserveProportion(teachingClasses);
-    	}
+        BigDecimal reserveProportion = new BigDecimal(reserveDto.getReserveProportion());
+        Example example = new Example(TeachingClass.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andIn("id", reserveDto.getIds());
+        List<TeachingClass> teachingClasses = classDao.selectByExample(example);
+        List<TeachingClass> teachingClasses1 = new ArrayList<>();
+        List<TeachingClass> teachingClasses2 = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(teachingClasses)) {
+            BigDecimal hundred = new BigDecimal(Constants.HUNDRED);
+            for(TeachingClass temp:teachingClasses) {
+                Integer number = (temp.getNumber() == null ? 0 : temp.getNumber());
+                Integer elcNumber = (temp.getElcNumber() == null ? 0 : temp.getElcNumber());
+                int reserveNumber = new BigDecimal(temp.getNumber()).multiply(reserveProportion).divide(hundred, BigDecimal.ROUND_UP).intValue();
+                temp.setReserveNumber(reserveNumber);
+                temp.setReserveNumberRate(reserveProportion.doubleValue());
+                if (reserveNumber + elcNumber.intValue() > number.intValue()){
+                    teachingClasses1.add(temp);
+                }else{
+                    teachingClasses2.add(temp);
+                }
+            }
+
+            classDao.updateReserveProportion(teachingClasses2);
+
+        }
+        return teachingClasses1;
     }
     @Override
 	@Transactional

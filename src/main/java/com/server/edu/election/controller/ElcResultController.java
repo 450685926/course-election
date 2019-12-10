@@ -2,13 +2,17 @@ package com.server.edu.election.controller;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.vo.TeachingClassLimitVo;
 import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.export.ExportExcelUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
@@ -155,9 +159,12 @@ public class ElcResultController
     public RestResult<?> setReserveProportion(
         @RequestBody @Valid ReserveDto reserveDto)
     {
-        elcResultService.setReserveProportion(reserveDto);
-        
-        return RestResult.success();
+        List<TeachingClass> list =  elcResultService.setReserveProportion(reserveDto);
+        if(CollectionUtil.isNotEmpty(list)){
+            return RestResult.fail(I18nUtil.getMsg("election.ReserveNum.error", StringUtils.join(list, ".")+""));
+        }else{
+            return RestResult.success();
+        }
     }
     
     /**

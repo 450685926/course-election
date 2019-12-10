@@ -247,6 +247,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
         List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(teachingClassIds);
+        List<String> stus = new ArrayList<>();
+        List<String> courses = new ArrayList();
         if (teachingClasses.size() != teachingClassIds.size()) {
             throw new ParameterValidateException("教学班不存在");
         }
@@ -331,7 +333,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                         .getTeachingClassInfo(calendarId, teachingClassId, null);
                 if (null != vo && vo.getCourseCode() != null)
                 {
-                    addTake(date, calendarId, studentId, vo, mode);
+                    addTakeNew(date, calendarId, studentId, vo, mode, stus, courses, studentIds, teachingClassIds);
                 }
                 else
                 {
@@ -345,9 +347,79 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 }
             }
         }
+        if(CollectionUtil.isNotEmpty(stus)){
+            return StringUtils.join(stus.toArray(),",")+"已经选取了这门课程";
+
+        }else if(CollectionUtil.isNotEmpty(courses)){
+            return StringUtils.join(courses.toArray(),",")+"这些课程为重复添加操作";
+        }
         return StringUtils.EMPTY;
     }
 
+    @Transactional
+    private void addTakeNew(Date date, Long calendarId, String studentId,
+                         ElcCourseTakeVo vo, Integer mode,List<String> stus,List<String> courses,List<String> students,List<Long> teachClassIds)
+    {
+        String courseCode = vo.getCourseCode();
+        Long teachingClassId = vo.getTeachingClassId();
+        String courseName = vo.getCourseName();
+        String teachingClassCode = vo.getTeachingClassCode();
+
+        // 查询当前学期是否选过这门课程
+        int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
+
+        if (count == 0)
+        {
+            ElcCourseTake record = new ElcCourseTake();
+            record.setStudentId(studentId);
+            record.setCourseCode(courseCode);
+            int selectCount = courseTakeDao.selectCount(record);
+            ElcCourseTake take = new ElcCourseTake();
+            // 判断是否是第一次上该课程
+            if (selectCount == 0) {
+                take.setCourseTakeType(CourseTakeType.NORMAL.type());
+            } else {
+                take.setCourseTakeType(CourseTakeType.RETAKE.type());
+            }
+            take.setCalendarId(calendarId);
+            take.setChooseObj(ChooseObj.ADMIN.type());
+            take.setCourseCode(courseCode);
+            take.setCreatedAt(date);
+            take.setStudentId(studentId);
+            take.setTeachingClassId(teachingClassId);
+            take.setMode(mode);
+            take.setTurn(0);
+            courseTakeDao.insertSelective(take);
+            // 增加选课人数
+            classDao.increElcNumber(teachingClassId);
+            // 添加选课日志
+            ElcLog log = new ElcLog();
+            log.setCalendarId(calendarId);
+            log.setCourseCode(courseCode);
+            log.setCourseName(courseName);
+            Session currentSession = SessionUtils.getCurrentSession();
+            log.setCreateBy(currentSession.getUid());
+            log.setCreatedAt(date);
+            log.setCreateIp(currentSession.getIp());
+            log.setMode(ElcLogVo.MODE_2);
+            log.setStudentId(studentId);
+            log.setTeachingClassCode(teachingClassCode);
+            log.setTurn(0);
+            log.setType(ElcLogVo.TYPE_1);
+            this.elcLogDao.insertSelective(log);
+            // 更新缓存中教学班人数
+            teachClassCacheService.updateTeachingClassNumber(teachingClassId);
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
+            applicationContext
+                    .publishEvent(new ElectLoadEvent(calendarId, studentId));
+        }else {
+            if(students.size() > 1){
+                stus.add(studentId);
+            }else if (teachClassIds.size() > 1){
+                courses.add(courseCode);
+            }
+        }
+    }
     @Transactional
     private void addTake(Date date, Long calendarId, String studentId,
         ElcCourseTakeVo vo, Integer mode)

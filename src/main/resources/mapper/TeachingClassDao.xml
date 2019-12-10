@@ -583,4 +583,14 @@
          JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
         where t1.TEACHING_CLASS_ID_=#{teachingClassId};
     </select>
+
+    <select id="getStudentAbnormalCount" resultType="java.lang.Integer">
+        select count(ID_)
+        from student_abnormal_apply_v v
+        where v.STUDENT_ID_ = #{studentId}
+        and v.ABNORMAL_START_TIME_ <![CDATA[ >= ]]> #{beginDay}
+        and v.ABNORMAL_END_TIME_ <![CDATA[ >= ]]> #{endDay}
+        and v.CLASS_ID_ = 300015
+        and v.STATUS_ = 3
+    </select>
 </mapper>
