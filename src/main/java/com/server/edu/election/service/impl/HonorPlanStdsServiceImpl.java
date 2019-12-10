@@ -215,7 +215,7 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
     @Override
     public boolean fingStudentByStudentId(String studentId, Long calendarId) {
         Example example = new Example(HonorPlanStds.class);
-        example.createCriteria().andEqualTo("","").andEqualTo("","");
+        example.createCriteria().andEqualTo("studentId",studentId).andEqualTo("calendarId",calendarId);
         Integer count = honorPlanStdsDao.selectCountByExample(example);
         if (count.intValue() != 0){
             return false;
