@@ -160,7 +160,7 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private TeachingClassElectiveRestrictAttrDao attrDao;
-    
+
     @Autowired
     private TeachingClassElectiveRestrictProfessionDao professionDao;
     
