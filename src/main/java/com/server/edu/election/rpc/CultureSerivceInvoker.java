@@ -23,6 +23,7 @@ import com.server.edu.common.entity.Courses;
 import com.server.edu.common.entity.CulturePlan;
 import com.server.edu.common.entity.CultureScheme;
 import com.server.edu.common.entity.StudentCultureRel;
+import com.server.edu.common.entity.StudentPlanCoure;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -398,6 +399,14 @@ public class CultureSerivceInvoker
                         List.class,
                         StudentCode);
         return list;
+    }
+    
+    /** 更新本科生培养选课状态 */
+    public static Integer updateElecStatus(StudentPlanCoure studentPlanCoure) throws Exception{
+    	@SuppressWarnings("unchecked")
+    	Integer restResult = 
+    		ServicePathEnum.CULTURESERVICE.postForObject("/bclStudentCultureRel/updateElecStatus",studentPlanCoure,Integer.class);
+    	return restResult;
     }
 
 }

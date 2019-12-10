@@ -14,13 +14,17 @@ import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.dao.CourseDao;
+import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.entity.Course;
+import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -34,10 +38,12 @@ import tk.mybatis.mapper.entity.Example;
 public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 {
     Logger log = LoggerFactory.getLogger(getClass());
-    
 
     @Autowired
-    private CourseDao courseDao;
+    private CourseOpenDao courseOpenDao;
+    
+    @Autowired
+    private TeachClassCacheService classCacheService;
     
     @Override
     public int getOrder()
@@ -56,6 +62,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     {
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
+        Long calendarId = context.getCalendarId();
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
@@ -74,29 +81,31 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             continue;
                         }
                         PlanCourse pl=new PlanCourse();
-                        Example example = new Example(Course.class);
-                        example.createCriteria().andEqualTo("code", courseCode);
-                        Course course = courseDao.selectOneByExample(example);
+//                        Example example = new Example(CourseOpen.class);
+//                        example.createCriteria().andEqualTo("calendarId", calendarId).andEqualTo("courseCode", courseCode);
+//                        CourseOpen course = courseOpenDao.selectOneByExample(example);
+                        List<TeachingClassCache> teachingClassCaches =classCacheService.getTeachClasssBycalendarId(calendarId,courseCode);
                         ElecCourse course2 = new ElecCourse();
-                        if (course != null) {
+                        if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                        	TeachingClassCache teachingClassCache = teachingClassCaches.get(0);
                             course2.setCourseCode(courseCode);
                             course2.setCourseName(pct.getName());
                             course2.setNameEn(pct.getNameEn());
-                            course2.setNature(course.getNature());
+                            course2.setNature(teachingClassCache.getNature());
                             course2.setCredits(pct.getCredits());
                             String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
                             course2.setCalendarName(calendarName);
                             course2.setCompulsory(pct.getCompulsory());
                             course2.setLabelId(labelId);
                             course2.setLabelName(labelName);
+                            pl.setCourse(course2);
+                            pl.setSemester(pct.getSemester());
+                            pl.setWeekType(pct.getWeekType());
+                            pl.setSubCourseCode(pct.getSubCourseCode());
+                            pl.setLabel(labelId);
+                            pl.setLabelName(labelName);
+                            planCourses.add(pl);
 						}
-                        pl.setCourse(course2);
-                        pl.setSemester(pct.getSemester());
-                        pl.setWeekType(pct.getWeekType());
-                        pl.setSubCourseCode(pct.getSubCourseCode());
-                        pl.setLabel(labelId);
-                        pl.setLabelName(labelName);
-                        planCourses.add(pl);
                         if("1".equals(rule.getLabelType())){//通识选修课
                             ElecCourse c=new ElecCourse();
                             c.setCourseCode(courseCode);
