@@ -211,4 +211,17 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
         design.addCell("课程方向", "directionName");
         return design;
     }
+
+    @Override
+    public boolean fingStudentByStudentId(String studentId, Long calendarId) {
+        Example example = new Example(HonorPlanStds.class);
+        example.createCriteria().andEqualTo("studentId",studentId).andEqualTo("calendarId",calendarId);
+        Integer count = honorPlanStdsDao.selectCountByExample(example);
+        if (count.intValue() != 0){
+            return false;
+        }else {
+            return true;
+        }
+
+    }
 }

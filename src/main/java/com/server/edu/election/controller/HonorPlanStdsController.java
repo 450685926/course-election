@@ -65,6 +65,23 @@ public class HonorPlanStdsController
         return RestResult.successData(list);
     }
 
+
+    /**
+     * 查看学生是否在选课名单呢
+     */
+    @ApiOperation(value = "荣誉课程组学生名单")
+    @GetMapping("/hasHonorPlan")
+    public RestResult<Boolean> hasHonorPlan(@RequestParam @NotNull String studentId,@RequestParam Long calendarId)
+            throws Exception
+    {
+
+        boolean result = honorPlanStdsService.fingStudentByStudentId(studentId,calendarId);
+
+        return RestResult.successData(result);
+    }
+
+
+
     /**
      * 增加
      */
