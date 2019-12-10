@@ -72,7 +72,7 @@ public interface GraduateExamStudentService {
     * @author bear
     * @date 2019/9/16 16:38
     */
-    void changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId,Long examInfoId);
+    Restrict changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId,Long examInfoId);
 
     /**
     * 添加应考学生

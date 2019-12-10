@@ -179,7 +179,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
 
     @Override
     @Transactional
-    public void changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId,Long examInfoId) {
+    public Restrict changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId,Long examInfoId) {
         if(CollectionUtil.isEmpty(condition) || examRoomId == null || examInfoId == null){
             throw new ParameterValidateException("入参有误");
         }
@@ -191,11 +191,27 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         if(size + examRoom.getRoomNumber() > examRoom.getRoomCapacity()){
             throw new ParameterValidateException("该教室剩余容量有限，不能同时更换这么多学生");
         }
+        //排考时间冲突检验
+        List<GraduateExamStudent> list = new ArrayList<>();
         for (GraduateExamStudentDto graduateExamStudentDto : condition) {
-            //先删除原先考场下面的学生，并更新考场人数
-            this.deleteExamStudent(graduateExamStudentDto);
-            this.updateExamStudentRoom(graduateExamStudentDto,examRoomId,examInfoId);
+            GraduateExamStudent student = new GraduateExamStudent();
+            student.setExamInfoId(examInfoId);
+            student.setStudentCode(graduateExamStudentDto.getStudentCode());
+            list.add(student);
         }
+        Restrict restrict = infoService.checkExamStudentsConflict(list);
+        if(restrict != null){
+            Set<String> studentIds = restrict.getStudentIds();
+            if(CollectionUtil.isNotEmpty(studentIds)){
+                condition = condition.stream().filter(vo ->!studentIds.contains(vo.getStudentCode())).collect(Collectors.toList());
+            }
+        }
+        for (GraduateExamStudentDto studentDto : condition) {
+            this.deleteExamStudent(studentDto);
+            this.updateExamStudentRoom(studentDto,examRoomId,examInfoId);
+        }
+
+        return restrict;
     }
 
     @Override
