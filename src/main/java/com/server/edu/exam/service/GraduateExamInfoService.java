@@ -182,4 +182,7 @@ public interface GraduateExamInfoService {
     EditGraduateExam editGraduateExam(Long id);
 
     RestResult<ExamSaveTimeRebackDto> saveExamTimeAndDeleteExamRoom(List<GraduateExamInfo> examInfo);
+
+    /**多此排考设置，保存时间*/
+    RestResult<ExamSaveTimeRebackDto> saveExamTimeAndBatch(List<GraduateExamInfo> examInfo);
 }

@@ -88,7 +88,7 @@
             select t4.STUDENT_CODE_
             from graduate_exam_student_t t4
             where t4.EXAM_INFO_ID_ in
-            <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
+            <foreach collection="allCourseInfoIds" item="examInfoId" open="(" separator="," close=")">
               #{examInfoId}
             </foreach>
             and t4.EXAM_SITUATION_ = 1
@@ -155,7 +155,7 @@
         select t4.STUDENT_CODE_
         from graduate_exam_student_t t4
         where t4.EXAM_INFO_ID_ in
-        <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
+        <foreach collection="allCourseInfoIds" item="examInfoId" open="(" separator="," close=")">
           #{examInfoId}
         </foreach>
         and t4.EXAM_SITUATION_ = 1
@@ -342,15 +342,18 @@
     and t1.CALENDAR_ID_ = #{calendarId}
     and t1.STUDENT_ID_ not in (
     select t4.STUDENT_CODE_
-    from graduate_exam_room_t t3
-    left join graduate_exam_student_t t4 on t3.ID_ = t4.EXAM_ROOM_ID_
-    where t3.ID_ in
-    <foreach collection="examRoomIds" item="examRoomId" open="(" separator="," close=")">
-      #{examRoomId}
+    from graduate_exam_student_t t4
+    where t4.EXAM_INFO_ID_ in
+    <foreach collection="allExamInfoIds" item="examInfoId" open="(" separator="," close=")">
+      #{examInfoId}
     </foreach>
     and t4.EXAM_SITUATION_ = 1
     )
     and t6.EXAM_TYPE_ = #{examType}
+    and t6.ID_ in
+    <foreach collection="examInfoIds" item="examInfoId" open="(" separator="," close=")">
+      #{examInfoId}
+    </foreach>
     and t1.STUDENT_ID_ not in (
     select t7.STUDENT_ID_ from score_student_result_t t7
     where t7.STUDENT_ID_ = t1.STUDENT_ID_ and t7.CALENDAR_ID_ = t6.CALENDAR_ID_ and t7.COURSE_CODE_ = t6.COURSE_CODE_ and t7.RELEASE_TYPE_ = 1
@@ -475,6 +478,15 @@
       </if>
       and t1.CALENDAR_ID_ = #{calendarId}  and t3.MANAGER_DEPT_ID_ = #{projId} and t1.STUDENT_ID_ = #{studentCode}
     </where>
+  </select>
+
+  <select id="finaAllExamCourseInfoIds" parameterType="java.util.List" resultType="java.lang.Long">
+    select t2.ID_ from graduate_exam_info_t t1
+      LEFT JOIN graduate_exam_info_t t2 on t1.CALENDAR_ID_ = t2.CALENDAR_ID_ and t1.COURSE_CODE_ = t2.COURSE_CODE_ and t1.CAMPUS_ = t2.CAMPUS_ and t1.EXAM_TYPE_ = t2.EXAM_TYPE_
+      where t1.ID_ in
+      <foreach collection="list" item="examInfoId" open="(" separator="," close=")">
+        #{examInfoId}
+      </foreach>
   </select>
 
 </mapper>

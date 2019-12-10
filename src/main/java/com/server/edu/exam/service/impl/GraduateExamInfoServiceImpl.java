@@ -418,7 +418,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         //获取该课程下的所有考场
         Page<GraduateExamRoomVo> graduateExamRoomVos = roomDao.listExamRoomByExamInfoId(condition);
         List<Long> examRoomIds = graduateExamRoomVos.getResult().stream().map(GraduateExamRoomVo::getId).collect(Collectors.toList());
-        List<GraduateExamStudent> listStudent = studentDao.listStudentByClass(teachingClassIds, examRoomIds, calendarId,examType);
+        //获取所有排考的学生
+        List<Long> allExamInfoIds = studentDao.finaAllExamCourseInfoIds(examInfoIds);
+        List<GraduateExamStudent> listStudent = studentDao.listStudentByClass(teachingClassIds, allExamInfoIds, calendarId,examType,examInfoIds);
         if (CollectionUtil.isEmpty(listStudent)) {
             throw new ParameterValidateException("没有满足条件的可排考学生");
         } else {
@@ -622,10 +624,10 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Page<TeachingClassDto> page = studentDao.listTeachingClass(classQuery);
         if (CollectionUtil.isNotEmpty(page)) {
             List<TeachingClassDto> teachingClassDtos = page.getResult();
-
+            List<Long> allCourseInfoIds= studentDao.finaAllExamCourseInfoIds(examInfoIds);
             Example example = new Example(GraduateExamStudent.class);
             Example.Criteria criteria = example.createCriteria();
-            criteria.andIn("examInfoId", examInfoIds);
+            criteria.andIn("examInfoId", allCourseInfoIds);
             criteria.andEqualTo("examSituation", ApplyStatus.EXAM_SITUATION_NORMAL);
             List<GraduateExamStudent> list = studentDao.selectByExample(example);
             if (CollectionUtil.isNotEmpty(list)) {
@@ -667,6 +669,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         Page<GraduateExamRoomVo> graduateExamRoomVos = roomDao.listExamRoomByExamInfoId(query);
         List<Long> examRoomIds = graduateExamRoomVos.getResult().stream().map(GraduateExamRoomVo::getId).collect(Collectors.toList());
         studentQuery.setExamRoomIds(examRoomIds);
+        List<Long> allExamInfoIds = studentDao.finaAllExamCourseInfoIds(studentQuery.getExamInfoIds());
+        studentQuery.setAllCourseInfoIds(allExamInfoIds);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         if (studentQuery.getExamType().equals(ApplyStatus.FINAL_EXAM)) {
             Page<NoExamStudent> page = studentDao.listStudent(studentQuery);
@@ -799,10 +803,12 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             return "当前课程没有按排考场,请先按排考场";
         }
         List<GraduateExamRoom> autoExamRoom = roomDao.findSurplusRoom(examRoomIds);
-        //通过examInfoIds查询未排考的学生
+        //通过examInfoIds查询未排考的学生(根据infoId 确定所有已排考的学生，多次排考)
+        List<Long> allCourseInfoIds = studentDao.finaAllExamCourseInfoIds(examInfoIds);
         StudentQuery query = new StudentQuery();
         query.setExamInfoIds(examInfoIds);
         query.setCampus(campus);
+        query.setAllCourseInfoIds(allCourseInfoIds);
         Page<NoExamStudent> studentList = new Page<>();
         if (examType.equals(ApplyStatus.FINAL_EXAM)) {
             query.setMode((int) (roomsQuery.getCalendarId() % 6));
@@ -1003,7 +1009,9 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         if(CollectionUtil.isEmpty(examInfo)){
             throw new ParameterValidateException("入参有误");
         }
-        List<Long> examInfoIds = examInfoDao.findExamInfoIds(examInfo);
+
+        //List<Long> examInfoIds = examInfoDao.findExamInfoIds(examInfo);
+        List<Long> examInfoIds = examInfo.stream().map(GraduateExamInfo::getId).collect(Collectors.toList());
         if(CollectionUtil.isNotEmpty(examInfoIds)){
             Example example = new Example(GraduateExamInfoRoom.class);
             Example.Criteria criteria = example.createCriteria();
@@ -1017,10 +1025,119 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
             //根据id 删除考场
             this.deleteRoom(ids,StringUtils.join(examInfoIds,","));
             //保存时间
-            return this.insertTime(examInfo);
+            return this.saveExamTimeAndBatch(examInfo);
 
         }
         return null;
+    }
+
+    @Override
+    @Transactional
+    public RestResult<ExamSaveTimeRebackDto> saveExamTimeAndBatch(List<GraduateExamInfo> examInfo) {
+
+        if (CollectionUtil.isEmpty(examInfo)) {
+            throw new ParameterValidateException("入参有误");
+        }
+        GraduateExamInfo info = examInfo.get(0);
+        if(info.getNotice() == null){
+            throw new ParameterValidateException("入参有误");
+        }
+        Integer weekNumber = null;
+        Integer weekDay = null;
+        String classNode = "";
+        Long actualCalendarId = null;
+        Integer startHour = null;
+        Integer endHour = null;
+        Integer startMinute = null;
+        Integer endMinute = null;
+
+        String examTime = "";
+        //时间地点
+        if(info.getNotice() == ApplyStatus.NOT_EXAMINE){
+            Date examDate = info.getExamDate();
+            String examStartTime = info.getExamStartTime();
+            String examEndTime = info.getExamEndTime();
+            weekNumber = info.getWeekNumber();
+            weekDay = info.getWeekDay();
+            classNode = info.getClassNode();
+            actualCalendarId = info.getActualCalendarId();
+            String[] start = examStartTime.split(":");
+            String[] end = examEndTime.split(":");
+            startHour = Integer.parseInt(start[0]);
+            startMinute = Integer.parseInt(start[1]);
+            endHour = Integer.parseInt(end[0]);
+            endMinute = Integer.parseInt(end[1]);
+            if (examDate == null || StringUtils.isBlank(examStartTime)
+                    || StringUtils.isBlank(examEndTime) || info.getCalendarId() == null
+                    || StringUtils.isBlank(info.getCourseCode()) || StringUtils.isBlank(info.getCampus())
+                    || info.getExamType() == null || actualCalendarId == null) {
+                throw new ParameterValidateException("入参有误");
+            }
+
+            examTime = GraduateExamTransTime.transTime(examDate, examStartTime, examEndTime, weekNumber, weekDay);
+        }
+        List<Long> list = new ArrayList<>();
+        for (GraduateExamInfo graduateExamInfo : examInfo) {
+            graduateExamInfo.setUpdateAt(new Date());
+            graduateExamInfo.setExamStatus(ApplyStatus.PASS_INT);
+            graduateExamInfo.setExamTime(examTime);
+            //this.transTime(graduateExamInfo);
+            if(graduateExamInfo.getNotice() == ApplyStatus.FINAL_EXAM){
+                graduateExamInfo.setExamDate(null);
+                graduateExamInfo.setExamEndTime("");
+                graduateExamInfo.setExamStartTime("");
+                graduateExamInfo.setWeekDay(null);
+                graduateExamInfo.setWeekNumber(null);
+                graduateExamInfo.setClassNode("");
+                graduateExamInfo.setActualCalendarId(null);
+            }
+
+            this.checkPublicExamTimeSame(graduateExamInfo);
+
+//            Example example = new Example(GraduateExamInfo.class);
+//            Example.Criteria criteria = example.createCriteria();
+//            criteria.andEqualTo("calendarId",graduateExamInfo.getCalendarId());
+//            criteria.andEqualTo("courseCode",graduateExamInfo.getCourseCode());
+//            criteria.andEqualTo("campus",graduateExamInfo.getCampus());
+//            criteria.andEqualTo("examType",graduateExamInfo.getExamType());
+//            criteria.andEqualTo("projId",graduateExamInfo.getProjId());
+//            GraduateExamInfo existInfo = examInfoDao.selectOneByExample(example);
+
+            GraduateExamInfo existInfo = examInfoDao.selectByPrimaryKey(graduateExamInfo.getId());
+
+            //（第一次入库）
+            if(existInfo == null){
+                graduateExamInfo.setExamRooms(ApplyStatus.NOT_EXAMINE);
+                graduateExamInfo.setActualNumber(ApplyStatus.NOT_EXAMINE);
+                examInfoDao.insert(graduateExamInfo);
+            } else {
+                //变更时间不一样需要先删除考场
+                //GraduateExamInfo item = examInfoDao.selectByPrimaryKey(existInfo.getId());
+                if(!graduateExamInfo.getExamTime().equals(existInfo.getExamTime())){
+                    if(existInfo.getExamRooms() != null && existInfo.getExamRooms() > 0 ){
+                        return RestResult.success("您确定要修改排考时间吗?此操作将清除原考场信息,是否继续?");
+                    }
+                }
+                graduateExamInfo.setExamRooms(existInfo.getExamRooms());
+                graduateExamInfo.setActualNumber(existInfo.getActualNumber());
+                graduateExamInfo.setId(existInfo.getId());
+                examInfoDao.updateByPrimaryKey(graduateExamInfo);
+            }
+            list.add(graduateExamInfo.getId());
+
+        }
+        ExamSaveTimeRebackDto dto = new ExamSaveTimeRebackDto();
+        dto.setExamInfoIds(list);
+        dto.setNotice(info.getNotice());
+        dto.setWeekNumber(weekNumber);
+        dto.setWeekDay(weekDay);
+        dto.setClassNode(classNode);
+        dto.setActualCalendarId(actualCalendarId);
+        dto.setStartHour(startHour);
+        dto.setStartMinute(startMinute);
+        dto.setEndHour(endHour);
+        dto.setEndMinute(endMinute);
+        return RestResult.successData(dto);
     }
 
     //返回冲突的Id

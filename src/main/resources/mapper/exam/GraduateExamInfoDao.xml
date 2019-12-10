@@ -110,7 +110,8 @@
         </where>
         group by
         t1.COURSE_CODE_,
-        t3.CAMPUS_
+        t3.CAMPUS_,
+        t4.ID_
         order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
@@ -191,7 +192,8 @@
         </where>
         group by
         t1.COURSE_CODE_,
-        t3.CAMPUS_
+        t3.CAMPUS_,
+        t4.ID_
         order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
