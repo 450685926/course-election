@@ -179,8 +179,8 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
 
     @Override
     @Transactional
-    public void changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId) {
-        if(CollectionUtil.isEmpty(condition) || examRoomId == null){
+    public Restrict changeExamStudentRoom(List<GraduateExamStudentDto> condition, Long examRoomId,Long examInfoId) {
+        if(CollectionUtil.isEmpty(condition) || examRoomId == null || examInfoId == null){
             throw new ParameterValidateException("入参有误");
         }
         int size = condition.size();
@@ -191,11 +191,27 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         if(size + examRoom.getRoomNumber() > examRoom.getRoomCapacity()){
             throw new ParameterValidateException("该教室剩余容量有限，不能同时更换这么多学生");
         }
+        //排考时间冲突检验
+        List<GraduateExamStudent> list = new ArrayList<>();
         for (GraduateExamStudentDto graduateExamStudentDto : condition) {
-            //先删除原先考场下面的学生，并更新考场人数
-            this.deleteExamStudent(graduateExamStudentDto);
-            this.updateExamStudentRoom(graduateExamStudentDto,examRoomId);
+            GraduateExamStudent student = new GraduateExamStudent();
+            student.setExamInfoId(examInfoId);
+            student.setStudentCode(graduateExamStudentDto.getStudentCode());
+            list.add(student);
         }
+        Restrict restrict = infoService.checkExamStudentsConflict(list);
+        if(restrict != null){
+            Set<String> studentIds = restrict.getStudentIds();
+            if(CollectionUtil.isNotEmpty(studentIds)){
+                condition = condition.stream().filter(vo ->!studentIds.contains(vo.getStudentCode())).collect(Collectors.toList());
+            }
+        }
+        for (GraduateExamStudentDto studentDto : condition) {
+            this.deleteExamStudent(studentDto);
+            this.updateExamStudentRoom(studentDto,examRoomId,examInfoId);
+        }
+
+        return restrict;
     }
 
     @Override
@@ -258,7 +274,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
                 return restrict;
             }
         }
-        this.updateExamStudentRoom(studentDto,condition.getExamRoomId());
+        this.updateExamStudentRoom(studentDto,condition.getExamRoomId(),condition.getExamInfoId());
         return new Restrict();
     }
 
@@ -385,7 +401,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examInfoDao.updateActualNumberById(examInfoId,symbol);
     }
 
-    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long examRoomId){
+    private void updateExamStudentRoom(GraduateExamStudentDto graduateExamStudentDto,Long examRoomId,Long examInfoId){
         GraduateExamStudent examStudent = new GraduateExamStudent();
         Date date = new Date();
         examStudent.setStudentCode(graduateExamStudentDto.getStudentCode());
@@ -396,16 +412,19 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         examStudent.setTeachingClassName(graduateExamStudentDto.getTeachingClassName());
         examStudent.setCreateAt(date);
         examStudent.setUpdateAt(date);
-        examStudent.setExamInfoId(graduateExamStudentDto.getExamInfoId());
+        examStudent.setExamInfoId(examInfoId);
         examStudentDao.insert(examStudent);
+
         // 排考
-        graduateExamStudentDto.setExamRoomId(examRoomId);
+        graduateExamStudentDto.setExamInfoId(examInfoId);
         this.updateActualNumber(graduateExamStudentDto,ApplyStatus.EXAM_ADD);
-        this.insertExamLog(graduateExamStudentDto,ApplyStatus.EXAM_LOG_YES);
         //更新新教室的排考人数
         GraduateExamRoom examRoom = roomDao.selectByPrimaryKey(examRoomId);
         examRoom.setRoomNumber(examRoom.getRoomNumber() + 1);
         roomDao.updateByPrimaryKey(examRoom);
+        graduateExamStudentDto.setRoomId(examRoom.getRoomId());
+        graduateExamStudentDto.setRoomName(examRoom.getRoomName());
+        this.insertExamLog(graduateExamStudentDto,ApplyStatus.EXAM_LOG_YES);
 
     }
 
