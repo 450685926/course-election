@@ -172,4 +172,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     List<TeachingClass> findTeachingClasses(List<Long> list);
 
     TeachingClassVo getMaleToFemaleRatio(ElcResultQuery elcResultQuery);
+
+    Integer getStudentAbnormalCount(@Param("studentId")String studentId,@Param("beginDay")Long beginDay, @Param("endDay")Long endDay);
+
 }
