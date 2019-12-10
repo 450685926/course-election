@@ -326,7 +326,7 @@
         courseCode,t4.NAME_ courseName,t3.ID_ examInfoId,t3.CAMPUS_ campus,GROUP_CONCAT(t6.TEACHER_NAME_) teacherName,
         t3.CALENDAR_ID_ calendarId,t3.EXAM_TIME_ examTime,t3.EXAM_TYPE_ examType,
         t2.ID_ examRoomId,t2.ROOM_ID_ roomId,t2.ROOM_NAME_ roomName,t1.EXAM_SITUATION_
-        examSituation,t1.TEACHING_CLASS_CODE_ teachingClassCode,t1.TEACHING_CLASS_ID_ teachingClassId,t1.REMARK_ remark
+        examSituation,t1.TEACHING_CLASS_CODE_ teachingClassCode,t1.TEACHING_CLASS_ID_ teachingClassId,t1.REMARK_ remark,t1.TEACHING_CLASS_NAME_ teachingClassName
         FROM
         graduate_exam_student_t t1
         LEFT JOIN graduate_exam_room_t t2 ON t1.EXAM_ROOM_ID_ = t2.ID_
