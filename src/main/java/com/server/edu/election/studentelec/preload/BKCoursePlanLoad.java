@@ -145,19 +145,21 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
             String grades = bkPublicCourseVo.getGrades();
             if (compare(grade, grades)) {
                 List<BkPublicCourse> list = bkPublicCourseVo.getList();
-                for (BkPublicCourse publicCourse : list) {
-                    String courseCode = publicCourse.getCourseCode();
-                    if (collect.contains(courseCode)){
-                        ElecCourse c=new ElecCourse();
-                        c.setCourseCode(courseCode);
-                        c.setCourseName(publicCourse.getCourseName());
-                        c.setCompulsory(map.get(courseCode));
-                        c.setCredits(publicCourse.getCreidits());
-                        c.setFirstTag(publicCourse.getFirstTag());
-                        c.setCx(publicCourse.isCx());
-                        c.setYs(publicCourse.isYs());
-                        c.setJp(publicCourse.getJp());
-                        publicCourses.add(c);
+                if (CollectionUtil.isNotEmpty(list)) {
+                    for (BkPublicCourse publicCourse : list) {
+                        String courseCode = publicCourse.getCourseCode();
+                        if (collect.contains(courseCode)){
+                            ElecCourse c=new ElecCourse();
+                            c.setCourseCode(courseCode);
+                            c.setCourseName(publicCourse.getCourseName());
+                            c.setCompulsory(map.get(courseCode));
+                            c.setCredits(publicCourse.getCreidits());
+                            c.setFirstTag(publicCourse.getFirstTag());
+                            c.setCx(publicCourse.isCx());
+                            c.setYs(publicCourse.isYs());
+                            c.setJp(publicCourse.getJp());
+                            publicCourses.add(c);
+                        }
                     }
                 }
                 break;
@@ -173,12 +175,12 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 Integer start = Integer.parseInt(split[0]);
                 Integer end = Integer.parseInt(split[1]);
                 int value = grade.intValue();
-                if (start.intValue() < value && value < end.intValue()) {
+                if (start.intValue() <= value && value <= end.intValue()) {
                     return true;
                 }
             } else {
                 Integer start = Integer.parseInt(split[0]);
-                if (start.intValue() < grade) {
+                if (start.intValue() <= grade) {
                     return true;
                 }
             }
