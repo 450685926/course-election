@@ -1,9 +1,13 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.entity.BkPublicCourse;
+import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.ElcStudentLimitDao;
 import com.server.edu.election.entity.ElcStudentLimit;
@@ -61,14 +65,29 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
 
         //通识选修课
-		Set<ElecCourse> publicCourses = context.getPublicCourses();
+		Set<ElecCourse> publicCourse = context.getPublicCourses();
+		List<PublicCourse> publicCourses= new ArrayList<>();
+		if (CollectionUtil.isEmpty(publicCourses)){
+			for (ElecCourse elecCourse:publicCourse) {
+				List<BkPublicCourse> list = elecCourse.getList();
+				if(CollectionUtil.isEmpty(list)){
+					for (BkPublicCourse bkPublicCourse:list) {
+						publicCourses = bkPublicCourse.getList();
+						if(CollectionUtil.isEmpty(list)){
+							publicCourses.addAll(publicCourses);
+						}
+					}
+				}
+			}
+		}
+
 
 		//没有通识选修课，返回成功
 		if (CollectionUtil.isEmpty(publicCourses)){
 			return true;
 		}
 		//不是通识选修课，返回成功
-		for (ElecCourse elecCourse:publicCourses) {
+		for (PublicCourse elecCourse:publicCourses) {
 			if (!StringUtils.equalsIgnoreCase(elecCourse.getCourseCode(),elecCourse.getCourseCode())){
 				return true;
 			}
@@ -105,7 +124,7 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 						.collect(Collectors.toSet());
 				Set<SelectedCourse> publicCoursesCollect  = new HashSet<>();
 				for (SelectedCourse selected:collect) {
-					for (ElecCourse elec:publicCourses) {
+					for (PublicCourse elec:publicCourses) {
 						if (StringUtils.equalsIgnoreCase(selected.getCourse().getCourseCode(),elec.getCourseCode())){
 							publicCoursesCollect.add(selected);
 						}
@@ -145,7 +164,7 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 						.collect(Collectors.toSet());
 				Set<SelectedCourse> publicCoursesCollect  = new HashSet<>();
 				for (SelectedCourse selected:collect) {
-					for (ElecCourse elec:publicCourses) {
+					for (PublicCourse elec:publicCourses) {
 						if (StringUtils.equalsIgnoreCase(selected.getCourse().getCourseCode(),elec.getCourseCode())){
 							publicCoursesCollect.add(selected);
 						}
