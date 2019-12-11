@@ -53,9 +53,6 @@ public class ElecController
     
     @Autowired
     private RoundDataProvider dataProvider;
-    
-    @Autowired
-    private TeachClassCacheService teachClassCacheService;
 
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
@@ -74,7 +71,7 @@ public class ElecController
                 && StringUtils.equals(Constants.STU, round.getElectionObj())
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime())
-                && dataProvider.containsStu(roundId, studentId)
+//                && dataProvider.containsStu(roundId, studentId)
                 && dataProvider
                     .containsStuCondition(roundId, studentId, projectId))
             {
@@ -123,10 +120,8 @@ public class ElecController
         }
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundNotExistTip");
-        
         ElecContextBk c =
             new ElecContextBk(session.realUid(), round.getCalendarId());
-        
         return RestResult.successData(c);
     }
     
@@ -175,6 +170,25 @@ public class ElecController
     }
     
     /**
+     * 登陆规则校验
+     */
+    @ApiOperation(value = "登陆规则校验")
+    @PostMapping("/loginCheck")
+    public RestResult<ElecRespose> loginCheck(
+        @RequestBody  ElecRequest elecRequest)
+    {
+        Session session = SessionUtils.getCurrentSession();
+        
+//        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+//        {
+//            return RestResult.fail("elec.mustBeStu");
+//        }
+        //elecRequest.setCreateBy(session.getUid());
+//        elecRequest.setRequestIp(SessionUtils.getRequestIp());
+        return elecService.loginCheck(elecRequest);
+    }
+    
+    /**
      * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
      */
     @ApiOperation(value = "查询选课结果")
@@ -194,18 +208,4 @@ public class ElecController
         return RestResult.successData(response);
     }
     
-    @ApiOperation(value = "获取本科生公共选修课程")
-    @PostMapping("/getPublicCourses")
-    public RestResult<Set<ElecCourse>> getPublicCourses(
-        @RequestParam("roundId") @NotNull Long roundId)
-    {
-    	ElectionRounds electionRounds = dataProvider.getRound(roundId);
-    	if(electionRounds==null) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("election.round")));
-    	}
-    	Set<ElecCourse> elecCourses = teachClassCacheService.getPublicCourses(electionRounds.getCalendarId());
-        return RestResult.successData(elecCourses);
-    }
-
-
 }

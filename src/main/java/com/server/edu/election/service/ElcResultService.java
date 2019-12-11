@@ -18,6 +18,8 @@ import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
 
+import java.util.List;
+
 public interface ElcResultService
 {
     /**
@@ -59,8 +61,9 @@ public interface ElcResultService
      * 
      * @param reserveDto
      * @see [类、类#方法、类#成员]
+	 * @return
      */
-    void setReserveProportion(ReserveDto reserveDto);
+    List<TeachingClass> setReserveProportion(ReserveDto reserveDto);
     /**
      * 批量设置教学班预留人数
      * 

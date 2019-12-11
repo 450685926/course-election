@@ -136,16 +136,16 @@
         and t1.ELC_NUMBER_ = t1.NUMBER_
       </if>
       <if test="minUpperNumber != null and minUpperNumber !=0">
-        and t1.NUMBER_ &gt; #{minUpperNumber}
+        and t1.NUMBER_ &gt;= #{minUpperNumber}
       </if>
       <if test="maxUpperNumber != null and maxUpperNumber !=0">
-        and t1.NUMBER_ &lt; #{maxUpperNumber}
+        and t1.NUMBER_ &lt;= #{maxUpperNumber}
       </if>
        <if test="minActualNumber != null and minActualNumber !=0">
-        and t1.ELC_NUMBER_ &gt; #{minActualNumber}
+        and t1.ELC_NUMBER_ &gt;= #{minActualNumber}
       </if>
       <if test="maxActualNumber != null and maxActualNumber !=0">
-        and t1.ELC_NUMBER_ &lt; #{maxActualNumber}
+        and t1.ELC_NUMBER_ &lt;= #{maxActualNumber}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
         and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
@@ -252,16 +252,16 @@
         and t1.ELC_NUMBER_ = t1.NUMBER_
       </if>
       <if test="minUpperNumber != null and minUpperNumber !=0">
-        and t1.NUMBER_ &gt; #{minUpperNumber}
+        and t1.NUMBER_ &gt;= #{minUpperNumber}
       </if>
       <if test="maxUpperNumber != null and maxUpperNumber !=0">
-        and t1.NUMBER_ &lt; #{maxUpperNumber}
+        and t1.NUMBER_ &lt;= #{maxUpperNumber}
       </if>
        <if test="minActualNumber != null and minActualNumber !=0">
-        and t1.ELC_NUMBER_ &gt; #{minActualNumber}
+        and t1.ELC_NUMBER_ &gt;= #{minActualNumber}
       </if>
       <if test="maxActualNumber != null and maxActualNumber !=0">
-        and t1.ELC_NUMBER_ &lt; #{maxActualNumber}
+        and t1.ELC_NUMBER_ &lt;= #{maxActualNumber}
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
         and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
@@ -277,15 +277,6 @@
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
         and t3.PROJ_ID_ = #{projectId}
-      </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
-        and t3.FACULTY_ in
-        <foreach collection="faculties" open="(" separator="," close=")" item="fy">
-            #{fy}
-        </foreach>
-      </if>
-      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-        and t3.FACULTY_ = #{faculty}
       </if>
       <if test="credits!=null and credits!=0">
         and t3.CREDITS_ = #{credits}
@@ -322,6 +313,15 @@
       <if test="maxSecondTurnNum !=null and maxSecondTurnNum !=0">
         and t8.secondTurnNum &lt; #{maxSecondTurnNum}
       </if>
+         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+             and t8.FACULTY_ in
+             <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+                 #{fy}
+             </foreach>
+         </if>
+         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+             and t8.FACULTY_ = #{faculty}
+         </if>
 	 </where>
   </select>
 
@@ -578,18 +578,30 @@
     </select>
 
     <select id="getMaleToFemaleRatio" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
-      SELECT male.MALE_NUMBER NUMBER_MALE_,female.FEMALE_NUMBER NUMBER_FEMALE_
-      from (
-            select Count(STUDENT_ID_) MALE_NUMBER,t1.TEACHING_CLASS_ID_
-            from `elc_course_takes_t_0` t1
-            left join student_t t2 on t1.STUDENT_ID_ = t2.`STUDENT_CODE_`
-            where t1.TEACHING_CLASS_ID_ = #{teachingClassId} and t2.`SEX_` = 1) male
-      left join
-            (
-            SELECT COUNT(STUDENT_ID_) FEMALE_NUMBER,t1.TEACHING_CLASS_ID_
-            FROM `elc_course_takes_t_0` t1
-            LEFT JOIN student_t t2 ON t1.STUDENT_ID_ = t2.`STUDENT_CODE_`
-            WHERE t1.TEACHING_CLASS_ID_ = #{teachingClassId} AND t2.`SEX_` = 2)female
-            on male.TEACHING_CLASS_ID_ = female.TEACHING_CLASS_ID_
+      select sum((case t2.SEX_ when 1 then 1 end)) NUMBER_MALE_,
+        sum((case t2.SEX_ when 2 then 1 end)) NUMBER_FEMALE_ from elc_course_takes_t t1
+         JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
+        where t1.TEACHING_CLASS_ID_=#{teachingClassId};
+    </select>
+
+    <select id="getStudentAbnormalCount" resultType="java.lang.Integer">
+        select count(ID_)
+        from student_abnormal_apply_v v
+        where v.STUDENT_ID_ = #{studentId}
+        and v.ABNORMAL_START_TIME_ <![CDATA[ >= ]]> #{beginDay}
+        and v.ABNORMAL_END_TIME_ <![CDATA[ >= ]]> #{endDay}
+        and v.CLASS_ID_ = 300015
+        and v.STATUS_ = 3
+    </select>
+    <select id="getStudentAbnormalCountNew" resultType="java.lang.Integer">
+        select count(*)
+        from v_student_change_t v
+        where v.flag='1'
+        and v.xnj>ynj
+        and v.xnd=#{year}
+        and v.xq = #{term}
+        and v.xjbdlx in('1','5')
+        and v.xh=#{studentId}
+
     </select>
 </mapper>

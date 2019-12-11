@@ -15,6 +15,16 @@ public class GraduateExamAutoStudent implements Serializable{
     private List<Long> examRoomIds;
     private Long calendarId;
 
+    private List<Long> allCourseInfoIds;
+
+    public List<Long> getAllCourseInfoIds() {
+        return allCourseInfoIds;
+    }
+
+    public void setAllCourseInfoIds(List<Long> allCourseInfoIds) {
+        this.allCourseInfoIds = allCourseInfoIds;
+    }
+
     public Long getCalendarId() {
         return calendarId;
     }

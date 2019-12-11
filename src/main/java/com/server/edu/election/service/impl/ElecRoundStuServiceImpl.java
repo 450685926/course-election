@@ -225,19 +225,29 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
     {
     	Session session = SessionUtils.getCurrentSession();
         stu.setProjectId(session.getCurrentManageDptId());
-        Page<Student4Elc> listStudent =
-            elecRoundStuDao.listPage(stu, stu.getRoundId());
-        
-        List<String> studentCodes = new ArrayList<>();
-        if (CollectionUtil.isNotEmpty(listStudent))
-        {
-            for (Student4Elc info : listStudent)
-            {
-                studentCodes.add(info.getStudentId());
+        if(StringUtils.isEmpty(stu.getGrade())&&StringUtils.isEmpty(stu.getFaculty())&&
+                StringUtils.isEmpty(stu.getProfession())&&StringUtils.isEmpty(stu.getResearchDirection())&&
+                StringUtils.isEmpty(stu.getIsOverseas())){
+            List<String> stuByRoundId = elecRoundStuDao.findStuByRoundId(stu.getRoundId());
+            if (CollectionUtil.isEmpty(stuByRoundId)) {
+                throw new ParameterValidateException("无可移除名单");
             }
-            elecRoundStuDao.delete(stu.getRoundId(), studentCodes);
-        } else {
-            throw new ParameterValidateException("无可移除名单或没有匹配的学生");
+            elecRoundStuDao.deleteAll(stu.getRoundId());
+        }else{
+            Page<Student4Elc> listStudent =
+                    elecRoundStuDao.listPage(stu, stu.getRoundId());
+
+            List<String> studentCodes = new ArrayList<>();
+            if (CollectionUtil.isNotEmpty(listStudent))
+            {
+                for (Student4Elc info : listStudent)
+                {
+                    studentCodes.add(info.getStudentId());
+                }
+                elecRoundStuDao.delete(stu.getRoundId(), studentCodes);
+            } else {
+                throw new ParameterValidateException("无可移除名单或没有匹配的学生");
+            }
         }
     }
 

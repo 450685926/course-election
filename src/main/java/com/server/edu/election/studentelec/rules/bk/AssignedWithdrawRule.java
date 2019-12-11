@@ -36,6 +36,7 @@ public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutorBk
         {
             List<SelectedCourse> list = selectedCourses.stream()
                 .filter(c -> ChooseObj.STU.type() != c.getChooseObj())
+                .filter(c -> ChooseObj.ADMIN.type() != c.getChooseObj())
                 .filter(c -> courseCode.equals(c.getCourse().getCourseCode()))
                 .collect(Collectors.toList());
             if (CollectionUtil.isEmpty(list))

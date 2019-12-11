@@ -74,8 +74,8 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
      * @author bear
      * @date 2019/9/4 11:12
      */
-    List<GraduateExamStudent> listStudentByClass(@Param("teachingClassIds") List<Long> teachingClassIds, @Param("examRoomIds") List<Long> examRoomIds,
-                                          @Param("calendarId") Long calendarId,@Param("examType") Integer examType);
+    List<GraduateExamStudent> listStudentByClass(@Param("teachingClassIds") List<Long> teachingClassIds, @Param("allExamInfoIds") List<Long> allExamInfoIds,
+                                          @Param("calendarId") Long calendarId,@Param("examType") Integer examType,@Param("examInfoIds") List<Long> examInfoIds);
 
     /**
      * 通过学期，课程代码查询教学班
@@ -112,4 +112,8 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
 
     /**代理申请缓考学生列表(没有排考也可以申请)*/
     Page<SelectDto> listApplyCourseListSlowAndCourseTake(SelectDto selectDto);
+
+    /**由于支持多此排考，根据现有infoId,查询所有infoId*/
+    List<Long> finaAllExamCourseInfoIds(List<Long> list);
+
 }

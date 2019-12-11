@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.common.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import com.server.edu.common.entity.Courses;
 import com.server.edu.common.entity.CulturePlan;
 import com.server.edu.common.entity.CultureScheme;
 import com.server.edu.common.entity.StudentCultureRel;
+import com.server.edu.common.entity.StudentPlanCoure;
 import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
@@ -399,6 +401,22 @@ public class CultureSerivceInvoker
                         StudentCode);
         return list;
     }
+    
+    /** 更新本科生培养选课状态 */
+    public static Integer updateElecStatus(StudentPlanCoure studentPlanCoure) throws Exception{
+    	@SuppressWarnings("unchecked")
+    	Integer restResult = 
+    		ServicePathEnum.CULTURESERVICE.postForObject("/bclStudentCultureRel/updateElecStatus",studentPlanCoure,Integer.class);
+    	return restResult;
+    }
 
+    public static List<BkPublicCourseVo> findPublicCourse()
+    {
+        @SuppressWarnings("unchecked")
+        List<BkPublicCourseVo> list = ServicePathEnum.CULTURESERVICE.getForObject(
+                "/bclCoursesLabelGrade/findPublicCourse",
+                List.class);
+        return list;
+    }
 }
 
