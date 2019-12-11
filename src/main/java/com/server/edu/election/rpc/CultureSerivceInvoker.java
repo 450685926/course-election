@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.common.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -409,5 +410,13 @@ public class CultureSerivceInvoker
     	return restResult;
     }
 
+    public static List<BkPublicCourseVo> findPublicCourse()
+    {
+        @SuppressWarnings("unchecked")
+        List<BkPublicCourseVo> list = ServicePathEnum.CULTURESERVICE.getForObject(
+                "/bclCoursesLabelGrade/findPublicCourse",
+                List.class);
+        return list;
+    }
 }
 

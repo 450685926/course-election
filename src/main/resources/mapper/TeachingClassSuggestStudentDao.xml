@@ -13,11 +13,11 @@
     ID_, TEACHING_CLASS_ID_, STUDENT_ID_, STUDENT_NAME_, CREATED_AT_, UPDATED_AT_
   </sql>
   <delete id="deleteByClassId" parameterType="java.lang.Long">
-    delete from teaching_class_suggest_student_t
+    delete from teaching_class_elective_restrict_student_t
     where TEACHING_CLASS_ID_ = #{classId,jdbcType=BIGINT}
   </delete>
   <insert id="insertSelective" parameterType="com.server.edu.election.entity.TeachingClassSuggestStudent">
-    insert into teaching_class_suggest_student_t
+    insert into teaching_class_elective_restrict_student_t
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         ID_,

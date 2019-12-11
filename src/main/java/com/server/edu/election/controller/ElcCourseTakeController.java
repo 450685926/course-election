@@ -128,8 +128,12 @@ public class ElcCourseTakeController
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
 
         String msg = courseTakeService.addCourseBk(value);
+        if(StringUtils.isEmpty(msg)){
+            return RestResult.success(msg);
+        }else{
+            return RestResult.fail(msg);
+        }
 
-        return RestResult.success(msg);
     }
     
     @ApiOperation(value = "学生退课")
