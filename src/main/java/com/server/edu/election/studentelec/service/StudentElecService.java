@@ -25,6 +25,14 @@ public interface StudentElecService
      */
     RestResult<ElecRespose> elect(ElecRequest elecRequest);
     
+    
+    /**
+     * 选课登陆校验
+     * @param elecRequest
+     * @return
+     */
+    RestResult<ElecRespose> loginCheck(ElecRequest elecRequest);
+    
     /**
      * 获取学生选课结果
      * 

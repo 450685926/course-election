@@ -110,6 +110,13 @@ public interface Constants
     public static final String  IS_PAYMENT = "1";
     
     public static final String  UN_PAYMENT = "0";
+    
+    /** 学生欠费*/
+    public static final Integer IS_ARREARS = 1;
+    
+    /** 学生未欠费*/
+    public static final Integer UN_ARREARS = 0;
+ 
  
 
     

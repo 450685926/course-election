@@ -23,6 +23,7 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
@@ -58,6 +59,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     
     @Autowired
     private ApplicationContext applicationContext;
+    
+    @Autowired
+    private ElecRoundsDao roundDao;
     
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -204,6 +208,55 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
         return RestResult.successData(new ElecRespose(currentStatus));
+    }
+    
+    public RestResult<ElecRespose> loginCheck(ElecRequest elecRequest){
+        Long roundId = elecRequest.getRoundId();
+        String studentId = elecRequest.getStudentId();
+        ElectionRounds round = roundDao.selectByPrimaryKey(roundId);
+        //Assert.notNull(round, "elec.roundCourseExistTip");
+        Long calendarId = round.getCalendarId();
+        elecRequest.setCalendarId(calendarId);
+        ElecContextBk context =
+                new ElecContextBk(studentId, calendarId, elecRequest);
+    	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+    	List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
+    	 // 获取执行规则
+        @SuppressWarnings("rawtypes")
+		Map<String, AbstractRuleExceutor> map =
+            applicationContext.getBeansOfType(AbstractRuleExceutor.class);
+        for (ElectionRuleVo ruleVo : rules)
+        {
+            @SuppressWarnings("rawtypes")
+			AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
+            if (null != excetor)
+            {
+                excetor.setProjectId(ruleVo.getManagerDeptId());
+                ElectRuleType type = ElectRuleType.valueOf(ruleVo.getType());
+                excetor.setType(type);
+                excetor.setDescription(ruleVo.getName());
+                if (ElectRuleType.GENERAL.equals(type))
+                {
+                	loginExceutors.add((AbstractLoginRuleExceutorBk)excetor);
+                }
+            }
+        }
+        ElecRespose respose = context.getRespose();
+        Map<String, String> failedReasons = respose.getFailedReasons();
+        TeachingClassCache teachClass = new TeachingClassCache();
+        if(CollectionUtil.isNotEmpty(loginExceutors)) {
+            for(int i=1;i<loginExceutors.size()+1;i++) {
+            	AbstractLoginRuleExceutorBk exceutor = loginExceutors.get(i);
+            	 if (!exceutor.checkRule(context, teachClass))
+                 {
+                     // 校验不通过时跳过后面的校验进行下一个
+//                 	failedReasons.put(Integer.toString(i), exceutor.getDescription());
+                    break;
+                 }
+            }
+            return RestResult.successData(respose);
+        }
+        return RestResult.successData(new ElecRespose());
     }
     
     @Override

@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.cache;
 
+import javax.persistence.Column;
+
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
@@ -58,7 +60,20 @@ public class StudentInfoCache
      */
     private String managerDeptId;
     
-    public String getStudentId()
+    /**
+     * 是否欠费
+     */
+    private Integer isArrears;
+    
+    public Integer getIsArrears() {
+		return isArrears;
+	}
+
+	public void setIsArrears(Integer isArrears) {
+		this.isArrears = isArrears;
+	}
+
+	public String getStudentId()
     {
         return studentId;
     }
@@ -158,17 +173,15 @@ public class StudentInfoCache
         isAboard = aboard;
     }
     
-    public boolean isPaid()
-    {
-        return isPaid;
-    }
-    
-    public void setPaid(boolean paid)
-    {
-        isPaid = paid;
-    }
-    
-    public boolean isRepeater()
+    public boolean isPaid() {
+		return isPaid;
+	}
+
+	public void setPaid(boolean isPaid) {
+		this.isPaid = isPaid;
+	}
+
+	public boolean isRepeater()
     {
         return isRepeater;
     }

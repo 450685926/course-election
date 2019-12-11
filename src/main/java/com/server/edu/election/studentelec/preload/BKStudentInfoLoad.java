@@ -80,6 +80,8 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
         ElcLoserDownStds loserDownStds = elcLoserDownStdsDao
             .findLoserDownStds(request.getRoundId(), stu.getStudentCode());
         studentInfo.setRepeater(loserDownStds == null ? false : true);
+        //是否欠费
+        studentInfo.setIsArrears(stu.getIsArrears());
         
     }
     

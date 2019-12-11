@@ -170,6 +170,27 @@ public class ElecController
     }
     
     /**
+     * 登陆规则校验
+     */
+    @ApiOperation(value = "登陆规则校验")
+    @PostMapping("/loginCheck")
+    public RestResult<ElecRespose> loginCheck(
+        @RequestBody  ElecRequest elecRequest)
+    {
+        Session session = SessionUtils.getCurrentSession();
+        
+//        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+//        {
+//            return RestResult.fail("elec.mustBeStu");
+//        }
+        elecRequest.setStudentId("1852000");
+        //elecRequest.setCreateBy(session.getUid());
+//        elecRequest.setRequestIp(SessionUtils.getRequestIp());
+        elecRequest.setProjectId("1");
+        return elecService.loginCheck(elecRequest);
+    }
+    
+    /**
      * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
      */
     @ApiOperation(value = "查询选课结果")

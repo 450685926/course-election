@@ -21,6 +21,7 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
+import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -30,7 +31,7 @@ import tk.mybatis.mapper.entity.Example;
  * LoserGoodbyeRule
  */
 @Component("LoserNotElcRule")
-public class LoserNotElcRule extends AbstractElecRuleExceutorBk
+public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
 {
     @Autowired
     private StudentDao studentDao;
@@ -67,7 +68,7 @@ public class LoserNotElcRule extends AbstractElecRuleExceutorBk
                 	if(creditTotal>=value) {
                         ElecRespose respose = context.getRespose();
                         respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
+                            .put("01",
                                 I18nUtil.getMsg("ruleCheck.isLoserStu"));
                 		return false;
                 	}
