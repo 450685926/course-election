@@ -213,8 +213,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public RestResult<ElecRespose> loginCheck(ElecRequest elecRequest){
         Long roundId = elecRequest.getRoundId();
         String studentId = elecRequest.getStudentId();
-        ElectionRounds round = roundDao.selectByPrimaryKey(roundId);
-        //Assert.notNull(round, "elec.roundCourseExistTip");
+        ElectionRounds round = dataProvider.getRound(roundId);
+        Assert.notNull(round, "elec.roundCourseExistTip");
         Long calendarId = round.getCalendarId();
         elecRequest.setCalendarId(calendarId);
         ElecContextBk context =
