@@ -165,6 +165,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                     }
                     ElecCourse elecCourse = new ElecCourse();
                     elecCourse.setList(list);
+                    publicCourses.add(elecCourse);
                     break;
                 }
             }
