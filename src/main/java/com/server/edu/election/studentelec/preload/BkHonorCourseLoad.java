@@ -43,12 +43,13 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
     {
         ElecRequest request = context.getRequest();
         StudentInfoCache stu = context.getStudentInfo();
+        Set<BclHonorModule> honorCourses = context.getHonorCourses();//荣誉课程
+
         //查询学生荣誉计划名单信息
         Example example = new Example(HonorPlanStds.class);
         example.createCriteria().andEqualTo("studentId",stu.getStudentId()).andEqualTo("calendarId",request.getCalendarId());
         HonorPlanStds honorPlanStds = honorPlanStdsDao.selectOneByExample(example);
 
-        List<BclHonorModule> stuHonorCourseList = new ArrayList<>();
         if (honorPlanStds!=null){
             List<BclHonorModule> list = CultureSerivceInvoker.findHonorCourseList(stu.getStudentId());
             if(CollectionUtil.isNotEmpty(list)){
@@ -58,12 +59,12 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                 list.forEach(c->{
                     if (StringUtils.isEmpty(honorPlanStds.getDirectionName())){
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())){
-                            stuHonorCourseList.add(c);
+                            honorCourses.add(c);
                         }
                     }else{
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
                                 && StringUtils.equalsIgnoreCase(c.getDirectionName(),honorPlanStds.getDirectionName())){
-                            stuHonorCourseList.add(c);
+                            honorCourses.add(c);
                         }
                     }
 
@@ -71,8 +72,6 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
             }
         }
 
-        Set<BclHonorModule> honorCourses = context.getHonorCourses();//荣誉课程
-        honorCourses.addAll(stuHonorCourseList);
 
 
     }
