@@ -18,8 +18,10 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import tk.mybatis.mapper.entity.Example;
 
+@Component
 public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
     Logger log = LoggerFactory.getLogger(getClass());
 
@@ -41,14 +43,17 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
     @Override
     public void load(ElecContextBk context)
     {
+
+        log.info("----------------11111111111111------------------");
         ElecRequest request = context.getRequest();
         StudentInfoCache stu = context.getStudentInfo();
+        Set<BclHonorModule> honorCourses = context.getHonorCourses();//荣誉课程
+
         //查询学生荣誉计划名单信息
         Example example = new Example(HonorPlanStds.class);
         example.createCriteria().andEqualTo("studentId",stu.getStudentId()).andEqualTo("calendarId",request.getCalendarId());
         HonorPlanStds honorPlanStds = honorPlanStdsDao.selectOneByExample(example);
-
-        List<BclHonorModule> stuHonorCourseList = new ArrayList<>();
+        log.info("----------------2222222222222222------------------"+honorPlanStds);
         if (honorPlanStds!=null){
             List<BclHonorModule> list = CultureSerivceInvoker.findHonorCourseList(stu.getStudentId());
             if(CollectionUtil.isNotEmpty(list)){
@@ -58,12 +63,12 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                 list.forEach(c->{
                     if (StringUtils.isEmpty(honorPlanStds.getDirectionName())){
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())){
-                            stuHonorCourseList.add(c);
+                            honorCourses.add(c);
                         }
                     }else{
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
                                 && StringUtils.equalsIgnoreCase(c.getDirectionName(),honorPlanStds.getDirectionName())){
-                            stuHonorCourseList.add(c);
+                            honorCourses.add(c);
                         }
                     }
 
@@ -71,8 +76,6 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
             }
         }
 
-        Set<BclHonorModule> honorCourses = context.getHonorCourses();//荣誉课程
-        honorCourses = new HashSet<>(stuHonorCourseList);
 
 
     }

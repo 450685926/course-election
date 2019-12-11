@@ -1,8 +1,10 @@
 package com.server.edu.election.studentelec.context;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
+import com.server.edu.common.entity.BkPublicCourse;
 import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
@@ -63,48 +65,14 @@ public class ElecCourse implements Serializable
      */
     private String labelName;
 
-    // 通识选修课大标签
-    private String firstTag;
+    private List<BkPublicCourse> list;
 
-    // 精品
-    private String jp;
-
-    // 创新
-    private boolean isCx;
-
-    // 艺术
-    private boolean isYs;
-
-    public String getFirstTag() {
-        return firstTag;
+    public List<BkPublicCourse> getList() {
+        return list;
     }
 
-    public void setFirstTag(String firstTag) {
-        this.firstTag = firstTag;
-    }
-
-    public String getJp() {
-        return jp;
-    }
-
-    public void setJp(String jp) {
-        this.jp = jp;
-    }
-
-    public boolean isCx() {
-        return isCx;
-    }
-
-    public void setCx(boolean cx) {
-        isCx = cx;
-    }
-
-    public boolean isYs() {
-        return isYs;
-    }
-
-    public void setYs(boolean ys) {
-        isYs = ys;
+    public void setList(List<BkPublicCourse> list) {
+        this.list = list;
     }
 
     public Long getLabelId() {

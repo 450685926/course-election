@@ -412,9 +412,9 @@
 	<select id="findCampus" resultType="java.lang.String">
 		select CAMPUS_ from student_t where STUDENT_CODE_=#{studentCode}
 	</select>
-	
+
 	<select id="getStudentPayment" parameterType="com.server.edu.election.entity.StudentPayment" resultType="com.server.edu.election.entity.StudentPayment">
-       SELECT 
+       SELECT
 	       t1.STUDENT_ID_ studentId,
 	       t1.YEAR_ year,
 	       t1.SEMESTER_ semester,
@@ -426,4 +426,8 @@
         	and t1.SEMESTER_ =#{semester}
 		</where>
      </select>
+
+	<select id="findStuEmail" resultType="java.lang.String">
+		select EMAIL_ from student_t where STUDENT_CODE_=#{studentCode}
+	</select>
 </mapper>

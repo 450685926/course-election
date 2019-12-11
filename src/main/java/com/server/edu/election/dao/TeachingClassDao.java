@@ -175,4 +175,5 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
 
     Integer getStudentAbnormalCount(@Param("studentId")String studentId,@Param("beginDay")Long beginDay, @Param("endDay")Long endDay);
 
+    Integer getStudentAbnormalCountNew(@Param("studentId")String studentId, @Param("year")Integer year,@Param("term") Integer term);
 }
