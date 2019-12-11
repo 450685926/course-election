@@ -77,50 +77,54 @@ public class StudentElecServiceImpl extends AbstractCacheService
         }
         else
         {
+//            ElectionRounds round = dataProvider.getRound(roundId);
+//            Assert.notNull(round, "elec.roundCourseExistTip");
+//            calendarId = round.getCalendarId();
+//            elecRequest.setCalendarId(calendarId);
+//            ElecContextBk context =
+//                    new ElecContextBk(studentId, calendarId, elecRequest);
+//        	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+//        	List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
+//        	 // 获取执行规则
+//            @SuppressWarnings("rawtypes")
+//			Map<String, AbstractRuleExceutor> map =
+//                applicationContext.getBeansOfType(AbstractRuleExceutor.class);
+//            for (ElectionRuleVo ruleVo : rules)
+//            {
+//                @SuppressWarnings("rawtypes")
+//				AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
+//                if (null != excetor)
+//                {
+//                    excetor.setProjectId(ruleVo.getManagerDeptId());
+//                    ElectRuleType type = ElectRuleType.valueOf(ruleVo.getType());
+//                    excetor.setType(type);
+//                    excetor.setDescription(ruleVo.getName());
+//                    if (ElectRuleType.GENERAL.equals(type))
+//                    {
+//                    	loginExceutors.add((AbstractLoginRuleExceutorBk)excetor);
+//                    }
+//                }
+//            }
+//            ElecRespose respose = context.getRespose();
+//            Map<String, String> failedReasons = respose.getFailedReasons();
+//            TeachingClassCache teachClass = new TeachingClassCache();
+//            int i = 0;
+//            for (AbstractLoginRuleExceutorBk exceutor : loginExceutors)
+//            {
+//            	
+//                if (!exceutor.checkRule(context, teachClass))
+//                {
+//                    // 校验不通过时跳过后面的校验进行下一个
+//                	failedReasons.put(Integer.toString(i), exceutor.getDescription());
+//                	i++;
+//                    break;
+//                }
+//            }
+//            return RestResult.successData(respose);
             ElectionRounds round = dataProvider.getRound(roundId);
             Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();
             elecRequest.setCalendarId(calendarId);
-            ElecContextBk context =
-                    new ElecContextBk(studentId, calendarId, elecRequest);
-        	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-        	List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
-        	 // 获取执行规则
-            @SuppressWarnings("rawtypes")
-			Map<String, AbstractRuleExceutor> map =
-                applicationContext.getBeansOfType(AbstractRuleExceutor.class);
-            for (ElectionRuleVo ruleVo : rules)
-            {
-                @SuppressWarnings("rawtypes")
-				AbstractRuleExceutor excetor = map.get(ruleVo.getServiceName());
-                if (null != excetor)
-                {
-                    excetor.setProjectId(ruleVo.getManagerDeptId());
-                    ElectRuleType type = ElectRuleType.valueOf(ruleVo.getType());
-                    excetor.setType(type);
-                    excetor.setDescription(ruleVo.getName());
-                    if (ElectRuleType.GENERAL.equals(type))
-                    {
-                    	loginExceutors.add((AbstractLoginRuleExceutorBk)excetor);
-                    }
-                }
-            }
-            ElecRespose respose = context.getRespose();
-            Map<String, String> failedReasons = respose.getFailedReasons();
-            TeachingClassCache teachClass = new TeachingClassCache();
-            int i = 0;
-            for (AbstractLoginRuleExceutorBk exceutor : loginExceutors)
-            {
-            	
-                if (!exceutor.checkRule(context, teachClass))
-                {
-                    // 校验不通过时跳过后面的校验进行下一个
-                	failedReasons.put(Integer.toString(i), exceutor.getDescription());
-                	i++;
-                    break;
-                }
-            }
-            return RestResult.successData(respose);
         }
         
         ElecStatus currentStatus =
