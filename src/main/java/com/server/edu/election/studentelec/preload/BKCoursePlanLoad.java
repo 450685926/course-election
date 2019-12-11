@@ -137,32 +137,35 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         }
         Set<ElecCourse> elecCourses = teachClassCacheService.getPublicCourses(electionRounds.getCalendarId());
         List<String> collect = elecCourses.stream().map(ElecCourse::getCourseCode).collect(Collectors.toList());
+
+        Set<ElecCourse> publicCourses = context.getPublicCourses();//通识选修课
         //通识选修课
         List<BkPublicCourseVo> bkPublicCourse = ElecContextUtil.getBKPublicCourse();
         Integer grade = stu.getGrade();
-        Set<ElecCourse> publicCourses = context.getPublicCourses();//通识选修课
-        for (BkPublicCourseVo bkPublicCourseVo : bkPublicCourse) {
-            String grades = bkPublicCourseVo.getGrades();
-            if (compare(grade, grades)) {
-                List<BkPublicCourse> list = bkPublicCourseVo.getList();
-                if (CollectionUtil.isNotEmpty(list)) {
-                    for (BkPublicCourse publicCourse : list) {
-                        String courseCode = publicCourse.getCourseCode();
-                        if (collect.contains(courseCode)){
-                            ElecCourse c=new ElecCourse();
-                            c.setCourseCode(courseCode);
-                            c.setCourseName(publicCourse.getCourseName());
-                            c.setCompulsory(map.get(courseCode));
-                            c.setCredits(publicCourse.getCreidits());
-                            c.setFirstTag(publicCourse.getFirstTag());
-                            c.setCx(publicCourse.isCx());
-                            c.setYs(publicCourse.isYs());
-                            c.setJp(publicCourse.getJp());
-                            publicCourses.add(c);
+        if (CollectionUtil.isNotEmpty(bkPublicCourse)) {
+            for (BkPublicCourseVo bkPublicCourseVo : bkPublicCourse) {
+                String grades = bkPublicCourseVo.getGrades();
+                if (compare(grade, grades)) {
+                    List<BkPublicCourse> list = bkPublicCourseVo.getList();
+                    if (CollectionUtil.isNotEmpty(list)) {
+                        for (BkPublicCourse publicCourse : list) {
+                            String courseCode = publicCourse.getCourseCode();
+                            if (collect.contains(courseCode)){
+                                ElecCourse c=new ElecCourse();
+                                c.setCourseCode(courseCode);
+                                c.setCourseName(publicCourse.getCourseName());
+                                c.setCompulsory(map.get(courseCode));
+                                c.setCredits(publicCourse.getCreidits());
+                                c.setFirstTag(publicCourse.getFirstTag());
+                                c.setCx(publicCourse.isCx());
+                                c.setYs(publicCourse.isYs());
+                                c.setJp(publicCourse.getJp());
+                                publicCourses.add(c);
+                            }
                         }
                     }
+                    break;
                 }
-                break;
             }
         }
     }
