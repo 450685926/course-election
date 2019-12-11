@@ -586,7 +586,6 @@ public class ElcResultServiceImpl implements ElcResultService
         }else{
             teachingClass.setReserveNumberRate(reserveDto.getReserveNumberRate());
         }
-
     	Example example = new Example(TeachingClass.class);
     	Example.Criteria criteria = example.createCriteria();
     	criteria.andIn("id", reserveDto.getIds());
@@ -704,12 +703,17 @@ public class ElcResultServiceImpl implements ElcResultService
                         continue;
                     }
                     gradAndPreFilter.execute(stuList, removeStus);
-                    elcConditionFilter.execute(stuList, removeStus);
-                    
+                    //执行完后人数还是超过上限则进行随机删除
+                    int overSize = (invincibleStus.size()
+                        + affinityStus.size() + normalStus.size())
+                        - teachingClass.getNumber();
+                    if(overSize > 0) {
+                    	elcConditionFilter.execute(stuList, removeStus);
+                    }
                     if (CollectionUtil.isNotEmpty(stuList))
                     {
                         //执行完后人数还是超过上限则进行随机删除
-                        int overSize = (invincibleStus.size()
+                        overSize = (invincibleStus.size()
                             + affinityStus.size() + normalStus.size())
                             - teachingClass.getNumber();
                         if (overSize > 0)
@@ -728,7 +732,6 @@ public class ElcResultServiceImpl implements ElcResultService
                         }
                     }
                 }
-                
                 removeAndRecordLog(dto,
                     teachingClassId,
                     teachingClass,

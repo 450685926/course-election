@@ -71,7 +71,7 @@ public class ElecController
                 && StringUtils.equals(Constants.STU, round.getElectionObj())
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime())
-                && dataProvider.containsStu(roundId, studentId)
+//                && dataProvider.containsStu(roundId, studentId)
                 && dataProvider
                     .containsStuCondition(roundId, studentId, projectId))
             {
@@ -120,10 +120,8 @@ public class ElecController
         }
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundNotExistTip");
-        
         ElecContextBk c =
             new ElecContextBk(session.realUid(), round.getCalendarId());
-        
         return RestResult.successData(c);
     }
     

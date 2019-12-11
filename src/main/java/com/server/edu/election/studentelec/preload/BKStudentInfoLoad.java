@@ -81,8 +81,6 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
             .findLoserDownStds(request.getRoundId(), stu.getStudentCode());
         studentInfo.setRepeater(loserDownStds == null ? false : true);
         
-        // 3. TODO 是否缴费
-        
     }
     
 }

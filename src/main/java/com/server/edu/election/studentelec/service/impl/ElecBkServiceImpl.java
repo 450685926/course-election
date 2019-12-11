@@ -10,6 +10,8 @@ import java.util.Set;
 
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.RebuildCourseRecycle;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.server.edu.common.entity.StudentPlanCoure;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
@@ -114,7 +117,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 {
                     cancelExceutors.add((AbstractWithdrwRuleExceutorBk)excetor);
                 }
-                else
+                else if(ElectRuleType.ELECTION.equals(type))
                 {
                     elecExceutors.add((AbstractElecRuleExceutorBk)excetor);
                 }
@@ -299,7 +302,6 @@ public class ElecBkServiceImpl implements ElecBkService
 //            Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())
 //                ? CourseTakeType.RETAKE.type()
 //                : CourseTakeType.NORMAL.type();
-        
         Integer courseTakeType = hasRetakeCourse==true?2:1;
         if (ElectRuleType.ELECTION.equals(type))
         {
@@ -375,12 +377,13 @@ public class ElecBkServiceImpl implements ElecBkService
         log.setTurn(round.getTurn());
         log.setType(logType);
         this.elcLogDao.insertSelective(log);
-        
+        //更新选课申请数据
+        electionApplyService
+            .update(studentId, round.getCalendarId(), courseCode,type);
+        String elecStatus = Constants.UN_ELEC;
         if (ElectRuleType.ELECTION.equals(type))
         {
-            //更新选课申请数据
-            electionApplyService
-                .update(studentId, round.getCalendarId(), courseCode);
+        	elecStatus = Constants.IS_ELEC;
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
             respose.getSuccessCourses().add(teachClassId);
@@ -390,6 +393,17 @@ public class ElecBkServiceImpl implements ElecBkService
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
         }
+        //更新培养的选课状态
+        StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
+        studentPlanCoure.setStudentId(studentId);
+        studentPlanCoure.setCourseCode(courseCode);
+        studentPlanCoure.setElecStatus(elecStatus);
+        try {
+        	CultureSerivceInvoker.updateElecStatus(studentPlanCoure);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         // 更新缓存中教学班人数
         teachClassCacheService.updateTeachingClassNumber(teachClassId);
     }

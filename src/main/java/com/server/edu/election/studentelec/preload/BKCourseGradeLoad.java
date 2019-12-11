@@ -403,6 +403,29 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         }
     }
     
+    
+    /**
+     * 加载本学期已选课课程数据
+     * 
+     * @param studentId
+     * @param selectedCourses
+     * @param calendarId
+     * @see [类、类#方法、类#成员]
+     */
+    public void loadElecApplyCourse(String studentId,
+    		Set<ElectionApply> elecApplyCourses, Long calendarId)
+    {
+    	Example aExample = new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys =
+            electionApplyDao.selectByExample(aExample);
+        if(CollectionUtil.isNotEmpty(electionApplys)) {
+        	elecApplyCourses = new HashSet<>(elecApplyCourses);
+        }
+    }
+    
     /**
      * 查询教学班排课时间，并按教学班分组
      * 

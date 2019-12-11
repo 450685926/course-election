@@ -95,8 +95,23 @@ public interface Constants
     public static final Integer AGENTELC= 1;
     /** 选课申请拒绝*/
     public static final Integer REJECT = 2;
+    
+    /** 选课申请退课*/
+    public static final Integer APPLY_WITHDRAW = 3;
 
     public static final double RESERVENUMBERRATE = 0d;
+    
+    public static final String  IS_ELEC = "1";
+    
+    public static final String  UN_ELEC = "0";
+    
+    public static final String  IS_PASS = "Y";
+    
+    public static final String  IS_PAYMENT = "1";
+    
+    public static final String  UN_PAYMENT = "0";
+ 
+
     
 
 }
