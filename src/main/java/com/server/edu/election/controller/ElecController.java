@@ -183,10 +183,8 @@ public class ElecController
 //        {
 //            return RestResult.fail("elec.mustBeStu");
 //        }
-        elecRequest.setStudentId("1852000");
         //elecRequest.setCreateBy(session.getUid());
 //        elecRequest.setRequestIp(SessionUtils.getRequestIp());
-        elecRequest.setProjectId("1");
         return elecService.loginCheck(elecRequest);
     }
     
