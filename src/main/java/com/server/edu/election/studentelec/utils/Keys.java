@@ -84,7 +84,7 @@ public class Keys
     /**通识选修课 elec-calendarId-%s-applyCourse*/
     public static String getBKPublicCourseKey()
     {
-        return "elec-publicCourse";
+        return "elec-bkPublicCourse";
     }
 
     /**上个学期*/
