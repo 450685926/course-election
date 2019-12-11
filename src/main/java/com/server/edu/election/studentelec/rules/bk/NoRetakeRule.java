@@ -38,17 +38,25 @@ public class NoRetakeRule extends AbstractElecRuleExceutorBk
         //查找本学期和上学期的开始结束时间
         SchoolCalendarVo calendarVo1 = SchoolCalendarCacheUtil.getCalendar(calendarId);
         SchoolCalendarVo calendarVo2 = SchoolCalendarCacheUtil.getCalendar(calendarId - 1);
-        Long beginDay1 = calendarVo1.getBeginDay();
-        Long endDay1 = calendarVo1.getEndDay();
-        Long beginDay2 = calendarVo2.getBeginDay();
-        Long endDay2 = calendarVo2.getEndDay();
+//        Long beginDay1 = calendarVo1.getBeginDay();
+//        Long endDay1 = calendarVo1.getEndDay();
+//        Long beginDay2 = calendarVo2.getBeginDay();
+//        Long endDay2 = calendarVo2.getEndDay();
+        Integer year1 = calendarVo1.getYear();
+        Integer term1 = calendarVo1.getTerm();
+        Integer year2 = calendarVo1.getYear();
+        Integer term2 = calendarVo1.getTerm();
 
         boolean count = RetakeCourseUtil.isRetakeCourseBk(context,
             courseClass.getCourseCode());
         //查看学生是否有学籍异动信息
-        Integer count1 = teachingClassDao.getStudentAbnormalCount(studentInfo.getStudentId(), beginDay1, endDay1);
+//        Integer count1 = teachingClassDao.getStudentAbnormalCount(studentInfo.getStudentId(), beginDay1, endDay1);
+//
+//        Integer count2 = teachingClassDao.getStudentAbnormalCount(studentInfo.getStudentId(),beginDay2,endDay2);
 
-        Integer count2 = teachingClassDao.getStudentAbnormalCount(studentInfo.getStudentId(),beginDay2,endDay2);
+        Integer count1 = teachingClassDao.getStudentAbnormalCountNew(studentInfo.getStudentId(), year1, term1);
+
+        Integer count2 = teachingClassDao.getStudentAbnormalCountNew(studentInfo.getStudentId(),year2,term2);
         if (count1 > 0 || count2 > 0){
             return true;
         }

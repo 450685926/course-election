@@ -593,4 +593,15 @@
         and v.CLASS_ID_ = 300015
         and v.STATUS_ = 3
     </select>
+    <select id="getStudentAbnormalCountNew" resultType="java.lang.Integer">
+        select count(*)
+        from v_student_change_t v
+        where v.flag='1'
+        and v.xnj>ynj
+        and v.xnd=#{year}
+        and v.xq = #{term}
+        and v.xjbdlx in('1','5')
+        and v.xh=#{studentId}
+
+    </select>
 </mapper>
