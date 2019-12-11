@@ -151,7 +151,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                     if (CollectionUtil.isNotEmpty(list)) {
                         for (BkPublicCourse publicCourse : list) {
                             List<PublicCourse> publicCourseList = publicCourse.getList();
-                            if (CollectionUtil.isEmpty(list)) {
+                            if (CollectionUtil.isEmpty(publicCourseList)) {
                                 continue;
                             }
                             for (PublicCourse course : publicCourseList) {
