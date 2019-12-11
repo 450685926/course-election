@@ -80,7 +80,13 @@ public class Keys
     {
         return String.format("elec-calendarId-%s-applyCourse", calendarId);
     }
-    
+
+    /**通识选修课 elec-calendarId-%s-applyCourse*/
+    public static String getBKPublicCourseKey()
+    {
+        return "elec-publicCourse";
+    }
+
     /**上个学期*/
     public static String getRoundPresemesterKey(Long roundId)
     {
