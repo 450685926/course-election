@@ -72,7 +72,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
         }
 
         Set<BclHonorModule> honorCourses = context.getHonorCourses();//荣誉课程
-        honorCourses = new HashSet<>(stuHonorCourseList);
+        honorCourses.addAll(stuHonorCourseList);
 
 
     }
