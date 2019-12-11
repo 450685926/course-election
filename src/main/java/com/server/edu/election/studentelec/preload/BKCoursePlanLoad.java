@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.common.entity.BkPublicCourse;
 import com.server.edu.common.entity.BkPublicCourseVo;
+import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
@@ -149,21 +150,21 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                     List<BkPublicCourse> list = bkPublicCourseVo.getList();
                     if (CollectionUtil.isNotEmpty(list)) {
                         for (BkPublicCourse publicCourse : list) {
-                            String courseCode = publicCourse.getCourseCode();
-                            if (collect.contains(courseCode)){
-                                ElecCourse c=new ElecCourse();
-                                c.setCourseCode(courseCode);
-                                c.setCourseName(publicCourse.getCourseName());
-                                c.setCompulsory(map.get(courseCode));
-                                c.setCredits(publicCourse.getCreidits());
-                                c.setFirstTag(publicCourse.getFirstTag());
-                                c.setCx(publicCourse.isCx());
-                                c.setYs(publicCourse.isYs());
-                                c.setJp(publicCourse.getJp());
-                                publicCourses.add(c);
+                            List<PublicCourse> publicCourseList = publicCourse.getList();
+                            if (CollectionUtil.isEmpty(list)) {
+                                continue;
+                            }
+                            for (PublicCourse course : publicCourseList) {
+                                String courseCode = course.getCourseCode();
+                                if (!collect.contains(courseCode)) {
+                                    course.setCompulsory(map.get(courseCode));
+                                    list.remove(course);
+                                }
                             }
                         }
                     }
+                    ElecCourse elecCourse = new ElecCourse();
+                    elecCourse.setList(list);
                     break;
                 }
             }
