@@ -58,7 +58,7 @@ public interface StudentDao extends Mapper<Student> {
     String findCampus(String studentCode);
 	Integer isTakeNum(@Param("courseCode") String courseCode);
 	
-	StudentPayment getStudentPayment(@Param("studentId") String studentId,@Param("year") String year,@Param("term") String term);
+	StudentPayment getStudentPayment(@Param("studentId") String studentId,@Param("year") String year,@Param("semester") String semester);
 
     String findStuEmail(@Param("courseCode") String studentId);
 }
