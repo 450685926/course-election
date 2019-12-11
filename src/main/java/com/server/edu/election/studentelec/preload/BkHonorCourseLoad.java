@@ -41,6 +41,8 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
     @Override
     public void load(ElecContextBk context)
     {
+
+        log.info("----------------11111111111111------------------");
         ElecRequest request = context.getRequest();
         StudentInfoCache stu = context.getStudentInfo();
         Set<BclHonorModule> honorCourses = context.getHonorCourses();//荣誉课程
@@ -49,7 +51,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
         Example example = new Example(HonorPlanStds.class);
         example.createCriteria().andEqualTo("studentId",stu.getStudentId()).andEqualTo("calendarId",request.getCalendarId());
         HonorPlanStds honorPlanStds = honorPlanStdsDao.selectOneByExample(example);
-
+        log.info("----------------2222222222222222------------------"+honorPlanStds);
         if (honorPlanStds!=null){
             List<BclHonorModule> list = CultureSerivceInvoker.findHonorCourseList(stu.getStudentId());
             if(CollectionUtil.isNotEmpty(list)){
