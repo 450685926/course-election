@@ -266,6 +266,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     } else {
                         return null;
                     }
+                }else {
+                	return stu;
                 }
             }
         }
