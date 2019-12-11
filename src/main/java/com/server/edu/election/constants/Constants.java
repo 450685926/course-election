@@ -104,6 +104,13 @@ public interface Constants
     public static final String  IS_ELEC = "1";
     
     public static final String  UN_ELEC = "0";
+    
+    public static final String  IS_PASS = "Y";
+    
+    public static final String  IS_PAYMENT = "1";
+    
+    public static final String  UN_PAYMENT = "0";
+ 
 
     
 

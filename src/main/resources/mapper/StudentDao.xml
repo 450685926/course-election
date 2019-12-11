@@ -411,4 +411,18 @@
 	<select id="findCampus" resultType="java.lang.String">
 		select CAMPUS_ from student_t where STUDENT_CODE_=#{studentCode}
 	</select>
+	
+	<select id="getStudentPayment" parameterType="com.server.edu.election.entity.StudentPayment" resultType="com.server.edu.election.entity.StudentPayment">
+       SELECT 
+	       t1.STUDENT_ID_ studentId,
+	       t1.YEAR_ year,
+	       t1.SEMESTER_ semester,
+	       t1.PAYMENT_STATUS_ paymentStatus
+        FROM v_student_payment t1
+        <where>
+        	t1.STUDENT_ID_ =#{studentId}
+        	and t1.YEAR_ = #{year}
+        	and t1.SEMESTER_ =#{semester}
+		</where>
+     </select>
 </mapper>

@@ -117,7 +117,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 {
                     cancelExceutors.add((AbstractWithdrwRuleExceutorBk)excetor);
                 }
-                else
+                else if(ElectRuleType.ELECTION.equals(type))
                 {
                     elecExceutors.add((AbstractElecRuleExceutorBk)excetor);
                 }
