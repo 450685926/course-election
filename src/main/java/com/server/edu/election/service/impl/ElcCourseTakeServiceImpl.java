@@ -413,9 +413,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             applicationContext
                     .publishEvent(new ElectLoadEvent(calendarId, studentId));
         }else {
-            if(students.size() > 1){
+            if(students.size() > 1 && teachClassIds.size() == 1){
                 stus.add(studentId);
-            }else if (teachClassIds.size() > 1){
+            }else if (teachClassIds.size() > 1 && students.size() == 1){
+                courses.add(courseCode);
+            }else{
                 courses.add(courseCode);
             }
         }
