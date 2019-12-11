@@ -18,8 +18,10 @@ import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import tk.mybatis.mapper.entity.Example;
 
+@Component
 public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
     Logger log = LoggerFactory.getLogger(getClass());
 
