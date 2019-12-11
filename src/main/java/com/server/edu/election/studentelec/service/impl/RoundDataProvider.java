@@ -1,12 +1,10 @@
 package com.server.edu.election.studentelec.service.impl;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.server.edu.common.entity.BkPublicCourseVo;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,14 +110,16 @@ public class RoundDataProvider
                 classCacheService.cacheAllTeachClass(calendarId);
                 applyCoursesServiceImpl.setToCache(calendarId);
             }
-            
+            List<BkPublicCourseVo> publicCourse = CultureSerivceInvoker.findPublicCourse();
+            ElecContextUtil.setPublicCourse(publicCourse);
+
 //        }
 //        finally
 //        {
 //            ElecContextUtil.unlock(caKey, key);
 //        }
     }
-    
+
     /**
      * 更新或删除轮次缓存数据， 当轮次没有查询到时将删除缓存中的数据
      * 

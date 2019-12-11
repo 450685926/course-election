@@ -8,6 +8,7 @@ import com.github.pagehelper.Page;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.StudentDto;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.entity.StudentPayment;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.studentelec.context.ElcCourseResult;
 import com.server.edu.election.vo.AllCourseVo;
@@ -56,7 +57,10 @@ public interface StudentDao extends Mapper<Student> {
 
     String findCampus(String studentCode);
 	Integer isTakeNum(@Param("courseCode") String courseCode);
+	
+	StudentPayment getStudentPayment(@Param("studentId") String studentId,@Param("year") String year,@Param("semester") String semester);
 
+    String findStuEmail(@Param("courseCode") String studentId);
 }
 
 

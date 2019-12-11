@@ -2026,7 +2026,7 @@
 	      AND t4.TEACHING_CLASS_ID_ = t2.ID_  
 		WHERE t1.`STUDENT_ID_` = #{studentId}
 		  AND t1.`CALENDAR_ID_` = #{calendarId}
-		UNION ALL 
+		UNION
 		SELECT 
 		  0 AS id,
 		  t1.`TEACHING_CLASS_ID_`,

@@ -130,6 +130,7 @@ public class ElcCourseTakeController
         String msg = courseTakeService.addCourseBk(value);
 
         return RestResult.success(msg);
+
     }
     
     @ApiOperation(value = "学生退课")
