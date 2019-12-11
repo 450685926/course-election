@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -161,7 +162,8 @@ public class ElcResultController
     {
         List<TeachingClass> list =  elcResultService.setReserveProportion(reserveDto);
         if(CollectionUtil.isNotEmpty(list)){
-            return RestResult.fail(I18nUtil.getMsg("election.ReserveNum.error", StringUtils.join(list, ".")+""));
+            List<String> collect = list.stream().map(TeachingClass::getCode).collect(Collectors.toList());
+            return RestResult.fail(I18nUtil.getMsg("election.ReserveNum.error", StringUtils.join(collect.toArray(), ".")+""));
         }else{
             return RestResult.success();
         }

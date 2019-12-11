@@ -566,8 +566,9 @@ public class ElcResultServiceImpl implements ElcResultService
                     teachingClasses2.add(temp);
                 }
             }
-
-            classDao.updateReserveProportion(teachingClasses2);
+            if(CollectionUtil.isNotEmpty(teachingClasses2)){
+                classDao.updateReserveProportion(teachingClasses2);
+            }
 
         }
         return teachingClasses1;
