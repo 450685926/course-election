@@ -211,6 +211,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                         return null;
                     }
                 }
+                return stu;
             }
         }
         return null;
