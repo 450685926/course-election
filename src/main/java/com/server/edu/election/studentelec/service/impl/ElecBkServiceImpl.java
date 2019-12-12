@@ -436,14 +436,14 @@ public class ElecBkServiceImpl implements ElecBkService
             SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH");
             Long currentTime = System.currentTimeMillis();
             String time = dff.format(currentTime);
-//            Long calendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
-//            String calendarName = getCalendarName(calendarId);
+            Long calendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
+            String calendarName = getCalendarName(calendarId);
             RemindTimeBean remindTimeBean = new RemindTimeBean();
-//            remindTimeBean.setCalendarId(calendarId);
+            remindTimeBean.setCalendarId(calendarId);
             remindTimeBean.setRemindTime(time);
-//            String email = studentDao.findStuEmail("studentId");
-            remindTimeBean.setStudentEmail("qq577854218@sina.cn");
-            remindTimeBean.setCourseNameAndCode("courseNameAndCode");
+            String email = studentDao.findStuEmail(studentId);
+            remindTimeBean.setStudentEmail(email);
+            remindTimeBean.setCourseNameAndCode(courseNameAndCode);
             List<RemindTimeBean> alllist = new ArrayList<>();
             alllist.add(remindTimeBean);
             LOG.info("AssessSettingServiceImpl.syncRemindTime() start! 定时发送邮件，alllist：" + alllist.size() + ",time:" + df.format(currentTime));
@@ -458,7 +458,7 @@ public class ElecBkServiceImpl implements ElecBkService
                     if (CollectionUtils.isNotEmpty(emailList)) {
                         try {
                             // send email
-                            emailSend.sendStatisticsEmail(emailList, bean, "calendarName", num, "");
+                            emailSend.sendStatisticsEmail(emailList, bean, calendarName, num, "");
                         } catch (Exception e) {
                             errorList.add(bean);
                             e.printStackTrace();

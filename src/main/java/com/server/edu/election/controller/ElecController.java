@@ -12,7 +12,6 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.studentelec.service.ElecBkService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
@@ -51,10 +50,6 @@ public class ElecController
 
     @Autowired
     private StudentElecService elecService;
-
-
-    @Autowired
-    private ElecBkService ElecBkServices;
 
     @Autowired
     private RoundDataProvider dataProvider;
@@ -213,11 +208,4 @@ public class ElecController
         return RestResult.successData(response);
     }
 
-    @ApiOperation(value = "查询选课结果")
-    @PostMapping("/aaaa")
-    public RestResult<ElecRespose> aaaa()
-    {
-        ElecBkServices.syncRemindTime(1,null,null);
-        return RestResult.success();
-    }
 }

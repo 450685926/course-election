@@ -30,5 +30,6 @@ public interface ElecBkService
      */
     void saveElc(ElecContextBk context, TeachingClassCache teachClass,
         ElectRuleType type,boolean hasRetakeCourse);
+
     RestResult<?> syncRemindTime(Integer num, String studentId, String courseNameAndCode);
 }
