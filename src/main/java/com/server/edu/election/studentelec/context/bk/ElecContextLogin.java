@@ -10,8 +10,9 @@ public class ElecContextLogin implements IElecContext{
     private ElecRespose respose;
     
     public ElecContextLogin(
-            ElecRequest elecRequest) {
+            ElecRequest elecRequest,ElecRespose respose) {
          this.request = elecRequest;
+         this.respose = respose;
     }
 
 	public ElecRequest getRequest() {
