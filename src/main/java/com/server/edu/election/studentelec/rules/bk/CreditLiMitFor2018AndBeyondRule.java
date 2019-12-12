@@ -70,9 +70,9 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 		List<ElecCourse> publicCourses= new ArrayList<>();
 		if (CollectionUtil.isNotEmpty(publicCourse)){
 			for (TsCourse ts:publicCourse) {
-				List<ElecCourse> course = ts.getCourse();
-				if(CollectionUtil.isNotEmpty(course)){
-					publicCourses.addAll(course);
+				ElecCourse course = ts.getCourse();
+				if(course != null){
+					publicCourses.add(course);
 				}
 			}
 		}

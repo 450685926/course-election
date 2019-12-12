@@ -1,10 +1,8 @@
 package com.server.edu.election.studentelec.context;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
-import com.server.edu.common.entity.BkPublicCourse;
 import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;

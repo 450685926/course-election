@@ -10,7 +10,15 @@ public class TsCourse implements Serializable {
 
     private String tag;
 
-    private List<ElecCourse> course;
+    private ElecCourse course;
+
+    public ElecCourse getCourse() {
+        return course;
+    }
+
+    public void setCourse(ElecCourse course) {
+        this.course = course;
+    }
 
     public String getTag() {
         return tag;
@@ -20,11 +28,4 @@ public class TsCourse implements Serializable {
         this.tag = tag;
     }
 
-    public List<ElecCourse> getCourse() {
-        return course;
-    }
-
-    public void setCourse(List<ElecCourse> course) {
-        this.course = course;
-    }
 }
