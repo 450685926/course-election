@@ -7,8 +7,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang.StringUtils;
@@ -213,6 +215,12 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public RestResult<ElecRespose> loginCheck(ElecRequest elecRequest){
         Long roundId = elecRequest.getRoundId();
         String studentId = elecRequest.getStudentId();
+        if(roundId==null) {
+			throw new ParameterValidateException("轮次ID不能为空"); 
+        }
+        if(org.apache.commons.lang3.StringUtils.isBlank(studentId)) {
+			throw new ParameterValidateException("学生学号不能为空"); 
+        }
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundCourseExistTip");
         Long calendarId = round.getCalendarId();
