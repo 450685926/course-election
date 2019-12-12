@@ -389,7 +389,7 @@ public class ElecBkServiceImpl implements ElecBkService
         log.setTurn(round.getTurn());
         log.setType(logType);
         this.elcLogDao.insertSelective(log);
-        if(ChooseObj.STU.type() != 1){
+        if(request.getChooseObj() != 1){
             if (ElectRuleType.ELECTION.equals(type)){
                 this.syncRemindTime(ElcLogVo.TYPE_1,studentId,courseCode+"("+courseName+")");
 
