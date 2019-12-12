@@ -74,7 +74,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                             bclHonorCourse.setTrainingLevel(c.getTrainingLevel());
                             bclHonorCourse.setCourseCodeRep(c.getCourseCodeRep());
                             bclHonorCourse.setCourseNameRep(c.getCourseNameRep());
-                            bclHonorCourse.setCreidits(c.getCreidits());
+                            bclHonorCourse.setCredits(c.getCreidits());
                             bclHonorCourse.setDirectionId(c.getDirectionId());
                             bclHonorCourse.setEndYear(c.getEndYear());
                             bclHonorCourse.setStartYear(c.getStartYear());
@@ -99,7 +99,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                             bclHonorCourse.setTrainingLevel(c.getTrainingLevel());
                             bclHonorCourse.setCourseCodeRep(c.getCourseCodeRep());
                             bclHonorCourse.setCourseNameRep(c.getCourseNameRep());
-                            bclHonorCourse.setCreidits(c.getCreidits());
+                            bclHonorCourse.setCredits(c.getCreidits());
                             bclHonorCourse.setDirectionId(c.getDirectionId());
                             bclHonorCourse.setEndYear(c.getEndYear());
                             bclHonorCourse.setStartYear(c.getStartYear());

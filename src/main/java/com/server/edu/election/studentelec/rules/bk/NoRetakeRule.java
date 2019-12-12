@@ -57,7 +57,7 @@ public class NoRetakeRule extends AbstractElecRuleExceutorBk
         Integer count1 = teachingClassDao.getStudentAbnormalCountNew(studentInfo.getStudentId(), year1, term1);
 
         Integer count2 = teachingClassDao.getStudentAbnormalCountNew(studentInfo.getStudentId(),year2,term2);
-        if (count1 > 0 || count2 > 0){
+        if (count1.intValue() > 0 || count2.intValue() > 0){
             return true;
         }
 
