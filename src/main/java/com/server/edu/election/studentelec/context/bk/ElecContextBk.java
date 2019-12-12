@@ -47,7 +47,7 @@ public class ElecContextBk implements IElecContext
     private Set<ElcCouSubsVo> replaceCourses;
     
     /** 通识选修课程 */
-    private Set<ElecCourse> publicCourses;
+    private Set<TsCourse> publicCourses;
     
     /**未通過課程*/
     private Set<CompletedCourse> failedCourse;
@@ -59,7 +59,7 @@ public class ElecContextBk implements IElecContext
     private Set<ElectionApply> elecApplyCourses;
     
     /** 个人荣誉课程 */
-    private Set<BclHonorModule> honorCourses;
+    private Set<HonorCourseBK> honorCourses;
        
     
     private ElecRequest request;
@@ -94,9 +94,9 @@ public class ElecContextBk implements IElecContext
         applyForDropCourses =
             this.contextUtil.getSet(APPLY_FOR_DROP_COURSES, ElecCourse.class);
         planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
-        honorCourses = this.contextUtil.getSet("HonorCourses", BclHonorModule.class);
+        honorCourses = this.contextUtil.getSet("HonorCourses", HonorCourseBK.class);
         publicCourses =
-            this.contextUtil.getSet("publicCourses", ElecCourse.class);
+            this.contextUtil.getSet("publicCourses", TsCourse.class);
         courseGroups =
             this.contextUtil.getSet("courseGroups", CourseGroup.class);
         failedCourse =
@@ -206,16 +206,16 @@ public class ElecContextBk implements IElecContext
         return planCourses;
     }
     
-    public Set<BclHonorModule> getHonorCourses()
+    public Set<HonorCourseBK> getHonorCourses()
     {
         return honorCourses;
     }
     
-    public Set<ElecCourse> getPublicCourses()
+    public Set<TsCourse> getPublicCourses()
     {
         return publicCourses;
     }
-    
+
     public Set<CourseGroup> getCourseGroups()
     {
         return courseGroups;

@@ -44,8 +44,8 @@ public class NoRetakeRule extends AbstractElecRuleExceutorBk
 //        Long endDay2 = calendarVo2.getEndDay();
         Integer year1 = calendarVo1.getYear();
         Integer term1 = calendarVo1.getTerm();
-        Integer year2 = calendarVo1.getYear();
-        Integer term2 = calendarVo1.getTerm();
+        Integer year2 = calendarVo2.getYear();
+        Integer term2 = calendarVo2.getTerm();
 
         boolean count = RetakeCourseUtil.isRetakeCourseBk(context,
             courseClass.getCourseCode());
@@ -57,7 +57,7 @@ public class NoRetakeRule extends AbstractElecRuleExceutorBk
         Integer count1 = teachingClassDao.getStudentAbnormalCountNew(studentInfo.getStudentId(), year1, term1);
 
         Integer count2 = teachingClassDao.getStudentAbnormalCountNew(studentInfo.getStudentId(),year2,term2);
-        if (count1 > 0 || count2 > 0){
+        if (count1.intValue() > 0 || count2.intValue() > 0){
             return true;
         }
 

@@ -10,6 +10,7 @@ import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.entity.ElectionConstants;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.bk.TsCourse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,19 +48,13 @@ public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutorBk {
         String courseCode = courseClass.getCourseCode();
         if (StringUtils.isNotBlank(courseCode)
                 && courseClass.getTeachClassId() != null) {
-            Set<ElecCourse> publicCourses = context.getPublicCourses();
+            Set<TsCourse> publicCourses = context.getPublicCourses();
             if (CollectionUtil.isNotEmpty(publicCourses)) {
-                List<String> courseCodes = new ArrayList<>(50);
-                for (ElecCourse publicCours : publicCourses) {
-                    List<BkPublicCourse> list = publicCours.getList();
-                    if (CollectionUtil.isNotEmpty(list)) {
-                        for (BkPublicCourse bkPublicCourse : list) {
-                            List<PublicCourse> publicCourseList = bkPublicCourse.getList();
-                            if (CollectionUtil.isNotEmpty(publicCourseList)) {
-                                List<String> collect = publicCourseList.stream().map(PublicCourse::getCourseCode).collect(Collectors.toList());
-                                courseCodes.addAll(collect);
-                            }
-                        }
+                List<String> courseCodes = new ArrayList<>(100);
+                for (TsCourse course : publicCourses) {
+                    ElecCourse elecCourse = course.getCourse();
+                    if (elecCourse != null) {
+                        courseCodes.add(elecCourse.getCourseCode());
                     }
                 }
                 if (CollectionUtil.isNotEmpty(courseCodes) && courseCodes.contains(courseCode)) {
