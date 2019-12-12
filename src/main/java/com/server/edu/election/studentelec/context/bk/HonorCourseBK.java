@@ -1,7 +1,7 @@
 package com.server.edu.election.studentelec.context.bk;
 
-import com.server.edu.common.entity.BclHonorModule;
 import com.server.edu.dictionary.annotation.CodeI18n;
+import com.server.edu.election.studentelec.context.BclHonorCourse;
 
 /**
  * 已选择课程
@@ -9,13 +9,13 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 @CodeI18n
 public class HonorCourseBK
 {
-    private BclHonorModule course;
+    private BclHonorCourse course;
 
-    public BclHonorModule getCourse() {
+    public BclHonorCourse getCourse() {
         return course;
     }
 
-    public void setCourse(BclHonorModule course) {
+    public void setCourse(BclHonorCourse course) {
         this.course = course;
     }
 }
