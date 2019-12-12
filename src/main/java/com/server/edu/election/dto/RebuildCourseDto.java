@@ -50,6 +50,8 @@ public class RebuildCourseDto {
 
     private Integer turn;
 
+    private String labelName;
+
     /**
      * 专业
      * @return
@@ -93,6 +95,7 @@ public class RebuildCourseDto {
 
     /**id集合*/
     private List<Long> ids;
+    private Long id;
 
     /**分库分表标识*/
     private Integer index;
@@ -348,4 +351,19 @@ public class RebuildCourseDto {
         this.courseTakeType = courseTakeType;
     }
 
+    public String getLabelName() {
+        return labelName;
+    }
+
+    public void setLabelName(String labelName) {
+        this.labelName = labelName;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
