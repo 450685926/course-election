@@ -729,11 +729,15 @@ public class TeachingClass extends BaseEntity implements Serializable
         this.name = name;
     }
 
-    public Double getReserveNumberRate() {
-        return reserveNumberRate;
-    }
+	public Double getReserveNumberRate() {
+		return reserveNumberRate;
+	}
 
-    public void setReserveNumberRate(Double reserveNumberRate) {
-        this.reserveNumberRate = reserveNumberRate;
-    }
+	public void setReserveNumberRate(Double reserveNumberRate) {
+		this.reserveNumberRate = reserveNumberRate;
+	}
+    
+    
+
+    
 }
