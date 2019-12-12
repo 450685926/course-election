@@ -177,14 +177,6 @@ public class ElecController
     public RestResult<ElecRespose> loginCheck(
         @RequestBody  ElecRequest elecRequest)
     {
-        Session session = SessionUtils.getCurrentSession();
-        
-//        if (session.realType() != UserTypeEnum.STUDENT.getValue())
-//        {
-//            return RestResult.fail("elec.mustBeStu");
-//        }
-        //elecRequest.setCreateBy(session.getUid());
-//        elecRequest.setRequestIp(SessionUtils.getRequestIp());
         return elecService.loginCheck(elecRequest);
     }
     
