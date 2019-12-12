@@ -44,8 +44,8 @@ public class NoRetakeRule extends AbstractElecRuleExceutorBk
 //        Long endDay2 = calendarVo2.getEndDay();
         Integer year1 = calendarVo1.getYear();
         Integer term1 = calendarVo1.getTerm();
-        Integer year2 = calendarVo1.getYear();
-        Integer term2 = calendarVo1.getTerm();
+        Integer year2 = calendarVo2.getYear();
+        Integer term2 = calendarVo2.getTerm();
 
         boolean count = RetakeCourseUtil.isRetakeCourseBk(context,
             courseClass.getCourseCode());
