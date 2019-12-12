@@ -10,12 +10,21 @@ public class ElecContextLogin implements IElecContext{
     private ElecRespose respose;
     
     public ElecContextLogin(
-            ElecRequest elecRequest) {
+            ElecRequest elecRequest,ElecRespose respose) {
          this.request = elecRequest;
+         this.respose = respose;
     }
 
 	public ElecRequest getRequest() {
 		return request;
+	}
+
+	public void setRequest(ElecRequest request) {
+		this.request = request;
+	}
+
+	public ElecRespose getRespose() {
+		return respose;
 	}
 
 	public void setRespose(ElecRespose respose) {
@@ -41,22 +50,11 @@ public class ElecContextLogin implements IElecContext{
 	}
 
 	@Override
-	public void setRequest(ElecRequest request) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public ElecRespose getRespose() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Long getCalendarId() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+    
 
 }

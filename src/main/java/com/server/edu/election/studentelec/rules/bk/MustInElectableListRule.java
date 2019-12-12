@@ -9,6 +9,10 @@ import com.server.edu.election.studentelec.context.bk.ElecContextLogin;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 import com.server.edu.election.studentelec.service.cache.RoundCacheService;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,9 +34,11 @@ public class MustInElectableListRule extends AbstractLoginRuleExceutorBk {
             return true;
         }
         ElecRespose respose = context.getRespose();
-        respose.getFailedReasons()
+        Map<String, String> failedReasons = new HashMap<>();
+        failedReasons
                 .put("03",
                         I18nUtil.getMsg("ruleCheck.isNotElcList"));
+        respose.setFailedReasons(failedReasons);
         return false;
     }
 

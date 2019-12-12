@@ -1,6 +1,8 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,10 +66,12 @@ public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
             	if(StringUtils.isNotBlank(electionConstants.getValue())) {
                 	Double value =Double.parseDouble(electionConstants.getValue());
                 	if(creditTotal>=value) {
-                        ElecRespose respose = context.getRespose();
-                        respose.getFailedReasons()
+                		ElecRespose respose = context.getRespose();
+                        Map<String, String> failedReasons = new HashMap<>();
+                        failedReasons
                             .put("01",
                                 I18nUtil.getMsg("ruleCheck.isLoserStu"));
+                        respose.setFailedReasons(failedReasons);
                 		return false;
                 	}
             	}
