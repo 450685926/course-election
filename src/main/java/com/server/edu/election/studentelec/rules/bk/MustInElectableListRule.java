@@ -5,6 +5,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.ElecContextLogin;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutor;
 import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 import com.server.edu.election.studentelec.service.cache.RoundCacheService;
@@ -21,8 +22,8 @@ public class MustInElectableListRule extends AbstractLoginRuleExceutorBk {
     private RoundCacheService roundCacheService;
 
     @Override
-    public boolean checkRule(ElecContextBk context, TeachingClassCache courseClass) {
-        String studentId = context.getStudentInfo().getStudentId();
+    public boolean checkRule(ElecContextLogin context, TeachingClassCache courseClass) {
+        String studentId = context.getRequest().getStudentId();
         Long roundId = context.getRequest().getRoundId();
         boolean containsStu = roundCacheService.containsStu(roundId, studentId);
         if (containsStu) {

@@ -6,19 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
-import com.server.edu.election.entity.StudentPayment;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
+import com.server.edu.election.studentelec.context.bk.ElecContextLogin;
 import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 
 /**
@@ -31,13 +26,13 @@ public class StdPayCostCheckerRule extends AbstractLoginRuleExceutorBk
     @Autowired
     private StudentDao studentDao;
     @Override
-    public boolean checkRule(ElecContextBk context,
+    public boolean checkRule(ElecContextLogin context,
         TeachingClassCache courseClass)
     {
-        StudentInfoCache studentInfo = context.getStudentInfo();
-        Student stu = studentDao.findStudentByCode(studentInfo.getStudentId());
+        String studentId = context.getRequest().getStudentId();
+        Student stu = studentDao.findStudentByCode(studentId);
         Long roundId = context.getRequest().getRoundId();
-        if (studentInfo != null && stu!=null)
+        if (stu!=null)
         {
         	ElectionRounds round = dataProvider.getRound(roundId);
         	if(!Integer.valueOf(Constants.FIRST_TURN).equals(round.getTurn()) && !Integer.valueOf(Constants.SECOND_TURN).equals(round.getTurn())) {
