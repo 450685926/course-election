@@ -54,10 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -139,6 +136,43 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
         }
         courseChargeDao.deleteCourseCharge(ids);
+    }
+
+    /**@Description: 删除选课日志
+     *
+     * 优先根据ids删除，如果ids为空，在根据calendarId和turn删除
+     *
+     * @param ids 选课日志id
+     * @param calendarId 学期id
+     * @param turn 选课伦次
+     */
+    @Override
+    @Transactional
+    public void deleteRecycleCourse(List<Long> ids,Long calendarId,Long turn ) {
+
+        if (CollectionUtil.isNotEmpty(ids)) {
+            courseChargeDao.deleteRecycleCourse(ids);
+            return;
+        }
+        int pageNum = 0;
+        List<RebuildCourseNoChargeList> list = new ArrayList<>();
+        PageCondition<RebuildCourseDto> pageCondition = new PageCondition<>();
+        RebuildCourseDto rebuildCourseDto = new RebuildCourseDto();
+        rebuildCourseDto.setCalendarId(calendarId);
+        rebuildCourseDto.setCalendarId(turn);
+        while (true) {
+            pageNum++;
+            pageCondition.setPageNum_(pageNum);
+            PageResult<RebuildCourseNoChargeList> courseNoChargeList = findRecycleCourse(pageCondition);
+            list.addAll(courseNoChargeList.getList());
+            if (courseNoChargeList.getTotal_() <= list.size()) {
+                break;
+            }
+        }
+        if (CollectionUtil.isNotEmpty(list)) {
+            courseChargeDao.deleteRecycleCourse(list.stream().filter(Objects::nonNull).map(RebuildCourseNoChargeList::getId).collect(Collectors.toList()));
+        }
+
     }
 
     /**
@@ -332,6 +366,16 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         Page<RebuildCourseNoChargeList> recycleCourse =
                 courseChargeDao.findRecycleCourse(condition.getCondition());
         return new PageResult<>(recycleCourse);
+    }
+
+    @Override
+    public List<String> selectTurn(Long calendarId) {
+        return courseChargeDao.selectTurn(calendarId);
+    }
+
+    @Override
+    public List<String> selectLabelName(Long calendarId) {
+        return courseChargeDao.selectLabelName(calendarId);
     }
 
     /**
@@ -528,21 +572,31 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 pageCondition.setPageSize_(100);
                 int pageNum = 0;
                 List<RebuildCourseNoChargeList> list = new ArrayList<>();
-                while (true) {
-                    pageNum++;
-                    pageCondition.setPageNum_(pageNum);
-                    PageResult<RebuildCourseNoChargeList> recycleCourse = findRecycleCourse(pageCondition);
-                    list.addAll(recycleCourse.getList());
-                    result.setTotal((int) recycleCourse.getTotal_());
-                    Double count = list.size() / 1.5;
-                    result.setDoneCount(count.intValue());
-                    this.updateResult(result);
+                List<Long> ids = condition.getIds();
+                if(CollectionUtil.isEmpty(ids)){
+                    while (true) {
+                        pageNum++;
+                        pageCondition.setPageNum_(pageNum);
+                        PageResult<RebuildCourseNoChargeList> recycleCourse = findRecycleCourse(pageCondition);
+                        list.addAll(recycleCourse.getList());
+                        result.setTotal((int) recycleCourse.getTotal_());
+                        Double count = list.size() / 1.5;
+                        this.updateResult(result);
+                        result.setDoneCount(count.intValue());
 
-                    if (recycleCourse.getTotal_() <= list.size()) {
-                        break;
+                        if (recycleCourse.getTotal_() <= list.size()) {
+                            break;
+                        }
+
                     }
-
+                }else{
+                    for(Long id :ids){
+                        pageCondition.getCondition().setId(id);
+                        PageResult<RebuildCourseNoChargeList> recycleCourse = findRecycleCourse(pageCondition);
+                        list.addAll(recycleCourse.getList());
+                    }
                 }
+
                 //组装excel
                 GeneralExcelDesigner design = null;
                 if (condition.getType().intValue() == Constants.ONE){

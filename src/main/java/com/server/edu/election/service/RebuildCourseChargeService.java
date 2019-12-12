@@ -20,6 +20,14 @@ public interface RebuildCourseChargeService {
 
     void deleteCourseCharge(List<Long> ids);
 
+    /**
+     * 删除选课日志
+     * @param ids
+     * @param calendarId
+     * @param turn
+     */
+    void deleteRecycleCourse(List<Long> ids,Long calendarId,Long turn );
+
     void editCourseCharge(RebuildCourseCharge courseCharge);
 
     void addCourseCharge(RebuildCourseCharge courseCharge);
@@ -42,6 +50,16 @@ public interface RebuildCourseChargeService {
 
     /**查询回收站*/
     PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition);
+
+    /**
+     * 查询轮次
+     */
+    List<String> selectTurn(Long calendarId);
+
+    /**
+     * 查询筛选标签标签
+     */
+    List<String> selectLabelName(Long calendarId);
 
     /**从回收站回复数据*/
     List<RebuildCourseNoChargeList> moveRecycleCourseToNoChargeList(List<RebuildCourseNoChargeList> list);
