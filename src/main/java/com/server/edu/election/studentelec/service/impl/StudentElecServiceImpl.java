@@ -253,7 +253,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Map<String, String> failedReasons = respose.getFailedReasons();
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
-            for(int i=1;i<loginExceutors.size()+1;i++) {
+            for(int i=0;i<loginExceutors.size();i++) {
             	AbstractLoginRuleExceutorBk exceutor = loginExceutors.get(i);
             	 if (!exceutor.checkRule(context, teachClass))
                  {
