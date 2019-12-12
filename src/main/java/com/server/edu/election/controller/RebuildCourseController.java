@@ -88,7 +88,7 @@ public class RebuildCourseController
             service.findCourseCharge(condition);
         return RestResult.successData(exemptionCourse);
     }
-    
+
     @LogRecord(title = "删除重修收费信息", type = AuditType.DELETE)
     @ApiOperation(value = "删除重修收费信息")
     @PostMapping("/deleteCourseCharge")
@@ -202,7 +202,42 @@ public class RebuildCourseController
         service.moveToRecycle(list);
         return RestResult.success();
     }
-    
+
+    /**
+     * 入参
+     * {
+     *     "ids":[],
+     *     "calendarId":"",
+     *     "turn":""
+     * }
+     *
+     * @param jsonObject
+     * @return
+     */
+    @LogRecord(title = "删除回收站", type = AuditType.DELETE)
+    @ApiOperation(value = "删除回收站")
+    @PostMapping("/deleteRecycleCourse")
+    public RestResult<String> deleteRecycleCourse( @RequestBody JSONObject jsonObject)
+    {
+        List<Long> ids = jsonObject.getObject("ids",List.class);
+        Long calendarId = jsonObject.getObject("calendarId",Long.class);
+        Long turn =  jsonObject.getObject("turn",Long.class);
+        service.deleteRecycleCourse(ids,calendarId,turn);
+        return RestResult.success();
+    }
+
+    @ApiOperation(value = "查询伦次")
+    @GetMapping("/selectTurn")
+    public RestResult<List<String>> selectTurn(@RequestParam Long calendarId) {
+        return RestResult.successData(service.selectTurn(calendarId));
+    }
+
+    @ApiOperation(value = "查询筛选标签 ")
+    @GetMapping("/selectLabelName")
+    public RestResult<List<String>> selectLabelName(@RequestParam  Long calendarId) {
+        return RestResult.successData(service.selectLabelName(calendarId));
+    }
+
     @ApiOperation(value = "查询回收站")
     @PostMapping("/findRecycleCourse")
     public RestResult<PageResult<RebuildCourseNoChargeList>> findRecycleCourse(
