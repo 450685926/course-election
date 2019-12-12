@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.service;
 
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -29,5 +30,5 @@ public interface ElecBkService
      */
     void saveElc(ElecContextBk context, TeachingClassCache teachClass,
         ElectRuleType type,boolean hasRetakeCourse);
-    
+    RestResult<?> syncRemindTime(Integer num, String studentId, String courseNameAndCode);
 }

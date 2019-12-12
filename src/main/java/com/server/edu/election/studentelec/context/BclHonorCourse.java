@@ -9,6 +9,7 @@ public class BclHonorCourse extends BclHonorModule
     private String courseCode;
     private String courseName;
     private Long courseId;
+    private Double credits;
 
     public String getCourseName() {
         return courseName;
@@ -32,5 +33,14 @@ public class BclHonorCourse extends BclHonorModule
 
     public void setCourseId(Long courseId) {
         this.courseId = courseId;
+    }
+
+
+    public Double getCredits() {
+        return credits;
+    }
+
+    public void setCredits(Double credits) {
+        this.credits = credits;
     }
 }
