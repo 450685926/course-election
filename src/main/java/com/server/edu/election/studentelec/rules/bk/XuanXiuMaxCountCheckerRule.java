@@ -52,10 +52,9 @@ public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutorBk {
             if (CollectionUtil.isNotEmpty(publicCourses)) {
                 List<String> courseCodes = new ArrayList<>(100);
                 for (TsCourse course : publicCourses) {
-                    List<ElecCourse> list = course.getCourse();
-                    if (CollectionUtil.isNotEmpty(list)) {
-                        List<String> collect = list.stream().map(ElecCourse::getCourseCode).collect(Collectors.toList());
-                        courseCodes.addAll(collect);
+                    ElecCourse elecCourse = course.getCourse();
+                    if (elecCourse != null) {
+                        courseCodes.add(elecCourse.getCourseCode());
                     }
                 }
                 if (CollectionUtil.isNotEmpty(courseCodes) && courseCodes.contains(courseCode)) {

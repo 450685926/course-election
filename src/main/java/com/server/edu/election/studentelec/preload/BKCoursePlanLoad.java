@@ -148,11 +148,13 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                     List<BkPublicCourse> list = bkPublicCourseVo.getList();
                     if (CollectionUtil.isNotEmpty(list)) {
                         for (BkPublicCourse publicCourse : list) {
-                            TsCourse tsCourse = new TsCourse();
-                            tsCourse.setTag(publicCourse.getTag());
+                            String tag = publicCourse.getTag();
                             List<PublicCourse> publicCourseList = publicCourse.getList();
-                            if (CollectionUtil.isNotEmpty(publicCourseList)) {
-                                List<ElecCourse> course = new ArrayList<>(publicCourseList.size());
+                            if (CollectionUtil.isEmpty(publicCourseList)) {
+                                TsCourse tsCourse = new TsCourse();
+                                tsCourse.setTag(tag);
+                                publicCourses.add(tsCourse);
+                            } else {
                                 for (PublicCourse pc : publicCourseList) {
                                     String courseCode = pc.getCourseCode();
                                     if (collect.contains(courseCode)) {
@@ -164,12 +166,13 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                                         elecCourse.setJp(pc.getJp());
                                         elecCourse.setCx(pc.isCx());
                                         elecCourse.setYs(pc.isYs());
-                                        course.add(elecCourse);
+                                        TsCourse tsCourse = new TsCourse();
+                                        tsCourse.setTag(tag);
+                                        tsCourse.setCourse(elecCourse);
+                                        publicCourses.add(tsCourse);
                                     }
                                 }
-                                tsCourse.setCourse(course);
                             }
-                            publicCourses.add(tsCourse);
                         }
                     }
                     break;
