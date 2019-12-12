@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.server.edu.election.dao.HonorPlanStdsDao;
 import com.server.edu.election.entity.HonorPlanStds;
+import com.server.edu.election.studentelec.context.BclHonorCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.bk.HonorCourseBK;
 import org.apache.commons.lang3.StringUtils;
@@ -64,15 +65,52 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                 list.forEach(c->{
                     if (StringUtils.isEmpty(honorPlanStds.getDirectionName())){
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())){
+                            BclHonorCourse bclHonorCourse = new BclHonorCourse();
+                            bclHonorCourse.setCourseCode(c.getHonorCourseCode());
+                            bclHonorCourse.setCourseName(c.getHonorCourseName());
+                            bclHonorCourse.setCollege(c.getCollege());
+                            bclHonorCourse.setDirectionName(c.getDirectionName());
+                            bclHonorCourse.setGrade(c.getGrade());
+                            bclHonorCourse.setTrainingLevel(c.getTrainingLevel());
+                            bclHonorCourse.setCourseCodeRep(c.getCourseCodeRep());
+                            bclHonorCourse.setCourseNameRep(c.getCourseNameRep());
+                            bclHonorCourse.setCreidits(c.getCreidits());
+                            bclHonorCourse.setDirectionId(c.getDirectionId());
+                            bclHonorCourse.setEndYear(c.getEndYear());
+                            bclHonorCourse.setStartYear(c.getStartYear());
+                            bclHonorCourse.setHonorModuleId(c.getHonorModuleId());
+                            bclHonorCourse.setHonorModuleName(c.getHonorModuleName());
+                            bclHonorCourse.setPeroid(c.getPeroid());
+                            bclHonorCourse.setHonorCourseId(c.getHonorCourseId());
+
                             HonorCourseBK honorCourseBK = new HonorCourseBK();
-                            honorCourseBK.setCourse(c);
+                            honorCourseBK.setCourse(bclHonorCourse);
                             honorCourses.add(honorCourseBK);
                         }
                     }else{
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
                                 && StringUtils.equalsIgnoreCase(c.getDirectionName(),honorPlanStds.getDirectionName())){
+                            BclHonorCourse bclHonorCourse = new BclHonorCourse();
+                            bclHonorCourse.setCourseCode(c.getHonorCourseCode());
+                            bclHonorCourse.setCourseName(c.getHonorCourseName());
+                            bclHonorCourse.setCollege(c.getCollege());
+                            bclHonorCourse.setDirectionName(c.getDirectionName());
+                            bclHonorCourse.setGrade(c.getGrade());
+                            bclHonorCourse.setTrainingLevel(c.getTrainingLevel());
+                            bclHonorCourse.setCourseCodeRep(c.getCourseCodeRep());
+                            bclHonorCourse.setCourseNameRep(c.getCourseNameRep());
+                            bclHonorCourse.setCreidits(c.getCreidits());
+                            bclHonorCourse.setDirectionId(c.getDirectionId());
+                            bclHonorCourse.setEndYear(c.getEndYear());
+                            bclHonorCourse.setStartYear(c.getStartYear());
+                            bclHonorCourse.setHonorModuleId(c.getHonorModuleId());
+                            bclHonorCourse.setHonorModuleName(c.getHonorModuleName());
+                            bclHonorCourse.setPeroid(c.getPeroid());
+                            bclHonorCourse.setHonorCourseId(c.getHonorCourseId());
+                            bclHonorCourse.setCourseId(c.getHonorCourseId());
+
                             HonorCourseBK honorCourseBK = new HonorCourseBK();
-                            honorCourseBK.setCourse(c);
+                            honorCourseBK.setCourse(bclHonorCourse);
                             honorCourses.add(honorCourseBK);
                         }
                     }
