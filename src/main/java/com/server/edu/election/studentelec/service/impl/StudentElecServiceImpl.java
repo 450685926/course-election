@@ -226,8 +226,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Assert.notNull(round, "elec.roundCourseExistTip");
         Long calendarId = round.getCalendarId();
         elecRequest.setCalendarId(calendarId);
+        ElecRespose elecRespose = new ElecRespose();
+        elecRespose.setStatus(ElecStatus.Init);
         ElecContextLogin context =
-                new ElecContextLogin(elecRequest);
+                new ElecContextLogin(elecRequest,elecRespose);
     	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
     	List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
     	 // 获取执行规则

@@ -1,6 +1,8 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,9 +59,11 @@ public class StdPayCostCheckerRule extends AbstractLoginRuleExceutorBk
         		return true;
         	}
             ElecRespose respose = context.getRespose();
-            respose.getFailedReasons()
+            Map<String, String> failedReasons = new HashMap<>();
+            failedReasons
                     .put("02",
                             I18nUtil.getMsg("ruleCheck.stdPayCostChecker"));
+            respose.setFailedReasons(failedReasons);
             return false;
 
         }
