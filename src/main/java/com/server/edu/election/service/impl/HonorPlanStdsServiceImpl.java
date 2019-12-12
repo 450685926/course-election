@@ -142,9 +142,11 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
         if (CollectionUtil.isNotEmpty(honorPlanStds.getIds())){
             example.createCriteria()
                     .andIn("id",honorPlanStds.getIds());
-            honorPlanStdsDao.deleteByExample(example);
+//            honorPlanStdsDao.deleteByExample(example);
+            honorPlanStdsDao.deleteByCondition(honorPlanStds);
         }else{
-            honorPlanStdsDao.deleteByExample(example);
+//            honorPlanStdsDao.deleteByExample(example);
+            honorPlanStdsDao.deleteByCondition(honorPlanStds);
         }
         return RestResult.success("删除成功");
     }
@@ -215,7 +217,7 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
     @Override
     public boolean fingStudentByStudentId(String studentId, Long calendarId) {
         Example example = new Example(HonorPlanStds.class);
-        example.createCriteria().andEqualTo("","").andEqualTo("","");
+        example.createCriteria().andEqualTo("studentId",studentId).andEqualTo("calendarId",calendarId);
         Integer count = honorPlanStdsDao.selectCountByExample(example);
         if (count.intValue() != 0){
             return false;

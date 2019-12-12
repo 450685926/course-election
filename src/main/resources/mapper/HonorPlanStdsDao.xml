@@ -54,9 +54,18 @@
                 and t1.DIRECTION_NAME_ = #{directionName}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-                and (t2.STUDENT_CODE_ like concat('%',#{query.keyword},'%') or t2.NAME_ like concat('%',#{query.keyword},'%'))
+                and (t2.STUDENT_CODE_ like concat('%',#{keyword},'%') or t2.NAME_ like concat('%',#{keyword},'%'))
             </if>
         </where>
     </select>
+    <delete id="deleteByCondition">
+        delete from honor_plan_stds_t where CALENDAR_ID_ = #{calendarId}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+            and ID_ IN
+            <foreach item="id" collection="ids"  index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+         </if>
+    </delete>
 
 </mapper>

@@ -178,7 +178,23 @@ public class Student implements Serializable
     @Column(name = "IS_MEMBERSHIP_")
     private String isMembership;
     
-    private static final long serialVersionUID = 1L;
+    /**
+     * 是否欠费
+     */
+    @Column(name = "IS_ARREARS_")
+    private Integer isArrears;
+    
+    
+    
+    public Integer getIsArrears() {
+		return isArrears;
+	}
+
+	public void setIsArrears(Integer isArrears) {
+		this.isArrears = isArrears;
+	}
+
+	private static final long serialVersionUID = 1L;
     
     
     
@@ -699,6 +715,7 @@ public class Student implements Serializable
         sb.append(", enrolMethods=").append(enrolMethods);
         sb.append(", leaveSchool=").append(leaveSchool);
         sb.append(", isMembership=").append(isMembership);
+        sb.append(", isArrears=").append(isArrears);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

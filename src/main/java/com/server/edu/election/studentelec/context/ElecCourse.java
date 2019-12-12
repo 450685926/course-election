@@ -1,8 +1,10 @@
 package com.server.edu.election.studentelec.context;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
+import com.server.edu.common.entity.BkPublicCourse;
 import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
@@ -62,8 +64,17 @@ public class ElecCourse implements Serializable
      * 培养课程类别名称
      */
     private String labelName;
-    
-    
+
+    private List<BkPublicCourse> list;
+
+    public List<BkPublicCourse> getList() {
+        return list;
+    }
+
+    public void setList(List<BkPublicCourse> list) {
+        this.list = list;
+    }
+
     public Long getLabelId() {
 		return labelId;
 	}
