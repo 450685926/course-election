@@ -49,7 +49,7 @@ public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
         Example example = new Example(StudentUndergraduateScoreInfo.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentNum", studentId);
-        criteria.andEqualTo("isPass", Constants.IS_PASS);
+        criteria.andEqualTo("isPass", Constants.UN_PASS);
 //        Student stu = studentDao.isLoserStu(request.getRoundId(), studentId);
 //        if (stu == null)
 //        {
