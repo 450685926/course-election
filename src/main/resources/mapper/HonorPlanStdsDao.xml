@@ -58,5 +58,14 @@
             </if>
         </where>
     </select>
+    <delete id="deleteByCondition">
+        delete from honor_plan_stds_t where CALENDAR_ID_ = #{calendarId}
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+            and ID_ IN
+            <foreach item="id" collection="ids"  index="index" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+         </if>
+    </delete>
 
 </mapper>
