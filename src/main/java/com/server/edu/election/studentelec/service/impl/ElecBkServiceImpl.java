@@ -11,6 +11,7 @@ import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.EmailSend;
 import org.apache.commons.collections4.CollectionUtils;
@@ -442,7 +443,7 @@ public class ElecBkServiceImpl implements ElecBkService
             remindTimeBean.setCalendarId(calendarId);
             remindTimeBean.setRemindTime(time);
             String email = studentDao.findStuEmail(studentId);
-            remindTimeBean.setStudentEmail(email);
+            remindTimeBean.setStudentEmail("qq577854218@sina.cn");
             remindTimeBean.setCourseNameAndCode(courseNameAndCode);
             List<RemindTimeBean> alllist = new ArrayList<>();
             alllist.add(remindTimeBean);
@@ -490,26 +491,34 @@ public class ElecBkServiceImpl implements ElecBkService
 
     //校验学生公共英语课
     private boolean checkPublicEnglish(ElecContextBk context, TeachingClassCache teachClass) {
-        //判断是否是培养计划中的课程->不是，通过
+
+        //培养计划课程
         Set<PlanCourse> planCourses = context.getPlanCourses();
+        //已选课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        context.getCompletedCourses();
+        //已完成课程
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();
+        completedCourses.addAll(failedCourse);
+        //判断是否是培养计划中的课程->不是，通过
         Set<PlanCourse> collect = planCourses.stream()
                 .filter(c -> c.getCourseCode().equals(teachClass.getCourseCode()))
+                .filter(c->c.getCourse().isPublicElec()==true)
                 .collect(Collectors.toSet());
         if (CollectionUtil.isEmpty(collect)) {
             return true;
         }
-
-        String englishCourses = constantsDao.findEnglishCourses();
+        List<String> asList =
+                CultureSerivceInvoker.getAllCoursesLevelCourse();
+//        String englishCourses = constantsDao.findEnglishCourses();
         String courseCode = teachClass.getCourseCode();
         // 查询不到英语课-通过
-        if (StringUtils.isBlank(englishCourses)) {
+        if (CollectionUtil.isEmpty(asList)) {
             return true;
         }
         // 如果不是英语课-通过
-        String[] split = englishCourses.split(",");
-        List<String> asList = Arrays.asList(split);
+//        String[] split = englishCourses.split(",");
+//        List<String> asList = Arrays.asList(split);
         if (!asList.contains(courseCode)) {
             return true;
         }
@@ -517,21 +526,51 @@ public class ElecBkServiceImpl implements ElecBkService
         boolean isRetake = RetakeCourseUtil.isRetakeCourseBk(context, teachClass.getCourseCode());
 
         if (isRetake) {
-            return true;
+            if (CollectionUtil.isEmpty(completedCourses)){
+                return true;
+            }
+            Set<CompletedCourse> selectedcourse1 = new HashSet<>();
+            Set<PlanCourse> selectedcourse2 = new HashSet<>();
+            for (CompletedCourse course:selectedcourse1){
+                for (String string:asList){
+                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
+                        selectedcourse1.add(course);
+                    }
+                }
+            }
+            for (PlanCourse course:planCourses){
+                for (CompletedCourse string:selectedcourse1){
+                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string.getCourse().getCourseCode())){
+                        selectedcourse2.add(course);
+                    }
+                }
+            }
+            if (selectedcourse2.size()<2) {
+                return true;
+            }else{
+                return false;
+            }
         } else {
             if (CollectionUtil.isEmpty(selectedCourses)){
                 return true;
             }
-            Set<SelectedCourse> selectedcourse = new HashSet<>();
-            for (SelectedCourse course:selectedcourse){
+            Set<SelectedCourse> selectedcourse1 = new HashSet<>();
+            Set<PlanCourse> selectedcourse2 = new HashSet<>();
+            for (SelectedCourse course:selectedcourse1){
                 for (String string:asList){
                     if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
-                        selectedcourse.add(course);
+                        selectedcourse1.add(course);
                     }
                 }
-
             }
-            if (CollectionUtil.isEmpty(selectedcourse)) {
+            for (PlanCourse course:planCourses){
+                for (SelectedCourse string:selectedcourse1){
+                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string.getCourse().getCourseCode())){
+                        selectedcourse2.add(course);
+                    }
+                }
+            }
+            if (CollectionUtil.isEmpty(selectedcourse2)) {
                 return true;
             }
 
