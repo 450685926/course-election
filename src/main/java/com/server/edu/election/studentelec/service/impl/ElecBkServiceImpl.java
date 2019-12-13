@@ -348,7 +348,7 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTurn(round.getTurn());
             courseTakeDao.insertSelective(take);
             if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,courseCode+"("+courseName+")");
+                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseCode+"("+courseName+")");
 
             }
         }
@@ -362,8 +362,7 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
             if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,courseCode+"("+courseName+")");
-
+                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseCode+"("+courseName+")");
             }
             int count = classDao.decrElcNumber(teachClassId);
             if (count > 0)
@@ -429,7 +428,7 @@ public class ElecBkServiceImpl implements ElecBkService
     }
 
     @Override
-    public RestResult<?> syncRemindTime(Integer num,String studentId,String courseNameAndCode) {
+    public RestResult<?> syncRemindTime(Integer num,String studentId,String studentName,String courseNameAndCode) {
         try {
             List<RemindTimeBean> errorList = new ArrayList<>();
             // 获取系统当前时间
@@ -441,6 +440,8 @@ public class ElecBkServiceImpl implements ElecBkService
             RemindTimeBean remindTimeBean = new RemindTimeBean();
             remindTimeBean.setCalendarId(calendarId);
             remindTimeBean.setRemindTime(time);
+            remindTimeBean.setStudentId(studentId);
+            remindTimeBean.setStudentName(studentName);
             String email = studentDao.findStuEmail(studentId);
             remindTimeBean.setStudentEmail("qq577854218@sina.cn");
             remindTimeBean.setCourseNameAndCode(courseNameAndCode);
