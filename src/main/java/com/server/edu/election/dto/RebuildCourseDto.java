@@ -50,7 +50,14 @@ public class RebuildCourseDto {
 
     private Integer turn;
 
+    private String turnName;
+
     private String labelName;
+    /**
+     * 选课对象未翻译字段
+     */
+    private String electionObj;
+
 
     /**
      * 专业
@@ -365,5 +372,22 @@ public class RebuildCourseDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getElectionObj() {
+        return electionObj;
+    }
+
+    public void setElectionObj(String electionObj) {
+        this.electionObj = electionObj;
+    }
+
+
+    public String getTurnName() {
+        return turnName;
+    }
+
+    public void setTurnName(String turnName) {
+        this.turnName = turnName;
     }
 }
