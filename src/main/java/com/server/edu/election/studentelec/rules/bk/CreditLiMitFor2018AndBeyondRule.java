@@ -58,7 +58,10 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
     {
     	//学生信息
         StudentInfoCache studentInfo = context.getStudentInfo();
-        
+		Integer grade1 = studentInfo.getGrade();
+		if (grade1.intValue() >= Constants.GRADE) {
+			return true;
+		}
         //请求参数
         ElecRequest request = context.getRequest();
         
