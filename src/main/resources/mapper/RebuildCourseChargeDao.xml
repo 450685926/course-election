@@ -73,10 +73,9 @@
 
     <select id="selectLabelName" resultType="string">
         SELECT
-        distinct esl.LABEL_NAME_ labelName
-        FROM rebuild_course_recycle_t re
-        left join elc_screening_label_t esl on re.CALENDAR_ID_ = esl.CALENDAR_ID_
-        where  re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+        distinct LABEL_NAME_ labelName
+        FROM elc_screening_label_t
+        where  CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
     </select>
 
     <select id="selectTurn" resultType="string">
@@ -85,6 +84,7 @@
         FROM rebuild_course_recycle_t re
         where  re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
     </select>
+
 
     <select id="findRecycleCourse" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT
