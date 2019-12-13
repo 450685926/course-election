@@ -179,6 +179,10 @@ public class ElecBkServiceImpl implements ElecBkService
                     data.getTeachClassCode()), "教学班不存在无法选课");
                 continue;
             }
+            boolean checkPublicEnglish = checkPublicEnglish(context, teachClass);
+            if (!checkPublicEnglish){
+                continue;
+            }
             boolean allSuccess = true;
             for (AbstractElecRuleExceutorBk exceutor : exceutors)
             {
@@ -432,7 +436,7 @@ public class ElecBkServiceImpl implements ElecBkService
         try {
             List<RemindTimeBean> errorList = new ArrayList<>();
             // 获取系统当前时间
-            SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH");
+            SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Long currentTime = System.currentTimeMillis();
             String time = dff.format(currentTime);
             Long calendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
@@ -492,33 +496,26 @@ public class ElecBkServiceImpl implements ElecBkService
     //校验学生公共英语课
     private boolean checkPublicEnglish(ElecContextBk context, TeachingClassCache teachClass) {
 
-        //培养计划课程
-        Set<PlanCourse> planCourses = context.getPlanCourses();
+        ElecRespose respose = context.getRespose();
+        Map<String, String> failedReasons = respose.getFailedReasons();
         //已选课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        List<CompletedCourse> list = new ArrayList<>();
         //已完成课程
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();
-        completedCourses.addAll(failedCourse);
-        //判断是否是培养计划中的课程->不是，通过
-        Set<PlanCourse> collect = planCourses.stream()
-                .filter(c -> c.getCourseCode().equals(teachClass.getCourseCode()))
-                .filter(c->c.getCourse().isPublicElec()==true)
-                .collect(Collectors.toSet());
-        if (CollectionUtil.isEmpty(collect)) {
-            return true;
-        }
+        list.addAll(failedCourse);
+        list.addAll(completedCourses);
+
+
         List<String> asList =
                 CultureSerivceInvoker.getAllCoursesLevelCourse();
-//        String englishCourses = constantsDao.findEnglishCourses();
         String courseCode = teachClass.getCourseCode();
         // 查询不到英语课-通过
         if (CollectionUtil.isEmpty(asList)) {
             return true;
         }
-        // 如果不是英语课-通过
-//        String[] split = englishCourses.split(",");
-//        List<String> asList = Arrays.asList(split);
+
         if (!asList.contains(courseCode)) {
             return true;
         }
@@ -530,50 +527,41 @@ public class ElecBkServiceImpl implements ElecBkService
                 return true;
             }
             Set<CompletedCourse> selectedcourse1 = new HashSet<>();
-            Set<PlanCourse> selectedcourse2 = new HashSet<>();
-            for (CompletedCourse course:selectedcourse1){
+            for (CompletedCourse course:list){
                 for (String string:asList){
                     if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
                         selectedcourse1.add(course);
                     }
                 }
             }
-            for (PlanCourse course:planCourses){
-                for (CompletedCourse string:selectedcourse1){
-                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string.getCourse().getCourseCode())){
-                        selectedcourse2.add(course);
-                    }
-                }
-            }
-            if (selectedcourse2.size()<2) {
+
+            if (selectedcourse1.size()<2) {
                 return true;
             }else{
+                failedReasons.put(String.format("%s[%s]",
+                        teachClass.getCourseCode(),
+                        teachClass.getTeachClassCode()), "最多能重修两门公共英语课");
                 return false;
             }
         } else {
             if (CollectionUtil.isEmpty(selectedCourses)){
                 return true;
             }
+            //本学期已选公共外语课
             Set<SelectedCourse> selectedcourse1 = new HashSet<>();
-            Set<PlanCourse> selectedcourse2 = new HashSet<>();
-            for (SelectedCourse course:selectedcourse1){
+            for (SelectedCourse course:selectedCourses){
                 for (String string:asList){
                     if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
                         selectedcourse1.add(course);
                     }
                 }
             }
-            for (PlanCourse course:planCourses){
-                for (SelectedCourse string:selectedcourse1){
-                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string.getCourse().getCourseCode())){
-                        selectedcourse2.add(course);
-                    }
-                }
-            }
-            if (CollectionUtil.isEmpty(selectedcourse2)) {
+            if (CollectionUtil.isEmpty(selectedcourse1)) {
                 return true;
             }
-
+            failedReasons.put(String.format("%s[%s]",
+                    teachClass.getCourseCode(),
+                    teachClass.getTeachClassCode()), "只能选一门公共英语课");
             return false;
         }
 
