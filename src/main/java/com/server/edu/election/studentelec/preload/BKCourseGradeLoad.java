@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -367,6 +369,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         // 获取学历年
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
+            Map<String, String> map = new HashMap<>();
+            List<PlanCourseTypeDto> planCourseTypeDtos = CultureSerivceInvoker.findPlanCourseTabBk(studentId);
+            // 培养那边拿不到数据会返回null，也可能是空集合
+            if (CollectionUtil.isNotEmpty(planCourseTypeDtos)) {
+                map = planCourseTypeDtos.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, PlanCourseTypeDto::getCompulsory));
+            }
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
@@ -389,7 +397,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setTeachClassCode(c.getTeachingClassCode());
                 lesson.setFaculty(c.getFaculty());
                 lesson.setTerm(c.getTerm());
-                lesson.setCompulsory(c.getCompulsory());
+                lesson.setCompulsory(map.get(c.getCourseCode()));
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
                 course.setCourse(lesson);
