@@ -29,6 +29,7 @@ import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
@@ -92,30 +93,32 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             continue;
                         }
                         PlanCourse pl=new PlanCourse();
-                        Example example = new Example(Course.class);
-                        example.createCriteria().andEqualTo("code", courseCode);
-                        Course course = courseDao.selectOneByExample(example);
-                        ElecCourse course2 = new ElecCourse();
-                        if (course != null) {
+//                        Example example = new Example(Course.class);
+//                        example.createCriteria().andEqualTo("code", courseCode);
+//                        Course course = courseDao.selectOneByExample(example);
+                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(context.getRequest().getRoundId(), courseCode);
+                        if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                        	TeachingClassCache teachingClassCache = teachingClassCaches.get(0);
+                        	ElecCourse course2 = new ElecCourse();
                             course2.setCourseCode(courseCode);
                             course2.setCourseName(pct.getName());
                             course2.setNameEn(pct.getNameEn());
-                            course2.setNature(course.getNature());
+                            course2.setNature(teachingClassCache.getNature());
                             course2.setCredits(pct.getCredits());
                             String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
                             course2.setCalendarName(calendarName);
                             course2.setCompulsory(pct.getCompulsory());
                             course2.setLabelId(labelId);
                             course2.setLabelName(labelName);
+                            pl.setCourse(course2);
+                            pl.setSemester(pct.getSemester());
+                            pl.setWeekType(pct.getWeekType());
+                            pl.setSubCourseCode(pct.getSubCourseCode());
+                            pl.setLabel(labelId);
+                            pl.setLabelName(labelName);
+                            planCourses.add(pl);
+                            map.put(courseCode, pct.getCompulsory());
 						}
-                        pl.setCourse(course2);
-                        pl.setSemester(pct.getSemester());
-                        pl.setWeekType(pct.getWeekType());
-                        pl.setSubCourseCode(pct.getSubCourseCode());
-                        pl.setLabel(labelId);
-                        pl.setLabelName(labelName);
-                        planCourses.add(pl);
-                        map.put(courseCode, pct.getCompulsory());
                     }
                 }
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
