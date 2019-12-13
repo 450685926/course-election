@@ -222,14 +222,15 @@ public class RebuildCourseController
         List<Long> ids = jsonObject.getObject("ids",List.class);
         Long calendarId = jsonObject.getObject("calendarId",Long.class);
         Long turn =  jsonObject.getObject("turn",Long.class);
-        service.deleteRecycleCourse(ids,calendarId,turn);
+        String electionObj =  jsonObject.getObject("turn",String.class);
+        service.deleteRecycleCourse(ids,calendarId,turn,electionObj);
         return RestResult.success();
     }
 
     @ApiOperation(value = "查询伦次")
-    @GetMapping("/selectTurn")
-    public RestResult<List<String>> selectTurn(@RequestParam Long calendarId) {
-        return RestResult.successData(service.selectTurn(calendarId));
+    @PostMapping("/selectTurn")
+    public RestResult<List<RebuildCourseDto>> selectTurn(@RequestBody RebuildCourseDto rebuildCourseDto) {
+        return RestResult.successData(service.selectTurn(rebuildCourseDto));
     }
 
     @ApiOperation(value = "查询筛选标签 ")

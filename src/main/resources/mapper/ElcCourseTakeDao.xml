@@ -1999,6 +1999,7 @@
     <select id="getElcMedWithdraw" parameterType="com.server.edu.election.dto.ElcMedWithdrawDto"
             resultMap="VoResultMap">
 		SELECT
+		  t1.`ID_`,
 		  t1.`TEACHING_CLASS_ID_`,
 		  t1.STUDENT_ID_,
 		  t2.`CODE_` teachingClassCode,
@@ -2027,6 +2028,7 @@
 		  AND t1.`CALENDAR_ID_` = #{calendarId}
 		UNION
 		SELECT
+		  0 AS id,
 		  t1.`TEACHING_CLASS_ID_`,
 		  t1.STUDENT_ID_,
 		  t2.`CODE_` teachingClassCode,

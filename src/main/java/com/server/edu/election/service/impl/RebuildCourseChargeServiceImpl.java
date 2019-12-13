@@ -15,6 +15,7 @@ import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.config.DoubleHandler;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.PayResultDto;
@@ -148,8 +149,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
      */
     @Override
     @Transactional
-    public void deleteRecycleCourse(List<Long> ids,Long calendarId,Long turn ) {
-
+    public void deleteRecycleCourse(List<Long> ids,Long calendarId,Long turn,String electionObj) {
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         if (CollectionUtil.isNotEmpty(ids)) {
             courseChargeDao.deleteRecycleCourse(ids);
             return;
@@ -164,6 +165,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         RebuildCourseDto rebuildCourseDto = new RebuildCourseDto();
         rebuildCourseDto.setCalendarId(calendarId);
         rebuildCourseDto.setCalendarId(turn);
+        rebuildCourseDto.setElectionObj(electionObj);
+        rebuildCourseDto.setDeptId(dptId);
         while (true) {
             pageNum++;
             pageCondition.setPageNum_(pageNum);
@@ -373,8 +376,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     }
 
     @Override
-    public List<String> selectTurn(Long calendarId) {
-        return courseChargeDao.selectTurn(calendarId);
+    public List<RebuildCourseDto> selectTurn(RebuildCourseDto rebuildCourseDto) {
+        //String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+       // rebuildCourseDto.setDeptId(dptId);
+        return courseChargeDao.selectTurn(rebuildCourseDto);
     }
 
     @Override
