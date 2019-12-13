@@ -347,6 +347,10 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setMode(round.getMode());
             take.setTurn(round.getTurn());
             courseTakeDao.insertSelective(take);
+            if(ChooseObj.STU.type() != request.getChooseObj()){
+                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,courseCode+"("+courseName+")");
+
+            }
         }
         else
         {
@@ -357,6 +361,10 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
+            if(ChooseObj.STU.type() != request.getChooseObj()){
+                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,courseCode+"("+courseName+")");
+
+            }
             int count = classDao.decrElcNumber(teachClassId);
             if (count > 0)
             {
@@ -389,15 +397,6 @@ public class ElecBkServiceImpl implements ElecBkService
         log.setTurn(round.getTurn());
         log.setType(logType);
         this.elcLogDao.insertSelective(log);
-        if(request.getChooseObj() != 1){
-            if (ElectRuleType.ELECTION.equals(type)){
-                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,courseCode+"("+courseName+")");
-
-            }else{
-                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,courseCode+"("+courseName+")");
-
-            }
-        }
         //更新选课申请数据
         electionApplyService
             .update(studentId, round.getCalendarId(), courseCode,type);
