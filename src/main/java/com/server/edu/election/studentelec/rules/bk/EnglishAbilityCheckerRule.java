@@ -44,20 +44,24 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
         
         StudentInfoCache studentInfo = context.getStudentInfo();
         String courseCode = courseClass.getCourseCode();
-        String englishCourses = constantsDao.findEnglishCourses();
+//        String englishCourses = constantsDao.findEnglishCourses();
         // 查询不到英语课-通过
-        if (StringUtils.isBlank(englishCourses))
-        {
-            return true;
-        }
+//        if (StringUtils.isBlank(englishCourses))
+//        {
+//            return true;
+//        }
         // 如果不是英语课-通过
-        String[] split = englishCourses.split(",");
-        List<String> asList = Arrays.asList(split);
-        if (!asList.contains(courseCode))
-        {
+//        String[] split = englishCourses.split(",");
+//        List<String> asList = Arrays.asList(split);
+//        if (!asList.contains(courseCode))
+//        {
+//            return true;
+//        }
+        List<String> allCourseCodeList =
+                CultureSerivceInvoker.getAllCoursesLevelCourse();
+        if (allCourseCodeList.isEmpty() && !allCourseCodeList.contains(courseCode)){
             return true;
         }
-        
         Example example = new Example(ElcStuCouLevel.class);
         example.createCriteria()
             .andEqualTo("studentId", studentInfo.getStudentId());
