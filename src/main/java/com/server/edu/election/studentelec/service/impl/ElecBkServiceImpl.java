@@ -410,6 +410,12 @@ public class ElecBkServiceImpl implements ElecBkService
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
             respose.getSuccessCourses().add(teachClassId);
+            Set<PlanCourse> planCourses = context.getPlanCourses();
+            Map<String, String> collect = new HashMap<>();
+            if (CollectionUtil.isNotEmpty(planCourses)) {
+                collect = planCourses.stream().collect(Collectors.toMap(s -> s.getCourseCode(), s -> s.getCourse().getCompulsory()));
+                teachClass.setCompulsory(collect.get(courseCode));
+            }
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTurn(round.getTurn());
             course.setCourseTakeType(courseTakeType);
