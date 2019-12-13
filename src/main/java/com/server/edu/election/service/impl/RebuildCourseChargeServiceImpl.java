@@ -154,6 +154,10 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             courseChargeDao.deleteRecycleCourse(ids);
             return;
         }
+        //calendarId和turn必须要有值
+        if(null==calendarId||null==turn){
+            throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
+        }
         int pageNum = 0;
         List<RebuildCourseNoChargeList> list = new ArrayList<>();
         PageCondition<RebuildCourseDto> pageCondition = new PageCondition<>();
