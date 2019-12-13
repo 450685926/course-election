@@ -34,6 +34,7 @@ import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.ElecContextLogin;
 import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -225,8 +226,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Assert.notNull(round, "elec.roundCourseExistTip");
         Long calendarId = round.getCalendarId();
         elecRequest.setCalendarId(calendarId);
-        ElecContextBk context =
-                new ElecContextBk(studentId, calendarId, elecRequest);
+        ElecRespose elecRespose = new ElecRespose();
+        elecRespose.setStatus(ElecStatus.Init);
+        ElecContextLogin context =
+                new ElecContextLogin(elecRequest,elecRespose);
     	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
     	List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
     	 // 获取执行规则
@@ -250,10 +253,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
         ElecRespose respose = context.getRespose();
-        Map<String, String> failedReasons = respose.getFailedReasons();
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
-            for(int i=1;i<loginExceutors.size()+1;i++) {
+            for(int i=0;i<loginExceutors.size();i++) {
             	AbstractLoginRuleExceutorBk exceutor = loginExceutors.get(i);
             	 if (!exceutor.checkRule(context, teachClass))
                  {
