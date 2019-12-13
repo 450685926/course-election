@@ -1,6 +1,8 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.studentelec.context.bk.ElecContextLogin;
 import com.server.edu.election.studentelec.rules.AbstractElecRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 import com.server.edu.util.CollectionUtil;
@@ -34,22 +37,19 @@ import tk.mybatis.mapper.entity.Example;
 public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
 {
     @Autowired
-    private StudentDao studentDao;
-    @Autowired
     private StudentUndergraduateScoreInfoDao scoreInfoDao;
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
     
     @Override
-    public boolean checkRule(ElecContextBk context,
+    public boolean checkRule(ElecContextLogin context,
         TeachingClassCache courseClass)
     {
-        String studentId = context.getStudentInfo().getStudentId();
-        ElecRequest request = context.getRequest();
+        String studentId = context.getRequest().getStudentId();
         Example example = new Example(StudentUndergraduateScoreInfo.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentNum", studentId);
-        criteria.andEqualTo("isPass", Constants.IS_PASS);
+        criteria.andEqualTo("isPass", Constants.UN_PASS);
 //        Student stu = studentDao.isLoserStu(request.getRoundId(), studentId);
 //        if (stu == null)
 //        {
@@ -66,10 +66,12 @@ public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
             	if(StringUtils.isNotBlank(electionConstants.getValue())) {
                 	Double value =Double.parseDouble(electionConstants.getValue());
                 	if(creditTotal>=value) {
-                        ElecRespose respose = context.getRespose();
-                        respose.getFailedReasons()
+                		ElecRespose respose = context.getRespose();
+                        Map<String, String> failedReasons = new HashMap<>();
+                        failedReasons
                             .put("01",
                                 I18nUtil.getMsg("ruleCheck.isLoserStu"));
+                        respose.setFailedReasons(failedReasons);
                 		return false;
                 	}
             	}

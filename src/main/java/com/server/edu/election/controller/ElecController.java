@@ -47,10 +47,10 @@ public class ElecController
 {
     
     Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     @Autowired
     private StudentElecService elecService;
-    
+
     @Autowired
     private RoundDataProvider dataProvider;
 
@@ -177,14 +177,6 @@ public class ElecController
     public RestResult<ElecRespose> loginCheck(
         @RequestBody  ElecRequest elecRequest)
     {
-        Session session = SessionUtils.getCurrentSession();
-        
-//        if (session.realType() != UserTypeEnum.STUDENT.getValue())
-//        {
-//            return RestResult.fail("elec.mustBeStu");
-//        }
-        //elecRequest.setCreateBy(session.getUid());
-//        elecRequest.setRequestIp(SessionUtils.getRequestIp());
         return elecService.loginCheck(elecRequest);
     }
     
@@ -207,5 +199,5 @@ public class ElecController
         ElecRespose response = elecService.getElectResult(elecRequest);
         return RestResult.successData(response);
     }
-    
+
 }
