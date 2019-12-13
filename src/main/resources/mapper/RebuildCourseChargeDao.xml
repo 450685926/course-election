@@ -78,11 +78,51 @@
         where  CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
     </select>
 
-    <select id="selectTurn" resultType="string">
+    <select id="selectTurn" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.dto.RebuildCourseDto">
         SELECT
-        DISTINCT re.TURN_ turn
+        re.TURN_ turn,
+        rounds.NAME_ turnName,
+        re.MODE_ mode,
+        rounds.ELECTION_OBJ_ electionObj
         FROM rebuild_course_recycle_t re
-        where  re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+        INNER  join  (
+            select
+                TURN_,NAME_ ,
+                CALENDAR_ID_,
+                ELECTION_OBJ_ ,
+                MODE_,
+                (CASE
+                when ELECTION_OBJ_ = 'STU' then 1
+                when ELECTION_OBJ_ = 'DEPART_ADMIN' then 2
+                when ELECTION_OBJ_ = 'ADMIN' then 3
+                end)  CHOOSE_OBJ_
+            from election_rounds_t
+            where (DELETE_STATUS_ = 0 or DELETE_STATUS_ is null)
+        )rounds
+        on re.CALENDAR_ID_ = rounds.CALENDAR_ID_
+        and re.TURN_ = rounds.TURN_
+        and re.CHOOSE_OBJ_ = rounds.CHOOSE_OBJ_
+        and re.MODE_ = rounds.MODE_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(electionObj)">
+                and rounds.ELECTION_OBJ_ = #{electionObj,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+                and re.MODE_ = #{mode,jdbcType=INTEGER}
+            </if>
+            <if test="type !=null and type !=0">
+                and re.TYPE_ = #{type}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+                and re.ID_ in
+                <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
     </select>
 
 
@@ -95,8 +135,10 @@
         re.TEACHING_CLASS_ID_ teachingClassId,
         re.COURSE_TAKE_TYPE_ courseTakeType,
         re.TURN_ turn,
+        rounds.NAME_ turnName,
         re.MODE_ mode,
         re.CHOOSE_OBJ_ chooseObj,
+        rounds.ELECTION_OBJ_ electionObj,
         re.PAID_ paid,
         st.NAME_ studentName,
         st.GRADE_ grade,
@@ -115,9 +157,30 @@
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
         left join teaching_class_t te on te.ID_=re.TEACHING_CLASS_ID_
         left join elc_screening_label_t esl on re.CALENDAR_ID_ = esl.CALENDAR_ID_
+        INNER  join  (
+                    select
+                            TURN_,NAME_ ,
+                            CALENDAR_ID_,
+                            ELECTION_OBJ_ ,
+                             MODE_,
+                            (CASE
+                            when ELECTION_OBJ_ = 'STU' then 1
+                            when ELECTION_OBJ_ = 'DEPART_ADMIN' then 2
+                            when ELECTION_OBJ_ = 'ADMIN' then 3
+                            end)  CHOOSE_OBJ_
+                    from election_rounds_t
+                    where (DELETE_STATUS_ = 0 or DELETE_STATUS_ is null)
+                  )rounds
+                    on re.CALENDAR_ID_ = rounds.CALENDAR_ID_
+                    and re.TURN_ = rounds.TURN_
+                    and re.CHOOSE_OBJ_ = rounds.CHOOSE_OBJ_
+                     and re.MODE_ = rounds.MODE_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(electionObj)">
+                and rounds.ELECTION_OBJ_ = #{electionObj,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
                 and st.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}

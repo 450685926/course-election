@@ -27,7 +27,7 @@ public interface RebuildCourseChargeDao extends Mapper<RebuildCourseCharge> {
     /**
      * 查询轮次
      */
-    List<String> selectTurn(Long calendarId);
+    List<RebuildCourseDto> selectTurn(RebuildCourseDto rebuildCourseDto);
 
     /**
      * 查询筛选标签标签

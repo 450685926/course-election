@@ -26,7 +26,7 @@ public interface RebuildCourseChargeService {
      * @param calendarId
      * @param turn
      */
-    void deleteRecycleCourse(List<Long> ids,Long calendarId,Long turn );
+    void deleteRecycleCourse(List<Long> ids,Long calendarId,Long turn ,String electionObj);
 
     void editCourseCharge(RebuildCourseCharge courseCharge);
 
@@ -54,7 +54,7 @@ public interface RebuildCourseChargeService {
     /**
      * 查询轮次
      */
-    List<String> selectTurn(Long calendarId);
+    List<RebuildCourseDto> selectTurn(RebuildCourseDto rebuildCourseDto);
 
     /**
      * 查询筛选标签标签
