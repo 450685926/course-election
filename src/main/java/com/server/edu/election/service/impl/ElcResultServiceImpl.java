@@ -330,10 +330,12 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
                 condition.setIncludeCodes(includeCodes);
-                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+//                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
                 if(condition.getIsHaveLimit() != null && condition.getIsHaveLimit().intValue() == Constants.ONE){
+                    PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
                     listPage = classDao.listPage4limit(condition);
                 }else{
+                    PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
                     listPage = classDao.listPage(condition);
                 }
 			}
