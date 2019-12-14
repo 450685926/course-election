@@ -393,7 +393,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
             //限制学生
             List<String> stringList =
                     restrictAttrDao.selectRestrictStudent(classs.getTeachClassId());//限制学生
-            if (CollectionUtil.isNotEmpty(stringList) && stringList.contains(studentId)){
+            if(CollectionUtil.isNotEmpty(stringList)){
+                list.add(classs);
+            }else if (CollectionUtil.isNotEmpty(stringList) && stringList.contains(studentId)){
                 list.add(classs);
             }
         }
