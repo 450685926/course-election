@@ -146,6 +146,31 @@ public class ElecController
         
         return RestResult.successData(teachClasss);
     }
+
+    @ApiOperation(value = "获取课程对应的教学班数据(同时排除掉不满足选课限制的班级)")
+    @PostMapping("/getTeachClass4Limit")
+    @Cacheable(value = "teachingClassCacheVo", key ="#roundId+'-'+#courseCode+'-'+#studentId" )
+    public RestResult<List<TeachingClassCache>> getTeachClass4Limit(
+            @RequestParam("roundId") @NotNull Long roundId,
+            @RequestParam("studentId") @NotNull Long studentId,
+            @RequestParam("courseCode") @NotBlank String courseCode)
+    {
+        List<TeachingClassCache> teachClasss =
+                dataProvider.getTeachClasss(roundId, courseCode);
+        List<TeachingClassCache> teachClasss4Limit = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(teachClasss)){
+            teachClasss4Limit = elecService.getTeachClass4Limit(teachClasss,studentId);
+            if (CollectionUtil.isNotEmpty(teachClasss4Limit)){
+                for (TeachingClassCache teachClass : teachClasss4Limit)
+                {
+                    Long teachClassId = teachClass.getTeachClassId();
+                    Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+                    teachClass.setCurrentNumber(elecNumber);
+                }
+            }
+        }
+        return RestResult.successData(teachClasss4Limit);
+    }
     
     /**
      * 选课请求,选课时发送一次，此时应该返回ElecRespose.status=processing

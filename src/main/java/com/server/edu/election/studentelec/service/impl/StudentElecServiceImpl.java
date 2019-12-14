@@ -3,6 +3,8 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.*;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
 import com.server.edu.election.entity.ElcRoundCondition;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
@@ -55,7 +57,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
     
     @Autowired
     private StudentDao stuDao;
-    
+
+    @Autowired
+    private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
+
     @Autowired
     private ApplicationContext applicationContext;
     
@@ -378,6 +383,21 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 }
             }
         }
+    }
+
+    @Override
+    public List<TeachingClassCache> getTeachClass4Limit(List<TeachingClassCache> teachClasss, Long studentId) {
+
+        List<TeachingClassCache> list = new ArrayList<>();
+        for (TeachingClassCache classs : teachClasss) {
+            //限制学生
+            List<String> stringList =
+                    restrictAttrDao.selectRestrictStudent(classs.getTeachClassId());//限制学生
+            if (CollectionUtil.isNotEmpty(stringList) && stringList.contains(studentId)){
+                list.add(classs);
+            }
+        }
+        return list;
     }
 
     /**
