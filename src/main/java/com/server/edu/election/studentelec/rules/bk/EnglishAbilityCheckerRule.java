@@ -59,7 +59,7 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
 //        }
         List<String> allCourseCodeList =
                 CultureSerivceInvoker.getAllCoursesLevelCourse();
-        if (allCourseCodeList.isEmpty() && !allCourseCodeList.contains(courseCode)){
+        if (CollectionUtil.isEmpty(allCourseCodeList) || (CollectionUtil.isNotEmpty(allCourseCodeList) &&!allCourseCodeList.contains(courseCode))){
             return true;
         }
         Example example = new Example(ElcStuCouLevel.class);
