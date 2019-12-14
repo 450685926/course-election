@@ -352,7 +352,7 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTurn(round.getTurn());
             courseTakeDao.insertSelective(take);
             if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseCode+"("+courseName+")");
+                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
 
             }
         }
@@ -366,7 +366,7 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
             if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseCode+"("+courseName+")");
+                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
             }
             int count = classDao.decrElcNumber(teachClassId);
             if (count > 0)
