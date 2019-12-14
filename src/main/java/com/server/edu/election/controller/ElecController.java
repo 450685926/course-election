@@ -47,10 +47,10 @@ public class ElecController
 {
     
     Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     @Autowired
     private StudentElecService elecService;
-    
+
     @Autowired
     private RoundDataProvider dataProvider;
 
@@ -199,5 +199,5 @@ public class ElecController
         ElecRespose response = elecService.getElectResult(elecRequest);
         return RestResult.successData(response);
     }
-    
+
 }

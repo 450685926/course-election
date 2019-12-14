@@ -77,14 +77,14 @@ public class EmailSend {
 	 * @return String 要发送的email的内容
 	 */
 	public String buildEmailContent(RemindTimeBean bean, String calendarName) throws Exception {
-		String count = (bean.getStudentName() + "(" + bean.getStudentId() + ")您好：\r\n" + "       " + calendarName
-				+ " 课程：" + bean.getCourseNameAndCode() + "已经在" + bean.getRemindTime() + " 代理选取成功");
+		String count = (bean.getStudentName() + "(" + bean.getStudentId() + "),您好：\r\n" + "       " + calendarName
+				+ " 课程：" + bean.getCourseNameAndCode() + "\r\n已经在" + bean.getRemindTime() + " 代理选取成功");
 		return count;
 	}
 
 	public String buildEmailContent2(RemindTimeBean bean, String calendarName, String mess) throws Exception {
-		String count = (bean.getStudentName() + "(" + bean.getStudentId() + ")您好：\r\n" + "       " + calendarName
-				+ " 课程：" + bean.getCourseNameAndCode() + "已经在" + bean.getRemindTime() + " 代理退课成功");
+		String count = (bean.getStudentName() + "(" + bean.getStudentId() + "),您好：\r\n" + "       " + calendarName
+				+ " 课程：" + bean.getCourseNameAndCode() + "\r\n已经在" + bean.getRemindTime() + " 代理退课成功");
 		return count;
 	}
 

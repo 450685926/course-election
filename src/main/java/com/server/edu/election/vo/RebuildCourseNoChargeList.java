@@ -42,6 +42,7 @@ public class RebuildCourseNoChargeList implements Serializable{
     private Integer courseTakeType;
     private Integer mode;
     private Integer turn;
+    private String turnName;
     private Integer chooseObj;
     @Code2Text(DictTypeEnum.X_PYCC)
     private String trainingLevel;
@@ -322,5 +323,13 @@ public class RebuildCourseNoChargeList implements Serializable{
 
     public void setLabelName(String labelName) {
         this.labelName = labelName;
+    }
+
+    public String getTurnName() {
+        return turnName;
+    }
+
+    public void setTurnName(String turnName) {
+        this.turnName = turnName;
     }
 }

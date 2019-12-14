@@ -1,21 +1,18 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.studentelec.context.bk.CompletedCourse;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.EmailSend;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -88,6 +85,9 @@ public class ElecBkServiceImpl implements ElecBkService
     
     @Autowired
     private ElcLogDao elcLogDao;
+
+    @Autowired
+    private ElectionConstantsDao constantsDao;
     
     @Autowired
     private ElectionApplyService electionApplyService;
@@ -177,6 +177,10 @@ public class ElecBkServiceImpl implements ElecBkService
                 failedReasons.put(String.format("%s[%s]",
                     data.getCourseCode(),
                     data.getTeachClassCode()), "教学班不存在无法选课");
+                continue;
+            }
+            boolean checkPublicEnglish = checkPublicEnglish(context, teachClass);
+            if (!checkPublicEnglish){
                 continue;
             }
             boolean allSuccess = true;
@@ -347,6 +351,10 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setMode(round.getMode());
             take.setTurn(round.getTurn());
             courseTakeDao.insertSelective(take);
+            if(ChooseObj.STU.type() != request.getChooseObj()){
+                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseCode+"("+courseName+")");
+
+            }
         }
         else
         {
@@ -357,6 +365,9 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
+            if(ChooseObj.STU.type() != request.getChooseObj()){
+                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseCode+"("+courseName+")");
+            }
             int count = classDao.decrElcNumber(teachClassId);
             if (count > 0)
             {
@@ -389,15 +400,6 @@ public class ElecBkServiceImpl implements ElecBkService
         log.setTurn(round.getTurn());
         log.setType(logType);
         this.elcLogDao.insertSelective(log);
-        if(ChooseObj.STU.type() != 1){
-            if (ElectRuleType.ELECTION.equals(type)){
-                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,courseCode+"("+courseName+")");
-
-            }else{
-                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,courseCode+"("+courseName+")");
-
-            }
-        }
         //更新选课申请数据
         electionApplyService
             .update(studentId, round.getCalendarId(), courseCode,type);
@@ -408,6 +410,12 @@ public class ElecBkServiceImpl implements ElecBkService
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
             respose.getSuccessCourses().add(teachClassId);
+            Set<PlanCourse> planCourses = context.getPlanCourses();
+            Map<String, String> collect = new HashMap<>();
+            if (CollectionUtil.isNotEmpty(planCourses)) {
+                collect = planCourses.stream().collect(Collectors.toMap(s -> s.getCourseCode(), s -> s.getCourse().getCompulsory()));
+                teachClass.setCompulsory(collect.get(courseCode));
+            }
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTurn(round.getTurn());
             course.setCourseTakeType(courseTakeType);
@@ -429,12 +437,12 @@ public class ElecBkServiceImpl implements ElecBkService
         teachClassCacheService.updateTeachingClassNumber(teachClassId);
     }
 
-
-    public RestResult<?> syncRemindTime(Integer num,String studentId,String courseNameAndCode) {
+    @Override
+    public RestResult<?> syncRemindTime(Integer num,String studentId,String studentName,String courseNameAndCode) {
         try {
             List<RemindTimeBean> errorList = new ArrayList<>();
             // 获取系统当前时间
-            SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH");
+            SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Long currentTime = System.currentTimeMillis();
             String time = dff.format(currentTime);
             Long calendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
@@ -442,8 +450,10 @@ public class ElecBkServiceImpl implements ElecBkService
             RemindTimeBean remindTimeBean = new RemindTimeBean();
             remindTimeBean.setCalendarId(calendarId);
             remindTimeBean.setRemindTime(time);
+            remindTimeBean.setStudentId(studentId);
+            remindTimeBean.setStudentName(studentName);
             String email = studentDao.findStuEmail(studentId);
-            remindTimeBean.setStudentEmail(email);
+            remindTimeBean.setStudentEmail("qq577854218@sina.cn");
             remindTimeBean.setCourseNameAndCode(courseNameAndCode);
             List<RemindTimeBean> alllist = new ArrayList<>();
             alllist.add(remindTimeBean);
@@ -487,5 +497,79 @@ public class ElecBkServiceImpl implements ElecBkService
         RestResult<SchoolCalendarVo> schoolCalendarVoResult = ServicePathEnum.BASESERVICE.getForObject("/schoolCalendar/{id}", RestResult.class, calendarId);
         SchoolCalendarVo calendarVo = schoolCalendarVoResult.getData();
         return calendarVo.getFullName();
+    }
+
+    //校验学生公共英语课
+    private boolean checkPublicEnglish(ElecContextBk context, TeachingClassCache teachClass) {
+
+        ElecRespose respose = context.getRespose();
+        Map<String, String> failedReasons = respose.getFailedReasons();
+        //已选课程
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        List<CompletedCourse> list = new ArrayList<>();
+        //已完成课程
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();
+        list.addAll(failedCourse);
+        list.addAll(completedCourses);
+
+
+        List<String> asList =
+                CultureSerivceInvoker.getAllCoursesLevelCourse();
+        String courseCode = teachClass.getCourseCode();
+        // 查询不到英语课-通过
+        if (CollectionUtil.isEmpty(asList)) {
+            return true;
+        }
+
+        if (!asList.contains(courseCode)) {
+            return true;
+        }
+        //判断是否是重修课
+        boolean isRetake = RetakeCourseUtil.isRetakeCourseBk(context, teachClass.getCourseCode());
+
+        if (isRetake) {
+            if (CollectionUtil.isEmpty(completedCourses)){
+                return true;
+            }
+            Set<CompletedCourse> selectedcourse1 = new HashSet<>();
+            for (CompletedCourse course:list){
+                for (String string:asList){
+                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
+                        selectedcourse1.add(course);
+                    }
+                }
+            }
+
+            if (selectedcourse1.size()<2) {
+                return true;
+            }else{
+                failedReasons.put(String.format("%s[%s]",
+                        teachClass.getCourseCode(),
+                        teachClass.getTeachClassCode()), "最多能重修两门公共英语课");
+                return false;
+            }
+        } else {
+            if (CollectionUtil.isEmpty(selectedCourses)){
+                return true;
+            }
+            //本学期已选公共外语课
+            Set<SelectedCourse> selectedcourse1 = new HashSet<>();
+            for (SelectedCourse course:selectedCourses){
+                for (String string:asList){
+                    if(StringUtils.equalsIgnoreCase(course.getCourse().getCourseCode(),string)){
+                        selectedcourse1.add(course);
+                    }
+                }
+            }
+            if (CollectionUtil.isEmpty(selectedcourse1)) {
+                return true;
+            }
+            failedReasons.put(String.format("%s[%s]",
+                    teachClass.getCourseCode(),
+                    teachClass.getTeachClassCode()), "只能选一门公共英语课");
+            return false;
+        }
+
     }
 }

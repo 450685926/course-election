@@ -1,9 +1,6 @@
 package com.server.edu.election.studentelec.preload;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.entity.BkPublicCourse;
@@ -12,6 +9,7 @@ import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.context.bk.TsCourse;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -155,7 +153,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         Set<ElecCourse> elecCourses = teachClassCacheService.getPublicCourses(electionRounds.getCalendarId());
         List<String> collect = elecCourses.stream().map(ElecCourse::getCourseCode).collect(Collectors.toList());
 
-        Set<ElecCourse> publicCourses = context.getPublicCourses();//通识选修课
+        Set<TsCourse> publicCourses = context.getPublicCourses();//通识选修课
         //通识选修课
         List<BkPublicCourseVo> bkPublicCourse = ElecContextUtil.getBKPublicCourse();
         Integer grade = stu.getGrade();
@@ -166,22 +164,33 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                     List<BkPublicCourse> list = bkPublicCourseVo.getList();
                     if (CollectionUtil.isNotEmpty(list)) {
                         for (BkPublicCourse publicCourse : list) {
+                            String tag = publicCourse.getTag();
                             List<PublicCourse> publicCourseList = publicCourse.getList();
                             if (CollectionUtil.isEmpty(publicCourseList)) {
-                                continue;
-                            }
-                            for (PublicCourse course : publicCourseList) {
-                                String courseCode = course.getCourseCode();
-                                if (!collect.contains(courseCode)) {
-                                    course.setCompulsory(map.get(courseCode));
-                                    list.remove(course);
+                                TsCourse tsCourse = new TsCourse();
+                                tsCourse.setTag(tag);
+                                publicCourses.add(tsCourse);
+                            } else {
+                                for (PublicCourse pc : publicCourseList) {
+                                    String courseCode = pc.getCourseCode();
+                                    if (collect.contains(courseCode)) {
+                                        ElecCourse elecCourse = new ElecCourse();
+                                        elecCourse.setCourseCode(courseCode);
+                                        elecCourse.setCompulsory(map.get(courseCode));
+                                        elecCourse.setCourseName(pc.getCourseName());
+                                        elecCourse.setCredits(pc.getCreidits());
+                                        elecCourse.setJp(pc.getJp());
+                                        elecCourse.setCx(pc.isCx());
+                                        elecCourse.setYs(pc.isYs());
+                                        TsCourse tsCourse = new TsCourse();
+                                        tsCourse.setTag(tag);
+                                        tsCourse.setCourse(elecCourse);
+                                        publicCourses.add(tsCourse);
+                                    }
                                 }
                             }
                         }
                     }
-                    ElecCourse elecCourse = new ElecCourse();
-                    elecCourse.setList(list);
-                    publicCourses.add(elecCourse);
                     break;
                 }
             }

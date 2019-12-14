@@ -428,6 +428,6 @@
      </select>
 
 	<select id="findStuEmail" resultType="java.lang.String">
-		select EMAIL_ from student_t where STUDENT_CODE_=#{studentCode}
+		select EMAIL_ from student_t where STUDENT_CODE_=#{studentId}
 	</select>
 </mapper>

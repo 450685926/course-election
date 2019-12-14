@@ -55,10 +55,11 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutorBk
                                     ElecRespose respose = context.getRespose();
                                     respose.getFailedReasons()
                                         .put(
-                                                selectedCours.getCourse()
+                                                courseClass
                                                 .getCourseCodeAndClassCode(),
                                             I18nUtil.getMsg(
-                                                "ruleCheck.timeConflict"));
+                                                "ruleCheck.timeConflict",selectedCours.getCourse()
+                                                            .getCourseCodeAndClassCode()));
                                     return false;
                                 }
                             }

@@ -32,6 +32,7 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.ElecBkService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
@@ -71,6 +72,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private ElecBkService elecBkService;
     
     @Autowired
     private CourseDao courseDao;
@@ -412,6 +416,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             applicationContext
                     .publishEvent(new ElectLoadEvent(calendarId, studentId));
+            Student stu  = studentDao.findStudentByCode(studentId);
+            elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
         }else {
             if(students.size() > 1 && teachClassIds.size() == 1){
                 stus.add(studentId);
@@ -476,6 +482,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
+            Student stu  = studentDao.findStudentByCode(studentId);
+            elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
         }
     }
 
@@ -669,6 +677,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .andEqualTo("calendarId", calendarId)
                 .andEqualTo("studentId", studentId)
                 .andEqualTo("teachingClassId", teachingClassId);
+            ElcCourseTake elcCourseTake = courseTakeDao.selectOneByExample(example);
             courseTakeDao.deleteByExample(example);
             //减少选课人数
             int count =classDao.decrElcNumber(teachingClassId);
@@ -682,6 +691,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                      dataProvider.incrementDrawNumber(teachingClassId);
                  }
             }
+            Student stu  = studentDao.findStudentByCode(studentId);
             // 更新缓存中教学班人数
             teachClassCacheService.updateTeachingClassNumber(teachingClassId);
             ElcCourseTakeVo vo = null;
@@ -717,6 +727,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
+                elecBkService.syncRemindTime(2,studentId,stu.getName(),vo.getCourseName()+"("+elcCourseTake.getCourseCode()+")");
+
                 withdrawMap.put(
                     String
                         .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),
