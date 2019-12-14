@@ -230,11 +230,12 @@ public class ElecController
      */
     @ApiOperation(value = "查询选课结果")
     @GetMapping("/getConflict")
-    public RestResult getConflict(@RequestParam("roundId") @NotNull Long roundId,
+    public RestResult getConflict(@RequestParam("calendarId") @NotNull Long calendarId,
+                                  @RequestParam("studentId") String studentId,
                                   @RequestParam("courseCode") @NotNull String courseCode,
                                   @RequestParam("teachClassId") @NotNull Long teachClassId)
     {
-        elecService.getConflict(roundId, courseCode, teachClassId);
+        elecService.getConflict(calendarId, studentId, courseCode, teachClassId);
         return RestResult.success();
     }
 
