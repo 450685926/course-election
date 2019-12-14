@@ -7,6 +7,7 @@ import com.server.edu.common.entity.BkPublicCourse;
 import com.server.edu.common.entity.BkPublicCourseVo;
 import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.bk.TsCourse;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
@@ -24,8 +25,10 @@ import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.dao.CourseDao;
+import com.server.edu.election.dto.StudentScoreDto;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
+import com.server.edu.election.service.BkStudentScoreService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
@@ -55,6 +58,9 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 
     @Autowired
     private TeachClassCacheService teachClassCacheService;
+    
+    @Autowired
+    private BkStudentScoreService bkStudentScoreService;
 
     @Override
     public int getOrder()
@@ -78,6 +84,13 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
+        	StudentScoreDto dto = new StudentScoreDto();
+        	dto.setStudentId(context.getStudentInfo().getStudentId());
+            List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
+            List<String> selectedCourse = new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(stuScore)) {
+            	selectedCourse = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+            }
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
@@ -86,7 +99,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto pct : list) {//培养课程
                         String courseCode = pct.getCourseCode();
-                        if(StringUtils.isBlank(courseCode)) {
+                        if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(selectedCourse) && selectedCourse.contains(courseCode)) ) {
                             log.warn("courseCode is Blank skip this record: {}", JSON.toJSONString(pct));
                             continue;
                         }
