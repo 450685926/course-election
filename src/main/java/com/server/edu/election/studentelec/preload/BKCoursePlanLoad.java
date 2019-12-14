@@ -121,6 +121,8 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             course2.setCompulsory(pct.getCompulsory());
                             course2.setLabelId(labelId);
                             course2.setLabelName(labelName);
+                            course2.setChosen(pct.getChosen());
+                            course2.setIsQhClass(pct.getIsQhClass());
                             pl.setCourse(course2);
                             pl.setSemester(pct.getSemester());
                             pl.setWeekType(pct.getWeekType());
