@@ -88,10 +88,10 @@ public class GradAndPreFilter
      * @see [类、类#方法、类#成员]
      */
     public static void gradAndPre(List<Student> stuList,
-        Map<String, Integer> profNumMap, List<String> removeStus)
+        Map<String, Integer> profNumMap, List<String> removeStus,int overSize)
     {
         if (CollectionUtil.isNotEmpty(stuList)
-            && CollectionUtil.isNotEmptyMap(profNumMap))
+            && CollectionUtil.isNotEmptyMap(profNumMap) && overSize>0)
         {
             Map<Boolean, List<Student>> collect = stuList.stream()
                 .collect(Collectors.partitioningBy(stu -> profNumMap
@@ -157,6 +157,25 @@ public class GradAndPreFilter
             Student stu = stuList.get(i);
             removeStus.add(stu.getStudentCode());
             stuList.remove(i);
+        }
+    }
+    
+    /**随机晒除学生人数*/
+    public static void randomRemoveStu(List<String> removeStus,
+        Integer limitNumber, List<Student> stuList,Integer invincibleStusNum,Integer affinityStusNum,Integer normalStusNum,Integer teachingClassNum)
+    {
+        //随机删除看过容量的学生
+        while (stuList.size() > limitNumber)
+        {
+            int i = RandomUtils.nextInt(stuList.size());
+            Student stu = stuList.get(i);
+            removeStus.add(stu.getStudentCode());
+            Integer overSize = (invincibleStusNum
+                    + affinityStusNum + normalStusNum)
+                    - teachingClassNum;
+            if(overSize>0) {
+            	stuList.remove(i);
+            }
         }
     }
     

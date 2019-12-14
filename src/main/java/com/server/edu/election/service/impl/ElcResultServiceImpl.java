@@ -702,11 +702,11 @@ public class ElcResultServiceImpl implements ElcResultService
                     {
                         continue;
                     }
+                    int overSize = (invincibleStus.size()
+                            + affinityStus.size() + normalStus.size())
+                            - teachingClass.getNumber();
                     gradAndPreFilter.execute(stuList, removeStus);
                     //执行完后人数还是超过上限则进行随机删除
-                    int overSize = (invincibleStus.size()
-                        + affinityStus.size() + normalStus.size())
-                        - teachingClass.getNumber();
                     if(overSize > 0) {
                     	elcConditionFilter.execute(stuList, removeStus);
                     }
@@ -725,8 +725,10 @@ public class ElcResultServiceImpl implements ElcResultService
                             {
                                 limitNumber = 0;
                             }
+//                            GradAndPreFilter
+//                                .randomRemove(removeStus, limitNumber, stuList);
                             GradAndPreFilter
-                                .randomRemove(removeStus, limitNumber, stuList);
+                            .randomRemoveStu(removeStus, limitNumber, stuList,invincibleStus.size(),affinityStus.size(),normalStus.size(),teachingClass.getNumber());
                         }else {
                         	break;
                         }
