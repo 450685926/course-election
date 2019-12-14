@@ -331,7 +331,11 @@ public class ElcResultServiceImpl implements ElcResultService
                 }
                 condition.setIncludeCodes(includeCodes);
                 PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        		listPage = classDao.listPage(condition);
+                if(condition.getIsHaveLimit() != null && condition.getIsHaveLimit().intValue() == Constants.ONE){
+                    listPage = classDao.listPage4limit(condition);
+                }else{
+                    listPage = classDao.listPage(condition);
+                }
 			}
 		}
 		return listPage;
@@ -1393,4 +1397,5 @@ public class ElcResultServiceImpl implements ElcResultService
         TeachingClassVo teachingClassVo = classDao.getMaleToFemaleRatio(elcResultQuery);
         return teachingClassVo;
     }
+
 }
