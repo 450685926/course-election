@@ -88,10 +88,10 @@ public class GradAndPreFilter
      * @see [类、类#方法、类#成员]
      */
     public static void gradAndPre(List<Student> stuList,
-        Map<String, Integer> profNumMap, List<String> removeStus,int overSize)
+        Map<String, Integer> profNumMap, List<String> removeStus)
     {
         if (CollectionUtil.isNotEmpty(stuList)
-            && CollectionUtil.isNotEmptyMap(profNumMap) && overSize>0)
+            && CollectionUtil.isNotEmptyMap(profNumMap))
         {
             Map<Boolean, List<Student>> collect = stuList.stream()
                 .collect(Collectors.partitioningBy(stu -> profNumMap
