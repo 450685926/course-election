@@ -261,7 +261,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
             elcStudentLimit.setProjectId(Constants.PROJ_UNGRADUATE);
             elcStudentLimit.setStudentId(studentId);
             elcStudentLimit.setTotalLimitCredits(0.0);
-            elcStudentLimit.setRebuildLimitNumber(0);
+            elcStudentLimit.setRebuildLimitNumber(6);
             if (CollectionUtil.isEmpty(elcStudentLimits)){
                 elcStudentLimitDao.insertSelective(elcStudentLimit);
             }
