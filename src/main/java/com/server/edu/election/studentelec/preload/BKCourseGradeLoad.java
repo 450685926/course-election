@@ -369,12 +369,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         // 获取学历年
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
-            Map<String, String> map = new HashMap<>();
-            List<PlanCourseTypeDto> planCourseTypeDtos = CultureSerivceInvoker.findPlanCourseTabBk(studentId);
-            // 培养那边拿不到数据会返回null，也可能是空集合
-            if (CollectionUtil.isNotEmpty(planCourseTypeDtos)) {
-                map = planCourseTypeDtos.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, PlanCourseTypeDto::getCompulsory));
-            }
+            Map<String, String> map = CultureSerivceInvoker.findPlanCourseTabBk(studentId);
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
