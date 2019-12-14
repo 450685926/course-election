@@ -150,8 +150,6 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         if(electionRounds==null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("election.round")));
         }
-        Set<ElecCourse> elecCourses = teachClassCacheService.getPublicCourses(electionRounds.getCalendarId());
-        List<String> collect = elecCourses.stream().map(ElecCourse::getCourseCode).collect(Collectors.toList());
 
         Set<TsCourse> publicCourses = context.getPublicCourses();//通识选修课
         //通识选修课
@@ -163,6 +161,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 if (compare(grade, grades)) {
                     List<BkPublicCourse> list = bkPublicCourseVo.getList();
                     if (CollectionUtil.isNotEmpty(list)) {
+                        Long id = context.getRequest().getRoundId();
                         for (BkPublicCourse publicCourse : list) {
                             String tag = publicCourse.getTag();
                             List<PublicCourse> publicCourseList = publicCourse.getList();
@@ -173,7 +172,9 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             } else {
                                 for (PublicCourse pc : publicCourseList) {
                                     String courseCode = pc.getCourseCode();
-                                    if (collect.contains(courseCode)) {
+                                    List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(id, courseCode);
+                                    // 判断这门课程在本轮次是否有对应的教学班
+                                    if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
                                         ElecCourse elecCourse = new ElecCourse();
                                         elecCourse.setCourseCode(courseCode);
                                         elecCourse.setCompulsory(map.get(courseCode));
