@@ -339,7 +339,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     }
 
     @Override
-    public void getConflict(Long calendarId, String courseCode, Long teachClassId) {
+    public void getConflict(Long roundId, String courseCode, Long teachClassId) {
+        ElectionRounds round = dataProvider.getRound(roundId);
+        Long calendarId = round.getCalendarId();
         TeachingClassCache teachingClassCache = dataProvider.getTeachClassByCalendarId(calendarId, courseCode, teachClassId);
         List<ClassTimeUnit> times = teachingClassCache.getTimes();
         if (CollectionUtil.isNotEmpty(times)) {
