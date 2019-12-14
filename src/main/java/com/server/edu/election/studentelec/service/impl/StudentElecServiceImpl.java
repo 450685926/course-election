@@ -1,11 +1,12 @@
 package com.server.edu.election.studentelec.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
-import com.server.edu.election.entity.ElcRoundCondition;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -24,10 +25,6 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
@@ -42,13 +39,20 @@ import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.util.CollectionUtil;
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class StudentElecServiceImpl extends AbstractCacheService
     implements StudentElecService
 {
     Logger LOG = LoggerFactory.getLogger(getClass());
-    
+
+    @Autowired
+    private StudentUndergraduateScoreInfoDao scoreInfoDao;
+
+    @Autowired
+    private ElcStudentLimitDao elcStudentLimitDao;
+
     @Autowired
     private ElecQueueService<ElecRequest> queueService;
     
@@ -232,7 +236,37 @@ public class StudentElecServiceImpl extends AbstractCacheService
         ElecContextLogin context =
                 new ElecContextLogin(elecRequest,elecRespose);
     	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-    	List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
+
+        List<ElectionRuleVo> collect = rules.stream().filter(c -> "LoserNotElcRule".equals(c.getServiceName())).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(collect)){
+            Example example = new Example(StudentUndergraduateScoreInfo.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("studentNum", studentId);
+            criteria.andEqualTo("isPass", Constants.UN_PASS);
+            List<StudentUndergraduateScoreInfo> stuList = scoreInfoDao.selectByExample(example);
+            Double creditTotal = stuList.stream().mapToDouble(StudentUndergraduateScoreInfo::getCredit).sum();
+            Example example2 = new Example(ElcStudentLimit.class);
+            example2.createCriteria().andEqualTo("calendarId",elecRequest.getCalendarId());
+            example2.createCriteria().andEqualTo("projectId",Constants.PROJ_UNGRADUATE);
+            example2.createCriteria().andEqualTo("studentId",studentId);
+            List<ElcStudentLimit> elcStudentLimits = elcStudentLimitDao.selectByExample(example2);
+            ElcStudentLimit elcStudentLimit = new ElcStudentLimit();
+            if (creditTotal.doubleValue() >= 20.0 && creditTotal.doubleValue() <= 40){
+                elcStudentLimit.setNewLimitCredits(10.0);
+            }else if(creditTotal.doubleValue() <= 40){
+                elcStudentLimit.setNewLimitCredits(5.0);
+            }
+
+            elcStudentLimit.setCalendarId(elecRequest.getCalendarId());
+            elcStudentLimit.setProjectId(Constants.PROJ_UNGRADUATE);
+            elcStudentLimit.setStudentId(studentId);
+            elcStudentLimit.setTotalLimitCredits(0.0);
+            elcStudentLimit.setRebuildLimitNumber(0);
+            if (CollectionUtil.isEmpty(elcStudentLimits)){
+                elcStudentLimitDao.insertSelective(elcStudentLimit);
+            }
+        }
+        List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
     	 // 获取执行规则
         @SuppressWarnings("rawtypes")
 		Map<String, AbstractRuleExceutor> map =
