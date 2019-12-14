@@ -253,18 +253,22 @@ public class StudentElecServiceImpl extends AbstractCacheService
             example2.createCriteria().andEqualTo("calendarId",elecRequest.getCalendarId()).andEqualTo("projectId",Constants.PROJ_UNGRADUATE).andEqualTo("studentId",studentId);
             List<ElcStudentLimit> elcStudentLimits = elcStudentLimitDao.selectByExample(example2);
             ElcStudentLimit elcStudentLimit = new ElcStudentLimit();
+            Double newLimitCredits = 0.0;
             if (creditTotal.doubleValue() >= 20.0 && creditTotal.doubleValue() <= 40){
-                elcStudentLimit.setNewLimitCredits(10.0);
+            	newLimitCredits =10.0;
             }else if(creditTotal.doubleValue() > 40){
-                elcStudentLimit.setNewLimitCredits(5.0);
+            	newLimitCredits =5.0;
             }
-            elcStudentLimit.setCalendarId(elecRequest.getCalendarId());
-            elcStudentLimit.setProjectId(Constants.PROJ_UNGRADUATE);
-            elcStudentLimit.setStudentId(studentId);
-            elcStudentLimit.setTotalLimitCredits(0.0);
-            elcStudentLimit.setRebuildLimitNumber(6);
-            if (CollectionUtil.isEmpty(elcStudentLimits)){
-                elcStudentLimitDao.insertSelective(elcStudentLimit);
+            if(newLimitCredits>0.0) {
+            	elcStudentLimit.setNewLimitCredits(newLimitCredits);
+                elcStudentLimit.setCalendarId(elecRequest.getCalendarId());
+                elcStudentLimit.setProjectId(Constants.PROJ_UNGRADUATE);
+                elcStudentLimit.setStudentId(studentId);
+                elcStudentLimit.setTotalLimitCredits(0.0);
+                elcStudentLimit.setRebuildLimitNumber(6);
+                if (CollectionUtil.isEmpty(elcStudentLimits)){
+                    elcStudentLimitDao.insertSelective(elcStudentLimit);
+                }
             }
         }
         List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
