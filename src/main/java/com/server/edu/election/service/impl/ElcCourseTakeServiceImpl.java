@@ -299,7 +299,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                             Set<String> weekStu = weeks.stream().map(s -> String.valueOf(s)).collect(Collectors.toSet());
                             int size2 = weekStu.size();
                             int size3 = size1 + size2;
-                            Set<String> all = new HashSet<>(size3);
+                            Set<String> all = new HashSet<>();
+                            all.addAll(set);
+                            all.addAll(weekStu);
                             // 上课周冲突
                             if (size3 > all.size() ) {
                                 // 判断上课天是否一样
