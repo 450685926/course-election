@@ -139,7 +139,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                 if (CollectionUtil.isNotEmpty(suggestProfessionDtos)){
                     for (SuggestProfessionDto suggestProfessionDto: suggestProfessionDtos) {
                         if (StringUtils.equalsIgnoreCase(suggestProfessionDto.getProfession(),studentInfo.getMajor())
-                        &&suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue()){
+                        || suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue()){
                             resultFlag = true;
                         }else{
                             resultFlag = false;
