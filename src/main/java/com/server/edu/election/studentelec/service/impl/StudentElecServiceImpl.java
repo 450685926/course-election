@@ -380,20 +380,16 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public void getConflict(Long calendarId, String studentId, String courseCode, Long teachClassId) {
         TeachingClassCache teachingClassCache =
                 teachClassCacheService.getTeachClassByTeachClassId(teachClassId);
-        LOG.info("--------------1----------------:" + teachingClassCache);
         if (teachingClassCache != null) {
             List<ClassTimeUnit> times = teachingClassCache.getTimes();
-            LOG.info("--------------2----------------:" + times);
             if (CollectionUtil.isNotEmpty(times)) {
                 // 获取已选课程
                 ElecContextBk context = new ElecContextBk(studentId, calendarId);
                 Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-                LOG.info("--------------3----------------:" + selectedCourses);
                 if (CollectionUtil.isNotEmpty(selectedCourses)) {
                     List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
                     for (SelectedCourse selectedCours : selectedCourses) {
                         List<ClassTimeUnit> time = selectedCours.getCourse().getTimes();
-                        LOG.info("--------------4----------------:" + time);
                         if (CollectionUtil.isNotEmpty(time)) {
                             classTimeUnits.addAll(time);
                         }
