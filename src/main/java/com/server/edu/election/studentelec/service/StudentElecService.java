@@ -2,8 +2,11 @@ package com.server.edu.election.studentelec.service;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+
+import java.util.List;
 
 /**
  * 选课请求的主入口
@@ -47,4 +50,7 @@ public interface StudentElecService
     Student findStuRound(Long roundId, String studentId);
 
     void getConflict(Long calendarId, String courseCode, Long teachClassId);
+
+    /** 排除有限制学生的教学班*/
+    List<TeachingClassCache> getTeachClass4Limit(List<TeachingClassCache> teachClasss, Long studentId);
 }
