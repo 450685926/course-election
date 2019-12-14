@@ -9,6 +9,7 @@ import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -61,6 +62,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     
     @Autowired
     private StudentDao stuDao;
+
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
 
     @Autowired
     private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
@@ -374,7 +378,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Override
     public void getConflict(Long calendarId, String studentId, String courseCode, Long teachClassId) {
-        TeachingClassCache teachingClassCache = dataProvider.getTeachClassByCalendarId(calendarId, courseCode, teachClassId);
+        TeachingClassCache teachingClassCache =
+                teachClassCacheService.getTeachClassByTeachClassId(teachClassId);
         LOG.info("--------------1----------------:" + teachingClassCache);
         if (teachingClassCache != null) {
             List<ClassTimeUnit> times = teachingClassCache.getTimes();
@@ -394,7 +399,6 @@ public class StudentElecServiceImpl extends AbstractCacheService
                         }
                     }
                     if (CollectionUtil.isNotEmpty(classTimeUnits)) {
-                        LOG.info("--------------5----------------:" + classTimeUnits);
                         // 比较课程冲突
                         for (ClassTimeUnit time : times) {
                             List<Integer> weeks = time.getWeeks();
