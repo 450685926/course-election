@@ -145,6 +145,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                             resultFlag = true;
                         }else{
                             resultFlag = false;
+                            break;
                         }
                     }
                 }
