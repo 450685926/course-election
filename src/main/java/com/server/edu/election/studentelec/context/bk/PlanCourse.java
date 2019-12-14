@@ -24,7 +24,27 @@ public class PlanCourse
     /**个人替代课程*/
     private String subCourseCode;
     
-    public String getLabelName() {
+    private Integer chosen;
+    
+    private Integer isQhClass;
+    
+    public Integer getChosen() {
+		return chosen;
+	}
+
+	public void setChosen(Integer chosen) {
+		this.chosen = chosen;
+	}
+
+	public Integer getIsQhClass() {
+		return isQhClass;
+	}
+
+	public void setIsQhClass(Integer isQhClass) {
+		this.isQhClass = isQhClass;
+	}
+
+	public String getLabelName() {
 		return labelName;
 	}
 
