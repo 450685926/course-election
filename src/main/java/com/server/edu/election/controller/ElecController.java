@@ -229,12 +229,12 @@ public class ElecController
      * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
      */
     @ApiOperation(value = "查询选课结果")
-    @PostMapping("/getConflict")
-    public RestResult getConflict(@RequestParam("calendarId") @NotNull Long calendarId,
+    @GetMapping("/getConflict")
+    public RestResult getConflict(@RequestParam("roundId") @NotNull Long roundId,
                                   @RequestParam("courseCode") @NotNull String courseCode,
                                   @RequestParam("teachClassId") @NotNull Long teachClassId)
     {
-        elecService.getConflict(calendarId, courseCode, teachClassId);
+        elecService.getConflict(roundId, courseCode, teachClassId);
         return RestResult.success();
     }
 
