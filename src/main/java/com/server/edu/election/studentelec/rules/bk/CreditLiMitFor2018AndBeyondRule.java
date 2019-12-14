@@ -105,6 +105,13 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 									}
 									if (count <= 1){
 										return true;
+									}else{
+										ElecRespose respose = context.getRespose();
+										respose.getFailedReasons()
+												.put(courseClass.getCourseCodeAndClassCode(),
+														I18nUtil
+																.getMsg("ruleCheck.CreditLiMitFor2018AndBeyondLimit"));
+										return false;
 									}
 								}
 							}
@@ -114,14 +121,7 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 				}
 			}
 		}
-
-
-		ElecRespose respose = context.getRespose();
-		respose.getFailedReasons()
-				.put(courseClass.getCourseCodeAndClassCode(),
-						I18nUtil
-								.getMsg("ruleCheck.CreditLiMitFor2018AndBeyondLimit"));
-		return false;
+		return true;
 
 
 /*
