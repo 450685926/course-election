@@ -246,9 +246,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
             List<StudentUndergraduateScoreInfo> stuList = scoreInfoDao.selectByExample(example);
             Double creditTotal = stuList.stream().mapToDouble(StudentUndergraduateScoreInfo::getCredit).sum();
             Example example2 = new Example(ElcStudentLimit.class);
-            example2.createCriteria().andEqualTo("calendarId",elecRequest.getCalendarId());
-            example2.createCriteria().andEqualTo("projectId",Constants.PROJ_UNGRADUATE);
-            example2.createCriteria().andEqualTo("studentId",studentId);
+            example2.createCriteria().andEqualTo("calendarId",elecRequest.getCalendarId()).andEqualTo("projectId",Constants.PROJ_UNGRADUATE).andEqualTo("studentId",studentId);
             List<ElcStudentLimit> elcStudentLimits = elcStudentLimitDao.selectByExample(example2);
             ElcStudentLimit elcStudentLimit = new ElcStudentLimit();
             if (creditTotal.doubleValue() >= 20.0 && creditTotal.doubleValue() <= 40){
