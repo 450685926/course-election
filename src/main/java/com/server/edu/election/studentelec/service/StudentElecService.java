@@ -49,6 +49,8 @@ public interface StudentElecService
     /**根据轮次查询学生信息*/
     Student findStuRound(Long roundId, String studentId);
 
+    void getConflict(Long calendarId, String courseCode, Long teachClassId);
+
     /** 排除有限制学生的教学班*/
     List<TeachingClassCache> getTeachClass4Limit(List<TeachingClassCache> teachClasss, Long studentId);
 }
