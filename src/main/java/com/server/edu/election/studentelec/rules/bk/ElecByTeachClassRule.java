@@ -138,8 +138,10 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
             }else if (enabled && StringUtils.equals("MAJORANDGRADE", parameter.getName())){      //学生年级专业限制项MAJOR
                 if (CollectionUtil.isNotEmpty(suggestProfessionDtos)){
                     for (SuggestProfessionDto suggestProfessionDto: suggestProfessionDtos) {
-                        if (StringUtils.equalsIgnoreCase(suggestProfessionDto.getProfession(),studentInfo.getMajor())
-                        || suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue()){
+                        if ((suggestProfessionDto.getGrade() == null && StringUtils.equalsIgnoreCase(suggestProfessionDto.getProfession(),studentInfo.getMajor()))
+                        || (StringUtils.isEmpty(suggestProfessionDto.getProfession()) && suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue())
+                        || (StringUtils.isNotEmpty(suggestProfessionDto.getProfession()) && suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue()
+                        && suggestProfessionDto.getGrade() != null && StringUtils.equalsIgnoreCase(suggestProfessionDto.getProfession(),studentInfo.getMajor()))){
                             resultFlag = true;
                         }else{
                             resultFlag = false;
