@@ -255,10 +255,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
             ElcStudentLimit elcStudentLimit = new ElcStudentLimit();
             if (creditTotal.doubleValue() >= 20.0 && creditTotal.doubleValue() <= 40){
                 elcStudentLimit.setNewLimitCredits(10.0);
-            }else if(creditTotal.doubleValue() <= 40){
+            }else if(creditTotal.doubleValue() > 40){
                 elcStudentLimit.setNewLimitCredits(5.0);
             }
-
             elcStudentLimit.setCalendarId(elecRequest.getCalendarId());
             elcStudentLimit.setProjectId(Constants.PROJ_UNGRADUATE);
             elcStudentLimit.setStudentId(studentId);
