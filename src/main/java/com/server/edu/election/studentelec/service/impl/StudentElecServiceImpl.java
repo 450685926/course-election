@@ -416,7 +416,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                         int start = classTimeUnit.getTimeStart();
                                         int end = classTimeUnit.getTimeEnd();
                                         if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                                            throw new ParameterValidateException("改课程与已选课程上课时间冲突");
+                                            throw new ParameterValidateException("该课程与已选课程上课时间冲突");
                                         }
                                     }
                                 }
