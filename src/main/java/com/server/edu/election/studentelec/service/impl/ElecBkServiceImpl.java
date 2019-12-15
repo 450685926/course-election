@@ -410,18 +410,16 @@ public class ElecBkServiceImpl implements ElecBkService
             dataProvider.incrementElecNumber(teachClassId);
             respose.getSuccessCourses().add(teachClassId);
             Set<PlanCourse> planCourses = context.getPlanCourses();
-            Map<String, String> collect = new HashMap<>(60);
             if (CollectionUtil.isNotEmpty(planCourses)) {
                 for (PlanCourse planCours : planCourses) {
                     ElecCourse course = planCours.getCourse();
                     if (course != null) {
-                        String compulsory = course.getCompulsory();
-                        if (StringUtils.isNotBlank(compulsory)) {
-                            collect.put(course.getCourseCode(), compulsory);
+                        if (StringUtils.equalsIgnoreCase(courseCode, course.getCourseCode())) {
+                            teachClass.setCompulsory(course.getCompulsory());
+                            break;
                         }
                     }
                 }
-                teachClass.setCompulsory(collect.get(courseCode));
             }
             SelectedCourse course = new SelectedCourse(teachClass);
             course.setTurn(round.getTurn());
