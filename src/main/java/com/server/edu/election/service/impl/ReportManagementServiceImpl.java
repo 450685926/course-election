@@ -924,7 +924,12 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentCode);
             Map<String, String> compulsoryMap = new HashMap<>();
             if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
-                compulsoryMap = elcCourseTakeVos.stream().collect(Collectors.toMap(ElcCourseTakeVo::getCourseCode, ElcCourseTakeVo::getCompulsory));
+                for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                    String compulsory = elcCourseTakeVo.getCompulsory();
+                    if (StringUtils.isNotBlank(compulsory)) {
+                        compulsoryMap.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    }
+                }
             }
             for (StudnetTimeTable studnetTimeTable : studentTable)
             {
