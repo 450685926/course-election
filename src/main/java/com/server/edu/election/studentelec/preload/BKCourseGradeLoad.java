@@ -372,7 +372,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentId);
             Map<String, String> map = new HashMap<>();
             if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
-                map = elcCourseTakeVos.stream().collect(Collectors.toMap(ElcCourseTakeVo::getCourseCode, ElcCourseTakeVo::getCompulsory));
+                for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                    String compulsory = elcCourseTakeVo.getCompulsory();
+                    if (StringUtils.isNotBlank(compulsory)) {
+                        map.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    }
+                }
             }
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
