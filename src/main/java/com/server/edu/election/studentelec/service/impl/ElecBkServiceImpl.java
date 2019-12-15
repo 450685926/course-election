@@ -7,16 +7,15 @@ import java.util.stream.Collectors;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
-import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.EmailSend;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import com.server.edu.election.entity.RebuildCourseRecycle;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 
 import org.slf4j.Logger;
@@ -411,9 +410,17 @@ public class ElecBkServiceImpl implements ElecBkService
             dataProvider.incrementElecNumber(teachClassId);
             respose.getSuccessCourses().add(teachClassId);
             Set<PlanCourse> planCourses = context.getPlanCourses();
-            Map<String, String> collect = new HashMap<>();
+            Map<String, String> collect = new HashMap<>(60);
             if (CollectionUtil.isNotEmpty(planCourses)) {
-                collect = planCourses.stream().collect(Collectors.toMap(s -> s.getCourseCode(), s -> s.getCourse().getCompulsory()));
+                for (PlanCourse planCours : planCourses) {
+                    ElecCourse course = planCours.getCourse();
+                    if (course != null) {
+                        String compulsory = course.getCompulsory();
+                        if (StringUtils.isNotBlank(compulsory)) {
+                            collect.put(course.getCourseCode(), compulsory);
+                        }
+                    }
+                }
                 teachClass.setCompulsory(collect.get(courseCode));
             }
             SelectedCourse course = new SelectedCourse(teachClass);

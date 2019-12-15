@@ -1186,22 +1186,18 @@ public class TeacherLessonTableServiceServiceImpl
                 
                 String[] tcodes = teacherCode.split(",");
                 String teacherName="";
-                try {
-                    List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
-                    if(CollectionUtil.isNotEmpty(teachers)) {
-                        List<String> names = new ArrayList<>();
-                        for (Teacher teacher : teachers) {
-                            if(teacher != null) {
-                                String name = teacher.getName();
-                                if (StringUtils.isNotBlank(name)) {
-                                    names.add(name);
-                                }
+                List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
+                if(CollectionUtil.isNotEmpty(teachers)) {
+                    List<String> names = new ArrayList<>();
+                    for (Teacher teacher : teachers) {
+                        if(teacher != null) {
+                            String name = teacher.getName();
+                            if (StringUtils.isNotBlank(name)) {
+                                names.add(name);
                             }
                         }
-                        teacherName = String.join(",",names);
                     }
-                } catch (Exception e) {
-                    teacherName="";
+                    teacherName = String.join(",",names);
                 }
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
