@@ -146,6 +146,31 @@ public class ElecController
         
         return RestResult.successData(teachClasss);
     }
+
+    @ApiOperation(value = "获取课程对应的教学班数据(同时排除掉不满足选课限制的班级)")
+    @PostMapping("/getTeachClass4Limit")
+    @Cacheable(value = "teachingClassCacheVo", key ="#roundId+'-'+#courseCode+'-'+#studentId" )
+    public RestResult<List<TeachingClassCache>> getTeachClass4Limit(
+            @RequestParam("roundId") @NotNull Long roundId,
+            @RequestParam("studentId") @NotNull Long studentId,
+            @RequestParam("courseCode") @NotBlank String courseCode)
+    {
+        List<TeachingClassCache> teachClasss =
+                dataProvider.getTeachClasss(roundId, courseCode);
+        List<TeachingClassCache> teachClasss4Limit = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(teachClasss)){
+            teachClasss4Limit = elecService.getTeachClass4Limit(teachClasss,studentId);
+            if (CollectionUtil.isNotEmpty(teachClasss4Limit)){
+                for (TeachingClassCache teachClass : teachClasss4Limit)
+                {
+                    Long teachClassId = teachClass.getTeachClassId();
+                    Integer elecNumber = dataProvider.getElecNumber(teachClassId);
+                    teachClass.setCurrentNumber(elecNumber);
+                }
+            }
+        }
+        return RestResult.successData(teachClasss4Limit);
+    }
     
     /**
      * 选课请求,选课时发送一次，此时应该返回ElecRespose.status=processing
@@ -198,6 +223,20 @@ public class ElecController
         elecRequest.setStudentId(session.realUid());
         ElecRespose response = elecService.getElectResult(elecRequest);
         return RestResult.successData(response);
+    }
+
+    /**
+     * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
+     */
+    @ApiOperation(value = "查询选课结果")
+    @GetMapping("/getConflict")
+    public RestResult getConflict(@RequestParam("calendarId") @NotNull Long calendarId,
+                                  @RequestParam("studentId") String studentId,
+                                  @RequestParam("courseCode") @NotNull String courseCode,
+                                  @RequestParam("teachClassId") @NotNull Long teachClassId)
+    {
+        elecService.getConflict(calendarId, studentId, courseCode, teachClassId);
+        return RestResult.success();
     }
 
 }

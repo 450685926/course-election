@@ -1,14 +1,15 @@
 package com.server.edu.election.studentelec.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.election.entity.ElcRoundCondition;
+import com.server.edu.election.dao.*;
+import com.server.edu.election.entity.*;
+import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -25,12 +26,7 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.entity.ElectionRounds;
-import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
@@ -44,13 +40,20 @@ import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.util.CollectionUtil;
+import tk.mybatis.mapper.entity.Example;
 
 @Service
 public class StudentElecServiceImpl extends AbstractCacheService
     implements StudentElecService
 {
     Logger LOG = LoggerFactory.getLogger(getClass());
-    
+
+    @Autowired
+    private StudentUndergraduateScoreInfoDao scoreInfoDao;
+
+    @Autowired
+    private ElcStudentLimitDao elcStudentLimitDao;
+
     @Autowired
     private ElecQueueService<ElecRequest> queueService;
     
@@ -59,7 +62,13 @@ public class StudentElecServiceImpl extends AbstractCacheService
     
     @Autowired
     private StudentDao stuDao;
-    
+
+    @Autowired
+    private TeachClassCacheService teachClassCacheService;
+
+    @Autowired
+    private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
+
     @Autowired
     private ApplicationContext applicationContext;
     
@@ -231,7 +240,38 @@ public class StudentElecServiceImpl extends AbstractCacheService
         ElecContextLogin context =
                 new ElecContextLogin(elecRequest,elecRespose);
     	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-    	List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
+
+        List<ElectionRuleVo> collect = rules.stream().filter(c -> "LoserNotElcRule".equals(c.getServiceName())).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(collect)){
+            Example example = new Example(StudentUndergraduateScoreInfo.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("studentNum", studentId);
+            criteria.andEqualTo("isPass", Constants.UN_PASS);
+            List<StudentUndergraduateScoreInfo> stuList = scoreInfoDao.selectByExample(example);
+            Double creditTotal = stuList.stream().mapToDouble(StudentUndergraduateScoreInfo::getCredit).sum();
+            Example example2 = new Example(ElcStudentLimit.class);
+            example2.createCriteria().andEqualTo("calendarId",elecRequest.getCalendarId()).andEqualTo("projectId",Constants.PROJ_UNGRADUATE).andEqualTo("studentId",studentId);
+            List<ElcStudentLimit> elcStudentLimits = elcStudentLimitDao.selectByExample(example2);
+            ElcStudentLimit elcStudentLimit = new ElcStudentLimit();
+            Double newLimitCredits = 0.0;
+            if (creditTotal.doubleValue() >= 20.0 && creditTotal.doubleValue() <= 40){
+            	newLimitCredits =10.0;
+            }else if(creditTotal.doubleValue() > 40){
+            	newLimitCredits =5.0;
+            }
+            if(newLimitCredits>0.0) {
+            	elcStudentLimit.setNewLimitCredits(newLimitCredits);
+                elcStudentLimit.setCalendarId(elecRequest.getCalendarId());
+                elcStudentLimit.setProjectId(Constants.PROJ_UNGRADUATE);
+                elcStudentLimit.setStudentId(studentId);
+                elcStudentLimit.setTotalLimitCredits(0.0);
+                elcStudentLimit.setRebuildLimitNumber(6);
+                if (CollectionUtil.isEmpty(elcStudentLimits)){
+                    elcStudentLimitDao.insertSelective(elcStudentLimit);
+                }
+            }
+        }
+        List<AbstractLoginRuleExceutorBk> loginExceutors = new ArrayList<>();
     	 // 获取执行规则
         @SuppressWarnings("rawtypes")
 		Map<String, AbstractRuleExceutor> map =
@@ -335,6 +375,82 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
         return null;
+    }
+
+    @Override
+    public void getConflict(Long calendarId, String studentId, String courseCode, Long teachClassId) {
+        TeachingClassCache teachingClassCache =
+                teachClassCacheService.getTeachClassByTeachClassId(teachClassId);
+        if (teachingClassCache != null) {
+            List<ClassTimeUnit> times = teachingClassCache.getTimes();
+            if (CollectionUtil.isNotEmpty(times)) {
+                // 获取已选课程
+                ElecContextBk context = new ElecContextBk(studentId, calendarId);
+                Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+                if (CollectionUtil.isNotEmpty(selectedCourses)) {
+                    List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
+                    Map map = new HashMap(selectedCourses.size());
+                    for (SelectedCourse selectedCours : selectedCourses) {
+                        TeachingClassCache course = selectedCours.getCourse();
+                        List<ClassTimeUnit> time = course.getTimes();
+                        String code = course.getCourseCode();
+                        String name = course.getCourseName();
+                        StringBuffer sb = new StringBuffer("[").append(name).append("(").append(code).append(")").append("]");
+                        if (CollectionUtil.isNotEmpty(time)) {
+                            map.put(course.getTeachClassId(), sb.toString());
+                            classTimeUnits.addAll(time);
+                        }
+                    }
+                    if (CollectionUtil.isNotEmpty(classTimeUnits)) {
+                        // 比较课程冲突
+                        for (ClassTimeUnit time : times) {
+                            List<Integer> weeks = time.getWeeks();
+                            int size1 = weeks.size();
+                            int dayOfWeek = time.getDayOfWeek();
+                            int timeStart = time.getTimeStart();
+                            int timeEnd = time.getTimeEnd();
+                            for (ClassTimeUnit classTimeUnit : classTimeUnits) {
+                                List<Integer> selWeeks = classTimeUnit.getWeeks();
+                                int size2 = selWeeks.size();
+                                Set<Integer> all = new HashSet<>();
+                                all.addAll(weeks);
+                                all.addAll(selWeeks);
+                                // 上课周冲突
+                                if (size1 + size2 > all.size() ) {
+                                    // 判断上课天是否一样
+                                    if (dayOfWeek == classTimeUnit.getDayOfWeek()) {
+                                        // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
+                                        int start = classTimeUnit.getTimeStart();
+                                        int end = classTimeUnit.getTimeEnd();
+                                        if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                                            throw new ParameterValidateException("该课程与已选课程" + map.get(classTimeUnit.getTeachClassId()) + "上课时间冲突");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public List<TeachingClassCache> getTeachClass4Limit(List<TeachingClassCache> teachClasss, Long studentId) {
+
+        List<TeachingClassCache> list = new ArrayList<>();
+        for (TeachingClassCache classs : teachClasss) {
+            //限制学生
+            List<String> stringList =
+                    restrictAttrDao.selectRestrictStudent(classs.getTeachClassId());//限制学生
+            if(CollectionUtil.isEmpty(stringList)){
+                list.add(classs);
+            }else if (CollectionUtil.isNotEmpty(stringList) && stringList.contains(studentId)){
+                list.add(classs);
+            }
+        }
+        return list;
     }
 
     /**

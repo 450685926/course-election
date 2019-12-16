@@ -72,7 +72,37 @@ public class ElecCourse implements Serializable
     // 艺术
     private boolean isYs;
 
-    public String getJp() {
+    private String campus;
+    
+    private Integer chosen;
+    
+    private Integer isQhClass;
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    public Integer getChosen() {
+		return chosen;
+	}
+
+	public void setChosen(Integer chosen) {
+		this.chosen = chosen;
+	}
+
+	public Integer getIsQhClass() {
+		return isQhClass;
+	}
+
+	public void setIsQhClass(Integer isQhClass) {
+		this.isQhClass = isQhClass;
+	}
+
+	public String getJp() {
         return jp;
     }
 

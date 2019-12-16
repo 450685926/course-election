@@ -59,7 +59,7 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
 //        }
         List<String> allCourseCodeList =
                 CultureSerivceInvoker.getAllCoursesLevelCourse();
-        if (allCourseCodeList.isEmpty() && !allCourseCodeList.contains(courseCode)){
+        if (CollectionUtil.isEmpty(allCourseCodeList) || (CollectionUtil.isNotEmpty(allCourseCodeList) &&!allCourseCodeList.contains(courseCode))){
             return true;
         }
         Example example = new Example(ElcStuCouLevel.class);
@@ -79,7 +79,7 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
         {
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                .put(courseClass.getCourseCodeAndClassCode(), "没有达到课程英语能力要求");
+                .put(courseClass.getCourseCodeAndClassCode(), "没有达到课程等级能力要求");
             return false;
         }
         return true;

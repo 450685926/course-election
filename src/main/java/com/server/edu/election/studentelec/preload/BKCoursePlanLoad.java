@@ -7,7 +7,13 @@ import com.server.edu.common.entity.BkPublicCourse;
 import com.server.edu.common.entity.BkPublicCourseVo;
 import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.vo.ScoreStudentResultVo;
+import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.dao.ElcStuCouLevelDao;
+import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.studentelec.context.ElecRequest;
+import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.TsCourse;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
@@ -23,9 +29,9 @@ import com.alibaba.fastjson.JSON;
 import com.server.edu.common.dto.CultureRuleDto;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
-import com.server.edu.election.dao.CourseDao;
-import com.server.edu.election.entity.Course;
+import com.server.edu.election.dto.StudentScoreDto;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
+import com.server.edu.election.service.BkStudentScoreService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
@@ -34,7 +40,6 @@ import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
 import com.server.edu.util.CollectionUtil;
-
 import tk.mybatis.mapper.entity.Example;
 
 /**
@@ -48,13 +53,19 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     
 
     @Autowired
-    private CourseDao courseDao;
+    private DictionaryService dictionaryService;
+
+    @Autowired
+    private ElcStuCouLevelDao couLevelDao;
 
     @Autowired
     private RoundDataProvider dataProvider;
 
     @Autowired
     private TeachClassCacheService teachClassCacheService;
+    
+    @Autowired
+    private BkStudentScoreService bkStudentScoreService;
 
     @Override
     public int getOrder()
@@ -74,6 +85,15 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
         Map<String, String> map = new HashMap<>(60);
+        StudentScoreDto dto = new StudentScoreDto();
+        dto.setStudentId(context.getStudentInfo().getStudentId());
+        List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
+        List<String> selectedCourse = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(stuScore)) {
+            selectedCourse = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+        }
+        ElecRequest request = context.getRequest();
+        Long roundId = request.getRoundId();
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
@@ -86,8 +106,13 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto pct : list) {//培养课程
                         String courseCode = pct.getCourseCode();
-                        if(StringUtils.isBlank(courseCode)) {
+                        if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(selectedCourse) && selectedCourse.contains(courseCode)) ) {
                             log.warn("courseCode is Blank skip this record: {}", JSON.toJSONString(pct));
+                            continue;
+                        }
+                        boolean isEnglishFlag = checkCultureEnglish(stu.getStudentId(), courseCode);
+                        if(!isEnglishFlag){
+                            log.warn("The course({}) is not a course that he can learn at his level", JSON.toJSONString(pct));
                             continue;
                         }
                         PlanCourse pl=new PlanCourse();
@@ -108,6 +133,8 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             course2.setCompulsory(pct.getCompulsory());
                             course2.setLabelId(labelId);
                             course2.setLabelName(labelName);
+                            course2.setChosen(pct.getChosen());
+                            course2.setIsQhClass(pct.getIsQhClass());
                             pl.setCourse(course2);
                             pl.setSemester(pct.getSemester());
                             pl.setWeekType(pct.getWeekType());
@@ -132,13 +159,10 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 }
             }
         }
-        Long roundId = context.getRequest().getRoundId();
         ElectionRounds electionRounds = dataProvider.getRound(roundId);
         if(electionRounds==null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("election.round")));
         }
-        Set<ElecCourse> elecCourses = teachClassCacheService.getPublicCourses(electionRounds.getCalendarId());
-        List<String> collect = elecCourses.stream().map(ElecCourse::getCourseCode).collect(Collectors.toList());
 
         Set<TsCourse> publicCourses = context.getPublicCourses();//通识选修课
         //通识选修课
@@ -160,19 +184,34 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             } else {
                                 for (PublicCourse pc : publicCourseList) {
                                     String courseCode = pc.getCourseCode();
-                                    if (collect.contains(courseCode)) {
-                                        ElecCourse elecCourse = new ElecCourse();
-                                        elecCourse.setCourseCode(courseCode);
-                                        elecCourse.setCompulsory(map.get(courseCode));
-                                        elecCourse.setCourseName(pc.getCourseName());
-                                        elecCourse.setCredits(pc.getCreidits());
-                                        elecCourse.setJp(pc.getJp());
-                                        elecCourse.setCx(pc.isCx());
-                                        elecCourse.setYs(pc.isYs());
-                                        TsCourse tsCourse = new TsCourse();
-                                        tsCourse.setTag(tag);
-                                        tsCourse.setCourse(elecCourse);
-                                        publicCourses.add(tsCourse);
+                                    if (!selectedCourse.contains(courseCode)) {
+                                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                                        // 判断这门课程在本轮次是否有对应的教学班
+                                        if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                                            Set<String> set = new HashSet(5);
+                                            Set<String> collect = teachingClassCaches.stream().map(TeachingClassCache::getCampus).collect(Collectors.toSet());
+                                            for (String s : collect) {
+                                                if (StringUtils.isNotBlank(s)) {
+                                                    String campus = dictionaryService.query("X_XQ", s);
+                                                    if (StringUtils.isNotBlank(campus)) {
+                                                        set.add(campus);
+                                                    }
+                                                }
+                                            }
+                                            ElecCourse elecCourse = new ElecCourse();
+                                            elecCourse.setCampus(String.join(",", set));
+                                            elecCourse.setCourseCode(courseCode);
+                                            elecCourse.setCompulsory(map.get(courseCode));
+                                            elecCourse.setCourseName(pc.getCourseName());
+                                            elecCourse.setCredits(pc.getCreidits());
+                                            elecCourse.setJp(pc.getJp());
+                                            elecCourse.setCx(pc.isCx());
+                                            elecCourse.setYs(pc.isYs());
+                                            TsCourse tsCourse = new TsCourse();
+                                            tsCourse.setTag(tag);
+                                            tsCourse.setCourse(elecCourse);
+                                            publicCourses.add(tsCourse);
+                                        }
                                     }
                                 }
                             }
@@ -205,5 +244,33 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         return false;
     }
 
+    //判断该门英语课是否为他英语等级可以学习的课程
+    public boolean checkCultureEnglish(String studentId,
+                             String courseCode)
+    {
+        List<String> allCourseCodeList =
+                CultureSerivceInvoker.getAllCoursesLevelCourse();
+        if (CollectionUtil.isEmpty(allCourseCodeList) || (CollectionUtil.isNotEmpty(allCourseCodeList) &&!allCourseCodeList.contains(courseCode))){
+            return true;
+        }
+        Example example = new Example(ElcStuCouLevel.class);
+        example.createCriteria()
+                .andEqualTo("studentId", studentId);
+        List<ElcStuCouLevel> list = couLevelDao.selectByExample(example);
+        // 没有配置英语能力-通过
+        if (CollectionUtil.isEmpty(list))
+        {
+            return true;
+        }
+        Long courseCategoryId = list.get(0).getCourseCategoryId();
+        List<String> courseCodeList =
+                CultureSerivceInvoker.getCoursesLevelCourse(courseCategoryId);
+        if (CollectionUtil.isNotEmpty(courseCodeList)
+                && !courseCodeList.contains(courseCode))
+        {
+            return false;
+        }
+        return true;
+    }
 
 }

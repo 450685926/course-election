@@ -2146,4 +2146,8 @@
 			)
 		AND t1.CALENDAR_ID_ = #{calendarId}
     </select>
+
+    <select id="findCompulsory" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
+        select courseCode, compulsory from v_student_plan_course where studentId = #{studentId}
+    </select>
 </mapper>

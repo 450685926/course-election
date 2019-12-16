@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.server.edu.common.entity.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -380,15 +381,30 @@ public class CultureSerivceInvoker
         return result;
     }
 
-    /**查询本科生必选修字段查询*/
-    public static List<PlanCourseTypeDto> findPlanCourseTabBk(String studentId)
+    /**
+     * 查询本科生必选修字段查询
+     * @param studentId
+     * @return
+     */
+    public static Map<String, String> findPlanCourseTabBk(String studentId)
     {
         @SuppressWarnings("unchecked")
         List<PlanCourseTypeDto> list = ServicePathEnum.CULTURESERVICE
                 .getForObject("/bclCulturePlan/findPlanCourseTabBk?studentId={studentId}",
                         List.class,
                         studentId);
-        return list;
+        // 培养那边拿不到数据会返回null，也可能是空集合
+        if (CollectionUtil.isEmpty(list)) {
+            return new HashMap<>();
+        }
+        Map<String, String> map = new HashMap<>(list.size());
+        for (PlanCourseTypeDto planCourseTypeDto : list) {
+            String compulsory = planCourseTypeDto.getCompulsory();
+            if (StringUtils.isNotBlank(compulsory)) {
+                map.put(planCourseTypeDto.getCourseCode(), compulsory);
+            }
+        }
+        return map;
     }
     
     /**查询本科生荣誉课程*/
@@ -430,6 +446,7 @@ public class CultureSerivceInvoker
         JSONObject param = new JSONObject();
         param.put("type", "2");
         param.put("page", "false");
+        param.put("englishFlag", "2");
 
         Object restResult =
                 ServicePathEnum.CULTURESERVICE.postForObject("/coursesCategoryRel/list",param, Object.class);

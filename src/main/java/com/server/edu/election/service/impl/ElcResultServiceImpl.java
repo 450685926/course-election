@@ -330,8 +330,14 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
                 condition.setIncludeCodes(includeCodes);
-                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
-        		listPage = classDao.listPage(condition);
+//                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+                if(condition.getIsHaveLimit() != null && condition.getIsHaveLimit().intValue() == Constants.ONE){
+                    PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+                    listPage = classDao.listPage4limit(condition);
+                }else{
+                    PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+                    listPage = classDao.listPage(condition);
+                }
 			}
 		}
 		return listPage;
@@ -702,11 +708,11 @@ public class ElcResultServiceImpl implements ElcResultService
                     {
                         continue;
                     }
+                    int overSize = (invincibleStus.size()
+                            + affinityStus.size() + normalStus.size())
+                            - teachingClass.getNumber();
                     gradAndPreFilter.execute(stuList, removeStus);
                     //执行完后人数还是超过上限则进行随机删除
-                    int overSize = (invincibleStus.size()
-                        + affinityStus.size() + normalStus.size())
-                        - teachingClass.getNumber();
                     if(overSize > 0) {
                     	elcConditionFilter.execute(stuList, removeStus);
                     }
@@ -725,8 +731,10 @@ public class ElcResultServiceImpl implements ElcResultService
                             {
                                 limitNumber = 0;
                             }
+//                            GradAndPreFilter
+//                                .randomRemove(removeStus, limitNumber, stuList);
                             GradAndPreFilter
-                                .randomRemove(removeStus, limitNumber, stuList);
+                            .randomRemoveStu(removeStus, limitNumber, stuList,invincibleStus.size(),affinityStus.size(),normalStus.size(),teachingClass.getNumber());
                         }else {
                         	break;
                         }
@@ -1393,4 +1401,5 @@ public class ElcResultServiceImpl implements ElcResultService
         TeachingClassVo teachingClassVo = classDao.getMaleToFemaleRatio(elcResultQuery);
         return teachingClassVo;
     }
+
 }
