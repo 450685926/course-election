@@ -164,7 +164,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         PageCondition<RebuildCourseDto> pageCondition = new PageCondition<>();
         RebuildCourseDto rebuildCourseDto = new RebuildCourseDto();
         rebuildCourseDto.setCalendarId(calendarId);
-        rebuildCourseDto.setCalendarId(turn);
+        rebuildCourseDto.setTurn(Integer.valueOf(String.valueOf(turn)));
         rebuildCourseDto.setElectionObj(electionObj);
         rebuildCourseDto.setDeptId(dptId);
         while (true) {
@@ -176,8 +176,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                 break;
             }
         }
-        if (CollectionUtil.isNotEmpty(list)) {
-            courseChargeDao.deleteRecycleCourse(list.stream().filter(Objects::nonNull).map(RebuildCourseNoChargeList::getId).collect(Collectors.toList()));
+        List<Long> idList = list.stream().filter(Objects::nonNull).map(RebuildCourseNoChargeList::getId).collect(Collectors.toList());
+        if (CollectionUtil.isNotEmpty(idList)) {
+            courseChargeDao.deleteRecycleCourse(idList);
         }
 
     }
