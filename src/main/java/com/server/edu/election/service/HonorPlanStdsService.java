@@ -49,5 +49,5 @@ public interface HonorPlanStdsService
      * @param calendarId
      * @return
      */
-    boolean fingStudentByStudentId(String studentId, Long calendarId);
+    boolean fingStudentByStudentId(String studentId, Long roundId);
 }
