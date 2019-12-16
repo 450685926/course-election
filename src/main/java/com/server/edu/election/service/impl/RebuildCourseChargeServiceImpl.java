@@ -141,8 +141,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     /**@Description: 删除选课日志
      *
-     * 优先根据ids删除，如果ids为空，在根据calendarId和turn删除
-     *
+     * 优先根据ids删除，如果ids为空，在根据calendarId，electionObj，部门id，turn删除，
+     * 如果ids为空，那么calendarId，electionObj，部门id，turn不能为空
      * @param ids 选课日志id
      * @param calendarId 学期id
      * @param turn 选课伦次
@@ -150,13 +150,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     @Transactional
     public void deleteRecycleCourse(List<Long> ids,Long calendarId,Long turn,String electionObj) {
-        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
         if (CollectionUtil.isNotEmpty(ids)) {
             courseChargeDao.deleteRecycleCourse(ids);
             return;
         }
-        //calendarId和turn必须要有值
-        if(null==calendarId||null==turn){
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        //calendarId和turn electionObj 必须要有值
+        if(null==calendarId||null==turn||null==electionObj){
             throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
         }
         int pageNum = 0;
@@ -375,13 +375,19 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         return new PageResult<>(recycleCourse);
     }
 
+    /**
+     * 查询轮次
+     */
     @Override
     public List<RebuildCourseDto> selectTurn(RebuildCourseDto rebuildCourseDto) {
-        //String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-       // rebuildCourseDto.setDeptId(dptId);
+        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        rebuildCourseDto.setDeptId(dptId);
         return courseChargeDao.selectTurn(rebuildCourseDto);
     }
 
+    /**
+     * 查询筛选标签
+     */
     @Override
     public List<String> selectLabelName(Long calendarId) {
         return courseChargeDao.selectLabelName(calendarId);
