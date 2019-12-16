@@ -220,9 +220,9 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
         example.createCriteria().andEqualTo("studentId",studentId).andEqualTo("calendarId",calendarId);
         Integer count = honorPlanStdsDao.selectCountByExample(example);
         if (count.intValue() != 0){
-            return false;
-        }else {
             return true;
+        }else {
+            return false;
         }
 
     }

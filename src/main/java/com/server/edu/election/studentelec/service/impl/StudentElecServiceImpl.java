@@ -389,9 +389,15 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
                 if (CollectionUtil.isNotEmpty(selectedCourses)) {
                     List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
+                    Map map = new HashMap(selectedCourses.size());
                     for (SelectedCourse selectedCours : selectedCourses) {
-                        List<ClassTimeUnit> time = selectedCours.getCourse().getTimes();
+                        TeachingClassCache course = selectedCours.getCourse();
+                        List<ClassTimeUnit> time = course.getTimes();
+                        String code = course.getCourseCode();
+                        String name = course.getCourseName();
+                        StringBuffer sb = new StringBuffer("[").append(name).append("(").append(code).append(")").append("]");
                         if (CollectionUtil.isNotEmpty(time)) {
+                            map.put(course.getTeachClassId(), sb.toString());
                             classTimeUnits.addAll(time);
                         }
                     }
@@ -417,7 +423,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                         int start = classTimeUnit.getTimeStart();
                                         int end = classTimeUnit.getTimeEnd();
                                         if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
-                                            throw new ParameterValidateException("该课程与已选课程上课时间冲突");
+                                            throw new ParameterValidateException("该课程与已选课程" + map.get(classTimeUnit.getTeachClassId()) + "上课时间冲突");
                                         }
                                     }
                                 }
