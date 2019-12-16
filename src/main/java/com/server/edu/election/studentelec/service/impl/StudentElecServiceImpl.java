@@ -422,7 +422,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                                         int start = classTimeUnit.getTimeStart();
                                         int end = classTimeUnit.getTimeEnd();
-                                        if ( (start <= timeStart && timeStart <= end) || (start <= timeEnd && timeEnd <= end)) {
+                                        if ( (start <= timeStart && timeStart <= end)
+                                                || (start <= timeEnd && timeEnd <= end)
+                                                || (timeStart <= start && start <= timeEnd)
+                                                || (timeStart <= end && end <= timeEnd)) {
                                             throw new ParameterValidateException("该课程与已选课程" + map.get(classTimeUnit.getTeachClassId()) + "上课时间冲突");
                                         }
                                     }
