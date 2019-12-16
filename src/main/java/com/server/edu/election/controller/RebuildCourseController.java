@@ -206,9 +206,10 @@ public class RebuildCourseController
     /**
      * 入参
      * {
-     *     "ids":[],
-     *     "calendarId":"",
-     *     "turn":""
+     *     "ids":[], 页面中要删除行的id
+     *     "calendarId":"", 学期
+     *     "turn":"",  伦次
+     *     "electionObj":"" 选课对象
      * }
      *
      * @param jsonObject
@@ -222,7 +223,7 @@ public class RebuildCourseController
         List<Long> ids = jsonObject.getObject("ids",List.class);
         Long calendarId = jsonObject.getObject("calendarId",Long.class);
         Long turn =  jsonObject.getObject("turn",Long.class);
-        String electionObj =  jsonObject.getObject("turn",String.class);
+        String electionObj =  jsonObject.getObject("electionObj",String.class);
         service.deleteRecycleCourse(ids,calendarId,turn,electionObj);
         return RestResult.success();
     }

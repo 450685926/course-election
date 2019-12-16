@@ -85,12 +85,13 @@
         re.MODE_ mode,
         rounds.ELECTION_OBJ_ electionObj
         FROM rebuild_course_recycle_t re
-        INNER  join  (
+        left join  (
             select
                 TURN_,NAME_ ,
                 CALENDAR_ID_,
                 ELECTION_OBJ_ ,
                 MODE_,
+                MANAGER_DEPT_ID_,
                 (CASE
                 when ELECTION_OBJ_ = 'STU' then 1
                 when ELECTION_OBJ_ = 'DEPART_ADMIN' then 2
@@ -115,6 +116,9 @@
             </if>
             <if test="type !=null and type !=0">
                 and re.TYPE_ = #{type}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+                and rounds.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
                 and re.ID_ in
@@ -157,12 +161,13 @@
         LEFT JOIN course_t co on co.CODE_=re.COURSE_CODE_
         left join teaching_class_t te on te.ID_=re.TEACHING_CLASS_ID_
         left join elc_screening_label_t esl on re.CALENDAR_ID_ = esl.CALENDAR_ID_
-        INNER  join  (
+        left  join  (
                     select
                             TURN_,NAME_ ,
                             CALENDAR_ID_,
                             ELECTION_OBJ_ ,
                              MODE_,
+                            MANAGER_DEPT_ID_,
                             (CASE
                             when ELECTION_OBJ_ = 'STU' then 1
                             when ELECTION_OBJ_ = 'DEPART_ADMIN' then 2
@@ -175,6 +180,7 @@
                     and re.TURN_ = rounds.TURN_
                     and re.CHOOSE_OBJ_ = rounds.CHOOSE_OBJ_
                      and re.MODE_ = rounds.MODE_
+                    and  st.MANAGER_DEPT_ID_ = rounds.MANAGER_DEPT_ID_
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
