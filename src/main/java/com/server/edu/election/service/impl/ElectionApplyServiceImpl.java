@@ -3,7 +3,10 @@ package com.server.edu.election.service.impl;
 import java.util.Date;
 import java.util.List;
 
+import com.server.edu.common.enums.GroupDataEnum;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +17,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ElectionApplyDao;
@@ -50,6 +54,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     
     @Autowired
     private ElectionApplyCoursesDao electionApplyCoursesDao;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
     
     @Override
     public PageInfo<ElectionApplyVo> applyList(
@@ -271,20 +278,32 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     
     @Override
     @Transactional
-    public void update(String studentId, Long calendarId, String courseCode)
+    public void update(String studentId, Long calendarId, String courseCode,ElectRuleType type)
     {
         Example example = new Example(ElectionApply.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentId", studentId);
         criteria.andEqualTo("calendarId", calendarId);
         criteria.andEqualTo("courseCode", courseCode);
+        Integer oldApplyStatus = Constants.APPLY;
+        if(ElectRuleType.WITHDRAW.equals(type)) {
+        	oldApplyStatus = Constants.AGENTELC;
+        }
+        criteria.andEqualTo("apply", oldApplyStatus);
         ElectionApply apply = electionApplyDao.selectOneByExample(example);
         if (apply != null)
         {
-            apply.setApply(Constants.AGENTELC);
-            electionApplyDao.updateByPrimaryKeySelective(apply);
+        	ElectionApply newApply = new ElectionApply();
+            Integer applyStatus = Constants.AGENTELC;
+            if(ElectRuleType.WITHDRAW.equals(type)) {
+            	applyStatus = Constants.APPLY_WITHDRAW;
+            }
+        	newApply.setApply(applyStatus);
+            Example newExample = new Example(ElectionApply.class);
+            Example.Criteria newCriteria = newExample.createCriteria();
+            newCriteria.andEqualTo("id", apply.getId());
+            electionApplyDao.updateByExampleSelective(newApply, newExample);
         }
-        
         this.updateCache(studentId, calendarId);
     }
     

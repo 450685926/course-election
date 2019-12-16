@@ -136,17 +136,20 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                     return false;
                 }
             }else if (enabled && StringUtils.equals("MAJORANDGRADE", parameter.getName())){      //学生年级专业限制项MAJOR
+                boolean fff = false;
                 if (CollectionUtil.isNotEmpty(suggestProfessionDtos)){
                     for (SuggestProfessionDto suggestProfessionDto: suggestProfessionDtos) {
-                        if (StringUtils.equalsIgnoreCase(suggestProfessionDto.getProfession(),studentInfo.getMajor())
-                        &&suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue()){
-                            resultFlag = true;
-                        }else{
-                            resultFlag = false;
+                        if ((suggestProfessionDto.getGrade() == null && StringUtils.equalsIgnoreCase(suggestProfessionDto.getProfession(),studentInfo.getMajor()))
+                        || (StringUtils.isEmpty(suggestProfessionDto.getProfession()) && suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue())
+                        || (StringUtils.isNotEmpty(suggestProfessionDto.getProfession()) && suggestProfessionDto.getGrade().intValue() == studentInfo.getGrade().intValue()
+                        && suggestProfessionDto.getGrade() != null && StringUtils.equalsIgnoreCase(suggestProfessionDto.getProfession(),studentInfo.getMajor()))){
+                            fff = true;
                         }
                     }
+                }else{
+                    fff = true;
                 }
-                if (!resultFlag) {
+                if (!fff) {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
                             .put(courseClass.getCourseCodeAndClassCode(),

@@ -1,8 +1,5 @@
 package com.server.edu.election.studentelec.utils;
 
-import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS;
-import static com.server.edu.election.studentelec.utils.Keys.STD_STATUS_LOCK;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.server.edu.common.entity.BkPublicCourse;
+import com.server.edu.common.entity.BkPublicCourseVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,8 @@ import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 
 import redis.clients.jedis.Jedis;
+
+import static com.server.edu.election.studentelec.utils.Keys.*;
 
 /**
  * 选课上下文工具类
@@ -88,7 +89,7 @@ public class ElecContextUtil
         }
         return u;
     }
-    
+
     String getRedisKey()
     {
         return ElecContextUtil.getKey(studentId);
@@ -396,6 +397,17 @@ public class ElecContextUtil
         
         opsForValue.set(redisKey, JSON.toJSONString(courses));
     }
+
+    /**
+     * 设置通识选修课
+     */
+    public static void setPublicCourse(List<BkPublicCourseVo> list)
+    {
+        ValueOperations<String, String> opsForValue =
+                getRedisTemplate().opsForValue();
+        String redisKey = getBKPublicCourseKey();
+        opsForValue.set(redisKey, JSON.toJSONString(list));
+    }
     
     /**
      * 获取选课申请管理课程
@@ -411,6 +423,22 @@ public class ElecContextUtil
             return new HashSet<>();
         }
         return new HashSet<>(JSON.parseArray(value, String.class));
+    }
+
+    /**
+     * 获取通识选修课
+     */
+    public static List<BkPublicCourseVo> getBKPublicCourse()
+    {
+        ValueOperations<String, String> opsForValue =
+                getRedisTemplate().opsForValue();
+        String redisKey = Keys.getBKPublicCourseKey();
+        String value = opsForValue.get(redisKey);
+        if (StringUtils.isEmpty(value))
+        {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(JSON.parseArray(value, BkPublicCourseVo.class));
     }
     
     /**

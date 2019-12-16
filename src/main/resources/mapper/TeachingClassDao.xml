@@ -195,6 +195,127 @@
  	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4
  	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
  	  </if>
+  </select><select id="listPage4limit" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
+    select distinct
+    t1.ID_,
+    t1.TASK_ID_,
+	t1.CODE_,
+	t1.NAME_,
+	t1.ASSESSMENT_MODE_,
+	t1.TEACHING_WAY_,
+	t1.TEACHING_LANGUAGE_,
+	t1.COURSE_LABEL_ID_,
+	t1.PERIOD_,
+	t1.WEEK_HOUR_,
+	t1.CAMPUS_,
+	t1.NUMBER_,
+	t1.ELC_NUMBER_,
+	t1.RESERVE_NUMBER_,
+	t1.RESERVE_NUMBER_RATE_,
+	t1.ASSISTANT_NUMBER_,
+	t1.REMARK_,
+    t3.COURSE_CODE_, t3.COURSE_NAME_, t3.CREDITS_, room.ROOM_ID_ roomId,
+    t3.FACULTY_,
+    t3.NATURE_,
+    t3.IS_ELECTIVE_,
+    GROUP_CONCAT(DISTINCT t7.`TEACHER_CODE_`) teacherCodes,
+    t5.NUMBER_MALE_,t5.NUMBER_FEMALE_
+    from
+	teaching_class_t t1
+	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+	join course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1)
+    left join teaching_class_elective_restrict_attr_t t5 on t5.TEACHING_CLASS_ID_ = t1.ID_
+	join teaching_class_arrange_time_t time on (t1.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
+	join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
+	LEFT JOIN teaching_class_teacher_t t7 ON t7.TEACHING_CLASS_ID_ = t1.ID_ AND t7.`TYPE_` = 0
+    <where>
+      t1.DELETE_STATUS_ = 0
+      and t3.CALENDAR_ID_ = #{calendarId}
+      and t1.DEPLOY_FLAG_ &gt; 0
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+        and t1.CODE_ = #{teachingClassCode,jdbcType=VARCHAR}
+      </if>
+      <if test="isChange !=null and isChange ==1">
+        and t1.ID_ != #{teachingClassId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
+        and t3.IS_ELECTIVE_ = #{isElective}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+        and t3.TRAINING_LEVEL_ = #{trainingLevel}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
+        and t1.COURSE_LABEL_ID_ = #{courseLabelId}
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==1">
+        and t1.ELC_NUMBER_ &gt; t1.NUMBER_
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==2">
+        and t1.ELC_NUMBER_ &lt; t1.NUMBER_
+      </if>
+      <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==3">
+        and t1.ELC_NUMBER_ = t1.NUMBER_
+      </if>
+      <if test="minUpperNumber != null and minUpperNumber !=0">
+        and t1.NUMBER_ &gt;= #{minUpperNumber}
+      </if>
+      <if test="maxUpperNumber != null and maxUpperNumber !=0">
+        and t1.NUMBER_ &lt;= #{maxUpperNumber}
+      </if>
+       <if test="minActualNumber != null and minActualNumber !=0">
+        and t1.ELC_NUMBER_ &gt;= #{minActualNumber}
+      </if>
+      <if test="maxActualNumber != null and maxActualNumber !=0">
+        and t1.ELC_NUMBER_ &lt;= #{maxActualNumber}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(manArrangeFlag)">
+        and t1.MAN_ARRANGE_FLAG_ = #{manArrangeFlag}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+        and t3.COURSE_CODE_ = #{courseCode}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+        and t3.COURSE_NAME_ = #{courseName}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+        and t1.CAMPUS_ = #{campus}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+        and t3.PROJ_ID_ = #{projectId}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
+        and t3.FACULTY_ in
+        <foreach collection="faculties" open="(" separator="," close=")" item="fy">
+            #{fy}
+        </foreach>
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+        and t3.FACULTY_ = #{faculty}
+      </if>
+      <if test="credits!=null and credits!=0">
+        and t3.CREDITS_ = #{credits}
+      </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(includeCodes)">
+  		and t3.COURSE_CODE_ in
+  		<foreach collection="includeCodes" open="(" separator="," close=")" item="courseCode">
+            #{courseCode}
+         </foreach>
+  	  </if>
+      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassIds)">
+        and t1.ID_ in
+        <foreach collection="teachingClassIds" open="(" separator="," close=")" item="teachingClassId">
+            #{teachingClassId}
+        </foreach>
+      </if>
+  	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+  		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  	  </if>
+    </where>
+       GROUP BY t1.ID_
+ 	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
+ 	    HAVING (select count(t4.id_) from teaching_class_teacher_t t4
+ 	    	where t4.TEACHING_CLASS_ID_ = t1.ID_ and t4.TYPE_=0 and t4.TEACHER_CODE_ = #{teacherCode} ) > 0
+ 	  </if>
   </select>
 
     <select id="listScreeningPage" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
@@ -582,5 +703,26 @@
         sum((case t2.SEX_ when 2 then 1 end)) NUMBER_FEMALE_ from elc_course_takes_t t1
          JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
         where t1.TEACHING_CLASS_ID_=#{teachingClassId};
+    </select>
+
+    <select id="getStudentAbnormalCount" resultType="java.lang.Integer">
+        select count(ID_)
+        from student_abnormal_apply_v v
+        where v.STUDENT_ID_ = #{studentId}
+        and v.ABNORMAL_START_TIME_ <![CDATA[ >= ]]> #{beginDay}
+        and v.ABNORMAL_END_TIME_ <![CDATA[ >= ]]> #{endDay}
+        and v.CLASS_ID_ = 300015
+        and v.STATUS_ = 3
+    </select>
+    <select id="getStudentAbnormalCountNew" resultType="java.lang.Integer">
+        select count(*)
+        from v_student_change_t v
+        where v.flag='1'
+        and v.xnj>ynj
+        and v.xnd=#{year}
+        and v.xq = #{term}
+        and v.xjbdlx in('1','5')
+        and v.xh=#{studentId}
+
     </select>
 </mapper>

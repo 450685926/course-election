@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -367,6 +369,16 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         // 获取学历年
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
+            List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentId);
+            Map<String, String> map = new HashMap<>();
+            if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+                for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                    String compulsory = elcCourseTakeVo.getCompulsory();
+                    if (StringUtils.isNotBlank(compulsory)) {
+                        map.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    }
+                }
+            }
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
@@ -389,7 +401,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 lesson.setTeachClassCode(c.getTeachingClassCode());
                 lesson.setFaculty(c.getFaculty());
                 lesson.setTerm(c.getTerm());
-                lesson.setCompulsory(c.getCompulsory());
+                lesson.setCompulsory(map.get(c.getCourseCode()));
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
                 course.setCourse(lesson);
@@ -400,6 +412,29 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 course.setTurn(c.getTurn());
                 selectedCourses.add(course);
             }
+        }
+    }
+    
+    
+    /**
+     * 加载本学期已选课课程数据
+     * 
+     * @param studentId
+     * @param selectedCourses
+     * @param calendarId
+     * @see [类、类#方法、类#成员]
+     */
+    public void loadElecApplyCourse(String studentId,
+    		Set<ElectionApply> elecApplyCourses, Long calendarId)
+    {
+    	Example aExample = new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys =
+            electionApplyDao.selectByExample(aExample);
+        if(CollectionUtil.isNotEmpty(electionApplys)) {
+        	elecApplyCourses = new HashSet<>(elecApplyCourses);
         }
     }
     

@@ -32,6 +32,7 @@ import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
+import com.server.edu.election.studentelec.service.ElecBkService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.ElecYjsServiceImpl;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
@@ -71,6 +72,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private ElecBkService elecBkService;
     
     @Autowired
     private CourseDao courseDao;
@@ -247,6 +251,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Long calendarId = add.getCalendarId();
         List<String> studentIds = add.getStudentIds();
         List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(teachingClassIds);
+        List<String> stus = new ArrayList<>();
+        List<String> courses = new ArrayList();
         if (teachingClasses.size() != teachingClassIds.size()) {
             throw new ParameterValidateException("教学班不存在");
         }
@@ -293,7 +299,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                             Set<String> weekStu = weeks.stream().map(s -> String.valueOf(s)).collect(Collectors.toSet());
                             int size2 = weekStu.size();
                             int size3 = size1 + size2;
-                            Set<String> all = new HashSet<>(size3);
+                            Set<String> all = new HashSet<>();
+                            all.addAll(set);
+                            all.addAll(weekStu);
                             // 上课周冲突
                             if (size3 > all.size() ) {
                                 // 判断上课天是否一样
@@ -331,7 +339,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                         .getTeachingClassInfo(calendarId, teachingClassId, null);
                 if (null != vo && vo.getCourseCode() != null)
                 {
-                    addTake(date, calendarId, studentId, vo, mode);
+                    addTakeNew(date, calendarId, studentId, vo, mode, stus, courses, studentIds, teachingClassIds);
                 }
                 else
                 {
@@ -345,9 +353,83 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 }
             }
         }
+        if(CollectionUtil.isNotEmpty(stus)){
+            return StringUtils.join(stus.toArray(),",")+"已经选取了这门课程";
+
+        }else if(CollectionUtil.isNotEmpty(courses)){
+            return StringUtils.join(courses.toArray(),",")+"这些课程为重复添加操作";
+        }
         return StringUtils.EMPTY;
     }
 
+    @Transactional
+    private void addTakeNew(Date date, Long calendarId, String studentId,
+                         ElcCourseTakeVo vo, Integer mode,List<String> stus,List<String> courses,List<String> students,List<Long> teachClassIds)
+    {
+        String courseCode = vo.getCourseCode();
+        Long teachingClassId = vo.getTeachingClassId();
+        String courseName = vo.getCourseName();
+        String teachingClassCode = vo.getTeachingClassCode();
+
+        // 查询当前学期是否选过这门课程
+        int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
+
+        if (count == 0)
+        {
+            ElcCourseTake record = new ElcCourseTake();
+            record.setStudentId(studentId);
+            record.setCourseCode(courseCode);
+            int selectCount = courseTakeDao.selectCount(record);
+            ElcCourseTake take = new ElcCourseTake();
+            // 判断是否是第一次上该课程
+            if (selectCount == 0) {
+                take.setCourseTakeType(CourseTakeType.NORMAL.type());
+            } else {
+                take.setCourseTakeType(CourseTakeType.RETAKE.type());
+            }
+            take.setCalendarId(calendarId);
+            take.setChooseObj(ChooseObj.ADMIN.type());
+            take.setCourseCode(courseCode);
+            take.setCreatedAt(date);
+            take.setStudentId(studentId);
+            take.setTeachingClassId(teachingClassId);
+            take.setMode(mode);
+            take.setTurn(0);
+            courseTakeDao.insertSelective(take);
+            // 增加选课人数
+            classDao.increElcNumber(teachingClassId);
+            // 添加选课日志
+            ElcLog log = new ElcLog();
+            log.setCalendarId(calendarId);
+            log.setCourseCode(courseCode);
+            log.setCourseName(courseName);
+            Session currentSession = SessionUtils.getCurrentSession();
+            log.setCreateBy(currentSession.getUid());
+            log.setCreatedAt(date);
+            log.setCreateIp(currentSession.getIp());
+            log.setMode(ElcLogVo.MODE_2);
+            log.setStudentId(studentId);
+            log.setTeachingClassCode(teachingClassCode);
+            log.setTurn(0);
+            log.setType(ElcLogVo.TYPE_1);
+            this.elcLogDao.insertSelective(log);
+            // 更新缓存中教学班人数
+            teachClassCacheService.updateTeachingClassNumber(teachingClassId);
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
+            applicationContext
+                    .publishEvent(new ElectLoadEvent(calendarId, studentId));
+            Student stu  = studentDao.findStudentByCode(studentId);
+            elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
+        }else {
+            if(students.size() > 1 && teachClassIds.size() == 1){
+                stus.add(studentId);
+            }else if (teachClassIds.size() > 1 && students.size() == 1){
+                courses.add(courseCode);
+            }else{
+                courses.add(courseCode);
+            }
+        }
+    }
     @Transactional
     private void addTake(Date date, Long calendarId, String studentId,
         ElcCourseTakeVo vo, Integer mode)
@@ -402,6 +484,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
+            Student stu  = studentDao.findStudentByCode(studentId);
+            elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
         }
     }
 
@@ -595,6 +679,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .andEqualTo("calendarId", calendarId)
                 .andEqualTo("studentId", studentId)
                 .andEqualTo("teachingClassId", teachingClassId);
+            ElcCourseTake elcCourseTake = courseTakeDao.selectOneByExample(example);
             courseTakeDao.deleteByExample(example);
             //减少选课人数
             int count =classDao.decrElcNumber(teachingClassId);
@@ -608,6 +693,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                      dataProvider.incrementDrawNumber(teachingClassId);
                  }
             }
+            Student stu  = studentDao.findStudentByCode(studentId);
             // 更新缓存中教学班人数
             teachClassCacheService.updateTeachingClassNumber(teachingClassId);
             ElcCourseTakeVo vo = null;
@@ -643,6 +729,8 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
+                elecBkService.syncRemindTime(2,studentId,stu.getName(),vo.getCourseName()+"("+elcCourseTake.getCourseCode()+")");
+
                 withdrawMap.put(
                     String
                         .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),

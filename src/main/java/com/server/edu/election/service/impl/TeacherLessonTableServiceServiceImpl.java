@@ -1185,12 +1185,20 @@ public class TeacherLessonTableServiceServiceImpl
                 String weekstr = findWeek(dayOfWeek);//星期
                 
                 String[] tcodes = teacherCode.split(",");
-                List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
                 String teacherName="";
-                if(teachers != null) {
-                    teacherName = teachers.stream().map(Teacher::getName).collect(Collectors.joining(","));
+                List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
+                if(CollectionUtil.isNotEmpty(teachers)) {
+                    List<String> names = new ArrayList<>();
+                    for (Teacher teacher : teachers) {
+                        if(teacher != null) {
+                            String name = teacher.getName();
+                            if (StringUtils.isNotBlank(name)) {
+                                names.add(name);
+                            }
+                        }
+                    }
+                    teacherName = String.join(",",names);
                 }
-                
                 String timeStr=weekstr+" "+timeStart+"-"+timeEnd+"节"+weekNumStr+ClassroomCacheUtil.getRoomName(roomID);
                 String roomStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr;
                 time.setDayOfWeek(dayOfWeek);

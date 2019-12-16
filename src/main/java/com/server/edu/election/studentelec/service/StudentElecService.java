@@ -2,8 +2,11 @@ package com.server.edu.election.studentelec.service;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+
+import java.util.List;
 
 /**
  * 选课请求的主入口
@@ -25,6 +28,14 @@ public interface StudentElecService
      */
     RestResult<ElecRespose> elect(ElecRequest elecRequest);
     
+    
+    /**
+     * 选课登陆校验
+     * @param elecRequest
+     * @return
+     */
+    RestResult<ElecRespose> loginCheck(ElecRequest elecRequest);
+    
     /**
      * 获取学生选课结果
      * 
@@ -37,5 +48,9 @@ public interface StudentElecService
     
     /**根据轮次查询学生信息*/
     Student findStuRound(Long roundId, String studentId);
-	
+
+    void getConflict(Long calendarId, String studentId, String courseCode, Long teachClassId);
+
+    /** 排除有限制学生的教学班*/
+    List<TeachingClassCache> getTeachClass4Limit(List<TeachingClassCache> teachClasss, Long studentId);
 }

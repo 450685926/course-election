@@ -17,6 +17,7 @@ import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,10 +70,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
 import com.server.edu.election.util.WeekUtil;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentSchoolTimetabVo;
-import com.server.edu.election.vo.StudentVo;
-import com.server.edu.election.vo.TimeTable;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
@@ -116,6 +113,9 @@ public class ReportManagementServiceImpl implements ReportManagementService
 
     @Autowired
     private DictionaryService dictionaryService;
+
+    @Autowired
+    private ElcCourseTakeDao elcCourseTakeDao;
 
     @Autowired
     private FreeMarkerConfigurer freeMarkerConfigurer;
@@ -921,12 +921,15 @@ public class ReportManagementServiceImpl implements ReportManagementService
             List<Long> ids = studentTable.stream()
                 .map(StudnetTimeTable::getTeachingClassId)
                 .collect(Collectors.toList());
+            List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentCode);
             Map<String, String> compulsoryMap = new HashMap<>();
-            List<PlanCourseTypeDto> planCourseTypeDtos = CultureSerivceInvoker.findPlanCourseTabBk(studentCode);
-            // 培养那边拿不到数据会返回null，也可能是空集合
-            if (CollectionUtil.isNotEmpty(planCourseTypeDtos)) {
-                compulsoryMap = planCourseTypeDtos.stream().collect(Collectors.toMap(PlanCourseTypeDto::getCourseCode, PlanCourseTypeDto::getCompulsory));
-
+            if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+                for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                    String compulsory = elcCourseTakeVo.getCompulsory();
+                    if (StringUtils.isNotBlank(compulsory)) {
+                        compulsoryMap.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    }
+                }
             }
             for (StudnetTimeTable studnetTimeTable : studentTable)
             {

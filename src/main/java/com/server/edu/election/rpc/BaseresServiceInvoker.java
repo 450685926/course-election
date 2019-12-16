@@ -2,6 +2,7 @@ package com.server.edu.election.rpc;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.Classroom;
 import com.server.edu.common.entity.PayResult;
@@ -154,5 +155,13 @@ public class BaseresServiceInvoker
         List<PayResult> result = ServicePathEnum.BASESERVICE.postForObject("/payment/payResult", orderNos, List.class);
          return result;
     }
-    
+    public static Long getCurrentCalendar() {
+        @SuppressWarnings("unchecked")
+        RestResult<Map<String, Object>> result = ServicePathEnum.BASESERVICE.getForObject("/schoolCalendar/currentTermCalendar", RestResult.class);
+        if(result.getData()==null || result.getData().get("schoolCalendar")==null) {
+            return null;
+        }
+        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(result.getData().get("schoolCalendar")) ;
+        return jsonObject.getLong("id");
+    }
 }

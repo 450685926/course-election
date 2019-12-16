@@ -48,7 +48,7 @@ public class SecondRdCantElect1stRdFullRule extends AbstractElecRuleExceutorBk
             Integer maxNumber = courseClass.getMaxNumber();
             Integer currentNumber = courseClass.getCurrentNumber();
             if (maxNumber != null && currentNumber != null
-                && currentNumber + 1 > maxNumber)
+                && currentNumber.intValue() + 1 > maxNumber.intValue())
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()

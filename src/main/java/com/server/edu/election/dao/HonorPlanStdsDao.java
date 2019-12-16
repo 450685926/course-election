@@ -15,6 +15,8 @@ public interface HonorPlanStdsDao extends Mapper<HonorPlanStds> {
      * @return
      */
     Page<HonorPlanStdsVo> pageList(HonorPlanStdsQuery condition);
+
+    void deleteByCondition(HonorPlanStdsQuery honorPlanStds);
 }
 
 

@@ -1,7 +1,10 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -25,20 +28,25 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutorBk
         String courseCode = courseClass.getCourseCode();
         //培养计划课程
         Set<PlanCourse> planCourses = context.getPlanCourses();
-        
-        for (PlanCourse planCourse : planCourses) {
-            if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), courseCode)) {
-                return true;
+        if (CollectionUtil.isNotEmpty(planCourses)) {
+            for (PlanCourse planCourse : planCourses) {
+                if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), courseCode)) {
+                    // 不是强化班，判断是否是培养计划里面的课
+                    if (planCourse.getCourse().getIsQhClass().intValue() == 0) {
+                        if (planCourse.getCourse().getChosen().intValue() == 0) {
+                            ElecRespose respose = context.getRespose();
+                            respose.getFailedReasons()
+                                    .put(courseClass.getCourseCodeAndClassCode(),
+                                            I18nUtil
+                                                    .getMsg("ruleCheck.planCultureLimit"));
+                            return false;
+                        }
+                    }
+                }
             }
         }
-        
-        ElecRespose respose = context.getRespose();
-        respose.getFailedReasons()
-            .put(courseClass.getCourseCodeAndClassCode(),
-                I18nUtil
-                    .getMsg("ruleCheck.planCultureLimit"));
-        
-        return false;
+
+        return true;
     }
     
 /*    public boolean test() {

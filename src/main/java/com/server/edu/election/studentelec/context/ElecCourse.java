@@ -62,8 +62,60 @@ public class ElecCourse implements Serializable
      * 培养课程类别名称
      */
     private String labelName;
+
+    // 精品
+    private String jp;
+
+    // 创新
+    private boolean isCx;
+
+    // 艺术
+    private boolean isYs;
     
+    private Integer chosen;
     
+    private Integer isQhClass; 
+    
+    public Integer getChosen() {
+		return chosen;
+	}
+
+	public void setChosen(Integer chosen) {
+		this.chosen = chosen;
+	}
+
+	public Integer getIsQhClass() {
+		return isQhClass;
+	}
+
+	public void setIsQhClass(Integer isQhClass) {
+		this.isQhClass = isQhClass;
+	}
+
+	public String getJp() {
+        return jp;
+    }
+
+    public void setJp(String jp) {
+        this.jp = jp;
+    }
+
+    public boolean isCx() {
+        return isCx;
+    }
+
+    public void setCx(boolean cx) {
+        isCx = cx;
+    }
+
+    public boolean isYs() {
+        return isYs;
+    }
+
+    public void setYs(boolean ys) {
+        isYs = ys;
+    }
+
     public Long getLabelId() {
 		return labelId;
 	}

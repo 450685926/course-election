@@ -142,9 +142,11 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
         if (CollectionUtil.isNotEmpty(honorPlanStds.getIds())){
             example.createCriteria()
                     .andIn("id",honorPlanStds.getIds());
-            honorPlanStdsDao.deleteByExample(example);
+//            honorPlanStdsDao.deleteByExample(example);
+            honorPlanStdsDao.deleteByCondition(honorPlanStds);
         }else{
-            honorPlanStdsDao.deleteByExample(example);
+//            honorPlanStdsDao.deleteByExample(example);
+            honorPlanStdsDao.deleteByCondition(honorPlanStds);
         }
         return RestResult.success("删除成功");
     }

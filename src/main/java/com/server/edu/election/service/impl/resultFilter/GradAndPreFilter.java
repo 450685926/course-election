@@ -160,4 +160,23 @@ public class GradAndPreFilter
         }
     }
     
+    /**随机晒除学生人数*/
+    public static void randomRemoveStu(List<String> removeStus,
+        Integer limitNumber, List<Student> stuList,Integer invincibleStusNum,Integer affinityStusNum,Integer normalStusNum,Integer teachingClassNum)
+    {
+        //随机删除看过容量的学生
+        while (stuList.size() > limitNumber)
+        {
+            int i = RandomUtils.nextInt(stuList.size());
+            Student stu = stuList.get(i);
+            removeStus.add(stu.getStudentCode());
+            Integer overSize = (invincibleStusNum
+                    + affinityStusNum + normalStusNum)
+                    - teachingClassNum;
+            if(overSize>0) {
+            	stuList.remove(i);
+            }
+        }
+    }
+    
 }

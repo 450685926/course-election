@@ -6,6 +6,7 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.HonorPlanStds;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.HonorPlanStdsQuery;
 import com.server.edu.election.service.HonorPlanStdsService;
 import com.server.edu.election.vo.HonorPlanStdsVo;
@@ -187,7 +188,19 @@ public class HonorPlanStdsController
             designer.setDataStartRowIdx(1);
             designer.setConfigs(new ArrayList<>());
 
-            designer.getConfigs().add(new ExcelParseConfig("studentId", 0));
+            designer.getConfigs().add(new ExcelParseConfig("studentId", 0){
+                @Override
+                public Object handler(String value)
+                {
+                    value = StringUtils.trim(value);
+                    value = value.split("\\.")[0];
+//                    Student stu = studentDao.findStudentByCode(value);
+//                    if(stu == null) {
+//                        return null;
+//                    }
+                    return value;
+                }
+            });
             designer.getConfigs().add(new ExcelParseConfig("honorPlanName", 2));
             designer.getConfigs().add(new ExcelParseConfig("directionName", 3));
 
