@@ -183,9 +183,9 @@ public class Student implements Serializable
      */
     @Column(name = "IS_ARREARS_")
     private Integer isArrears;
-    
-    
-    
+
+
+
     public Integer getIsArrears() {
 		return isArrears;
 	}
