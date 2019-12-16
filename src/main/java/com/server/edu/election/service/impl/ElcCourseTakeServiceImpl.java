@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.entity.StudentPlanCoure;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
@@ -420,6 +421,18 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     .publishEvent(new ElectLoadEvent(calendarId, studentId));
             Student stu  = studentDao.findStudentByCode(studentId);
             elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
+            String elecStatus = Constants.IS_ELEC;
+            //更新培养的选课状态
+            StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
+            studentPlanCoure.setStudentId(studentId);
+            studentPlanCoure.setCourseCode(courseCode);
+            studentPlanCoure.setElecStatus(elecStatus);
+            try {
+                CultureSerivceInvoker.updateElecStatus(studentPlanCoure);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }else {
             if(students.size() > 1 && teachClassIds.size() == 1){
                 stus.add(studentId);
@@ -486,6 +499,18 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
             Student stu  = studentDao.findStudentByCode(studentId);
             elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
+            String elecStatus = Constants.IS_ELEC;
+            //更新培养的选课状态
+            StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
+            studentPlanCoure.setStudentId(studentId);
+            studentPlanCoure.setCourseCode(courseCode);
+            studentPlanCoure.setElecStatus(elecStatus);
+            try {
+                CultureSerivceInvoker.updateElecStatus(studentPlanCoure);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 
@@ -752,6 +777,18 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 ElcCourseTake take = entry.getValue();
                 applicationContext.publishEvent(new ElectLoadEvent(
                     take.getCalendarId(), take.getStudentId()));
+                String elecStatus = Constants.UN_ELEC;
+                //更新培养的选课状态
+                StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
+                studentPlanCoure.setStudentId(take.getStudentId());
+                studentPlanCoure.setCourseCode(take.getCourseCode());
+                studentPlanCoure.setElecStatus(elecStatus);
+                try {
+                    CultureSerivceInvoker.updateElecStatus(studentPlanCoure);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
     }
