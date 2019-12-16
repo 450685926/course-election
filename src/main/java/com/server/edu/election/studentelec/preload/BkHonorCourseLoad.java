@@ -1,10 +1,15 @@
 package com.server.edu.election.studentelec.preload;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.election.dao.HonorPlanStdsDao;
+import com.server.edu.election.dto.StudentScoreDto;
 import com.server.edu.election.entity.HonorPlanStds;
+import com.server.edu.election.service.BkStudentScoreService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.BclHonorCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -32,6 +37,9 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
 
     @Autowired
     private TeachClassCacheService teachClassCacheService;
+
+    @Autowired
+    private BkStudentScoreService bkStudentScoreService;
 
     @Override
     public int getOrder()
@@ -64,10 +72,16 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
             Long roundId = request.getRoundId();
             if(CollectionUtil.isNotEmpty(list)){
                 log.info("honor course size:{}", list.size());
+                StudentScoreDto dto = new StudentScoreDto();
+                dto.setStudentId(context.getStudentInfo().getStudentId());
+                List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
+                List<String> selectedCourse = stuScore.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
                 //过滤属于这个学生的荣誉课程
                 list.forEach(c->{
                     if (StringUtils.isEmpty(honorPlanStds.getDirectionName())){
-                        if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName()) && flag(roundId, c.getHonorCourseCode())){
+                        if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
+                                && flag(roundId, c.getHonorCourseCode())
+                                && compare(selectedCourse, c.getHonorCourseCode())){
                             BclHonorCourse bclHonorCourse = new BclHonorCourse();
                             bclHonorCourse.setCourseCode(c.getHonorCourseCode());
                             bclHonorCourse.setCourseName(c.getHonorCourseName());
@@ -93,7 +107,8 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                     }else{
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
                                 && StringUtils.equalsIgnoreCase(c.getDirectionName(),honorPlanStds.getDirectionName())
-                                && flag(roundId, c.getHonorCourseCode())){
+                                && flag(roundId, c.getHonorCourseCode())
+                                && compare(selectedCourse, c.getHonorCourseCode())){
                             BclHonorCourse bclHonorCourse = new BclHonorCourse();
                             bclHonorCourse.setCourseCode(c.getHonorCourseCode());
                             bclHonorCourse.setCourseName(c.getHonorCourseName());
@@ -135,6 +150,15 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
         } else {
             return false;
         }
+    }
+
+    private boolean compare(List<String> list, String courseCode) {
+        if (CollectionUtil.isNotEmpty(list)) {
+            if (list.contains(courseCode)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }
