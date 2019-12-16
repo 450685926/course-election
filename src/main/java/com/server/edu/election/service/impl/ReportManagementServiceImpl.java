@@ -763,7 +763,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         int start = tableMessage.getTimeStart().intValue();
                         int end = tableMessage.getTimeEnd().intValue();
                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
-                        if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                        if ( (start <= timeStart && timeStart <= end)
+                                || (start <= timeEnd && timeEnd <= end)
+                                || (timeStart <= start && start <= timeEnd)
+                                || (timeStart <= end && end <= timeEnd)) {
                             return true;
                         }
                     }
@@ -894,7 +897,10 @@ public class ReportManagementServiceImpl implements ReportManagementService
                         int start = tableMessage.getTimeStart().intValue();
                         int end = tableMessage.getTimeEnd().intValue();
                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
-                        if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                        if ( (start <= timeStart && timeStart <= end)
+                                || (start <= timeEnd && timeEnd <= end)
+                                || (timeStart <= start && start <= timeEnd)
+                                || (timeStart <= end && end <= timeEnd)) {
                             return true;
                         }
                     }
