@@ -125,7 +125,7 @@ public class ElcResultServiceImpl implements ElcResultService
 
     @Autowired
     private TeachingClassSuggestStudentDao suggestStudentDao;
-    
+
     @Autowired
     private TeachingClassElectiveRestrictAttrDao classElectiveRestrictAttrDao;
     
@@ -1092,15 +1092,23 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Override
 	@Transactional
 	public void saveProportion(TeachingClassVo teachingClassVo) {
+        Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+        TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+        //获取是否是男女班，男1 女2 不区分0
+        String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
+        if(teachingClassAttr != null){
+            limitIsDivsex = teachingClassAttr.getIsDivsex();
+        }
 		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
 		attr.setTeachingClassId(teachingClassVo.getId());
 		int numberMale = teachingClassVo.getNumberMale();
 		int numberFemale = teachingClassVo.getNumberFemale();
-		//获取是否是男女班，男1 女2 不区分0
-        String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
-        if("1".equals(limitIsDivsex)&0!=numberFemale){
+
+        if("1".equals(limitIsDivsex)&&0!=numberFemale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.male.error"));
-        }else if("2".equals(limitIsDivsex)&0!=numberMale){
+        }else if("2".equals(limitIsDivsex)&&0!=numberMale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
         //获取实际人数
@@ -1116,10 +1124,7 @@ public class ElcResultServiceImpl implements ElcResultService
 
 		attr.setNumberMale(numberMale);
 		attr.setNumberFemale(numberFemale);
-		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
-		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+
 		if(teachingClassAttr!=null) {
 			attr.setUpdatedAt(new Date());
 			attrDao.updateByExampleSelective(attr, example);
