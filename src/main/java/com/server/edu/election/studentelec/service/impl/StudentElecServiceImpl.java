@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
-import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -458,9 +457,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     }
 
     @Override
-    public void getDataBk(ElecContextBk c) {
+    public void getDataBk(ElecContextBk c, Long roundId) {
         ElecRequest request = c.getRequest();
-        List<ElectionRuleVo> rules = dataProvider.getRules(request.getRoundId());
+        List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
 
         List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
         if (CollectionUtil.isEmpty(collect)){
