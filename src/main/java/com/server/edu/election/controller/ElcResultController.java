@@ -101,8 +101,6 @@ public class ElcResultController
             logger.error("graduatePage controller error: " + e.getMessage());
             return RestResult.fail("common.findError");
         }
-
-        
     }
     
     /**
