@@ -591,7 +591,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         String newKey = key + rs.getCreateTime();
         rs.setKey(newKey);
         redisTemplate.opsForValue().set(newKey, rs);
-        redisTemplate.expire(newKey, 5, TimeUnit.MINUTES);
+        redisTemplate.expire(newKey, 120, TimeUnit.MINUTES);
 
         ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
             @Override
