@@ -591,7 +591,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
         String newKey = key + rs.getCreateTime();
         rs.setKey(newKey);
         redisTemplate.opsForValue().set(newKey, rs);
-        redisTemplate.expire(newKey, 120, TimeUnit.MINUTES);
+        redisTemplate.expire(newKey, 60, TimeUnit.MINUTES);
 
         ExportExcelUtils.submitFileTask(newKey, new FileExecuter() {
             @Override
@@ -618,17 +618,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                     down.await();
                     ZipUtil.createZip(fileList, cacheDirectory+"checkTable.zip");
                     return new File(cacheDirectory+"checkTable.zip");
-                } catch (FileNotFoundException e) {
-                    rs.setStatus(true);
-                    redisTemplate.opsForValue().getAndSet(newKey, rs);
-                    LOG.info(e.getMessage(), e);
-                    return null;
-                } catch (IOException e) {
-                    rs.setStatus(true);
-                    redisTemplate.opsForValue().getAndSet(newKey, rs);
-                    LOG.info(e.getMessage(), e);
-                    return null;
-                } catch (Exception e) {
+                }catch (Exception e) {
                     rs.setStatus(true);
                     redisTemplate.opsForValue().getAndSet(newKey, rs);
                     LOG.info(e.getMessage(), e);
@@ -677,7 +667,8 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
 
     private String creatFile(ExportExamInfoDto exportExamInfoDto,String type){
         ArrayList<ExportStuDto> dataList = new ArrayList<>();
-        List<ExamStudent> list = examInfoDao.listExamStus(exportExamInfoDto.getExamRoomId(),exportExamInfoDto.getExamInfoId());
+        //List<ExamStudent> list = examInfoDao.listExamStus(exportExamInfoDto.getExamRoomId(),exportExamInfoDto.getExamInfoId());
+        List<ExamStudent> list = examInfoDao.listExamStusNoOrder(exportExamInfoDto.getExamRoomId(),exportExamInfoDto.getExamInfoId());
         StringBuilder examTime = new StringBuilder();
         String examRoom ="";
         if(list.size()>0){
@@ -700,7 +691,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                 for (int i = 0; i < divNum; i++) {
                     ExportStuDto exportStuDto = new ExportStuDto();
 
-                    exportStuDto.setOrder(list.get(i).getOrderStu());
+                    exportStuDto.setOrder(i+1);
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
                     exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
@@ -709,7 +700,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                     exportStuDto.setCourseCode(list.get(i).getCourseCode());
                     exportStuDto.setCourseName(list.get(i).getCourseName());
 
-                    exportStuDto.setOrder_R(list.get((divNum + i)).getOrderStu());
+                    exportStuDto.setOrder_R(divNum + i+ 1);
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + i)).getTeachingClassCode());
                     exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + i)).getStudentCode());
@@ -724,7 +715,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                 for (int i = 0; i < divNum; i++) {
                     ExportStuDto exportStuDto = new ExportStuDto();
 
-                    exportStuDto.setOrder(list.get(i).getOrderStu());
+                    exportStuDto.setOrder(i+1);
                     exportStuDto.setTeachingClassCode(list.get(i).getTeachingClassCode());
                     exportStuDto.setTeachingClassName(list.get(i).getTeachingClassName());
                     exportStuDto.setStudentCode(list.get(i).getStudentCode());
@@ -733,7 +724,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                     exportStuDto.setCourseCode(list.get(i).getCourseCode());
                     exportStuDto.setCourseName(list.get(i).getCourseName());
 
-                    exportStuDto.setOrder_R(list.get((divNum + 1 + i)).getOrderStu());
+                    exportStuDto.setOrder_R(divNum + 2 + i);
                     exportStuDto.setTeachingClassCode_R(list.get((divNum + 1 + i)).getTeachingClassCode());
                     exportStuDto.setTeachingClassName_R(list.get((divNum + i)).getTeachingClassName());
                     exportStuDto.setStudentCode_R(list.get((divNum + 1 + i)).getStudentCode());
@@ -746,7 +737,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                 }
                 ExportStuDto exportStuDto = new ExportStuDto();
 
-                exportStuDto.setOrder(list.get(divNum).getOrderStu());
+                exportStuDto.setOrder(divNum + 1);
                 exportStuDto.setTeachingClassCode(list.get(divNum).getTeachingClassCode());
                 exportStuDto.setTeachingClassName(list.get((divNum)).getTeachingClassName());
                 exportStuDto.setStudentCode(list.get(divNum).getStudentCode());
@@ -774,7 +765,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
             String roomName = examRoomDto.getRoomName();
             String campus = dictionaryService.query("X_XQ", s, SessionUtils.getLang());
             for (ExamRoomDto roomDto : examRoomNumber) {
-                stringBuilder.append(String.format("%s(%s)_", roomDto.getCourseName(),roomDto.getCourseCode()));
+                stringBuilder.append(String.format("%s(%s)_", roomDto.getCourseName().replaceAll("/|:",""),roomDto.getCourseCode()));
             }
             stringBuilder.append(campus).append("_").append(roomName).append(".xls");
         }
