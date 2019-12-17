@@ -42,6 +42,9 @@ public class ElecContextBk implements IElecContext
     
     /** 个人计划内课程 */
     private Set<PlanCourse> planCourses;
+
+    /** 个人计划内课程 */
+    private Set<PlanCourse> onePlanCourses;
     
     /** 个人替代课程 */
     private Set<ElcCouSubsVo> replaceCourses;
@@ -267,5 +270,13 @@ public class ElecContextBk implements IElecContext
     {
         return replaceCourses;
     }
-    
+
+
+    public Set<PlanCourse> getOnePlanCourses() {
+        return onePlanCourses;
+    }
+
+    public void setOnePlanCourses(Set<PlanCourse> onePlanCourses) {
+        this.onePlanCourses = onePlanCourses;
+    }
 }
