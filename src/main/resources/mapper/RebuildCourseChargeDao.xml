@@ -80,53 +80,62 @@
 
     <select id="selectTurn" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.dto.RebuildCourseDto">
         SELECT
-        re.TURN_ turn,
-        rounds.NAME_ turnName,
-        re.MODE_ mode,
-        rounds.ELECTION_OBJ_ electionObj
-        FROM rebuild_course_recycle_t re
-        left join  (
-            select
-                TURN_,NAME_ ,
-                CALENDAR_ID_,
-                ELECTION_OBJ_ ,
-                MODE_,
-                MANAGER_DEPT_ID_,
-                (CASE
-                when ELECTION_OBJ_ = 'STU' then 1
-                when ELECTION_OBJ_ = 'DEPART_ADMIN' then 2
-                when ELECTION_OBJ_ = 'ADMIN' then 3
-                end)  CHOOSE_OBJ_
-            from election_rounds_t
-            where (DELETE_STATUS_ = 0 or DELETE_STATUS_ is null)
-        )rounds
-        on re.CALENDAR_ID_ = rounds.CALENDAR_ID_
-        and re.TURN_ = rounds.TURN_
-        and re.CHOOSE_OBJ_ = rounds.CHOOSE_OBJ_
-        and re.MODE_ = rounds.MODE_
-        <where>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
-                and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(electionObj)">
-                and rounds.ELECTION_OBJ_ = #{electionObj,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
-                and re.MODE_ = #{mode,jdbcType=INTEGER}
-            </if>
-            <if test="type !=null and type !=0">
-                and re.TYPE_ = #{type}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
-                and rounds.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
-                and re.ID_ in
-                <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-            </if>
-        </where>
+        TURN_ name,
+        NAME_ turnName,
+        ELECTION_OBJ_ electionObj,
+        MODE_ mode
+        FROM election_rounds_t
+        WHERE ID_ IN
+        (
+            SELECT
+            distinct ifnull (rounds.ID_,null) /*解决子查询查询不到值时，in ()语法错误*/
+            FROM rebuild_course_recycle_t re
+            left join
+             (
+                    select
+                    TURN_,NAME_ ,
+                    CALENDAR_ID_,
+                    ID_,
+                    ELECTION_OBJ_ ,
+                    MODE_,
+                    MANAGER_DEPT_ID_,
+                    (CASE
+                    when ELECTION_OBJ_ = 'STU' then 1
+                    when ELECTION_OBJ_ = 'DEPART_ADMIN' then 2
+                    when ELECTION_OBJ_ = 'ADMIN' then 3
+                    end)  CHOOSE_OBJ_
+                    from election_rounds_t
+                    where (DELETE_STATUS_ = 0 or DELETE_STATUS_ is null)
+                )rounds
+            on re.CALENDAR_ID_ = rounds.CALENDAR_ID_
+            and re.TURN_ = rounds.TURN_
+            and re.CHOOSE_OBJ_ = rounds.CHOOSE_OBJ_
+            and re.MODE_ = rounds.MODE_
+            <where>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+                    and re.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(electionObj)">
+                    and rounds.ELECTION_OBJ_ = #{electionObj,jdbcType=VARCHAR}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+                    and re.MODE_ = #{mode,jdbcType=INTEGER}
+                </if>
+                <if test="type !=null and type !=0">
+                    and re.TYPE_ = #{type}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(deptId)">
+                    and rounds.MANAGER_DEPT_ID_ = #{deptId,jdbcType=VARCHAR}
+                </if>
+                <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(ids)">
+                    and re.ID_ in
+                    <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                </if>
+            </where>
+        )
+
     </select>
 
 
