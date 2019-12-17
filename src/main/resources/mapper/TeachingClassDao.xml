@@ -463,7 +463,7 @@
 	  <!-- and time.TYPE_ = '2' -->
       and t1.MAN_ARRANGE_FLAG_ in(1,2,3)
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-        and t3.FACULTY_ = #{faculty}
+          AND FIND_IN_SET(t3.FACULTY_,#{faculty,jdbcType=VARCHAR})
       </if>
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
         and t1.CAMPUS_ = #{campus}

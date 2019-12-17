@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -351,11 +352,14 @@ public class ElcResultServiceImpl implements ElcResultService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
         Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				&& !session.isAdmin()
 				&& session.isAcdemicDean()) {
-			String faculty = session.getFaculty();
-			condition.setFaculty(faculty);
+            if (CommonConstant.isEmptyStr(condition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                condition.setFaculty(deptIds.toString());
+            }
+            logger.info("graduatePage serviceImpl faculty is {}",condition.getFaculty());
 		}
 		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
         
