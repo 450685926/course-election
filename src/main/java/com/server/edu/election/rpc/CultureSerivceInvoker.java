@@ -419,11 +419,8 @@ public class CultureSerivceInvoker
     }
     
     /** 更新本科生培养选课状态 */
-    public static Integer updateElecStatus(StudentPlanCoure studentPlanCoure) throws Exception{
-    	@SuppressWarnings("unchecked")
-    	Integer restResult = 
+    public static void updateElecStatus(StudentPlanCoure studentPlanCoure) throws Exception{
     		ServicePathEnum.CULTURESERVICE.postForObject("/bclStudentCultureRel/updateElecStatus",studentPlanCoure,Integer.class);
-    	return restResult;
     }
 
     public static List<BkPublicCourseVo> findPublicCourse()
