@@ -310,7 +310,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                                     // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                                     int start = classTimeUnit.getTimeStart();
                                     int end = classTimeUnit.getTimeEnd();
-                                    if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                                    if ( (start <= timeStart && timeStart <= end)
+                                            || (start <= timeEnd && timeEnd <= end)
+                                            || (timeStart <= start && start <= timeEnd)
+                                            || (timeStart <= end && end <= timeEnd)) {
                                         list.add(studentId);
                                         continue loop;
                                     }
@@ -1511,7 +1514,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                         int start = selectTable.getTimeStart().intValue();
                         int end = selectTable.getTimeEnd().intValue();
                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
-                        if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                        if ( (start <= timeStart && timeStart <= end)
+                                || (start <= timeEnd && timeEnd <= end)
+                                || (timeStart <= start && start <= timeEnd)
+                                || (timeStart <= end && end <= timeEnd)) {
                             map.put(teachingClassId, selectTable.getTeachingClassId());
                             continue loop;
                         }

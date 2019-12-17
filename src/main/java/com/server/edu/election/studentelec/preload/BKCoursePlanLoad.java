@@ -84,7 +84,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     {
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
-        Map<String, String> map = new HashMap<>(60);
+//        Map<String, String> map = new HashMap<>(60);
         StudentScoreDto dto = new StudentScoreDto();
         dto.setStudentId(context.getStudentInfo().getStudentId());
         List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
@@ -142,7 +142,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             pl.setLabel(labelId);
                             pl.setLabelName(labelName);
                             planCourses.add(pl);
-                            map.put(courseCode, pct.getCompulsory());
+//                            map.put(courseCode, pct.getCompulsory());
 						}
                     }
                 }
@@ -201,7 +201,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                                             ElecCourse elecCourse = new ElecCourse();
                                             elecCourse.setCampus(String.join(",", set));
                                             elecCourse.setCourseCode(courseCode);
-                                            elecCourse.setCompulsory(map.get(courseCode));
+//                                            elecCourse.setCompulsory(map.get(courseCode));
                                             elecCourse.setCourseName(pc.getCourseName());
                                             elecCourse.setCredits(pc.getCreidits());
                                             elecCourse.setJp(pc.getJp());
