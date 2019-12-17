@@ -8,9 +8,11 @@ import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.dao.HonorPlanStdsDao;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.HonorPlanStds;
 import com.server.edu.election.query.HonorPlanStdsQuery;
 import com.server.edu.election.service.HonorPlanStdsService;
+import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.HonorPlanStdsVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
@@ -43,6 +45,9 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
 
     @Autowired
     private SqlSessionFactory factory;
+
+    @Autowired
+    private RoundDataProvider dataProvider;
 
     @Autowired
     private DictionaryService dictionaryService;
@@ -215,9 +220,10 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
     }
 
     @Override
-    public boolean fingStudentByStudentId(String studentId, Long calendarId) {
+    public boolean fingStudentByStudentId(String studentId, Long roundId) {
+        ElectionRounds round = dataProvider.getRound(roundId);
         Example example = new Example(HonorPlanStds.class);
-        example.createCriteria().andEqualTo("studentId",studentId).andEqualTo("calendarId",calendarId);
+        example.createCriteria().andEqualTo("studentId",studentId).andEqualTo("calendarId",round.getCalendarId());
         Integer count = honorPlanStdsDao.selectCountByExample(example);
         if (count.intValue() != 0){
             return true;

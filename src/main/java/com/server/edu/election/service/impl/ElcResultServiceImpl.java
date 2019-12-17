@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,7 +126,7 @@ public class ElcResultServiceImpl implements ElcResultService
 
     @Autowired
     private TeachingClassSuggestStudentDao suggestStudentDao;
-    
+
     @Autowired
     private TeachingClassElectiveRestrictAttrDao classElectiveRestrictAttrDao;
     
@@ -351,11 +352,14 @@ public class ElcResultServiceImpl implements ElcResultService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
         Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
+		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				&& !session.isAdmin()
 				&& session.isAcdemicDean()) {
-			String faculty = session.getFaculty();
-			condition.setFaculty(faculty);
+            if (CommonConstant.isEmptyStr(condition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                condition.setFaculty(deptIds.toString());
+            }
+            logger.info("graduatePage serviceImpl faculty is {}",condition.getFaculty());
 		}
 		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
         
@@ -1092,15 +1096,23 @@ public class ElcResultServiceImpl implements ElcResultService
 	@Override
 	@Transactional
 	public void saveProportion(TeachingClassVo teachingClassVo) {
+        Example example = new Example(TeachingClassElectiveRestrictAttr.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
+        TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+        //获取是否是男女班，男1 女2 不区分0
+        String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
+        if(teachingClassAttr != null){
+            limitIsDivsex = teachingClassAttr.getIsDivsex();
+        }
 		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
 		attr.setTeachingClassId(teachingClassVo.getId());
 		int numberMale = teachingClassVo.getNumberMale();
 		int numberFemale = teachingClassVo.getNumberFemale();
-		//获取是否是男女班，男1 女2 不区分0
-        String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
-        if("1".equals(limitIsDivsex)&0!=numberFemale){
+
+        if("1".equals(limitIsDivsex)&&0!=numberFemale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.male.error"));
-        }else if("2".equals(limitIsDivsex)&0!=numberMale){
+        }else if("2".equals(limitIsDivsex)&&0!=numberMale){
             throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
         //获取实际人数
@@ -1116,10 +1128,7 @@ public class ElcResultServiceImpl implements ElcResultService
 
 		attr.setNumberMale(numberMale);
 		attr.setNumberFemale(numberFemale);
-		Example example = new Example(TeachingClassElectiveRestrictAttr.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("teachingClassId", teachingClassVo.getId());
-		TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
+
 		if(teachingClassAttr!=null) {
 			attr.setUpdatedAt(new Date());
 			attrDao.updateByExampleSelective(attr, example);

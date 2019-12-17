@@ -8,6 +8,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -422,7 +423,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                                         int start = classTimeUnit.getTimeStart();
                                         int end = classTimeUnit.getTimeEnd();
-                                        if ( (timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
+                                        if ( (start <= timeStart && timeStart <= end)
+                                                || (start <= timeEnd && timeEnd <= end)
+                                                || (timeStart <= start && start <= timeEnd)
+                                                || (timeStart <= end && end <= timeEnd)) {
                                             throw new ParameterValidateException("该课程与已选课程" + map.get(classTimeUnit.getTeachClassId()) + "上课时间冲突");
                                         }
                                     }
@@ -451,6 +455,22 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
         return list;
+    }
+
+    @Override
+    public void getDataBk(ElecContextBk c) {
+        ElecRequest request = c.getRequest();
+        List<ElectionRuleVo> rules = dataProvider.getRules(request.getRoundId());
+
+        List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(collect)){
+            if (CollectionUtil.isNotEmpty(c.getPlanCourses())){
+                Set<PlanCourse> collect1 = c.getPlanCourses().stream().filter(p -> p.getCourse().getChosen() != null && p.getCourse().getChosen().intValue() == 1).collect(Collectors.toSet());
+                c.setOnePlanCourses(collect1);
+            }
+        }else{
+            c.setOnePlanCourses(c.getPlanCourses());
+        }
     }
 
     /**
