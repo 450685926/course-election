@@ -465,6 +465,15 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
         and t3.FACULTY_ = #{faculty}
       </if>
+
+      <!-- 教务员学院筛选条件 -->
+      <if test="faculties != null and faculties.size() > 0" >
+        AND t3.FACULTY_ IN
+        <foreach collection="faculties" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+      </if>
+
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
         and t1.CAMPUS_ = #{campus}
       </if>

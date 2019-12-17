@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -351,12 +352,15 @@ public class ElcResultServiceImpl implements ElcResultService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
         Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
-				&& !session.isAdmin()
-				&& session.isAcdemicDean()) {
-			String faculty = session.getFaculty();
-			condition.setFaculty(faculty);
-		}
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean()) {
+            String faculty = condition.getFaculty();
+            //如果筛选条件学院为空,则获取session中的学院;否则设置条件学院
+            if(StringUtils.isEmpty(faculty) && CommonConstant.isEmptyObj(faculty)) {
+                condition.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
+            }else {
+                condition.setFaculty(faculty);
+            }
+        }
 		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
         
 		// 添加教室容量
