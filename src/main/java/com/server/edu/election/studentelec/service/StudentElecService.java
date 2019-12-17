@@ -55,5 +55,5 @@ public interface StudentElecService
     /** 排除有限制学生的教学班*/
     List<TeachingClassCache> getTeachClass4Limit(List<TeachingClassCache> teachClasss, Long studentId);
 
-    void getDataBk(ElecContextBk c);
+    void getDataBk(ElecContextBk c, Long roundId);
 }
