@@ -250,7 +250,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     {
         List<String> allCourseCodeList =
                 CultureSerivceInvoker.getAllCoursesLevelCourse();
-        if (CollectionUtil.isEmpty(allCourseCodeList) || (CollectionUtil.isNotEmpty(allCourseCodeList) &&!allCourseCodeList.contains(courseCode))){
+        if (CollectionUtil.isEmpty(allCourseCodeList) || (CollectionUtil.isNotEmpty(allCourseCodeList) && !allCourseCodeList.contains(courseCode))){
             return true;
         }
         Example example = new Example(ElcStuCouLevel.class);

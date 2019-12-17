@@ -5,6 +5,7 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 
 import java.util.List;
 
@@ -53,4 +54,6 @@ public interface StudentElecService
 
     /** 排除有限制学生的教学班*/
     List<TeachingClassCache> getTeachClass4Limit(List<TeachingClassCache> teachClasss, Long studentId);
+
+    void getDataBk(ElecContextBk c);
 }
