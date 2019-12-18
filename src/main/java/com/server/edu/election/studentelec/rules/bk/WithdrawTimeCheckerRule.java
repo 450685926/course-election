@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,11 +33,12 @@ public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutorBk
         // 退课需要校验turn是否与本轮的turn一样
         if (!round.getTurn().equals(course.getTurn()))
         {
+            TeachingClassCache co = course.getCourse();
             String courseCodeAndClassCode =
-                course.getCourse().getCourseCodeAndClassCode();
+                co.getCourseCodeAndClassCode();
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                .put(courseCodeAndClassCode,
+                .put(courseCodeAndClassCode + co.getCourseName(),
                     I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
             return false;
         }

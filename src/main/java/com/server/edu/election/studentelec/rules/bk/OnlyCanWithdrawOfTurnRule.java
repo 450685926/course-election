@@ -40,7 +40,8 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractWithdrwRuleExceutorBk {
 
         Integer chooseObj = request.getChooseObj();
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        String courseCode = selectedCourse.getCourse().getCourseCode();
+        TeachingClassCache co = selectedCourse.getCourse();
+        String courseCode = co.getCourseCode();
         if (StringUtils.isNotBlank(courseCode) && chooseObj != null)
         {
             for (SelectedCourse selectedCours : selectedCourses) {
@@ -57,7 +58,7 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractWithdrwRuleExceutorBk {
         }
         ElecRespose respose = context.getRespose();
         respose.getFailedReasons()
-                .put(selectedCourse.getCourse().getCourseCodeAndClassCode(),
+                .put(co.getCourseCodeAndClassCode()+ co.getCourseName(),
                         I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
         return false;
     }
