@@ -14,6 +14,8 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.EmailSend;
+import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
@@ -206,7 +208,22 @@ public class ElecBkServiceImpl implements ElecBkService
                 {
                     hasRetakeCourse = true;
                 }
-                this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse);
+                StudentInfoCache studentInfo = context.getStudentInfo();
+                ElecRequest request = context.getRequest();
+                int index = TableIndexUtil.getIndex(request.getCalendarId());
+                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), request.getCalendarId(),index, teachClass.getCourseCode());
+                if (CollectionUtil.isNotEmpty(elcCourseTakeVo)){
+                    Integer courseTakeType = hasRetakeCourse==true?2:1;
+                    // 更新缓存中教学班人数
+                    teachClassCacheService.updateTeachingClassNumber(teachClassId);
+                    SelectedCourse course = new SelectedCourse(teachClass);
+                    course.setTurn(round.getTurn());
+                    course.setCourseTakeType(courseTakeType);
+                    course.setChooseObj(request.getChooseObj());
+                    context.getSelectedCourses().add(course);
+                }else{
+                    this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse);
+                }
             }
         }
         // 判断学生是否要重修缴费
@@ -274,9 +291,19 @@ public class ElecBkServiceImpl implements ElecBkService
             // 对校验成功的课程进行入库保存
             if (allSuccess)
             {
-                this.saveElc(context,
-                    teachClass.getCourse(),
-                    ElectRuleType.WITHDRAW,false);
+                StudentInfoCache studentInfo = context.getStudentInfo();
+                ElecRequest request = context.getRequest();
+                int index = TableIndexUtil.getIndex(request.getCalendarId());
+                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), request.getCalendarId(),index, teachClass.getCourse().getCourseCode());
+                if (CollectionUtil.isEmpty(elcCourseTakeVo)){
+                    // 更新缓存中教学班人数
+                    teachClassCacheService.updateTeachingClassNumber(teachClassId);
+                }else{
+                    this.saveElc(context,
+                            teachClass.getCourse(),
+                            ElectRuleType.WITHDRAW,false);
+                }
+
                 // 删除缓存中的数据
                 Iterator<SelectedCourse> iterator = selectedCourses.iterator();
                 while (iterator.hasNext())
