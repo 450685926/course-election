@@ -3,6 +3,7 @@ package com.server.edu.election.dao;
 import java.util.List;
 import java.util.Set;
 
+import com.server.edu.election.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -30,12 +31,6 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.election.vo.ElcStudentVo;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
-import com.server.edu.election.vo.RollBookList;
-import com.server.edu.election.vo.StudentRebuildFeeVo;
-import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
@@ -334,4 +329,6 @@ public interface ElcCourseTakeDao
 	List<Long> selectClassByRoundId(@Param("roundId") Long roundId,@Param("calendarId") Long calendarId,@Param("index") Integer index);
 
     List<ElcCourseTakeVo> findCompulsory(@Param("studentId") String studentId);
+
+    List<TeachingClassVo> findSelCount(@Param("index") int index, @Param("list") List<Long> list);
 }

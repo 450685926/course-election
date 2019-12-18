@@ -2,13 +2,7 @@ package com.server.edu.election.service.impl;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.election.util.CommonConstant;
@@ -307,10 +301,22 @@ public class ElcResultServiceImpl implements ElcResultService
 	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage, PageCondition<ElcResultQuery> page) {
 		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
-        		condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
                 PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listScreeningPage(condition);
-        	}else {
+        		if (CollectionUtil.isNotEmpty(listPage)) {
+                    List<Long> ids = listPage.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+                    int index = TableIndexUtil.getIndex(condition.getCalendarId());
+                    List<TeachingClassVo> selCount = courseTakeDao.findSelCount(index, ids);
+                    Map<Long, TeachingClassVo> map = selCount.stream().collect(Collectors.toMap(s -> s.getId(), s -> s));
+                    for (TeachingClassVo teachingClassVo : listPage) {
+                        TeachingClassVo vo = map.get(teachingClassVo.getId());
+                        if (vo != null) {
+                            teachingClassVo.setFirstTurnNum(vo.getFirstTurnNum());
+                            teachingClassVo.setSecondTurnNum(vo.getSecondTurnNum());
+                        }
+                    }
+                }
+            }else {
                 List<String> includeCodes = new ArrayList<>();
                 // 1体育课
                 if (Objects.equals(condition.getCourseType(), 1))
