@@ -507,4 +507,20 @@ public class ElcResultController
 
         return RestResult.successData(teachingClassVo);
     }
+
+    @ApiOperation(value = "教学班查询")
+    @GetMapping("/getTeachingClass")
+    public RestResult<List<TeachingClassVo>> getTeachingClass(@RequestParam("calendarId") Long calendarId, @RequestParam("classCode") String classCode)
+    {
+        List<TeachingClassVo> list = elcResultService.getTeachingClass(calendarId, classCode);
+        return RestResult.successData(list);
+    }
+
+    @ApiOperation(value = "教学班绑定")
+    @GetMapping("/bindClass")
+    public RestResult<?> bindClass(@RequestParam("id") Long id, @RequestParam("bindClassId") Long bindClassId)
+    {
+        elcResultService.bindClass(id, bindClassId);
+        return RestResult.success();
+    }
 }
