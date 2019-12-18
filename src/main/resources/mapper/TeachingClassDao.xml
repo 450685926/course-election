@@ -340,17 +340,12 @@
     t3.FACULTY_,
     t3.NATURE_,
     t3.IS_ELECTIVE_,
-    label.LABEL_NAME_
-    ,CASE WHEN t7.TURN_ = 1 THEN
-    count(t7.ID_) END firstTurnNum,
-    CASE WHEN t7.TURN_ = 2 THEN
-	count(t7.ID_) END secondTurnNum,
+    label.LABEL_NAME_,
 	GROUP_CONCAT(DISTINCT t8.`TEACHER_CODE_`) teacherCodes
     from
 	teaching_class_t t1
 	join teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
 	join course_open_t t3 ON t3.ID_ = t2.COURSE_OPEN_ID_ and t3.PROJ_ID_ =1
-    join elc_course_takes_t_${index} t7 on t7.TEACHING_CLASS_ID_ = t1.ID_ and t3.CALENDAR_ID_ = t7.CALENDAR_ID_
     left join elc_screening_label_t label on label.CALENDAR_ID_ = t3.CALENDAR_ID_
     LEFT JOIN teaching_class_teacher_t t8 ON t8.TEACHING_CLASS_ID_ = t1.ID_ AND t8.`TYPE_` = 0
     <where>
@@ -422,18 +417,6 @@
      <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
          and t8.IS_ELECTIVE_ = #{isElective}
      </if>
-	  <if test="minFirstTurnNum !=null and minFirstTurnNum !=0">
-        and t8.firstTurnNum &gt; #{minFirstTurnNum}
-      </if>
-      <if test="maxFirstTurnNum !=null and maxFirstTurnNum !=0">
-        and t8.firstTurnNum &lt; #{maxFirstTurnNum}
-      </if>
-      <if test="minSecondTurnNum !=null and minSecondTurnNum !=0">
-        and t8.secondTurnNum &gt; #{minSecondTurnNum}
-      </if>
-      <if test="maxSecondTurnNum !=null and maxSecondTurnNum !=0">
-        and t8.secondTurnNum &lt; #{maxSecondTurnNum}
-      </if>
          <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculties)">
              and t8.FACULTY_ in
              <foreach collection="faculties" open="(" separator="," close=")" item="fy">
@@ -463,8 +446,17 @@
 	  <!-- and time.TYPE_ = '2' -->
       and t1.MAN_ARRANGE_FLAG_ in(1,2,3)
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-        and t3.FACULTY_ = #{faculty}
+          AND FIND_IN_SET(t3.FACULTY_,#{faculty,jdbcType=VARCHAR})
       </if>
+
+      <!-- 教务员学院筛选条件 -->
+      <if test="faculties != null and faculties.size() > 0" >
+        AND t3.FACULTY_ IN
+        <foreach collection="faculties" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+      </if>
+
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
         and t1.CAMPUS_ = #{campus}
       </if>

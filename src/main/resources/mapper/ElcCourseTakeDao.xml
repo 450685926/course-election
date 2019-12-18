@@ -333,6 +333,25 @@
       and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   </select>
 
+    <select id="findElcCourse" resultMap="VoResultMap">
+      SELECT
+            ID_,
+            STUDENT_ID_,
+            CALENDAR_ID_,
+            COURSE_CODE_,
+            TEACHING_CLASS_ID_,
+            COURSE_TAKE_TYPE_,
+            TURN_,
+            MODE_,
+            CHOOSE_OBJ_,
+            PAID_,
+            BILL_ID_,
+            CREATED_AT_
+      FROM `elc_course_takes_t_#{index}` WHERE COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+      and STUDENT_ID_ =#{studentCode}
+      and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+  </select>
+
     <select id="findCourseNoChargeList" parameterType="com.server.edu.election.dto.RebuildCourseDto"
             resultType="com.server.edu.election.vo.RebuildCourseNoChargeList">
         SELECT
@@ -2149,5 +2168,18 @@
 
     <select id="findCompulsory" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
         select courseCode, compulsory from v_student_plan_course where studentId = #{studentId}
+    </select>
+
+    <select id="findSelCount" resultType="com.server.edu.election.vo.TeachingClassVo">
+        select
+          TEACHING_CLASS_ID_ id,
+          count(if(TURN_ = 1,true,null)) AS firstTurnNum,
+          count(if(TURN_ = 2,true,null)) AS secondTurnNum
+        from elc_course_takes_t_${index}
+        where TEACHING_CLASS_ID_ in
+        <foreach item="item" collection="list" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        group by id
     </select>
 </mapper>

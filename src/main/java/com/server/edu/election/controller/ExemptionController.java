@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import java.io.File;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -562,6 +563,16 @@ public class ExemptionController {
         @RequestBody ExemptionQuery condition)
         throws Exception
     {
+        //勾选导出入参组装
+        String ids=condition.getIds();
+        if(StringUtils.isNotEmpty(ids) && (ids.contains(","))){
+            logger.info("---------------lsg--------------it is GraduateExemptionApply ids:{}", Arrays.asList(condition.getIds().split(",")).toString());
+            condition.setExportIds(Arrays.asList(condition.getIds().split(",")));
+        }else if(StringUtils.isNotEmpty(condition.getIds()) && !condition.getIds().contains(",") ){
+            List<String> idParam=new ArrayList<>();
+            idParam.add(condition.getIds());
+            condition.setExportIds(idParam);
+        }
     	Session session = SessionUtils.getCurrentSession();
     	String dptId = session.getCurrentManageDptId();
     	String currentRole = session.getCurrentRole();
@@ -614,23 +625,17 @@ public class ExemptionController {
         	design.addCell("申请课程", "applyCourse");
         	design.addCell("审核状态", "examineResult").setValueHandler(
         			(String value, Object rawData, GeneralExcelCell cell) -> {
-        				if ("0".equals(value))
-        				{
+        				if ("0".equals(value)){
         					return "未审核";
-        				}
-        				else if ("1".equals(value))
-        				{
+        				} else if ("1".equals(value)) {
         					return "审核通过";
-        				}
-        				else if ("2".equals(value))
-        				{
+        				} else if ("2".equals(value)) {
         					return "审核未通过";
         				}
         				return value;
         			});
         	design.setDatas(datas);
         	ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
-        	
         	return ExportUtil
         			.exportExcel(excelUtil, cacheDirectory, "YanJiuShengMianXiuMianKaoShenHeLieBiao.xls");
 		}else{

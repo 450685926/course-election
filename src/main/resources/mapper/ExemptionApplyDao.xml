@@ -119,6 +119,15 @@
           <if test="examineResult!=null">
               and ex.EXAMINE_RESULT_ =#{examineResult,jdbcType=INTEGER}
           </if>
+
+          <!--勾选导出条件-->
+          <if test="exportIds != null and exportIds.size() > 0" >
+              AND ex.ID_ IN
+              <foreach collection="exportIds" item="item" index="index" open="(" separator="," close=")">
+                  #{item}
+              </foreach>
+          </if>
+
       </where>
        	GROUP BY ex.STUDENT_CODE_
         order by ex.EXAMINE_RESULT_

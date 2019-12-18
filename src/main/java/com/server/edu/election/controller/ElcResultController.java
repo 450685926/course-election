@@ -92,13 +92,15 @@ public class ElcResultController
      */
     @ApiOperation(value = "研究生教学班查询列表")
     @PostMapping("/graduateTeachClassPage")
-    public RestResult<PageResult<TeachingClassVo>> graduatePage(
-        @RequestBody PageCondition<ElcResultQuery> condition)
-        throws Exception
-    {
-        PageResult<TeachingClassVo> list = elcResultService.graduatePage(condition);
-        
-        return RestResult.successData(list);
+    public RestResult<PageResult<TeachingClassVo>> graduatePage(@RequestBody PageCondition<ElcResultQuery> condition){
+        logger.info("graduatePage controller start...");
+        try {
+            PageResult<TeachingClassVo> list = elcResultService.graduatePage(condition);
+            return RestResult.successData(list);
+        } catch (Exception e) {
+            logger.error("graduatePage controller error: " + e.getMessage());
+            return RestResult.fail("common.findError");
+        }
     }
     
     /**

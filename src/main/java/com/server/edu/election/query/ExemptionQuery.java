@@ -1,5 +1,7 @@
 package com.server.edu.election.query;
 
+import java.util.List;
+
 /**
  * 免修免考查询
  * @author qiangliz
@@ -7,6 +9,16 @@ package com.server.edu.election.query;
  */
 public class ExemptionQuery
 {
+	/**
+	 * 主键ids
+	 */
+	private String ids;
+
+	/**
+	 * 勾选导出入参
+	 */
+	private List<String> exportIds;
+
 	/**
 	 * 学生id
 	 */
@@ -50,7 +62,23 @@ public class ExemptionQuery
     
     /** 审核结果 */
     private String keyword;
-    
+
+	public String getIds() {
+		return ids;
+	}
+
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+
+	public List<String> getExportIds() {
+		return exportIds;
+	}
+
+	public void setExportIds(List<String> exportIds) {
+		this.exportIds = exportIds;
+	}
+
 	public String getStudentId() {
 		return studentId;
 	}

@@ -706,4 +706,31 @@
         GROUP BY  t1.ID_
 
     </select>
+
+    <select id="listExamStusNoOrder" parameterType="java.lang.Long" resultType="com.server.edu.exam.vo.ExamStudent">
+
+        SELECT
+        t3.CALENDAR_ID_ calendarId,
+        t3.COURSE_CODE_ courseCode,
+        t4.NAME_ courseName,
+        t1.ROOM_NAME_ roomName,
+        t2.TEACHING_CLASS_CODE_ teachingClassCode,
+        t2.TEACHING_CLASS_NAME_ teachingClassName,
+        t2.STUDENT_CODE_ studentCode,
+        t5.NAME_ studentName,
+        t5.FACULTY_ faculty,
+        t3.EXAM_DATE_ examDate,
+        t3.EXAM_START_TIME_ examStartTime,
+        t3.EXAM_END_TIME_ examEndTime,
+        t3.ID_ examInfoId
+        FROM
+        graduate_exam_room_t t1
+        LEFT JOIN graduate_exam_student_t t2 ON t1.ID_ = t2.EXAM_ROOM_ID_
+        LEFT JOIN graduate_exam_info_t t3 ON t2.EXAM_INFO_ID_ = t3.ID_
+        LEFT JOIN course_t t4 ON t3.COURSE_CODE_ = t4.CODE_
+        LEFT JOIN student_t t5 ON t5.STUDENT_CODE_ = t2.STUDENT_CODE_
+        WHERE
+        t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1 and t2.EXAM_INFO_ID_ =#{examInfoId}
+        ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc,t2.STUDENT_CODE_ asc
+    </select>
 </mapper>

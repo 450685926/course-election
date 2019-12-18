@@ -2,15 +2,10 @@ package com.server.edu.election.service.impl;
 
 import static java.util.stream.Collectors.toSet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,10 +301,22 @@ public class ElcResultServiceImpl implements ElcResultService
 	private Page<TeachingClassVo> getListPage(ElcResultQuery condition, Page<TeachingClassVo> listPage, PageCondition<ElcResultQuery> page) {
 		if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
         	if(Constants.IS.equals(condition.getIsScreening())) {
-        		condition.setIndex(TableIndexUtil.getIndex(condition.getCalendarId()));
                 PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         		listPage = classDao.listScreeningPage(condition);
-        	}else {
+        		if (CollectionUtil.isNotEmpty(listPage)) {
+                    List<Long> ids = listPage.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+                    int index = TableIndexUtil.getIndex(condition.getCalendarId());
+                    List<TeachingClassVo> selCount = courseTakeDao.findSelCount(index, ids);
+                    Map<Long, TeachingClassVo> map = selCount.stream().collect(Collectors.toMap(s -> s.getId(), s -> s));
+                    for (TeachingClassVo teachingClassVo : listPage) {
+                        TeachingClassVo vo = map.get(teachingClassVo.getId());
+                        if (vo != null) {
+                            teachingClassVo.setFirstTurnNum(vo.getFirstTurnNum());
+                            teachingClassVo.setSecondTurnNum(vo.getSecondTurnNum());
+                        }
+                    }
+                }
+            }else {
                 List<String> includeCodes = new ArrayList<>();
                 // 1体育课
                 if (Objects.equals(condition.getCourseType(), 1))
@@ -351,14 +358,17 @@ public class ElcResultServiceImpl implements ElcResultService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
         Session session = SessionUtils.getCurrentSession();
-		if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) 
-				&& !session.isAdmin()
-				&& session.isAcdemicDean()) {
-			String faculty = session.getFaculty();
-			condition.setFaculty(faculty);
-		}
+        if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean()) {
+            String faculty = condition.getFaculty();
+            //如果筛选条件学院为空,则获取session中的学院;否则设置条件学院
+            if(StringUtils.isEmpty(faculty)) {
+                condition.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
+            }else {
+                condition.setFaculty(faculty);
+            }
+        }
+        logger.info("--------alex-------the qurey parames:{}",condition.toString());
 		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
-        
 		// 添加教室容量
 		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
 		

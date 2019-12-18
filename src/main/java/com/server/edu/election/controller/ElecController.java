@@ -122,6 +122,7 @@ public class ElecController
         Assert.notNull(round, "elec.roundNotExistTip");
         ElecContextBk c =
             new ElecContextBk(session.realUid(), round.getCalendarId());
+        elecService.getDataBk(c,roundId);
         return RestResult.successData(c);
     }
     
