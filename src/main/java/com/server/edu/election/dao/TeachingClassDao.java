@@ -178,4 +178,14 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     Integer getStudentAbnormalCountNew(@Param("studentId")String studentId, @Param("year")Integer year,@Param("term") Integer term);
 
     Page<TeachingClassVo> listPage4limit(ElcResultQuery condition);
+
+    List<TeachingClassVo> getTeachingClass(@Param("calendarId") Long calendarId, @Param("classCode") String classCode);
+
+    int findCount(@Param("id") Long id, @Param("bindClassId") Long bindClassId);
+
+    TeachingClassVo findBindClass(Long id);
+
+    int insertBindClass(@Param("id") Long id, @Param("bindClassId") Long bindClassId);
+
+    int deleteBindClass(@Param("id") Long id, @Param("bindClassId") Long bindClassId);
 }
