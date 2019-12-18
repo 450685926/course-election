@@ -361,14 +361,14 @@ public class ElcResultServiceImpl implements ElcResultService
         if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean()) {
             String faculty = condition.getFaculty();
             //如果筛选条件学院为空,则获取session中的学院;否则设置条件学院
-            if(StringUtils.isEmpty(faculty) && CommonConstant.isEmptyObj(faculty)) {
+            if(StringUtils.isEmpty(faculty)) {
                 condition.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
             }else {
                 condition.setFaculty(faculty);
             }
         }
+        logger.info("--------alex-------the qurey parames:{}",condition.toString());
 		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
-        
 		// 添加教室容量
 		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
 		
