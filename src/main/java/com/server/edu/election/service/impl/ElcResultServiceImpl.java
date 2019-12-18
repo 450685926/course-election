@@ -1440,6 +1440,7 @@ public class ElcResultServiceImpl implements ElcResultService
     }
 
     @Override
+    @Transactional
     public void bindClass(Long id, Long bindClassId) {
         List<Long> ids = new ArrayList<>(2);
         ids.add(id);
@@ -1457,7 +1458,11 @@ public class ElcResultServiceImpl implements ElcResultService
             } else if (c1 == null && c2 == null) {
                 teachingClassDao.insertBindClass(id, bindClassId);
             } else {
-                teachingClassDao.deleteBindClass(id, bindClassId);
+                if (c1 != null) {
+                    teachingClassDao.deleteBindClass(id);
+                } else {
+                    teachingClassDao.deleteBindClass(bindClassId);
+                }
                 teachingClassDao.insertBindClass(id, bindClassId);
             }
         }

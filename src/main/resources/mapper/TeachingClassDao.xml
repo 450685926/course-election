@@ -728,7 +728,8 @@
         JOIN teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
         JOIN course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ AND t3.PROJ_ID_ = 1)
         <where>
-            t3.CALENDAR_ID_ = #{calendarId}
+            t1.DEPLOY_FLAG_ &gt; 0
+            and t3.CALENDAR_ID_ = #{calendarId}
             <if test="classCode != null and classCode != ''">
                 and t1.CODE_  like concat('%',#{classCode},'%')
             </if>
@@ -756,7 +757,6 @@
 
     <delete id="deleteBindClass">
         delete from elc_teaching_class_bind_t
-        where TEACHING_CLASS_ID_ id = #{id} or BIND_CLASS_ID_ = #{id}
-        or TEACHING_CLASS_ID_= #{bindClassId} or BIND_CLASS_ID_ = #{bindClassId}
+        where TEACHING_CLASS_ID_ = #{id} or BIND_CLASS_ID_ = #{id}
     </delete>
 </mapper>
