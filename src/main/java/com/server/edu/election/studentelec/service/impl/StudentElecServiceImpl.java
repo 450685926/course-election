@@ -52,6 +52,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     private StudentUndergraduateScoreInfoDao scoreInfoDao;
 
     @Autowired
+    private StudentNumDao studentNumDao;
+
+    @Autowired
     private ElcStudentLimitDao elcStudentLimitDao;
 
     @Autowired
@@ -243,12 +246,12 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
         List<ElectionRuleVo> collect = rules.stream().filter(c -> "LoserNotElcRule".equals(c.getServiceName())).collect(Collectors.toList());
         if (CollectionUtil.isEmpty(collect)){
-            Example example = new Example(StudentUndergraduateScoreInfo.class);
+            Example example = new Example(StudentNum.class);
             Example.Criteria criteria = example.createCriteria();
             criteria.andEqualTo("studentNum", studentId);
             criteria.andEqualTo("isPass", Constants.UN_PASS);
-            List<StudentUndergraduateScoreInfo> stuList = scoreInfoDao.selectByExample(example);
-            Double creditTotal = stuList.stream().mapToDouble(StudentUndergraduateScoreInfo::getCredit).sum();
+            List<StudentNum> stuList = studentNumDao.selectByExample(example);
+            Double creditTotal = stuList.stream().mapToDouble(StudentNum::getCredit).sum();
             Example example2 = new Example(ElcStudentLimit.class);
             example2.createCriteria().andEqualTo("calendarId",elecRequest.getCalendarId()).andEqualTo("projectId",Constants.PROJ_UNGRADUATE).andEqualTo("studentId",studentId);
             List<ElcStudentLimit> elcStudentLimits = elcStudentLimitDao.selectByExample(example2);

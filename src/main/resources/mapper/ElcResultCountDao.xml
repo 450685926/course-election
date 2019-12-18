@@ -86,7 +86,7 @@
 		left join
 		(SELECT  t1.GRADE_, t1.TRAINING_LEVEL_, IFNULL(  t1.TRAINING_CATEGORY_,-1) TRAINING_CATEGORY_, t1.DEGREE_TYPE_, t1.FORM_LEARNING_,COUNT(*) NumberOfelectedPersons FROM student_t t1
 		RIGHT JOIN
-		(SELECT  STUDENT_ID_ FROM  elc_course_takes_t_#{query.index} t2
+		(SELECT  STUDENT_ID_ FROM  elc_course_takes_t_${query.index} t2
 		WHERE
 		CALENDAR_ID_ = #{query.calendarId}
 		GROUP BY t2.STUDENT_ID_) t3
@@ -155,7 +155,7 @@
 		left join
 		(SELECT t1.GRADE_, t1.TRAINING_LEVEL_, t1.TRAINING_CATEGORY_, t1.DEGREE_TYPE_, t1.FORM_LEARNING_, t1.FACULTY_, t1.PROFESSION_ ,COUNT(*) NumberOfelectedPersons FROM student_t t1
 		RIGHT JOIN
-		(SELECT  STUDENT_ID_ FROM  elc_course_takes_t_#{query.index} t2
+		(SELECT  STUDENT_ID_ FROM  elc_course_takes_t_${query.index} t2
 		WHERE
 		CALENDAR_ID_ = #{query.calendarId}
 		GROUP BY t2.STUDENT_ID_) t3
