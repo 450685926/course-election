@@ -113,6 +113,16 @@ public class ElcMedWithdrawServiceImpl implements ElcMedWithdrawService {
             throw new ParameterValidateException(
                     I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("elcMedWithdraw.elcinfo")));
 		}
+        Date date = new Date();
+        ElcMedWithdrawRules elcMedWithdrawRules = getMedWithdrawRules(projectId, elcCourseTake.getCalendarId());
+        if(elcMedWithdrawRules==null) {
+            throw new ParameterValidateException(
+                    I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("elcMedWithdraw.rule")));
+        }
+        if(elcMedWithdrawRules.getBeginTime().getTime()>=date.getTime()||date.getTime()>=elcMedWithdrawRules.getEndTime().getTime()) {
+            throw new ParameterValidateException(
+                    I18nUtil.getMsg("elcMedWithdraw.outRule"));
+        }
         ElcResultQuery elcResultQuery = new ElcResultQuery();
         elcResultQuery
             .setTeachingClassId(elcCourseTake.getTeachingClassId());
