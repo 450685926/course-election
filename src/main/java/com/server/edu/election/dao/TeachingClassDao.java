@@ -187,5 +187,5 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
 
     int insertBindClass(@Param("id") Long id, @Param("bindClassId") Long bindClassId);
 
-    int deleteBindClass(@Param("id") Long id, @Param("bindClassId") Long bindClassId);
+    int deleteBindClass(@Param("id") Long id);
 }
