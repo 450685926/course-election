@@ -122,7 +122,7 @@
 
           <!--勾选导出条件-->
           <if test="exportIds != null and exportIds.size() > 0" >
-              AND apply.ID_ IN
+              AND ex.ID_ IN
               <foreach collection="exportIds" item="item" index="index" open="(" separator="," close=")">
                   #{item}
               </foreach>
