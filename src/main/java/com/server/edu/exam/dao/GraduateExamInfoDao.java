@@ -148,4 +148,6 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
     List<Long> findExamInfoIdsByCourseCode(ExamStudentAddDto condition);
 
     List<GraduateExamInfoVo> editGraduateExamMakeUp(@Param("list") List<Long> examInfoIds);
+
+    List<ExamStudent> listExamStusNoOrder(@Param("id") Long id,@Param("examInfoId") Long examInfoId);
 }

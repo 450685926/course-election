@@ -92,7 +92,10 @@ public class ElcResultQuery
      */
     private String faculty;
 
-    private List<String> faculties;
+	/**
+	 * 导师可查看学院条件
+	 */
+	private List<String> faculties;
 
     /**
      * 专业
