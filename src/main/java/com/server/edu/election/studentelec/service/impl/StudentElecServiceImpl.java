@@ -465,7 +465,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
 
         List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
-        if (CollectionUtil.isEmpty(collect)){
+        if (CollectionUtil.isNotEmpty(collect)){
             if (CollectionUtil.isNotEmpty(c.getPlanCourses())){
                 Set<PlanCourse> collect1 = c.getPlanCourses().stream().filter(p -> p.getCourse().getChosen() != null && p.getCourse().getChosen().intValue() == 1).collect(Collectors.toSet());
                 c.setOnePlanCourses(collect1);
