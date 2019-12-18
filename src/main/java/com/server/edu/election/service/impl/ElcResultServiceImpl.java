@@ -1417,4 +1417,35 @@ public class ElcResultServiceImpl implements ElcResultService
         return teachingClassVo;
     }
 
+    @Override
+    public List<TeachingClassVo> getTeachingClass(Long calendarId, String classCode) {
+        PageHelper.startPage(1, 100);
+        List<TeachingClassVo> list = teachingClassDao.getTeachingClass(calendarId, classCode);
+        return list;
+    }
+
+    @Override
+    public void bindClass(Long id, Long bindClassId) {
+        List<Long> ids = new ArrayList<>(2);
+        ids.add(id);
+        ids.add(bindClassId);
+        List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(ids);
+        if (teachingClasses.size() < 2) {
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        int count = teachingClassDao.findCount(id, bindClassId);
+        if (count == 0) {
+            TeachingClassVo c1 = teachingClassDao.findBindClass(id);
+            TeachingClassVo c2 = teachingClassDao.findBindClass(bindClassId);
+            if (c1 != null && c2 != null) {
+                throw new ParameterValidateException("教学班绑定冲突");
+            } else if (c1 == null && c2 == null) {
+                teachingClassDao.insertBindClass(id, bindClassId);
+            } else {
+                teachingClassDao.deleteBindClass(id, bindClassId);
+                teachingClassDao.insertBindClass(id, bindClassId);
+            }
+        }
+
+    }
 }

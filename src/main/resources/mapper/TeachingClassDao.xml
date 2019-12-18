@@ -717,4 +717,46 @@
         and v.xh=#{studentId}
 
     </select>
+
+    <select id="getTeachingClass" resultType="com.server.edu.election.vo.TeachingClassVo">
+        SELECT DISTINCT
+        t1.ID_ id,
+        t1.CODE_ code,
+        t3.COURSE_NAME_ courseName
+        FROM
+        teaching_class_t t1
+        JOIN teaching_task_t t2 ON t2.ID_ = t1.TASK_ID_
+        JOIN course_open_t t3 ON (t3.ID_ = t2.COURSE_OPEN_ID_ AND t3.PROJ_ID_ = 1)
+        <where>
+            t3.CALENDAR_ID_ = #{calendarId}
+            <if test="classCode != null and classCode != ''">
+                and t1.CODE_  like concat('%',#{classCode},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findCount" resultType="int">
+        SELECT count(*) FROM elc_teaching_class_bind_t
+        where
+           TEACHING_CLASS_ID_ = #{id} and BIND_CLASS_ID_ = #{bindClassId}
+           or
+           TEACHING_CLASS_ID_ = #{bindClassId} and BIND_CLASS_ID_ = #{id}
+    </select>
+
+    <select id="findBindClass" resultType="com.server.edu.election.vo.TeachingClassVo">
+        SELECT TEACHING_CLASS_ID_ id, BIND_CLASS_ID_ bindClassId
+        from elc_teaching_class_bind_t
+        where TEACHING_CLASS_ID_ = #{id} or BIND_CLASS_ID_ = #{id}
+    </select>
+
+    <insert id="insertBindClass">
+      insert into elc_teaching_class_bind_t (TEACHING_CLASS_ID_,BIND_CLASS_ID_ )
+      values (#{id},#{bindClassId})
+    </insert>
+
+    <delete id="deleteBindClass">
+        delete from elc_teaching_class_bind_t
+        where TEACHING_CLASS_ID_ id = #{id} or BIND_CLASS_ID_ = #{id}
+        or TEACHING_CLASS_ID_= #{bindClassId} or BIND_CLASS_ID_ = #{bindClassId}
+    </delete>
 </mapper>

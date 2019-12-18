@@ -159,4 +159,8 @@ public interface ElcResultService
 	 * @param elcResultQuery
 	 */
 	TeachingClassVo getMaleToFemaleRatio(ElcResultQuery elcResultQuery);
+
+    List<TeachingClassVo> getTeachingClass(Long calendarId, String classCode);
+
+    void bindClass(Long id, Long bindClassId);
 }
