@@ -2150,4 +2150,17 @@
     <select id="findCompulsory" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
         select courseCode, compulsory from v_student_plan_course where studentId = #{studentId}
     </select>
+
+    <select id="findSelCount" resultType="com.server.edu.election.vo.TeachingClassVo">
+        select
+          TEACHING_CLASS_ID_ id,
+          count(if(TURN_ = 1,true,null)) AS firstTurnNum,
+          count(if(TURN_ = 2,true,null)) AS secondTurnNum
+        from elc_course_takes_t_${index}
+        where TEACHING_CLASS_ID_ in
+        <foreach item="item" collection="list" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        group by id
+    </select>
 </mapper>
