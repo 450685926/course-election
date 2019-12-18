@@ -299,7 +299,6 @@ public class ElecBkServiceImpl implements ElecBkService
                 if (CollectionUtil.isEmpty(elcCourseTakeVo)){
                     // 更新缓存中教学班人数
                     teachClassCacheService.updateTeachingClassNumber(teachClassId);
-                    respose.getSuccessCourses().add(teachClassId);
                 }else{
                     this.saveElc(context,
                             teachClass.getCourse(),
