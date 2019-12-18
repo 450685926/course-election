@@ -146,9 +146,13 @@ public class ElcResultController
     public RestResult<?> batchSetReserveNum(
         @RequestBody @Valid ReserveDto reserveDto)
     {
-        elcResultService.batchSetReserveNum(reserveDto);
-        
-        return RestResult.success();
+        List<TeachingClass> list =  elcResultService.batchSetReserveNum(reserveDto);
+        if(CollectionUtil.isNotEmpty(list)){
+            List<String> collect = list.stream().map(TeachingClass::getCode).collect(Collectors.toList());
+            return RestResult.fail(I18nUtil.getMsg("election.ReserveNum.error", StringUtils.join(collect.toArray(), ".")+""));
+        }else{
+            return RestResult.success();
+        }
     }
     
     /**

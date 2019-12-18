@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -574,6 +573,10 @@ public class ElcResultServiceImpl implements ElcResultService
                 Integer number = (temp.getNumber() == null ? 0 : temp.getNumber());
                 Integer elcNumber = (temp.getElcNumber() == null ? 0 : temp.getElcNumber());
                 int reserveNumber = new BigDecimal(temp.getNumber()).multiply(reserveProportion).divide(hundred, BigDecimal.ROUND_UP).intValue();
+                if(reserveProportion.doubleValue() >= 100.0){
+                    reserveNumber = number.intValue();
+                    reserveProportion = new BigDecimal(100);
+                }
                 temp.setReserveNumber(reserveNumber);
                 temp.setReserveNumberRate(reserveProportion.doubleValue());
                 if (reserveNumber + elcNumber.intValue() > number.intValue()){
@@ -591,13 +594,24 @@ public class ElcResultServiceImpl implements ElcResultService
     }
     @Override
 	@Transactional
-    public void batchSetReserveNum(ReserveDto reserveDto) {
+    public List<TeachingClass> batchSetReserveNum(ReserveDto reserveDto) {
     	TeachingClass teachingClass = new TeachingClass();
     	teachingClass.setReserveNumber(reserveDto.getReserveNumber());
+        List<TeachingClass> teachingClasss = new ArrayList<>();
     	if(reserveDto.getReserveNumberRate() == null){
+    	    Example example = new Example(TeachingClass.class);
+    	    example.createCriteria().andIn("id",reserveDto.getIds());
+            List<TeachingClass> teachingClasses = teachingClassDao.selectByExample(example);
+            Map<Long, TeachingClass> collect = teachingClasses.stream().collect(Collectors.toMap(s -> s.getId(), s -> s));
             for (Long id : reserveDto.getIds()) {
-                TeachingClass teachingClass1 = teachingClassDao.selectByPrimaryKey(id);
-                teachingClass.setReserveNumberRate(teachingClass1.getNumber().intValue()==0?0.0:new BigDecimal(reserveDto.getReserveNumber()).divide(new BigDecimal(teachingClass1.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                TeachingClass teachingClass1 = collect.get(id);
+                Integer number = (teachingClass1.getNumber() == null ? 0 : teachingClass1.getNumber());
+                Integer elcNumber = (teachingClass1.getElcNumber() == null ? 0 : teachingClass1.getElcNumber());
+                if (reserveDto.getReserveNumber() + elcNumber.intValue() > number.intValue()){
+                    teachingClasss.add(teachingClass1);
+                }else{
+                    teachingClass.setReserveNumberRate(teachingClass1.getNumber().intValue()==0?0.0:new BigDecimal(reserveDto.getReserveNumber()).divide(new BigDecimal(teachingClass1.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                }
             }
         }else{
             teachingClass.setReserveNumberRate(reserveDto.getReserveNumberRate());
@@ -606,6 +620,7 @@ public class ElcResultServiceImpl implements ElcResultService
     	Example.Criteria criteria = example.createCriteria();
     	criteria.andIn("id", reserveDto.getIds());
     	classDao.updateByExampleSelective(teachingClass, example);
+        return teachingClasss;
     }
     @Override
 	@Transactional
