@@ -31,6 +31,12 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.election.vo.RebuildCourseNoChargeList;
+import com.server.edu.election.vo.RollBookList;
+import com.server.edu.election.vo.StudentRebuildFeeVo;
+import com.server.edu.election.vo.StudentVo;
 
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
@@ -65,7 +71,13 @@ public interface ElcCourseTakeDao
     int findIsEletionCourse(@Param("studentCode") String studentCode,
         @Param("calendarId") Long calendarId,
         @Param("courseCode") String courseCode);
-    
+
+    List<ElcCourseTakeVo> findElcCourse(@Param("studentId") String studentId,
+                                        @Param("calendarId") Long calendarId,
+                                        @Param("index")int index,
+                                        @Param("courseCode") String courseCode);
+
+
     /**查询重修未缴费课程名单*/
     Page<RebuildCourseNoChargeList> findCourseNoChargeList(
             RebuildCourseDto condition);
@@ -331,4 +343,5 @@ public interface ElcCourseTakeDao
     List<ElcCourseTakeVo> findCompulsory(@Param("studentId") String studentId);
 
     List<TeachingClassVo> findSelCount(@Param("index") int index, @Param("list") List<Long> list);
+
 }
