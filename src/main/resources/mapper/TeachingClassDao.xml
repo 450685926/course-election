@@ -756,7 +756,6 @@
 
     <delete id="deleteBindClass">
         delete from elc_teaching_class_bind_t
-        where TEACHING_CLASS_ID_ id = #{id} or BIND_CLASS_ID_ = #{id}
-        or TEACHING_CLASS_ID_= #{bindClassId} or BIND_CLASS_ID_ = #{bindClassId}
+        where TEACHING_CLASS_ID_ = #{id} or BIND_CLASS_ID_ = #{id}
     </delete>
 </mapper>
