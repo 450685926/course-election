@@ -69,8 +69,9 @@ public interface ElcResultService
      * 
      * @param reserveDto
      * @see [类、类#方法、类#成员]
+	 * @return
      */
-    void batchSetReserveNum(ReserveDto reserveDto);
+    List<TeachingClass> batchSetReserveNum(ReserveDto reserveDto);
     /**
      * 释放教学班预留人数
      * 
