@@ -138,7 +138,7 @@ public class ElecAgentController
         Assert.notNull(round, "elec.roundNotExistTip");
         
         ElecContextBk c = new ElecContextBk(studentId, round.getCalendarId());
-        
+        elecService.getDataBk(c,elecRequest.getRoundId());
         return RestResult.successData(c);
     }
     
