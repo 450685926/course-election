@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.election.dao.StudentNumDao;
+import com.server.edu.election.entity.StudentNum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,7 +39,7 @@ import tk.mybatis.mapper.entity.Example;
 public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
 {
     @Autowired
-    private StudentUndergraduateScoreInfoDao scoreInfoDao;
+    private StudentNumDao studentNumDao;
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
     
@@ -46,7 +48,7 @@ public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
         TeachingClassCache courseClass)
     {
         String studentId = context.getRequest().getStudentId();
-        Example example = new Example(StudentUndergraduateScoreInfo.class);
+        Example example = new Example(StudentNum.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("studentNum", studentId);
         criteria.andEqualTo("isPass", Constants.UN_PASS);
@@ -55,10 +57,10 @@ public class LoserNotElcRule extends AbstractLoginRuleExceutorBk
 //        {
 //            return true;
 //        }
-        List<StudentUndergraduateScoreInfo> stuList = scoreInfoDao.selectByExample(example);
+        List<StudentNum> stuList = studentNumDao.selectByExample(example);
         if (CollectionUtil.isNotEmpty(stuList))
         {
-        	Double creditTotal = stuList.stream().mapToDouble(StudentUndergraduateScoreInfo::getCredit).sum();
+        	Double creditTotal = stuList.stream().mapToDouble(StudentNum::getCredit).sum();
         	Example conExample = new Example(ElectionConstants.class);
         	conExample.createCriteria().andEqualTo("key", "MAXFAILCREDITS").andEqualTo("managerDeptId", 1);
         	ElectionConstants electionConstants = electionConstantsDao.selectOneByExample(conExample);

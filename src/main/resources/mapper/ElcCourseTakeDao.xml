@@ -347,7 +347,7 @@
             PAID_,
             BILL_ID_,
             CREATED_AT_
-      FROM `elc_course_takes_t_#{index}` WHERE COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
+      FROM `elc_course_takes_t_${index}` WHERE COURSE_CODE_ =#{courseCode,jdbcType=VARCHAR}
       and STUDENT_ID_ =#{studentId}
       and CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
   </select>
