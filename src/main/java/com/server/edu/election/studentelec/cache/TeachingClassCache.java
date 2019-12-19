@@ -53,6 +53,8 @@ public class TeachingClassCache extends ElecCourse implements Serializable
     
     private String teacherName;
     
+    private String label;
+    
     /**校区*/
     @Code2Text(DictTypeEnum.X_XQ)
     private String campus;
@@ -67,8 +69,18 @@ public class TeachingClassCache extends ElecCourse implements Serializable
 
     private String replaceCourse;
     
+    private Double period;
+    
+    private String assessmentMode;
+    
     /** 教师名称(教师工号) */
     private String teacherNameAndCode;
+    
+    private Integer isPublicCourse;
+    
+    private Long id;
+    
+    private String studentId;
 
     public String getReplaceCourse() {
 		return replaceCourse;
@@ -252,6 +264,14 @@ public class TeachingClassCache extends ElecCourse implements Serializable
 	public void setTeachClassName(String teachClassName) {
 		this.teachClassName = teachClassName;
 	}
+	
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	@JsonIgnore
     public String getCourseCodeAndClassCode()
@@ -290,6 +310,46 @@ public class TeachingClassCache extends ElecCourse implements Serializable
 
 	public void setTeacherNameAndCode(String teacherNameAndCode) {
 		this.teacherNameAndCode = teacherNameAndCode;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Double getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Double period) {
+		this.period = period;
+	}
+
+	public String getAssessmentMode() {
+		return assessmentMode;
+	}
+
+	public void setAssessmentMode(String assessmentMode) {
+		this.assessmentMode = assessmentMode;
+	}
+
+	public Integer getIsPublicCourse() {
+		return isPublicCourse;
+	}
+
+	public void setIsPublicCourse(Integer isPublicCourse) {
+		this.isPublicCourse = isPublicCourse;
+	}
+
+	public String getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(String studentId) {
+		this.studentId = studentId;
 	}
 
 	@Override

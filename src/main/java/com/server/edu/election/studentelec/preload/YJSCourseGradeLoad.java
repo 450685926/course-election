@@ -102,7 +102,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         BeanUtils.copyProperties(stu, studentInfo);
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();// 已完成通過课程
         Set<CompletedCourse> failedCourse = context.getFailedCourse();// 未通过课程
-        List<CompletedCourse> takenCourses = new ArrayList<CompletedCourse>(); // 已修读课程
+        Set<CompletedCourse> takenCourses = new HashSet<CompletedCourse>(); // 已修读课程
         logger.info("----------TakenCourses2222--------: "+ context.getFailedCourse().size());
         
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
@@ -119,7 +119,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             Map<String, Course> map = courses.stream().collect(Collectors.toMap(Course::getCode, s -> s));
             int size = stuScore.size();
             List<Long> teachClassIds = new ArrayList<>(size);
-            List<CompletedCourse> course = new ArrayList<>(size);
+            Set<CompletedCourse> course = new HashSet<>(size);
             for (ScoreStudentResultVo studentScore : stuScore)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -170,6 +170,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 {
                     failedCourse.add(lesson);
                 }
+                logger.info("-----------course1------------:");
                 course.add(lesson);
             }
             logger.info("-----------course1------------:" + course.size());
@@ -248,7 +249,8 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 }
             }
             logger.info("----------TakenCourses--------: "+ course.size());
-            context.setTakenCourses(course);
+            List<CompletedCourse> courseList = new ArrayList<CompletedCourse>(course);
+            context.setTakenCourses(courseList);
 //            takenCourses.addAll(course);
         }
         

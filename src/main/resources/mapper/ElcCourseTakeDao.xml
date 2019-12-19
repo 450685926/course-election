@@ -59,6 +59,26 @@
         <result column="SEX_" jdbcType="VARCHAR" property="sex"/>
         <result column="studentFaculty" jdbcType="VARCHAR" property="studentFaculty"/>
     </resultMap>
+    <resultMap type="com.server.edu.election.studentelec.cache.TeachingClassCache" id="VoTeachingClassCache" extends="BaseResultMap">
+        <result column="ID_" jdbcType="BIGINT" property="id"/>
+        <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId"/>
+        <result column="NATURE" jdbcType="VARCHAR" property="nature"/>
+        <result column="COURSE_NAME_" jdbcType="VARCHAR" property="courseName"/>
+        <result column="CREDITS_" jdbcType="DOUBLE" property="credits"/>
+        <result column="FACULTY_" jdbcType="VARCHAR" property="faculty"/>
+        <result column="TERM_" jdbcType="VARCHAR" property="term"/>
+        <result column="LABEL_" jdbcType="VARCHAR" property="label"/>
+        <result column="PERIOD_" jdbcType="DOUBLE" property="period"/>
+        <result column="ASSESSMENT_MODE_" jdbcType="VARCHAR" property="assessmentMode"/>
+        <result column="teachClassId" jdbcType="BIGINT" property="teachClassId"/>
+        <result column="teachClassCode" jdbcType="VARCHAR" property="teachClassCode"/>
+        <result column="teachClassName" jdbcType="VARCHAR" property="teachClassName"/>
+        <result column="REMARK_" jdbcType="VARCHAR" property="remark"/>
+        <result column="courseLabel" jdbcType="VARCHAR" property="courseLabel"/>
+        <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isPublicCourse"/>
+        <result column="TEACHER_NAME_" jdbcType="BIGINT" property="teacherName"/>
+        <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId"/>
+    </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
     select
@@ -992,7 +1012,7 @@
     <select id="findAllSelectedCourses" resultMap="VoResultMap">
         select
         t1.*,op.NATURE_ NATURE,
-        op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,t3.TERM_,
+        op.COURSE_NAME_ as courseName  op.CREDITS_, op.FACULTY_,t3.TERM_,
         t3.LABEL_, t4.PERIOD_,
         t3.ASSESSMENT_MODE_,
         t4.CODE_ as teachingClassCode,
@@ -1007,16 +1027,24 @@
         </where>
     </select>
     
-	<select id="findCurrentCalendarCourses" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+	<select id="findCurrentCalendarCourses" resultMap="VoTeachingClassCache">
         select
-	        t1.*,op.NATURE_ NATURE,
-	        op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,t3.TERM_,
-	        t3.LABEL_, t4.PERIOD_,
+	        t1.ID_,
+	        t1.STUDENT_ID_,
+	        op.NATURE_,
+	        op.COURSE_CODE_, 
+	        op.COURSE_NAME_, 
+	        op.CALENDAR_ID_, 
+	        op.CREDITS_, 
+	        op.FACULTY_,
+	        t3.TERM_,
+	        t3.LABEL_, 
+	        t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_,
-	        t4.ID_ teachingClassId,
-	        t4.CODE_ as teachingClassCode,
-	        t4.NAME_ as teachingClassName,
-	        t4.REMARK_ remark,
+	        t4.ID_ teachClassId,
+	        t4.CODE_ as teachClassCode,
+	        t4.NAME_ as teachClassName,
+	        t4.REMARK_,
 	        t4.COURSE_LABEL_ID_ courseLabel,
 	        op.IS_ELECTIVE_ as isPublicCourse,
 	        GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
@@ -1834,7 +1862,7 @@
         </foreach>
     </select>
 
-    <select id="findTeachClass" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+    <select id="findTeachClass" resultMap="VoTeachingClassCache">
         SELECT
                 ec.TEACHING_CLASS_ID_ teachClassId,
 				tc.CODE_ teachClassCode,
