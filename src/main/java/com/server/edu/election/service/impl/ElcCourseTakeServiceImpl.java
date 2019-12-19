@@ -423,7 +423,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             applicationContext
                     .publishEvent(new ElectLoadEvent(calendarId, studentId));
             Student stu  = studentDao.findStudentByCode(studentId);
-            elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
+            try {
+                elecBkService.syncRemindTime(calendarId,1,studentId,stu.getName(),courseName+"("+courseCode+")");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             String elecStatus = Constants.IS_ELEC;
             //更新培养的选课状态
             StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
@@ -501,7 +505,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             applicationContext
                 .publishEvent(new ElectLoadEvent(calendarId, studentId));
             Student stu  = studentDao.findStudentByCode(studentId);
-            elecBkService.syncRemindTime(1,studentId,stu.getName(),courseName+"("+courseCode+")");
+            try{
+                elecBkService.syncRemindTime(calendarId,1,studentId,stu.getName(),courseName+"("+courseCode+")");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
             String elecStatus = Constants.IS_ELEC;
             //更新培养的选课状态
             StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
@@ -708,6 +716,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .andEqualTo("studentId", studentId)
                 .andEqualTo("teachingClassId", teachingClassId);
             ElcCourseTake elcCourseTake = courseTakeDao.selectOneByExample(example);
+            Example example1 = new Example(Course.class);
+            example1.createCriteria().andEqualTo("code",elcCourseTake.getCourseCode());
+            Course course = courseDao.selectOneByExample(example1);
             courseTakeDao.deleteByExample(example);
             //减少选课人数
             int count =classDao.decrElcNumber(teachingClassId);
@@ -757,7 +768,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
-                elecBkService.syncRemindTime(2,studentId,stu.getName(),vo.getCourseName()+"("+elcCourseTake.getCourseCode()+")");
+                try{
+                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
                 withdrawMap.put(
                     String
