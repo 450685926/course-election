@@ -385,11 +385,11 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public RestResult getConflict(Long roundId, String studentId, Long teachClassId) {
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
         if (CollectionUtil.isEmpty(rules)) {
-            return RestResult.success(ResultStatus.valueOf(400));
+            return RestResult.successData(400);
         }
         List<String> list = rules.stream().map(ElectionRuleVo::getServiceName).collect(Collectors.toList());
         if (!list.contains("TimeConflictCheckerRule")) {
-            return RestResult.success(ResultStatus.valueOf(400));
+            return RestResult.successData(400);
         }
         ElectionRounds round = dataProvider.getRound(roundId);
         Long calendarId = round.getCalendarId();
