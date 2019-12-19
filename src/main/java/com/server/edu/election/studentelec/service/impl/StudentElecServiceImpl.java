@@ -477,7 +477,6 @@ public class StudentElecServiceImpl extends AbstractCacheService
     @Override
     public void getDataBk(ElecContextBk c, Long roundId) {
         ElecRequest request = c.getRequest();
-        Long calendarId = request.getCalendarId();
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
 
         List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
@@ -489,17 +488,20 @@ public class StudentElecServiceImpl extends AbstractCacheService
         }else{
             c.setOnePlanCourses(c.getPlanCourses());
         }
+        ElectionRounds round = dataProvider.getRound(roundId);
+        Long calendarId = round.getCalendarId();
+
         //同步查询已选教学班信息，查看是否存在rides信息丢失，如果丢失，同步更新选课数据
         List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(request.getStudentId(), calendarId, TableIndexUtil.getIndex(request.getCalendarId()));
         Set<SelectedCourse> selectedCourses = c.getSelectedCourses();
         if (courseTakes.size() != selectedCourses.size()){
-            ElectionRounds round = dataProvider.getRound(roundId);
+
             c.getSelectedCourses().clear();
             for (SelectedCourse selectedCours : selectedCourses) {
                 SelectedCourse course = new SelectedCourse(selectedCours.getCourse());
                 course.setTurn(round.getTurn());
                 course.setCourseTakeType(selectedCours.getCourseTakeType());
-                course.setChooseObj(request.getChooseObj());
+                course.setChooseObj(selectedCours.getChooseObj());
                 c.getSelectedCourses().add(course);
             }
         }
