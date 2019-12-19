@@ -204,9 +204,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
 					}
     			}
             	course.add(lesson);
-            	logger.info("-----------course2------------:" + course.size());
             	teachClassIds.add(teachingClassCache.getTeachClassId());
 			}
+            logger.info("-----------course2------------:" + course.size());
             
             if (CollectionUtil.isNotEmpty(teachClassIds)) {
                 Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
@@ -245,7 +245,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     }
                 }
             }
-            takenCourses.addAll(course);
+            logger.info("----------TakenCourses--------: "+ course.size());
+            context.setTakenCourses(course);
+//            takenCourses.addAll(course);
         }
         
         //2.学生已选择课程
