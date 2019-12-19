@@ -245,6 +245,6 @@ public class ElecYjsController
     {
     	dataProvider.load();
     	return RestResult.success();
-    }  
+    } 
     
 }
