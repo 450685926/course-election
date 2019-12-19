@@ -62,6 +62,19 @@ public class ElecRoundServiceImpl implements ElecRoundService
         PageResult<ElectionRounds> result = new PageResult<>(page);
         return result;
     }
+
+    @Override
+    public PageResult<ElectionRounds> listPageTj(
+            PageCondition<ElectionRounds> condition)
+    {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+
+        ElectionRounds param = condition.getCondition();
+        Page<ElectionRounds> page = this.roundsDao.listPageTj(param);
+
+        PageResult<ElectionRounds> result = new PageResult<>(page);
+        return result;
+    }
     
     @Override
     public ElectionRoundsDto get(Long roundId)

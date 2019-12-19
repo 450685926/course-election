@@ -1436,6 +1436,9 @@ public class ElcResultServiceImpl implements ElcResultService
     public List<TeachingClassVo> getTeachingClass(Long calendarId, String classCode) {
         PageHelper.startPage(1, 100);
         List<TeachingClassVo> list = teachingClassDao.getTeachingClass(calendarId, classCode);
+        for (TeachingClassVo teachingClassVo : list) {
+            teachingClassVo.setCourseName(teachingClassVo.getCourseName() + teachingClassVo.getCode());
+        }
         return list;
     }
 
