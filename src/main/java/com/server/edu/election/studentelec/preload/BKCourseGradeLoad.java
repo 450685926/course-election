@@ -646,15 +646,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         }
         StringBuilder sb = new StringBuilder();
         String[] codes = teacherCode.split(",");
-        List<String> names = TeacherCacheUtil.getNames(codes);
-        if (CollectionUtil.isNotEmpty(names))
+        List<Teacher> teachers = TeacherCacheUtil.getTeachers(codes);
+
+        if (CollectionUtil.isNotEmpty(teachers))
         {
-            for (int i = 0; i < codes.length; i++)
-            {
-                String tCode = codes[i];
-                String tName = names.get(i);
+            for (Teacher teacher : teachers) {
+                String tName = teacher.getName();
                 // 老师名称(老师编号)
-                sb.append(String.format("%s(%s) ", tName, tCode));
+                sb.append(String.format("%s(%s) ", tName, teacher.getCode()));
             }
         }
         return sb.toString();
