@@ -99,22 +99,15 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
+            Set<PlanCourse> onePlanCourses = context.getOnePlanCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
-            List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-            List<ElectionRuleVo> planRules = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
                 Long labelId = planCourse.getLabel();
                 String labelName = planCourse.getLabelName();
                 if(CollectionUtil.isNotEmpty(list)){
-                	List<PlanCourseTypeDto> onePlanList = new ArrayList<PlanCourseTypeDto>();
-                	if(CollectionUtil.isNotEmpty(planRules)) {
-                		onePlanList = list.stream().filter(c->Constants.FIRST.equals(c.getChosen())).collect(Collectors.toList());
-                	}else {
-                		onePlanList = list;
-                	}
-                    for (PlanCourseTypeDto pct : onePlanList) {//培养课程
+                    for (PlanCourseTypeDto pct : list) {//培养课程
                         String courseCode = pct.getCourseCode();
                         if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(selectedCourse) && selectedCourse.contains(courseCode)) ) {
                             log.warn("courseCode is Blank skip this record: {}", JSON.toJSONString(pct));
@@ -151,6 +144,9 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             pl.setSubCourseCode(pct.getSubCourseCode());
                             pl.setLabel(labelId);
                             pl.setLabelName(labelName);
+                            if(Constants.FIRST.equals(pct.getChosen())) {
+                            	onePlanCourses.add(pl);
+                            }
                             planCourses.add(pl);
 //                            map.put(courseCode, pct.getCompulsory());
 						}
