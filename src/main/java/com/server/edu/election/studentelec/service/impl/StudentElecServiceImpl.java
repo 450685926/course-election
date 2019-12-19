@@ -496,7 +496,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Long calendarId = round.getCalendarId();
 
         //同步查询已选教学班信息，查看是否存在rides信息丢失，如果丢失，同步更新选课数据
-        List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(request.getStudentId(), calendarId, TableIndexUtil.getIndex(request.getCalendarId()));
+        List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(request.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
         Set<SelectedCourse> selectedCourses = c.getSelectedCourses();
         if (courseTakes.size() != selectedCourses.size()){
 
