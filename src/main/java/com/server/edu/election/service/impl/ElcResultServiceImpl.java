@@ -338,7 +338,6 @@ public class ElcResultServiceImpl implements ElcResultService
                 vo.setTimeAndRoom(timeAndRoom);
             }
         }
-        long l1 = System.currentTimeMillis();
         return new PageResult<>(listPage);
     }
 
