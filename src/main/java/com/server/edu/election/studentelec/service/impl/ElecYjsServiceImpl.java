@@ -761,7 +761,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
-        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
+//        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
+        List<CompletedCourse> takenCourse = packagingTakenCourse(c.getTakenCourses());
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
@@ -773,9 +774,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
     /**
      * 已修读课程组装排序
-     * @param setCompletedCourses
-     * @param failedCourses
-     * @param selectedCourseTreeSet
+     * @param setCompletedCourses 已完成通过的课程
+     * @param failedCourses  未通过的课程
+     * @param selectedCourseTreeSet 选课课程
      * @return
      */
     private List<CompletedCourse> packagingTakenCourse(Set<CompletedCourse> setCompletedCourses,
@@ -815,6 +816,18 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
     	return takenCourse;
 	}
+    
+    /**
+     * 已修读课程组装排序(从选课上下文中获取)
+     * @param setCompletedCourses
+     * @param failedCourses
+     * @param selectedCourseTreeSet
+     * @return
+     */
+    private List<CompletedCourse> packagingTakenCourse(List<CompletedCourse> takenCourse) {
+    	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
+    	return takenCourse;
+    }
 
 	/**
      * 去除跨校区选课

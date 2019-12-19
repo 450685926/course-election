@@ -9,6 +9,7 @@ import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.context.*;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -86,8 +87,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             throw new RuntimeException(msg);
         }
         BeanUtils.copyProperties(stu, studentInfo);
-        Set<CompletedCourse> completedCourses = context.getCompletedCourses();
-        Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
+        Set<CompletedCourse> completedCourses = context.getCompletedCourses();// 已完成通過课程
+        Set<CompletedCourse> failedCourse = context.getFailedCourse();// 未通过课程
+        List<CompletedCourse> takenCourses = context.getTakenCourses(); // 已修读课程
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         if (CollectionUtil.isNotEmpty(stuScore))
         {
@@ -155,6 +157,27 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 }
                 course.add(lesson);
             }
+            
+            // 获取当前学年学期的课程(正在修读没有成绩的课程)
+            Integer index =TableIndexUtil.getIndex(context.getCalendarId()-1);
+            List<TeachingClassCache> currentCalendarCourses = elcCourseTakeDao.findCurrentCalendarCourses(studentId, context.getCalendarId()-1, index);
+            for (TeachingClassCache teachingClassCache : currentCalendarCourses) {
+            	CompletedCourse lesson = new CompletedCourse();
+            	lesson.setNature(teachingClassCache.getNature());
+            	lesson.setCourseCode(teachingClassCache.getCourseCode());
+            	lesson.setCourseName(teachingClassCache.getCourseName());
+            	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
+            	lesson.setCredits(teachingClassCache.getCredits());
+            	lesson.setFaculty(teachingClassCache.getFaculty());
+            	lesson.setTerm(teachingClassCache.getTerm());
+            	lesson.setRemark(teachingClassCache.getRemark());
+            	lesson.setTeacherName(teachingClassCache.getTeacherName());
+            	lesson.setCourseLabelId(teachingClassCache.getLabelId());
+            	course.add(lesson);
+
+            	teachClassIds.add(teachingClassCache.getTeachClassId());
+			}
+            
             if (CollectionUtil.isNotEmpty(teachClassIds)) {
                 Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
                 for (CompletedCourse cours : course) {
@@ -192,6 +215,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     }
                 }
             }
+            takenCourses.addAll(course);
         }
         
         //2.学生已选择课程
