@@ -526,7 +526,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         Map<String, Object> elecResult = new HashMap<>();
         if (roundId != null)
-        { // 教务员
+        { // 教务员 或者 学生
             elecResult = getElectResultCount(studentId, roundId);
         }
         else

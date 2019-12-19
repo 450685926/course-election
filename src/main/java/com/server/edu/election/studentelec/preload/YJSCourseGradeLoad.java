@@ -89,7 +89,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         BeanUtils.copyProperties(stu, studentInfo);
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();// 已完成通過课程
         Set<CompletedCourse> failedCourse = context.getFailedCourse();// 未通过课程
-        List<CompletedCourse> takenCourses = context.getTakenCourses(); // 已修读课程
+        List<CompletedCourse> takenCourses = new ArrayList<CompletedCourse>(); // 已修读课程
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         if (CollectionUtil.isNotEmpty(stuScore))
         {
