@@ -63,8 +63,10 @@ public class ElecContextBk implements IElecContext
     
     /** 个人荣誉课程 */
     private Set<HonorCourseBK> honorCourses;
-       
-    
+
+    /** 未修完的课程 */
+    private Set<CompletedCourse>  unFinishedCourses;
+
     private ElecRequest request;
     
     private ElecRespose respose;
@@ -98,6 +100,7 @@ public class ElecContextBk implements IElecContext
             this.contextUtil.getSet(APPLY_FOR_DROP_COURSES, ElecCourse.class);
         planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
         honorCourses = this.contextUtil.getSet("HonorCourses", HonorCourseBK.class);
+        unFinishedCourses = this.contextUtil.getSet("unFinishedCourses", CompletedCourse.class);
         publicCourses =
             this.contextUtil.getSet("publicCourses", TsCourse.class);
         courseGroups =
@@ -128,6 +131,7 @@ public class ElecContextBk implements IElecContext
             this.applyForDropCourses);
         this.contextUtil.updateMem("PlanCourses", this.planCourses);
         this.contextUtil.updateMem("HonorCourses", this.honorCourses);
+        this.contextUtil.updateMem("unFinishedCourses",this.unFinishedCourses);
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
@@ -158,6 +162,7 @@ public class ElecContextBk implements IElecContext
         this.getApplyForDropCourses().clear();
         this.getPlanCourses().clear();
         this.getHonorCourses().clear();
+        this.getUnFinishedCourses().clear();
         this.getCourseGroups().clear();
         this.getPublicCourses().clear();
         this.getFailedCourse().clear();
@@ -271,6 +276,10 @@ public class ElecContextBk implements IElecContext
         return replaceCourses;
     }
 
+    public Set<CompletedCourse> getUnFinishedCourses()
+    {
+        return unFinishedCourses;
+    }
 
     public Set<PlanCourse> getOnePlanCourses() {
         return onePlanCourses;
