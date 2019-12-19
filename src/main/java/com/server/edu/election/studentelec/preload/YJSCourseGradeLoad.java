@@ -16,8 +16,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.SchoolCalendarVo;
+import com.server.edu.dictionary.DictTypeEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
@@ -25,9 +29,11 @@ import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
+import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -70,6 +76,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
 
     @Autowired
     private CourseOpenDao courseOpenDao;
+    
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @Override
     public void load(ElecContext context)
@@ -158,7 +167,11 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 course.add(lesson);
             }
             
+            
+            
             // 获取当前学年学期的课程(正在修读没有成绩的课程)
+            List<PlanCourseDto> plan = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
+            
             Integer index =TableIndexUtil.getIndex(context.getCalendarId()-1);
             List<TeachingClassCache> currentCalendarCourses = elcCourseTakeDao.findCurrentCalendarCourses(studentId, context.getCalendarId()-1, index);
             for (TeachingClassCache teachingClassCache : currentCalendarCourses) {
@@ -172,7 +185,20 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTerm(teachingClassCache.getTerm());
             	lesson.setRemark(teachingClassCache.getRemark());
             	lesson.setTeacherName(teachingClassCache.getTeacherName());
-            	lesson.setCourseLabelId(teachingClassCache.getLabelId());
+            	
+            	// 如果课程是培养计划中的课程，则取培养计划的课程lableId
+            	for (PlanCourseDto planCourseDto : plan) {
+    				List<PlanCourseTypeDto> list = planCourseDto.getList();
+    				List<String> courseCodeList = list.stream().map(vo->vo.getCourseCode()).collect(Collectors.toList());
+    				if (courseCodeList.contains(teachingClassCache.getCourseCode())) {
+    					lesson.setCourseLabelId(planCourseDto.getLabel());
+    					lesson.setLabelName(planCourseDto.getLabelName());
+					}else {
+						String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
+						lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
+						lesson.setLabelName(dict);
+					}
+    			}
             	course.add(lesson);
 
             	teachClassIds.add(teachingClassCache.getTeachClassId());
