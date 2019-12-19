@@ -23,7 +23,9 @@ public interface ElecRoundsDao extends Mapper<ElectionRounds>
      * @see [类、类#方法、类#成员]
      */
     Page<ElectionRounds> listPage(@Param("round") ElectionRounds round);
-    
+
+    Page<ElectionRounds> listPageTj(@Param("round") ElectionRounds round);
+
     /**
      * 查询一个
      * 

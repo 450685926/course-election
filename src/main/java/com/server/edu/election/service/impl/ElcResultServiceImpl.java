@@ -1137,7 +1137,7 @@ public class ElcResultServiceImpl implements ElcResultService
             throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
         //获取实际人数
-        int elcNumber = teachingClassVo.getElcNumber();
+        int elcNumber = teachingClassVo.getNumber();
         if(numberMale==0){
             numberFemale = elcNumber;
         }else if(numberFemale==0){

@@ -1006,7 +1006,32 @@
             t1.STUDENT_ID_ = #{studentId}
         </where>
     </select>
-
+    
+	<select id="findCurrentCalendarCourses" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
+        select
+	        t1.*,op.NATURE_ NATURE,
+	        op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,t3.TERM_,
+	        t3.LABEL_, t4.PERIOD_,
+	        t3.ASSESSMENT_MODE_,
+	        t4.ID_ teachingClassId,
+	        t4.CODE_ as teachingClassCode,
+	        t4.NAME_ as teachingClassName,
+	        t4.REMARK_ remark,
+	        t4.COURSE_LABEL_ID_ courseLabel,
+	        op.IS_ELECTIVE_ as isPublicCourse,
+	        GROUP_CONCAT(concat(te.TEACHER_NAME_)) teacherName
+        from elc_course_takes_t_${index} t1
+	        join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
+	        join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
+	        join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+        	left join teaching_class_teacher_t te on t1.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
+        <where>
+            t1.STUDENT_ID_ = #{studentId}
+            and t1.CALENDAR_ID_ = #{calendarId}
+        </where>
+        GROUP BY t4.CODE_
+    </select>
+	
     <select id="selectApplyCourses" resultType="com.server.edu.election.studentelec.context.ElecCourse">
         SELECT
         t1.ID_ electionApplyId,

@@ -35,6 +35,17 @@
   		and (DELETE_STATUS_ = '0' or DELETE_STATUS_ is null)
   	</where>
   </select>
+
+    <select id="listPageTj" resultMap="BaseResultMap">
+        select * from election_rounds_t
+        <where>
+            MANAGER_DEPT_ID_ = #{round.projectId}
+            and CALENDAR_ID_ = #{round.calendarId}
+            and MODE_ = #{round.mode}
+            and (DELETE_STATUS_ = '0' or DELETE_STATUS_ is null)
+            and TURN_ in (1,2)
+        </where>
+    </select>
   
   <select id="getOne" resultMap="DtoBaseResultMap">
   	select * from election_rounds_t where ID_ = #{roundId}
