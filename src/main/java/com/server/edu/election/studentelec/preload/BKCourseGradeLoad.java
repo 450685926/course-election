@@ -651,9 +651,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         if (CollectionUtil.isNotEmpty(teachers))
         {
             for (Teacher teacher : teachers) {
-                String tName = teacher.getName();
-                // 老师名称(老师编号)
-                sb.append(String.format("%s(%s) ", tName, teacher.getCode()));
+                if(teacher != null){
+                    String tName = teacher.getName();
+                    // 老师名称(老师编号)
+                    sb.append(String.format("%s(%s) ", tName, teacher.getCode()));
+                }
+
             }
         }
         return sb.toString();
