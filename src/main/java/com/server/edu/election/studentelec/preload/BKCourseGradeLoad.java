@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -177,10 +178,17 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     private void loadScore(ElecContextBk context, StudentInfoCache studentInfo,
         String studentId, Student stu)
     {
+        ElecRequest request = context.getRequest();
+        Long requesCalendarId = request.getCalendarId();
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
         BeanUtils.copyProperties(stu, studentInfo);
-        
+        //如果是选下学期的课程，获得当前学期正在修读的课程
+        Long currentCalendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
+        if(currentCalendarId.longValue() < requesCalendarId.longValue() ){
+
+        }
+
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
@@ -254,12 +262,34 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         String studentId, Student stu,List<ElcCouSubsVo> list)
     {
 //        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-    	
+        ElecRequest request = context.getRequest();
+        Long requesCalendarId = request.getCalendarId();
+
     	StudentScoreDto dto = new StudentScoreDto();
     	dto.setStudentId(studentId);
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
+        Set<CompletedCourse> unFinishedCourses = context.getUnFinishedCourses();
+
+        //如果是选下学期的课程，获得当前学期正在修读的课程
+        Long currentCalendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
+        if(currentCalendarId.longValue() < requesCalendarId.longValue() ){
+            List<ElcCourseTakeVo> courseTakes = elcCourseTakeDao.findBkSelectedCourses(request.getStudentId(), currentCalendarId, TableIndexUtil.getIndex(request.getCalendarId()));
+            for (ElcCourseTakeVo courseTake : courseTakes) {
+                CompletedCourse c = new CompletedCourse();
+                TeachingClassCache lesson = new TeachingClassCache();
+                c.setCourseCode(courseTake.getCourseCode());
+                lesson.setCourseCode(courseTake.getCourseCode());
+                lesson.setCourseName(courseTake.getCourseName());
+                lesson.setFaculty(courseTake.getFaculty());
+                lesson.setTerm(courseTake.getTerm());
+                lesson.setTeachClassId(courseTake.getTeachingClassId());
+                lesson.setCredits(courseTake.getCredits());
+                c.setCourse(lesson);
+                unFinishedCourses.add(c);
+            }
+        }
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScore))
