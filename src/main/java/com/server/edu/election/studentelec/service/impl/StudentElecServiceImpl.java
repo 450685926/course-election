@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -384,11 +385,11 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public RestResult getConflict(Long roundId, String studentId, Long teachClassId) {
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
         if (CollectionUtil.isEmpty(rules)) {
-            return new RestResult(400);
+            return RestResult.success(ResultStatus.valueOf(400));
         }
         List<String> list = rules.stream().map(ElectionRuleVo::getServiceName).collect(Collectors.toList());
         if (!list.contains("TimeConflictCheckerRule")) {
-            return new RestResult(400);
+            return RestResult.success(ResultStatus.valueOf(400));
         }
         ElectionRounds round = dataProvider.getRound(roundId);
         Long calendarId = round.getCalendarId();
