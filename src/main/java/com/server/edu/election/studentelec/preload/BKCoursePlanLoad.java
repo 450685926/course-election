@@ -9,6 +9,7 @@ import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcStuCouLevelDao;
 import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.entity.ElectionRounds;
@@ -39,6 +40,7 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
+import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 import tk.mybatis.mapper.entity.Example;
 
@@ -98,13 +100,21 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
+            List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+            List<ElectionRuleVo> planRules = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
                 Long labelId = planCourse.getLabel();
                 String labelName = planCourse.getLabelName();
                 if(CollectionUtil.isNotEmpty(list)){
-                    for (PlanCourseTypeDto pct : list) {//培养课程
+                	List<PlanCourseTypeDto> onePlanList = new ArrayList<PlanCourseTypeDto>();
+                	if(CollectionUtil.isNotEmpty(planRules)) {
+                		onePlanList = list.stream().filter(c->Constants.FIRST.equals(c.getChosen())).collect(Collectors.toList());
+                	}else {
+                		onePlanList = list;
+                	}
+                    for (PlanCourseTypeDto pct : onePlanList) {//培养课程
                         String courseCode = pct.getCourseCode();
                         if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(selectedCourse) && selectedCourse.contains(courseCode)) ) {
                             log.warn("courseCode is Blank skip this record: {}", JSON.toJSONString(pct));
