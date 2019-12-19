@@ -275,7 +275,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         //如果是选下学期的课程，获得当前学期正在修读的课程
         Long currentCalendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
         if(currentCalendarId.longValue() < requesCalendarId.longValue() ){
-            List<ElcCourseTakeVo> courseTakes = elcCourseTakeDao.findBkSelectedCourses(request.getStudentId(), currentCalendarId, TableIndexUtil.getIndex(request.getCalendarId()));
+            List<ElcCourseTakeVo> courseTakes = elcCourseTakeDao.findBkSelectedCourses(request.getStudentId(), currentCalendarId, TableIndexUtil.getIndex(currentCalendarId));
             for (ElcCourseTakeVo courseTake : courseTakes) {
                 CompletedCourse c = new CompletedCourse();
                 TeachingClassCache lesson = new TeachingClassCache();
