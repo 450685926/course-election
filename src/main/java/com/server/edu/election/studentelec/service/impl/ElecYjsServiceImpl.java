@@ -763,10 +763,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
-        LOG.info("--------------------------: " + c.getTakenCourses());
-        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
-        	takenCourse = packagingTakenCourse(c.getTakenCourses());
-        }
+        LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses());
+//        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
+//        	takenCourse = packagingTakenCourse(c.getTakenCourses());
+//        }
+        for (CompletedCourse completedCourse : takenCourse) {
+			Long courseLabelId = completedCourse.getCourseLabelId();
+			LOG.info("===========courseLabelId=============:" + courseLabelId);
+		}
         
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
@@ -831,8 +835,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      */
     private List<CompletedCourse> packagingTakenCourse(List<CompletedCourse> takenCourse) {
     	for (CompletedCourse completedCourse : takenCourse) {
-			Long labelId = completedCourse.getLabelId();
-			LOG.info("===========labelId=============:" + labelId);
+			Long courseLabelId = completedCourse.getCourseLabelId();
+			LOG.info("===========courseLabelId=============:" + courseLabelId);
 		}
     	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
     	return takenCourse;
@@ -1252,7 +1256,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 
         }
         LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG");
-        Map<String, Object> minNumMap = new HashMap<String, Object>();
+        Map<String, Object> minNumMap = new HashMap<String, Object>();   // 最少门数要求
         Map<String, Object> courseNumMap = new HashMap<String, Object>();
         Map<String, Object> creditsMap = new HashMap<String, Object>();
         Map<String, Object> thisTimesumCreditsMap =
@@ -1711,5 +1715,4 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         	CultureSerivceInvoker.updateSelectCourse(culturePlan);
 		}
     }
-    
 }

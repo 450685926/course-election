@@ -103,7 +103,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();// 已完成通過课程
         Set<CompletedCourse> failedCourse = context.getFailedCourse();// 未通过课程
         Set<CompletedCourse> takenCourses = new HashSet<CompletedCourse>(); // 已修读课程
-        logger.info("----------TakenCourses2222--------: "+ context.getFailedCourse().size());
         
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         if (CollectionUtil.isNotEmpty(stuScore))
@@ -170,11 +169,11 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 {
                     failedCourse.add(lesson);
                 }
-                logger.info("-----------course1------------:");
                 course.add(lesson);
             }
-            logger.info("-----------course1------------:" + course.size());
-            
+            logger.info("-----------completedCourses------------:" + completedCourses.size());
+            logger.info("-------------failedCourse--------------:" + failedCourse.size());
+            logger.info("----------------course1-----------------:" + course.size());
             
             // 获取当前学年学期的课程(正在修读没有成绩的课程)
             List<PlanCourseDto> plan = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
@@ -192,7 +191,11 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTerm(teachingClassCache.getTerm());
             	lesson.setRemark(teachingClassCache.getRemark());
             	lesson.setTeacherName(teachingClassCache.getTeacherName());
-            	
+            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(context.getCalendarId()-1);
+                // 根据校历id设置学年
+                if (schoolCalendar != null) {
+                    lesson.setCalendarName(schoolCalendar.getYear()+"");
+                }
             	// 如果课程是培养计划中的课程，则取培养计划的课程lableId
             	for (PlanCourseDto planCourseDto : plan) {
     				List<PlanCourseTypeDto> list = planCourseDto.getList();
