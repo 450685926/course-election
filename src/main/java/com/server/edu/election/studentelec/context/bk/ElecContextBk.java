@@ -174,6 +174,7 @@ public class ElecContextBk implements IElecContext
         this.getElecApplyCourses().clear();
         this.getReplaceCourses().clear();
         this.getPlanCourses().clear();
+        this.getOnePlanCourses().clear();
     }
     
     public void courseClear()
@@ -288,7 +289,4 @@ public class ElecContextBk implements IElecContext
         return onePlanCourses;
     }
 
-    public void setOnePlanCourses(Set<PlanCourse> onePlanCourses) {
-        this.onePlanCourses = onePlanCourses;
-    }
 }
