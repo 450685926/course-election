@@ -10,6 +10,7 @@ import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
@@ -483,11 +484,17 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public void getDataBk(ElecContextBk c, Long roundId) {
         ElecRequest request = c.getRequest();
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-
         List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
         if (CollectionUtil.isNotEmpty(collect)){
-            if (CollectionUtil.isNotEmpty(c.getPlanCourses())){
-                Set<PlanCourse> collect1 = c.getPlanCourses().stream().filter(p -> p.getCourse().getChosen() != null && p.getCourse().getChosen().intValue() == 1).collect(Collectors.toSet());
+        	Set<PlanCourse> planCourses = c.getPlanCourses();
+            if (CollectionUtil.isNotEmpty(planCourses)){
+            	Set<PlanCourse> collect1 = new HashSet<>();
+            	for(PlanCourse planCourse:planCourses) {
+            		ElecCourse course = planCourse.getCourse();
+            		if(Constants.FIRST.equals(course.getChosen())) {
+            			collect1.add(planCourse);
+            		}
+            	}
                 c.setOnePlanCourses(collect1);
             }
         }else{
