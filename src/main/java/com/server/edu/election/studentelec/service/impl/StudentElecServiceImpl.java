@@ -381,7 +381,17 @@ public class StudentElecServiceImpl extends AbstractCacheService
     }
 
     @Override
-    public void getConflict(Long calendarId, String studentId, String courseCode, Long teachClassId) {
+    public RestResult getConflict(Long roundId, String studentId, Long teachClassId) {
+        List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+        if (CollectionUtil.isEmpty(rules)) {
+            return new RestResult(400);
+        }
+        List<String> list = rules.stream().map(ElectionRuleVo::getServiceName).collect(Collectors.toList());
+        if (!list.contains("TimeConflictCheckerRule")) {
+            return new RestResult(400);
+        }
+        ElectionRounds round = dataProvider.getRound(roundId);
+        Long calendarId = round.getCalendarId();
         TeachingClassCache teachingClassCache =
                 teachClassCacheService.getTeachClassByTeachClassId(teachClassId);
         if (teachingClassCache != null) {
@@ -439,7 +449,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 }
             }
         }
-
+        return RestResult.success();
     }
 
     @Override

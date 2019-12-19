@@ -48,7 +48,24 @@ public class ElecRoundController
     {
         PageResult<ElectionRounds> page =
             electionRoundService.listPage(condition);
-        
+
+        return RestResult.successData(page);
+    }
+
+    /**
+     * 选课回收站筛选条件轮次查询
+     *
+     * @param condition
+     * @return
+     */
+    @ApiOperation(value = "分页查询选课回收站轮次信息")
+    @PostMapping("/pageTj")
+    public RestResult<PageResult<ElectionRounds>> pageTj(
+            @RequestBody PageCondition<ElectionRounds> condition)
+    {
+        PageResult<ElectionRounds> page =
+                electionRoundService.listPageTj(condition);
+
         return RestResult.successData(page);
     }
     
