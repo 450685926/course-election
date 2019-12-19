@@ -762,7 +762,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
-        List<CompletedCourse> takenCourse = packagingTakenCourse(c.getTakenCourses());
+        List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
+        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
+        	takenCourse = packagingTakenCourse(c.getTakenCourses());
+        }
+        
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
@@ -825,6 +829,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * @return
      */
     private List<CompletedCourse> packagingTakenCourse(List<CompletedCourse> takenCourse) {
+    	
     	for (CompletedCourse completedCourse : takenCourse) {
 			Long labelId = completedCourse.getLabelId();
 			LOG.info("===========labelId=============:" + labelId);
