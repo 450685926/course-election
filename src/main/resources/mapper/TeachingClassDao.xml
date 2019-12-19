@@ -731,7 +731,7 @@
             t1.DEPLOY_FLAG_ &gt; 0
             and t3.CALENDAR_ID_ = #{calendarId}
             <if test="classCode != null and classCode != ''">
-                and t1.CODE_  like concat('%',#{classCode},'%')
+                and t1.CODE_  like concat('%',#{classCode},'%') or t3.COURSE_NAME_ like concat('%',#{classCode},'%')
             </if>
         </where>
     </select>
