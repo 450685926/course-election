@@ -37,7 +37,17 @@ public class AutoRemoveDto
     /**按建议课表进行筛选*/
     private Boolean suggestSwitchCourse;
     
-    public Long getCalendarId()
+    private String label;
+    
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Long getCalendarId()
     {
         return calendarId;
     }

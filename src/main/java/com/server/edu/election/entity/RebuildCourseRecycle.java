@@ -69,6 +69,12 @@ public class RebuildCourseRecycle implements Serializable {
      */
     @Column(name = "TYPE_")
     private Integer type;
+    
+    /**
+     * 筛选标签
+     */
+    @Column(name = "SCREEN_LABEL")
+    private String screenLabel;
 
     private static final long serialVersionUID = 1L;
 
@@ -265,8 +271,17 @@ public class RebuildCourseRecycle implements Serializable {
     public void setType(Integer type) {
         this.type = type;
     }
+    
 
-    @Override
+    public String getScreenLabel() {
+		return screenLabel;
+	}
+
+	public void setScreenLabel(String screenLabel) {
+		this.screenLabel = screenLabel;
+	}
+
+	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
@@ -283,6 +298,7 @@ public class RebuildCourseRecycle implements Serializable {
         sb.append(", chooseObj=").append(chooseObj);
         sb.append(", paid=").append(paid);
         sb.append(", type=").append(type);
+        sb.append(", screenLabel=").append(screenLabel);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
