@@ -183,7 +183,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                             }
                         }
 
-                        int limitNumber = 0;
+                        Integer limitNumber = 0;
                         if (MALE.equals(sex))
                         {//男
                             limitNumber = numberMale;
@@ -191,8 +191,9 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                         else
                         {
                             limitNumber = numberFemale;
+
                         }
-                        if ((currentNum + 1) <= limitNumber)
+                        if (limitNumber == null || (limitNumber != null && (currentNum + 1) <= limitNumber))
                         {
                             resultFlag = true;
                         }
