@@ -413,15 +413,13 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 List<ClassTimeUnit> times = teachingClassCache.getTimes();
                 if (CollectionUtil.isNotEmpty(times)) {
                     List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
-                    Map map = new HashMap(selectedCourses.size());
+                    Map<Long,TeachingClassCache> map = new HashMap(selectedCourses.size());
                     for (SelectedCourse selectedCours : selectedCourses) {
                         TeachingClassCache course = selectedCours.getCourse();
                         List<ClassTimeUnit> time = course.getTimes();
-                        String code = course.getCourseCode();
-                        String name = course.getCourseName();
-                        StringBuffer sb = new StringBuffer("[").append(name).append("(").append(code).append(")").append("]");
+
                         if (CollectionUtil.isNotEmpty(time)) {
-                            map.put(course.getTeachClassId(), sb.toString());
+                            map.put(course.getTeachClassId(), course);
                             classTimeUnits.addAll(time);
                         }
                     }
@@ -450,7 +448,13 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                                 || (start <= timeEnd && timeEnd <= end)
                                                 || (timeStart <= start && start <= timeEnd)
                                                 || (timeStart <= end && end <= timeEnd)) {
-                                            throw new ParameterValidateException("该课程与已选课程" + map.get(classTimeUnit.getTeachClassId()) + "上课时间冲突");
+                                            TeachingClassCache tc = map.get(classTimeUnit.getTeachClassId());
+                                            String code = tc.getCourseCode();
+                                            String name = tc.getCourseName();
+                                            if (!code.equals(teachingClassCache.getCourseCode())) {
+                                                StringBuffer sb = new StringBuffer("[").append(name).append("(").append(code).append(")").append("]");
+                                                throw new ParameterValidateException("该课程与已选课程" + sb.toString() + "上课时间冲突");
+                                            }
                                         }
                                     }
                                 }
