@@ -98,6 +98,8 @@ import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -247,7 +249,6 @@ public class ElcResultServiceImpl implements ElcResultService
             PageCondition<ElcResultQuery> page)
     {
         ElcResultQuery condition = page.getCondition();
-
         Session session = SessionUtils.getCurrentSession();
         //通过session信息获取访问接口人员角色
         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
@@ -263,6 +264,31 @@ public class ElcResultServiceImpl implements ElcResultService
         }
         List<TeachingClassVo> list = listPage.getResult();
         if(CollectionUtil.isNotEmpty(list)) {
+            List<Long> collect = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+            List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(collect);
+            MultiValueMap<Long, TimeAndRoom> multiValueMap = new LinkedMultiValueMap<>(50);
+            if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+                for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                    TimeAndRoom time=new TimeAndRoom();
+                    Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                    Integer timeStart = classTeacherDto.getTimeStart();
+                    Integer timeEnd = classTeacherDto.getTimeEnd();
+                    String roomID = classTeacherDto.getRoomID();
+                    String weekNumber = classTeacherDto.getWeekNumberStr();
+                    Long timeId = classTeacherDto.getTimeId();
+                    String[] str = weekNumber.split(",");
+
+                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                    List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                    String weekNumStr = weekNums.toString();//周次
+                    String weekstr = findWeek(dayOfWeek);//星期
+                    String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
+                    time.setTimeId(timeId);
+                    time.setTimeAndRoom(timeStr);
+                    time.setRoomId(roomID);
+                    multiValueMap.add(classTeacherDto.getTeachingClassId(), time);
+                }
+            }
             // 添加教室容量
             Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(toSet());
             List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
@@ -293,23 +319,26 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
                 // 处理教学安排（上课时间地点）信息
-                List<TimeAndRoom> tableMessages = getTimeById(vo.getId());
-                vo.setTimeTableList(tableMessages);
+                List<TimeAndRoom> tableMessages = multiValueMap.get(vo.getId());
                 String timeAndRoom = "";
-                for (TimeAndRoom tAndR : tableMessages) {
-                    timeAndRoom = timeAndRoom + tAndR.getTimeAndRoom();
-                    if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
-                        ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
-                        if (classroom != null) {
-                            timeAndRoom = "/" + classroom.getName()+" ";
+                if (CollectionUtil.isNotEmpty(tableMessages)) {
+                    vo.setTimeTableList(tableMessages);
+                    for (TimeAndRoom tAndR : tableMessages) {
+                        timeAndRoom = timeAndRoom + tAndR.getTimeAndRoom();
+                        if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
+                            ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
+                            if (classroom != null) {
+                                timeAndRoom = "/" + classroom.getName()+" ";
+                            }
+                        }else {
+                            timeAndRoom = timeAndRoom + " ";
                         }
-                    }else {
-                        timeAndRoom = timeAndRoom + " ";
                     }
                 }
                 vo.setTimeAndRoom(timeAndRoom);
             }
         }
+        long l1 = System.currentTimeMillis();
         return new PageResult<>(listPage);
     }
 
