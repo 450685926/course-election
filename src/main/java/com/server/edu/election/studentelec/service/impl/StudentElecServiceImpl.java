@@ -395,13 +395,17 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Long calendarId = round.getCalendarId();
         TeachingClassCache teachingClassCache =
                 teachClassCacheService.getTeachClassByTeachClassId(teachClassId);
-        if (teachingClassCache != null) {
-            List<ClassTimeUnit> times = teachingClassCache.getTimes();
-            if (CollectionUtil.isNotEmpty(times)) {
-                // 获取已选课程
-                ElecContextBk context = new ElecContextBk(studentId, calendarId);
-                Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-                if (CollectionUtil.isNotEmpty(selectedCourses)) {
+        // 获取已选课程
+        ElecContextBk context = new ElecContextBk(studentId, calendarId);
+        Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+        if (CollectionUtil.isNotEmpty(selectedCourses)) {
+            List<Long> collect = selectedCourses.stream().map(s -> s.getCourse().getTeachClassId()).collect(Collectors.toList());
+            if (collect.contains(teachClassId)) {
+                return RestResult.successData(300);
+            }
+            if (teachingClassCache != null) {
+                List<ClassTimeUnit> times = teachingClassCache.getTimes();
+                if (CollectionUtil.isNotEmpty(times)) {
                     List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
                     Map map = new HashMap(selectedCourses.size());
                     for (SelectedCourse selectedCours : selectedCourses) {
