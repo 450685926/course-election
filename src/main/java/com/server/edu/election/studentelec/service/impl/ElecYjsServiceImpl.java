@@ -776,7 +776,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
         c.setOptionalCourses(sortOptionalCourses);
-        c.setTakenCourses(takenCourse);
+        c.setTakenCourses(c.getTakenCourses());
         c.setElecResult(elecResult);
         return c;
     }
