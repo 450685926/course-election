@@ -12,6 +12,8 @@ import com.server.edu.election.studentelec.context.*;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,6 +46,8 @@ import com.server.edu.util.CollectionUtil;
 @Component
 public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
 {
+    Logger logger = LoggerFactory.getLogger(YJSCourseGradeLoad.class);
+	
     @Override
     public int getOrder()
     {
@@ -166,7 +170,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 }
                 course.add(lesson);
             }
-            
+            logger.info("-----------course1------------:" + course.size());
             
             
             // 获取当前学年学期的课程(正在修读没有成绩的课程)
@@ -200,7 +204,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
 					}
     			}
             	course.add(lesson);
-
+            	logger.info("-----------course2------------:" + course.size());
             	teachClassIds.add(teachingClassCache.getTeachClassId());
 			}
             
