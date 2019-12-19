@@ -35,6 +35,7 @@ import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.service.ExemptionApplyConditionService;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
@@ -135,6 +136,8 @@ public class ElecYjsController
             new ElecContext(session.realUid(), round.getCalendarId());
         if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
         {
+        	List<CompletedCourse> takenCourses = c.getTakenCourses();
+        	logger.info("---------size--------------:" + takenCourses.size());
             c = yjsService.setData(session.realUid(), c, roundId, null);
         }
         

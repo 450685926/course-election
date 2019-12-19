@@ -763,6 +763,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
+        LOG.info("--------------------------: " + c.getTakenCourses());
         if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
         	takenCourse = packagingTakenCourse(c.getTakenCourses());
         }
