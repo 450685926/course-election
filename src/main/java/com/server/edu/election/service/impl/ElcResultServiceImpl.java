@@ -773,7 +773,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     int overSize = (invincibleStus.size()
                             + affinityStus.size() + normalStus.size())
                             - limitnumber;
-                    if(i!=1 && overSize<=0) {
+                    if(i!=0 && overSize<=0) {
                     	break;
                     }
                     gradAndPreFilter.execute(stuList, removeStus);
