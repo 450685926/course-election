@@ -8,6 +8,7 @@ import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
+import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
@@ -494,9 +495,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
         }
         ElectionRounds round = dataProvider.getRound(roundId);
         Long calendarId = round.getCalendarId();
+        StudentInfoCache studentInfo = c.getStudentInfo();
 
         //同步查询已选教学班信息，查看是否存在rides信息丢失，如果丢失，同步更新选课数据
-        List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(request.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+        List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
         Set<SelectedCourse> selectedCourses = c.getSelectedCourses();
         if (courseTakes.size() != selectedCourses.size()){
 
