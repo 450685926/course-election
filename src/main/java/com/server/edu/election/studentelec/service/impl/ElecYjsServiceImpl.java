@@ -825,6 +825,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * @return
      */
     private List<CompletedCourse> packagingTakenCourse(List<CompletedCourse> takenCourse) {
+    	for (CompletedCourse completedCourse : takenCourse) {
+			Long labelId = completedCourse.getLabelId();
+			LOG.info("===========labelId=============:" + labelId);
+		}
     	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
     	return takenCourse;
     }
