@@ -320,22 +320,22 @@ public class ElcResultServiceImpl implements ElcResultService
                 }
                 // 处理教学安排（上课时间地点）信息
                 List<TimeAndRoom> tableMessages = multiValueMap.get(vo.getId());
-                String timeAndRoom = "";
                 if (CollectionUtil.isNotEmpty(tableMessages)) {
                     vo.setTimeTableList(tableMessages);
+                    Set<String> set = new HashSet<>(3);
                     for (TimeAndRoom tAndR : tableMessages) {
-                        timeAndRoom = timeAndRoom + tAndR.getTimeAndRoom();
                         if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
                             ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
                             if (classroom != null) {
-                                timeAndRoom = "/" + classroom.getName()+" ";
+                                String name = classroom.getName();
+                                if (StringUtils.isNotBlank(name)) {
+                                    set.add(name);
+                                }
                             }
-                        }else {
-                            timeAndRoom = timeAndRoom + " ";
                         }
                     }
+                    vo.setTimeAndRoom(String.join(",",set));
                 }
-                vo.setTimeAndRoom(timeAndRoom);
             }
         }
         return new PageResult<>(listPage);
