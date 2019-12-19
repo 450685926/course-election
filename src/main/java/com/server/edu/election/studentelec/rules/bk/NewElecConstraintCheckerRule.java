@@ -121,8 +121,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutorBk
 	private ElcStudentLimit getLimitNum(String studentId, Long calendarId) {
 		Example example  = new Example(ElcStudentLimit.class);
 		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("studentId", studentId);
-		criteria.andEqualTo("calendarId", calendarId);
+		criteria.andEqualTo("studentId", studentId).andEqualTo("calendarId", calendarId);
 		ElcStudentLimit elcStudentLimit = elcStudentLimitDao.selectOneByExample(example);
 		if(elcStudentLimit==null) {
 			elcStudentLimit = new ElcStudentLimit();
