@@ -482,24 +482,24 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Override
     public void getDataBk(ElecContextBk c, Long roundId) {
-        ElecRequest request = c.getRequest();
-        List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-        List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
-        if (CollectionUtil.isNotEmpty(collect)){
-        	Set<PlanCourse> planCourses = c.getPlanCourses();
-            if (CollectionUtil.isNotEmpty(planCourses)){
-            	Set<PlanCourse> collect1 = new HashSet<>();
-            	for(PlanCourse planCourse:planCourses) {
-            		ElecCourse course = planCourse.getCourse();
-            		if(Constants.FIRST.equals(course.getChosen())) {
-            			collect1.add(planCourse);
-            		}
-            	}
-                c.setOnePlanCourses(collect1);
-            }
-        }else{
-            c.setOnePlanCourses(c.getPlanCourses());
-        }
+//        ElecRequest request = c.getRequest();
+//        List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+//        List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
+//        if (CollectionUtil.isNotEmpty(collect)){
+//        	Set<PlanCourse> planCourses = c.getPlanCourses();
+//            if (CollectionUtil.isNotEmpty(planCourses)){
+//            	Set<PlanCourse> collect1 = new HashSet<>();
+//            	for(PlanCourse planCourse:planCourses) {
+//            		ElecCourse course = planCourse.getCourse();
+//            		if(Constants.FIRST.equals(course.getChosen())) {
+//            			collect1.add(planCourse);
+//            		}
+//            	}
+//                c.setOnePlanCourses(collect1);
+//            }
+//        }else{
+//            c.setOnePlanCourses(c.getPlanCourses());
+//        }
         ElectionRounds round = dataProvider.getRound(roundId);
         Long calendarId = round.getCalendarId();
         StudentInfoCache studentInfo = c.getStudentInfo();
