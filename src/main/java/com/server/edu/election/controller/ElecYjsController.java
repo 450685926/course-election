@@ -39,6 +39,7 @@ import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -136,8 +137,6 @@ public class ElecYjsController
             new ElecContext(session.realUid(), round.getCalendarId());
         if (!Constants.PROJ_UNGRADUATE.equals(session.getCurrentManageDptId()))
         {
-        	List<CompletedCourse> takenCourses = c.getTakenCourses();
-        	logger.info("---------size--------------:" + takenCourses.size());
             c = yjsService.setData(session.realUid(), c, roundId, null);
         }
         
