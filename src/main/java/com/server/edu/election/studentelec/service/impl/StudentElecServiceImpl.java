@@ -411,52 +411,58 @@ public class StudentElecServiceImpl extends AbstractCacheService
         // 获取已选课程
         ElecContextBk context = new ElecContextBk(studentId, calendarId);
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-        if (CollectionUtil.isNotEmpty(selectedCourses) && teachingClassCache != null) {
-            List<String> collect = selectedCourses.stream().map(s -> s.getCourse().getCourseCode()).collect(Collectors.toList());
-            if (collect.contains(teachingClassCache.getCourseCode())) {
+        if (CollectionUtil.isNotEmpty(selectedCourses)) {
+            List<Long> collect = selectedCourses.stream().map(s -> s.getCourse().getTeachClassId()).collect(Collectors.toList());
+            if (collect.contains(teachClassId)) {
                 return RestResult.successData(300);
             }
-            List<ClassTimeUnit> times = teachingClassCache.getTimes();
-            if (CollectionUtil.isNotEmpty(times)) {
-                List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
-                Map map = new HashMap(selectedCourses.size());
-                for (SelectedCourse selectedCours : selectedCourses) {
-                    TeachingClassCache course = selectedCours.getCourse();
-                    List<ClassTimeUnit> time = course.getTimes();
-                    String code = course.getCourseCode();
-                    String name = course.getCourseName();
-                    StringBuffer sb = new StringBuffer("[").append(name).append("(").append(code).append(")").append("]");
-                    if (CollectionUtil.isNotEmpty(time)) {
-                        map.put(course.getTeachClassId(), sb.toString());
-                        classTimeUnits.addAll(time);
+            if (teachingClassCache != null) {
+                List<ClassTimeUnit> times = teachingClassCache.getTimes();
+                if (CollectionUtil.isNotEmpty(times)) {
+                    List<ClassTimeUnit> classTimeUnits = new ArrayList<>(20);
+                    Map<Long,TeachingClassCache> map = new HashMap(selectedCourses.size());
+                    for (SelectedCourse selectedCours : selectedCourses) {
+                        TeachingClassCache course = selectedCours.getCourse();
+                        List<ClassTimeUnit> time = course.getTimes();
+
+                        if (CollectionUtil.isNotEmpty(time)) {
+                            map.put(course.getTeachClassId(), course);
+                            classTimeUnits.addAll(time);
+                        }
                     }
-                }
-                if (CollectionUtil.isNotEmpty(classTimeUnits)) {
-                    // 比较课程冲突
-                    for (ClassTimeUnit time : times) {
-                        List<Integer> weeks = time.getWeeks();
-                        int size1 = weeks.size();
-                        int dayOfWeek = time.getDayOfWeek();
-                        int timeStart = time.getTimeStart();
-                        int timeEnd = time.getTimeEnd();
-                        for (ClassTimeUnit classTimeUnit : classTimeUnits) {
-                            List<Integer> selWeeks = classTimeUnit.getWeeks();
-                            int size2 = selWeeks.size();
-                            Set<Integer> all = new HashSet<>();
-                            all.addAll(weeks);
-                            all.addAll(selWeeks);
-                            // 上课周冲突
-                            if (size1 + size2 > all.size() ) {
-                                // 判断上课天是否一样
-                                if (dayOfWeek == classTimeUnit.getDayOfWeek()) {
-                                    // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
-                                    int start = classTimeUnit.getTimeStart();
-                                    int end = classTimeUnit.getTimeEnd();
-                                    if ( (start <= timeStart && timeStart <= end)
-                                            || (start <= timeEnd && timeEnd <= end)
-                                            || (timeStart <= start && start <= timeEnd)
-                                            || (timeStart <= end && end <= timeEnd)) {
-                                        throw new ParameterValidateException("该课程与已选课程" + map.get(classTimeUnit.getTeachClassId()) + "上课时间冲突");
+                    if (CollectionUtil.isNotEmpty(classTimeUnits)) {
+                        // 比较课程冲突
+                        for (ClassTimeUnit time : times) {
+                            List<Integer> weeks = time.getWeeks();
+                            int size1 = weeks.size();
+                            int dayOfWeek = time.getDayOfWeek();
+                            int timeStart = time.getTimeStart();
+                            int timeEnd = time.getTimeEnd();
+                            for (ClassTimeUnit classTimeUnit : classTimeUnits) {
+                                List<Integer> selWeeks = classTimeUnit.getWeeks();
+                                int size2 = selWeeks.size();
+                                Set<Integer> all = new HashSet<>();
+                                all.addAll(weeks);
+                                all.addAll(selWeeks);
+                                // 上课周冲突
+                                if (size1 + size2 > all.size() ) {
+                                    // 判断上课天是否一样
+                                    if (dayOfWeek == classTimeUnit.getDayOfWeek()) {
+                                        // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
+                                        int start = classTimeUnit.getTimeStart();
+                                        int end = classTimeUnit.getTimeEnd();
+                                        if ( (start <= timeStart && timeStart <= end)
+                                                || (start <= timeEnd && timeEnd <= end)
+                                                || (timeStart <= start && start <= timeEnd)
+                                                || (timeStart <= end && end <= timeEnd)) {
+                                            TeachingClassCache tc = map.get(classTimeUnit.getTeachClassId());
+                                            String code = tc.getCourseCode();
+                                            String name = tc.getCourseName();
+                                            if (!code.equals(teachingClassCache.getCourseCode())) {
+                                                StringBuffer sb = new StringBuffer("[").append(name).append("(").append(code).append(")").append("]");
+                                                throw new ParameterValidateException("该课程与已选课程" + sb.toString() + "上课时间冲突");
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -464,7 +470,6 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     }
                 }
             }
-
         }
         return RestResult.success();
     }
