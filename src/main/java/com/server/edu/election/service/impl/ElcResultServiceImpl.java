@@ -242,6 +242,77 @@ public class ElcResultServiceImpl implements ElcResultService
         return new PageResult<>(listPage);
     }
 
+    @Override
+    public PageResult<TeachingClassVo> listPageTj(
+            PageCondition<ElcResultQuery> page)
+    {
+        ElcResultQuery condition = page.getCondition();
+
+        Session session = SessionUtils.getCurrentSession();
+        //通过session信息获取访问接口人员角色
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(condition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                condition.setFaculties(deptIds);
+            }
+        }
+        Page<TeachingClassVo> listPage = null;
+        if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
+            PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+            listPage = classDao.listPage(condition);
+        }
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+            // 添加教室容量
+            Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(toSet());
+            List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
+            for(TeachingClassVo vo: list) {
+                Long id = vo.getId();
+                TeachingClassVo teachingClassVo = classDao.bindClass(id);
+                if (teachingClassVo != null) {
+                    String tId;
+                    Long voId = teachingClassVo.getId();
+                    if (voId.longValue() == id.longValue()) {
+                        tId = teachingClassVo.getBindClassId();
+                    } else {
+                        tId = voId + "";
+                    }
+                    vo.setBindClassId(tId);
+                    String s = classDao.classCode(tId);
+                    vo.setBindClassCode(s);
+                }
+                //拼装教师
+                getTeacgerName(vo);
+                //获得男女比例
+                getProportion(condition, vo);
+                vo.setClassNumberStr("不限");
+                if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+                    ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+                    if(classroom!=null && classroom.getClassCapacity()!=null) {
+                        vo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
+                    }
+                }
+                // 处理教学安排（上课时间地点）信息
+                List<TimeAndRoom> tableMessages = getTimeById(vo.getId());
+                vo.setTimeTableList(tableMessages);
+                String timeAndRoom = "";
+                for (TimeAndRoom tAndR : tableMessages) {
+                    timeAndRoom = timeAndRoom + tAndR.getTimeAndRoom();
+                    if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
+                        ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
+                        if (classroom != null) {
+                            timeAndRoom = "/" + classroom.getName()+" ";
+                        }
+                    }else {
+                        timeAndRoom = timeAndRoom + " ";
+                    }
+                }
+                vo.setTimeAndRoom(timeAndRoom);
+            }
+        }
+        return new PageResult<>(listPage);
+    }
+
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
             //没有设置男女比例时，页面显示 无/无

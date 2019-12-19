@@ -37,7 +37,14 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @see [类、类#方法、类#成员]
      */
     Page<TeachingClassVo> listPage(ElcResultQuery condition);
-    
+
+    Page<TeachingClassVo> listPageTj(ElcResultQuery condition);
+
+    TeachingClassVo bindClass(@Param("id") Long id);
+
+    String classCode(String id);
+
+
     /**
      * 分页查询教学班（研究生）
      * 
