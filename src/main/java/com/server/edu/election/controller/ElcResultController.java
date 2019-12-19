@@ -82,6 +82,26 @@ public class ElcResultController
         
         return RestResult.successData(list);
     }
+
+    /**
+     * 统计筛选班级属性查询
+     *
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "教学班信息")
+    @PostMapping("/teachClassPageTj")
+    public RestResult<PageResult<TeachingClassVo>> teachClassPageTj(
+            @RequestBody PageCondition<ElcResultQuery> condition)
+            throws Exception
+    {
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+
+        PageResult<TeachingClassVo> list = elcResultService.listPageTj(condition);
+
+        return RestResult.successData(list);
+    }
     
     /**
      * 研究生教学班查询列表

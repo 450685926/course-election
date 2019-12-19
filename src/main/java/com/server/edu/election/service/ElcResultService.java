@@ -30,8 +30,11 @@ public interface ElcResultService
      * @see [类、类#方法、类#成员]
      */
     PageResult<TeachingClassVo> listPage(PageCondition<ElcResultQuery> page);
-    
-    /**
+
+	PageResult<TeachingClassVo> listPageTj(PageCondition<ElcResultQuery> page);
+
+
+	/**
      * 研究生教学班信息
      * 
      * @param page
