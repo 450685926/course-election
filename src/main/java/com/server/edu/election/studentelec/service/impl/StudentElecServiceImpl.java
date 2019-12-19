@@ -4,12 +4,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
+import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -49,9 +53,6 @@ public class StudentElecServiceImpl extends AbstractCacheService
     Logger LOG = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private StudentUndergraduateScoreInfoDao scoreInfoDao;
-
-    @Autowired
     private StudentNumDao studentNumDao;
 
     @Autowired
@@ -74,9 +75,12 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Autowired
     private ApplicationContext applicationContext;
-    
+
     @Autowired
     private ElecRoundsDao roundDao;
+
+    @Autowired
+    private ElcCourseTakeDao takeDao;
     
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -462,6 +466,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
     @Override
     public void getDataBk(ElecContextBk c, Long roundId) {
         ElecRequest request = c.getRequest();
+        Long calendarId = request.getCalendarId();
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
 
         List<ElectionRuleVo> collect = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
@@ -472,6 +477,20 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }else{
             c.setOnePlanCourses(c.getPlanCourses());
+        }
+        //同步查询已选教学班信息，查看是否存在rides信息丢失，如果丢失，同步更新选课数据
+        List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(request.getStudentId(), calendarId, TableIndexUtil.getIndex(request.getCalendarId()));
+        Set<SelectedCourse> selectedCourses = c.getSelectedCourses();
+        if (courseTakes.size() != selectedCourses.size()){
+            ElectionRounds round = dataProvider.getRound(roundId);
+            c.getSelectedCourses().clear();
+            for (SelectedCourse selectedCours : selectedCourses) {
+                SelectedCourse course = new SelectedCourse(selectedCours.getCourse());
+                course.setTurn(round.getTurn());
+                course.setCourseTakeType(selectedCours.getCourseTakeType());
+                course.setChooseObj(request.getChooseObj());
+                c.getSelectedCourses().add(course);
+            }
         }
     }
 
