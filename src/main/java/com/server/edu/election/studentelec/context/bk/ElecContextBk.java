@@ -110,7 +110,7 @@ public class ElecContextBk implements IElecContext
         applyCourse = ElecContextUtil.getApplyCourse(calendarId);
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
-        onePlanCourses = this.contextUtil.getSet("onePlanCourses", PlanCourse.class);
+        onePlanCourses = this.contextUtil.getSet("ONLY_COURSES", PlanCourse.class);
     }
     
     /**
@@ -138,7 +138,7 @@ public class ElecContextBk implements IElecContext
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
         this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
-        this.contextUtil.updateMem("onePlanCourses", this.onePlanCourses);
+        this.contextUtil.updateMem("ONLY_COURSES", this.onePlanCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
