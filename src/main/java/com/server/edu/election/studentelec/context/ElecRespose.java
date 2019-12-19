@@ -27,7 +27,17 @@ public class ElecRespose
     
     private Map<String, String> data;
     
-    public ElecRespose()
+    private Integer isPlan;
+    
+    public Integer getIsPlan() {
+		return isPlan;
+	}
+
+	public void setIsPlan(Integer isPlan) {
+		this.isPlan = isPlan;
+	}
+
+	public ElecRespose()
     {
         
     }

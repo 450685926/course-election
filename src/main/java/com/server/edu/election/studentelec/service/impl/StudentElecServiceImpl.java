@@ -250,8 +250,12 @@ public class StudentElecServiceImpl extends AbstractCacheService
         ElecContextLogin context =
                 new ElecContextLogin(elecRequest,elecRespose);
     	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-
         List<ElectionRuleVo> collect = rules.stream().filter(c -> "LoserNotElcRule".equals(c.getServiceName())).collect(Collectors.toList());
+        List<ElectionRuleVo> planRules = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
+        Integer isPlan = 1;
+    	if(CollectionUtil.isEmpty(planRules)) {
+    		isPlan = 0;
+    	}
         if (CollectionUtil.isEmpty(collect)){
             Example example = new Example(StudentNum.class);
             Example.Criteria criteria = example.createCriteria();
@@ -303,6 +307,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
         ElecRespose respose = context.getRespose();
+        respose.setIsPlan(isPlan);
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {
@@ -316,6 +321,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
             return RestResult.successData(respose);
         }
+        respose = new ElecRespose();
+        respose.setIsPlan(isPlan);
         return RestResult.successData(new ElecRespose());
     }
     
