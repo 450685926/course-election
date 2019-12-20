@@ -43,8 +43,8 @@ public class ElecContextBk implements IElecContext
     /** 个人计划内课程 */
     private Set<PlanCourse> planCourses;
 
-    /** 个人计划内课程 */
-    private Set<PlanCourse> onePlanCourses;
+    /** 个人培养计划课程 */
+    private Set<PlanCourse> onlyCourses;
     
     /** 个人替代课程 */
     private Set<ElcCouSubsVo> replaceCourses;
@@ -110,7 +110,7 @@ public class ElecContextBk implements IElecContext
         applyCourse = ElecContextUtil.getApplyCourse(calendarId);
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
-        onePlanCourses = this.contextUtil.getSet("ONLY_COURSES", PlanCourse.class);
+        onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
     }
     
     /**
@@ -138,7 +138,7 @@ public class ElecContextBk implements IElecContext
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
         this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
-        this.contextUtil.updateMem("ONLY_COURSES", this.onePlanCourses);
+        this.contextUtil.updateMem("OnlyCourses", this.onlyCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -174,7 +174,7 @@ public class ElecContextBk implements IElecContext
         this.getElecApplyCourses().clear();
         this.getReplaceCourses().clear();
         this.getPlanCourses().clear();
-        this.getOnePlanCourses().clear();
+        this.getOnlyCourses().clear();
     }
     
     public void courseClear()
@@ -285,8 +285,9 @@ public class ElecContextBk implements IElecContext
         return unFinishedCourses;
     }
 
-    public Set<PlanCourse> getOnePlanCourses() {
-        return onePlanCourses;
-    }
+	public Set<PlanCourse> getOnlyCourses() {
+		return onlyCourses;
+	}
+    
 
 }
