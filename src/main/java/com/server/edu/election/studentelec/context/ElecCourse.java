@@ -77,6 +77,8 @@ public class ElecCourse implements Serializable
     private Integer chosen;
     
     private Integer isQhClass;
+    
+    private String courseLabel;
 
     public String getCampus() {
         return campus;
@@ -262,7 +264,15 @@ public class ElecCourse implements Serializable
         this.remark = remark;
     }
     
-    @Override
+    public String getCourseLabel() {
+		return courseLabel;
+	}
+
+	public void setCourseLabel(String courseLabel) {
+		this.courseLabel = courseLabel;
+	}
+
+	@Override
     public int hashCode()
     {
         return Objects.hashCode(this.courseCode);

@@ -35,9 +35,11 @@ import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.service.ExemptionApplyConditionService;
 import com.server.edu.election.service.ExemptionCourseService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.CompletedCourse;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.service.ElecYjsService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -245,6 +247,6 @@ public class ElecYjsController
     {
     	dataProvider.load();
     	return RestResult.success();
-    }  
+    } 
     
 }

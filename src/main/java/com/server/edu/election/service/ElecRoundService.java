@@ -26,6 +26,9 @@ public interface ElecRoundService
      */
     PageResult<ElectionRounds> listPage(
         PageCondition<ElectionRounds> condition);
+
+    PageResult<ElectionRounds> listPageTj(
+            PageCondition<ElectionRounds> condition);
     /**
      * 根据ID查询轮次
      * 

@@ -30,8 +30,11 @@ public interface ElcResultService
      * @see [类、类#方法、类#成员]
      */
     PageResult<TeachingClassVo> listPage(PageCondition<ElcResultQuery> page);
-    
-    /**
+
+	PageResult<TeachingClassVo> listPageTj(PageCondition<ElcResultQuery> page);
+
+
+	/**
      * 研究生教学班信息
      * 
      * @param page
@@ -69,8 +72,9 @@ public interface ElcResultService
      * 
      * @param reserveDto
      * @see [类、类#方法、类#成员]
+	 * @return
      */
-    void batchSetReserveNum(ReserveDto reserveDto);
+    List<TeachingClass> batchSetReserveNum(ReserveDto reserveDto);
     /**
      * 释放教学班预留人数
      * 
@@ -159,4 +163,8 @@ public interface ElcResultService
 	 * @param elcResultQuery
 	 */
 	TeachingClassVo getMaleToFemaleRatio(ElcResultQuery elcResultQuery);
+
+    List<TeachingClassVo> getTeachingClass(Long calendarId, String classCode);
+
+    void bindClass(Long id, Long bindClassId);
 }

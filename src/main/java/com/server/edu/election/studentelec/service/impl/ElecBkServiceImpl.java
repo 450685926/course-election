@@ -221,6 +221,7 @@ public class ElecBkServiceImpl implements ElecBkService
                     course.setCourseTakeType(courseTakeType);
                     course.setChooseObj(request.getChooseObj());
                     context.getSelectedCourses().add(course);
+                    respose.getSuccessCourses().add(teachClassId);
                 }else{
                     this.saveElc(context, teachClass, ElectRuleType.ELECTION,hasRetakeCourse);
                 }
@@ -378,7 +379,7 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTurn(round.getTurn());
             courseTakeDao.insertSelective(take);
             if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
+                this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
 
             }
         }
@@ -392,7 +393,7 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTeachingClassId(teachClassId);
             courseTakeDao.delete(take);
             if(ChooseObj.STU.type() != request.getChooseObj()){
-                this.syncRemindTime(ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
+                this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
             }
             int count = classDao.decrElcNumber(teachClassId);
             if (count > 0)
@@ -470,14 +471,14 @@ public class ElecBkServiceImpl implements ElecBkService
     }
 
     @Override
-    public RestResult<?> syncRemindTime(Integer num,String studentId,String studentName,String courseNameAndCode) {
+    public RestResult<?> syncRemindTime(Long calendarId,Integer num,String studentId,String studentName,String courseNameAndCode) {
         try {
             List<RemindTimeBean> errorList = new ArrayList<>();
             // 获取系统当前时间
             SimpleDateFormat dff = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Long currentTime = System.currentTimeMillis();
             String time = dff.format(currentTime);
-            Long calendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
+//            Long calendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
             String calendarName = getCalendarName(calendarId);
             RemindTimeBean remindTimeBean = new RemindTimeBean();
             remindTimeBean.setCalendarId(calendarId);

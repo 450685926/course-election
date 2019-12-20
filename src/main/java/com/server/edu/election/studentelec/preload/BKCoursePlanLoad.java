@@ -9,6 +9,7 @@ import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcStuCouLevelDao;
 import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.entity.ElectionRounds;
@@ -39,6 +40,7 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.CourseCalendarNameUtil;
+import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CollectionUtil;
 import tk.mybatis.mapper.entity.Example;
 
@@ -97,6 +99,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
+            Set<PlanCourse> onlyCourses = context.getOnlyCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
@@ -141,6 +144,9 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             pl.setSubCourseCode(pct.getSubCourseCode());
                             pl.setLabel(labelId);
                             pl.setLabelName(labelName);
+                            if(Constants.FIRST.equals(pct.getChosen())) {
+                            	onlyCourses.add(pl);
+                            }
                             planCourses.add(pl);
 //                            map.put(courseCode, pct.getCompulsory());
 						}

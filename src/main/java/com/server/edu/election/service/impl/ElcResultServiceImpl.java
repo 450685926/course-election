@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +98,8 @@ import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -147,6 +148,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElcCourseTakeService elcCourseTakeService;
+    
+    @Autowired
+    private ElcTeachingClassBindDao elcTeachingClassBindDao;
     
     @Autowired
     // 文件缓存目录
@@ -235,6 +239,103 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
 				}
 				vo.setTimeAndRoom(timeAndRoom);
+            }
+        }
+        return new PageResult<>(listPage);
+    }
+
+    @Override
+    public PageResult<TeachingClassVo> listPageTj(
+            PageCondition<ElcResultQuery> page)
+    {
+        ElcResultQuery condition = page.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        //通过session信息获取访问接口人员角色
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(condition.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                condition.setFaculties(deptIds);
+            }
+        }
+        Page<TeachingClassVo> listPage = null;
+        if (StringUtils.equals(condition.getProjectId(), Constants.PROJ_UNGRADUATE)) {
+            PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+            listPage = classDao.listPage(condition);
+        }
+        List<TeachingClassVo> list = listPage.getResult();
+        if(CollectionUtil.isNotEmpty(list)) {
+            List<Long> collect = list.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
+            List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoom(collect);
+            MultiValueMap<Long, TimeAndRoom> multiValueMap = new LinkedMultiValueMap<>(50);
+            if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+                for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                    TimeAndRoom time=new TimeAndRoom();
+                    Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                    Integer timeStart = classTeacherDto.getTimeStart();
+                    Integer timeEnd = classTeacherDto.getTimeEnd();
+                    String roomID = classTeacherDto.getRoomID();
+                    String weekNumber = classTeacherDto.getWeekNumberStr();
+                    Long timeId = classTeacherDto.getTimeId();
+                    String[] str = weekNumber.split(",");
+
+                    List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                    List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                    String weekNumStr = weekNums.toString();//周次
+                    String weekstr = findWeek(dayOfWeek);//星期
+                    String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
+                    time.setTimeId(timeId);
+                    time.setTimeAndRoom(timeStr);
+                    time.setRoomId(roomID);
+                    multiValueMap.add(classTeacherDto.getTeachingClassId(), time);
+                }
+            }
+            // 添加教室容量
+            Set<String> roomIds = list.stream().filter(teachingClassVo->StringUtils.isNotBlank(teachingClassVo.getRoomId())).map(TeachingClassVo::getRoomId).collect(toSet());
+            List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
+            for(TeachingClassVo vo: list) {
+                Long id = vo.getId();
+                TeachingClassVo teachingClassVo = classDao.bindClass(id);
+                if (teachingClassVo != null) {
+                    String tId;
+                    Long voId = teachingClassVo.getId();
+                    if (voId.longValue() == id.longValue()) {
+                        tId = teachingClassVo.getBindClassId();
+                    } else {
+                        tId = voId + "";
+                    }
+                    vo.setBindClassId(tId);
+                    String s = classDao.classCode(tId);
+                    vo.setBindClassCode(s);
+                }
+                //拼装教师
+                getTeacgerName(vo);
+                //获得男女比例
+                getProportion(condition, vo);
+                vo.setClassNumberStr("不限");
+                if(CollectionUtil.isNotEmpty(classroomList) && StringUtils.isNotBlank(vo.getRoomId())) {
+                    ClassroomN classroom = classroomList.stream().filter(c->c!=null).filter(c->c.getId()!=null).filter(c->vo.getRoomId().equals(c.getId().toString())).findFirst().orElse(null);
+                    if(classroom!=null && classroom.getClassCapacity()!=null) {
+                        vo.setClassNumberStr(String.valueOf(classroom.getClassCapacity()));
+                    }
+                }
+                // 处理教学安排（上课时间地点）信息
+                List<TimeAndRoom> tableMessages = multiValueMap.get(vo.getId());
+                if (CollectionUtil.isNotEmpty(tableMessages)) {
+                    vo.setTimeTableList(tableMessages);
+                    Set<String> set = new HashSet<>(3);
+                    for (TimeAndRoom tAndR : tableMessages) {
+                        if (StringUtils.isNotEmpty(tAndR.getRoomId())) {
+                            ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
+                            if (classroom != null) {
+                                String name = classroom.getName();
+                                if (StringUtils.isNotBlank(name)) {
+                                    set.add(name);
+                                }
+                            }
+                        }
+                    }
+                    vo.setTimeAndRoom(String.join(",",set));
+                }
             }
         }
         return new PageResult<>(listPage);
@@ -574,6 +675,10 @@ public class ElcResultServiceImpl implements ElcResultService
                 Integer number = (temp.getNumber() == null ? 0 : temp.getNumber());
                 Integer elcNumber = (temp.getElcNumber() == null ? 0 : temp.getElcNumber());
                 int reserveNumber = new BigDecimal(temp.getNumber()).multiply(reserveProportion).divide(hundred, BigDecimal.ROUND_UP).intValue();
+                if(reserveProportion.doubleValue() >= 100.0){
+                    reserveNumber = number.intValue();
+                    reserveProportion = new BigDecimal(100);
+                }
                 temp.setReserveNumber(reserveNumber);
                 temp.setReserveNumberRate(reserveProportion.doubleValue());
                 if (reserveNumber + elcNumber.intValue() > number.intValue()){
@@ -591,13 +696,24 @@ public class ElcResultServiceImpl implements ElcResultService
     }
     @Override
 	@Transactional
-    public void batchSetReserveNum(ReserveDto reserveDto) {
+    public List<TeachingClass> batchSetReserveNum(ReserveDto reserveDto) {
     	TeachingClass teachingClass = new TeachingClass();
     	teachingClass.setReserveNumber(reserveDto.getReserveNumber());
+        List<TeachingClass> teachingClasss = new ArrayList<>();
     	if(reserveDto.getReserveNumberRate() == null){
+    	    Example example = new Example(TeachingClass.class);
+    	    example.createCriteria().andIn("id",reserveDto.getIds());
+            List<TeachingClass> teachingClasses = teachingClassDao.selectByExample(example);
+            Map<Long, TeachingClass> collect = teachingClasses.stream().collect(Collectors.toMap(s -> s.getId(), s -> s));
             for (Long id : reserveDto.getIds()) {
-                TeachingClass teachingClass1 = teachingClassDao.selectByPrimaryKey(id);
-                teachingClass.setReserveNumberRate(teachingClass1.getNumber().intValue()==0?0.0:new BigDecimal(reserveDto.getReserveNumber()).divide(new BigDecimal(teachingClass1.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                TeachingClass teachingClass1 = collect.get(id);
+                Integer number = (teachingClass1.getNumber() == null ? 0 : teachingClass1.getNumber());
+                Integer elcNumber = (teachingClass1.getElcNumber() == null ? 0 : teachingClass1.getElcNumber());
+                if (reserveDto.getReserveNumber() + elcNumber.intValue() > number.intValue()){
+                    teachingClasss.add(teachingClass1);
+                }else{
+                    teachingClass.setReserveNumberRate(teachingClass1.getNumber().intValue()==0?0.0:new BigDecimal(reserveDto.getReserveNumber()).divide(new BigDecimal(teachingClass1.getNumber()),4,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)).doubleValue());
+                }
             }
         }else{
             teachingClass.setReserveNumberRate(reserveDto.getReserveNumberRate());
@@ -606,6 +722,7 @@ public class ElcResultServiceImpl implements ElcResultService
     	Example.Criteria criteria = example.createCriteria();
     	criteria.andIn("id", reserveDto.getIds());
     	classDao.updateByExampleSelective(teachingClass, example);
+        return teachingClasss;
     }
     @Override
 	@Transactional
@@ -642,16 +759,20 @@ public class ElcResultServiceImpl implements ElcResultService
             ElcCourseTake param = new ElcCourseTake();
             param.setTeachingClassId(teachingClassId);
             List<ElcCourseTake> takes = courseTakeDao.select(param);
+            List<ElcCourseTake> secondTakes = takes.stream().filter(c->Constants.SECOND.equals(c.getTurn())).collect(Collectors.toList());
+            if(CollectionUtil.isNotEmpty(secondTakes)) {
+            	takes = secondTakes;
+            }
             String course = takes.get(0).getCourseCode();
-        	if(Boolean.TRUE.equals(dto.getSuggestSwitchCourse())) {
-        		List<ElcCourseSuggestSwitch> suggestSwitchs = elcCourseSuggestSwitchDao.selectAll();
-        		if(CollectionUtil.isNotEmpty(suggestSwitchs)) {
-        			List<String> suggestCoures = suggestSwitchs.stream().map(ElcCourseSuggestSwitch::getCourseCode).collect(Collectors.toList());
-        			if(!suggestCoures.contains(course)) {
-        				return;
-        			}
-        		}
-        	}
+//        	if(Boolean.TRUE.equals(dto.getSuggestSwitchCourse())) {
+//        		List<ElcCourseSuggestSwitch> suggestSwitchs = elcCourseSuggestSwitchDao.selectAll();
+//        		if(CollectionUtil.isNotEmpty(suggestSwitchs)) {
+//        			List<String> suggestCoures = suggestSwitchs.stream().map(ElcCourseSuggestSwitch::getCourseCode).collect(Collectors.toList());
+//        			if(!suggestCoures.contains(course)) {
+//        				return;
+//        			}
+//        		}
+//        	}
             // 特殊学生
             List<String> invincibleStdIds =
                 invincibleStdsDao.selectAllStudentId();
@@ -692,9 +813,42 @@ public class ElcResultServiceImpl implements ElcResultService
             {
                 invincibleStus.clear();
             }
+            //班级配对 查找绑定班级
+            Example example = new Example(ElcTeachingClassBind.class);
+            example.createCriteria().andEqualTo("teachingClassId", teachingClass.getId());
+            ElcTeachingClassBind elcTeachingClassBind = elcTeachingClassBindDao.selectOneByExample(example);
+            Example bindExample = new Example(ElcTeachingClassBind.class);
+            bindExample.createCriteria().andEqualTo("bindClassId", teachingClass.getId());
+            ElcTeachingClassBind bindElcTeachingClassBind = elcTeachingClassBindDao.selectOneByExample(bindExample);
+            List<ElcCourseTake> bindTakes = new ArrayList<ElcCourseTake>();
+            List<String> bindStudentIds = new ArrayList<>();
+            List<Student> bindStudents = new ArrayList<>();
+            Long bindTeachingClassId = null;
+            if(elcTeachingClassBind !=null) {
+            	 bindTeachingClassId =elcTeachingClassBind.getBindClassId();
+            	 ElcCourseTake bindParam = new ElcCourseTake();
+            	 bindParam.setTeachingClassId(elcTeachingClassBind.getBindClassId());
+                 bindTakes = courseTakeDao.select(bindParam);
+                 if(CollectionUtil.isNotEmpty(bindTakes)) {
+                	 bindStudentIds = bindTakes.stream().map(ElcCourseTake ::getStudentId).collect(Collectors.toList());
+                	 bindStudents = studentDao.findStudentByIds(bindStudentIds);
+                 }
+            }
+            if(bindElcTeachingClassBind !=null) {
+            	 bindTeachingClassId = bindElcTeachingClassBind.getTeachingClassId();
+           	     ElcCourseTake bindParam = new ElcCourseTake();
+           	     bindParam.setTeachingClassId(bindElcTeachingClassBind.getTeachingClassId());
+                 bindTakes = courseTakeDao.select(bindParam);
+                 if(CollectionUtil.isNotEmpty(bindTakes)) {
+                	 bindStudentIds = bindTakes.stream().map(ElcCourseTake ::getStudentId).collect(Collectors.toList());
+                	 bindStudents = studentDao.findStudentByIds(bindStudentIds);
+                 }
+            }
+            Integer limitnumber  = teachingClass.getNumber() - teachingClass.getReserveNumber();
             List<String> removeStus = new ArrayList<>();
+            List<String> bindremoveStus = new ArrayList<>();
             if (invincibleStus.size() + affinityStus.size()
-                + normalStus.size() > teachingClass.getNumber())
+                + normalStus.size() > limitnumber)
             {
                 GradAndPreFilter gradAndPreFilter =
                     new GradAndPreFilter(dto, classDao);
@@ -703,10 +857,7 @@ public class ElcResultServiceImpl implements ElcResultService
                     new ClassElcConditionFilter(dto,
                         classElectiveRestrictAttrDao);
                 elcConditionFilter.init();
-                
                 //1.删除普通学生
-                
-                
                 // 这里做三次的原因是因为有三种学生类型
                 for (int i = 0; i < 3; i++)
                 {
@@ -720,8 +871,26 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                     int overSize = (invincibleStus.size()
                             + affinityStus.size() + normalStus.size())
-                            - teachingClass.getNumber();
+                            - limitnumber;
+                    if(i!=0 && overSize<=0) {
+                    	break;
+                    }
                     gradAndPreFilter.execute(stuList, removeStus);
+                    //执行班级匹配
+                    if(bindTeachingClassId !=null) {
+                    	List<Student> compareList = new ArrayList<Student>(stuList);
+                    	List<Student> removeList = new ArrayList<Student>(stuList);
+                    	compareList.retainAll(bindStudents);
+                    	removeList.removeAll(compareList);
+                    	List<String> reList = new ArrayList<String>();
+                    	if(CollectionUtil.isNotEmpty(removeList)) {
+                    		reList = removeList.stream().map(Student :: getStudentCode).collect(Collectors.toList());
+                    	}
+                    	removeStus.addAll(reList);
+                    	bindremoveStus.addAll(reList);
+                    	stuList.clear();
+                    	stuList.addAll(compareList);
+                    }
                     //执行完后人数还是超过上限则进行随机删除
                     if(overSize > 0) {
                     	elcConditionFilter.execute(stuList, removeStus);
@@ -731,7 +900,7 @@ public class ElcResultServiceImpl implements ElcResultService
                         //执行完后人数还是超过上限则进行随机删除
                         overSize = (invincibleStus.size()
                             + affinityStus.size() + normalStus.size())
-                            - teachingClass.getNumber();
+                            - limitnumber;
                         if (overSize > 0)
                         {
                             // 1.普通人数小于超出人数则说明优先人数的人也超了这时需要清空普通人数
@@ -741,25 +910,32 @@ public class ElcResultServiceImpl implements ElcResultService
                             {
                                 limitNumber = 0;
                             }
-//                            GradAndPreFilter
-//                                .randomRemove(removeStus, limitNumber, stuList);
                             GradAndPreFilter
-                            .randomRemoveStu(removeStus, limitNumber, stuList,invincibleStus.size(),affinityStus.size(),normalStus.size(),teachingClass.getNumber());
+                                .randomRemove(removeStus, limitNumber, stuList);
                         }else {
                         	break;
                         }
                     }
                 }
+                //移除本班级不符合规则学生
                 removeAndRecordLog(dto,
                     teachingClassId,
                     teachingClass,
-                    removeStus);
+                    removeStus,dto.getLabel());
+                //移除绑定班级不符合学生
+                if(bindTeachingClassId !=null) {
+                	TeachingClass bindClass = classDao.selectOversize(teachingClassId);
+                    removeAndRecordLog(dto,
+                    		bindTeachingClassId,
+                    		bindClass,
+                    		bindremoveStus,dto.getLabel());
+                }
             }
         }
     }
     
     public void removeAndRecordLog(AutoRemoveDto dto, Long teachingClassId,
-        TeachingClass teachingClass, List<String> removeStus)
+        TeachingClass teachingClass, List<String> removeStus,String label)
     {
         if (CollectionUtil.isNotEmpty(removeStus))
         {
@@ -790,6 +966,7 @@ public class ElcResultServiceImpl implements ElcResultService
             	rebuildCourseRecycle.setStudentCode(elcCourseTake.getStudentId());
             	rebuildCourseRecycle.setId(null);
             	rebuildCourseRecycle.setType(Constants.AUTOTYPE);
+            	rebuildCourseRecycle.setScreenLabel(label);
             	rebuildCourseRecycles.add(rebuildCourseRecycle);
             }
             rebuildCourseRecycleDao.insertList(rebuildCourseRecycles);
@@ -1122,7 +1299,7 @@ public class ElcResultServiceImpl implements ElcResultService
             throw new ParameterValidateException(I18nUtil.getMsg("election.female.error"));
         }
         //获取实际人数
-        int elcNumber = teachingClassVo.getElcNumber();
+        int elcNumber = teachingClassVo.getNumber();
         if(numberMale==0){
             numberFemale = elcNumber;
         }else if(numberFemale==0){
@@ -1417,4 +1594,43 @@ public class ElcResultServiceImpl implements ElcResultService
         return teachingClassVo;
     }
 
+    @Override
+    public List<TeachingClassVo> getTeachingClass(Long calendarId, String classCode) {
+        PageHelper.startPage(1, 50);
+        List<TeachingClassVo> list = teachingClassDao.getTeachingClass(calendarId, classCode);
+        for (TeachingClassVo teachingClassVo : list) {
+            teachingClassVo.setCourseName(teachingClassVo.getCourseName() + teachingClassVo.getCode());
+        }
+        return list;
+    }
+
+    @Override
+    @Transactional
+    public void bindClass(Long id, Long bindClassId) {
+        List<Long> ids = new ArrayList<>(2);
+        ids.add(id);
+        ids.add(bindClassId);
+        List<TeachingClass> teachingClasses = teachingClassDao.findTeachingClasses(ids);
+        if (teachingClasses.size() < 2) {
+            throw new ParameterValidateException(I18nUtil.getMsg("baseresservice.parameterError"));
+        }
+        int count = teachingClassDao.findCount(id, bindClassId);
+        if (count == 0) {
+            TeachingClassVo c1 = teachingClassDao.findBindClass(id);
+            TeachingClassVo c2 = teachingClassDao.findBindClass(bindClassId);
+            if (c1 != null && c2 != null) {
+                throw new ParameterValidateException("教学班绑定冲突");
+            } else if (c1 == null && c2 == null) {
+                teachingClassDao.insertBindClass(id, bindClassId);
+            } else {
+                if (c1 != null) {
+                    teachingClassDao.deleteBindClass(id);
+                } else {
+                    teachingClassDao.deleteBindClass(bindClassId);
+                }
+                teachingClassDao.insertBindClass(id, bindClassId);
+            }
+        }
+
+    }
 }

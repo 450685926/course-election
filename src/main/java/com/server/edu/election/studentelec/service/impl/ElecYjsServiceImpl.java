@@ -33,6 +33,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
+import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.entity.BeanUtil;
 import com.server.edu.common.entity.CulturePlan;
 import com.server.edu.common.locale.I18nUtil;
@@ -526,7 +527,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
         Map<String, Object> elecResult = new HashMap<>();
         if (roundId != null)
-        { // 教务员
+        { // 教务员 或者 学生
             elecResult = getElectResultCount(studentId, roundId);
         }
         else
@@ -761,21 +762,31 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
-        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
+//        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
+        List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
+        LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses());
+//        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
+//        	takenCourse = packagingTakenCourse(c.getTakenCourses());
+//        }
+        for (CompletedCourse completedCourse : takenCourse) {
+			Long courseLabelId = completedCourse.getCourseLabelId();
+			LOG.info("===========courseLabelId=============:" + courseLabelId);
+		}
+        
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
         c.setOptionalCourses(sortOptionalCourses);
-        c.setTakenCourses(takenCourse);
+        c.setTakenCourses(c.getTakenCourses());
         c.setElecResult(elecResult);
         return c;
     }
     
     /**
      * 已修读课程组装排序
-     * @param setCompletedCourses
-     * @param failedCourses
-     * @param selectedCourseTreeSet
+     * @param setCompletedCourses 已完成通过的课程
+     * @param failedCourses  未通过的课程
+     * @param selectedCourseTreeSet 选课课程
      * @return
      */
     private List<CompletedCourse> packagingTakenCourse(Set<CompletedCourse> setCompletedCourses,
@@ -815,6 +826,22 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
     	return takenCourse;
 	}
+    
+    /**
+     * 已修读课程组装排序(从选课上下文中获取)
+     * @param setCompletedCourses
+     * @param failedCourses
+     * @param selectedCourseTreeSet
+     * @return
+     */
+    private List<CompletedCourse> packagingTakenCourse(List<CompletedCourse> takenCourse) {
+    	for (CompletedCourse completedCourse : takenCourse) {
+			Long courseLabelId = completedCourse.getCourseLabelId();
+			LOG.info("===========courseLabelId=============:" + courseLabelId);
+		}
+    	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
+    	return takenCourse;
+    }
 
 	/**
      * 去除跨校区选课
@@ -1209,7 +1236,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             elecContextUtil.getSet("PlanCourses", PlanCourse.class);
         Set<CompletedCourse> completedCourses =
             elecContextUtil.getSet("CompletedCourses", CompletedCourse.class);
-        
+            
         //获取本学期已选课程
         Set<SelectedCourse> selectedCourses =
             elecContextUtil.getSet("SelectedCourses", SelectedCourse.class);
@@ -1230,11 +1257,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                 
         }
         LOG.info("+++++++++++++++++++++++++++++DATA     ZUZHUANG");
-        Map<String, Object> minNumMap = new HashMap<String, Object>();
+        Map<String, Object> minNumMap = new HashMap<String, Object>();   // 最少门数要求
         Map<String, Object> courseNumMap = new HashMap<String, Object>();
         Map<String, Object> creditsMap = new HashMap<String, Object>();
-        Map<String, Object> thisTimesumCreditsMap =
-            new HashMap<String, Object>();
+        Map<String, Object> thisTimesumCreditsMap = new HashMap<String, Object>();
         Map<String, Object> sumCreditsMap = new HashMap<String, Object>();
         Map<String, Object> resultMap = new HashMap<String, Object>();
         
@@ -1267,6 +1293,49 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         creditsMap.put("interFaculty", 0);
         thisTimesumCreditsMap.put("interFaculty", 0);
         sumCreditsMap.put("interFaculty", 0);
+        
+        // 统计最少选课门数
+        int publicLessonsCourseNum = 0;
+        int professionalCourseNum = 0;
+        int nonDegreeCourseNum = 0;
+        int requiredCourseNum = 0;
+        int interFacultyNum = 0;
+        
+        Double publicLessonsCourseScore = 0.0;
+        Double professionalCourseScore = 0.0;
+        Double nonDegreeCourseScore = 0.0;
+        Double requiredCourseScore = 0.0;
+        Double interFacultyScore = 0.0;
+        for (PlanCourse planCourse2 : planCourse) {
+			if (StringUtils.equals(planCourse2.getLabelName(), "公共学位课")) {
+				publicLessonsCourseNum += 1;
+				publicLessonsCourseScore += planCourse2.getCredits();
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "专业学位课")) {
+				professionalCourseNum += 1;
+				professionalCourseScore += planCourse2.getCredits();
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "非学位课")){
+				nonDegreeCourseNum += 1;
+				nonDegreeCourseScore += planCourse2.getCredits();
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "必修环节")){
+				requiredCourseNum += 1;
+				requiredCourseScore += planCourse2.getCredits();
+			}else if (planCourse2.getLabelName().contains("跨院系")){
+				interFacultyNum += 1;
+				interFacultyScore += planCourse2.getCredits();
+			}
+		}
+        minNumMap.put("publicLessons",publicLessonsCourseNum);
+        minNumMap.put("professionalCourses",professionalCourseNum);
+        minNumMap.put("nonDegreeCourses",nonDegreeCourseNum);
+        minNumMap.put("requiredCourses",requiredCourseNum);
+        minNumMap.put("interFaculty",interFacultyNum);
+
+        creditsMap.put("publicLessons",publicLessonsCourseScore);
+        creditsMap.put("professionalCourses",professionalCourseScore);
+        creditsMap.put("nonDegreeCourses",nonDegreeCourseScore);
+        creditsMap.put("requiredCourses",requiredCourseScore);
+        creditsMap.put("interFaculty",interFacultyScore);
+        
         for (Entry<String, Object> entry : restResult.getData().entrySet())
         {
             Map<String, Object> map = (Map<String, Object>)entry.getValue();
@@ -1317,12 +1386,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             
             if (map.get("labelName").equals("公共学位课"))
             {
-                minNumMap.put("publicLessons",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("publicLessons",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("publicLessons",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("publicLessons",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("publicLessons",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("publicLessons",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1332,12 +1401,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("专业学位课"))
             {
-                minNumMap.put("professionalCourses",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("professionalCourses",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("professionalCourses",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("professionalCourses",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("professionalCourses",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("professionalCourses",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1346,12 +1415,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("非学位课"))
             {
-                minNumMap.put("nonDegreeCourses",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("nonDegreeCourses",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("nonDegreeCourses",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("nonDegreeCourses",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("nonDegreeCourses",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("nonDegreeCourses",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1360,8 +1429,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("必修环节"))
             {
-                minNumMap.put("requiredCourses",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("requiredCourses",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("requiredCourses",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
                 creditsMap.put("requiredCourses",
@@ -1374,12 +1443,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("跨院系或跨门类"))
             {
-                minNumMap.put("interFaculty",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("interFaculty",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("interFaculty",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("interFaculty",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("interFaculty",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("interFaculty",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1535,6 +1604,49 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         creditsMap.put("interFaculty", 0);
         thisTimesumCreditsMap.put("interFaculty", 0);
         sumCreditsMap.put("interFaculty", 0);
+        
+        // 统计最少选课门数
+        int publicLessonsCourseNum = 0;
+        int professionalCourseNum = 0;
+        int nonDegreeCourseNum = 0;
+        int requiredCourseNum = 0;
+        int interFacultyNum = 0;
+        
+        Double publicLessonsCourseScore = 0.0;
+        Double professionalCourseScore = 0.0;
+        Double nonDegreeCourseScore = 0.0;
+        Double requiredCourseScore = 0.0;
+        Double interFacultyScore = 0.0;
+        for (PlanCourse planCourse2 : planCourse) {
+			if (StringUtils.equals(planCourse2.getLabelName(), "公共学位课")) {
+				publicLessonsCourseNum += 1;
+				publicLessonsCourseScore += planCourse2.getCredits();
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "专业学位课")) {
+				professionalCourseNum += 1;
+				professionalCourseScore += planCourse2.getCredits();
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "非学位课")){
+				nonDegreeCourseNum += 1;
+				nonDegreeCourseScore += planCourse2.getCredits();
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "必修环节")){
+				requiredCourseNum += 1;
+				requiredCourseScore += planCourse2.getCredits();
+			}else if (planCourse2.getLabelName().contains("跨院系")){
+				interFacultyNum += 1;
+				interFacultyScore += planCourse2.getCredits();
+			}
+		}
+        minNumMap.put("publicLessons",publicLessonsCourseNum);
+        minNumMap.put("professionalCourses",professionalCourseNum);
+        minNumMap.put("nonDegreeCourses",nonDegreeCourseNum);
+        minNumMap.put("requiredCourses",requiredCourseNum);
+        minNumMap.put("interFaculty",interFacultyNum);
+
+        creditsMap.put("publicLessons",publicLessonsCourseScore);
+        creditsMap.put("professionalCourses",professionalCourseScore);
+        creditsMap.put("nonDegreeCourses",nonDegreeCourseScore);
+        creditsMap.put("requiredCourses",requiredCourseScore);
+        creditsMap.put("interFaculty",interFacultyScore);
+        
         for (Entry<String, Object> entry : restResult.getData().entrySet())
         {
             Map<String, Object> map = (Map<String, Object>)entry.getValue();
@@ -1585,12 +1697,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             
             if (map.get("labelName").equals("公共学位课"))
             {
-                minNumMap.put("publicLessons",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("publicLessons",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("publicLessons",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("publicLessons",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("publicLessons",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("publicLessons",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1600,12 +1712,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("专业学位课"))
             {
-                minNumMap.put("professionalCourses",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("professionalCourses",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("professionalCourses",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("professionalCourses",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("professionalCourses",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("professionalCourses",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1614,12 +1726,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("非学位课"))
             {
-                minNumMap.put("nonDegreeCourses",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("nonDegreeCourses",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("nonDegreeCourses",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("nonDegreeCourses",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("nonDegreeCourses",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("nonDegreeCourses",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1628,12 +1740,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("必修环节"))
             {
-                minNumMap.put("requiredCourses",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("requiredCourses",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("requiredCourses",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("requiredCourses",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("requiredCourses",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("requiredCourses",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1642,12 +1754,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             }
             else if (map.get("labelName").equals("跨院系或跨门类"))
             {
-                minNumMap.put("interFaculty",
-                    map.get("minNum") == null ? 0 : map.get("minNum"));
+//                minNumMap.put("interFaculty",
+//                    map.get("minNum") == null ? 0 : map.get("minNum"));
                 courseNumMap.put("interFaculty",
                     map.get("courseNum") == null ? 0 : map.get("courseNum"));
-                creditsMap.put("interFaculty",
-                    map.get("credits") == null ? 0 : map.get("credits"));
+//                creditsMap.put("interFaculty",
+//                    map.get("credits") == null ? 0 : map.get("credits"));
                 thisTimesumCreditsMap.put("interFaculty",
                     map.get("thisTimeSumCredits") == null ? 0
                         : map.get("thisTimeSumCredits"));
@@ -1689,5 +1801,4 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         	CultureSerivceInvoker.updateSelectCourse(culturePlan);
 		}
     }
-    
 }

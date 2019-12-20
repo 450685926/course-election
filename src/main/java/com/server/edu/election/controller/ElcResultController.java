@@ -82,6 +82,26 @@ public class ElcResultController
         
         return RestResult.successData(list);
     }
+
+    /**
+     * 统计筛选班级属性查询
+     *
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "教学班信息")
+    @PostMapping("/teachClassPageTj")
+    public RestResult<PageResult<TeachingClassVo>> teachClassPageTj(
+            @RequestBody PageCondition<ElcResultQuery> condition)
+            throws Exception
+    {
+        ValidatorUtil.validateAndThrow(condition.getCondition());
+
+        PageResult<TeachingClassVo> list = elcResultService.listPageTj(condition);
+
+        return RestResult.successData(list);
+    }
     
     /**
      * 研究生教学班查询列表
@@ -146,9 +166,13 @@ public class ElcResultController
     public RestResult<?> batchSetReserveNum(
         @RequestBody @Valid ReserveDto reserveDto)
     {
-        elcResultService.batchSetReserveNum(reserveDto);
-        
-        return RestResult.success();
+        List<TeachingClass> list =  elcResultService.batchSetReserveNum(reserveDto);
+        if(CollectionUtil.isNotEmpty(list)){
+            List<String> collect = list.stream().map(TeachingClass::getCode).collect(Collectors.toList());
+            return RestResult.fail(I18nUtil.getMsg("election.ReserveNum.error", StringUtils.join(collect.toArray(), ".")+""));
+        }else{
+            return RestResult.success();
+        }
     }
     
     /**
@@ -506,5 +530,21 @@ public class ElcResultController
         TeachingClassVo teachingClassVo = elcResultService.getMaleToFemaleRatio(elcResultQuery);
 
         return RestResult.successData(teachingClassVo);
+    }
+
+    @ApiOperation(value = "教学班查询")
+    @GetMapping("/getTeachingClass")
+    public RestResult<List<TeachingClassVo>> getTeachingClass(@RequestParam("calendarId") Long calendarId, @RequestParam("classCode") String classCode)
+    {
+        List<TeachingClassVo> list = elcResultService.getTeachingClass(calendarId, classCode);
+        return RestResult.successData(list);
+    }
+
+    @ApiOperation(value = "教学班绑定")
+    @GetMapping("/bindClass")
+    public RestResult<?> bindClass(@RequestParam("id") Long id, @RequestParam("bindClassId") Long bindClassId)
+    {
+        elcResultService.bindClass(id, bindClassId);
+        return RestResult.success();
     }
 }

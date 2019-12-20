@@ -69,6 +69,8 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
         //已经完成的课程
 		Set<CompletedCourse> completedCourses = context.getCompletedCourses();
+		//当前正在修读的课程
+		Set<CompletedCourse> unFinishedCourses = context.getUnFinishedCourses();
 
 		//已选和已经完成的课程
 		List<String>  courses = new ArrayList<>();
@@ -80,6 +82,11 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 		if (CollectionUtil.isNotEmpty(completedCourses)){
 			for (CompletedCourse completedCourse:completedCourses){
 				courses.add(completedCourse.getCourse().getCourseCode());
+			}
+		}
+		if (CollectionUtil.isNotEmpty(unFinishedCourses)){
+			for (CompletedCourse unFinishedCourse:unFinishedCourses){
+				courses.add(unFinishedCourse.getCourse().getCourseCode());
 			}
 		}
 

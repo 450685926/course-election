@@ -94,6 +94,8 @@ public class ElecContext implements IElecContext
             this.contextUtil.getSet("failedCourse", CompletedCourse.class);
         firstForeignCourses = 	
         	this.contextUtil.getList("firstForeignCourses", ElecFirstLanguageContrastVo.class);
+        takenCourses =
+        		this.contextUtil.getList("takenCourses",CompletedCourse.class);
         applyCourse = new HashSet<>();
     }
     
@@ -118,6 +120,7 @@ public class ElecContext implements IElecContext
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
         this.contextUtil.updateMem("firstForeignCourses", this.firstForeignCourses);
+        this.contextUtil.updateMem("takenCourses", this.takenCourses);
         applyCourse = new HashSet<>();
         // 保存所有到redis
         this.contextUtil.saveAll();
@@ -149,6 +152,7 @@ public class ElecContext implements IElecContext
         this.getRespose().getSuccessCourses().clear();
         this.getApplyCourse().clear();
         this.getFirstForeignCourses().clear();
+        this.getTakenCourses().clear();
     }
     public void courseClear()
     {

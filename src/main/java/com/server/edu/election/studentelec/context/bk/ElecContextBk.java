@@ -43,8 +43,8 @@ public class ElecContextBk implements IElecContext
     /** 个人计划内课程 */
     private Set<PlanCourse> planCourses;
 
-    /** 个人计划内课程 */
-    private Set<PlanCourse> onePlanCourses;
+    /** 个人培养计划课程 */
+    private Set<PlanCourse> onlyCourses;
     
     /** 个人替代课程 */
     private Set<ElcCouSubsVo> replaceCourses;
@@ -63,8 +63,10 @@ public class ElecContextBk implements IElecContext
     
     /** 个人荣誉课程 */
     private Set<HonorCourseBK> honorCourses;
-       
-    
+
+    /** 未修完的课程 */
+    private Set<CompletedCourse>  unFinishedCourses;
+
     private ElecRequest request;
     
     private ElecRespose respose;
@@ -98,6 +100,7 @@ public class ElecContextBk implements IElecContext
             this.contextUtil.getSet(APPLY_FOR_DROP_COURSES, ElecCourse.class);
         planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
         honorCourses = this.contextUtil.getSet("HonorCourses", HonorCourseBK.class);
+        unFinishedCourses = this.contextUtil.getSet("unFinishedCourses", CompletedCourse.class);
         publicCourses =
             this.contextUtil.getSet("publicCourses", TsCourse.class);
         courseGroups =
@@ -107,6 +110,7 @@ public class ElecContextBk implements IElecContext
         applyCourse = ElecContextUtil.getApplyCourse(calendarId);
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
+        onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
     }
     
     /**
@@ -128,11 +132,13 @@ public class ElecContextBk implements IElecContext
             this.applyForDropCourses);
         this.contextUtil.updateMem("PlanCourses", this.planCourses);
         this.contextUtil.updateMem("HonorCourses", this.honorCourses);
+        this.contextUtil.updateMem("unFinishedCourses",this.unFinishedCourses);
         this.contextUtil.updateMem("courseGroups", this.courseGroups);
         this.contextUtil.updateMem("publicCourses", this.publicCourses);
         this.contextUtil.updateMem("failedCourse", this.failedCourse);
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
         this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
+        this.contextUtil.updateMem("OnlyCourses", this.onlyCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -158,6 +164,7 @@ public class ElecContextBk implements IElecContext
         this.getApplyForDropCourses().clear();
         this.getPlanCourses().clear();
         this.getHonorCourses().clear();
+        this.getUnFinishedCourses().clear();
         this.getCourseGroups().clear();
         this.getPublicCourses().clear();
         this.getFailedCourse().clear();
@@ -166,6 +173,8 @@ public class ElecContextBk implements IElecContext
         this.getApplyCourse().clear();
         this.getElecApplyCourses().clear();
         this.getReplaceCourses().clear();
+        this.getPlanCourses().clear();
+        this.getOnlyCourses().clear();
     }
     
     public void courseClear()
@@ -271,12 +280,14 @@ public class ElecContextBk implements IElecContext
         return replaceCourses;
     }
 
-
-    public Set<PlanCourse> getOnePlanCourses() {
-        return onePlanCourses;
+    public Set<CompletedCourse> getUnFinishedCourses()
+    {
+        return unFinishedCourses;
     }
 
-    public void setOnePlanCourses(Set<PlanCourse> onePlanCourses) {
-        this.onePlanCourses = onePlanCourses;
-    }
+	public Set<PlanCourse> getOnlyCourses() {
+		return onlyCourses;
+	}
+    
+
 }

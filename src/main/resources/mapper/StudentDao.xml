@@ -59,6 +59,17 @@
         from student_t
         where STUDENT_CODE_=#{studentCode,jdbcType=VARCHAR}
     </select>
+    
+    <select id="findStudentByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from student_t
+        where STUDENT_CODE_ in 
+	    <foreach item="studentId" collection="studentIds" index="index" open="(" separator="," close=")">
+		    #{studentId}
+		</foreach>
+    </select>
+    
     <select id="selectElcStudents" parameterType="com.server.edu.election.dto.StudentDto" resultMap="BaseResultMap">
 		SELECT
 			t2.STUDENT_CODE_,
