@@ -1319,7 +1319,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}else if (StringUtils.equals(planCourse2.getLabelName(), "必修环节")){
 				requiredCourseNum += 1;
 				requiredCourseScore += planCourse2.getCredits();
-			}else if (StringUtils.equals(planCourse2.getLabelName(), "跨院系或门类")){
+			}else if (planCourse2.getLabelName().contains("跨院系")){
 				interFacultyNum += 1;
 				interFacultyScore += planCourse2.getCredits();
 			}
@@ -1630,7 +1630,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}else if (StringUtils.equals(planCourse2.getLabelName(), "必修环节")){
 				requiredCourseNum += 1;
 				requiredCourseScore += planCourse2.getCredits();
-			}else if (StringUtils.equals(planCourse2.getLabelName(), "跨院系或门类")){
+			}else if (planCourse2.getLabelName().contains("跨院系")){
 				interFacultyNum += 1;
 				interFacultyScore += planCourse2.getCredits();
 			}
