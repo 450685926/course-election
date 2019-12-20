@@ -222,6 +222,9 @@ public class HonorPlanStdsServiceImpl implements HonorPlanStdsService
     @Override
     public boolean fingStudentByStudentId(String studentId, Long roundId) {
         ElectionRounds round = dataProvider.getRound(roundId);
+        if(round == null){
+            return false;
+        }
         Example example = new Example(HonorPlanStds.class);
         example.createCriteria().andEqualTo("studentId",studentId).andEqualTo("calendarId",round.getCalendarId());
         Integer count = honorPlanStdsDao.selectCountByExample(example);
