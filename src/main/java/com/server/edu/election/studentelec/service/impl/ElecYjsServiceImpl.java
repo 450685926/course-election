@@ -1319,7 +1319,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}else if (StringUtils.equals(planCourse2.getLabelName(), "必修环节")){
 				requiredCourseNum += 1;
 				requiredCourseScore += planCourse2.getCredits();
-			}else if (StringUtils.equals(planCourse2.getLabelName(), "跨院系课程")){
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "跨院系或门类")){
 				interFacultyNum += 1;
 				interFacultyScore += planCourse2.getCredits();
 			}
@@ -1331,10 +1331,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         minNumMap.put("interFaculty",interFacultyNum);
 
         creditsMap.put("publicLessons",publicLessonsCourseScore);
-        creditsMap.put("professionalCourses",professionalCourseNum);
-        creditsMap.put("nonDegreeCourses",nonDegreeCourseNum);
-        creditsMap.put("requiredCourses",requiredCourseNum);
-        creditsMap.put("interFaculty",interFacultyNum);
+        creditsMap.put("professionalCourses",professionalCourseScore);
+        creditsMap.put("nonDegreeCourses",nonDegreeCourseScore);
+        creditsMap.put("requiredCourses",requiredCourseScore);
+        creditsMap.put("interFaculty",interFacultyScore);
         
         for (Entry<String, Object> entry : restResult.getData().entrySet())
         {
@@ -1630,7 +1630,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}else if (StringUtils.equals(planCourse2.getLabelName(), "必修环节")){
 				requiredCourseNum += 1;
 				requiredCourseScore += planCourse2.getCredits();
-			}else if (StringUtils.equals(planCourse2.getLabelName(), "跨院系课程")){
+			}else if (StringUtils.equals(planCourse2.getLabelName(), "跨院系或门类")){
 				interFacultyNum += 1;
 				interFacultyScore += planCourse2.getCredits();
 			}
@@ -1642,10 +1642,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         minNumMap.put("interFaculty",interFacultyNum);
 
         creditsMap.put("publicLessons",publicLessonsCourseScore);
-        creditsMap.put("professionalCourses",professionalCourseNum);
-        creditsMap.put("nonDegreeCourses",nonDegreeCourseNum);
-        creditsMap.put("requiredCourses",requiredCourseNum);
-        creditsMap.put("interFaculty",interFacultyNum);
+        creditsMap.put("professionalCourses",professionalCourseScore);
+        creditsMap.put("nonDegreeCourses",nonDegreeCourseScore);
+        creditsMap.put("requiredCourses",requiredCourseScore);
+        creditsMap.put("interFaculty",interFacultyScore);
         
         for (Entry<String, Object> entry : restResult.getData().entrySet())
         {
