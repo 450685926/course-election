@@ -520,9 +520,14 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Set<SelectedCourse> selectedCourses = c.getSelectedCourses();
         if (courseTakes.size() != selectedCourses.size()){
 
+
             c.getSelectedCourses().clear();
-            for (SelectedCourse selectedCours : selectedCourses) {
-                SelectedCourse course = new SelectedCourse(selectedCours.getCourse());
+            for (ElcCourseTakeVo selectedCours : courseTakes) {
+                TeachingClassCache teachClass =
+                        dataProvider.getTeachClass(round.getId(),
+                                selectedCours.getCourseCode(),
+                                selectedCours.getTeachingClassId());
+                SelectedCourse course = new SelectedCourse(teachClass);
                 course.setTurn(round.getTurn());
                 course.setCourseTakeType(selectedCours.getCourseTakeType());
                 course.setChooseObj(selectedCours.getChooseObj());
