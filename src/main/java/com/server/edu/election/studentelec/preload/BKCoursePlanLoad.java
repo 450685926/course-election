@@ -99,7 +99,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
-            Set<PlanCourse> onePlanCourses = context.getOnePlanCourses();//培养课程
+            Set<PlanCourse> onlyCourses = context.getOnlyCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
@@ -145,7 +145,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             pl.setLabel(labelId);
                             pl.setLabelName(labelName);
                             if(Constants.FIRST.equals(pct.getChosen())) {
-                            	onePlanCourses.add(pl);
+                            	onlyCourses.add(pl);
                             }
                             planCourses.add(pl);
 //                            map.put(courseCode, pct.getCompulsory());

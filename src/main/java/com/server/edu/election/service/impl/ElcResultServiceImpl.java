@@ -878,13 +878,13 @@ public class ElcResultServiceImpl implements ElcResultService
                     gradAndPreFilter.execute(stuList, removeStus);
                     //执行班级匹配
                     if(bindTeachingClassId !=null) {
-                    	boolean stuIsLarger = stuList.size() > bindStudents.size();
-                    	List<Student> compareList = new ArrayList<Student>(stuIsLarger ? stuList : bindStudents);
-                    	compareList.retainAll(stuIsLarger ? stuList : bindStudents);
-                    	stuList.removeAll(compareList);
+                    	List<Student> compareList = new ArrayList<Student>(stuList);
+                    	List<Student> removeList = new ArrayList<Student>(stuList);
+                    	compareList.retainAll(bindStudents);
+                    	removeList.removeAll(compareList);
                     	List<String> reList = new ArrayList<String>();
-                    	if(CollectionUtil.isNotEmpty(stuList)) {
-                    		reList = stuList.stream().map(Student :: getStudentCode).collect(Collectors.toList());
+                    	if(CollectionUtil.isNotEmpty(removeList)) {
+                    		reList = removeList.stream().map(Student :: getStudentCode).collect(Collectors.toList());
                     	}
                     	removeStus.addAll(reList);
                     	bindremoveStus.addAll(reList);
