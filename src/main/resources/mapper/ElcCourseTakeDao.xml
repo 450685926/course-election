@@ -77,7 +77,6 @@
         <result column="courseLabel" jdbcType="VARCHAR" property="courseLabel"/>
         <result column="IS_ELECTIVE_" jdbcType="INTEGER" property="isPublicCourse"/>
         <result column="TEACHER_NAME_" jdbcType="BIGINT" property="teacherName"/>
-        <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId"/>
     </resultMap>
 
     <select id="allSelectedCourse" resultMap="VoResultMap">
