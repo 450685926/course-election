@@ -197,7 +197,10 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             
             //Integer index =TableIndexUtil.getIndex(context.getCalendarId()-1);
             List<TeachingClassCache> currentCalendarCourses = elcCourseTakeDao.findCurrentCalendarCourses(studentId, context.getCalendarId());
+            logger.info("--------studentId---------: " + studentId);
+            logger.info("--------calendarId---------: " + context.getCalendarId());
             for (TeachingClassCache teachingClassCache : currentCalendarCourses) {
+            	logger.info("--------teachingClassCache---------: " + teachingClassCache);
             	CompletedCourse lesson = new CompletedCourse();
             	lesson.setNature(teachingClassCache.getNature());
             	lesson.setCourseCode(teachingClassCache.getCourseCode());
@@ -212,8 +215,8 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCalendarId(teachingClassCache.getCalendarId());
-            	lesson.setStudentId(teachingClassCache.getStudentId());
-            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(context.getCalendarId()-1);
+            	lesson.setStudentId(studentId);
+            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
                 // 根据校历id设置学年
                 if (schoolCalendar != null) {
                     lesson.setCalendarName(schoolCalendar.getYear()+"");
@@ -221,15 +224,18 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	// 如果课程是培养计划中的课程，则取培养计划的课程lableId
             	for (PlanCourseDto planCourseDto : plan) {
             		List<PlanCourseTypeDto> list = planCourseDto.getList();
-    				for (PlanCourseTypeDto planCourseTypeDto : list) {
-    					if (StringUtils.equals(planCourseTypeDto.getCourseCode(), teachingClassCache.getCourseCode())) {
-    						lesson.setCourseLabelId(planCourseDto.getLabel());
-    						lesson.setLabelName(planCourseDto.getLabelName());
-    					}else {
-    						String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
-    						lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
-    						lesson.setLabelName(dict);
-    					}
+    				Set<String> courseCodeSet = list.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
+    				
+    				if (courseCodeSet.contains(teachingClassCache.getCourseCode())) {
+    					List<PlanCourseTypeDto> collect = list.stream().filter(vo->StringUtils.equals(vo.getCourseCode(), teachingClassCache.getCourseCode())).collect(Collectors.toList());
+    					PlanCourseTypeDto planCourseTypeDto = collect.get(0);
+    					lesson.setCourseLabelId(planCourseTypeDto.getLabelId());
+    					lesson.setLabelName(planCourseTypeDto.getLabelName());
+    					break;
+    				}else {
+    					String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
+    					lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
+    					lesson.setLabelName(dict);
     				}
     			}
             	course.add(lesson);
@@ -253,6 +259,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             if (CollectionUtil.isNotEmpty(teachClassIds)) {
                 Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
                 for (CompletedCourse cours : coursess) {
+                	logger.info("----------111111111---------:" + cours.toString());
                     Long teachClassId = cours.getTeachClassId();
                     if (teachClassId == null) {
                         continue;
