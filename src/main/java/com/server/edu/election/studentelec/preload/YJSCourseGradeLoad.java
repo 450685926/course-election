@@ -9,7 +9,6 @@ import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.studentelec.context.*;
-import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.vo.ElcCourseTakeVo;
-import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -105,7 +103,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         BeanUtils.copyProperties(stu, studentInfo);
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();// 已完成通過课程
         Set<CompletedCourse> failedCourse = context.getFailedCourse();// 未通过课程
-        Set<CompletedCourse> takenCourses = new HashSet<CompletedCourse>(); // 已修读课程
+        List<CompletedCourse> takenCourses = new ArrayList<CompletedCourse>(); // 已修读课程
         
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         if (CollectionUtil.isNotEmpty(stuScore))
@@ -121,7 +119,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             Map<String, Course> map = courses.stream().collect(Collectors.toMap(Course::getCode, s -> s));
             int size = stuScore.size();
             List<Long> teachClassIds = new ArrayList<>();
-            Set<CompletedCourse> course = new HashSet<>();
+            List<CompletedCourse> course = new ArrayList<CompletedCourse>();
             for (ScoreStudentResultVo studentScore : stuScore)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -136,6 +134,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     lesson.setFaculty(co.getCollege());
                     lesson.setTerm(co.getTerm());
                 }
+                lesson.setStudentId(studentScore.getStudentId());
                 lesson.setCredits(studentScore.getCredit());
                 Long calendarId = studentScore.getCalendarId();
                 lesson.setCalendarId(calendarId);
@@ -212,6 +211,8 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
             	lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
+            	lesson.setCalendarId(teachingClassCache.getCalendarId());
+            	lesson.setStudentId(teachingClassCache.getStudentId());
             	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(context.getCalendarId()-1);
                 // 根据校历id设置学年
                 if (schoolCalendar != null) {
@@ -236,9 +237,22 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
 			}
             logger.info("-----------course2------------:" + course.size());
             
+            // 已修读课程去重(studentId+courseCode+calendarId)
+            List<CompletedCourse> coursess = new ArrayList<CompletedCourse>();
+            if (CollectionUtil.isNotEmpty(course)) {
+            	StringBuffer codeAndStudentIdbuffer = new StringBuffer("");
+            	for (CompletedCourse courseVo : course) {
+            		String codeAndStudentId = courseVo.getStudentId()+courseVo.getCalendarId()+courseVo.getCourseCode();
+            		if (!codeAndStudentIdbuffer.toString().contains(codeAndStudentId)) {
+            			codeAndStudentIdbuffer.append(codeAndStudentId).append(",");
+						coursess.add(courseVo);
+					}
+				}
+			}
+            
             if (CollectionUtil.isNotEmpty(teachClassIds)) {
                 Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
-                for (CompletedCourse cours : course) {
+                for (CompletedCourse cours : coursess) {
                     Long teachClassId = cours.getTeachClassId();
                     if (teachClassId == null) {
                         continue;
@@ -273,9 +287,8 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     }
                 }
             }
-            logger.info("----------TakenCourses--------: "+ course.size());
-            List<CompletedCourse> courseList = new ArrayList<CompletedCourse>(course);
-            context.setTakenCourses(courseList);
+            logger.info("----------TakenCourses--------: "+ coursess.size());
+            context.setTakenCourses(coursess);
 //            takenCourses.addAll(course);
         }
         
