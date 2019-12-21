@@ -113,7 +113,7 @@ public class ElecController
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
-        
+
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");
@@ -121,7 +121,7 @@ public class ElecController
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundNotExistTip");
         ElecContextBk c =
-            new ElecContextBk(session.realUid(), round.getCalendarId(), roundId);
+            new ElecContextBk(session.realUid(), round.getCalendarId());
         elecService.getDataBk(c,roundId);
         return RestResult.successData(c);
     }

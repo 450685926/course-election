@@ -23,12 +23,8 @@ import org.springframework.stereotype.Component;
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
  *
  */
-@Component
 public class ElecContextBk implements IElecContext
 {
-
-    @Autowired
-    private TeachClassCacheService teachClassCacheService;
 
 	/**选课申请课程*/
     public static final String ELEC_APPLY_COURSES = "elecApplyCourses";
@@ -122,62 +118,6 @@ public class ElecContextBk implements IElecContext
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
         onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
-    }
-
-    public ElecContextBk(String studentId, Long calendarId, Long roundId)
-    {
-        this.calendarId = calendarId;
-        this.contextUtil = ElecContextUtil.create(studentId, this.calendarId);
-
-        studentInfo = contextUtil.getStudentInfo();
-        respose = this.contextUtil.getElecRespose();
-        completedCourses =
-                this.contextUtil.getSet("CompletedCourses", CompletedCourse.class);
-        selectedCourses =
-                this.contextUtil.getSet(SELECTED_COURSES, SelectedCourse.class);
-        applyForDropCourses =
-                this.contextUtil.getSet(APPLY_FOR_DROP_COURSES, ElecCourse.class);
-        planCourses = this.contextUtil.getSet("PlanCourses", PlanCourse.class);
-        for (PlanCourse planCours : planCourses) {
-            String courseCode = planCours.getCourse().getCourseCode();
-            List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
-            if (CollectionUtil.isEmpty(teachingClassCaches)) {
-                planCourses.remove(planCours);
-            }
-        }
-        honorCourses = this.contextUtil.getSet("HonorCourses", HonorCourseBK.class);
-        for (HonorCourseBK honorCourse : honorCourses) {
-            String courseCode = honorCourse.getCourse().getCourseCode();
-            List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
-            if (CollectionUtil.isEmpty(teachingClassCaches)) {
-                honorCourses.remove(honorCourse);
-            }
-        }
-        unFinishedCourses = this.contextUtil.getSet("unFinishedCourses", CompletedCourse.class);
-        publicCourses =
-                this.contextUtil.getSet("publicCourses", TsCourse.class);
-        for (TsCourse tsCourse : publicCourses) {
-            String courseCode = tsCourse.getCourse().getCourseCode();
-            List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
-            if (CollectionUtil.isEmpty(teachingClassCaches)) {
-                publicCourses.remove(tsCourse);
-            }
-        }
-        courseGroups =
-                this.contextUtil.getSet("courseGroups", CourseGroup.class);
-        failedCourse =
-                this.contextUtil.getSet("failedCourse", CompletedCourse.class);
-        applyCourse = ElecContextUtil.getApplyCourse(calendarId);
-        elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
-        replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
-        onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
-        for (PlanCourse planCourse : onlyCourses) {
-            String courseCode = planCourse.getCourse().getCourseCode();
-            List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
-            if (CollectionUtil.isEmpty(teachingClassCaches)) {
-                onlyCourses.remove(planCourse);
-            }
-        }
     }
 
     /**

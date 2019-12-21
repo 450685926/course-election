@@ -80,7 +80,6 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                 list.forEach(c->{
                     if (StringUtils.isEmpty(honorPlanStds.getDirectionName())){
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
-                                && flag(calendarId, c.getHonorCourseCode())
                                 && compare(selectedCourse, c.getHonorCourseCode())){
                             BclHonorCourse bclHonorCourse = new BclHonorCourse();
                             bclHonorCourse.setCourseCode(c.getHonorCourseCode());
@@ -107,7 +106,6 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                     }else{
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
                                 && StringUtils.equalsIgnoreCase(c.getDirectionName(),honorPlanStds.getDirectionName())
-                                && flag(calendarId, c.getHonorCourseCode())
                                 && compare(selectedCourse, c.getHonorCourseCode())){
                             BclHonorCourse bclHonorCourse = new BclHonorCourse();
                             bclHonorCourse.setCourseCode(c.getHonorCourseCode());
