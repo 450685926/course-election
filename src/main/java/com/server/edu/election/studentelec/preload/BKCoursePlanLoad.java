@@ -96,6 +96,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         }
         ElecRequest request = context.getRequest();
         Long roundId = request.getRoundId();
+        Long calendarId = request.getCalendarId();
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
@@ -122,7 +123,8 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 //                        Example example = new Example(Course.class);
 //                        example.createCriteria().andEqualTo("code", courseCode);
 //                        Course course = courseDao.selectOneByExample(example);
-                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(context.getRequest().getRoundId(), courseCode);
+//                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                        List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasssBycalendarId(calendarId, courseCode);
                         if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
                         	TeachingClassCache teachingClassCache = teachingClassCaches.get(0);
                         	ElecCourse course2 = new ElecCourse();
@@ -193,7 +195,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                                 for (PublicCourse pc : publicCourseList) {
                                     String courseCode = pc.getCourseCode();
                                     if (!selectedCourse.contains(courseCode)) {
-                                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                                        List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasssBycalendarId(calendarId, courseCode);
                                         // 判断这门课程在本轮次是否有对应的教学班
                                         if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
                                             Set<String> set = new HashSet(5);

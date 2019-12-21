@@ -69,7 +69,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
         log.info("----------------2222222222222222------------------"+honorPlanStds);
         if (honorPlanStds!=null){
             List<BclHonorModule> list = CultureSerivceInvoker.findHonorCourseList(stu.getStudentId());
-            Long roundId = request.getRoundId();
+            Long calendarId = request.getCalendarId();
             if(CollectionUtil.isNotEmpty(list)){
                 log.info("honor course size:{}", list.size());
                 StudentScoreDto dto = new StudentScoreDto();
@@ -80,7 +80,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                 list.forEach(c->{
                     if (StringUtils.isEmpty(honorPlanStds.getDirectionName())){
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
-                                && flag(roundId, c.getHonorCourseCode())
+                                && flag(calendarId, c.getHonorCourseCode())
                                 && compare(selectedCourse, c.getHonorCourseCode())){
                             BclHonorCourse bclHonorCourse = new BclHonorCourse();
                             bclHonorCourse.setCourseCode(c.getHonorCourseCode());
@@ -107,7 +107,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
                     }else{
                         if (StringUtils.equalsIgnoreCase(c.getHonorModuleName(),honorPlanStds.getHonorPlanName())
                                 && StringUtils.equalsIgnoreCase(c.getDirectionName(),honorPlanStds.getDirectionName())
-                                && flag(roundId, c.getHonorCourseCode())
+                                && flag(calendarId, c.getHonorCourseCode())
                                 && compare(selectedCourse, c.getHonorCourseCode())){
                             BclHonorCourse bclHonorCourse = new BclHonorCourse();
                             bclHonorCourse.setCourseCode(c.getHonorCourseCode());
@@ -143,8 +143,8 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
     }
 
     // 判断轮次里面某门课程是否有教学班，没有返回false。不展示
-    private boolean flag(Long roundId, String courseCode) {
-        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+    private boolean flag(Long calendarId, String courseCode) {
+        List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasssBycalendarId(calendarId, courseCode);
         if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
             return true;
         } else {
