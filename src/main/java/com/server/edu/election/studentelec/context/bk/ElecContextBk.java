@@ -17,11 +17,13 @@ import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
  *
  */
+@Component
 public class ElecContextBk implements IElecContext
 {
 
