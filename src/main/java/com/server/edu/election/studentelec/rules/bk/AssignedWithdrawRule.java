@@ -47,7 +47,7 @@ public class AssignedWithdrawRule extends AbstractWithdrwRuleExceutorBk
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(tClass.getCourseCodeAndClassCode() + tClass.getCourseName(),
+                    .put(tClass.getTeachClassCode() + tClass.getCourseName(),
                         I18nUtil.getMsg("ruleCheck.assignedWithdrawRule"));
                 return false;
             }

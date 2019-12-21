@@ -36,7 +36,7 @@ public class PlanCourseGroupCreditsRule extends AbstractElecRuleExceutorBk
                         if (planCourse.getCourse().getChosen().intValue() == 0) {
                             ElecRespose respose = context.getRespose();
                             respose.getFailedReasons()
-                                    .put(courseClass.getCourseCodeAndClassCode(),
+                                    .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                             I18nUtil
                                                     .getMsg("ruleCheck.planCultureLimit"));
                             return false;

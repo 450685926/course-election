@@ -79,7 +79,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutorBk {
                             ElecRespose respose = context.getRespose();
                             e.printStackTrace();
                             respose.getFailedReasons()
-                                    .put(courseClass.getCourseCodeAndClassCode(),
+                                    .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                             I18nUtil.getMsg("ruleCheck.psrseError"));
                             return false;
                         }
@@ -87,7 +87,7 @@ public class XuanXiuMaxCountCheckerRule extends AbstractElecRuleExceutorBk {
                         if (max < stsNum + Constants.ONE) {
                             ElecRespose respose = context.getRespose();
                             respose.getFailedReasons()
-                                    .put(courseClass.getCourseCodeAndClassCode(),
+                                    .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                             I18nUtil.getMsg("ruleCheck.xuanXiuMaxCountChecker"));
                             return false;
                         }

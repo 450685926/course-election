@@ -52,7 +52,7 @@ public class SecondRdCantElect1stRdFullRule extends AbstractElecRuleExceutorBk
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                    .put(courseClass.getCourseCodeAndClassCode(),
+                    .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                         I18nUtil.getMsg("ruleCheck.classNumberLimit"));
                 return false;
             }
