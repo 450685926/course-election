@@ -58,7 +58,7 @@ public class OnlyCanWithdrawOfTurnRule extends AbstractWithdrwRuleExceutorBk {
         }
         ElecRespose respose = context.getRespose();
         respose.getFailedReasons()
-                .put(co.getCourseCodeAndClassCode()+ co.getCourseName(),
+                .put(co.getTeachClassCode() + co.getCourseName(),
                         I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
         return false;
     }

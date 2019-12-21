@@ -34,11 +34,9 @@ public class WithdrawTimeCheckerRule extends AbstractWithdrwRuleExceutorBk
         if (!round.getTurn().equals(course.getTurn()))
         {
             TeachingClassCache co = course.getCourse();
-            String courseCodeAndClassCode =
-                co.getCourseCodeAndClassCode();
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                .put(courseCodeAndClassCode + co.getCourseName(),
+                .put(co.getTeachClassCode() + co.getCourseName(),
                     I18nUtil.getMsg("ruleCheck.withdrawTimeCheckerRule"));
             return false;
         }

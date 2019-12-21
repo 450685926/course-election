@@ -115,7 +115,7 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 									}else{
 										ElecRespose respose = context.getRespose();
 										respose.getFailedReasons()
-												.put(courseClass.getCourseCodeAndClassCode(),
+												.put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
 														I18nUtil
 																.getMsg("ruleCheck.CreditLiMitFor2018AndBeyondLimit"));
 										return false;
