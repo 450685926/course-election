@@ -121,7 +121,7 @@ public class ElecController
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundNotExistTip");
         ElecContextBk c =
-            new ElecContextBk(session.realUid(), round.getCalendarId());
+            new ElecContextBk(session.realUid(), round.getCalendarId(), roundId);
         elecService.getDataBk(c,roundId);
         return RestResult.successData(c);
     }
