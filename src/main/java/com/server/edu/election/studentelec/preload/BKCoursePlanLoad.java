@@ -180,12 +180,14 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 if (compare(grade, grades)) {
                     List<BkPublicCourse> list = bkPublicCourseVo.getList();
                     if (CollectionUtil.isNotEmpty(list)) {
-                        for (BkPublicCourse publicCourse : list) {
+                        for (int i = 0; i < list.size(); i++) {
+                            BkPublicCourse publicCourse = list.get(i);
                             String tag = publicCourse.getTag();
                             List<PublicCourse> publicCourseList = publicCourse.getList();
                             if (CollectionUtil.isEmpty(publicCourseList)) {
                                 TsCourse tsCourse = new TsCourse();
                                 tsCourse.setTag(tag);
+                                tsCourse.setIndex(i);
                                 publicCourses.add(tsCourse);
                             } else {
                                 for (PublicCourse pc : publicCourseList) {
@@ -215,6 +217,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                                             elecCourse.setYs(pc.isYs());
                                             TsCourse tsCourse = new TsCourse();
                                             tsCourse.setTag(tag);
+                                            tsCourse.setIndex(i);
                                             tsCourse.setCourse(elecCourse);
                                             publicCourses.add(tsCourse);
                                         }
