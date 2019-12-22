@@ -610,8 +610,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         elecApplyCourses.clear();
         Example aExample = new Example(ElectionApply.class);
         Example.Criteria aCriteria = aExample.createCriteria();
-        aCriteria.andEqualTo("studentId", studentInfo.getStudentId());
-        aCriteria.andEqualTo("calendarId", calendarId);
+        aCriteria.andEqualTo("studentId", studentInfo.getStudentId()).andEqualTo("calendarId", calendarId);
         List<ElectionApply> electionApplys =
                 electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
