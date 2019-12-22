@@ -132,7 +132,14 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     lesson.setCourseName(co.getName());
                     lesson.setNature(co.getNature());
                     lesson.setFaculty(co.getCollege());
-                    lesson.setTerm(co.getTerm());
+                    // 上课时间“春秋季”特殊处理
+                    if (StringUtils.equals(co.getTerm(), "3")) {
+                    	lesson.setTerm("1");
+					}else if(StringUtils.equals(co.getTerm(), "4")){
+						lesson.setTerm("2");
+					}else {
+						lesson.setTerm(co.getTerm());
+					}
                 }
                 lesson.setStudentId(studentScore.getStudentId());
                 lesson.setCredits(studentScore.getCredit());
@@ -173,6 +180,10 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 }
                 course.add(lesson);
             }
+            
+            for (CompletedCourse completedCourse : completedCourses) {
+            	logger.info("----------$$$$$$$-----------" + completedCourse.toString());
+			}
             logger.info("-----------completedCourses------------:" + completedCourses.size());
             logger.info("-------------failedCourse--------------:" + failedCourse.size());
             logger.info("----------------course1-----------------:" + course.size());
@@ -208,7 +219,14 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCredits(teachingClassCache.getCredits());
             	lesson.setFaculty(teachingClassCache.getFaculty());
-            	lesson.setTerm(teachingClassCache.getTerm());
+            	// 上课时间“春秋季”特殊处理
+                if (StringUtils.equals(teachingClassCache.getTerm(), "3")) {
+                	lesson.setTerm("1");
+				}else if(StringUtils.equals(teachingClassCache.getTerm(), "4")){
+					lesson.setTerm("2");
+				}else {
+					lesson.setTerm(teachingClassCache.getTerm());
+				}
             	lesson.setRemark(teachingClassCache.getRemark());
             	lesson.setTeacherName(teachingClassCache.getTeacherName());
             	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
@@ -231,11 +249,12 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
     					PlanCourseTypeDto planCourseTypeDto = collect.get(0);
     					lesson.setCourseLabelId(planCourseTypeDto.getLabelId());
     					lesson.setLabelName(planCourseTypeDto.getLabelName());
-    					break;
+    					logger.info("----@@@@@@@@@@@----:" + teachingClassCache.getCourseCode() + ":" + planCourseTypeDto.getLabelId()+ ":" + planCourseTypeDto.getLabelName());
     				}else {
     					String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
     					lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
     					lesson.setLabelName(dict);
+    					logger.info("----%%%%%%%%%%%----:" + teachingClassCache.getCourseCode() + ":" + teachingClassCache.getNature()+ ":" + dict);
     				}
     			}
             	course.add(lesson);
