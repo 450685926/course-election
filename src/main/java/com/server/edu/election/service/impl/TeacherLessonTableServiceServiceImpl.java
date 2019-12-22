@@ -46,6 +46,7 @@ import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.service.TeacherLessonTableService;
+import com.server.edu.election.util.WeekModeUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.election.vo.StudentSchoolTimetabVo;
 import com.server.edu.election.vo.TimeTable;
@@ -1180,10 +1181,8 @@ public class TeacherLessonTableServiceServiceImpl
                 String[] str = weekNumber.split(",");
                 
                 List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
-                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
-                String weekNumStr = weekNums.toString();//周次
+                String weekNumStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
                 String weekstr = findWeek(dayOfWeek);//星期
-                
                 String[] tcodes = teacherCode.split(",");
                 String teacherName="";
                 List<Teacher> teachers = TeacherCacheUtil.getTeachers(tcodes);
