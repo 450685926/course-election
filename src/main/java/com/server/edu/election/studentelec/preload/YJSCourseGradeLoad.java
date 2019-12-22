@@ -133,13 +133,13 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     lesson.setNature(co.getNature());
                     lesson.setFaculty(co.getCollege());
                     // 上课时间“春秋季”特殊处理
-                    if (StringUtils.equals(co.getTerm(), "3")) {
+                    if ("3".equals(co.getTerm())) {
                     	lesson.setTerm("1");
-					}else if(StringUtils.equals(co.getTerm(), "4")){
-						lesson.setTerm("2");
-					}else {
-						lesson.setTerm(co.getTerm());
-					}
+        			}else if("4".equals(co.getTerm())){
+        				lesson.setTerm("2");
+        			}else {
+        				lesson.setTerm(co.getTerm());
+        			}
                 }
                 lesson.setStudentId(studentScore.getStudentId());
                 lesson.setCredits(studentScore.getCredit());
@@ -220,13 +220,13 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setCredits(teachingClassCache.getCredits());
             	lesson.setFaculty(teachingClassCache.getFaculty());
             	// 上课时间“春秋季”特殊处理
-                if (StringUtils.equals(teachingClassCache.getTerm(), "3")) {
+            	if ("3".equals(teachingClassCache.getTerm())) {
                 	lesson.setTerm("1");
-				}else if(StringUtils.equals(teachingClassCache.getTerm(), "4")){
-					lesson.setTerm("2");
-				}else {
-					lesson.setTerm(teachingClassCache.getTerm());
-				}
+    			}else if("4".equals(teachingClassCache.getTerm())){
+    				lesson.setTerm("2");
+    			}else {
+    				lesson.setTerm(teachingClassCache.getTerm());
+    			}
             	lesson.setRemark(teachingClassCache.getRemark());
             	lesson.setTeacherName(teachingClassCache.getTeacherName());
             	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
