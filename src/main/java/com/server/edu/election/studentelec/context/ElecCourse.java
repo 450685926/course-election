@@ -3,6 +3,8 @@ package com.server.edu.election.studentelec.context;
 import java.io.Serializable;
 import java.util.Objects;
 
+import javax.persistence.Column;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.server.edu.dictionary.DictTypeEnum;
@@ -78,9 +80,23 @@ public class ElecCourse implements Serializable
     
     private Integer isQhClass;
     
+    /**
+     * 授课语言X_SKYY
+     */
+    @Code2Text(DictTypeEnum.X_SKYY)
+    private String teachingLanguage;
+    
+
+    public String getTeachingLanguage() {
+		return teachingLanguage;
+	}
+
+	public void setTeachingLanguage(String teachingLanguage) {
+		this.teachingLanguage = teachingLanguage;
+	}
     private String courseLabel;
 
-    public String getCampus() {
+	public String getCampus() {
         return campus;
     }
 

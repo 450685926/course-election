@@ -2,6 +2,7 @@ package com.server.edu.election.dto;
 
 import java.util.List;
 
+import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.dictionary.translator.TeacherTranslator;
@@ -68,8 +69,23 @@ public class CourseOpenDto extends CourseOpen
 
     // 上课时间地点
     private String timeAndRoom;
+    
+    /**
+     * 授课语言X_SKYY
+     */
+    @Code2Text(DictTypeEnum.X_SKYY)
+    private String teachingLanguage;
+    
 
-    public String getTimeAndRoom() {
+    public String getTeachingLanguage() {
+		return teachingLanguage;
+	}
+
+	public void setTeachingLanguage(String teachingLanguage) {
+		this.teachingLanguage = teachingLanguage;
+	}
+
+	public String getTimeAndRoom() {
         return timeAndRoom;
     }
 

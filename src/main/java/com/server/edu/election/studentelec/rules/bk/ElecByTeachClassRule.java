@@ -131,7 +131,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                 if (!resultFlag) {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
+                            .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                     I18nUtil.getMsg("ruleCheck.classLimit.trainingLevel"));
                     return false;
                 }
@@ -152,7 +152,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                 if (!fff) {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
+                            .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                     I18nUtil.getMsg("ruleCheck.classLimit.majorAndgrade"));
                     return false;
                 }
@@ -206,7 +206,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                 if (!resultFlag) {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
+                            .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                     I18nUtil.getMsg("ruleCheck.classLimit.isDivsex"));
                     return false;
                 }
@@ -223,7 +223,7 @@ public class ElecByTeachClassRule extends AbstractElecRuleExceutorBk
                 if (!resultFlag) {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                            .put(courseClass.getCourseCodeAndClassCode(),
+                            .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                     I18nUtil.getMsg("ruleCheck.classLimit.isOverseas"));
                     return false;
                 }

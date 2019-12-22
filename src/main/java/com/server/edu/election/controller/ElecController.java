@@ -113,7 +113,7 @@ public class ElecController
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
-        
+
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");

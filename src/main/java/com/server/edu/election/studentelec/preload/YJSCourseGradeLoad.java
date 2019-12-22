@@ -132,7 +132,14 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     lesson.setCourseName(co.getName());
                     lesson.setNature(co.getNature());
                     lesson.setFaculty(co.getCollege());
-                    lesson.setTerm(co.getTerm());
+                    // 上课时间“春秋季”特殊处理
+                    if (StringUtils.equals(co.getTerm(), "3")) {
+                    	lesson.setTerm("1");
+					}else if(StringUtils.equals(co.getTerm(), "4")){
+						lesson.setTerm("2");
+					}else {
+						lesson.setTerm(co.getTerm());
+					}
                 }
                 lesson.setStudentId(studentScore.getStudentId());
                 lesson.setCredits(studentScore.getCredit());
@@ -173,6 +180,10 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 }
                 course.add(lesson);
             }
+            
+            for (CompletedCourse completedCourse : completedCourses) {
+            	logger.info("----------$$$$$$$-----------" + completedCourse.toString());
+			}
             logger.info("-----------completedCourses------------:" + completedCourses.size());
             logger.info("-------------failedCourse--------------:" + failedCourse.size());
             logger.info("----------------course1-----------------:" + course.size());
@@ -197,7 +208,10 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             
             //Integer index =TableIndexUtil.getIndex(context.getCalendarId()-1);
             List<TeachingClassCache> currentCalendarCourses = elcCourseTakeDao.findCurrentCalendarCourses(studentId, context.getCalendarId());
+            logger.info("--------studentId---------: " + studentId);
+            logger.info("--------calendarId---------: " + context.getCalendarId());
             for (TeachingClassCache teachingClassCache : currentCalendarCourses) {
+            	logger.info("--------teachingClassCache---------: " + teachingClassCache);
             	CompletedCourse lesson = new CompletedCourse();
             	lesson.setNature(teachingClassCache.getNature());
             	lesson.setCourseCode(teachingClassCache.getCourseCode());
@@ -205,15 +219,22 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCredits(teachingClassCache.getCredits());
             	lesson.setFaculty(teachingClassCache.getFaculty());
-            	lesson.setTerm(teachingClassCache.getTerm());
+            	// 上课时间“春秋季”特殊处理
+                if (StringUtils.equals(teachingClassCache.getTerm(), "3")) {
+                	lesson.setTerm("1");
+				}else if(StringUtils.equals(teachingClassCache.getTerm(), "4")){
+					lesson.setTerm("2");
+				}else {
+					lesson.setTerm(teachingClassCache.getTerm());
+				}
             	lesson.setRemark(teachingClassCache.getRemark());
             	lesson.setTeacherName(teachingClassCache.getTeacherName());
             	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
             	lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCalendarId(teachingClassCache.getCalendarId());
-            	lesson.setStudentId(teachingClassCache.getStudentId());
-            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(context.getCalendarId()-1);
+            	lesson.setStudentId(studentId);
+            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
                 // 根据校历id设置学年
                 if (schoolCalendar != null) {
                     lesson.setCalendarName(schoolCalendar.getYear()+"");
@@ -221,15 +242,19 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	// 如果课程是培养计划中的课程，则取培养计划的课程lableId
             	for (PlanCourseDto planCourseDto : plan) {
             		List<PlanCourseTypeDto> list = planCourseDto.getList();
-    				for (PlanCourseTypeDto planCourseTypeDto : list) {
-    					if (StringUtils.equals(planCourseTypeDto.getCourseCode(), teachingClassCache.getCourseCode())) {
-    						lesson.setCourseLabelId(planCourseDto.getLabel());
-    						lesson.setLabelName(planCourseDto.getLabelName());
-    					}else {
-    						String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
-    						lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
-    						lesson.setLabelName(dict);
-    					}
+    				Set<String> courseCodeSet = list.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
+    				
+    				if (courseCodeSet.contains(teachingClassCache.getCourseCode())) {
+    					List<PlanCourseTypeDto> collect = list.stream().filter(vo->StringUtils.equals(vo.getCourseCode(), teachingClassCache.getCourseCode())).collect(Collectors.toList());
+    					PlanCourseTypeDto planCourseTypeDto = collect.get(0);
+    					lesson.setCourseLabelId(planCourseTypeDto.getLabelId());
+    					lesson.setLabelName(planCourseTypeDto.getLabelName());
+    					logger.info("----@@@@@@@@@@@----:" + teachingClassCache.getCourseCode() + ":" + planCourseTypeDto.getLabelId()+ ":" + planCourseTypeDto.getLabelName());
+    				}else {
+    					String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
+    					lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
+    					lesson.setLabelName(dict);
+    					logger.info("----%%%%%%%%%%%----:" + teachingClassCache.getCourseCode() + ":" + teachingClassCache.getNature()+ ":" + dict);
     				}
     			}
             	course.add(lesson);
@@ -253,6 +278,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             if (CollectionUtil.isNotEmpty(teachClassIds)) {
                 Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
                 for (CompletedCourse cours : coursess) {
+                	logger.info("----------111111111---------:" + cours.toString());
                     Long teachClassId = cours.getTeachClassId();
                     if (teachClassId == null) {
                         continue;

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
@@ -11,8 +12,7 @@ import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.bk.PlanCourse;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.context.bk.*;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.TableIndexUtil;
@@ -36,8 +36,6 @@ import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.studentelec.context.bk.ElecContextLogin;
 import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -72,6 +70,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Autowired
     private TeachClassCacheService teachClassCacheService;
+
+    @Autowired
+    private DictionaryService dictionaryService;
 
     @Autowired
     private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
@@ -521,6 +522,67 @@ public class StudentElecServiceImpl extends AbstractCacheService
         ElectionRounds round = dataProvider.getRound(roundId);
         Long calendarId = round.getCalendarId();
         StudentInfoCache studentInfo = c.getStudentInfo();
+
+        Set<PlanCourse> planCourses = c.getPlanCourses();
+        if (CollectionUtil.isNotEmpty(planCourses)) {
+            Iterator<PlanCourse> iterator = planCourses.iterator();
+            while (iterator.hasNext()) {
+                PlanCourse planCours = iterator.next();
+                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
+                if (CollectionUtil.isEmpty(teachClasss)) {
+                    iterator.remove();
+                }
+            }
+        }
+        Set<TsCourse> publicCourses = c.getPublicCourses();
+        if (CollectionUtil.isNotEmpty(publicCourses)) {
+            Iterator<TsCourse> iterator = publicCourses.iterator();
+            while (iterator.hasNext()) {
+                TsCourse tsCourse = iterator.next();
+                ElecCourse course = tsCourse.getCourse();
+                if (course != null) {
+                    List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, course.getCourseCode());
+                    if (CollectionUtil.isEmpty(teachClasss)) {
+                        iterator.remove();
+                    } else {
+                        Set<String> set = new HashSet(5);
+                        for (TeachingClassCache teachingClassCach : teachClasss) {
+                            String campus = teachingClassCach.getCampus();
+                            if (StringUtils.isNotBlank(campus)) {
+                                campus = dictionaryService.query("X_XQ", campus);
+                                if (StringUtils.isNotBlank(campus)) {
+                                    set.add(campus);
+                                }
+                            }
+                        }
+                        course.setCampus(String.join(",", set));
+                    }
+                }
+            }
+        }
+        Set<HonorCourseBK> honorCourses = c.getHonorCourses();
+        if (CollectionUtil.isNotEmpty(honorCourses)) {
+            Iterator<HonorCourseBK> iterator = honorCourses.iterator();
+            while (iterator.hasNext()) {
+                HonorCourseBK honorCourse = iterator.next();
+                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, honorCourse.getCourse().getCourseCode());
+                if (CollectionUtil.isEmpty(teachClasss)) {
+                    iterator.remove();
+                }
+            }
+        }
+        Set<PlanCourse> onlyCourses = c.getOnlyCourses();
+        if (CollectionUtil.isNotEmpty(onlyCourses)) {
+            Iterator<PlanCourse> iterator = onlyCourses.iterator();
+            while (iterator.hasNext()) {
+                PlanCourse planCours = iterator.next();
+                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
+                if (CollectionUtil.isEmpty(teachClasss)) {
+                    iterator.remove();
+                }
+            }
+        }
+
 
         //同步查询已选教学班信息，查看是否存在rides信息丢失，如果丢失，同步更新选课数据
         List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
