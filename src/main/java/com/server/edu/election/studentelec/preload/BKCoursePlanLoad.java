@@ -123,29 +123,31 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 //                        Example example = new Example(Course.class);
 //                        example.createCriteria().andEqualTo("code", courseCode);
 //                        Course course = courseDao.selectOneByExample(example);
-//                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
-                        ElecCourse course2 = new ElecCourse();
-                        course2.setCourseCode(courseCode);
-                        course2.setCourseName(pct.getName());
-                        course2.setNameEn(pct.getNameEn());
-                        course2.setCredits(pct.getCredits());
-                        String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
-                        course2.setCalendarName(calendarName);
-                        course2.setCompulsory(pct.getCompulsory());
-                        course2.setLabelId(labelId);
-                        course2.setLabelName(labelName);
-                        course2.setChosen(pct.getChosen());
-                        course2.setIsQhClass(pct.getIsQhClass());
-                        pl.setCourse(course2);
-                        pl.setSemester(pct.getSemester());
-                        pl.setWeekType(pct.getWeekType());
-                        pl.setSubCourseCode(pct.getSubCourseCode());
-                        pl.setLabel(labelId);
-                        pl.setLabelName(labelName);
-                        if(Constants.FIRST.equals(pct.getChosen())) {
-                            onlyCourses.add(pl);
+                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                        if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                            ElecCourse course2 = new ElecCourse();
+                            course2.setCourseCode(courseCode);
+                            course2.setCourseName(pct.getName());
+                            course2.setNameEn(pct.getNameEn());
+                            course2.setCredits(pct.getCredits());
+                            String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
+                            course2.setCalendarName(calendarName);
+                            course2.setCompulsory(pct.getCompulsory());
+                            course2.setLabelId(labelId);
+                            course2.setLabelName(labelName);
+                            course2.setChosen(pct.getChosen());
+                            course2.setIsQhClass(pct.getIsQhClass());
+                            pl.setCourse(course2);
+                            pl.setSemester(pct.getSemester());
+                            pl.setWeekType(pct.getWeekType());
+                            pl.setSubCourseCode(pct.getSubCourseCode());
+                            pl.setLabel(labelId);
+                            pl.setLabelName(labelName);
+                            if(Constants.FIRST.equals(pct.getChosen())) {
+                                onlyCourses.add(pl);
+                            }
+                            planCourses.add(pl);
                         }
-                        planCourses.add(pl);
                     }
                 }
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
@@ -188,19 +190,20 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             } else {
                                 for (PublicCourse pc : publicCourseList) {
                                     String courseCode = pc.getCourseCode();
-                                    if (!selectedCourse.contains(courseCode)) {
-//                                        Set<String> set = new HashSet(5);
-//                                        Set<String> collect = teachingClassCaches.stream().map(TeachingClassCache::getCampus).collect(Collectors.toSet());
-//                                        for (String s : collect) {
-//                                            if (StringUtils.isNotBlank(s)) {
-//                                                String campus = dictionaryService.query("X_XQ", s);
-//                                                if (StringUtils.isNotBlank(campus)) {
-//                                                    set.add(campus);
-//                                                }
-//                                            }
-//                                        }
+                                    List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
+                                    if (!selectedCourse.contains(courseCode) && CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                                        Set<String> set = new HashSet(5);
+                                        Set<String> collect = teachingClassCaches.stream().map(TeachingClassCache::getCampus).collect(Collectors.toSet());
+                                        for (String s : collect) {
+                                            if (StringUtils.isNotBlank(s)) {
+                                                String campus = dictionaryService.query("X_XQ", s);
+                                                if (StringUtils.isNotBlank(campus)) {
+                                                    set.add(campus);
+                                                }
+                                            }
+                                        }
                                         ElecCourse elecCourse = new ElecCourse();
-//                                        elecCourse.setCampus(String.join(",", set));
+                                        elecCourse.setCampus(String.join(",", set));
                                         elecCourse.setCourseCode(courseCode);
 //                                            elecCourse.setCompulsory(map.get(courseCode));
                                         elecCourse.setCourseName(pc.getCourseName());

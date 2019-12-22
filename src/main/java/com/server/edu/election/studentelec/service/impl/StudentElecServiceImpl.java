@@ -523,65 +523,65 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Long calendarId = round.getCalendarId();
         StudentInfoCache studentInfo = c.getStudentInfo();
 
-        Set<PlanCourse> planCourses = c.getPlanCourses();
-        if (CollectionUtil.isNotEmpty(planCourses)) {
-            Iterator<PlanCourse> iterator = planCourses.iterator();
-            while (iterator.hasNext()) {
-                PlanCourse planCours = iterator.next();
-                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
-                if (CollectionUtil.isEmpty(teachClasss)) {
-                    iterator.remove();
-                }
-            }
-        }
-        Set<TsCourse> publicCourses = c.getPublicCourses();
-        if (CollectionUtil.isNotEmpty(publicCourses)) {
-            Iterator<TsCourse> iterator = publicCourses.iterator();
-            while (iterator.hasNext()) {
-                TsCourse tsCourse = iterator.next();
-                ElecCourse course = tsCourse.getCourse();
-                if (course != null) {
-                    List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, course.getCourseCode());
-                    if (CollectionUtil.isEmpty(teachClasss)) {
-                        iterator.remove();
-                    } else {
-                        Set<String> set = new HashSet(5);
-                        for (TeachingClassCache teachingClassCach : teachClasss) {
-                            String campus = teachingClassCach.getCampus();
-                            if (StringUtils.isNotBlank(campus)) {
-                                campus = dictionaryService.query("X_XQ", campus);
-                                if (StringUtils.isNotBlank(campus)) {
-                                    set.add(campus);
-                                }
-                            }
-                        }
-                        course.setCampus(String.join(",", set));
-                    }
-                }
-            }
-        }
-        Set<HonorCourseBK> honorCourses = c.getHonorCourses();
-        if (CollectionUtil.isNotEmpty(honorCourses)) {
-            Iterator<HonorCourseBK> iterator = honorCourses.iterator();
-            while (iterator.hasNext()) {
-                HonorCourseBK honorCourse = iterator.next();
-                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, honorCourse.getCourse().getCourseCode());
-                if (CollectionUtil.isEmpty(teachClasss)) {
-                    iterator.remove();
-                }
-            }
-        }
-        Set<PlanCourse> onlyCourses = c.getOnlyCourses();
-        if (CollectionUtil.isNotEmpty(onlyCourses)) {
-            Iterator<PlanCourse> iterator = onlyCourses.iterator();
-            while (iterator.hasNext()) {
-                PlanCourse planCours = iterator.next();
-                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
-                if (CollectionUtil.isEmpty(teachClasss)) {
-                    iterator.remove();
-                }
-            }
-        }
+//        Set<PlanCourse> planCourses = c.getPlanCourses();
+//        if (CollectionUtil.isNotEmpty(planCourses)) {
+//            Iterator<PlanCourse> iterator = planCourses.iterator();
+//            while (iterator.hasNext()) {
+//                PlanCourse planCours = iterator.next();
+//                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
+//                if (CollectionUtil.isEmpty(teachClasss)) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+//        Set<TsCourse> publicCourses = c.getPublicCourses();
+//        if (CollectionUtil.isNotEmpty(publicCourses)) {
+//            Iterator<TsCourse> iterator = publicCourses.iterator();
+//            while (iterator.hasNext()) {
+//                TsCourse tsCourse = iterator.next();
+//                ElecCourse course = tsCourse.getCourse();
+//                if (course != null) {
+//                    List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, course.getCourseCode());
+//                    if (CollectionUtil.isEmpty(teachClasss)) {
+//                        iterator.remove();
+//                    } else {
+//                        Set<String> set = new HashSet(5);
+//                        for (TeachingClassCache teachingClassCach : teachClasss) {
+//                            String campus = teachingClassCach.getCampus();
+//                            if (StringUtils.isNotBlank(campus)) {
+//                                campus = dictionaryService.query("X_XQ", campus);
+//                                if (StringUtils.isNotBlank(campus)) {
+//                                    set.add(campus);
+//                                }
+//                            }
+//                        }
+//                        course.setCampus(String.join(",", set));
+//                    }
+//                }
+//            }
+//        }
+//        Set<HonorCourseBK> honorCourses = c.getHonorCourses();
+//        if (CollectionUtil.isNotEmpty(honorCourses)) {
+//            Iterator<HonorCourseBK> iterator = honorCourses.iterator();
+//            while (iterator.hasNext()) {
+//                HonorCourseBK honorCourse = iterator.next();
+//                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, honorCourse.getCourse().getCourseCode());
+//                if (CollectionUtil.isEmpty(teachClasss)) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+//        Set<PlanCourse> onlyCourses = c.getOnlyCourses();
+//        if (CollectionUtil.isNotEmpty(onlyCourses)) {
+//            Iterator<PlanCourse> iterator = onlyCourses.iterator();
+//            while (iterator.hasNext()) {
+//                PlanCourse planCours = iterator.next();
+//                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
+//                if (CollectionUtil.isEmpty(teachClasss)) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
 
 
         //同步查询已选教学班信息，查看是否存在rides信息丢失，如果丢失，同步更新选课数据
