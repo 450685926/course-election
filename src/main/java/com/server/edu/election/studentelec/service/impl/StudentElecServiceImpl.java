@@ -331,10 +331,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
             return RestResult.successData(respose);
         }
-        respose = new ElecRespose();
-        respose.setIsPlan(isPlan);
-        respose.setIsLimit(isLimit);
-        return RestResult.successData(respose);
+        ElecRespose respose1 = new ElecRespose();
+        respose1.setIsPlan(isPlan);
+        respose1.setIsLimit(isLimit);
+        return RestResult.successData(respose1);
     }
     
     @Override
