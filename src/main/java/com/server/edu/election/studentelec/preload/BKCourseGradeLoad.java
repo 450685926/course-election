@@ -554,7 +554,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         ClassroomCacheUtil.getRoomName(r.getRoomId());
                     // 老师名称(老师编号)[周] 教室
                     sb.append(String
-                        .format("%s[%s] %s", teacherNames, weekStr, roomName))
+                        .format("%s %s %s", teacherNames, weekStr, roomName))
                         .append(" ");
                 }
                 Collections.sort(weeks);

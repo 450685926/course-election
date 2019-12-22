@@ -86,7 +86,6 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     {
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
-        List<PlanCourseDto> planCourseType = CultureSerivceInvoker.findBKPlanCourseCourse(stu.getStudentId());
 //        Map<String, String> map = new HashMap<>(60);
         StudentScoreDto dto = new StudentScoreDto();
         dto.setStudentId(context.getStudentInfo().getStudentId());
@@ -97,10 +96,10 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         }
         ElecRequest request = context.getRequest();
         Long roundId = request.getRoundId();
-        Long calendarId = request.getCalendarId();
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
+            Set<PlanCourse> onlyCourses = context.getOnlyCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
@@ -123,26 +122,31 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 //                        Example example = new Example(Course.class);
 //                        example.createCriteria().andEqualTo("code", courseCode);
 //                        Course course = courseDao.selectOneByExample(example);
-//                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
-                        ElecCourse course2 = new ElecCourse();
-                        course2.setCourseCode(courseCode);
-                        course2.setCourseName(pct.getName());
-                        course2.setNameEn(pct.getNameEn());
-                        course2.setCredits(pct.getCredits());
-                        String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
-                        course2.setCalendarName(calendarName);
-                        course2.setCompulsory(pct.getCompulsory());
-                        course2.setLabelId(labelId);
-                        course2.setLabelName(labelName);
-                        course2.setChosen(pct.getChosen());
-                        course2.setIsQhClass(pct.getIsQhClass());
-                        pl.setCourse(course2);
-                        pl.setSemester(pct.getSemester());
-                        pl.setWeekType(pct.getWeekType());
-                        pl.setSubCourseCode(pct.getSubCourseCode());
-                        pl.setLabel(labelId);
-                        pl.setLabelName(labelName);
-                        planCourses.add(pl);
+                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                        if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                            ElecCourse course2 = new ElecCourse();
+                            course2.setCourseCode(courseCode);
+                            course2.setCourseName(pct.getName());
+                            course2.setNameEn(pct.getNameEn());
+                            course2.setCredits(pct.getCredits());
+                            String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
+                            course2.setCalendarName(calendarName);
+                            course2.setCompulsory(pct.getCompulsory());
+                            course2.setLabelId(labelId);
+                            course2.setLabelName(labelName);
+                            course2.setChosen(pct.getChosen());
+                            course2.setIsQhClass(pct.getIsQhClass());
+                            pl.setCourse(course2);
+                            pl.setSemester(pct.getSemester());
+                            pl.setWeekType(pct.getWeekType());
+                            pl.setSubCourseCode(pct.getSubCourseCode());
+                            pl.setLabel(labelId);
+                            pl.setLabelName(labelName);
+                            if(Constants.FIRST.equals(pct.getChosen())) {
+                                onlyCourses.add(pl);
+                            }
+                            planCourses.add(pl);
+                        }
                     }
                 }
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
@@ -158,6 +162,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 }
             }
         }
+        List<PlanCourseDto> planCourseType = CultureSerivceInvoker.findBKPlanCourseCourse(stu.getStudentId());
         if(CollectionUtil.isNotEmpty(planCourseType)){
             log.info("plan course size:{}", planCourseType.size());
             Set<PlanCourse> onlyCourses = context.getOnlyCourses();//培养课程
@@ -183,26 +188,28 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 //                        Example example = new Example(Course.class);
 //                        example.createCriteria().andEqualTo("code", courseCode);
 //                        Course course = courseDao.selectOneByExample(example);
-//                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
-                        ElecCourse course2 = new ElecCourse();
-                        course2.setCourseCode(courseCode);
-                        course2.setCourseName(pct.getName());
-                        course2.setNameEn(pct.getNameEn());
-                        course2.setCredits(pct.getCredits());
-                        String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
-                        course2.setCalendarName(calendarName);
-                        course2.setCompulsory(pct.getCompulsory());
-                        course2.setLabelId(labelId);
-                        course2.setLabelName(labelName);
-                        course2.setChosen(pct.getChosen());
-                        course2.setIsQhClass(pct.getIsQhClass());
-                        pl.setCourse(course2);
-                        pl.setSemester(pct.getSemester());
-                        pl.setWeekType(pct.getWeekType());
-                        pl.setSubCourseCode(pct.getSubCourseCode());
-                        pl.setLabel(labelId);
-                        pl.setLabelName(labelName);
-                        onlyCourses.add(pl);
+                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                        if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                            ElecCourse course2 = new ElecCourse();
+                            course2.setCourseCode(courseCode);
+                            course2.setCourseName(pct.getName());
+                            course2.setNameEn(pct.getNameEn());
+                            course2.setCredits(pct.getCredits());
+                            String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
+                            course2.setCalendarName(calendarName);
+                            course2.setCompulsory(pct.getCompulsory());
+                            course2.setLabelId(labelId);
+                            course2.setLabelName(labelName);
+                            course2.setChosen(pct.getChosen());
+                            course2.setIsQhClass(pct.getIsQhClass());
+                            pl.setCourse(course2);
+                            pl.setSemester(pct.getSemester());
+                            pl.setWeekType(pct.getWeekType());
+                            pl.setSubCourseCode(pct.getSubCourseCode());
+                            pl.setLabel(labelId);
+                            pl.setLabelName(labelName);
+                            onlyCourses.add(pl);
+                        }
                     }
                 }
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
@@ -218,6 +225,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                 }
             }
         }
+
         ElectionRounds electionRounds = dataProvider.getRound(roundId);
         if(electionRounds==null) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.notExist",I18nUtil.getMsg("election.round")));
@@ -245,19 +253,20 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             } else {
                                 for (PublicCourse pc : publicCourseList) {
                                     String courseCode = pc.getCourseCode();
-                                    if (!selectedCourse.contains(courseCode)) {
-//                                        Set<String> set = new HashSet(5);
-//                                        Set<String> collect = teachingClassCaches.stream().map(TeachingClassCache::getCampus).collect(Collectors.toSet());
-//                                        for (String s : collect) {
-//                                            if (StringUtils.isNotBlank(s)) {
-//                                                String campus = dictionaryService.query("X_XQ", s);
-//                                                if (StringUtils.isNotBlank(campus)) {
-//                                                    set.add(campus);
-//                                                }
-//                                            }
-//                                        }
+                                    List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
+                                    if (!selectedCourse.contains(courseCode) && CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                                        Set<String> set = new HashSet(5);
+                                        Set<String> collect = teachingClassCaches.stream().map(TeachingClassCache::getCampus).collect(Collectors.toSet());
+                                        for (String s : collect) {
+                                            if (StringUtils.isNotBlank(s)) {
+                                                String campus = dictionaryService.query("X_XQ", s);
+                                                if (StringUtils.isNotBlank(campus)) {
+                                                    set.add(campus);
+                                                }
+                                            }
+                                        }
                                         ElecCourse elecCourse = new ElecCourse();
-//                                        elecCourse.setCampus(String.join(",", set));
+                                        elecCourse.setCampus(String.join(",", set));
                                         elecCourse.setCourseCode(courseCode);
 //                                            elecCourse.setCompulsory(map.get(courseCode));
                                         elecCourse.setCourseName(pc.getCourseName());
