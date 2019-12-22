@@ -86,6 +86,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     @Autowired
     private ElcCourseTakeDao takeDao;
 
+    @Autowired
+    private ElectionApplyDao electionApplyDao;
+
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
     {
@@ -603,6 +606,16 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 c.getSelectedCourses().add(course);
             }
         }
+        Set<ElectionApply> elecApplyCourses = c.getElecApplyCourses();
+        elecApplyCourses.clear();
+        Example aExample = new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentInfo.getStudentId()).andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys =
+                electionApplyDao.selectByExample(aExample);
+        elecApplyCourses.addAll(electionApplys);
+
+
     }
 
     /**

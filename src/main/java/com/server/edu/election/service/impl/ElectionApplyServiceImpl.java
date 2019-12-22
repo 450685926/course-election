@@ -296,7 +296,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         	ElectionApply newApply = new ElectionApply();
             Integer applyStatus = Constants.AGENTELC;
             if(ElectRuleType.WITHDRAW.equals(type)) {
-            	applyStatus = Constants.APPLY;
+            	applyStatus = Constants.APPLY_WITHDRAW;
             }
         	newApply.setApply(applyStatus);
             Example newExample = new Example(ElectionApply.class);
