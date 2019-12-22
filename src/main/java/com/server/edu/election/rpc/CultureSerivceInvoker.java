@@ -275,6 +275,17 @@ public class CultureSerivceInvoker
                         studentId);
         return list.getData();
     }
+
+    /**查询本科生选课培养计划课程*/
+    public static List<PlanCourseDto> findBKPlanCourseCourse(String studentId)
+    {
+        @SuppressWarnings("unchecked")
+        RestResult<List<PlanCourseDto>> list = ServicePathEnum.CULTURESERVICE
+                .getForObject("/bclStudentCultureRel/findBKPlanCourseCourse/{studentId}",
+                        RestResult.class,
+                        studentId);
+        return list.getData();
+    }
     
     /**查询研究生关联的第一外国语*/
     public static List<ElecFirstLanguageContrastVo> getStudentFirstForeignLanguage(List<FirstLanguageContrast> selectAll)
