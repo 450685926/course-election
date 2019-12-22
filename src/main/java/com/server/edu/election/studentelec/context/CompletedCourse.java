@@ -115,4 +115,10 @@ public class CompletedCourse extends TeachingClassCache {
         return false;
     }
 
+	@Override
+	public String toString() {
+		return "CompletedCourse [score=" + score + ", rank=" + rank + ", cheat=" + cheat + ", excellent=" + excellent
+				+ ", courseLabelId=" + courseLabelId + ", labelName=" + labelName + ", isPass=" + isPass + "]";
+	}
+    
 }
