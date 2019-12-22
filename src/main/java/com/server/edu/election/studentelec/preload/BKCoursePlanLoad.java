@@ -162,7 +162,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
             log.info("plan course size:{}", planCourseType.size());
             Set<PlanCourse> onlyCourses = context.getOnlyCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
-            for (PlanCourseDto planCourse : courseType) {
+            for (PlanCourseDto planCourse : planCourseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 CultureRuleDto rule = planCourse.getRule();
                 Long labelId = planCourse.getLabel();
