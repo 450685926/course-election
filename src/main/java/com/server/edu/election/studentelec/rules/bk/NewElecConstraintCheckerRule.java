@@ -73,7 +73,7 @@ public class NewElecConstraintCheckerRule extends AbstractElecRuleExceutorBk
 			{
 			    ElecRespose respose = context.getRespose();
 			    respose.getFailedReasons()
-			        .put(courseClass.getTeachClassCode(),
+			        .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
 			            I18nUtil
 			                .getMsg("ruleCheck.rebuildElecNumberLimit"));
 			    return false;
