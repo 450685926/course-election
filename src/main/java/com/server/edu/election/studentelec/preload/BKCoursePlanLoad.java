@@ -86,6 +86,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     {
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
+        List<PlanCourseDto> planCourseType = CultureSerivceInvoker.findBKPlanCourseCourse(stu.getStudentId());
 //        Map<String, String> map = new HashMap<>(60);
         StudentScoreDto dto = new StudentScoreDto();
         dto.setStudentId(context.getStudentInfo().getStudentId());
@@ -100,6 +101,65 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
+            Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
+            for (PlanCourseDto planCourse : courseType) {
+                List<PlanCourseTypeDto> list = planCourse.getList();
+                CultureRuleDto rule = planCourse.getRule();
+                Long labelId = planCourse.getLabel();
+                String labelName = planCourse.getLabelName();
+                if(CollectionUtil.isNotEmpty(list)){
+                    for (PlanCourseTypeDto pct : list) {//培养课程
+                        String courseCode = pct.getCourseCode();
+                        if(StringUtils.isBlank(courseCode) ||(CollectionUtil.isNotEmpty(selectedCourse) && selectedCourse.contains(courseCode)) ) {
+                            log.warn("courseCode is Blank skip this record: {}", JSON.toJSONString(pct));
+                            continue;
+                        }
+                        boolean isEnglishFlag = checkCultureEnglish(stu.getStudentId(), courseCode);
+                        if(!isEnglishFlag){
+                            log.warn("The course({}) is not a course that he can learn at his level", JSON.toJSONString(pct));
+                            continue;
+                        }
+                        PlanCourse pl=new PlanCourse();
+//                        Example example = new Example(Course.class);
+//                        example.createCriteria().andEqualTo("code", courseCode);
+//                        Course course = courseDao.selectOneByExample(example);
+//                        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+                        ElecCourse course2 = new ElecCourse();
+                        course2.setCourseCode(courseCode);
+                        course2.setCourseName(pct.getName());
+                        course2.setNameEn(pct.getNameEn());
+                        course2.setCredits(pct.getCredits());
+                        String calendarName = CourseCalendarNameUtil.getCalendarName(stu.getGrade(), pct.getSemester());
+                        course2.setCalendarName(calendarName);
+                        course2.setCompulsory(pct.getCompulsory());
+                        course2.setLabelId(labelId);
+                        course2.setLabelName(labelName);
+                        course2.setChosen(pct.getChosen());
+                        course2.setIsQhClass(pct.getIsQhClass());
+                        pl.setCourse(course2);
+                        pl.setSemester(pct.getSemester());
+                        pl.setWeekType(pct.getWeekType());
+                        pl.setSubCourseCode(pct.getSubCourseCode());
+                        pl.setLabel(labelId);
+                        pl.setLabelName(labelName);
+                        planCourses.add(pl);
+                    }
+                }
+                if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
+                    CourseGroup courseGroup=new CourseGroup();
+                    courseGroup.setLabel(labelId);
+                    courseGroup.setCrrdits(rule.getMinCredits());
+                    if("1".equals(rule.getLabelType())){
+                        courseGroup.setLimitType("1");
+                    }else{
+                        courseGroup.setLimitType("0");
+                    }
+                    courseGroups.add(courseGroup);
+                }
+            }
+        }
+        if(CollectionUtil.isNotEmpty(planCourseType)){
+            log.info("plan course size:{}", planCourseType.size());
             Set<PlanCourse> onlyCourses = context.getOnlyCourses();//培养课程
             Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
             for (PlanCourseDto planCourse : courseType) {
@@ -142,10 +202,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                         pl.setSubCourseCode(pct.getSubCourseCode());
                         pl.setLabel(labelId);
                         pl.setLabelName(labelName);
-                        if(Constants.FIRST.equals(pct.getChosen())) {
-                            onlyCourses.add(pl);
-                        }
-                        planCourses.add(pl);
+                        onlyCourses.add(pl);
                     }
                 }
                 if("1".equals(rule.getLimitType())&&rule.getExpression().intValue()==2){
