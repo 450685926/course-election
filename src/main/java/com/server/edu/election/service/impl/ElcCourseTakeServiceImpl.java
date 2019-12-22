@@ -28,6 +28,7 @@ import com.server.edu.election.rpc.CultureSerivceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
 import com.server.edu.election.service.ElecResultSwitchService;
+import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
@@ -121,6 +122,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Autowired
     private TeachClassCacheService teachClassCacheService;
+
+    @Autowired
+    private ElectionApplyService electionApplyService;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -716,6 +720,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 .andEqualTo("studentId", studentId)
                 .andEqualTo("teachingClassId", teachingClassId);
             ElcCourseTake elcCourseTake = courseTakeDao.selectOneByExample(example);
+
+            //更新选课申请数据
+            electionApplyService
+                    .update(studentId, calendarId, elcCourseTake.getCourseCode(),ElectRuleType.WITHDRAW);
             Example example1 = new Example(Course.class);
             example1.createCriteria().andEqualTo("code",elcCourseTake.getCourseCode());
             Course course = courseDao.selectOneByExample(example1);
