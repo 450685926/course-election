@@ -191,7 +191,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 {
                     // 校验不通过时跳过后面的校验进行下一个
                     allSuccess = false;
-                    String key = teachClass.getCourseCodeAndClassCode();
+                    String key = teachClass.getTeachClassCode() + teachClass.getCourseName();
                     if (!failedReasons.containsKey(key))
                     {
                         failedReasons.put(key, exceutor.getDescription());
@@ -281,7 +281,7 @@ public class ElecBkServiceImpl implements ElecBkService
                     // 校验不通过时跳过后面的校验进行下一个
                     allSuccess = false;
                     String key =
-                        teachClass.getCourse().getCourseCodeAndClassCode();
+                            teachClass.getCourse().getTeachClassCode() + teachClass.getCourse().getCourseName();
                     if (!failedReasons.containsKey(key))
                     {
                         failedReasons.put(key, exceutor.getDescription());
