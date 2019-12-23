@@ -386,11 +386,11 @@ public class StudentElecServiceImpl extends AbstractCacheService
 //                        }
 //                    }
 //                }
+                stu.setProfession(major);
             	Session session = SessionUtils.getCurrentSession();
                 if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
                     List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
                     if (stu.getFaculty() != null && deptIds.contains(stu.getFaculty())) {
-                        stu.setProfession(major);
                         return stu;
                     } else {
                         return null;
