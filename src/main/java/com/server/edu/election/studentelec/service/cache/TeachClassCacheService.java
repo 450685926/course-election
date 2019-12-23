@@ -239,7 +239,7 @@ public class TeachClassCacheService extends AbstractCacheService
                 .collect(Collectors.toList());
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
-                gradeLoad.groupByTime(classIds);
+                gradeLoad.groupYjsByTime(classIds);
 
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, ElecCourse> publicCourseMap = new HashMap<>();
@@ -248,10 +248,6 @@ public class TeachClassCacheService extends AbstractCacheService
         {
             Long teachingClassId = lesson.getTeachingClassId();
             TeachingClassCache tc = new TeachingClassCache();
-            List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachingClassId);
-            if (CollectionUtil.isNotEmpty(names)) {
-                tc.setTeacherName(String.join(",", names));
-            }
             tc.setFaculty(lesson.getFaculty());
             tc.setNature(lesson.getNature());
             tc.setCourseCode(lesson.getCourseCode());
@@ -279,7 +275,10 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setTerm(lesson.getTerm());
             tc.setCalendarName(year);
             tc.setReserveNumber(lesson.getReserveNumber());
-
+            List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachingClassId);
+            if (CollectionUtil.isNotEmpty(names)) {
+                tc.setTeacherName(String.join(",", names));
+            }
             numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);
             // 公共选修课
