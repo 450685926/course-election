@@ -608,7 +608,7 @@ public class ElecBkServiceImpl implements ElecBkService
             remindTimeBean.setStudentId(studentId);
             remindTimeBean.setStudentName(studentName);
             String email = studentDao.findStuEmail(studentId);
-            remindTimeBean.setStudentEmail("qq577854218@sina.cn");
+            remindTimeBean.setStudentEmail(email);
             remindTimeBean.setCourseNameAndCode(courseNameAndCode);
             List<RemindTimeBean> alllist = new ArrayList<>();
             alllist.add(remindTimeBean);
