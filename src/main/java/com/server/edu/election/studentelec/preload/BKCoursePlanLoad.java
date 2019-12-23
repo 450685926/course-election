@@ -10,6 +10,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcStuCouLevelDao;
 import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.entity.ElectionRounds;
@@ -59,6 +60,9 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
 
     @Autowired
     private ElcStuCouLevelDao couLevelDao;
+
+    @Autowired
+    private CourseDao courseDao;
 
     @Autowired
     private RoundDataProvider dataProvider;
@@ -316,7 +320,7 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                              String courseCode)
     {
         List<String> allCourseCodeList =
-                CultureSerivceInvoker.getAllCoursesLevelCourse();
+                courseDao.getAllCoursesLevelCourse();
         if (CollectionUtil.isEmpty(allCourseCodeList) || (CollectionUtil.isNotEmpty(allCourseCodeList) && !allCourseCodeList.contains(courseCode))){
             return true;
         }
