@@ -617,6 +617,38 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         
         return null;
     }
+
+    public List<ClassTimeUnit> concatYjsTime(
+            Map<Long, List<ClassTimeUnit>> collect, TeachingClassCache c)
+    {
+        //一个教学班的排课时间信息
+        Long teachClassId = c.getTeachClassId();
+        List<ClassTimeUnit> times = collect.get(teachClassId);
+        String teacherName = null;
+        if (CollectionUtil.isNotEmpty(times))
+        {
+            for (ClassTimeUnit ctu : times)
+            {
+                ctu.setValue(String.format("%s(%s) %s",
+                        c.getCourseName(),
+                        c.getTeachClassCode(),
+                        ctu.getValue()));
+            }
+
+            teacherName = this.getTeacherName(times);
+
+            c.setTeacherName(teacherName);
+
+            return times;
+        }else{
+            List<String> findNamesByTeachingClassId = teacherDao.findNamesByTeachingClassId(teachClassId);
+            Set<String> names = new HashSet<>(findNamesByTeachingClassId);
+            teacherName = StringUtils.join(names, ",");
+            c.setTeacherName(teacherName);
+        }
+
+        return null;
+    }
     
     private String getTeacherName(List<ClassTimeUnit> times)
     {

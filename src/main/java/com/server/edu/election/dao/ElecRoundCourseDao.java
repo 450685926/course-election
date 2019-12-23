@@ -106,6 +106,9 @@ public interface ElecRoundCourseDao  extends Mapper<ElectionRoundsCour>,MySqlMap
      */
     List<CourseOpenDto> selectTeachingClassByCalendarId(
         @Param("calendarId") Long calendarId);
+
+	List<CourseOpenDto> selectYjsTeachingClassByCalendarId(
+			@Param("calendarId") Long calendarId);
     
     /**
      * 查询学期的所有教学班（研究生）

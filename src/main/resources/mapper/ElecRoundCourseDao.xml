@@ -372,7 +372,9 @@
 	  where
 		 op.CALENDAR_ID_ = #{calendarId}
 		 and op.PROJ_ID_ =1
-	  union
+  </select>
+
+	<select id="selectYjsTeachingClassByCalendarId" resultMap="CourseOpenDtoMap">
 	 SELECT
 		distinct op1.*, cl1.ID_ AS teachingClassId,
 		cl1.CODE_ AS teachingClassCode,
@@ -397,6 +399,7 @@
 	ORDER BY
 		teachingClassCode
   </select>
+
   <!-- 研究生查询教学班信息 -->
   <select id="selectTeachingClassGraduteByCalendarId" resultMap="CourseOpenDtoMap">
   	  select 
