@@ -329,12 +329,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     break;
                  }
             }
-            return RestResult.successData(respose);
         }
-        ElecRespose respose1 = new ElecRespose();
-        respose1.setIsPlan(isPlan);
-        respose1.setIsLimit(isLimit);
-        return RestResult.successData(respose1);
+        return RestResult.successData(respose);
     }
     
     @Override
