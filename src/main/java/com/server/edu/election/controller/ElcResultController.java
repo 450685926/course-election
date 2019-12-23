@@ -232,9 +232,11 @@ public class ElcResultController
     public RestResult<?> autoRemove(@RequestBody AutoRemoveDto dto)
         throws Exception
     {
-        elcResultService.autoRemove(dto);
-        return RestResult.success();
+    	AsyncResult asyncResult =elcResultService.asyncAutoRemove(dto);
+        return RestResult.successData(asyncResult);
     }
+    
+    
     
     @ApiOperation(value = "批量自动剔除超过人数")
     @PostMapping("/autoBatchRemove")

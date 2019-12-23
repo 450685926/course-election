@@ -934,6 +934,198 @@ public class ElcResultServiceImpl implements ElcResultService
         }
     }
     
+    
+    @Override
+    public AsyncResult asyncAutoRemove(AutoRemoveDto dto)
+    {
+    	Long teachingClassId = dto.getTeachingClassId();
+    	AsyncResult resul = AsyncProcessUtil.submitTask("asyncAutoRemove", new AsyncExecuter() {
+            @Override
+            public void execute() {
+            	TeachingClass teachingClass = classDao.selectOversize(teachingClassId);
+                if (null != teachingClass)
+                {
+                    ElcCourseTake param = new ElcCourseTake();
+                    param.setTeachingClassId(teachingClassId);
+                    List<ElcCourseTake> takes = courseTakeDao.select(param);
+                    List<ElcCourseTake> secondTakes = takes.stream().filter(c->Constants.SECOND.equals(c.getTurn())).collect(Collectors.toList());
+                    if(CollectionUtil.isNotEmpty(secondTakes)) {
+                    	takes = secondTakes;
+                    }
+                    String course = takes.get(0).getCourseCode();
+//                	if(Boolean.TRUE.equals(dto.getSuggestSwitchCourse())) {
+//                		List<ElcCourseSuggestSwitch> suggestSwitchs = elcCourseSuggestSwitchDao.selectAll();
+//                		if(CollectionUtil.isNotEmpty(suggestSwitchs)) {
+//                			List<String> suggestCoures = suggestSwitchs.stream().map(ElcCourseSuggestSwitch::getCourseCode).collect(Collectors.toList());
+//                			if(!suggestCoures.contains(course)) {
+//                				return;
+//                			}
+//                		}
+//                	}
+                    // 特殊学生
+                    List<String> invincibleStdIds =
+                        invincibleStdsDao.selectAllStudentId();
+                    // 优先学生
+                    List<ElcAffinityCoursesStdsVo> affinityCoursesStds =
+                        affinityCoursesStdsDao.getStudentByCourseId(course);
+                    Set<String> affinityCoursesStdSet = affinityCoursesStds.stream()
+                        .map(aff -> aff.getCourseCode() + "-" + aff.getStudentId())
+                        .collect(toSet());
+                    //普通学生集合
+                    List<Student> normalStus = new ArrayList<>();
+                    //特殊学生集合
+                    List<Student> invincibleStus = new ArrayList<>();
+                    //优先学生集合
+                    List<Student> affinityStus = new ArrayList<>();
+                    //把学生分类(普通学生、特殊学生、优先学生)
+                    for (ElcCourseTake take : takes)
+                    {
+                        String courseCode = take.getCourseCode();
+                        String studentId = take.getStudentId();
+                        Student stu = studentDao.findStudentByCode(studentId);
+                        if (invincibleStdIds.contains(studentId))
+                        {
+                            invincibleStus.add(stu);
+                        }
+                        else if (dto.getAffinityStu() && affinityCoursesStdSet
+                            .contains(courseCode + "-" + studentId))
+                        {
+                            affinityStus.add(stu);
+                        }
+                        else
+                        {
+                            normalStus.add(stu);
+                        }
+                    }
+                    
+                    if (dto.getInvincibleStu())
+                    {
+                        invincibleStus.clear();
+                    }
+                    //班级配对 查找绑定班级
+                    Example example = new Example(ElcTeachingClassBind.class);
+                    example.createCriteria().andEqualTo("teachingClassId", teachingClass.getId());
+                    ElcTeachingClassBind elcTeachingClassBind = elcTeachingClassBindDao.selectOneByExample(example);
+                    Example bindExample = new Example(ElcTeachingClassBind.class);
+                    bindExample.createCriteria().andEqualTo("bindClassId", teachingClass.getId());
+                    ElcTeachingClassBind bindElcTeachingClassBind = elcTeachingClassBindDao.selectOneByExample(bindExample);
+                    List<ElcCourseTake> bindTakes = new ArrayList<ElcCourseTake>();
+                    List<String> bindStudentIds = new ArrayList<>();
+                    List<Student> bindStudents = new ArrayList<>();
+                    Long bindTeachingClassId = null;
+                    if(elcTeachingClassBind !=null) {
+                    	 bindTeachingClassId =elcTeachingClassBind.getBindClassId();
+                    	 ElcCourseTake bindParam = new ElcCourseTake();
+                    	 bindParam.setTeachingClassId(elcTeachingClassBind.getBindClassId());
+                         bindTakes = courseTakeDao.select(bindParam);
+                         if(CollectionUtil.isNotEmpty(bindTakes)) {
+                        	 bindStudentIds = bindTakes.stream().map(ElcCourseTake ::getStudentId).collect(Collectors.toList());
+                        	 bindStudents = studentDao.findStudentByIds(bindStudentIds);
+                         }
+                    }
+                    if(bindElcTeachingClassBind !=null) {
+                    	 bindTeachingClassId = bindElcTeachingClassBind.getTeachingClassId();
+                   	     ElcCourseTake bindParam = new ElcCourseTake();
+                   	     bindParam.setTeachingClassId(bindElcTeachingClassBind.getTeachingClassId());
+                         bindTakes = courseTakeDao.select(bindParam);
+                         if(CollectionUtil.isNotEmpty(bindTakes)) {
+                        	 bindStudentIds = bindTakes.stream().map(ElcCourseTake ::getStudentId).collect(Collectors.toList());
+                        	 bindStudents = studentDao.findStudentByIds(bindStudentIds);
+                         }
+                    }
+                    Integer limitnumber  = teachingClass.getNumber() - teachingClass.getReserveNumber();
+                    List<String> removeStus = new ArrayList<>();
+                    List<String> bindremoveStus = new ArrayList<>();
+                    if (invincibleStus.size() + affinityStus.size()
+                        + normalStus.size() > limitnumber)
+                    {
+                        GradAndPreFilter gradAndPreFilter =
+                            new GradAndPreFilter(dto, classDao);
+                        gradAndPreFilter.init();
+                        ClassElcConditionFilter elcConditionFilter =
+                            new ClassElcConditionFilter(dto,
+                                classElectiveRestrictAttrDao);
+                        elcConditionFilter.init();
+                        //1.删除普通学生
+                        // 这里做三次的原因是因为有三种学生类型
+                        for (int i = 0; i < 3; i++)
+                        {
+                            List<Student> stuList = normalStus.size() > 0 ? normalStus
+                                : (affinityStus.size() > 0 ? affinityStus
+                                    : invincibleStus);
+                            
+                            if (CollectionUtil.isEmpty(stuList))
+                            {
+                                continue;
+                            }
+                            int overSize = (invincibleStus.size()
+                                    + affinityStus.size() + normalStus.size())
+                                    - limitnumber;
+                            if(i!=0 && overSize<=0) {
+                            	break;
+                            }
+                            gradAndPreFilter.execute(stuList, removeStus);
+                            //执行班级匹配
+                            if(bindTeachingClassId !=null) {
+                            	List<Student> compareList = new ArrayList<Student>(stuList);
+                            	List<Student> removeList = new ArrayList<Student>(stuList);
+                            	compareList.retainAll(bindStudents);
+                            	removeList.removeAll(compareList);
+                            	List<String> reList = new ArrayList<String>();
+                            	if(CollectionUtil.isNotEmpty(removeList)) {
+                            		reList = removeList.stream().map(Student :: getStudentCode).collect(Collectors.toList());
+                            	}
+                            	removeStus.addAll(reList);
+                            	bindremoveStus.addAll(reList);
+                            	stuList.clear();
+                            	stuList.addAll(compareList);
+                            }
+                            //执行完后人数还是超过上限则进行随机删除
+                            if(overSize > 0) {
+                            	elcConditionFilter.execute(stuList, removeStus);
+                            }
+                            if (CollectionUtil.isNotEmpty(stuList))
+                            {
+                                //执行完后人数还是超过上限则进行随机删除
+                                overSize = (invincibleStus.size()
+                                    + affinityStus.size() + normalStus.size())
+                                    - limitnumber;
+                                if (overSize > 0)
+                                {
+                                    // 1.普通人数小于超出人数则说明优先人数的人也超了这时需要清空普通人数
+                                    // 2.普通人数大于超出人数则说明只有普通人数超了，普通人数需要等于超出人数
+                                    int limitNumber = overSize;
+                                    if (stuList.size() < overSize)
+                                    {
+                                        limitNumber = 0;
+                                    }
+                                    GradAndPreFilter
+                                        .randomRemove(removeStus, limitNumber, stuList);
+                                }else {
+                                	break;
+                                }
+                            }
+                        }
+                        //移除本班级不符合规则学生
+                        removeAndRecordLog(dto,
+                            teachingClassId,
+                            teachingClass,
+                            removeStus,dto.getLabel());
+                        //移除绑定班级不符合学生
+                        if(bindTeachingClassId !=null) {
+                        	TeachingClass bindClass = classDao.selectOversize(teachingClassId);
+                            removeAndRecordLog(dto,
+                            		bindTeachingClassId,
+                            		bindClass,
+                            		bindremoveStus,dto.getLabel());
+                        }
+                    }
+                }
+            }
+        });
+		return resul;
+    }
+    
     public void removeAndRecordLog(AutoRemoveDto dto, Long teachingClassId,
         TeachingClass teachingClass, List<String> removeStus,String label)
     {
