@@ -367,6 +367,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public Student findStuRound(Long roundId, String studentId)
     {
         Student stu = stuDao.findStudentByCode(studentId);
+        String major = stuDao.getStudentMajor(stu.getGrade(),stu.getProfession());
         if (stu != null) {
             ElcRoundCondition roundCondition = dataProvider.getRoundCondition(roundId);
             if (compare(roundCondition.getCampus(), stu.getCampus())
@@ -389,6 +390,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
                     List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
                     if (stu.getFaculty() != null && deptIds.contains(stu.getFaculty())) {
+                        stu.setProfession(major);
                         return stu;
                     } else {
                         return null;
@@ -613,11 +615,12 @@ public class StudentElecServiceImpl extends AbstractCacheService
         //去除培养计划中的重复课程
         Set<PlanCourse> planCourses = c.getPlanCourses();
         ArrayList<PlanCourse> newPlanCourse = planCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
-        planCourses = new HashSet<>(newPlanCourse);
+        planCourses.clear();
+        planCourses.addAll(newPlanCourse);
         Set<PlanCourse> onlyCourses = c.getOnlyCourses();
         ArrayList<PlanCourse> newOnlyCourses = onlyCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
-        onlyCourses = new HashSet<>(newOnlyCourses);
-
+        onlyCourses.clear();
+        onlyCourses.addAll(newOnlyCourses);
     }
 
     /**

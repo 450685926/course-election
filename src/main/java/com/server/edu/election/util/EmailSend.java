@@ -61,8 +61,8 @@ public class EmailSend {
 			List<EmailEntity> emailEntityList = new ArrayList<>();
 			emailEntityList.add(emailEntity);
 			// String result = emailSend.restTemplate.postForObject(emailSendUrl, emailEntityList, String.class);
-			String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
-			LOG.info("sendStatisticsEmail() result:" + result);
+//			String result = ServicePathEnum.COMMONSERVICE.postForObject("/mail/", emailEntityList, String.class);
+//			LOG.info("sendStatisticsEmail() result:" + result);
 		} catch (RestClientException e) {
 			e.printStackTrace();
 			LOG.info("sendStatisticsEmail() error mess: {}", e);
