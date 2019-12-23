@@ -1471,9 +1471,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         int pageNum = allCourseVo.getPageNum_() == 0 ? 1 : allCourseVo.getPageNum_();
         int pageSize = allCourseVo.getPageSize_() == 0 ? 20 : allCourseVo.getPageSize_();
         List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo.getCondition());
-        List<TeachingClassCache> lessons =
-            new ArrayList<TeachingClassCache>(list.size());
-        
+        List<TeachingClassCache> lessons;
         //从缓存中拿到本轮次排课信息
         //List<Long> teachClassIds = list.stream().map(ElcCourseResult::getTeachClassId).collect(Collectors.toList());
         List<String> teachClassIds = new ArrayList<String>(list.size());
@@ -1486,12 +1484,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             opsTeachClass();
         lessons = hash.multiGet(Keys.getClassKey(), teachClassIds);
         // 过滤null
-        lessons = lessons.stream()
-            .filter(Objects::nonNull)
-            .skip((pageNum-1)*pageSize)
-            .limit(pageSize)
-            .collect(Collectors.toList());
-        PageResult<TeachingClassCache> result = new PageResult(pageNum,pageSize,lessons.size(),lessons);
+        lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        //手动分页
+        List<TeachingClassCache> resultData =
+                lessons.stream()
+                        .skip((pageNum-1)*pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+        PageResult<TeachingClassCache> result = new PageResult<>(pageNum, pageSize, lessons.size(), resultData);
         return result;
     }
     
