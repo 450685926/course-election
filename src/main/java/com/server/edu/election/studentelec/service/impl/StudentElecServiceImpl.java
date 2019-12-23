@@ -613,14 +613,14 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
         //去除培养计划中的重复课程
-        Set<PlanCourse> planCourses = c.getPlanCourses();
-        ArrayList<PlanCourse> newPlanCourse = planCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
-        planCourses.clear();
-        planCourses.addAll(newPlanCourse);
-        Set<PlanCourse> onlyCourses = c.getOnlyCourses();
-        ArrayList<PlanCourse> newOnlyCourses = onlyCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
-        onlyCourses.clear();
-        onlyCourses.addAll(newOnlyCourses);
+//        Set<PlanCourse> planCourses = c.getPlanCourses();
+//        ArrayList<PlanCourse> newPlanCourse = planCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
+//        planCourses.clear();
+//        planCourses.addAll(newPlanCourse);
+//        Set<PlanCourse> onlyCourses = c.getOnlyCourses();
+//        ArrayList<PlanCourse> newOnlyCourses = onlyCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
+//        onlyCourses.clear();
+//        onlyCourses.addAll(newOnlyCourses);
     }
 
     /**
