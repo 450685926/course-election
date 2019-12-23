@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,12 +57,12 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
     {
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = new ArrayList<PlanCourseDto>();
+        log.info("**********it is start to get courseType:{}",context.getStudentInfo().getManagerDeptId());
         if (StringUtils.equalsIgnoreCase(context.getStudentInfo().getManagerDeptId(), "4")) {
         	courseType = CultureSerivceInvoker.findCourseTypeForGraduteExemption(stu.getStudentId());
 		}else{
 			courseType = CultureSerivceInvoker.findCourseTypeForGradute(stu.getStudentId());
 		}
-        
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
@@ -69,6 +70,7 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 if(CollectionUtil.isNotEmpty(list)){
                     for (PlanCourseTypeDto planCourseTypeDto : list) {//培养课程
+                        log.info("-----lsg----it is to get planCours:{}", JSONObject.toJSONString(planCourseTypeDto));
                         PlanCourse pl=new PlanCourse();
                         Example example = new Example(Course.class);
                         example.createCriteria().andEqualTo("code",planCourseTypeDto.getCourseCode());
@@ -96,6 +98,7 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
                         pl.setCalendarName(calendarName);
                         pl.setLabel(label);
                         pl.setLabelName(labelName);
+                        log.info("----- xwmr ------it is Compulsory:{}",planCourseTypeDto.getCompulsory());
                         pl.setCompulsory(planCourseTypeDto.getCompulsory());
                         planCourses.add(pl);
                     }

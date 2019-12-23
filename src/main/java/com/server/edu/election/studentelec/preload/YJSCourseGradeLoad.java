@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.vo.ScoreStudentResultVo;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.Course;
@@ -132,6 +133,14 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     lesson.setCourseName(co.getName());
                     lesson.setNature(co.getNature());
                     lesson.setFaculty(co.getCollege());
+                    // 上课时间“春秋季”特殊处理
+                    if ("3".equals(co.getTerm())) {
+                    	lesson.setTerm("1");
+        			}else if("4".equals(co.getTerm())){
+        				lesson.setTerm("2");
+        			}else {
+        				lesson.setTerm(co.getTerm());
+        			}
                 }
                 lesson.setStudentId(studentScore.getStudentId());
                 lesson.setCredits(studentScore.getCredit());
@@ -156,8 +165,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                         lesson.setRemark(teachingClass.getRemark());
                     }
                     SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                    // 上课时间“春秋季”特殊处理
-                    lesson.setTerm(schoolCalendar.getTerm().toString());
                     // 根据校历id设置学年
                     if (schoolCalendar != null) {
                         lesson.setCalendarName(schoolCalendar.getYear()+"");
@@ -174,14 +181,14 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 }
                 course.add(lesson);
             }
-            
+
             for (CompletedCourse completedCourse : completedCourses) {
             	logger.info("----------$$$$$$$-----------" + completedCourse.toString());
 			}
             logger.info("-----------completedCourses------------:" + completedCourses.size());
             logger.info("-------------failedCourse--------------:" + failedCourse.size());
             logger.info("----------------course1-----------------:" + course.size());
-            
+
             // 获取当前学年学期的课程(正在修读没有成绩的课程)
     		List<PlanCourseDto> plan = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
             for (PlanCourseDto planCourseDto : plan) {
@@ -199,7 +206,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     planCourseTypeDto.setLabelName(labelName);
     			}
     		}
-            
+
             //Integer index =TableIndexUtil.getIndex(context.getCalendarId()-1);
             List<TeachingClassCache> currentCalendarCourses = elcCourseTakeDao.findCurrentCalendarCourses(studentId, context.getCalendarId());
             logger.info("--------studentId---------: " + studentId);
@@ -213,11 +220,14 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCredits(teachingClassCache.getCredits());
             	lesson.setFaculty(teachingClassCache.getFaculty());
-
-            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
             	// 上课时间“春秋季”特殊处理
-				lesson.setTerm(schoolCalendar.getTerm().toString());
-				
+            	if ("3".equals(teachingClassCache.getTerm())) {
+                	lesson.setTerm("1");
+    			}else if("4".equals(teachingClassCache.getTerm())){
+    				lesson.setTerm("2");
+    			}else {
+    				lesson.setTerm(teachingClassCache.getTerm());
+    			}
             	lesson.setRemark(teachingClassCache.getRemark());
             	lesson.setTeacherName(teachingClassCache.getTeacherName());
             	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
@@ -225,6 +235,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCalendarId(teachingClassCache.getCalendarId());
             	lesson.setStudentId(studentId);
+            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
                 // 根据校历id设置学年
                 if (schoolCalendar != null) {
                     lesson.setCalendarName(schoolCalendar.getYear()+"");
@@ -354,6 +365,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
     public void loadSelectedCourses(String studentId,
         Set<SelectedCourse> selectedCourses, Long calendarId)
     {
+        logger.info("it is start to loadSelectedCourses.................");
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findSelectedCourses(studentId, calendarId);
         if (CollectionUtil.isNotEmpty(courseTakes))
@@ -367,6 +379,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (ElcCourseTakeVo c : courseTakes)
             {
+                logger.info("==========the elcCourseTakeVo is:{}", JSONObject.toJSONString(c));
                 SelectedCourse course = new SelectedCourse();
                 course.setTerm(c.getTerm());
                 course.setCalendarName(year);
@@ -380,6 +393,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 course.setCourseTakeType(c.getCourseTakeType());
                 course.setCredits(c.getCredits());
                 course.setCalendarId(c.getCalendarId());
+                logger.info("------------the assessmentMode is:{}",c.getAssessmentMode());
                 course.setAssessmentMode(c.getAssessmentMode());//考试/查
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);

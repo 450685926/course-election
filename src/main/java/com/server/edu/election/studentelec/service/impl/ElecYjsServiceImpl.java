@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSONObject;
 import com.server.edu.election.dao.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
@@ -1124,9 +1125,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		List<SelectedCourse> selectedCourses = new ArrayList<>();
         for (SelectedCourse selected : selectedCourseSet)
         {
+            LOG.info("*************************it is selected:{}", JSONObject.toJSONString(selected));
         	SelectedCourse elcCourseResult = new SelectedCourse();
             for (PlanCourse planCourse : planCourses) {
 				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), selected.getCourseCode())) {
+                    LOG.info("----------------------it is planCourse is", JSONObject.toJSONString(planCourse));
 					 elcCourseResult.setLabel(planCourse.getLabel()+"");
 					 elcCourseResult.setLabelName(planCourse.getLabelName());
 					 elcCourseResult.setCompulsory(planCourse.getCompulsory());
