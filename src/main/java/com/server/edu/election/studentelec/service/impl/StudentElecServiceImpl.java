@@ -613,10 +613,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
         //去除培养计划中的重复课程
         Set<PlanCourse> planCourses = c.getPlanCourses();
         ArrayList<PlanCourse> newPlanCourse = planCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
-        planCourses = new TreeSet<>(newPlanCourse);
+        planCourses = new HashSet<>(newPlanCourse);
         Set<PlanCourse> onlyCourses = c.getOnlyCourses();
         ArrayList<PlanCourse> newOnlyCourses = onlyCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
-        onlyCourses = new TreeSet<>(newOnlyCourses);
+        onlyCourses = new HashSet<>(newOnlyCourses);
 
     }
 
