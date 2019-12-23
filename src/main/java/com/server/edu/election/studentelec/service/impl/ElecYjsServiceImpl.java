@@ -588,7 +588,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
         
     	List<ElcCourseResult> setOptionalCourses = new ArrayList<>();
-        List<Long> ids = new ArrayList<>(100);
         //从缓存中拿到本轮次排课信息
         HashOperations<String, String, String> ops = strTemplate.opsForHash();
 //        HashOperations<String, String, List<String>> ops2 = strTemplate.opsForHash();
@@ -651,7 +650,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				               elcCourseResult.setCourseName(completedCourse.getCourseName());
 				               elcCourseResult.setCredits(completedCourse.getCredits());
 			                   Long teachClassId = teachClass.getTeachClassId();
-                               ids.add(teachClassId);
 
                                Integer elecNumber =
 			                       dataProvider.getElecNumber(teachClassId);
@@ -706,7 +704,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setCredits(teachClass.getCredits());
 											
 							Long teachClassId = teachClass.getTeachClassId();
-                            ids.add(teachClassId);
 
                             Integer elecNumber =
 							    dataProvider.getElecNumber(teachClassId);
@@ -757,7 +754,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			               elcCourseResult.setCourseName(completedCourse.getCourseName());
 			               elcCourseResult.setCredits(completedCourse.getCredits());
 		                   Long teachClassId = teachClass.getTeachClassId();
-		                   ids.add(teachClassId);
 
 		                   Integer elecNumber =
 		                       dataProvider.getElecNumber(teachClassId);
@@ -785,19 +781,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
-        if (CollectionUtil.isNotEmpty(ids)) {
-            List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(ids);
-            Map<Long, List<TeachingClassCache>> map = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
-            for (ElcCourseResult sortOptionalCours : sortOptionalCourses) {
-                Long teachClassId = sortOptionalCours.getTeachClassId();
-                List<TeachingClassCache> teachingClassCaches = map.get(teachClassId);
-                if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
-                    Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
-                    sortOptionalCours.setTeacherName(String.join(",", set));
-                }
-            }
-        }
-
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
         LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses().size());

@@ -576,6 +576,98 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         
         return map;
     }
+
+    public Map<Long, List<ClassTimeUnit>> groupYjsByTime(List<Long> teachClassIds)
+    {
+        Map<Long, List<ClassTimeUnit>> map = new HashMap<>();
+        List<TeacherClassTimeRoom> list = new ArrayList<>();
+        //按周数拆分的选课数据集合
+        if(CollectionUtil.isNotEmpty(teachClassIds)) {
+            list = classDao.getClassTimes(teachClassIds);
+        }
+        if (CollectionUtil.isEmpty(list))
+        {
+            return map;
+        }
+        //一个教学班分组
+        Map<Long, List<TeacherClassTimeRoom>> classTimeMap = list.stream()
+                .collect(
+                        Collectors.groupingBy(TeacherClassTimeRoom::getTeachClassId));
+
+        for (Entry<Long, List<TeacherClassTimeRoom>> entry : classTimeMap
+                .entrySet())
+        {
+            List<TeacherClassTimeRoom> ls = entry.getValue();
+            if (CollectionUtil.isEmpty(ls))
+            {
+                continue;
+            }
+            List<ClassTimeUnit> times = new ArrayList<>();
+            // time->room
+            Map<Long, List<TeacherClassTimeRoom>> timeRoomMap = ls.stream()
+                    .collect(Collectors
+                            .groupingBy(TeacherClassTimeRoom::getArrangeTimeId));
+            for (Entry<Long, List<TeacherClassTimeRoom>> entry2 : timeRoomMap
+                    .entrySet())
+            {
+                List<TeacherClassTimeRoom> rooms = entry2.getValue();
+                if (CollectionUtil.isEmpty(rooms))
+                {
+                    continue;
+                }
+                ClassTimeUnit un = new ClassTimeUnit();
+                TeacherClassTimeRoom room = rooms.get(0);
+                un.setArrangeTimeId(room.getArrangeTimeId());
+                un.setDayOfWeek(room.getDayOfWeek());
+                un.setTeachClassId(room.getTeachClassId());
+                un.setTimeEnd(room.getTimeEnd());
+                un.setTimeStart(room.getTimeStart());
+                un.setTeacherCode(room.getTeacherCode());
+                un.setRoomId(room.getRoomId());
+                // 所有周
+                List<Integer> weeks = rooms.stream()
+                        .map(TeacherClassTimeRoom::getWeekNumber)
+                        .collect(Collectors.toList());
+                // 相同教室相同老师的周次
+                Map<String, List<TeacherClassTimeRoom>> roomTeacherMap =
+                        rooms.stream().collect(Collectors.groupingBy(r -> {
+                            return r.getRoomId();
+                        }));
+
+                StringBuilder sb = new StringBuilder();
+                for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
+                        .entrySet())
+                {
+                    List<TeacherClassTimeRoom> roomTeachers = e.getValue();
+                    TeacherClassTimeRoom r = roomTeachers.get(0);
+                    List<Integer> roomWeeks = roomTeachers.stream()
+                            .map(TeacherClassTimeRoom::getWeekNumber)
+                            .collect(Collectors.toList());
+
+                    //String weekStr = CalUtil.getWeeks(roomWeeks);
+                    //单双周
+                    String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
+
+                    String teacherNames = getTeacherInfo(r.getTeacherCode());
+
+                    String roomName =
+                            ClassroomCacheUtil.getRoomName(r.getRoomId());
+                    // 老师名称(老师编号)[周] 教室
+                    sb.append(String
+                            .format("%s %s %s", teacherNames, weekStr, roomName))
+                            .append(" ");
+                }
+                Collections.sort(weeks);
+                un.setValue(sb.toString());
+                un.setWeeks(weeks);
+                times.add(un);
+            }
+
+            map.put(entry.getKey(), times);
+        }
+
+        return map;
+    }
     
     /**
      * 拼接上课时间

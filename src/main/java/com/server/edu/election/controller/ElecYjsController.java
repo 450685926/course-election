@@ -248,7 +248,8 @@ public class ElecYjsController
     @PostMapping("/teachingClassLoad")
     public RestResult<?> teachingClassLoad()
     {
-    	dataProvider.load();
+        logger.info("初始化缓存 !!!");
+        dataProvider.load();
     	return RestResult.success();
     } 
     
