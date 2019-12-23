@@ -64,6 +64,10 @@ public class StudentInfoCache
      * 是否欠费
      */
     private Integer isArrears;
+
+    /**专业*/
+    private String bkMajor;
+
     
     public Integer getIsArrears() {
 		return isArrears;
@@ -216,5 +220,13 @@ public class StudentInfoCache
 	public void setManagerDeptId(String managerDeptId) {
 		this.managerDeptId = managerDeptId;
 	}
-    
+
+
+    public String getBkMajor() {
+        return bkMajor;
+    }
+
+    public void setBkMajor(String bkMajor) {
+        this.bkMajor = bkMajor;
+    }
 }

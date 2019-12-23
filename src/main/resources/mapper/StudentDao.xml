@@ -441,4 +441,10 @@
 	<select id="findStuEmail" resultType="java.lang.String">
 		select EMAIL_ from student_t where STUDENT_CODE_=#{studentId}
 	</select>
+	<select id="getStudentMajor" resultType="java.lang.String">
+		select PROFESSION_NAME_
+		from v_campus_profession_t
+		where GRADE_ = #{grade}
+		AND PROFESSION_CODE_ = #{profession}
+	</select>
 </mapper>

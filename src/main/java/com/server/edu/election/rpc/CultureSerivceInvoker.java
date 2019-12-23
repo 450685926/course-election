@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.server.edu.common.entity.*;
+import com.server.edu.election.dao.CourseDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,8 @@ public class CultureSerivceInvoker
 {
 	@Autowired
 	private static FirstLanguageContrastDao firstLanguageContrastDao;
+	@Autowired
+	private static CourseDao courseDao;
     private static Logger LOG =
         LoggerFactory.getLogger(CultureSerivceInvoker.class);
     
@@ -451,27 +454,28 @@ public class CultureSerivceInvoker
      * @see [类、类#方法、类#成员]
      */
     public static List<String> getAllCoursesLevelCourse() {
-        JSONObject param = new JSONObject();
-        param.put("type", "2");
-        param.put("page", "false");
-        param.put("englishFlag", "2");
-
-        Object restResult =
-                ServicePathEnum.CULTURESERVICE.postForObject("/coursesCategoryRel/list",param, Object.class);
-        List<String> result = new ArrayList<>();
-
-        String text = JSON.toJSONString(restResult);
-        JSONObject obj = JSON.parseObject(text);
-        JSONObject data = obj.getJSONObject("data");
-        if(null != data) {
-            String list = data.getString("list");
-            JSONArray parseArray = JSON.parseArray(list);
-            for (int i = 0; i < parseArray.size(); i++)
-            {
-                JSONObject jsonObject = parseArray.getJSONObject(i);
-                result.add(jsonObject.getString("code"));
-            }
-        }
+//        JSONObject param = new JSONObject();
+//        param.put("type", "2");
+//        param.put("page", "false");
+//        param.put("englishFlag", "2");
+//
+//        Object restResult =
+//                ServicePathEnum.CULTURESERVICE.postForObject("/coursesCategoryRel/list",param, Object.class);
+//        List<String> result = new ArrayList<>();
+//
+//        String text = JSON.toJSONString(restResult);
+//        JSONObject obj = JSON.parseObject(text);
+//        JSONObject data = obj.getJSONObject("data");
+//        if(null != data) {
+//            String list = data.getString("list");
+//            JSONArray parseArray = JSON.parseArray(list);
+//            for (int i = 0; i < parseArray.size(); i++)
+//            {
+//                JSONObject jsonObject = parseArray.getJSONObject(i);
+//                result.add(jsonObject.getString("code"));
+//            }
+//        }
+        List<String> result = courseDao.getAllCoursesLevelCourse();
         return result;
     }
 }
