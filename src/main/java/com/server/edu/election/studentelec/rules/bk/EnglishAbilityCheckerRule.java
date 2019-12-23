@@ -79,7 +79,7 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
         {
             ElecRespose respose = context.getRespose();
             respose.getFailedReasons()
-                .put(courseClass.getCourseCodeAndClassCode(), "没有达到课程等级能力要求");
+                .put(courseClass.getTeachClassCode() + courseClass.getCourseName(), "没有达到课程等级能力要求");
             return false;
         }
         return true;

@@ -149,7 +149,7 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
                 }
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
+                        .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                                 I18nUtil.getMsg("ruleCheck.unElectLessonByPassed"));
                 return false;
             }

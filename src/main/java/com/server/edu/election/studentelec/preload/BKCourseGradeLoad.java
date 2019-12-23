@@ -54,8 +54,10 @@ import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.util.WeekModeUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -542,7 +544,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         .map(TeacherClassTimeRoom::getWeekNumber)
                         .collect(Collectors.toList());
                     
-                    String weekStr = CalUtil.getWeeks(roomWeeks);
+                    //String weekStr = CalUtil.getWeeks(roomWeeks);
+                    //单双周
+                    String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
                     
                     String teacherNames = getTeacherInfo(r.getTeacherCode());
                     
@@ -550,7 +554,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         ClassroomCacheUtil.getRoomName(r.getRoomId());
                     // 老师名称(老师编号)[周] 教室
                     sb.append(String
-                        .format("%s[%s] %s", teacherNames, weekStr, roomName))
+                        .format("%s %s %s", teacherNames, weekStr, roomName))
                         .append(" ");
                 }
                 Collections.sort(weeks);
@@ -587,7 +591,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             {
                 ctu.setValue(String.format("%s(%s) %s",
                     c.getCourseName(),
-                    c.getCourseCode(),
+                    c.getTeachClassCode(),
                     ctu.getValue()));
             }
             

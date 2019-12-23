@@ -118,6 +118,14 @@ public interface Constants
     
     /** 学生未欠费*/
     public static final Integer UN_ARREARS = 0;
+    
+    /** 排课周数上限 */
+    public static final int MAX_WEEK = 53;
+    
+    /** 一天节次数 */
+    public static final int TIMES = 12;
+    /** 一周天数 */
+    public static final int DAYS = 7;
  
  
 

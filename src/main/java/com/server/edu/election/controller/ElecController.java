@@ -113,7 +113,7 @@ public class ElecController
         @PathVariable("roundId") @NotNull Long roundId)
     {
         Session session = SessionUtils.getCurrentSession();
-        
+
         if (session.realType() != UserTypeEnum.STUDENT.getValue())
         {
             return RestResult.fail("elec.mustBeStu");
@@ -227,9 +227,9 @@ public class ElecController
     }
 
     /**
-     * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
+     * 查询课程冲突
      */
-    @ApiOperation(value = "查询选课结果")
+    @ApiOperation(value = "查询课程冲突")
     @GetMapping("/getConflict")
     public RestResult getConflict(@RequestParam("roundId") @NotNull Long roundId,
                                   @RequestParam("studentId") @NotBlank String studentId,

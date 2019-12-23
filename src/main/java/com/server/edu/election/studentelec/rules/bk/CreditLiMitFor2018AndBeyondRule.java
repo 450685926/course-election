@@ -7,7 +7,9 @@ import com.server.edu.common.entity.BkPublicCourse;
 import com.server.edu.common.entity.BkPublicCourseVo;
 import com.server.edu.common.entity.PublicCourse;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcStudentLimitDao;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcStudentLimit;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
@@ -42,9 +44,9 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 {
 //    @Autowired
 //    private ElectionConstantsDao electionConstantsDao;
-//
-//	@Autowired
-//	private ElcStudentLimitDao elcStudentLimitDao;
+
+	@Autowired
+	private CourseDao courseDao;
 
     @Override
     public int getOrder()
@@ -58,6 +60,7 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
     {
     	//学生信息
         StudentInfoCache studentInfo = context.getStudentInfo();
+
 		Integer grade1 = studentInfo.getGrade();
 		if (grade1.intValue() < Constants.GRADE) {
 			return true;
@@ -104,20 +107,31 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 							if (CollectionUtil.isNotEmpty(publicCourseList)) {
 								List<String> collect = publicCourseList.stream().map(PublicCourse::getCourseCode).collect(Collectors.toList());
 								if(collect.contains(courseClass.getCourseCode())){
+									List<String> courseList = new ArrayList<>();
 									int count = 0;
 									for (String cours : courses) {
 										if (collect.contains(cours)){
+											courseList.add(cours);
 											count ++;
 										}
 									}
 									if (count <= 1){
 										return true;
 									}else{
+										List<String> oldCourseList = new ArrayList<>();
+										for (String s : courseList) {
+											Example example = new Example(Course.class);
+											example.createCriteria().andEqualTo("code",s);
+											List<Course> coursesName = courseDao.selectByExample(example);
+											if (CollectionUtil.isNotEmpty(coursesName)){
+												oldCourseList.add(coursesName.get(0).getName());
+											}
+										}
 										ElecRespose respose = context.getRespose();
 										respose.getFailedReasons()
-												.put(courseClass.getCourseCodeAndClassCode(),
+												.put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
 														I18nUtil
-																.getMsg("ruleCheck.CreditLiMitFor2018AndBeyondLimit"));
+																.getMsg("ruleCheck.CreditLiMitFor2018AndBeyondLimit",publicCourse.getTag(),StringUtils.join(oldCourseList.toArray(),",")));
 										return false;
 									}
 								}

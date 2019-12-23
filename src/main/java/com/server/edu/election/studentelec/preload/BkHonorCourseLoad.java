@@ -144,7 +144,7 @@ public class BkHonorCourseLoad extends DataProLoad<ElecContextBk>{
 
     // 判断轮次里面某门课程是否有教学班，没有返回false。不展示
     private boolean flag(Long roundId, String courseCode) {
-        List<TeachingClassCache> teachingClassCaches =teachClassCacheService.getTeachClasss(roundId, courseCode);
+        List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
         if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
             return true;
         } else {

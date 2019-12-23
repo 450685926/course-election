@@ -56,7 +56,7 @@ public class SuggestCourseRule extends AbstractElecRuleExceutorBk
                 {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
+                        .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                             I18nUtil.getMsg("ruleCheck.suggestCourse"));
                     return false;
                 }
@@ -80,7 +80,7 @@ public class SuggestCourseRule extends AbstractElecRuleExceutorBk
                 {
                     ElecRespose respose = context.getRespose();
                     respose.getFailedReasons()
-                        .put(courseClass.getCourseCodeAndClassCode(),
+                        .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
                             I18nUtil.getMsg("ruleCheck.suggestCourse"));
                     return false;
                 }

@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
@@ -11,8 +12,7 @@ import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
-import com.server.edu.election.studentelec.context.bk.PlanCourse;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
+import com.server.edu.election.studentelec.context.bk.*;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.TableIndexUtil;
@@ -36,8 +36,6 @@ import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.studentelec.context.bk.ElecContextLogin;
 import com.server.edu.election.studentelec.rules.AbstractLoginRuleExceutorBk;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecQueueService;
@@ -74,6 +72,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     private TeachClassCacheService teachClassCacheService;
 
     @Autowired
+    private DictionaryService dictionaryService;
+
+    @Autowired
     private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
 
     @Autowired
@@ -84,6 +85,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Autowired
     private ElcCourseTakeDao takeDao;
+
+    @Autowired
+    private ElectionApplyDao electionApplyDao;
 
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -252,10 +256,15 @@ public class StudentElecServiceImpl extends AbstractCacheService
     	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
         List<ElectionRuleVo> collect = rules.stream().filter(c -> "LoserNotElcRule".equals(c.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> planRules = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
+        List<ElectionRuleVo> limitRules = rules.stream().filter(r -> "TimeConflictCheckerRule".equals(r.getServiceName())).collect(Collectors.toList());
         Integer isPlan = 1;
+        Integer isLimit = 1;
     	if(CollectionUtil.isEmpty(planRules)) {
     		isPlan = 0;
     	}
+        if(CollectionUtil.isEmpty(limitRules)) {
+            isLimit = 0;
+        }
         if (CollectionUtil.isEmpty(collect)){
             Example example = new Example(StudentNum.class);
             Example.Criteria criteria = example.createCriteria();
@@ -308,6 +317,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         }
         ElecRespose respose = context.getRespose();
         respose.setIsPlan(isPlan);
+        respose.setIsLimit(isLimit);
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {
@@ -321,9 +331,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
             return RestResult.successData(respose);
         }
-        respose = new ElecRespose();
-        respose.setIsPlan(isPlan);
-        return RestResult.successData(new ElecRespose());
+        ElecRespose respose1 = new ElecRespose();
+        respose1.setIsPlan(isPlan);
+        respose1.setIsLimit(isLimit);
+        return RestResult.successData(respose1);
     }
     
     @Override
@@ -515,6 +526,67 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Long calendarId = round.getCalendarId();
         StudentInfoCache studentInfo = c.getStudentInfo();
 
+//        Set<PlanCourse> planCourses = c.getPlanCourses();
+//        if (CollectionUtil.isNotEmpty(planCourses)) {
+//            Iterator<PlanCourse> iterator = planCourses.iterator();
+//            while (iterator.hasNext()) {
+//                PlanCourse planCours = iterator.next();
+//                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
+//                if (CollectionUtil.isEmpty(teachClasss)) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+//        Set<TsCourse> publicCourses = c.getPublicCourses();
+//        if (CollectionUtil.isNotEmpty(publicCourses)) {
+//            Iterator<TsCourse> iterator = publicCourses.iterator();
+//            while (iterator.hasNext()) {
+//                TsCourse tsCourse = iterator.next();
+//                ElecCourse course = tsCourse.getCourse();
+//                if (course != null) {
+//                    List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, course.getCourseCode());
+//                    if (CollectionUtil.isEmpty(teachClasss)) {
+//                        iterator.remove();
+//                    } else {
+//                        Set<String> set = new HashSet(5);
+//                        for (TeachingClassCache teachingClassCach : teachClasss) {
+//                            String campus = teachingClassCach.getCampus();
+//                            if (StringUtils.isNotBlank(campus)) {
+//                                campus = dictionaryService.query("X_XQ", campus);
+//                                if (StringUtils.isNotBlank(campus)) {
+//                                    set.add(campus);
+//                                }
+//                            }
+//                        }
+//                        course.setCampus(String.join(",", set));
+//                    }
+//                }
+//            }
+//        }
+//        Set<HonorCourseBK> honorCourses = c.getHonorCourses();
+//        if (CollectionUtil.isNotEmpty(honorCourses)) {
+//            Iterator<HonorCourseBK> iterator = honorCourses.iterator();
+//            while (iterator.hasNext()) {
+//                HonorCourseBK honorCourse = iterator.next();
+//                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, honorCourse.getCourse().getCourseCode());
+//                if (CollectionUtil.isEmpty(teachClasss)) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+//        Set<PlanCourse> onlyCourses = c.getOnlyCourses();
+//        if (CollectionUtil.isNotEmpty(onlyCourses)) {
+//            Iterator<PlanCourse> iterator = onlyCourses.iterator();
+//            while (iterator.hasNext()) {
+//                PlanCourse planCours = iterator.next();
+//                List<TeachingClassCache> teachClasss = teachClassCacheService.getTeachClasss(roundId, planCours.getCourseCode());
+//                if (CollectionUtil.isEmpty(teachClasss)) {
+//                    iterator.remove();
+//                }
+//            }
+//        }
+
+
         //同步查询已选教学班信息，查看是否存在rides信息丢失，如果丢失，同步更新选课数据
         List<ElcCourseTakeVo> courseTakes = takeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
         Set<SelectedCourse> selectedCourses = c.getSelectedCourses();
@@ -534,6 +606,16 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 c.getSelectedCourses().add(course);
             }
         }
+        Set<ElectionApply> elecApplyCourses = c.getElecApplyCourses();
+        elecApplyCourses.clear();
+        Example aExample = new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentInfo.getStudentId()).andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys =
+                electionApplyDao.selectByExample(aExample);
+        elecApplyCourses.addAll(electionApplys);
+
+
     }
 
     /**

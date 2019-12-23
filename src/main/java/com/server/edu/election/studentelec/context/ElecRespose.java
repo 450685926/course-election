@@ -28,7 +28,17 @@ public class ElecRespose
     private Map<String, String> data;
     
     private Integer isPlan;
-    
+
+    private Integer isLimit;
+
+    public Integer getIsLimit() {
+        return isLimit;
+    }
+
+    public void setIsLimit(Integer isLimit) {
+        this.isLimit = isLimit;
+    }
+
     public Integer getIsPlan() {
 		return isPlan;
 	}

@@ -1,17 +1,23 @@
 package com.server.edu.election.studentelec.context.bk;
 
+import java.util.List;
 import java.util.Set;
 
 import com.server.edu.common.entity.BclHonorModule;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.CourseGroup;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
+import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
+import com.server.edu.util.CollectionUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -19,6 +25,7 @@ import com.server.edu.election.vo.ElcCouSubsVo;
  */
 public class ElecContextBk implements IElecContext
 {
+
 	/**选课申请课程*/
     public static final String ELEC_APPLY_COURSES = "elecApplyCourses";
     
@@ -112,7 +119,7 @@ public class ElecContextBk implements IElecContext
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
         onlyCourses = this.contextUtil.getSet("OnlyCourses", PlanCourse.class);
     }
-    
+
     /**
      * 保存到redis中
      * 

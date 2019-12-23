@@ -250,6 +250,13 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",
                 I18nUtil.getMsg("election.electionApply")));
         }
+        Example wExample = new Example(ElectionApply.class);
+        Example.Criteria wCriteria = wExample.createCriteria();
+        wCriteria.andEqualTo("studentId", studentId);
+        wCriteria.andEqualTo("calendarId", calendarId);
+        wCriteria.andEqualTo("courseCode", courseCode);
+        wCriteria.andEqualTo("apply", Constants.APPLY_WITHDRAW);
+        int result = electionApplyDao.deleteByExample(wExample);
         Example cExample = new Example(ElectionApplyCourses.class);
         Example.Criteria cCriteria = cExample.createCriteria();
         cCriteria.andEqualTo("calendarId", calendarId);
@@ -266,7 +273,7 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         electionApply.setMode(electionApplyCourses.getMode());
         electionApply.setApply(Constants.ZERO);
         electionApply.setCreatedAt(new Date());
-        int result = electionApplyDao.insertSelective(electionApply);
+        result = electionApplyDao.insertSelective(electionApply);
         if (result <= 0)
         {
             throw new ParameterValidateException(
