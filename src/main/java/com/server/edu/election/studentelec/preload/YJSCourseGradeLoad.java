@@ -157,6 +157,8 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                         lesson.setRemark(teachingClass.getRemark());
                     }
                     SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                    // 上课时间“春秋季”特殊处理
+                    lesson.setTerm(schoolCalendar.getTerm().toString());
                     // 根据校历id设置学年
                     if (schoolCalendar != null) {
                         lesson.setCalendarName(schoolCalendar.getYear()+"");
