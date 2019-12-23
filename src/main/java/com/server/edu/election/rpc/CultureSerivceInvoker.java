@@ -446,37 +446,5 @@ public class CultureSerivceInvoker
         return list;
     }
 
-    /**
-     * 查询所有的分级课程
-     *
-     * @return
-     * @throws Exception
-     * @see [类、类#方法、类#成员]
-     */
-    public static List<String> getAllCoursesLevelCourse() {
-//        JSONObject param = new JSONObject();
-//        param.put("type", "2");
-//        param.put("page", "false");
-//        param.put("englishFlag", "2");
-//
-//        Object restResult =
-//                ServicePathEnum.CULTURESERVICE.postForObject("/coursesCategoryRel/list",param, Object.class);
-//        List<String> result = new ArrayList<>();
-//
-//        String text = JSON.toJSONString(restResult);
-//        JSONObject obj = JSON.parseObject(text);
-//        JSONObject data = obj.getJSONObject("data");
-//        if(null != data) {
-//            String list = data.getString("list");
-//            JSONArray parseArray = JSON.parseArray(list);
-//            for (int i = 0; i < parseArray.size(); i++)
-//            {
-//                JSONObject jsonObject = parseArray.getJSONObject(i);
-//                result.add(jsonObject.getString("code"));
-//            }
-//        }
-        List<String> result = courseDao.getAllCoursesLevelCourse();
-        return result;
-    }
 }
 

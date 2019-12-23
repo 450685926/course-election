@@ -3,6 +3,7 @@ package com.server.edu.election.studentelec.rules.bk;
 import java.util.Arrays;
 import java.util.List;
 
+import com.server.edu.election.dao.CourseDao;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,8 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
     
     @Autowired
     private ElectionConstantsDao constantsDao;
+    @Autowired
+    private CourseDao courseDao;
     
     /**
      * 执行选课操作时
@@ -58,7 +61,7 @@ public class EnglishAbilityCheckerRule extends AbstractElecRuleExceutorBk
 //            return true;
 //        }
         List<String> allCourseCodeList =
-                CultureSerivceInvoker.getAllCoursesLevelCourse();
+                courseDao.getAllCoursesLevelCourse();
         if (CollectionUtil.isEmpty(allCourseCodeList) || (CollectionUtil.isNotEmpty(allCourseCodeList) &&!allCourseCodeList.contains(courseCode))){
             return true;
         }
