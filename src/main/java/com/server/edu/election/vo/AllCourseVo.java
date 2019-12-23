@@ -1,6 +1,8 @@
 package com.server.edu.election.vo;
 
-public class AllCourseVo {
+import com.server.edu.common.rest.PageResult;
+
+public class AllCourseVo extends PageResult {
 	/**轮次ID*/
 	private Long roundId;
 	
