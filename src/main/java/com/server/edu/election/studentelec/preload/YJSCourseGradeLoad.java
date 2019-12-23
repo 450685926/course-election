@@ -390,7 +390,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 course.setCourseTakeType(c.getCourseTakeType());
                 course.setCredits(c.getCredits());
                 course.setCalendarId(c.getCalendarId());
-                course.setAssessmentMode(c.getAssessmentMode());
+                course.setAssessmentMode(c.getAssessmentMode());//考试/查
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
                 course.setTeachClassId(c.getTeachingClassId());
