@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang3.StringUtils;
@@ -151,12 +152,11 @@ public class ElecYjsController
     @ApiOperation(value = "查询全部课程")
     @PostMapping("/round/arrangementCourses")
     public RestResult<PageResult<TeachingClassCache>> arrangementCourses(
-        @RequestBody @Valid AllCourseVo allCourseVo)
+        @RequestBody @Valid PageCondition<AllCourseVo> allCourseVo)
     {
         logger.info("election getAllCourse start !!!");
         Session session = SessionUtils.getCurrentSession();
-
-        allCourseVo.setProjectId(session.getCurrentManageDptId());
+        allCourseVo.getCondition().setProjectId(session.getCurrentManageDptId());
 
         /** 学生 */
         boolean isStudent = session.isStudent();
@@ -168,21 +168,21 @@ public class ElecYjsController
 				                && !session.isAdmin() && session.isAcdemicDean();
 
         // 如果前端传值campu和trainingLevel,则不需要访问后端接口
-        if (CommonConstant.isEmptyStr(allCourseVo.getCampu()) || CommonConstant.isEmptyStr(allCourseVo.getTrainingLevel())) {
+        if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) && CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
             RestResult<Student> studentMessage = new RestResult<Student>();
             if (isStudent) {
                 studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
             }else if (isAdmin || isDepartAdmin) {
-                studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getStudentCode());
+                studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getCondition().getStudentCode());
             }
             Student student = studentMessage.getData();
-            allCourseVo.setTrainingLevel(student.getTrainingLevel());
-            allCourseVo.setCampu(student.getCampus());
+            allCourseVo.getCondition().setTrainingLevel(student.getTrainingLevel());
+            allCourseVo.getCondition().setCampu(student.getCampus());
         }
         if (isStudent || isDepartAdmin) {
         	ElectionRoundsDto roundsDto =
-        			electionRoundService.get(allCourseVo.getRoundId());
-        	allCourseVo.setCalendarId(roundsDto.getCalendarId());
+        			electionRoundService.get(allCourseVo.getCondition().getRoundId());
+        	allCourseVo.getCondition().setCalendarId(roundsDto.getCalendarId());
 		}
 
         PageResult<TeachingClassCache> restResult =
