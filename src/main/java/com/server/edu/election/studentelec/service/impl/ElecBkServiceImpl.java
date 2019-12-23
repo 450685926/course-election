@@ -73,6 +73,9 @@ public class ElecBkServiceImpl implements ElecBkService
     private StudentDao studentDao;
 
     @Autowired
+    private CourseDao courseDao;
+
+    @Autowired
     private RoundDataProvider dataProvider;
     
     @Autowired
@@ -670,7 +673,7 @@ public class ElecBkServiceImpl implements ElecBkService
 
 
         List<String> asList =
-                CultureSerivceInvoker.getAllCoursesLevelCourse();
+                courseDao.getAllCoursesLevelCourse();
         String courseCode = teachClass.getCourseCode();
         // 查询不到英语课-通过
         if (CollectionUtil.isEmpty(asList)) {
