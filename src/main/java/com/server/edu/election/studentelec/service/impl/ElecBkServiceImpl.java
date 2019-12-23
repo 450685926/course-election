@@ -248,10 +248,7 @@ public class ElecBkServiceImpl implements ElecBkService
                             data.getTeachClassCode()), "教学班不存在无法选课");
                     continue;
                 }
-                boolean checkPublicEnglish = checkPublicEnglish(context, elecTeachClass);
-                if (!checkPublicEnglish){
-                    continue;
-                }
+
                 boolean elecSuccess = true;
                 for (AbstractElecRuleExceutorBk exceutor : elecExceutors)
                 {
