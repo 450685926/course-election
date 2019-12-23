@@ -104,6 +104,8 @@ public interface ElcCourseTakeDao
     /** 查询教学安排*/
     List<ClassTeacherDto> findClassTimeAndRoomStr(Long teachingClassId);
 
+    List<ClassTeacherDto> findYjsClassTimeAndRoomStr(Long teachingClassId);
+
     /** 以教学班为单位查询教学安排*/
     List<TimeTableMessage> findClassTimeAndRoomById(Long teachingClassId);
     

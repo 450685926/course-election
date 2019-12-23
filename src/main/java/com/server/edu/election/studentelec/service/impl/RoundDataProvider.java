@@ -107,7 +107,15 @@ public class RoundDataProvider
             // 缓存所有教学班
             for (Long calendarId : calendarIds)
             {
-                classCacheService.cacheAllTeachClass(calendarId);
+                SchoolCalendarVo schoolCalendar =
+                        BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                String year = "";
+                if (schoolCalendar != null) {
+                    //获取学历年
+                    year = schoolCalendar.getYear() + "";
+                }
+                classCacheService.cacheAllTeachClass(calendarId, year);
+                classCacheService.cacheYjsAllTeachClass(calendarId, year);
                 applyCoursesServiceImpl.setToCache(calendarId);
             }
             List<BkPublicCourseVo> publicCourse = CultureSerivceInvoker.findPublicCourse();

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dao.TeachingClassTeacherDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,9 @@ public class TeachClassCacheService extends AbstractCacheService
     
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDao;
     
     @Autowired
     private BKCourseGradeLoad gradeLoad;
@@ -97,16 +101,9 @@ public class TeachClassCacheService extends AbstractCacheService
         return ops;
     }
     
-    public void cacheAllTeachClass(Long calendarId)
+    public void cacheAllTeachClass(Long calendarId, String year)
     {
         PageInfo<CourseOpenDto> page = new PageInfo<>();
-        SchoolCalendarVo schoolCalendar =
-            BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-        String year = "";
-        if (schoolCalendar != null) {
-        	//获取学历年
-        	year = schoolCalendar.getYear() + "";
-		}
         page.setNextPage(1);
         page.setHasNextPage(true);
         while (page.isHasNextPage())
@@ -115,6 +112,22 @@ public class TeachClassCacheService extends AbstractCacheService
             List<CourseOpenDto> lessons =
                 roundCourseDao.selectTeachingClassByCalendarId(calendarId);
             this.cacheTeachClass(100, lessons, year);
+            page = new PageInfo<>(lessons);
+        }
+    }
+
+    public void cacheYjsAllTeachClass(Long calendarId, String year)
+    {
+        PageInfo<CourseOpenDto> page = new PageInfo<>();
+
+        page.setNextPage(1);
+        page.setHasNextPage(true);
+        while (page.isHasNextPage())
+        {
+            PageHelper.startPage(page.getNextPage(), 300);
+            List<CourseOpenDto> lessons =
+                    roundCourseDao.selectYjsTeachingClassByCalendarId(calendarId);
+            this.cacheYjsTeachClass(100, lessons, year);
             page = new PageInfo<>(lessons);
         }
     }
@@ -135,19 +148,19 @@ public class TeachClassCacheService extends AbstractCacheService
      * @see [类、类#方法、类#成员]
      */
     public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss,
-        String year)
+                                String year)
     {
         if (CollectionUtil.isEmpty(teachClasss))
         {
             return;
         }
         List<Long> classIds = teachClasss.stream()
-            .map(temp -> temp.getTeachingClassId())
-            .collect(Collectors.toList());
+                .map(temp -> temp.getTeachingClassId())
+                .collect(Collectors.toList());
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
-            gradeLoad.groupByTime(classIds);
-        
+                gradeLoad.groupByTime(classIds);
+
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, ElecCourse> publicCourseMap = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -174,7 +187,7 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setTimeTableList(getTimeById(teachingClassId));
             tc.setTeachingLanguage(lesson.getTeachingLanguage());
             tc.setPublicElec(
-                lesson.getIsElective() == Constants.ONE ? true : false);
+                    lesson.getIsElective() == Constants.ONE ? true : false);
             tc.setFaculty(lesson.getFaculty());
             tc.setCalendarId(lesson.getCalendarId());
             tc.setThirdWithdrawNumber(lesson.getThirdWithdrawNumber());
@@ -184,7 +197,7 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setTerm(lesson.getTerm());
             tc.setCalendarName(year);
             tc.setReserveNumber(lesson.getReserveNumber());
-            
+
             numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
             drawMap.put(teachingClassId.toString(), tc.getThirdWithdrawNumber());
             map.put(teachingClassId.toString(), tc);
@@ -194,20 +207,99 @@ public class TeachClassCacheService extends AbstractCacheService
                 publicCourseMap.put(tc.getCourseCode(), tc);
             }
         }
-        
+
         // 缓存选课人数
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
         strTemplate
-            .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);
+                .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);
         // 缓存第三、四轮退课人数
         opsClassNum().putAll(Keys.getWitdthDrawNumberKey(), drawMap);
         strTemplate
-            .expire(Keys.getWitdthDrawNumberKey(), timeout, TimeUnit.MINUTES);
+                .expire(Keys.getWitdthDrawNumberKey(), timeout, TimeUnit.MINUTES);
         // 缓存教学班信息
         String key = Keys.getClassKey();
         opsTeachClass().putAll(key, map);
         strTemplate.expire(key, timeout, TimeUnit.MINUTES);
-        
+
+        // 缓存公共选修课信息
+        String publicCourseKey = Keys.getPublicCourseKey();
+        opsElecCourse().putAll(publicCourseKey, publicCourseMap);
+        strTemplate.expire(publicCourseKey, timeout, TimeUnit.MINUTES);
+    }
+
+    public void cacheYjsTeachClass(long timeout, List<CourseOpenDto> teachClasss,
+                                   String year)
+    {
+        if (CollectionUtil.isEmpty(teachClasss))
+        {
+            return;
+        }
+        List<Long> classIds = teachClasss.stream()
+                .map(temp -> temp.getTeachingClassId())
+                .collect(Collectors.toList());
+        //按周数拆分的选课数据集合
+        Map<Long, List<ClassTimeUnit>> collect =
+                gradeLoad.groupByTime(classIds);
+
+        Map<String, TeachingClassCache> map = new HashMap<>();
+        Map<String, ElecCourse> publicCourseMap = new HashMap<>();
+        Map<String, Integer> numMap = new HashMap<>();
+        for (CourseOpenDto lesson : teachClasss)
+        {
+            Long teachingClassId = lesson.getTeachingClassId();
+            TeachingClassCache tc = new TeachingClassCache();
+            List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachingClassId);
+            if (CollectionUtil.isNotEmpty(names)) {
+                tc.setTeacherName(String.join(",", names));
+            }
+            tc.setFaculty(lesson.getFaculty());
+            tc.setNature(lesson.getNature());
+            tc.setCourseCode(lesson.getCourseCode());
+            tc.setCourseName(lesson.getCourseName());
+            tc.setCredits(lesson.getCredits());
+            tc.setNameEn(lesson.getCourseNameEn());
+            tc.setTeachClassId(teachingClassId);
+            tc.setTeachClassCode(lesson.getTeachingClassCode());
+            tc.setTeachClassName(lesson.getTeachingClassName());
+            tc.setCampus(lesson.getCampus());
+            tc.setTeachClassType(lesson.getTeachClassType());
+            tc.setMaxNumber(lesson.getMaxNumber());
+            tc.setCurrentNumber(lesson.getCurrentNumber());
+            tc.setRemark(lesson.getTeachingClassRemark());
+            tc.setManArrangeFlag(lesson.getManArrangeFlag());
+            tc.setTimeTableList(getYjsTimeById(teachingClassId));
+            tc.setTeachingLanguage(lesson.getTeachingLanguage());
+            tc.setPublicElec(
+                    lesson.getIsElective() == Constants.ONE ? true : false);
+            tc.setFaculty(lesson.getFaculty());
+            tc.setCalendarId(lesson.getCalendarId());
+            List<ClassTimeUnit> times = gradeLoad.concatYjsTime(collect, tc);
+            tc.setTimes(times);
+            //设置研究生学年跟开课学期，勿删
+            tc.setTerm(lesson.getTerm());
+            tc.setCalendarName(year);
+            tc.setReserveNumber(lesson.getReserveNumber());
+
+            numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
+            map.put(teachingClassId.toString(), tc);
+            // 公共选修课
+            if (tc.isPublicElec() && !publicCourseMap.containsKey(tc.getCourseCode()))
+            {
+                publicCourseMap.put(tc.getCourseCode(), tc);
+            }
+        }
+
+        // 缓存选课人数
+        opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
+        strTemplate
+                .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);
+        strTemplate
+                .expire(Keys.getWitdthDrawNumberKey(), timeout, TimeUnit.MINUTES);
+        // 缓存教学班信息
+        String key = Keys.getClassKey();
+        opsTeachClass().putAll(key, map);
+        strTemplate.expire(key, timeout, TimeUnit.MINUTES);
+
         // 缓存公共选修课信息
         String publicCourseKey = Keys.getPublicCourseKey();
         opsElecCourse().putAll(publicCourseKey, publicCourseMap);
@@ -252,6 +344,53 @@ public class TeachClassCacheService extends AbstractCacheService
                 String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
                 String timeStr = weekstr + " " + timeStart + "-" + timeEnd + " "
                     + weekNumStr + " ";
+                time.setTimeId(timeId);
+                time.setTimeAndRoom(timeStr);
+                time.setRoomId(roomID);
+                list.add(time);
+            }
+        }
+        return list;
+    }
+
+    private List<TimeAndRoom> getYjsTimeById(Long teachingClassId)
+    {
+        List<TimeAndRoom> list = new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom =
+                courseTakeDao.findYjsClassTimeAndRoomStr(teachingClassId);
+        if (CollectionUtil.isNotEmpty(classTimeAndRoom))
+        {
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom)
+            {
+                TimeAndRoom time = new TimeAndRoom();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                Long timeId = classTeacherDto.getTimeId();
+                String[] str = weekNumber.split(",");
+
+                List<Integer> weeks = Arrays.asList(str)
+                        .stream()
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
+                String oneCycle = "[1, 3, 5, 7, 9, 11, 13, 15, 17]";
+                String biweekly = "[2, 4, 6, 8, 10, 12, 14, 16]";
+                String allweekly = "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]";
+                List<String> weekNums =
+                        CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                if (StringUtils.equalsIgnoreCase(oneCycle, weekNumStr)) {
+                    weekNumStr = "单周";
+                }else if (StringUtils.equalsIgnoreCase(biweekly, weekNumStr)) {
+                    weekNumStr = "双周";
+                }else if (StringUtils.equalsIgnoreCase(allweekly, weekNumStr)) {
+                    weekNumStr = "单双周[1-17]";
+                }
+                String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                String timeStr = weekstr + " " + timeStart + "-" + timeEnd + " "
+                        + weekNumStr + " ";
                 time.setTimeId(timeId);
                 time.setTimeAndRoom(timeStr);
                 time.setRoomId(roomID);
