@@ -140,17 +140,142 @@ public class ElecBkServiceImpl implements ElecBkService
         ElecRespose respose = context.getRespose();
         respose.getSuccessCourses().clear();
         respose.getFailedReasons().clear();
-        
+        //判断是否存在换班的情况
+        List<ElecTeachClassDto> withdrawClassList = request.getWithdrawClassList();
+        List<ElecTeachClassDto> elecClassList = request.getElecClassList();
+
+        List<String> withdrawList = new ArrayList<String>(withdrawClassList.stream().map(ElecTeachClassDto :: getCourseCode).collect(Collectors.toList()));
+
+        List<String> elecList = new ArrayList<String>(elecClassList.stream().map(ElecTeachClassDto :: getCourseCode).collect(Collectors.toList()));
+
+        //拿到换班的课程
+        List<String> withdrawAndElecList = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(withdrawList) && CollectionUtil.isNotEmpty(elecList)){
+            withdrawAndElecList = withdrawList.stream().filter(item -> elecList.contains(item)).collect(Collectors.toList());
+        }
+        if(CollectionUtil.isNotEmpty(withdrawAndElecList)){
+            Map<String, ElecTeachClassDto> withdrawClassMap = withdrawClassList.stream().collect(Collectors.toMap(ElecTeachClassDto::getCourseCode, elecTeachClass -> elecTeachClass));
+            Map<String, ElecTeachClassDto> elecClassMap = elecClassList.stream().collect(Collectors.toMap(ElecTeachClassDto::getCourseCode, elecTeachClass -> elecTeachClass));
+            //返回可以退课后可以选课的集合
+            List<String> goodList =  checkWithdrawAndEleRule(withdrawAndElecList,withdrawClassMap,cancelExceutors,elecClassMap,elecExceutors,context,roundId);
+            //拿到不能完成完整加退课流程的集合
+            List<String> badList = withdrawAndElecList.stream().filter(item -> !goodList.contains(item)).collect(Collectors.toList());
+            //移除这些不能完成换班的课程
+            for (String badCourse : badList) {
+                withdrawClassMap.remove(badCourse);
+                elecClassMap.remove(badCourse);
+            }
+            //将map转化为list
+            withdrawClassList = withdrawClassMap.values().stream().collect(Collectors.toList());
+            elecClassList = elecClassMap.values().stream().collect(Collectors.toList());
+        }
+
+
         // 退课
-        doWithdraw(context, cancelExceutors, request.getWithdrawClassList());
+        doWithdraw(context, cancelExceutors, withdrawClassList);
         
         // 选课
         ElectionRounds round = dataProvider.getRound(roundId);
-        doElec(context, elecExceutors, request.getElecClassList(), round);
+        doElec(context, elecExceutors, elecClassList, round);
         
         return context;
     }
-    
+
+    private List<String> checkWithdrawAndEleRule(List<String> withdrawAndElecList, Map<String, ElecTeachClassDto> withdrawClassMap, List<AbstractWithdrwRuleExceutorBk> cancelExceutors, Map<String, ElecTeachClassDto> elecClassMap, List<AbstractElecRuleExceutorBk> elecExceutors, ElecContextBk context,Long roundId) {
+        ElecRespose respose = context.getRespose();
+        Map<String, String> failedReasons = respose.getFailedReasons();
+
+        //可以进行后续完整操作的课程集合
+        List<String> goodList = new ArrayList<>(20);
+
+        for (String courseCode : withdrawAndElecList) {
+            //先校验退课
+            //拿到退课的教学班
+            ElecTeachClassDto withdrawTeachClass = withdrawClassMap.get(courseCode);
+            Long withdrawTeachClassId = withdrawTeachClass.getTeachClassId();
+            SelectedCourse teachClass = null;
+            Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
+            for (SelectedCourse selectCourse : selectedCourses)
+            {
+                if (selectCourse.getCourse()
+                        .getTeachClassId()
+                        .equals(withdrawTeachClassId))
+                {
+                    teachClass = selectCourse;
+                    break;
+                }
+            }
+            if (teachClass == null)
+            {
+                failedReasons.put(String.format("%s[%s]",
+                        withdrawTeachClass.getCourseCode(),
+                        withdrawTeachClass.getTeachClassCode()), "教学班不存在无法退课");
+                continue;
+            }
+            Collections.sort(cancelExceutors);
+            boolean withdrawSuccess = true;
+            for (AbstractWithdrwRuleExceutorBk exceutor : cancelExceutors)
+            {
+                if (!exceutor.checkRule(context, teachClass))
+                {
+                    // 校验不通过时跳过后面的校验进行下一个
+                    withdrawSuccess = false;
+                    String key =
+                            teachClass.getCourse().getTeachClassCode() + teachClass.getCourse().getCourseName();
+                    if (!failedReasons.containsKey(key))
+                    {
+                        failedReasons.put(key, exceutor.getDescription());
+                    }
+                    break;
+                }
+            }
+            if(withdrawSuccess){
+                //再校验选课
+                boolean hasRetakeCourse = false;
+                ElectionRounds round = dataProvider.getRound(roundId);
+                //拿到退课的教学班
+                ElecTeachClassDto data = elecClassMap.get(courseCode);
+                Collections.sort(elecExceutors);
+                Long elecTeachClassId = data.getTeachClassId();
+                TeachingClassCache elecTeachClass =
+                        dataProvider.getTeachClass(round.getId(),
+                                data.getCourseCode(),
+                                elecTeachClassId);
+                if (elecTeachClass == null)
+                {
+                    failedReasons.put(String.format("%s[%s]",
+                            data.getCourseCode(),
+                            data.getTeachClassCode()), "教学班不存在无法选课");
+                    continue;
+                }
+                boolean checkPublicEnglish = checkPublicEnglish(context, elecTeachClass);
+                if (!checkPublicEnglish){
+                    continue;
+                }
+                boolean elecSuccess = true;
+                for (AbstractElecRuleExceutorBk exceutor : elecExceutors)
+                {
+                    if (!exceutor.checkRule(context, elecTeachClass))
+                    {
+                        // 校验不通过时跳过后面的校验进行下一个
+                        elecSuccess = false;
+                        String key = elecTeachClass.getTeachClassCode() + elecTeachClass.getCourseName();
+                        if (!failedReasons.containsKey(key))
+                        {
+                            failedReasons.put(key, exceutor.getDescription());
+                        }
+                        break;
+                    }
+                }
+                if (elecSuccess){
+                    goodList.add(courseCode);
+                }
+            }
+
+        }
+        return goodList;
+    }
+
     /**选课*/
     private void doElec(ElecContextBk context,
         List<AbstractElecRuleExceutorBk> exceutors,
