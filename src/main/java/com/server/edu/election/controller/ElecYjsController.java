@@ -156,7 +156,6 @@ public class ElecYjsController
     {
         logger.info("election getAllCourse start !!!");
         Session session = SessionUtils.getCurrentSession();
-
         allCourseVo.getCondition().setProjectId(session.getCurrentManageDptId());
 
         /** 学生 */
@@ -169,7 +168,7 @@ public class ElecYjsController
 				                && !session.isAdmin() && session.isAcdemicDean();
 
         // 如果前端传值campu和trainingLevel,则不需要访问后端接口
-        if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) || CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
+        if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) && CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
             RestResult<Student> studentMessage = new RestResult<Student>();
             if (isStudent) {
                 studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
