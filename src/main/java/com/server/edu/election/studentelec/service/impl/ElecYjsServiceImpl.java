@@ -1466,11 +1466,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     }
     
     @Override
-    public PageResult<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo)
+    public PageResult<TeachingClassCache> arrangementCourses(PageCondition<AllCourseVo> allCourseVo)
     {
         int pageNum = allCourseVo.getPageNum_() == 0 ? 1 : allCourseVo.getPageNum_();
         int pageSize = allCourseVo.getPageSize_() == 0 ? 20 : allCourseVo.getPageSize_();
-        List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
+        List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo.getCondition());
         List<TeachingClassCache> lessons =
             new ArrayList<TeachingClassCache>(list.size());
         
