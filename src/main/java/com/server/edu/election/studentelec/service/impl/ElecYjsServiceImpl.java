@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.dto.PlanCourseDto;
+import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.common.entity.BeanUtil;
 import com.server.edu.common.entity.CulturePlan;
 import com.server.edu.common.locale.I18nUtil;
@@ -47,6 +49,12 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dao.CourseDao;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.ElcLogDao;
+import com.server.edu.election.dao.ElecRoundsDao;
+import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
@@ -126,11 +134,19 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     @Autowired
     private DictionaryService dictionaryService;
     
+    @Autowired
+    private ElcCourseTakeDao elcCourseTakeDao;
+    
+    @Autowired
+    private CourseDao courseDao;
+    
     private RestTemplate restTemplate = RestTemplateBuilder.create();
     
     private static final String PLAN_COURSE_RULE = "yjsPlanCourseGroupCreditsRule";
     
     private static final String CAMPUS_RULE = "yjsCampusRule";
+    
+    
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -783,7 +799,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
-        LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses());
+        LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses().size());
 //        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
 //        	takenCourse = packagingTakenCourse(c.getTakenCourses());
 //        }
@@ -911,7 +927,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 	private List<PlanCourse> getOptionalCourses(ElecContext c, Set<PlanCourse> planCourses,
 			Set<CompletedCourse> setCompletedCourses, Set<SelectedCourse> selectedCourseSet,
 			List<String> roundsCoursesIdsList) {
-		List<PlanCourse> lastCourse = new ArrayList<>();
 		List<PlanCourse> centerCourse = new ArrayList<>();
 		//两个结果取交集 拿到学生培养计划与排课信息的交集
 		for (String courseOpenCode : roundsCoursesIdsList)
@@ -945,27 +960,28 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		    }
 		}
 		//从中间变量中剔除已完成的课，得到可选课程
-		List<PlanCourse> optionalGraduateCourses = new ArrayList<>();
-		for (PlanCourse centerCourses : optionalGraduateCoursesList)
-		{
-		    Boolean flag = true;
-		    for (CompletedCourse selectedCourseModel : setCompletedCourses)
-		    {
-		        if (selectedCourseModel.getCourseCode()
-		            .equals(centerCourses.getCourseCode()))
-		        {
-		            flag = false;
-		            break;
-		        }
-		    }
-		    if (flag)
-		    {
-		        optionalGraduateCourses.add(centerCourses);
-		    }
-		}
+//		List<PlanCourse> optionalGraduateCourses = new ArrayList<>();
+//		for (PlanCourse centerCourses : optionalGraduateCoursesList)
+//		{
+//		    Boolean flag = true;
+//		    for (CompletedCourse selectedCourseModel : setCompletedCourses)
+//		    {
+//		        if (selectedCourseModel.getCourseCode()
+//		            .equals(centerCourses.getCourseCode()))
+//		        {
+//		            flag = false;
+//		            break;
+//		        }
+//		    }
+//		    if (flag)
+//		    {
+//		        optionalGraduateCourses.add(centerCourses);
+//		    }
+//		}
 		//可选课程中去除免修免考课程
+		List<PlanCourse> lastCourse = new ArrayList<>();
 		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
-		for (PlanCourse centerCourses : optionalGraduateCourses)
+		for (PlanCourse centerCourses : optionalGraduateCoursesList)
 		{
 		    Boolean flag = true;
 		    for (ElecCourse courseCode : applyCourses)
@@ -983,24 +999,41 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		    }
 		}
 		//去重成绩未通过的课程
-		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+//		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+//		List<PlanCourse> courses = new ArrayList<>();
+//		for (PlanCourse centerCourses : lastCourse)
+//		{
+//		    Boolean flag = true;
+//		    for (CompletedCourse selectedCourseModel : failedCourse)
+//		    {
+//		        if (selectedCourseModel.getCourseCode()
+//		            .equals(centerCourses.getCourseCode()))
+//		        {
+//		            flag = false;
+//		            break;
+//		        }
+//		    }
+//		    if (flag)
+//		    {
+//		    	courses.add(centerCourses);
+//		    }
+//		}
+		
+		// 去除已修的课程
+		List<CompletedCourse> takenCourses = c.getTakenCourses();
 		List<PlanCourse> courses = new ArrayList<>();
-		for (PlanCourse centerCourses : lastCourse)
-		{
-		    Boolean flag = true;
-		    for (CompletedCourse selectedCourseModel : failedCourse)
-		    {
-		        if (selectedCourseModel.getCourseCode()
-		            .equals(centerCourses.getCourseCode()))
-		        {
-		            flag = false;
-		            break;
-		        }
-		    }
-		    if (flag)
-		    {
-		    	courses.add(centerCourses);
-		    }
+		for (PlanCourse centerCourses : lastCourse) {
+			Boolean flag = true;
+			for (CompletedCourse takenCourse : takenCourses) {
+				if (takenCourse.getCourseCode().
+						equals(centerCourses.getCourseCode())) {
+					flag = false;
+					break;
+				}
+			}
+			if (flag) {
+				courses.add(centerCourses);
+			}
 		}
 		return courses;
 	}
@@ -1031,27 +1064,27 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
 		//从中间变量中剔除已完成的课，得到可选课程
-		List<String> optionalGraduateCourses = new ArrayList<>();
-		for (String centerCourses : optionalGraduateCoursesList)
-		{
-			Boolean flag = true;
-			for (CompletedCourse selectedCourseModel : setCompletedCourses)
-			{
-				if (selectedCourseModel.getCourseCode()
-						.equals(centerCourses))
-				{
-					flag = false;
-					break;
-				}
-			}
-			if (flag)
-			{
-				optionalGraduateCourses.add(centerCourses);
-			}
-		}
+//		List<String> optionalGraduateCourses = new ArrayList<>();
+//		for (String centerCourses : optionalGraduateCoursesList)
+//		{
+//			Boolean flag = true;
+//			for (CompletedCourse selectedCourseModel : setCompletedCourses)
+//			{
+//				if (selectedCourseModel.getCourseCode()
+//						.equals(centerCourses))
+//				{
+//					flag = false;
+//					break;
+//				}
+//			}
+//			if (flag)
+//			{
+//				optionalGraduateCourses.add(centerCourses);
+//			}
+//		}
 		//可选课程中去除免修免考课程
 		Set<ElecCourse> applyCourses = c.getApplyForDropCourses();
-		for (String centerCourses : optionalGraduateCourses)
+		for (String centerCourses : optionalGraduateCoursesList)
 		{
 			Boolean flag = true;
 			for (ElecCourse courseCode : applyCourses)
@@ -1069,24 +1102,41 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
 		//去重成绩未通过的课程
-		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+//		Set<CompletedCourse> failedCourse = c.getFailedCourse();
+//		List<String> courses = new ArrayList<>();
+//		for (String centerCourses : lastCourse)
+//		{
+//		    Boolean flag = true;
+//		    for (CompletedCourse selectedCourseModel : failedCourse)
+//		    {
+//		        if (selectedCourseModel.getCourseCode()
+//						.equals(centerCourses))
+//		        {
+//		            flag = false;
+//		            break;
+//		        }
+//		    }
+//		    if (flag)
+//		    {
+//		    	courses.add(centerCourses);
+//		    }
+//		}
+		
+		// 去除已修的课程
+		List<CompletedCourse> takenCourses = c.getTakenCourses();
 		List<String> courses = new ArrayList<>();
-		for (String centerCourses : lastCourse)
-		{
-		    Boolean flag = true;
-		    for (CompletedCourse selectedCourseModel : failedCourse)
-		    {
-		        if (selectedCourseModel.getCourseCode()
-						.equals(centerCourses))
-		        {
-		            flag = false;
-		            break;
-		        }
-		    }
-		    if (flag)
-		    {
-		    	courses.add(centerCourses);
-		    }
+		for (String centerCourses : lastCourse) {
+			Boolean flag = true;
+			for (CompletedCourse takenCourse : takenCourses) {
+				if (takenCourse.getCourseCode().
+						equals(centerCourses)) {
+					flag = false;
+					break;
+				}
+			}
+			if (flag) {
+				courses.add(centerCourses);
+			}
 		}
 		return courses;
 	}
