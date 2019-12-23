@@ -111,6 +111,17 @@ public class ElcCourseTakeQuery
     
     private Integer electionMode;
 
+    /*部门id*/
+    private String projId;
+
+    public String getProjId() {
+        return projId;
+    }
+
+    public void setProjId(String projId) {
+        this.projId = projId;
+    }
+
     public List<String> getFaculties() {
         return faculties;
     }
