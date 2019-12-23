@@ -13,9 +13,12 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.election.controller.ElecAgentYjsController;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -75,6 +78,9 @@ import tk.mybatis.mapper.entity.Example;
 @Component
 public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
 {
+    //log日志记录
+    Logger logger = LoggerFactory.getLogger(BKCourseGradeLoad.class);
+
     @Autowired
     private StudentDao studentDao;
     
@@ -395,6 +401,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         Set<SelectedCourse> selectedCourses, Long calendarId)
     {
     	Integer index =TableIndexUtil.getIndex(calendarId);
+    	//记录日志
+        logger.info("----alex---it is start to findBkSelectedCourses.........................");
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findBkSelectedCourses(studentId, calendarId,index);
         String name = SchoolCalendarCacheUtil.getName(calendarId);

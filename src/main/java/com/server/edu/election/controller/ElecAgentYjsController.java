@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 
 import com.alibaba.fastjson.JSONObject;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -159,13 +160,20 @@ public class ElecAgentYjsController
         if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
             && !session.isAdmin() && session.isAcdemicDean())
         {
-            noSelectCourseStds.setFaculty(session.getFaculty());
+            if(StringUtils.isNotEmpty(session.getFaculty())) {
+                noSelectCourseStds.setFaculty(session.getFaculty());
+            }else{
+                noSelectCourseStds.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
+            }
+
             noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
         }
+        LOG.info("-----LSG---the findAgentElcStudentList parames is:{}", JSONObject.toJSONString(condition.getCondition()));
         // 部门
         noSelectCourseStds.setProjId(CommonConstant.getProjId(noSelectCourseStds.getProjId()));
         // 查询列表集合
-        LOG.info("-----LSG---the findAgentElcStudentList parames is:{}", JSONObject.toJSONString(condition.getCondition()));
+        condition.setCondition(noSelectCourseStds);
+        LOG.info("=====alex=====it is start to findAgentElcStudentList parames is:{}", JSONObject.toJSONString(condition.getCondition()));
         PageResult<NoSelectCourseStdsDto> list =
             yjsService.findAgentElcStudentList(condition);
         return RestResult.successData(list);

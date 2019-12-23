@@ -1652,6 +1652,13 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and FACULTY_ = #{faculty,jdbcType=VARCHAR}
             </if>
+            <!-- 管理学院、所属学院 -->
+            <if test="faculties != null and faculties.size() > 0" >
+                AND FACULTY_ IN
+                <foreach collection="faculties" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
                 and (STUDENT_CODE_ like concat('%',#{keyword},'%') OR NAME_ like concat('%',#{keyword},'%'))
             </if>
