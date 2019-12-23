@@ -1,9 +1,12 @@
 package com.server.edu.election.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.edu.election.dto.NoSelectCourseStdsDto;
 import com.server.edu.session.util.SessionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -326,5 +329,23 @@ public class CommonConstant {
     public static String getUUID(){
         String uuidStr = UUID.randomUUID().toString();
         return uuidStr.replace("-","");
+    }
+
+
+    /**
+     * 获取
+     * @param projId
+     * @return
+     */
+    public static String getProjId(String projId) {
+        if(StringUtils.isEmpty(projId)){
+            String currentManageDptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            if(StringUtils.isEmpty(currentManageDptId)|| CommonConstant.isEmptyObj(currentManageDptId)){
+                Set<String> deptIds = SessionUtils.getCurrentSession().getDeptIds();
+                currentManageDptId=StringUtils.join(deptIds,",");
+            }
+            projId=currentManageDptId;
+        }
+        return projId;
     }
 }

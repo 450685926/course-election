@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
+import com.server.edu.election.util.CommonConstant;
 import com.server.edu.election.vo.CourseConflictVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -89,15 +91,18 @@ public class ElcCourseTakeYjsController
     public RestResult<PageResult<ElcCourseTakeVo>> graduatePage(
             @RequestBody PageCondition<ElcCourseTakeQuery> condition)
     {
+        logger.info("--- alex --it is start to query graduatePage:{}",condition);
         ElcCourseTakeQuery query = condition.getCondition();
         ValidatorUtil.validateAndThrow(query);
         Session session = SessionUtils.getCurrentSession();
         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             query.setFaculty(session.getFaculty());
         }
-        PageResult<ElcCourseTakeVo> list =
-                courseTakeService.graduatePage(condition);
-
+        logger.info("*** alex **the parames is:{]", JSONObject.toJSONString(query));
+        //部门
+        query.setProjId(CommonConstant.getProjId(query.getProjId()));
+        logger.info("-----lsg-----graduatePage parames is:{}",JSONObject.toJSONString(condition.getCondition()));
+        PageResult<ElcCourseTakeVo> list = courseTakeService.graduatePage(condition);
         return RestResult.successData(list);
     }
 

@@ -95,6 +95,17 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
     private Integer turn;
 
+    /*部门id*/
+    private String projId;
+
+    public String getProjId() {
+        return projId;
+    }
+
+    public void setProjId(String projId) {
+        this.projId = projId;
+    }
+
     public String getStudentFaculty() {
         return studentFaculty;
     }
