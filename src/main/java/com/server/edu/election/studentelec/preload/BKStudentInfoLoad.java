@@ -59,12 +59,14 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
                 studentInfo.getStudentId());
             throw new RuntimeException(msg);
         }
+        String major = studentDao.getStudentMajor(stu.getGrade(),stu.getProfession());
         studentInfo.setGrade(stu.getGrade());
         studentInfo.setMajor(stu.getProfession());
         studentInfo.setSex(stu.getSex());
         studentInfo.setStudentName(stu.getName());
         studentInfo.setCampus(stu.getCampus());
         studentInfo.setManagerDeptId(stu.getManagerDeptId());
+        studentInfo.setBkMajor(major);
         //专项计划
         studentInfo.setSpcialPlan(stu.getSpcialPlan());
         // 是否留学生

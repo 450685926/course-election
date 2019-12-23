@@ -63,6 +63,13 @@ public interface StudentDao extends Mapper<Student> {
 	StudentPayment getStudentPayment(@Param("studentId") String studentId,@Param("year") String year,@Param("semester") String semester);
 
     String findStuEmail(@Param("studentId") String studentId);
+
+    /**
+     * @param grade
+     * @param profession
+     * @return
+     */
+    String getStudentMajor(@Param("grade")Integer grade, @Param("profession")String profession);
 }
 
 

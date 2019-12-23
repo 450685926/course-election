@@ -31,4 +31,8 @@
   <select id="getCourseLabelName" resultType="java.lang.String">
   	SELECT LABEL_ FROM `courses_label_t` WHERE ID_ = #{label}
   </select>
+
+  <select id="getAllCoursesLevelCourse" resultType="java.lang.String">
+  	SELECT code FROM `v_english_courses_t`
+  </select>
 </mapper>
