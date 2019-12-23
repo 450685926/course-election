@@ -1,13 +1,13 @@
 package com.server.edu.election.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
+import com.alibaba.fastjson.JSONObject;
+import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
@@ -155,17 +155,28 @@ public class ElecAgentYjsController
             throw new ParameterValidateException(
                 I18nUtil.getMsg("agentElc.role.err"));
         }
-        
+        // 教务员
+        NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
         if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
             && !session.isAdmin() && session.isAcdemicDean())
-        {// 教务员
-            NoSelectCourseStdsDto noSelectCourseStds = condition.getCondition();
+        {
+            if(StringUtils.isNotEmpty(session.getFaculty())) {
+                noSelectCourseStds.setFaculty(session.getFaculty());
+            }else{
+                noSelectCourseStds.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
+            }
+
             noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
-            noSelectCourseStds.setFaculty(session.getFaculty());
         }
+        LOG.info("-----LSG---the findAgentElcStudentList parames is:{}", JSONObject.toJSONString(condition.getCondition()));
+        // 部门
+        noSelectCourseStds.setProjId(CommonConstant.getProjId(noSelectCourseStds.getProjId()));
+        // 查询列表集合
+        condition.setCondition(noSelectCourseStds);
+        LOG.info("=====alex=====it is start to findAgentElcStudentList parames is:{}", JSONObject.toJSONString(condition.getCondition()));
         PageResult<NoSelectCourseStdsDto> list =
             yjsService.findAgentElcStudentList(condition);
         return RestResult.successData(list);
     }
-    
+
 }

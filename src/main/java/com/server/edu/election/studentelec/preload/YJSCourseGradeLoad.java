@@ -132,14 +132,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     lesson.setCourseName(co.getName());
                     lesson.setNature(co.getNature());
                     lesson.setFaculty(co.getCollege());
-                    // 上课时间“春秋季”特殊处理
-                    if ("3".equals(co.getTerm())) {
-                    	lesson.setTerm("1");
-        			}else if("4".equals(co.getTerm())){
-        				lesson.setTerm("2");
-        			}else {
-        				lesson.setTerm(co.getTerm());
-        			}
                 }
                 lesson.setStudentId(studentScore.getStudentId());
                 lesson.setCredits(studentScore.getCredit());
@@ -164,6 +156,8 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                         lesson.setRemark(teachingClass.getRemark());
                     }
                     SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                    // 上课时间“春秋季”特殊处理
+                    lesson.setTerm(schoolCalendar.getTerm().toString());
                     // 根据校历id设置学年
                     if (schoolCalendar != null) {
                         lesson.setCalendarName(schoolCalendar.getYear()+"");
@@ -219,14 +213,11 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCredits(teachingClassCache.getCredits());
             	lesson.setFaculty(teachingClassCache.getFaculty());
+
+            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
             	// 上课时间“春秋季”特殊处理
-            	if ("3".equals(teachingClassCache.getTerm())) {
-                	lesson.setTerm("1");
-    			}else if("4".equals(teachingClassCache.getTerm())){
-    				lesson.setTerm("2");
-    			}else {
-    				lesson.setTerm(teachingClassCache.getTerm());
-    			}
+				lesson.setTerm(schoolCalendar.getTerm().toString());
+				
             	lesson.setRemark(teachingClassCache.getRemark());
             	lesson.setTeacherName(teachingClassCache.getTeacherName());
             	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
@@ -234,7 +225,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
             	lesson.setCalendarId(teachingClassCache.getCalendarId());
             	lesson.setStudentId(studentId);
-            	SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
                 // 根据校历id设置学年
                 if (schoolCalendar != null) {
                     lesson.setCalendarName(schoolCalendar.getYear()+"");
@@ -390,7 +380,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 course.setCourseTakeType(c.getCourseTakeType());
                 course.setCredits(c.getCredits());
                 course.setCalendarId(c.getCalendarId());
-                course.setAssessmentMode(c.getAssessmentMode());
+                course.setAssessmentMode(c.getAssessmentMode());//考试/查
                 course.setPublicElec(
                     c.getIsPublicCourse() == Constants.ZERO ? false : true);
                 course.setTeachClassId(c.getTeachingClassId());

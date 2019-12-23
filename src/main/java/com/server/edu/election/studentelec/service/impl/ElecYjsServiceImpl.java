@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.dao.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
 import org.slf4j.Logger;
@@ -46,11 +47,6 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.election.constants.ElectRuleType;
-import com.server.edu.election.dao.ElcCourseTakeDao;
-import com.server.edu.election.dao.ElcLogDao;
-import com.server.edu.election.dao.ElecRoundsDao;
-import com.server.edu.election.dao.StudentDao;
-import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElectionRoundsDto;
 import com.server.edu.election.dto.NoSelectCourseStdsDto;
@@ -117,6 +113,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
     @Autowired
     private TeachingClassDao classDao;
+
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDao;
     
     @Autowired
     private ElcLogDao elcLogDao;
@@ -348,7 +347,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
     }
     
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
@@ -459,6 +458,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             {
                 dataProvider.decrElcNumber(teachClassId);
             }
+            //Todo 更新失败返回0，并不影响接口正常运行，所以导致 删除失败，但是日志插入正常
             
             /*************************选课后修改学生培养计划中课程选课状态************************/
             try {
@@ -571,6 +571,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
         
     	List<ElcCourseResult> setOptionalCourses = new ArrayList<>();
+        List<Long> ids = new ArrayList<>(100);
         //从缓存中拿到本轮次排课信息
         HashOperations<String, String, String> ops = strTemplate.opsForHash();
 //        HashOperations<String, String, List<String>> ops2 = strTemplate.opsForHash();
@@ -633,12 +634,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				               elcCourseResult.setCourseName(completedCourse.getCourseName());
 				               elcCourseResult.setCredits(completedCourse.getCredits());
 			                   Long teachClassId = teachClass.getTeachClassId();
-			                   Integer elecNumber =
+                               ids.add(teachClassId);
+
+                               Integer elecNumber =
 			                       dataProvider.getElecNumber(teachClassId);
 			                   teachClass.setCurrentNumber(elecNumber);
 			                   elcCourseResult.setFaculty(teachClass.getFaculty());
 			                   elcCourseResult
-			                       .setTeachClassId(teachClass.getTeachClassId());
+			                       .setTeachClassId(teachClassId);
 			                   elcCourseResult
 			                       .setTeachClassCode(teachClass.getTeachClassCode());
 			                   elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
@@ -651,7 +654,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   elcCourseResult.setTimes(teachClass.getTimes());
 			                   elcCourseResult.setRemark(teachClass.getRemark());
 			                   elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
-			                   
 			                   setOptionalCourses.add(elcCourseResult);
 			               }
 			           }
@@ -687,13 +689,15 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setCredits(teachClass.getCredits());
 											
 							Long teachClassId = teachClass.getTeachClassId();
-							Integer elecNumber =
+                            ids.add(teachClassId);
+
+                            Integer elecNumber =
 							    dataProvider.getElecNumber(teachClassId);
 							teachClass.setCurrentNumber(elecNumber);
 							elcCourseResult.setFaculty(teachClass.getFaculty());
 							elcCourseResult.setManArrangeFlag(teachClass.getManArrangeFlag());
 							elcCourseResult
-							    .setTeachClassId(teachClass.getTeachClassId());
+							    .setTeachClassId(teachClassId);
 							elcCourseResult
 							    .setTeachClassCode(teachClass.getTeachClassCode());
 							elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
@@ -706,8 +710,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setTimes(teachClass.getTimes());
 							elcCourseResult.setRemark(teachClass.getRemark());
 		                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
-							
-					       setOptionalCourses.add(elcCourseResult);
+
+                            setOptionalCourses.add(elcCourseResult);
 					   }
 					}
 				
@@ -736,12 +740,14 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			               elcCourseResult.setCourseName(completedCourse.getCourseName());
 			               elcCourseResult.setCredits(completedCourse.getCredits());
 		                   Long teachClassId = teachClass.getTeachClassId();
+		                   ids.add(teachClassId);
+
 		                   Integer elecNumber =
 		                       dataProvider.getElecNumber(teachClassId);
 		                   teachClass.setCurrentNumber(elecNumber);
 		                   elcCourseResult.setFaculty(teachClass.getFaculty());
 		                   elcCourseResult
-		                       .setTeachClassId(teachClass.getTeachClassId());
+		                       .setTeachClassId(teachClassId);
 		                   elcCourseResult
 		                       .setTeachClassCode(teachClass.getTeachClassCode());
 		                   elcCourseResult.setTeacherCode(teachClass.getTeacherCode());
@@ -762,6 +768,19 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
+        if (CollectionUtil.isNotEmpty(ids)) {
+            List<TeachingClassCache> teacherClass = teachingClassTeacherDao.findTeacherClass(ids);
+            Map<Long, List<TeachingClassCache>> map = teacherClass.stream().collect(Collectors.groupingBy(TeachingClassCache::getTeachClassId));
+            for (ElcCourseResult sortOptionalCours : sortOptionalCourses) {
+                Long teachClassId = sortOptionalCours.getTeachClassId();
+                List<TeachingClassCache> teachingClassCaches = map.get(teachClassId);
+                if (CollectionUtil.isNotEmpty(teachingClassCaches)) {
+                    Set<String> set = teachingClassCaches.stream().map(TeachingClassCache::getTeacherName).collect(Collectors.toSet());
+                    sortOptionalCours.setTeacherName(String.join(",", set));
+                }
+            }
+        }
+
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
         LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses());
@@ -1465,9 +1484,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     }
     
     @Override
-    public List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo)
+    public PageResult<TeachingClassCache> arrangementCourses(PageCondition<AllCourseVo> allCourseVo)
     {
-        List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
+        int pageNum = allCourseVo.getPageNum_() == 0 ? 1 : allCourseVo.getPageNum_();
+        int pageSize = allCourseVo.getPageSize_() == 0 ? 20 : allCourseVo.getPageSize_();
+        List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo.getCondition());
         List<TeachingClassCache> lessons =
             new ArrayList<TeachingClassCache>(list.size());
         
@@ -1485,8 +1506,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         // 过滤null
         lessons = lessons.stream()
             .filter(Objects::nonNull)
+            .skip((pageNum-1)*pageSize)
+            .limit(pageSize)
             .collect(Collectors.toList());
-        return lessons;
+        PageResult<TeachingClassCache> result = new PageResult(pageNum,pageSize,lessons.size(),lessons);
+        return result;
     }
     
     public HashOperations<String, String, TeachingClassCache> opsTeachClass()

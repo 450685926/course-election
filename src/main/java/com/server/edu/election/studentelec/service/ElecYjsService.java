@@ -36,7 +36,7 @@ public interface ElecYjsService
      * @param AllCourseVo allCourseVo
      * @return
      */
-    List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo);
+    PageResult<TeachingClassCache> arrangementCourses(PageCondition<AllCourseVo> allCourseVo);
     
     /**
      *     获取被代理选课的学生列表

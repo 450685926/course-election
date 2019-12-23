@@ -65,8 +65,6 @@ public class YJSCoursePlanLoad extends DataProLoad<ElecContext>
         if(CollectionUtil.isNotEmpty(courseType)){
             log.info("plan course size:{}", courseType.size());
             Set<PlanCourse> planCourses = context.getPlanCourses();//培养课程
-            Set<ElecCourse> publicCourses = context.getPublicCourses();//通识选修课
-            Set<CourseGroup> courseGroups = context.getCourseGroups();//课程组学分限制
             for (PlanCourseDto planCourse : courseType) {
                 List<PlanCourseTypeDto> list = planCourse.getList();
                 if(CollectionUtil.isNotEmpty(list)){
