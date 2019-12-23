@@ -92,6 +92,14 @@ public interface ElcResultService
     void releaseAll(ElcResultQuery condition);
     
     /**
+     * 异步自动剔除超过人数
+     * 
+     * @param dto
+     * @see [类、类#方法、类#成员]
+     */
+    AsyncResult asyncAutoRemove(AutoRemoveDto dto);
+    
+    /**
      * 自动剔除超过人数
      * 
      * @param dto
