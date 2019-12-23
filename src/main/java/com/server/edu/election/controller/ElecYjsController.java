@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.util.CommonConstant;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
@@ -148,15 +150,14 @@ public class ElecYjsController
      */
     @ApiOperation(value = "查询全部课程")
     @PostMapping("/round/arrangementCourses")
-    public RestResult<List<TeachingClassCache>> arrangementCourses(
+    public RestResult<PageResult<TeachingClassCache>> arrangementCourses(
         @RequestBody @Valid AllCourseVo allCourseVo)
     {
         logger.info("election getAllCourse start !!!");
-        
         Session session = SessionUtils.getCurrentSession();
-        
+
         allCourseVo.setProjectId(session.getCurrentManageDptId());
-        
+
         /** 学生 */
         boolean isStudent = session.isStudent();
         /** 管理员 */
@@ -165,24 +166,26 @@ public class ElecYjsController
         /** 教务员  */
         boolean isDepartAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				                && !session.isAdmin() && session.isAcdemicDean();
-        
-        RestResult<Student> studentMessage = new RestResult<Student>();
-        if (isStudent) {
-        	studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
-		}else if (isAdmin || isDepartAdmin) {
-			studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getStudentCode());
-		}
-        Student student = studentMessage.getData();
-        allCourseVo.setTrainingLevel(student.getTrainingLevel());
-        allCourseVo.setCampu(student.getCampus());
-        
+
+        // 如果前端传值campu和trainingLevel,则不需要访问后端接口
+        if (CommonConstant.isEmptyStr(allCourseVo.getCampu()) || CommonConstant.isEmptyStr(allCourseVo.getTrainingLevel())) {
+            RestResult<Student> studentMessage = new RestResult<Student>();
+            if (isStudent) {
+                studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
+            }else if (isAdmin || isDepartAdmin) {
+                studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getStudentCode());
+            }
+            Student student = studentMessage.getData();
+            allCourseVo.setTrainingLevel(student.getTrainingLevel());
+            allCourseVo.setCampu(student.getCampus());
+        }
         if (isStudent || isDepartAdmin) {
         	ElectionRoundsDto roundsDto =
         			electionRoundService.get(allCourseVo.getRoundId());
         	allCourseVo.setCalendarId(roundsDto.getCalendarId());
 		}
-        
-        List<TeachingClassCache> restResult =
+
+        PageResult<TeachingClassCache> restResult =
             yjsService.arrangementCourses(allCourseVo);
         return RestResult.successData(restResult);
     }

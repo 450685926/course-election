@@ -348,7 +348,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
     }
     
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
@@ -459,6 +459,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             {
                 dataProvider.decrElcNumber(teachClassId);
             }
+            //Todo 更新失败返回0，并不影响接口正常运行，所以导致 删除失败，但是日志插入正常
             
             /*************************选课后修改学生培养计划中课程选课状态************************/
             try {
@@ -1465,8 +1466,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     }
     
     @Override
-    public List<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo)
+    public PageResult<TeachingClassCache> arrangementCourses(AllCourseVo allCourseVo)
     {
+        int pageNum = allCourseVo.getPageNum_() == 0 ? 1 : allCourseVo.getPageNum_();
+        int pageSize = allCourseVo.getPageSize_() == 0 ? 20 : allCourseVo.getPageSize_();
         List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo);
         List<TeachingClassCache> lessons =
             new ArrayList<TeachingClassCache>(list.size());
@@ -1485,8 +1488,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         // 过滤null
         lessons = lessons.stream()
             .filter(Objects::nonNull)
+            .skip((pageNum-1)*pageSize)
+            .limit(pageSize)
             .collect(Collectors.toList());
-        return lessons;
+        PageResult<TeachingClassCache> result = new PageResult(pageNum,pageSize,lessons.size(),lessons);
+        return result;
     }
     
     public HashOperations<String, String, TeachingClassCache> opsTeachClass()
