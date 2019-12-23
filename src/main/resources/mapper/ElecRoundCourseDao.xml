@@ -390,7 +390,8 @@
 	JOIN teaching_class_t cl1 ON cl1.TASK_ID_ = ta.ID_
 	left JOIN teaching_class_arrange_time_t time ON cl1.ID_ = time.TEACHING_CLASS_ID_
 	WHERE
-		cl1.MAN_ARRANGE_FLAG_ in(1,2,3)
+		cl1.DELETE_STATUS_ = 0
+	AND	cl1.MAN_ARRANGE_FLAG_ in(1,2,3)
 	AND op1.PROJ_ID_ in(2,4)
 	AND op1.CALENDAR_ID_ = #{calendarId}
 	ORDER BY

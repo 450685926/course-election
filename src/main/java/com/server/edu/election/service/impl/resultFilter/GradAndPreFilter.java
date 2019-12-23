@@ -1,6 +1,7 @@
 package com.server.edu.election.service.impl.resultFilter;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,13 +58,24 @@ public class GradAndPreFilter
     public void execute(List<Student> stuList, List<String> removeStus)
     {
         // 删除非配课年级专业学生
-        if (dto.getGradAndPre())
+    	 // 按配课年级专业人数比例(A专业20，B专业50，如果B专业70人A专业将无法选课)
+        if (dto.getSuggestSwitchCourse())
         {
+//            //0. 删除指定学生外的人
+//            if (CollectionUtil.isNotEmpty(restrictStus))
+//            {
+//                Iterator<Student> iterator = stuList.iterator();
+//                while (iterator.hasNext())
+//                {
+//                    Student stu = iterator.next();
+//                    if (!restrictStus.contains(stu.getStudentCode()))
+//                    {
+//                        removeStus.add(stu.getStudentCode());
+//                        iterator.remove();
+//                    }
+//                }
+//            }
             gradAndPre(stuList, profNumMap, removeStus);
-        }
-        // 按配课年级专业人数比例(A专业20，B专业50，如果B专业70人A专业将无法选课)
-        if (dto.getGradAndPrePeople())
-        {
             gradAndPrePeople(stuList, profNumMap, removeStus);
         }
     }

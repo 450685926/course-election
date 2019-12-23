@@ -329,12 +329,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     break;
                  }
             }
-            return RestResult.successData(respose);
         }
-        ElecRespose respose1 = new ElecRespose();
-        respose1.setIsPlan(isPlan);
-        respose1.setIsLimit(isLimit);
-        return RestResult.successData(respose1);
+        return RestResult.successData(respose);
     }
     
     @Override
@@ -614,7 +610,13 @@ public class StudentElecServiceImpl extends AbstractCacheService
         List<ElectionApply> electionApplys =
                 electionApplyDao.selectByExample(aExample);
         elecApplyCourses.addAll(electionApplys);
-
+        //去除培养计划中的重复课程
+        Set<PlanCourse> planCourses = c.getPlanCourses();
+        ArrayList<PlanCourse> newPlanCourse = planCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
+        planCourses = new HashSet<>(newPlanCourse);
+        Set<PlanCourse> onlyCourses = c.getOnlyCourses();
+        ArrayList<PlanCourse> newOnlyCourses = onlyCourses.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getCourse().getCourseCode() + ";" + o.getSemester()))), ArrayList::new));
+        onlyCourses = new HashSet<>(newOnlyCourses);
 
     }
 
