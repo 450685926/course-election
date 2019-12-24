@@ -527,52 +527,64 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 {
                     continue;
                 }
-                ClassTimeUnit un = new ClassTimeUnit();
-                TeacherClassTimeRoom room = rooms.get(0);
-                un.setArrangeTimeId(room.getArrangeTimeId());
-                un.setDayOfWeek(room.getDayOfWeek());
-                un.setTeachClassId(room.getTeachClassId());
-                un.setTimeEnd(room.getTimeEnd());
-                un.setTimeStart(room.getTimeStart());
-                un.setTeacherCode(room.getTeacherCode());
-                un.setRoomId(room.getRoomId());
-                // 所有周
-                List<Integer> weeks = rooms.stream()
-                    .map(TeacherClassTimeRoom::getWeekNumber)
-                    .collect(Collectors.toList());
-                // 相同教室相同老师的周次
-                Map<String, List<TeacherClassTimeRoom>> roomTeacherMap =
-                    rooms.stream().collect(Collectors.groupingBy(r -> {
-                        return r.getRoomId() + "_" + r.getTeacherCode();
-                    }));
+                Map<String, List<TeacherClassTimeRoom>> timeRoomMap1 = rooms.stream()
+                        .collect(Collectors
+                                .groupingBy(TeacherClassTimeRoom::getTeacherCode));
+                for (Entry<String, List<TeacherClassTimeRoom>> entry3 : timeRoomMap1
+                        .entrySet()){
+                    List<TeacherClassTimeRoom> rooms3 = entry3.getValue();
+                    if (CollectionUtil.isEmpty(rooms3))
+                    {
+                        continue;
+                    }
+                    ClassTimeUnit un = new ClassTimeUnit();
+                    TeacherClassTimeRoom room = rooms3.get(0);
+                    un.setArrangeTimeId(room.getArrangeTimeId());
+                    un.setDayOfWeek(room.getDayOfWeek());
+                    un.setTeachClassId(room.getTeachClassId());
+                    un.setTimeEnd(room.getTimeEnd());
+                    un.setTimeStart(room.getTimeStart());
+                    un.setTeacherCode(room.getTeacherCode());
+                    un.setRoomId(room.getRoomId());
+                    // 所有周
+                    List<Integer> weeks = rooms3.stream()
+                            .map(TeacherClassTimeRoom::getWeekNumber)
+                            .collect(Collectors.toList());
+                    // 相同教室相同老师的周次
+                    Map<String, List<TeacherClassTimeRoom>> roomTeacherMap =
+                            rooms3.stream().collect(Collectors.groupingBy(r -> {
+                                return r.getRoomId() + "_" + r.getTeacherCode();
+                            }));
 
-                StringBuilder sb = new StringBuilder();
-                for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
-                    .entrySet())
-                {
-                    List<TeacherClassTimeRoom> roomTeachers = e.getValue();
-                    TeacherClassTimeRoom r = roomTeachers.get(0);
-                    List<Integer> roomWeeks = roomTeachers.stream()
-                        .map(TeacherClassTimeRoom::getWeekNumber)
-                        .collect(Collectors.toList());
-                    
-                    //String weekStr = CalUtil.getWeeks(roomWeeks);
-                    //单双周
-                    String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
-                    
-                    String teacherNames = getTeacherInfo(r.getTeacherCode());
-                    
-                    String roomName =
-                        ClassroomCacheUtil.getRoomName(r.getRoomId());
-                    // 老师名称(老师编号)[周] 教室
-                    sb.append(String
-                        .format("%s %s %s", teacherNames, weekStr, roomName))
-                        .append(" ");
+                    StringBuilder sb = new StringBuilder();
+                    for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
+                            .entrySet())
+                    {
+                        List<TeacherClassTimeRoom> roomTeachers = e.getValue();
+                        TeacherClassTimeRoom r = roomTeachers.get(0);
+                        List<Integer> roomWeeks = roomTeachers.stream()
+                                .map(TeacherClassTimeRoom::getWeekNumber)
+                                .collect(Collectors.toList());
+
+                        //String weekStr = CalUtil.getWeeks(roomWeeks);
+                        //单双周
+                        String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
+
+                        String teacherNames = getTeacherInfo(r.getTeacherCode());
+
+                        String roomName =
+                                ClassroomCacheUtil.getRoomName(r.getRoomId());
+                        // 老师名称(老师编号)[周] 教室
+                        sb.append(String
+                                .format("%s %s %s", teacherNames, weekStr, roomName))
+                                .append(" ");
+                    }
+                    Collections.sort(weeks);
+                    un.setValue(sb.toString());
+                    un.setWeeks(weeks);
+                    times.add(un);
                 }
-                Collections.sort(weeks);
-                un.setValue(sb.toString());
-                un.setWeeks(weeks);
-                times.add(un);
+
             }
             
             map.put(entry.getKey(), times);
@@ -606,7 +618,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     c.getTeachClassCode(),
                     ctu.getValue()));
             }
-            
+
             teacherName = this.getTeacherName(times);
             
             c.setTeacherName(teacherName);
