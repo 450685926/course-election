@@ -86,7 +86,6 @@ public class ElecYjsController
     public RestResult<List<ElectionRoundsVo>> getGraduateRounds(
         @RequestParam("projectId") @NotBlank String projectId)
     {
-        logger.info("getGraduateRounds controller start...");
         long startTime = System.currentTimeMillis();
         Session session = SessionUtils.getCurrentSession();
         List<ElectionRoundsVo> data = new ArrayList<>();
@@ -119,7 +118,6 @@ public class ElecYjsController
 				}
             }
         }
-        logger.info("getGraduateRounds controller end. the total time is  : {}ms", (System.currentTimeMillis() - startTime));
         return RestResult.successData(data);
     }
     
