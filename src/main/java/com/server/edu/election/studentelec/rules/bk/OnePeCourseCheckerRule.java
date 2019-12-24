@@ -71,7 +71,7 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutorBk
                     if (list
                         .contains(selectedCours.getCourse().getCourseCode()))
                     {
-                    	if(courseClass.getTeachClassCode().equals(selectedCours.getCourse().getTeachClassCode())) {
+                    	if(courseClass.getCourseCode().equals(selectedCours.getCourse().getCourseCode())) {
                     		return true;
                     	}else {
                             ElecRespose respose = context.getRespose();
