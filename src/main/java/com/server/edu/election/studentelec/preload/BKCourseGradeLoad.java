@@ -633,7 +633,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
             teacherName = String.join(",", names);
         }
         c.setTeacherName(teacherName);
-        List<ClassTimeUnit> list = new ArrayList<>(timeTableMessages.size());
+        List<ClassTimeUnit> list = new ArrayList<>(10);
         if (CollectionUtil.isNotEmpty(timeTableMessages))
         {
             String str = new StringBuilder().append(teacherName).append(" ").append(c.getCourseName()).toString();
@@ -651,6 +651,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 String roomName =
                         ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
                 ct.setValue(str + weekStr + roomName);
+                list.add(ct);
             }
         }
         return list;
