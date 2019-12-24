@@ -763,7 +763,7 @@
         <foreach collection="list" open="(" separator="," close=")" item="id">
             #{id}
         </foreach>
-        GROUP BY t2.ID_,t4.ROOM_ID_
+        GROUP BY t2.ID_,t3.ID_,t4.ROOM_ID_
     </select>
 
    <select id="selectDrawClasss" parameterType="com.server.edu.election.dto.ElcNumberSetDto" resultType="com.server.edu.election.vo.TeachingClassVo">
