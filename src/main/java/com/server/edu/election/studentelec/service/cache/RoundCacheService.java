@@ -187,6 +187,8 @@ public class RoundCacheService extends AbstractCacheService
      */
     public boolean containsStuCondition(Long roundId, String studentId,String projectId)
     {
+        log.info("containsStuCondition start ...");
+        long startTime = System.currentTimeMillis();
         if (null == roundId || StringUtils.isBlank(studentId))
         {
             return false;
@@ -221,6 +223,7 @@ public class RoundCacheService extends AbstractCacheService
         	
         	if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
         		if (!matchConditionFlag) {
+                    log.info("dy log :containsStuCondition end ...total time is {} ms.",(System.currentTimeMillis() - startTime));
 					return false;
 				}
         	}else {
@@ -230,11 +233,14 @@ public class RoundCacheService extends AbstractCacheService
         				&& contains(con.getFormLearnings(), student.getFormLearning());
         		
         		if (!matchConditionFlag || !matchConditionGraduteFlag) {
+                    log.info("dy log :containsStuCondition end ...total time is {} ms.",(System.currentTimeMillis() - startTime));
 					return false;
 				}
 			}
+            log.info("dy log :containsStuCondition end ...total time is {} ms.",(System.currentTimeMillis() - startTime));
         	return true;
         }
+        log.info("dy log :containsStuCondition end ...total time is {} ms.",(System.currentTimeMillis() - startTime));
         return true;
     }
     

@@ -86,6 +86,8 @@ public class ElecYjsController
     public RestResult<List<ElectionRoundsVo>> getGraduateRounds(
         @RequestParam("projectId") @NotBlank String projectId)
     {
+        logger.info("getGraduateRounds controller start...");
+        long startTime = System.currentTimeMillis();
         Session session = SessionUtils.getCurrentSession();
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
@@ -96,7 +98,7 @@ public class ElecYjsController
             Long roundId = round.getId();
             if (StringUtils.equals(round.getProjectId(), projectId) 
                 && StringUtils.equals(Constants.STU, round.getElectionObj())
-                && date.after(round.getBeginTime()) 
+                && date.after(round.getBeginTime())
                 && date.before(round.getEndTime()) 
                 && dataProvider.containsStuCondition(roundId, studentId, projectId))
             {
@@ -117,6 +119,7 @@ public class ElecYjsController
 				}
             }
         }
+        logger.info("getGraduateRounds controller end. the total time is  : {}ms", (System.currentTimeMillis() - startTime));
         return RestResult.successData(data);
     }
     
