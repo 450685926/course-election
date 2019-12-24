@@ -1067,18 +1067,24 @@ public class ElcResultServiceImpl implements ElcResultService
                             gradAndPreFilter.execute(stuList, removeStus);
                             //执行班级匹配
                             if(bindTeachingClassId !=null) {
-                            	List<Student> compareList = new ArrayList<Student>(stuList);
-                            	List<Student> removeList = new ArrayList<Student>(stuList);
-                            	compareList.retainAll(bindStudents);
-                            	removeList.removeAll(compareList);
-                            	List<String> reList = new ArrayList<String>();
-                            	if(CollectionUtil.isNotEmpty(removeList)) {
-                            		reList = removeList.stream().map(Student :: getStudentCode).collect(Collectors.toList());
-                            	}
-                            	removeStus.addAll(reList);
-                            	bindremoveStus.addAll(reList);
+                            	List<Student> compareStuList = new ArrayList<Student>(stuList);
+                            	List<Student> removeStuList = new ArrayList<Student>(bindStudents);
+                            	//班级匹配交集
+                            	List<String> onlyList = stuList.stream().map(Student ::getStudentCode).collect(Collectors.toList());
+                            	//本班级多余学生
+                            	List<String> onlyRemoveList = stuList.stream().map(Student ::getStudentCode).collect(Collectors.toList());
+                            	//绑定班级多余学生
+                            	List<String> bindList = bindStudents.stream().map(Student ::getStudentCode).collect(Collectors.toList());
+                            	//交集
+                            	onlyList.retainAll(bindList);
+                            	onlyRemoveList.removeAll(onlyList);
+                            	bindList.removeAll(onlyList);
+                            	removeStus.addAll(onlyRemoveList);
+                            	bindremoveStus.addAll(bindList);
+                            	List<Student> saveList = new ArrayList<Student>(stuList);
                             	stuList.clear();
-                            	stuList.addAll(compareList);
+                            	List<Student> saveStudents = saveList.stream().filter(c->onlyList.contains(c.getStudentCode())).collect(Collectors.toList());
+                            	stuList.addAll(saveStudents);
                             }
                             //执行完后人数还是超过上限则进行随机删除
                             if(overSize > 0) {
