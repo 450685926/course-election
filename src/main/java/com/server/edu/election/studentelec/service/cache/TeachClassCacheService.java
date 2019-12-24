@@ -12,7 +12,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.server.edu.election.dao.TeachingClassTeacherDao;
+import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.dto.TimeTableMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +63,8 @@ public class TeachClassCacheService extends AbstractCacheService
     private ElcCourseTakeDao courseTakeDao;
 
     @Autowired
-    private TeachingClassTeacherDao teachingClassTeacherDao;
-    
+    private TeachingClassDao classDao;
+
     @Autowired
     private BKCourseGradeLoad gradeLoad;
     
@@ -237,10 +238,12 @@ public class TeachClassCacheService extends AbstractCacheService
         List<Long> classIds = teachClasss.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
-        //按周数拆分的选课数据集合
-        Map<Long, List<ClassTimeUnit>> collect =
-                gradeLoad.groupYjsByTime(classIds);
-
+        Map<Long, List<TimeTableMessage>> classTimeMap = new HashMap<>(classIds.size());
+        if(CollectionUtil.isEmpty(classIds)) {
+            List<TimeTableMessage> list = classDao.getYjsClassTimes(classIds);
+            classTimeMap = list.stream()
+                    .collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+        }
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, ElecCourse> publicCourseMap = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -263,22 +266,20 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setCurrentNumber(lesson.getCurrentNumber());
             tc.setRemark(lesson.getTeachingClassRemark());
             tc.setManArrangeFlag(lesson.getManArrangeFlag());
-            tc.setTimeTableList(getYjsTimeById(teachingClassId));
+            List<TimeTableMessage> timeTableMessages = classTimeMap.get(teachingClassId);
+            tc.setTimeTableList(getYjsTimeById(timeTableMessages));
             tc.setTeachingLanguage(lesson.getTeachingLanguage());
             tc.setPublicElec(
                     lesson.getIsElective() == Constants.ONE ? true : false);
             tc.setFaculty(lesson.getFaculty());
             tc.setCalendarId(lesson.getCalendarId());
-            List<ClassTimeUnit> times = gradeLoad.concatYjsTime(collect, tc);
+            List<ClassTimeUnit> times = gradeLoad.concatYjsTime(timeTableMessages, tc);
             tc.setTimes(times);
             //设置研究生学年跟开课学期，勿删
             tc.setTerm(lesson.getTerm());
             tc.setCalendarName(year);
             tc.setReserveNumber(lesson.getReserveNumber());
-            List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachingClassId);
-            if (CollectionUtil.isNotEmpty(names)) {
-                tc.setTeacherName(String.join(",", names));
-            }
+
             numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
             map.put(teachingClassId.toString(), tc);
             // 公共选修课
@@ -352,28 +353,27 @@ public class TeachClassCacheService extends AbstractCacheService
         return list;
     }
 
-    private List<TimeAndRoom> getYjsTimeById(Long teachingClassId)
+    private List<TimeAndRoom> getYjsTimeById(List<TimeTableMessage> timeTableMessages)
     {
         List<TimeAndRoom> list = new ArrayList<>();
-        List<ClassTeacherDto> classTimeAndRoom =
-                courseTakeDao.findYjsClassTimeAndRoomStr(teachingClassId);
-        if (CollectionUtil.isNotEmpty(classTimeAndRoom))
+        if (CollectionUtil.isNotEmpty(timeTableMessages))
         {
-            for (ClassTeacherDto classTeacherDto : classTimeAndRoom)
+            for (TimeTableMessage timeTableMessage : timeTableMessages)
             {
                 TimeAndRoom time = new TimeAndRoom();
-                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
-                Integer timeStart = classTeacherDto.getTimeStart();
-                Integer timeEnd = classTeacherDto.getTimeEnd();
-                String roomID = classTeacherDto.getRoomID();
-                String weekNumber = classTeacherDto.getWeekNumberStr();
-                Long timeId = classTeacherDto.getTimeId();
+                Integer dayOfWeek = timeTableMessage.getDayOfWeek();
+                Integer timeStart = timeTableMessage.getTimeStart();
+                Integer timeEnd = timeTableMessage.getTimeEnd();
+                String roomID = timeTableMessage.getRoomId();
+                String weekNumber = timeTableMessage.getWeekNum();
+                Long timeId = timeTableMessage.getTimeId();
                 String[] str = weekNumber.split(",");
 
                 List<Integer> weeks = Arrays.asList(str)
                         .stream()
                         .map(Integer::parseInt)
                         .collect(Collectors.toList());
+                timeTableMessage.setWeeks(weeks);
                 String oneCycle = "[1, 3, 5, 7, 9, 11, 13, 15, 17]";
                 String biweekly = "[2, 4, 6, 8, 10, 12, 14, 16]";
                 String allweekly = "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]";

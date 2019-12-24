@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.controller.ElecAgentYjsController;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang3.StringUtils;
@@ -104,6 +105,9 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     
     @Autowired
     private TeachingClassTeacherDao teacherDao;
+
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDao;
     
     @Autowired
     private BkStudentScoreService bkStudentScoreService;
@@ -541,7 +545,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                     rooms.stream().collect(Collectors.groupingBy(r -> {
                         return r.getRoomId() + "_" + r.getTeacherCode();
                     }));
-                
+
                 StringBuilder sb = new StringBuilder();
                 for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
                     .entrySet())
@@ -577,98 +581,6 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         return map;
     }
 
-    public Map<Long, List<ClassTimeUnit>> groupYjsByTime(List<Long> teachClassIds)
-    {
-        Map<Long, List<ClassTimeUnit>> map = new HashMap<>();
-        List<TeacherClassTimeRoom> list = new ArrayList<>();
-        //按周数拆分的选课数据集合
-        if(CollectionUtil.isNotEmpty(teachClassIds)) {
-            list = classDao.getClassTimes(teachClassIds);
-        }
-        if (CollectionUtil.isEmpty(list))
-        {
-            return map;
-        }
-        //一个教学班分组
-        Map<Long, List<TeacherClassTimeRoom>> classTimeMap = list.stream()
-                .collect(
-                        Collectors.groupingBy(TeacherClassTimeRoom::getTeachClassId));
-
-        for (Entry<Long, List<TeacherClassTimeRoom>> entry : classTimeMap
-                .entrySet())
-        {
-            List<TeacherClassTimeRoom> ls = entry.getValue();
-            if (CollectionUtil.isEmpty(ls))
-            {
-                continue;
-            }
-            List<ClassTimeUnit> times = new ArrayList<>();
-            // time->room
-            Map<Long, List<TeacherClassTimeRoom>> timeRoomMap = ls.stream()
-                    .collect(Collectors
-                            .groupingBy(TeacherClassTimeRoom::getArrangeTimeId));
-            for (Entry<Long, List<TeacherClassTimeRoom>> entry2 : timeRoomMap
-                    .entrySet())
-            {
-                List<TeacherClassTimeRoom> rooms = entry2.getValue();
-                if (CollectionUtil.isEmpty(rooms))
-                {
-                    continue;
-                }
-                ClassTimeUnit un = new ClassTimeUnit();
-                TeacherClassTimeRoom room = rooms.get(0);
-                un.setArrangeTimeId(room.getArrangeTimeId());
-                un.setDayOfWeek(room.getDayOfWeek());
-                un.setTeachClassId(room.getTeachClassId());
-                un.setTimeEnd(room.getTimeEnd());
-                un.setTimeStart(room.getTimeStart());
-                un.setTeacherCode(room.getTeacherCode());
-                un.setRoomId(room.getRoomId());
-                // 所有周
-                List<Integer> weeks = rooms.stream()
-                        .map(TeacherClassTimeRoom::getWeekNumber)
-                        .collect(Collectors.toList());
-                // 相同教室相同老师的周次
-                Map<String, List<TeacherClassTimeRoom>> roomTeacherMap =
-                        rooms.stream().collect(Collectors.groupingBy(r -> {
-                            return r.getRoomId();
-                        }));
-
-                StringBuilder sb = new StringBuilder();
-                for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
-                        .entrySet())
-                {
-                    List<TeacherClassTimeRoom> roomTeachers = e.getValue();
-                    TeacherClassTimeRoom r = roomTeachers.get(0);
-                    List<Integer> roomWeeks = roomTeachers.stream()
-                            .map(TeacherClassTimeRoom::getWeekNumber)
-                            .collect(Collectors.toList());
-
-                    //String weekStr = CalUtil.getWeeks(roomWeeks);
-                    //单双周
-                    String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
-
-                    String teacherNames = getTeacherInfo(r.getTeacherCode());
-
-                    String roomName =
-                            ClassroomCacheUtil.getRoomName(r.getRoomId());
-                    // 老师名称(老师编号)[周] 教室
-                    sb.append(String
-                            .format("%s %s %s", teacherNames, weekStr, roomName))
-                            .append(" ");
-                }
-                Collections.sort(weeks);
-                un.setValue(sb.toString());
-                un.setWeeks(weeks);
-                times.add(un);
-            }
-
-            map.put(entry.getKey(), times);
-        }
-
-        return map;
-    }
-    
     /**
      * 拼接上课时间
      * 
@@ -711,35 +623,37 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     }
 
     public List<ClassTimeUnit> concatYjsTime(
-            Map<Long, List<ClassTimeUnit>> collect, TeachingClassCache c)
+            List<TimeTableMessage> timeTableMessages, TeachingClassCache c)
     {
         //一个教学班的排课时间信息
         Long teachClassId = c.getTeachClassId();
-        List<ClassTimeUnit> times = collect.get(teachClassId);
+        List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachClassId);
         String teacherName = null;
-        if (CollectionUtil.isNotEmpty(times))
-        {
-            for (ClassTimeUnit ctu : times)
-            {
-                ctu.setValue(String.format("%s(%s) %s",
-                        c.getCourseName(),
-                        c.getTeachClassCode(),
-                        ctu.getValue()));
-            }
-
-            teacherName = this.getTeacherName(times);
-
-            c.setTeacherName(teacherName);
-
-            return times;
-        }else{
-            List<String> findNamesByTeachingClassId = teacherDao.findNamesByTeachingClassId(teachClassId);
-            Set<String> names = new HashSet<>(findNamesByTeachingClassId);
-            teacherName = StringUtils.join(names, ",");
-            c.setTeacherName(teacherName);
+        if (CollectionUtil.isNotEmpty(names)) {
+            teacherName = String.join(",", names);
         }
-
-        return null;
+        c.setTeacherName(teacherName);
+        List<ClassTimeUnit> list = new ArrayList<>(timeTableMessages.size());
+        if (CollectionUtil.isNotEmpty(timeTableMessages))
+        {
+            String str = new StringBuilder().append(teacherName).append(" ").append(c.getCourseName()).toString();
+            for (TimeTableMessage timeTableMessage : timeTableMessages)
+            {
+                ClassTimeUnit ct = new ClassTimeUnit();
+                ct.setTeachClassId(timeTableMessage.getTeachingClassId());
+                ct.setArrangeTimeId(timeTableMessage.getTimeId());
+                ct.setTimeStart(timeTableMessage.getTimeStart());
+                ct.setTimeEnd(timeTableMessage.getTimeEnd());
+                ct.setDayOfWeek(timeTableMessage.getDayOfWeek());
+                List<Integer> weeks = timeTableMessage.getWeeks();
+                ct.setWeeks(weeks);
+                String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
+                String roomName =
+                        ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
+                ct.setValue(str + weekStr + roomName);
+            }
+        }
+        return list;
     }
     
     private String getTeacherName(List<ClassTimeUnit> times)
