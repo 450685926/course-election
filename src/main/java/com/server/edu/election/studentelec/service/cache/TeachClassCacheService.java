@@ -239,7 +239,7 @@ public class TeachClassCacheService extends AbstractCacheService
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
         Map<Long, List<TimeTableMessage>> classTimeMap = new HashMap<>(classIds.size());
-        if(CollectionUtil.isEmpty(classIds)) {
+        if(CollectionUtil.isNotEmpty(classIds)) {
             List<TimeTableMessage> list = classDao.getYjsClassTimes(classIds);
             classTimeMap = list.stream()
                     .collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
