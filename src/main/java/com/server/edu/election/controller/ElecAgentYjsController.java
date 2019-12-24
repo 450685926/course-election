@@ -161,12 +161,15 @@ public class ElecAgentYjsController
         if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
             && !session.isAdmin() && session.isAcdemicDean())
         {
-            if(StringUtils.isNotEmpty(noSelectCourseStds.getFaculty())) {
-                noSelectCourseStds.setFaculty(session.getFaculty());
+            /*if(StringUtils.isNotEmpty(noSelectCourseStds.getFaculty())) {
+                noSelectCourseStds.setFaculty(noSelectCourseStds.getFaculty());
             }else{
                 noSelectCourseStds.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
+            }*/
+            //如果前端页面下拉框学院为空,则设置为session中的学院(管理学院和所属学院)
+            if(StringUtils.isEmpty(noSelectCourseStds.getFaculty())){
+                noSelectCourseStds.setFaculties(SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue()));
             }
-
             noSelectCourseStds.setRole(Constants.DEPART_ADMIN);
         }
         LOG.info("-----LSG---the findAgentElcStudentList parames is:{}", JSONObject.toJSONString(condition.getCondition()));
