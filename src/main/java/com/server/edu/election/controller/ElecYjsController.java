@@ -96,7 +96,7 @@ public class ElecYjsController
             Long roundId = round.getId();
             if (StringUtils.equals(round.getProjectId(), projectId) 
                 && StringUtils.equals(Constants.STU, round.getElectionObj())
-                && date.after(round.getBeginTime()) 
+                && date.after(round.getBeginTime())
                 && date.before(round.getEndTime()) 
                 && dataProvider.containsStuCondition(roundId, studentId, projectId))
             {
