@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import org.apache.ibatis.annotations.Param;
 
@@ -140,7 +141,9 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
 
     /**获取上课时间*/
     List<TeacherClassTimeRoom> getClassTimes(List<Long> list);
-    
+
+    List<TimeTableMessage> getYjsClassTimes(List<Long> list);
+
     List<TeachingClassVo>  findTeachingClass(ElcResultQuery condition);
     
     List<TeachingClassVo> selectDrawClasss(ElcNumberSetDto elcNumberSetDto);
