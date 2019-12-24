@@ -73,13 +73,14 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutorBk
                     {
                     	if(courseClass.getTeachClassCode().equals(selectedCours.getCourse().getTeachClassCode())) {
                     		return true;
+                    	}else {
+                            ElecRespose respose = context.getRespose();
+                            respose.getFailedReasons()
+                                .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
+                                    I18nUtil
+                                        .getMsg("ruleCheck.onePeCourseChecker"));
+                            return false;
                     	}
-                        ElecRespose respose = context.getRespose();
-                        respose.getFailedReasons()
-                            .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
-                                I18nUtil
-                                    .getMsg("ruleCheck.onePeCourseChecker"));
-                        return false;
                     }
                 }
             }
