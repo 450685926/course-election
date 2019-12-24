@@ -12,6 +12,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.dao.ElcPeFreeStdsDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
+import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
@@ -70,6 +71,9 @@ public class OnePeCourseCheckerRule extends AbstractElecRuleExceutorBk
                     if (list
                         .contains(selectedCours.getCourse().getCourseCode()))
                     {
+                    	if(courseClass.getTeachClassCode().equals(selectedCours.getCourse().getTeachClassCode())) {
+                    		return true;
+                    	}
                         ElecRespose respose = context.getRespose();
                         respose.getFailedReasons()
                             .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
