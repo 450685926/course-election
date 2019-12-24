@@ -1161,8 +1161,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             LOG.info("*************************it is selected:{}", JSONObject.toJSONString(selected));
         	SelectedCourse elcCourseResult = new SelectedCourse();
             for (PlanCourse planCourse : planCourses) {
-				if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), selected.getCourseCode())) {
-                    LOG.info("----------------------it is planCourse is", JSONObject.toJSONString(planCourse));
+                LOG.info("----------------------it is planCourse is", JSONObject.toJSONString(planCourse));
+                LOG.info("it is true or false:{},and Compulsory is:{}",StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), selected.getCourseCode()),planCourse.getCompulsory());
+                if (StringUtils.equalsIgnoreCase(planCourse.getCourseCode(), selected.getCourseCode())) {
 					 elcCourseResult.setLabel(planCourse.getLabel()+"");
 					 elcCourseResult.setLabelName(planCourse.getLabelName());
 					 elcCourseResult.setCompulsory(planCourse.getCompulsory());
