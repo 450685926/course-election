@@ -1525,16 +1525,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     {
         int pageNum = allCourseVo.getPageNum_() == 0 ? 1 : allCourseVo.getPageNum_();
         int pageSize = allCourseVo.getPageSize_() == 0 ? 20 : allCourseVo.getPageSize_();
-        List<ElcCourseResult> list = stuDao.getAllCourse(allCourseVo.getCondition());
+        List<String> teachClassIds = stuDao.getAllTeachClassIds(allCourseVo.getCondition());
         List<TeachingClassCache> lessons;
         //从缓存中拿到本轮次排课信息
         //List<Long> teachClassIds = list.stream().map(ElcCourseResult::getTeachClassId).collect(Collectors.toList());
-        List<String> teachClassIds = new ArrayList<String>(list.size());
-        for (ElcCourseResult elcCourseResult : list)
-        {
-            teachClassIds.add(elcCourseResult.getTeachClassId() + "");
-        }
-        
         HashOperations<String, String, TeachingClassCache> hash =
             opsTeachClass();
         lessons = hash.multiGet(Keys.getClassKey(), teachClassIds);

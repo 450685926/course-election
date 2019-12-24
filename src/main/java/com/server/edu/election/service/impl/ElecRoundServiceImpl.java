@@ -204,5 +204,10 @@ public class ElecRoundServiceImpl implements ElecRoundService
 	public List<ElectionRoundsDto> getRoundByTeachClassId(Long teachClassId) {
 		return roundsDao.getRoundByTeachClassId(teachClassId);
 	}
-    
+
+    @Override
+    public ElectionRoundsDto getCalendarIdByRoundId(Long roundId) {
+        ElectionRoundsDto round = roundsDao.getOne(roundId);
+        return round;
+    }
 }

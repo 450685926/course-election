@@ -169,7 +169,7 @@ public class ElecYjsController
 
         // 如果前端传值campu和trainingLevel,则不需要访问后端接口
         if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) && CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
-            RestResult<Student> studentMessage = new RestResult<Student>();
+            RestResult<Student> studentMessage = new RestResult<>();
             if (isStudent) {
                 studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
             }else if (isAdmin || isDepartAdmin) {
@@ -181,7 +181,7 @@ public class ElecYjsController
         }
         if (isStudent || isDepartAdmin) {
         	ElectionRoundsDto roundsDto =
-        			electionRoundService.get(allCourseVo.getCondition().getRoundId());
+        			electionRoundService.getCalendarIdByRoundId(allCourseVo.getCondition().getRoundId());
         	allCourseVo.getCondition().setCalendarId(roundsDto.getCalendarId());
 		}
 

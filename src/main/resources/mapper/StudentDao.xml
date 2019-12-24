@@ -300,10 +300,47 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachClassCode)">
             and class.CODE_ like concat('%',#{teachClassCode},'%')
         </if>
-        order by nature
+        order by nature,class.ID_
    </select>
-   
-    <select id="getAllNonSelectedCourseStudent" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
+
+	<select id="getAllTeachClassIds" parameterType="com.server.edu.election.vo.AllCourseVo" resultType="java.lang.String">
+		select distinct
+		class.ID_ teachClassId
+		from course_open_t course
+		left join teaching_task_t task on course.ID_ = task.COURSE_OPEN_ID_
+		left join teaching_class_t class on task.ID_ = class.TASK_ID_
+		left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
+		left join teaching_class_arrange_time_t time ON class.ID_ = time.TEACHING_CLASS_ID_
+		where
+		<!-- time.TYPE_ = '2' and  -->
+		class.MAN_ARRANGE_FLAG_ in(1,2,3) and
+		course.CALENDAR_ID_ = #{calendarId} and
+		course.TRAINING_LEVEL_ = #{trainingLevel}
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+			and course.PROJ_ID_ = #{projectId,jdbcType=VARCHAR}
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campu)">
+			and class.CAMPUS_ =#{campu,jdbcType=VARCHAR}
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+			and course.COURSE_NAME_ like concat('%',#{courseName},'%')
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherName)">
+			and teacher.TEACHER_NAME_ like concat('%',#{teacherName},'%')
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
+			and course.FACULTY_ =#{faculty,jdbcType=VARCHAR}
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
+			and course.NATURE_ =#{nature,jdbcType=VARCHAR}
+		</if>
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachClassCode)">
+			and class.CODE_ like concat('%',#{teachClassCode},'%')
+		</if>
+		order by class.ID_
+	</select>
+
+	<select id="getAllNonSelectedCourseStudent" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="ResultMap">
        SELECT t4.* FROM student_t t4 
         <where>
         	t4.STUDENT_CODE_ NOT IN (SELECT STUDENT_ID_ FROM elc_course_takes_t t2 WHERE CALENDAR_ID_ = #{query.calendarId})

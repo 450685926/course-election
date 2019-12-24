@@ -66,4 +66,11 @@ public interface ElecRoundService
      * @return
      */
     List<ElectionRoundsDto> getRoundByTeachClassId(Long teachClassId);
+
+    /**
+     * 根据轮次id查询校历id
+     * @param roundId
+     * @return
+     */
+    ElectionRoundsDto getCalendarIdByRoundId(Long roundId);
 }
