@@ -1523,15 +1523,18 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     @Override
     public PageResult<TeachingClassCache> arrangementCourses(PageCondition<AllCourseVo> allCourseVo)
     {
+        LOG.info("arrangementCourses service start...");
         int pageNum = allCourseVo.getPageNum_() == 0 ? 1 : allCourseVo.getPageNum_();
         int pageSize = allCourseVo.getPageSize_() == 0 ? 20 : allCourseVo.getPageSize_();
         List<String> teachClassIds = stuDao.getAllTeachClassIds(allCourseVo.getCondition());
+        LOG.info("getAllTeachClassIds teachClassIds size : {}",teachClassIds.size());
         List<TeachingClassCache> lessons;
         //从缓存中拿到本轮次排课信息
         //List<Long> teachClassIds = list.stream().map(ElcCourseResult::getTeachClassId).collect(Collectors.toList());
         HashOperations<String, String, TeachingClassCache> hash =
             opsTeachClass();
         lessons = hash.multiGet(Keys.getClassKey(), teachClassIds);
+        LOG.info("getAllTeachClassIds lessons size : {}",lessons.size());
         // 过滤null
         lessons = lessons.stream().filter(Objects::nonNull).collect(Collectors.toList());
         //手动分页
@@ -1541,6 +1544,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
                         .limit(pageSize)
                         .collect(Collectors.toList());
         PageResult<TeachingClassCache> result = new PageResult<>(pageNum, pageSize, lessons.size(), resultData);
+        LOG.info("getAllTeachClassIds sucess data : {}", result);
         return result;
     }
     

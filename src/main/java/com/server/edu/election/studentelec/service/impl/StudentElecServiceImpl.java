@@ -8,6 +8,7 @@ import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
+import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -24,8 +25,11 @@ import com.server.edu.session.util.entity.Session;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.common.rest.RestResult;
@@ -43,8 +47,13 @@ import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
+import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
+
 import tk.mybatis.mapper.entity.Example;
 
 @Service
@@ -88,6 +97,12 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Autowired
     private ElectionApplyDao electionApplyDao;
+    
+    @Autowired
+    private StringRedisTemplate strTemplate;
+    
+    @Autowired
+    private ElecRoundStuDao roundStuDao;
 
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -634,5 +649,33 @@ public class StudentElecServiceImpl extends AbstractCacheService
             return false;
         }
         return true;
+    }
+    
+    public AsyncResult initRoundStuCache(Long roundId) {
+    	AsyncResult resul = AsyncProcessUtil.submitTask("initRoundStuCache", new AsyncExecuter() {
+            @Override
+            public void execute() {
+            	 ElectionRounds round = dataProvider.getRound(roundId);
+                 Long calendarId = round.getCalendarId();
+                 //String key = Keys.getRoundStuKey(round.getId());
+                 //HashOperations<String, String, String> ops = strTemplate.opsForHash();
+                 List<String> stuIds = roundStuDao.findStuByRoundId(roundId);
+                 //Set<String> allFields = ops.keys(key);
+                 if(CollectionUtil.isNotEmpty(stuIds)) {
+                    AsyncResult result = this.getResult();
+                 	result.setTotal(stuIds.size());
+                 	int num = 0;
+             		for(String studentId :stuIds) {
+                        ElecContextUtil.setElecStatus(calendarId,
+                        		studentId,
+                                ElecStatus.Init);
+             			num++;
+             			result.setDoneCount(num);
+             			this.updateResult(result);
+             		}
+                 }
+            }
+        });
+		return resul;
     }
 }

@@ -11,12 +11,16 @@ import javax.validation.constraints.NotNull;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.election.entity.ElcRoundCondition;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,12 +38,16 @@ import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
+import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.validate.AgentElcGroup;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncProcessUtil;
+import com.server.edu.util.async.AsyncResult;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
@@ -207,6 +215,14 @@ public class ElecAgentController
         return RestResult.success();
     }
     
+    @ApiOperation(value = "清除轮次所有学生缓存状态")
+    @PostMapping("/initRoundStuCache")
+    public RestResult<?> initRoundStuCache(@Param("roundId") Long roundId)
+    {
+        AsyncResult asyncResult = elecService.initRoundStuCache(roundId);
+        return RestResult.successData(asyncResult);
+    }
+    
     
     @ApiOperation(value = "清除选课所有缓存数据")
     @PostMapping("/clearElecCache")
@@ -215,6 +231,13 @@ public class ElecAgentController
     	Set<String> keys = redisTemplate.keys("elec:" + "*");
         redisTemplate.delete(keys);
         return RestResult.success();
+    }
+    
+    @ApiOperation(value = "查询批量初始化选课状态")
+    @GetMapping("/findInitRoundStuCache")
+    public RestResult<AsyncResult> findInitRoundStuCache(@RequestParam String key){
+        AsyncResult asyncResult = AsyncProcessUtil.getResult(key);
+        return RestResult.successData(asyncResult);
     }
     
 }
