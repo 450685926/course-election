@@ -167,9 +167,11 @@ public class ElecYjsController
         boolean isDepartAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				                && !session.isAdmin() && session.isAcdemicDean();
 
+        logger.info("isStudent: {};isAdmin: {}; isDepartAdmin {}",isStudent, isAdmin, isDepartAdmin);
         // 如果前端传值campu和trainingLevel,则不需要访问后端接口
         if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) && CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
             RestResult<Student> studentMessage = new RestResult<>();
+            logger.info("arrangementCourses enter findStudentMessage");
             if (isStudent) {
                 studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
             }else if (isAdmin || isDepartAdmin) {
@@ -180,11 +182,13 @@ public class ElecYjsController
             allCourseVo.getCondition().setCampu(student.getCampus());
         }
         if (isStudent || isDepartAdmin) {
+            logger.info("arrangementCourses enter getCalendarIdByRoundId");
         	ElectionRoundsDto roundsDto =
         			electionRoundService.getCalendarIdByRoundId(allCourseVo.getCondition().getRoundId());
         	allCourseVo.getCondition().setCalendarId(roundsDto.getCalendarId());
 		}
 
+        logger.info("arrangementCourses enter arrangementCourses.service");
         PageResult<TeachingClassCache> restResult =
             yjsService.arrangementCourses(allCourseVo);
         return RestResult.successData(restResult);
