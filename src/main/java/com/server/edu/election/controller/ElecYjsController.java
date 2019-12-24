@@ -86,7 +86,6 @@ public class ElecYjsController
     public RestResult<List<ElectionRoundsVo>> getGraduateRounds(
         @RequestParam("projectId") @NotBlank String projectId)
     {
-        long startTime = System.currentTimeMillis();
         Session session = SessionUtils.getCurrentSession();
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
