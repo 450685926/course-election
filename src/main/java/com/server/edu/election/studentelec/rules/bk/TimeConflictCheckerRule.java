@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.locale.I18nUtil;
@@ -114,7 +115,9 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutorBk
                 int binarySearch = Collections.binarySearch(a.getWeeks(), w);
                 if (binarySearch >= 0)
                 {
-                    return true;
+                	if(StringUtils.isNotBlank(a.getTeacherCode()) && StringUtils.isNotBlank(b.getTeacherCode()) && a.getTeacherCode().equals(b.getTeacherCode())) {
+                		return true;
+                	}
                 }
             }
         }
