@@ -252,6 +252,17 @@ public class ElecBkServiceImpl implements ElecBkService
                     continue;
                 }
 
+                //校验选课时先把课程从context中剔除掉
+                Iterator<SelectedCourse> iterator = selectedCourses.iterator();
+                while (iterator.hasNext())
+                {
+                    SelectedCourse c = iterator.next();
+                    if (c.getCourse().getTeachClassId().equals(withdrawTeachClassId))
+                    {
+                        iterator.remove();
+                        break;
+                    }
+                }
                 boolean elecSuccess = true;
                 for (AbstractElecRuleExceutorBk exceutor : elecExceutors)
                 {
@@ -270,6 +281,16 @@ public class ElecBkServiceImpl implements ElecBkService
                 if (elecSuccess){
                     goodList.add(courseCode);
                 }
+                //不管成功与否，将数据放回去
+                SelectedCourse course = new SelectedCourse(teachClass.getCourse());
+                StudentInfoCache studentInfo = context.getStudentInfo();
+                ElecRequest request = context.getRequest();
+                int index = TableIndexUtil.getIndex(context.getRequest().getCalendarId());
+                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), request.getCalendarId(),index, teachClass.getCourse().getCourseCode());
+                course.setTurn(elcCourseTakeVo.get(0).getTurn());
+                course.setCourseTakeType(elcCourseTakeVo.get(0).getCourseTakeType());
+                course.setChooseObj(elcCourseTakeVo.get(0).getChooseObj());
+                context.getSelectedCourses().add(course);
             }
 
         }
@@ -724,8 +745,8 @@ public class ElecBkServiceImpl implements ElecBkService
                 return true;
             }
             failedReasons.put(String.format("%s[%s]",
-                    teachClass.getCourseCode(),
-                    teachClass.getTeachClassCode()), "只能选一门公共英语课");
+                    teachClass.getTeachClassCode(),
+                    teachClass.getCourseName()), "只能选一门公共英语课");
             return false;
         }
 

@@ -46,14 +46,18 @@ public class TimeConflictCheckerRule extends AbstractElecRuleExceutorBk
                 {
                     for (SelectedCourse selectedCours : selectedCourses)
                     {
+                        TeachingClassCache course = selectedCours.getCourse();
+                        if (StringUtils.equalsIgnoreCase(course.getCourseCode(),courseClass.getCourseCode())){
+                            continue;
+                        }
                         List<ClassTimeUnit> times = selectedCours.getCourse().getTimes();
                         for (ClassTimeUnit v0 : teachingClassTime)
                         {
+
                             for (ClassTimeUnit v1 : times)
                             {
                                 if (conflict(v0, v1))
                                 {
-                                    TeachingClassCache course = selectedCours.getCourse();
                                     ElecRespose respose = context.getRespose();
                                     respose.getFailedReasons()
                                         .put(
