@@ -459,6 +459,7 @@ public class ElcResultServiceImpl implements ElcResultService
         PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         ElcResultQuery condition = page.getCondition();
         Session session = SessionUtils.getCurrentSession();
+        //教务员登录:1、查看自己管理学院和所属学院的数据 2、值允许查看专业课程
         if (StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean()) {
             String faculty = condition.getFaculty();
             //如果筛选条件学院为空,则获取session中的学院;否则设置条件学院
@@ -467,6 +468,7 @@ public class ElcResultServiceImpl implements ElcResultService
             }else {
                 condition.setFaculty(faculty);
             }
+            condition.setNature("2");
         }
         logger.info("--------alex-------the qurey parames:{}",condition.toString());
 		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
