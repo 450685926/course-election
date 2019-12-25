@@ -614,7 +614,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                 selectedCours.getCourseCode(),
                                 selectedCours.getTeachingClassId());
                 SelectedCourse course = new SelectedCourse(teachClass);
-                course.setTurn(round.getTurn());
+                course.setTurn(selectedCours.getTurn());
                 course.setCourseTakeType(selectedCours.getCourseTakeType());
                 course.setChooseObj(selectedCours.getChooseObj());
                 c.getSelectedCourses().add(course);

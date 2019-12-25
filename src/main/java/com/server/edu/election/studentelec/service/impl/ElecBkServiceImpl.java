@@ -10,7 +10,7 @@ import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
-import com.server.edu.election.studentelec.context.ElecCourse;
+import com.server.edu.election.studentelec.context.*;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
 import com.server.edu.election.util.EmailSend;
@@ -37,9 +37,6 @@ import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
-import com.server.edu.election.studentelec.context.ElecRequest;
-import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.dto.ElecTeachClassDto;
@@ -186,6 +183,10 @@ public class ElecBkServiceImpl implements ElecBkService
 
     private List<String> checkWithdrawAndEleRule(List<String> withdrawAndElecList, Map<String, ElecTeachClassDto> withdrawClassMap, List<AbstractWithdrwRuleExceutorBk> cancelExceutors, Map<String, ElecTeachClassDto> elecClassMap, List<AbstractElecRuleExceutorBk> elecExceutors, ElecContextBk context,Long roundId) {
         ElecRespose respose = context.getRespose();
+        ElectionRounds round = dataProvider.getRound(roundId);
+
+        ElecRequest request = context.getRequest();
+        StudentInfoCache studentInfo = context.getStudentInfo();
         Map<String, String> failedReasons = respose.getFailedReasons();
 
         //可以进行后续完整操作的课程集合
@@ -210,10 +211,39 @@ public class ElecBkServiceImpl implements ElecBkService
             }
             if (teachClass == null)
             {
-                failedReasons.put(String.format("%s[%s]",
-                        withdrawTeachClass.getCourseCode(),
-                        withdrawTeachClass.getTeachClassCode()), "教学班不存在无法退课");
-                continue;
+                //查询数据库，看这个教学班是否存在
+                TeachingClass teachingClass = classDao.selectByPrimaryKey(withdrawTeachClassId);
+                if (teachingClass != null){
+                    List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), round.getCalendarId(),TableIndexUtil.getIndex(round.getCalendarId()), courseCode);
+                    if (CollectionUtil.isNotEmpty(elcCourseTakeVo)){
+                        ElcCourseTakeVo c = elcCourseTakeVo.get(0);
+                        teachClass = new SelectedCourse();
+                        TeachingClassCache lesson = new TeachingClassCache();
+                        lesson.setApply(c.getApply());
+                        lesson.setCourseCode(c.getCourseCode());
+                        lesson.setCourseName(c.getCourseName());
+                        lesson.setCalendarId(c.getCalendarId());
+                        lesson.setTeachClassId(c.getTeachingClassId());
+                        lesson.setTeachClassCode(c.getTeachingClassCode());
+                        lesson.setFaculty(c.getFaculty());
+                        lesson.setTerm(c.getTerm());
+                        teachClass.setCourse(lesson);
+                        teachClass.setChooseObj(c.getChooseObj());
+                        teachClass.setCourseTakeType(c.getCourseTakeType());
+                        teachClass.setTurn(c.getTurn());
+                    }else{
+                        failedReasons.put(String.format("%s[%s]",
+                                withdrawTeachClass.getCourseCode(),
+                                withdrawTeachClass.getTeachClassCode()), "教学班不存在无法退课");
+                        continue;
+                    }
+                    
+                }else{
+                    failedReasons.put(String.format("%s[%s]",
+                            withdrawTeachClass.getCourseCode(),
+                            withdrawTeachClass.getTeachClassCode()), "教学班不存在无法退课");
+                    continue;
+                }
             }
             Collections.sort(cancelExceutors);
             boolean withdrawSuccess = true;
@@ -235,7 +265,6 @@ public class ElecBkServiceImpl implements ElecBkService
             if(withdrawSuccess){
                 //再校验选课
                 boolean hasRetakeCourse = false;
-                ElectionRounds round = dataProvider.getRound(roundId);
                 //拿到退课的教学班
                 ElecTeachClassDto data = elecClassMap.get(courseCode);
                 Collections.sort(elecExceutors);
@@ -283,10 +312,9 @@ public class ElecBkServiceImpl implements ElecBkService
                 }
                 //不管成功与否，将数据放回去
                 SelectedCourse course = new SelectedCourse(teachClass.getCourse());
-                StudentInfoCache studentInfo = context.getStudentInfo();
-                ElecRequest request = context.getRequest();
-                int index = TableIndexUtil.getIndex(context.getRequest().getCalendarId());
-                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), request.getCalendarId(),index, teachClass.getCourse().getCourseCode());
+
+                int index = TableIndexUtil.getIndex(round.getCalendarId());
+                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), round.getCalendarId(),index, teachClass.getCourse().getCourseCode());
                 course.setTurn(elcCourseTakeVo.get(0).getTurn());
                 course.setCourseTakeType(elcCourseTakeVo.get(0).getCourseTakeType());
                 course.setChooseObj(elcCourseTakeVo.get(0).getChooseObj());
@@ -414,10 +442,43 @@ public class ElecBkServiceImpl implements ElecBkService
             }
             if (teachClass == null)
             {
-                failedReasons.put(String.format("%s[%s]",
-                    data.getCourseCode(),
-                    data.getTeachClassCode()), "教学班不存在无法退课");
-                continue;
+                ElecRequest request = context.getRequest();
+                Long roundId = request.getRoundId();
+                ElectionRounds round = dataProvider.getRound(roundId);
+                StudentInfoCache studentInfo = context.getStudentInfo();
+                //查询数据库，看这个教学班是否存在
+                TeachingClass teachingClass = classDao.selectByPrimaryKey(teachClassId);
+                if (teachingClass != null){
+                    List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), round.getCalendarId(),TableIndexUtil.getIndex(round.getCalendarId()), data.getCourseCode());
+                    if (CollectionUtil.isNotEmpty(elcCourseTakeVo)){
+                        ElcCourseTakeVo c = elcCourseTakeVo.get(0);
+                        teachClass = new SelectedCourse();
+                        TeachingClassCache lesson = new TeachingClassCache();
+                        lesson.setApply(c.getApply());
+                        lesson.setCourseCode(c.getCourseCode());
+                        lesson.setCourseName(c.getCourseName());
+                        lesson.setCalendarId(c.getCalendarId());
+                        lesson.setTeachClassId(c.getTeachingClassId());
+                        lesson.setTeachClassCode(c.getTeachingClassCode());
+                        lesson.setFaculty(c.getFaculty());
+                        lesson.setTerm(c.getTerm());
+                        teachClass.setCourse(lesson);
+                        teachClass.setChooseObj(c.getChooseObj());
+                        teachClass.setCourseTakeType(c.getCourseTakeType());
+                        teachClass.setTurn(c.getTurn());
+                    }else{
+                        failedReasons.put(String.format("%s[%s]",
+                                data.getCourseCode(),
+                                data.getTeachClassCode()), "教学班不存在无法退课");
+                        continue;
+                    }
+
+                }else{
+                    failedReasons.put(String.format("%s[%s]",
+                            data.getCourseCode(),
+                            data.getTeachClassCode()), "教学班不存在无法退课");
+                    continue;
+                }
             }
             boolean allSuccess = true;
             for (AbstractWithdrwRuleExceutorBk exceutor : exceutors)
