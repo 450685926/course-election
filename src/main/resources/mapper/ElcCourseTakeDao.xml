@@ -311,9 +311,13 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
             and t2.FACULTY_ = #{query.faculty}
         </if>
-        <!--部门id-->
+        <!--前端传入-->
+        <if test="projectId != null and projectId != ''" >
+            AND st.`PROJ_ID_` =#{query.projectId}
+        </if>
+        <!--session部门id-->
         <if test="projId != null and projId != ''" >
-            AND FIND_IN_SET(st.`PROJ_ID_`,#{projId})
+            AND FIND_IN_SET(st.`PROJ_ID_`,#{query.projId})
         </if>
     </select>
 

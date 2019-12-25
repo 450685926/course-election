@@ -99,9 +99,12 @@ public class ElcCourseTakeYjsController
             query.setFaculty(session.getFaculty());
         }
         logger.info("*** alex **the parames is:{]", JSONObject.toJSONString(query));
-        //部门
-        query.setProjId(CommonConstant.getProjId(query.getProjId()));
+        //部门分权处理:如果前端页面未传入部门id,则获取session中的id
+        if(StringUtils.isEmpty(query.getProjectId())){
+            query.setProjId(CommonConstant.getProjId(""));
+        }
         logger.info("-----lsg-----graduatePage parames is:{}",JSONObject.toJSONString(condition.getCondition()));
+        condition.setCondition(query);
         PageResult<ElcCourseTakeVo> list = courseTakeService.graduatePage(condition);
         return RestResult.successData(list);
     }
