@@ -470,7 +470,7 @@ public class ElcResultServiceImpl implements ElcResultService
             }
             condition.setNature("2");
         }
-        logger.info("--------alex-------the qurey parames:{}",condition.toString());
+        logger.info("-------- alex -------the qurey parames:{}",condition.toString());
 		Page<TeachingClassVo> listPage = classDao.grduateListPage(condition);
 		// 添加教室容量
 		List<String> roomIds = listPage.stream().filter(teachingClassVo->teachingClassVo.getRoomId()!= null).map(TeachingClassVo::getRoomId).collect(Collectors.toList());
