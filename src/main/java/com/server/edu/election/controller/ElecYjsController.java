@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -19,6 +20,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,6 +48,7 @@ import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.AllCourseVo;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.election.vo.RedisVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CollectionUtil;
@@ -80,6 +83,9 @@ public class ElecYjsController
     private ElecYjsService yjsService;
     
     private static final String LIST_RULE = "yjsMustInElectableListRule";
+    
+    @Autowired
+    private StringRedisTemplate strTemplate;
     
     @ApiOperation(value = "研究生选课获取生效的轮次")
     @PostMapping("/getGraduateRounds")
@@ -255,6 +261,32 @@ public class ElecYjsController
         logger.info("初始化缓存 !!!");
         dataProvider.load();
     	return RestResult.success();
+    } 
+    
+    @ApiOperation(value = "手动删除redis中的数据")
+    @PostMapping("/deleteRedisKeys")
+    public RestResult<?> deleteRedisKeys(@RequestBody RedisVo redisVo)
+    {
+    	RestResult<?> result = null;
+    	
+    	if (StringUtils.isNotBlank(redisVo.getKey())) {
+    		strTemplate.delete(redisVo.getKey());
+    		result = RestResult.success();
+		}else {
+			String pattern = redisVo.getPattern();
+			if (StringUtils.isNotBlank(pattern)) {
+				List<String> list = new ArrayList<String>();
+				for (String studnetId : redisVo.getList()) {
+					String keyString = redisVo.getPattern() + studnetId;
+					list.add(keyString);
+				}
+				strTemplate.delete(list);
+				result = RestResult.success();
+			}else {
+				result = RestResult.error("模糊匹配不能为空！");
+			}
+		}
+    	return result;
     } 
     
 }

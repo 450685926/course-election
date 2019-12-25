@@ -125,6 +125,9 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             List<Course> courses = elcCourseTakeDao.findCourses(courseCodes);
             Map<String, Course> map = courses.stream().collect(Collectors.toMap(Course::getCode, s -> s));
             int size = stuScore.size();
+            
+            logger.info("=========stuScore is size==========:" + size); 
+            
             List<Long> teachClassIds = new ArrayList<>();
             List<CompletedCourse> course = new ArrayList<CompletedCourse>();
             for (ScoreStudentResultVo studentScore : stuScore)
