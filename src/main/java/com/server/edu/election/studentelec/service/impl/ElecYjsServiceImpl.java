@@ -364,7 +364,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         
     }
     
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     @Override
     public void saveElc(ElecContext context, TeachingClassCache teachClass,
         ElectRuleType type)
@@ -485,6 +485,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
         }
         
+        LOG.info("-------------------log insert start-----------------");
         // 添加选课日志
         ElcLog log = new ElcLog();
         log.setCourseCode(courseCode);
@@ -505,7 +506,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			log.setCalendarId(round.getCalendarId());
 	        log.setTurn(round.getTurn());
 		}
+        
+        LOG.info("-------------------log insert start222-----------------");
         this.elcLogDao.insertSelective(log);
+        LOG.info("-------------------log insert start333-----------------");
         
         if (ElectRuleType.ELECTION.equals(type))
         {
@@ -519,6 +523,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
         }
+        LOG.info("-------------------log insert start-----------------");
     }
     
     @Override
