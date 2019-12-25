@@ -126,6 +126,10 @@ public interface Constants
     public static final int TIMES = 12;
     /** 一周天数 */
     public static final int DAYS = 7;
+    
+    public static final String MAX_WARNINGSCORE = "MAXWARNINGSCORE";
+    
+    public static final String MIN_WARNINGSCORE = "MINWARNINGSCORE";
  
  
 
