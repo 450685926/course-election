@@ -310,9 +310,8 @@
 		left join teaching_task_t task on course.ID_ = task.COURSE_OPEN_ID_
 		left join teaching_class_t class on task.ID_ = class.TASK_ID_
 		left join teaching_class_teacher_t teacher on class.ID_ = teacher.TEACHING_CLASS_ID_
-		left join teaching_class_arrange_time_t time ON class.ID_ = time.TEACHING_CLASS_ID_
 		where
-		<!-- time.TYPE_ = '2' and  -->
+		class.DELETE_STATUS_ = 0 and
 		class.MAN_ARRANGE_FLAG_ in(1,2,3) and
 		course.CALENDAR_ID_ = #{calendarId} and
 		course.TRAINING_LEVEL_ = #{trainingLevel}
