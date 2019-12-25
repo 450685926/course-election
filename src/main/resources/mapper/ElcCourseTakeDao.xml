@@ -1952,7 +1952,7 @@
         </foreach>
     </select>
 
-    <select id="findTeachClass" resultMap="VoTeachingClassCache">
+    <select id="findTeachClass" resultType="com.server.edu.election.studentelec.cache.TeachingClassCache">
         SELECT
                 ec.TEACHING_CLASS_ID_ teachClassId,
 				tc.CODE_ teachClassCode,
