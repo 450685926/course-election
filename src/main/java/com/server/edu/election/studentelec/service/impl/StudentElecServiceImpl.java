@@ -382,8 +382,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     public Student findStuRound(Long roundId, String studentId)
     {
         Student stu = stuDao.findStudentByCode(studentId);
-        String major = stuDao.getStudentMajor(stu.getGrade(),stu.getProfession());
+
         if (stu != null) {
+            String major = stuDao.getStudentMajor(stu.getGrade(),stu.getProfession());
             ElcRoundCondition roundCondition = dataProvider.getRoundCondition(roundId);
             if (compare(roundCondition.getCampus(), stu.getCampus())
                     && compare(roundCondition.getFacultys(), stu.getFaculty())
