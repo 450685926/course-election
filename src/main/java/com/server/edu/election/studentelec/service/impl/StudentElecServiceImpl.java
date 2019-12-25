@@ -103,6 +103,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     
     @Autowired
     private ElecRoundStuDao roundStuDao;
+    
+    @Autowired
+    private ElectionConstantsDao electionConstantsDao;
 
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -290,11 +293,26 @@ public class StudentElecServiceImpl extends AbstractCacheService
             Example example2 = new Example(ElcStudentLimit.class);
             example2.createCriteria().andEqualTo("calendarId",elecRequest.getCalendarId()).andEqualTo("projectId",Constants.PROJ_UNGRADUATE).andEqualTo("studentId",studentId);
             List<ElcStudentLimit> elcStudentLimits = elcStudentLimitDao.selectByExample(example2);
+            Example conExample = new Example(ElectionConstants.class);
+            conExample.createCriteria().andEqualTo("managerDeptId","1").andEqualTo("key","MAXWARNINGSCORE").orEqualTo("key", "MINWARNINGSCORE");
+            List<ElectionConstants> list = electionConstantsDao.selectByExample(conExample);
             ElcStudentLimit elcStudentLimit = new ElcStudentLimit();
             Double newLimitCredits = 0.0;
-            if (creditTotal.doubleValue() >= 20.0 && creditTotal.doubleValue() <= 40){
+            Double minWarningScore = 25.0;
+            Double maxWarningScore = 40.0;
+            if(CollectionUtil.isNotEmpty(list)) {
+            	ElectionConstants maxElectionConstants = list.stream().filter(c->Constants.MAX_WARNINGSCORE.equals(c.getKey())).findFirst().orElse(null);
+            	ElectionConstants minElectionConstants = list.stream().filter(c->Constants.MIN_WARNINGSCORE.equals(c.getKey())).findFirst().orElse(null);
+            	if(maxElectionConstants !=null && org.apache.commons.lang3.StringUtils.isNotBlank(maxElectionConstants.getValue())) {
+            		maxWarningScore = Double.parseDouble(maxElectionConstants.getValue());
+            	}
+            	if(minElectionConstants !=null && org.apache.commons.lang3.StringUtils.isNotBlank(minElectionConstants.getValue())) {
+            		minWarningScore = Double.parseDouble(minElectionConstants.getValue());
+            	}
+            }
+            if (creditTotal.doubleValue() >= minWarningScore && creditTotal.doubleValue() <= maxWarningScore){
             	newLimitCredits =10.0;
-            }else if(creditTotal.doubleValue() > 40){
+            }else if(creditTotal.doubleValue() > maxWarningScore){
             	newLimitCredits =5.0;
             }
             if(newLimitCredits>0.0) {
