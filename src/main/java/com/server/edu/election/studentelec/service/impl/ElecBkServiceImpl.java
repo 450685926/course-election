@@ -805,6 +805,25 @@ public class ElecBkServiceImpl implements ElecBkService
             if (CollectionUtil.isEmpty(selectedcourse1)) {
                 return true;
             }
+            //为了数据准确性，会对这个学期已经选取的课程进行查库操作
+            ElecRequest request = context.getRequest();
+            StudentInfoCache studentInfo = context.getStudentInfo();
+            ElectionRounds round = dataProvider.getRound(request.getRoundId());
+            Long calendarId = round.getCalendarId();
+            List<ElcCourseTakeVo> courseTakes = courseTakeDao.findBkSelectedCourses(studentInfo.getStudentId(), calendarId, TableIndexUtil.getIndex(calendarId));
+            List<String> collect = courseTakes.stream().map(ElcCourseTakeVo::getCourseCode).collect(Collectors.toList());
+            Set<String> selectedcourse2 = new HashSet<>();
+            for (String course:collect){
+                for (String string:asList) {
+                    if (StringUtils.equalsIgnoreCase(course, string)) {
+                        selectedcourse2.add(course);
+                    }
+                }
+
+            }
+            if (CollectionUtil.isEmpty(selectedcourse2)) {
+                return true;
+            }
             failedReasons.put(String.format("%s[%s]",
                     teachClass.getTeachClassCode(),
                     teachClass.getCourseName()), "只能选一门公共英语课");

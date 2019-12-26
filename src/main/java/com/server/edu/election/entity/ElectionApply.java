@@ -56,7 +56,7 @@ public class ElectionApply implements Serializable {
     /**
      * 备注
      */
-    @NotBlank
+//    @NotBlank
     @Column(name = "REMARK_")
     private String remark;
 
