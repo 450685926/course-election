@@ -300,9 +300,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                     String perYear = schoolCalendar.getPerYear();
                     String perTerm = schoolCalendar.getPerTerm();
-                    if (StringUtils.equalsIgnoreCase(perTerm,Constants.ONE_TERM)){
-                        semester = (Integer.parseInt(perYear) - grade.intValue()) * 2 +  Integer.parseInt(perTerm);
-                    }
+                    semester = (Integer.parseInt(perYear) - grade.intValue()) * 2 +  Integer.parseInt(perTerm);
+
                 }
             }
         }
