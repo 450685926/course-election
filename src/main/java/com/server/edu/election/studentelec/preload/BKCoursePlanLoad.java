@@ -12,6 +12,7 @@ import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcStuCouLevelDao;
+import com.server.edu.election.dao.ElectionConstantsDao;
 import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -73,6 +74,9 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     @Autowired
     private BkStudentScoreService bkStudentScoreService;
 
+    @Autowired
+    private ElectionConstantsDao electionConstantsDao;
+
     @Override
     public int getOrder()
     {
@@ -88,6 +92,14 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     @Override
     public void load(ElecContextBk context)
     {
+        //查库得到所有体育课
+        // 体育课程代码
+        String PECourses = electionConstantsDao.findPECourses();
+        List<String> PEList = new ArrayList<>(20);
+        if (StringUtils.isNotBlank(PECourses)){
+            String[] courseCodes = PECourses.split(",");//体育课程代码
+            PEList = Arrays.asList(courseCodes);
+        }
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
 //        Map<String, String> map = new HashMap<>(60);
@@ -140,6 +152,18 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             course2.setLabelName(labelName);
                             course2.setChosen(pct.getChosen());
                             course2.setIsQhClass(pct.getIsQhClass());
+                            if(CollectionUtil.isNotEmpty(PEList)){
+                                if (PEList.contains(courseCode)){
+                                    course2.setIsPE(Constants.ONE);
+                                    pl.setIsPE(Constants.ONE);
+                                }else{
+                                    course2.setIsPE(Constants.ZERO);
+                                    pl.setIsPE(Constants.ZERO);
+                                }
+                            }else{
+                                course2.setIsPE(Constants.ZERO);
+                                pl.setIsPE(Constants.ZERO);
+                            }
                             pl.setCourse(course2);
                             pl.setSemester(pct.getSemester());
                             pl.setWeekType(pct.getWeekType());

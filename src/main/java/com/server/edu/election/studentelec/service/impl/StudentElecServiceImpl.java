@@ -4,12 +4,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.SchoolCalendarCacheUtil;
 import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.entity.*;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -82,6 +84,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
 
     @Autowired
     private DictionaryService dictionaryService;
+
+    @Autowired
+    private ElectionParameterDao electionParameterDao;
 
     @Autowired
     private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
@@ -275,6 +280,36 @@ public class StudentElecServiceImpl extends AbstractCacheService
         List<ElectionRuleVo> collect = rules.stream().filter(c -> "LoserNotElcRule".equals(c.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> planRules = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> limitRules = rules.stream().filter(r -> "TimeConflictCheckerRule".equals(r.getServiceName())).collect(Collectors.toList());
+        List<ElectionRuleVo> peRules = rules.stream().filter(r -> "OnePeCourseCheckerRule".equals(r.getServiceName())).collect(Collectors.toList());
+
+        Integer semester = 0;
+        if (CollectionUtil.isNotEmpty(peRules)){
+            //查询规则参数是否生效
+            Example example = new Example(ElectionParameter.class);
+            Example.Criteria criteria = example.createCriteria();
+            criteria.andEqualTo("ruleId", peRules.get(0).getId());
+            List<ElectionParameter> paramList =
+                    electionParameterDao.selectByExample(example);
+            if (CollectionUtil.isNotEmpty(paramList)){
+                ElectionParameter elecparam = paramList.get(0);
+                if (Boolean.parseBoolean(elecparam.getValue())) {
+                    //获取学生的当前年级
+                    Student studentByCode = stuDao.findStudentByCode(studentId);
+                    Integer grade = studentByCode.getGrade();
+                    //获取当前学年
+                    SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
+                    String perYear = schoolCalendar.getPerYear();
+                    String perTerm = schoolCalendar.getPerTerm();
+                    if (StringUtils.equalsIgnoreCase(perTerm,Constants.ONE_TERM)){
+                        semester = (Integer.parseInt(perYear) - grade.intValue()) * 2 +  Integer.parseInt(perTerm);
+                    }
+                }
+            }
+        }
+
+
+
+
         Integer isPlan = 1;
         Integer isLimit = 1;
     	if(CollectionUtil.isEmpty(planRules)) {
@@ -320,7 +355,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 elcStudentLimit.setCalendarId(elecRequest.getCalendarId());
                 elcStudentLimit.setProjectId(Constants.PROJ_UNGRADUATE);
                 elcStudentLimit.setStudentId(studentId);
-                elcStudentLimit.setTotalLimitCredits(0.0);
+                elcStudentLimit.setTotalLimitCredits(newLimitCredits);
                 elcStudentLimit.setRebuildLimitNumber(6);
                 if (CollectionUtil.isEmpty(elcStudentLimits)){
                     elcStudentLimitDao.insertSelective(elcStudentLimit);
