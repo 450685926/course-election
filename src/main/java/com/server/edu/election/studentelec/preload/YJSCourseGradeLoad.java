@@ -113,6 +113,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         List<CompletedCourse> takenCourses = new ArrayList<CompletedCourse>(); // 已修读课程
         
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
+        List<CompletedCourse> coursess = new ArrayList<CompletedCourse>();
         if (CollectionUtil.isNotEmpty(stuScore))
         {
 //            List<Long> teachClassIds = stuScore.stream()
@@ -263,7 +264,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             logger.info("-----------course2------------:" + course.size());
             
             // 已修读课程去重(studentId+courseCode+calendarId)
-            List<CompletedCourse> coursess = new ArrayList<CompletedCourse>();
             if (CollectionUtil.isNotEmpty(course)) {
             	StringBuffer codeAndStudentIdbuffer = new StringBuffer("");
             	for (CompletedCourse courseVo : course) {
@@ -321,10 +321,10 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                     }
                 }
             }
-            logger.info("----------TakenCourses--------: "+ coursess.size());
-            context.setTakenCourses(coursess);
 //            takenCourses.addAll(course);
         }
+        logger.info("----------TakenCourses--------: "+ coursess.size());
+        context.setTakenCourses(coursess);
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
