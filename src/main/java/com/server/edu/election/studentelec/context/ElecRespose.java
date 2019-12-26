@@ -31,6 +31,8 @@ public class ElecRespose
 
     private Integer isLimit;
 
+    private Integer semester;
+
     public Integer getIsLimit() {
         return isLimit;
     }
@@ -107,5 +109,13 @@ public class ElecRespose
     public void setData(Map<String, String> data)
     {
         this.data = data;
+    }
+
+    public Integer getSemester() {
+        return semester;
+    }
+
+    public void setSemester(Integer semester) {
+        this.semester = semester;
     }
 }
