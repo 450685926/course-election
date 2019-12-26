@@ -130,8 +130,9 @@ public interface Constants
     public static final String MAX_WARNINGSCORE = "MAXWARNINGSCORE";
     
     public static final String MIN_WARNINGSCORE = "MINWARNINGSCORE";
- 
- 
+
+    public static final String ONE_TERM = "1";
+    public static final String TWO_TERM = "2";
 
     
 

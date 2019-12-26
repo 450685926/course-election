@@ -293,31 +293,26 @@
     <select id="graduatePage" resultMap="VoResultMap">
         select
         t1.*,
-        st.`PROJ_ID_` AS projId,
         t2.NAME_,t2.PROFESSION_,t2.GRADE_, t2.FACULTY_,
         t3.NAME_ as courseName, t3.NATURE_ NATURE,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
         t4.CAMPUS_
-        from elc_course_takes_t t1
-        left join student_t t2 ON (t1.STUDENT_ID_ = t2.STUDENT_CODE_ and t2.LEAVE_SCHOOL_ = 1)
+        from elc_course_takes_t_${query.index} t1
+        left join student_t t2 ON t1.STUDENT_ID_ = t2.STUDENT_CODE_
         left join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
-        LEFT JOIN student_t st ON st.`STUDENT_CODE_`=t1.`STUDENT_ID_`
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         where
-        t4.DELETE_STATUS_ = 0
-        and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+        t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
         and (t2.STUDENT_CODE_ = #{query.keyword} or t2.NAME_ = #{query.keyword})
         and t2.MANAGER_DEPT_ID_ = #{query.projectId}
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
             and t2.FACULTY_ = #{query.faculty}
         </if>
-        <!--前端传入-->
-        <if test="query.projectId != null and query.projectId != ''" >
-            AND st.`PROJ_ID_` =#{query.projectId}
-        </if>
-        <!--session部门id-->
-        <if test="query.projId != null and query.projId != ''" >
-            AND FIND_IN_SET(st.`PROJ_ID_`,#{query.projId})
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculties)">
+            and t2.FACULTY_ in
+            <foreach collection="query.faculties" open="(" separator="," close=")" item="fy">
+                #{fy}
+            </foreach>
         </if>
     </select>
 

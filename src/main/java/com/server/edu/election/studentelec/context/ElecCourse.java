@@ -79,6 +79,8 @@ public class ElecCourse implements Serializable
     private Integer chosen;
     
     private Integer isQhClass;
+
+    private Integer isPE;
     
     /**
      * 授课语言X_SKYY
@@ -300,5 +302,12 @@ public class ElecCourse implements Serializable
         return super.equals(obj) || (obj instanceof ElecCourse && StringUtils
             .equals(this.courseCode, ((ElecCourse)obj).courseCode));
     }
-    
+
+    public Integer getIsPE() {
+        return isPE;
+    }
+
+    public void setIsPE(Integer isPE) {
+        this.isPE = isPE;
+    }
 }

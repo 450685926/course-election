@@ -27,6 +27,8 @@ public class PlanCourse
     private Integer chosen;
     
     private Integer isQhClass;
+
+    private Integer isPE;
     
     public Integer getChosen() {
 		return chosen;
@@ -125,5 +127,12 @@ public class PlanCourse
     {
         this.faculty = faculty;
     }
-    
+
+    public Integer getIsPE() {
+        return isPE;
+    }
+
+    public void setIsPE(Integer isPE) {
+        this.isPE = isPE;
+    }
 }

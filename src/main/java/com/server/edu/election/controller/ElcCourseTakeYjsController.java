@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.election.util.CommonConstant;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.CourseConflictVo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -91,20 +93,17 @@ public class ElcCourseTakeYjsController
     public RestResult<PageResult<ElcCourseTakeVo>> graduatePage(
             @RequestBody PageCondition<ElcCourseTakeQuery> condition)
     {
-        logger.info("--- alex --it is start to query graduatePage:{}",condition);
         ElcCourseTakeQuery query = condition.getCondition();
         ValidatorUtil.validateAndThrow(query);
-        Session session = SessionUtils.getCurrentSession();
-        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
-            query.setFaculty(session.getFaculty());
-        }
-        logger.info("*** alex **the parames is:{]", JSONObject.toJSONString(query));
-        //部门分权处理:如果前端页面未传入部门id,则获取session中的id
-        if(StringUtils.isEmpty(query.getProjectId())){
-            query.setProjId(CommonConstant.getProjId(""));
-        }
-        logger.info("-----lsg-----graduatePage parames is:{}",JSONObject.toJSONString(condition.getCondition()));
-        condition.setCondition(query);
+//        Session session = SessionUtils.getCurrentSession();
+//        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+//            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+//            query.setFaculties(deptIds);
+//        }
+//        query.setProjectId(session.getCurrentManageDptId());
+        query.setProjectId("4");
+        Integer index = TableIndexUtil.getIndex(query.getCalendarId());
+        query.setIndex(index);
         PageResult<ElcCourseTakeVo> list = courseTakeService.graduatePage(condition);
         return RestResult.successData(list);
     }
