@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -442,13 +441,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 				take.setTurn(round.getTurn());
 			}
             courseTakeDao.insertSelective(take);
-            
-            /*************************选课后修改学生培养计划中课程选课状态************************/
-            try {
-				updateSelectCourse(studentId,courseCode,type);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
         }
         else
         {
@@ -475,17 +467,9 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             {
                 dataProvider.decrElcNumber(teachClassId);
             }
-            //Todo 更新失败返回0，并不影响接口正常运行，所以导致 删除失败，但是日志插入正常
-            
-            /*************************选课后修改学生培养计划中课程选课状态************************/
-            try {
-				updateSelectCourse(studentId,courseCode,type);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
         }
         
-        LOG.info("-------------------log insert start-----------------");
+        LOG.info("-------------------insert log start-----------------");
         // 添加选课日志
         ElcLog log = new ElcLog();
         log.setCourseCode(courseCode);
@@ -507,12 +491,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 	        log.setTurn(round.getTurn());
 		}
         
-        LOG.info("-------------------log insert start222-----------------");
         this.elcLogDao.insertSelective(log);
-        LOG.info("-------------------log insert start333-----------------");
+        LOG.info("-------------------log insert end-----------------");
         
         if (ElectRuleType.ELECTION.equals(type))
         {
+        	LOG.info("-------------------context update start-----------------");
             // 更新缓存
             dataProvider.incrementElecNumber(teachClassId);
             respose.getSuccessCourses().add(teachClassId);
@@ -522,8 +506,16 @@ public class ElecYjsServiceImpl extends AbstractCacheService
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
             context.getSelectedCourses().add(course);
+            LOG.info("-------------------context update start-----------------");
         }
-        LOG.info("-------------------log insert start-----------------");
+        
+        
+        /*************************选课/退课后修改学生培养计划中课程选课状态************************/
+        try {
+			updateSelectCourse(studentId,courseCode,type);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     
     @Override
@@ -787,21 +779,20 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
-        List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
         LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses().size());
 //        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
 //        	takenCourse = packagingTakenCourse(c.getTakenCourses());
 //        }
-        for (CompletedCourse completedCourse : takenCourse) {
+        for (CompletedCourse completedCourse : c.getTakenCourses()) {
 			Long courseLabelId = completedCourse.getCourseLabelId();
-			LOG.info("===========courseLabelId=============:" + courseLabelId);
+			LOG.info("===========courseLabelId=============:" + courseLabelId+ "--"+ completedCourse.getCourseCode());
 		}
         
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
         c.setOptionalCourses(sortOptionalCourses);
-        c.setTakenCourses(c.getTakenCourses());
+       // c.setTakenCourses(c.getTakenCourses());
         c.setElecResult(elecResult);
         return c;
     }
@@ -1847,7 +1838,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * @throws Exception 
      */
     public void updateSelectCourse(String studentId,String courseCode,ElectRuleType type) throws Exception {
-        // 根据学号查询学生培养计划中的全部课程号
+    	LOG.info("-------------------update culture start-----------------");
+    	// 根据学号查询学生培养计划中的全部课程号
         List<String> courseCodes = CultureSerivceInvoker.getCourseCodes(studentId);
         
         // 如果选课的课程是该学生培养计划中的课程，则修改培养计划课程选课状态（1-已选课;0-未选课）
@@ -1864,5 +1856,6 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
         	CultureSerivceInvoker.updateSelectCourse(culturePlan);
 		}
+        LOG.info("-------------------update culture end-----------------");
     }
 }
