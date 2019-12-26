@@ -130,7 +130,10 @@ public interface Constants
     public static final String MAX_WARNINGSCORE = "MAXWARNINGSCORE";
     
     public static final String MIN_WARNINGSCORE = "MINWARNINGSCORE";
-
+ 
+    /** 处理redis的操作方法  */
+    public static final String QUERY = "query";
+    public static final String DELETE = "delete";
     public static final String ONE_TERM = "1";
     public static final String TWO_TERM = "2";
 
