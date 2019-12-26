@@ -386,6 +386,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         ElecRespose respose = context.getRespose();
         respose.setIsPlan(isPlan);
         respose.setIsLimit(isLimit);
+        respose.setSemester(semester);
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {
