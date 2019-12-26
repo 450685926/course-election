@@ -298,9 +298,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     Integer grade = studentByCode.getGrade();
                     //获取当前学年
                     SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                    String perYear = schoolCalendar.getPerYear();
-                    String perTerm = schoolCalendar.getPerTerm();
-                    semester = (Integer.parseInt(perYear) - grade.intValue()) * 2 +  Integer.parseInt(perTerm);
+                    Integer year = schoolCalendar.getYear();
+                    Integer term = schoolCalendar.getTerm();
+                    semester = (year.intValue() - grade.intValue()) * 2 +  term.intValue();
 
                 }
             }
