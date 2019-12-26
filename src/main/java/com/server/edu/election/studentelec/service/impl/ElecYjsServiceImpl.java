@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
@@ -781,21 +779,20 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
-        List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
         LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses().size());
 //        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
 //        	takenCourse = packagingTakenCourse(c.getTakenCourses());
 //        }
-        for (CompletedCourse completedCourse : takenCourse) {
+        for (CompletedCourse completedCourse : c.getTakenCourses()) {
 			Long courseLabelId = completedCourse.getCourseLabelId();
-			LOG.info("===========courseLabelId=============:" + courseLabelId);
+			LOG.info("===========courseLabelId=============:" + courseLabelId+ "--"+ completedCourse.getCourseCode());
 		}
         
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
         c.setOptionalCourses(sortOptionalCourses);
-        c.setTakenCourses(c.getTakenCourses());
+       // c.setTakenCourses(c.getTakenCourses());
         c.setElecResult(elecResult);
         return c;
     }
