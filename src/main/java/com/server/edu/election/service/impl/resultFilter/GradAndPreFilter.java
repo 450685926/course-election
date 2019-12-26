@@ -109,9 +109,9 @@ public class GradAndPreFilter
                 .collect(Collectors.partitioningBy(stu -> profNumMap
                     .containsKey(stu.getGrade() + "-" + stu.getProfession())));
             List<Student> trueList = collect.get(Boolean.TRUE);
+            stuList.clear();
             if (CollectionUtil.isNotEmpty(trueList))
             {
-                stuList.clear();
                 stuList.addAll(trueList);
             }
             // 不满足条件的学生
