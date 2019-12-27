@@ -573,7 +573,8 @@
     </select>
 
     <select id="findStudentByTeachingClassId" resultType="com.server.edu.election.vo.StudentVo">
-        SELECT st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,st.GRADE_ grade,st.FACULTY_ faculty,st.TRAINING_LEVEL_ trainingLevel,
+        SELECT st.STUDENT_CODE_ studentCode,st.NAME_ name,st.SEX_ sex,st.GRADE_ grade,
+        st.FACULTY_ faculty,st.TRAINING_LEVEL_ trainingLevel,st.PROFESSION_ profession,
         el.COURSE_TAKE_TYPE_ courseTakeType,el.CALENDAR_ID_ calendarId
         FROM `elc_course_takes_t` el
         LEFT JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
@@ -1229,6 +1230,7 @@
         join teaching_class_t t2 on t2.ID_=t1.TEACHING_CLASS_ID_
         join course_t t3 on t1.COURSE_CODE_=t3.CODE_
         <where>
+            t3.MANAGER_DEPT_ID_ = 1
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teacherCode)">
                 and t1.TEACHING_CLASS_ID_ in (select TEACHING_CLASS_ID_ from teaching_class_teacher_t
                 where TEACHER_CODE_=#{teacherCode})
