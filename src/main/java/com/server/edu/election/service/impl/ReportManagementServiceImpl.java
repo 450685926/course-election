@@ -1284,7 +1284,7 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 String sex = studentSex == 1 ? "男":"女";
                 studentVo.setSexStr(sex);
             }
-            String faculty = dictionaryService.query("G_ZY", studentVo.getProfession());
+            String faculty = dictionaryService.query("X_YX", studentVo.getFaculty());
             studentVo.setFaculty(faculty);
         }
     }
