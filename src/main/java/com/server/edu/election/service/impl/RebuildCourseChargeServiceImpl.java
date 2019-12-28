@@ -154,7 +154,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             courseChargeDao.deleteRecycleCourse(ids);
             return;
         }
-        String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+        Session currentSession = SessionUtils.getCurrentSession();
+        String dptId = currentSession.getCurrentManageDptId();
         //calendarId和turn必须要有值
         if(null==calendarId||null==turn){
             throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
@@ -167,6 +168,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         rebuildCourseDto.setTurn(Integer.valueOf(String.valueOf(turn)));
         rebuildCourseDto.setElectionObj(StringUtils.isEmpty(electionObj)?null:electionObj);
         rebuildCourseDto.setDeptId(dptId);
+        pageCondition.setCondition(rebuildCourseDto);
         while (true) {
             pageNum++;
             pageCondition.setPageNum_(pageNum);
@@ -370,7 +372,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     public PageResult<RebuildCourseNoChargeList> findRecycleCourse(PageCondition<RebuildCourseDto> condition) {
         RebuildCourseDto condition1 = condition.getCondition();
         if (StringUtils.isEmpty(condition1.getDeptId())){
-            String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
+            Session currentSession = SessionUtils.getCurrentSession();
+            String dptId = currentSession.getCurrentManageDptId();
             condition1.setDeptId(dptId);
         }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
