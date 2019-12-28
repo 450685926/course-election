@@ -153,6 +153,9 @@ public class ElcResultServiceImpl implements ElcResultService
     private ElcTeachingClassBindDao elcTeachingClassBindDao;
     
     @Autowired
+    private ElecRoundsDao electionRoundsDao;
+    
+    @Autowired
     // 文件缓存目录
     @Value("${task.cache.directory}")
     private String cacheDirectory;
@@ -753,7 +756,7 @@ public class ElcResultServiceImpl implements ElcResultService
     public void autoRemove(AutoRemoveDto dto)
     {
         Long teachingClassId = dto.getTeachingClassId();
-    	TeachingClass teachingClass = classDao.selectOversize(teachingClassId);
+    	TeachingClass teachingClass = classDao.selectByPrimaryKey(teachingClassId);
         if (null != teachingClass)
         {
             ElcCourseTake param = new ElcCourseTake();
@@ -870,7 +873,9 @@ public class ElcResultServiceImpl implements ElcResultService
                 }else if(i ==2) {
                     if (dto.getInvincibleStu())
                     {
-                        invincibleStus.clear();
+                    	if(limitnumber >0) {
+                    		invincibleStus.clear();
+                    	}
                     }
                 	stuList = invincibleStus;
                 }
