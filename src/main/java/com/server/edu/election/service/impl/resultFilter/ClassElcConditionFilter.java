@@ -2,6 +2,7 @@ package com.server.edu.election.service.impl.resultFilter;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -94,8 +95,7 @@ public class ClassElcConditionFilter
                 .collect(Collectors.groupingBy(Student::getSex));
             String isDivsex = restrictAttr.getIsDivsex();
             Integer numberMale = restrictAttr.getNumberMale();
-            
-            stuList.clear();
+            List<Student> newStudents = new ArrayList<>();
             //3. 删除超过人数的男生或女生
             //是否男女生班 0：不区分  1：男生班 2：女生班
             List<Student> maleStus = collect.get(1);
@@ -107,7 +107,7 @@ public class ClassElcConditionFilter
                     GradAndPreFilter
                         .randomRemove(removeStus, numberMale, maleStus);// 删除超过的男生
                 }
-                stuList.addAll(maleStus);
+                newStudents.addAll(maleStus);
             }
             Integer numberFemale = restrictAttr.getNumberFemale();
             List<Student> femaleStus = collect.get(2);
@@ -119,7 +119,11 @@ public class ClassElcConditionFilter
                     GradAndPreFilter
                         .randomRemove(removeStus, numberMale, femaleStus);// 删除超过的女生
                 }
-                stuList.addAll(femaleStus);
+                newStudents.addAll(femaleStus);
+            }
+            if(CollectionUtil.isNotEmpty(newStudents)) {
+            	stuList.clear();
+            	stuList.addAll(newStudents);
             }
             //4. 删除其它不满足条件的学生
             if (CollectionUtil.isNotEmpty(stuList))
