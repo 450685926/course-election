@@ -759,10 +759,18 @@ public class ElcResultServiceImpl implements ElcResultService
             ElcCourseTake param = new ElcCourseTake();
             param.setTeachingClassId(teachingClassId);
             List<ElcCourseTake> takes = courseTakeDao.select(param);
+            if(CollectionUtil.isNotEmpty(takes)&&teachingClass.getMaxFirstRoundNum()==0) {
+            	List<ElcCourseTake> firstTakes = takes.stream().filter(c->Constants.FIRST.equals(c.getTurn())).collect(Collectors.toList());
+            	teachingClass.setMaxFirstRoundNum(firstTakes.size());
+            }
             List<ElcCourseTake> secondTakes = takes.stream().filter(c->Constants.SECOND.equals(c.getTurn())).collect(Collectors.toList());
             if(CollectionUtil.isNotEmpty(secondTakes)) {
+            	if(teachingClass.getMaxSecondRoundNum() ==0) {
+            		teachingClass.setMaxSecondRoundNum(secondTakes.size());
+            	}
             	takes = secondTakes;
             }
+            classDao.updateByPrimaryKeySelective(teachingClass);
             String course = takes.get(0).getCourseCode();
 //        	if(Boolean.TRUE.equals(dto.getSuggestSwitchCourse())) {
 //        		List<ElcCourseSuggestSwitch> suggestSwitchs = elcCourseSuggestSwitchDao.selectAll();
