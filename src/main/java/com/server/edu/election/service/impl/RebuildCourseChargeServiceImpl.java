@@ -155,8 +155,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
             return;
         }
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        //calendarId和turn electionObj 必须要有值
-        if(null==calendarId||null==turn||null==electionObj){
+        //calendarId和turn必须要有值
+        if(null==calendarId||null==turn){
             throw new ParameterValidateException(I18nUtil.getMsg("common.parameterError"));
         }
         int pageNum = 0;
@@ -165,7 +165,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         RebuildCourseDto rebuildCourseDto = new RebuildCourseDto();
         rebuildCourseDto.setCalendarId(calendarId);
         rebuildCourseDto.setTurn(Integer.valueOf(String.valueOf(turn)));
-        rebuildCourseDto.setElectionObj(electionObj);
+        rebuildCourseDto.setElectionObj(StringUtils.isEmpty(electionObj)?null:electionObj);
         rebuildCourseDto.setDeptId(dptId);
         while (true) {
             pageNum++;
