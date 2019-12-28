@@ -922,11 +922,14 @@ public class ElcResultServiceImpl implements ElcResultService
                             // 1.普通人数小于超出人数则说明优先人数的人也超了这时需要清空普通人数
                             // 2.普通人数大于超出人数则说明只有普通人数超了，普通人数需要等于超出人数
                             int limitNumber = limitnumber - invincibleStus.size();
-                            if (stuList.size() < overSize)
-                            {
+                            if(limitnumber == 0) {
                             	limitNumber = 0;
                             }
-                            if(limitNumber>0) {
+                            if (stuList.size() < overSize)
+                            {
+                            	limitNumber = -1;
+                            }
+                            if(limitNumber>-1) {
                                 GradAndPreFilter
                                 .randomRemove(removeStus, limitNumber, stuList);
                             }
