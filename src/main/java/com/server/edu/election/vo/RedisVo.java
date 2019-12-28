@@ -19,6 +19,11 @@ public class RedisVo {
 	 *  模糊匹配值
 	 */
 	private String pattern;
+	
+	/**
+	 * 操作方法(query/delete)
+	 */
+	private String method;
 
 	public String getKey() {
 		return key;
@@ -43,4 +48,13 @@ public class RedisVo {
 	public void setPattern(String pattern) {
 		this.pattern = pattern;
 	}
+
+	public String getMethod() {
+		return method;
+	}
+
+	public void setMethod(String method) {
+		this.method = method;
+	}
+	
 }

@@ -1,5 +1,6 @@
 package com.server.edu.election.service.impl.resultFilter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -109,9 +110,9 @@ public class GradAndPreFilter
                 .collect(Collectors.partitioningBy(stu -> profNumMap
                     .containsKey(stu.getGrade() + "-" + stu.getProfession())));
             List<Student> trueList = collect.get(Boolean.TRUE);
+            stuList.clear();
             if (CollectionUtil.isNotEmpty(trueList))
             {
-                stuList.clear();
                 stuList.addAll(trueList);
             }
             // 不满足条件的学生
@@ -139,12 +140,12 @@ public class GradAndPreFilter
         if (CollectionUtil.isNotEmpty(stuList)
             && CollectionUtil.isNotEmptyMap(profNumMap))
         {
+        	List<Student> students= new ArrayList<>();
             //年级专业对应的学生
             Map<String, List<Student>> gradeStuMap = stuList.stream()
                 .collect(Collectors.groupingBy(
                     stu -> stu.getGrade() + "-" + stu.getProfession()));
-            
-            stuList.clear();
+            students.clear();
             for (String key : gradeStuMap.keySet())
             {
                 Integer number = profNumMap.get(key);//年级专业分配的人数
@@ -152,8 +153,12 @@ public class GradAndPreFilter
                 if (number != null && stus.size() > number)
                 {
                     randomRemove(removeStus, number, stus);
-                    stuList.addAll(stus);
+                    students.addAll(stus);
                 }
+            }
+            if(CollectionUtil.isNotEmpty(students)) {
+            	stuList.clear();
+            	stuList.addAll(students);
             }
         }
     }

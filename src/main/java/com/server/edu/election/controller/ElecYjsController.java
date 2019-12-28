@@ -2,6 +2,7 @@ package com.server.edu.election.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -263,29 +264,58 @@ public class ElecYjsController
     	return RestResult.success();
     } 
     
-    @ApiOperation(value = "手动删除redis中的数据")
-    @PostMapping("/deleteRedisKeys")
-    public RestResult<?> deleteRedisKeys(@RequestBody RedisVo redisVo)
+    @ApiOperation(value = "手动操作redis中的数据")
+    @PostMapping("/operatorRedisKeys")
+    public RestResult<?> operatorRedisKeys(@RequestBody RedisVo redisVo)
     {
+    	String key = redisVo.getKey();
+    	String pattern = redisVo.getPattern();
+    	List<String> list = redisVo.getList();
+    	String method = redisVo.getMethod();
+    	
     	RestResult<?> result = null;
     	
-    	if (StringUtils.isNotBlank(redisVo.getKey())) {
-    		strTemplate.delete(redisVo.getKey());
-    		result = RestResult.success();
-		}else {
-			String pattern = redisVo.getPattern();
-			if (StringUtils.isNotBlank(pattern)) {
-				List<String> list = new ArrayList<String>();
-				for (String studnetId : redisVo.getList()) {
-					String keyString = redisVo.getPattern() + studnetId;
-					list.add(keyString);
-				}
-				strTemplate.delete(list);
-				result = RestResult.success();
+    	if (StringUtils.equalsIgnoreCase(method, Constants.QUERY)) { // 查询
+    		/** 支持精确查询和模糊匹配查询
+    		 *  elec-stdstatus-109_1931454
+    		 *  elec-stdstatus-109_*
+    		 */
+    		if (StringUtils.isNotBlank(key)) {
+    			Set<String> keys = strTemplate.keys(key);
+    			return RestResult.successData(keys);
 			}else {
-				result = RestResult.error("模糊匹配不能为空！");
+				return RestResult.error("key不能为空！");
+			}
+		}else if (StringUtils.equalsIgnoreCase(method, Constants.DELETE)) { // 删除
+			/**
+			 * key值不为空则直接使用key删除(可精确删除也可模糊删除)
+			 *    elec-stdstatus-109_1931454
+			 *    elec-stdstatus-109_*
+			 */
+			if (StringUtils.isNotBlank(key)) {
+				Set<String> keys = strTemplate.keys(key);
+				strTemplate.delete(keys);
+				return RestResult.successData(keys);
+			}
+			
+			/** key为空则直接使用pattern和list组合删除 */
+			if (StringUtils.isNotBlank(pattern)) {
+				if (CollectionUtil.isNotEmpty(list)) {
+					Set<String> patternSet = new HashSet<String>();
+					for (String studnetId : redisVo.getList()) {
+						String keyString = redisVo.getPattern() + studnetId;
+						patternSet.add(keyString);
+					}
+					strTemplate.delete(patternSet);
+					return RestResult.successData(patternSet);
+				}else {
+					result = RestResult.error("list不能为空！");
+				}
+			}else {
+				result = RestResult.error("pattern不能为空！");
 			}
 		}
+    	
     	return result;
     } 
     
