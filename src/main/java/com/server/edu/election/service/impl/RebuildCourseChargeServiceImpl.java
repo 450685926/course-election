@@ -167,6 +167,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         rebuildCourseDto.setTurn(Integer.valueOf(String.valueOf(turn)));
         rebuildCourseDto.setElectionObj(StringUtils.isEmpty(electionObj)?null:electionObj);
         rebuildCourseDto.setDeptId(dptId);
+        pageCondition.setCondition(rebuildCourseDto);
         while (true) {
             pageNum++;
             pageCondition.setPageNum_(pageNum);
