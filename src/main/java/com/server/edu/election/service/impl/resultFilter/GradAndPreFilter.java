@@ -142,7 +142,7 @@ public class GradAndPreFilter
         {
         	List<Student> students= new ArrayList<>();
             //年级专业对应的学生
-            Map<String, List<Student>> gradeStuMap = students.stream()
+            Map<String, List<Student>> gradeStuMap = stuList.stream()
                 .collect(Collectors.groupingBy(
                     stu -> stu.getGrade() + "-" + stu.getProfession()));
             students.clear();
