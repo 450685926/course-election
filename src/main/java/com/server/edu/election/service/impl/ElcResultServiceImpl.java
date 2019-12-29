@@ -1725,9 +1725,13 @@ public class ElcResultServiceImpl implements ElcResultService
         	}
         	takes = secondTakes;
         }
-        teachingClass.setMaxSecondRoundNum(maxSecondRoundNum);
-        teachingClass.setMaxFirstRoundNum(maxFirstRoundNum);
-        if(teachingClass.getId() !=null &&(teachingClass.getMaxFirstRoundNum() !=0 || teachingClass.getMaxSecondRoundNum() !=0)) {
+        if(maxFirstRoundNum !=0) {
+        	teachingClass.setMaxFirstRoundNum(maxFirstRoundNum);
+        }
+        if(maxSecondRoundNum !=0) {
+        	teachingClass.setMaxSecondRoundNum(maxSecondRoundNum);
+        }
+        if(maxFirstRoundNum !=0 || maxSecondRoundNum !=0) {
         	classList.add(teachingClass);
         }
         // 特殊学生
