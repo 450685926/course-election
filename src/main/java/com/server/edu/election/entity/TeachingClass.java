@@ -223,9 +223,36 @@ public class TeachingClass extends BaseEntity implements Serializable
     @Column(name = "THIRD_WITHDRAW_NUMBER")
     private Integer thirdWithdrawNumber;
     
+    /**
+     * 第一轮最大选课人数
+     */
+    @Column(name = "MAX_FIRST_ROUND_NUM")
+    private Integer maxFirstRoundNum;
+
+    /**
+     * 第二轮最大选课人数
+     */
+    @Column(name = "MAX_SECOND_ROUND_NUM")
+    private Integer maxSecondRoundNum;
+
     
-    
-    public Integer getThirdWithdrawNumber() {
+    public Integer getMaxFirstRoundNum() {
+		return maxFirstRoundNum;
+	}
+
+	public void setMaxFirstRoundNum(Integer maxFirstRoundNum) {
+		this.maxFirstRoundNum = maxFirstRoundNum;
+	}
+
+	public Integer getMaxSecondRoundNum() {
+		return maxSecondRoundNum;
+	}
+
+	public void setMaxSecondRoundNum(Integer maxSecondRoundNum) {
+		this.maxSecondRoundNum = maxSecondRoundNum;
+	}
+
+	public Integer getThirdWithdrawNumber() {
 		return thirdWithdrawNumber;
 	}
 
