@@ -1664,10 +1664,8 @@ public class ElcResultServiceImpl implements ElcResultService
 	
     private void newAutoRemove(AutoRemoveDto dto,List<RebuildCourseRecycle> rebuildCourseRecycles,List<ElcCourseTake> withdrawTakes,List<TeachingClass> classList,List<Student> allStudents)
     {
-    	TeachingClass updateTeachingClass = new TeachingClass();
     	TeachingClass teachingClass = dto.getTeachingClass();
         List<ElcCourseTake> takes = dto.getTakes();
-        updateTeachingClass.setId(teachingClass.getId());
         Integer maxFirstRoundNum =0;
         Integer maxSecondRoundNum = 0;
         if(CollectionUtil.isNotEmpty(takes)&&teachingClass.getMaxFirstRoundNum()==0) {
@@ -1681,10 +1679,10 @@ public class ElcResultServiceImpl implements ElcResultService
         	}
         	takes = secondTakes;
         }
-        updateTeachingClass.setMaxSecondRoundNum(maxSecondRoundNum);
-        updateTeachingClass.setMaxFirstRoundNum(maxFirstRoundNum);
-        if(updateTeachingClass.getId() !=null &&(updateTeachingClass.getMaxFirstRoundNum() !=0 || updateTeachingClass.getMaxSecondRoundNum() !=0)) {
-        	classList.add(updateTeachingClass);
+        teachingClass.setMaxSecondRoundNum(maxSecondRoundNum);
+        teachingClass.setMaxFirstRoundNum(maxFirstRoundNum);
+        if(teachingClass.getId() !=null &&(teachingClass.getMaxFirstRoundNum() !=0 || teachingClass.getMaxSecondRoundNum() !=0)) {
+        	classList.add(teachingClass);
         }
         // 特殊学生
         List<String> invincibleStdIds = dto.getInvincibleStdIds();
