@@ -1036,7 +1036,7 @@ public class ElcResultServiceImpl implements ElcResultService
             	List<ElcCourseTake> classTakes = dto.getTakes();
             	List<ElcCourseTake> values= classTakes.stream().filter(c->removeStus.contains(c.getStudentId())).collect(Collectors.toList());
             	withdrawTakes.addAll(values);
-                for(ElcCourseTake elcCourseTake:withdrawTakes) {
+                for(ElcCourseTake elcCourseTake:values) {
                 	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
                 	BeanUtils.copyProperties(elcCourseTake, rebuildCourseRecycle);
                 	rebuildCourseRecycle.setStudentCode(elcCourseTake.getStudentId());
@@ -1656,6 +1656,17 @@ public class ElcResultServiceImpl implements ElcResultService
         			num++;
         			result.setDoneCount(num);
         			this.updateResult(result);
+        		}
+        		if(CollectionUtil.isNotEmpty(unSuggestCourses)) {
+                    for(ElcCourseTake elcCourseTake:unSuggestCourses) {
+                    	RebuildCourseRecycle rebuildCourseRecycle = new RebuildCourseRecycle();
+                    	BeanUtils.copyProperties(elcCourseTake, rebuildCourseRecycle);
+                    	rebuildCourseRecycle.setStudentCode(elcCourseTake.getStudentId());
+                    	rebuildCourseRecycle.setId(null);
+                    	rebuildCourseRecycle.setType(Constants.AUTOTYPE);
+                    	rebuildCourseRecycle.setScreenLabel(dto.getLabel());
+                    	rebuildCourseRecycles.add(rebuildCourseRecycle);
+                    }
         		}
         		List<TeachingClass> roundClassList = classList.stream().filter(c->c!=null && c.getId() !=null).collect(Collectors.toList());
         		//classDao.updateClassRoundNum(roundClassList);
