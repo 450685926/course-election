@@ -824,11 +824,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Override
     public void newWithdraw(List<ElcCourseTake> value)
     {
-    	Session currentSession = SessionUtils.getCurrentSession();
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
         List<ElcLog> logList = new ArrayList<>();
         Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
-        int num = 0;
         for (ElcCourseTake take : value)
         {
             Long calendarId = take.getCalendarId();
@@ -878,9 +876,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 log.setCalendarId(calendarId);
                 log.setCourseCode(vo.getCourseCode());
                 log.setCourseName(vo.getCourseName());
-                log.setCreateBy(currentSession.getUid());
+                log.setCreateBy("admin1");
                 log.setCreatedAt(new Date());
-                log.setCreateIp(currentSession.getIp());
+                log.setCreateIp("127.0.0.1");
                 log.setMode(ElcLogVo.MODE_2);
                 log.setStudentId(studentId);
                 log.setTeachingClassCode(teachingClassCode);

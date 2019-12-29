@@ -112,7 +112,7 @@ public class TeachClassCacheService extends AbstractCacheService
             PageHelper.startPage(page.getNextPage(), 300);
             List<CourseOpenDto> lessons =
                 roundCourseDao.selectTeachingClassByCalendarId(calendarId);
-            this.cacheTeachClass(100, lessons, year);
+            this.cacheTeachClass(600, lessons, year);
             page = new PageInfo<>(lessons);
         }
     }

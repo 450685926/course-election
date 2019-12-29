@@ -1695,6 +1695,9 @@ public class ElcResultServiceImpl implements ElcResultService
             String courseCode = take.getCourseCode();
             String studentId = take.getStudentId();
             Student stu = allStudents.stream().filter(c->studentId.equals(c.getStudentCode())).findFirst().orElse(null);
+            if(stu ==null) {
+            	continue;
+            }
             if (invincibleStdIds.contains(studentId))
             {
                 invincibleStus.add(stu);
