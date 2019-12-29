@@ -927,7 +927,7 @@
    <update id="updateClassRoundNum" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"
       separator=";">
-      update teaching_class_t set MAX_FIRST_ROUND_NUM = #{item.maxFirstRoundNum} ,MAX_SECOND_ROUND_NUM = #{item.maxSecondRoundNum} where
+      update teaching_class_t set MAX_FIRST_ROUND_NUM = #{item.maxFirstRoundNum},MAX_SECOND_ROUND_NUM = #{item.maxSecondRoundNum} where
       ID_ = #{item.id}
     </foreach>
    </update>

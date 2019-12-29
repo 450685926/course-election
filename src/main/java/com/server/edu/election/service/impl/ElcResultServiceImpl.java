@@ -1651,9 +1651,12 @@ public class ElcResultServiceImpl implements ElcResultService
         			result.setDoneCount(num);
         			this.updateResult(result);
         		}
-        		classDao.updateClassRoundNum(classList);
-                rebuildCourseRecycleDao.insertList(rebuildCourseRecycles);
-                courseTakeService.newWithdraw(withdrawTakes);
+        		List<TeachingClass> roundClassList = classList.stream().filter(c->c!=null).collect(Collectors.toList());
+        		classDao.updateClassRoundNum(roundClassList);
+        		List<RebuildCourseRecycle> roundRebuildList = rebuildCourseRecycles.stream().filter(c->c!=null).collect(Collectors.toList());
+                rebuildCourseRecycleDao.insertList(roundRebuildList);
+                List<ElcCourseTake> roundWithdrawTakes  = withdrawTakes.stream().filter(c->c !=null).collect(Collectors.toList());
+                courseTakeService.newWithdraw(roundWithdrawTakes);
             }
         });
 		return resul;
