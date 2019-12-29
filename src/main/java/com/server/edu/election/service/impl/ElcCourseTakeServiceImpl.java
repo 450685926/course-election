@@ -822,7 +822,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     
     @Transactional
     @Override
-    public void newWithdraw(List<ElcCourseTake> value,AsyncExecuter asyncExecuter,AsyncResult result)
+    public void newWithdraw(List<ElcCourseTake> value)
     {
     	Session currentSession = SessionUtils.getCurrentSession();
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
@@ -836,20 +836,12 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             Long teachingClassId = take.getTeachingClassId();
             Integer turn = take.getTurn()!=null?take.getTurn():0;
             //删除选课记录
-            Example example = new Example(ElcCourseTake.class);
-            example.createCriteria()
-                .andEqualTo("calendarId", calendarId)
-                .andEqualTo("studentId", studentId)
-                .andEqualTo("teachingClassId", teachingClassId);
-            ElcCourseTake elcCourseTake = courseTakeDao.selectOneByExample(example);
-
             //更新选课申请数据
             electionApplyService
-                    .update(studentId, calendarId, elcCourseTake.getCourseCode(),ElectRuleType.WITHDRAW);
+                    .update(studentId, calendarId, take.getCourseCode(),ElectRuleType.WITHDRAW);
             Example example1 = new Example(Course.class);
-            example1.createCriteria().andEqualTo("code",elcCourseTake.getCourseCode());
-            Course course = courseDao.selectOneByExample(example1);
-            courseTakeDao.deleteByExample(example);
+            example1.createCriteria().andEqualTo("code",take.getCourseCode());
+//            Course course = courseDao.selectOneByExample(example1);
             //减少选课人数
             int count =classDao.decrElcNumber(teachingClassId);
             //保存第三、四轮退课人数
@@ -862,7 +854,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                      dataProvider.incrementDrawNumber(teachingClassId);
                  }
             }
-            Student stu  = studentDao.findStudentByCode(studentId);
+//            Student stu  = studentDao.findStudentByCode(studentId);
             // 更新缓存中教学班人数
             teachClassCacheService.updateTeachingClassNumber(teachingClassId);
             ElcCourseTakeVo vo = null;
@@ -898,14 +890,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
-    			num++;
-    			result.setDoneCount(num);
-    			asyncExecuter.updateResult(result);
-                try{
-                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+//                try{
+//                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
 
                 withdrawMap.put(
                     String
@@ -920,6 +909,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                     teachingClassId);
             }
         }
+        List<Long> takeIds = value.stream().map(ElcCourseTake ::getId).collect(Collectors.toList());
+        Example example = new Example(ElcCourseTake.class);
+        example.createCriteria().andIn("id", takeIds);
+        courseTakeDao.deleteByExample(example);
         if (CollectionUtil.isNotEmpty(logList))
         {
             this.elcLogDao.insertList(logList);

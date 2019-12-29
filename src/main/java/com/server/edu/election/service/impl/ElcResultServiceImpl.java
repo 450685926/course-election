@@ -1653,7 +1653,7 @@ public class ElcResultServiceImpl implements ElcResultService
         		}
         		classDao.updateClassRoundNum(classList);
                 rebuildCourseRecycleDao.insertList(rebuildCourseRecycles);
-                courseTakeService.withdraw(withdrawTakes);
+                courseTakeService.newWithdraw(withdrawTakes);
             }
         });
 		return resul;
