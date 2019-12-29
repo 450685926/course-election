@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.math.RandomUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.AutoRemoveDto;
@@ -22,6 +24,8 @@ public class NewGradAndPreFilter {
     
     /**配课年级专业人数配比*/
     private Map<String, Integer> profNumMap;
+    
+    Logger logger = LoggerFactory.getLogger(getClass());
     
     //private List<String> suggestStus;
     
@@ -131,10 +135,10 @@ public class NewGradAndPreFilter {
         {
         	List<Student> students= new ArrayList<>();
             //年级专业对应的学生
-            Map<String, List<Student>> gradeStuMap = stuList.stream()
+        	
+            Map<String, List<Student>> gradeStuMap = stuList.stream().filter(c->c!=null)
                 .collect(Collectors.groupingBy(
                     stu -> stu.getGrade() + "-" + stu.getProfession()));
-            students.clear();
             for (String key : gradeStuMap.keySet())
             {
                 Integer number = profNumMap.get(key);//年级专业分配的人数
