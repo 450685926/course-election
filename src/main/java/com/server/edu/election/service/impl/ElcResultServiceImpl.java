@@ -1665,18 +1665,22 @@ public class ElcResultServiceImpl implements ElcResultService
     	TeachingClass teachingClass = dto.getTeachingClass();
         List<ElcCourseTake> takes = dto.getTakes();
         updateTeachingClass.setId(teachingClass.getId());
+        Integer maxFirstRoundNum =0;
+        Integer maxSecondRoundNum = 0;
         if(CollectionUtil.isNotEmpty(takes)&&teachingClass.getMaxFirstRoundNum()==0) {
         	List<ElcCourseTake> firstTakes = takes.stream().filter(c->Constants.FIRST.equals(c.getTurn())).collect(Collectors.toList());
-        	updateTeachingClass.setMaxFirstRoundNum(firstTakes.size());
+        	maxFirstRoundNum = firstTakes.size();
         }
         List<ElcCourseTake> secondTakes = takes.stream().filter(c->Constants.SECOND.equals(c.getTurn())).collect(Collectors.toList());
         if(CollectionUtil.isNotEmpty(secondTakes)) {
         	if(teachingClass.getMaxSecondRoundNum() ==0) {
-        		updateTeachingClass.setMaxSecondRoundNum(secondTakes.size());
+        		maxSecondRoundNum = secondTakes.size();
         	}
         	takes = secondTakes;
         }
-        if(updateTeachingClass.getMaxFirstRoundNum() !=null || updateTeachingClass.getMaxSecondRoundNum() !=null) {
+        updateTeachingClass.setMaxSecondRoundNum(maxSecondRoundNum);
+        updateTeachingClass.setMaxFirstRoundNum(maxFirstRoundNum);
+        if(updateTeachingClass.getId() !=null &&(updateTeachingClass.getMaxFirstRoundNum() !=0 || updateTeachingClass.getMaxSecondRoundNum() !=0)) {
         	classList.add(updateTeachingClass);
         }
         // 特殊学生
