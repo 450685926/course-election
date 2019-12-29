@@ -911,7 +911,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         }
         List<Long> takeIds = value.stream().map(ElcCourseTake ::getId).collect(Collectors.toList());
         Example example = new Example(ElcCourseTake.class);
-        example.createCriteria().andIn("id", takeIds);
+        example.createCriteria().andIn("id", takeIds).andEqualTo("calendarId", value.get(0).getCalendarId());
         courseTakeDao.deleteByExample(example);
         if (CollectionUtil.isNotEmpty(logList))
         {
