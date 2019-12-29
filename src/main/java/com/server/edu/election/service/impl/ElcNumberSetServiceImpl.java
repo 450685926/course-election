@@ -125,7 +125,7 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
      * 每天指定时间执行
      * 每天定时安排任务进行执行 
      */
-    //@Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "0 0/1 * * * *")
     public void executeEightAtNightPerDay()
     {
         String key = "ElcNumberSetTimer";
