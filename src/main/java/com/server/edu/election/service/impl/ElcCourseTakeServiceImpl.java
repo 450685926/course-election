@@ -53,6 +53,9 @@ import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.export.ExportExcelUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +130,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
     @Autowired
     private ElectionApplyService electionApplyService;
+    
+    @Autowired
+    private SqlSessionFactory factory;
     
     @Override
     public PageResult<ElcCourseTakeVo> listPage(
@@ -914,7 +920,22 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         courseTakeDao.deleteByExample(example);
         if (CollectionUtil.isNotEmpty(logList))
         {
-            this.elcLogDao.insertList(logList);
+        	
+			 SqlSession session = factory.openSession(ExecutorType.BATCH, false);
+			 ElcLogDao classmapper = session.getMapper(ElcLogDao.class);
+		//             result.setTotal(insertNumber+size);
+		     for (int i = 0; i < logList.size(); i++)
+		     {
+		     	classmapper.insertSelective(logList.get(i));
+		         if (i % 100 == 0)
+		         {//每1000条提交一次防止内存溢出
+		         	session.commit();
+		         	session.clearCache();
+		         }
+		     }
+		     session.commit();
+		     session.clearCache();
+//            this.elcLogDao.insertList(logList);
             for (Entry<String, ElcCourseTake> entry : withdrawMap.entrySet())
             {
                 ElcCourseTake take = entry.getValue();

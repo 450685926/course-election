@@ -6,6 +6,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -158,6 +161,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElecRoundsDao electionRoundsDao;
+    
+    @Autowired
+    private SqlSessionFactory factory;
     
     @Autowired
     // 文件缓存目录
@@ -1652,11 +1658,40 @@ public class ElcResultServiceImpl implements ElcResultService
         			this.updateResult(result);
         		}
         		List<TeachingClass> roundClassList = classList.stream().filter(c->c!=null && c.getId() !=null).collect(Collectors.toList());
-        		classDao.updateClassRoundNum(roundClassList);
+        		//classDao.updateClassRoundNum(roundClassList);
         		List<RebuildCourseRecycle> roundRebuildList = rebuildCourseRecycles.stream().filter(c->c!=null).collect(Collectors.toList());
-                rebuildCourseRecycleDao.insertList(roundRebuildList);
+                //rebuildCourseRecycleDao.insertList(roundRebuildList);
                 List<ElcCourseTake> roundWithdrawTakes  = withdrawTakes.stream().filter(c->c !=null).collect(Collectors.toList());
+                SqlSession session = factory.openSession(ExecutorType.BATCH, false);
+                TeachingClassDao classmapper = session.getMapper(TeachingClassDao.class);
+//                result.setTotal(insertNumber+size);
+                for (int i = 0; i < roundClassList.size(); i++)
+                {
+                	classmapper.updateByPrimaryKeySelective(roundClassList.get(i));
+                    if (i % 100 == 0)
+                    {//每1000条提交一次防止内存溢出
+                        session.commit();
+                        session.clearCache();
+                    }
+                }
+                session.commit();
+                session.clearCache();
+                SqlSession session1 = factory.openSession(ExecutorType.BATCH, false);
+                RebuildCourseRecycleDao classmapper1 = session1.getMapper(RebuildCourseRecycleDao.class);
+//                result.setTotal(insertNumber+size);
+                for (int i = 0; i < roundRebuildList.size(); i++)
+                {
+                	classmapper1.insertSelective(roundRebuildList.get(i));
+                    if (i % 100 == 0)
+                    {//每1000条提交一次防止内存溢出
+                    	session1.commit();
+                    	session1.clearCache();
+                    }
+                }
+                session1.commit();
+                session1.clearCache();
                 courseTakeService.newWithdraw(roundWithdrawTakes);
+                
             }
         });
 		return resul;
