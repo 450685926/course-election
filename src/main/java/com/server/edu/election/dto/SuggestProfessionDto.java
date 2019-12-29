@@ -2,13 +2,23 @@ package com.server.edu.election.dto;
 
 public class SuggestProfessionDto
 {
+	private Long teachingClassId;
+	
     private Integer grade;
     
     private String profession;
     
     private Integer number;
     
-    public Integer getGrade()
+    public Long getTeachingClassId() {
+		return teachingClassId;
+	}
+
+	public void setTeachingClassId(Long teachingClassId) {
+		this.teachingClassId = teachingClassId;
+	}
+
+	public Integer getGrade()
     {
         return grade;
     }

@@ -112,10 +112,11 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * 查询教学班的配课年级专业
      * 
      * @param teachingClassId
-     * @return
+     * @returnselectAllSuggestProfession
      * @see [类、类#方法、类#成员]
      */
     List<SuggestProfessionDto> selectSuggestProfession(@Param("teachingClassId") Long teachingClassId);
+    List<SuggestProfessionDto> selectAllSuggestProfession(@Param("teachingClassIds") List<Long> teachingClassIds);
     /**
      * 查询配课学生
      * 
@@ -165,6 +166,12 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     int batchAddDrawNumber(List<TeachingClassVo> list);
     
     int updateReserveProportion(List<TeachingClass> list);
+    /**
+     * 批量更新轮次最大人数
+     * @param list
+     * @return
+     */
+    int updateClassRoundNum(List<TeachingClass> list);
 
     List<ElcStudentVo> findClassCodeAndFaculty(@Param("teachingClassIds") List<Long> ids);
     

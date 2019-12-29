@@ -37,4 +37,15 @@
 		    </if>
 		</where>
   </select>
+  
+  <select id="getAllElcAffinityStudents" resultType="com.server.edu.election.vo.ElcAffinityCoursesStdsVo">
+		SELECT DISTINCT
+			t1.STUDENT_ID_ studentId,
+			t1.COURSE_ID_ courseId,
+			t2.CODE_ courseCode,
+			t2.NAME_ courseName
+		FROM
+			elc_affinity_courses_stds_t t1
+		JOIN course_t t2 ON t1.COURSE_ID_ = t2.ID_
+  </select>
 </mapper>
