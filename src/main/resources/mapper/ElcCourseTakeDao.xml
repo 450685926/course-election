@@ -2326,4 +2326,40 @@
         </foreach>
         group by id
     </select>
+    
+    <select id="getUnSuggestStuents" resultMap="BaseResultMap">
+		SELECT
+			et.*
+		FROM
+			teaching_class_t tc
+		JOIN elc_course_takes_t_${index} et ON et.TEACHING_CLASS_ID_ = tc.id_
+		JOIN student_t si ON si.STUDENT_CODE_ = et.STUDENT_ID_
+		LEFT JOIN teaching_class_suggest_profession_t sp ON sp.TEACHING_CLASS_ID_ = tc.id_
+		AND sp.grade_ = si.grade_
+		AND sp.PROFESSION_ = si.PROFESSION_
+		WHERE
+			et.CALENDAR_ID_ = #{calendarId}
+		AND si.PROJ_ID_ = 1
+		AND sp.TEACHING_CLASS_ID_ IS NULL
+		AND EXISTS (
+			SELECT
+				*
+			FROM
+				teaching_class_suggest_profession_t
+			WHERE
+				teaching_class_id_ = tc.id_
+		)
+		AND NOT EXISTS (
+			SELECT
+				*
+			FROM
+				elc_invincible_stds_t
+			WHERE
+				student_id_ = si.STUDENT_CODE_
+		)
+  </select>
+  
+ <select id="selectAllTakes" resultMap="BaseResultMap">
+    SELECT * from elc_course_takes_t_${index} t1  where t1.CALENDAR_ID_ = #{calendarId}
+ </select>
 </mapper>

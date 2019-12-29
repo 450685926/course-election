@@ -46,6 +46,8 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.export.ExcelExecuter;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -776,6 +778,130 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
+                try{
+                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                withdrawMap.put(
+                    String
+                        .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),
+                    vo);
+            }
+            else
+            {
+                logger.warn(
+                    "not find teachingClassInfo calendarId={},teachingClassId={}",
+                    calendarId,
+                    teachingClassId);
+            }
+        }
+        if (CollectionUtil.isNotEmpty(logList))
+        {
+            this.elcLogDao.insertList(logList);
+            for (Entry<String, ElcCourseTake> entry : withdrawMap.entrySet())
+            {
+                ElcCourseTake take = entry.getValue();
+                applicationContext.publishEvent(new ElectLoadEvent(
+                    take.getCalendarId(), take.getStudentId()));
+                String elecStatus = Constants.UN_ELEC;
+                //更新培养的选课状态
+                StudentPlanCoure studentPlanCoure = new StudentPlanCoure();
+                studentPlanCoure.setStudentId(take.getStudentId());
+                studentPlanCoure.setCourseCode(take.getCourseCode());
+                studentPlanCoure.setElecStatus(elecStatus);
+                try {
+                    CultureSerivceInvoker.updateElecStatus(studentPlanCoure);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    @Transactional
+    @Override
+    public void newWithdraw(List<ElcCourseTake> value,AsyncExecuter asyncExecuter,AsyncResult result)
+    {
+    	Session currentSession = SessionUtils.getCurrentSession();
+        Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
+        List<ElcLog> logList = new ArrayList<>();
+        Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
+        int num = 0;
+        for (ElcCourseTake take : value)
+        {
+            Long calendarId = take.getCalendarId();
+            String studentId = take.getStudentId();
+            Long teachingClassId = take.getTeachingClassId();
+            Integer turn = take.getTurn()!=null?take.getTurn():0;
+            //删除选课记录
+            Example example = new Example(ElcCourseTake.class);
+            example.createCriteria()
+                .andEqualTo("calendarId", calendarId)
+                .andEqualTo("studentId", studentId)
+                .andEqualTo("teachingClassId", teachingClassId);
+            ElcCourseTake elcCourseTake = courseTakeDao.selectOneByExample(example);
+
+            //更新选课申请数据
+            electionApplyService
+                    .update(studentId, calendarId, elcCourseTake.getCourseCode(),ElectRuleType.WITHDRAW);
+            Example example1 = new Example(Course.class);
+            example1.createCriteria().andEqualTo("code",elcCourseTake.getCourseCode());
+            Course course = courseDao.selectOneByExample(example1);
+            courseTakeDao.deleteByExample(example);
+            //减少选课人数
+            int count =classDao.decrElcNumber(teachingClassId);
+            //保存第三、四轮退课人数
+            if (turn == Constants.THIRD_TURN
+                    || turn == Constants.FOURTH_TURN)
+            {
+            	 count= classDao.increDrawNumber(teachingClassId);
+            	 if (count > 0)
+                 {
+                     dataProvider.incrementDrawNumber(teachingClassId);
+                 }
+            }
+            Student stu  = studentDao.findStudentByCode(studentId);
+            // 更新缓存中教学班人数
+            teachClassCacheService.updateTeachingClassNumber(teachingClassId);
+            ElcCourseTakeVo vo = null;
+            String key = calendarId + "-" + teachingClassId;
+            if (!classInfoMap.containsKey(key))
+            {
+                vo = this.courseTakeDao
+                    .getTeachingClassInfo(calendarId, teachingClassId, null);
+                classInfoMap.put(key, vo);
+            }
+            else
+            {
+                vo = classInfoMap.get(key);
+            }
+            //ElecContextUtil.updateSelectedCourse(calendarId, studentId);
+            // 记录退课日志
+            if (null != vo)
+            {
+                String teachingClassCode = vo.getTeachingClassCode();
+                ElcLog log = new ElcLog();
+                log.setCalendarId(calendarId);
+                log.setCourseCode(vo.getCourseCode());
+                log.setCourseName(vo.getCourseName());
+                log.setCreateBy(currentSession.getUid());
+                log.setCreatedAt(new Date());
+                log.setCreateIp(currentSession.getIp());
+                log.setMode(ElcLogVo.MODE_2);
+                log.setStudentId(studentId);
+                log.setTeachingClassCode(teachingClassCode);
+                log.setTurn(turn);
+                log.setType(ElcLogVo.TYPE_2);
+                logList.add(log);
+                
+                vo.setCalendarId(calendarId);
+                vo.setStudentId(studentId);
+    			num++;
+    			result.setDoneCount(num);
+    			asyncExecuter.updateResult(result);
                 try{
                     elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
                 }catch (Exception e){

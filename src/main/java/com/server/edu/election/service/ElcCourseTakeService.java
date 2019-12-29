@@ -17,6 +17,8 @@ import com.server.edu.election.vo.CourseConflictVo;
 import com.server.edu.election.vo.ElcCourseTakeNameListVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcStudentVo;
+import com.server.edu.util.async.AsyncExecuter;
+import com.server.edu.util.async.AsyncResult;
 import com.server.edu.util.excel.export.ExcelResult;
 
 /**
@@ -80,6 +82,15 @@ public interface ElcCourseTakeService
      * @see [类、类#方法、类#成员]
      */
     void withdraw(List<ElcCourseTake> value);
+    
+    /**
+     * 为指定学生退课
+     * 
+     * @param teachingClassIds
+     * @param studentId
+     * @see [类、类#方法、类#成员]
+     */
+    void newWithdraw(List<ElcCourseTake> value,AsyncExecuter asyncExecuter,AsyncResult result);
 
 
     /**

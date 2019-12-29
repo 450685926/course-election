@@ -16,4 +16,6 @@ public interface ElcAffinityCoursesStdsDao
     
     List<ElcAffinityCoursesStdsVo> getStudentByCourseId(@Param("courseCode") String courseCode);
     
+    List<ElcAffinityCoursesStdsVo> getAllElcAffinityStudents();
+    
 }

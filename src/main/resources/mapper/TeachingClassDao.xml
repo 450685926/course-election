@@ -687,6 +687,14 @@
     select GRADE_ as grade,PROFESSION_ as profession,NUMBER_ as number 
     from teaching_class_suggest_profession_t where TEACHING_CLASS_ID_ = #{teachingClassId}
   </select>
+  
+  <select id="selectAllSuggestProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">
+    select TEACHING_CLASS_ID_ teachingClassId,GRADE_ as grade,PROFESSION_ as profession,NUMBER_ as number 
+    from teaching_class_suggest_profession_t where TEACHING_CLASS_ID_ in
+        <foreach collection="teachingClassIds" open="(" separator="," close=")" item="classId">
+            #{classId}
+         </foreach>
+  </select>
 
   <select id="selectSuggestStudent" resultType="string">
   	select STUDENT_ID_ from teaching_class_suggest_student_t where TEACHING_CLASS_ID_ = #{teachingClassId}
@@ -915,4 +923,12 @@
         delete from elc_teaching_class_bind_t
         where TEACHING_CLASS_ID_ = #{id} or BIND_CLASS_ID_ = #{id}
     </delete>
+    
+   <update id="updateClassRoundNum" parameterType="java.util.List">
+    <foreach item="item" collection="list" index="index"
+      separator=";">
+      update teaching_class_t set MAX_FIRST_ROUND_NUM = #{item.maxFirstRoundNum} ,MAX_SECOND_ROUND_NUM = #{item.maxSecondRoundNum} where
+      ID_ = #{item.id}
+    </foreach>
+   </update>
 </mapper>

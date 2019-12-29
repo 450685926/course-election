@@ -33,6 +33,21 @@
   <select id="selectRestrictStudent" resultType="string">
   	select STUDENT_ID_ from teaching_class_elective_restrict_student_t where TEACHING_CLASS_ID_ = #{teachingClassId}
   </select>
+  
+  <select id="selectAllRestrictProfession" resultType="com.server.edu.election.dto.SuggestProfessionDto">
+    select TEACHING_CLASS_ID_ teachingClassId,GRADE_ as grade,PROFESSION_ as profession,NUMBER_ as number 
+    from teaching_class_elective_restrict_profession_t where TEACHING_CLASS_ID_ in
+     <foreach collection="teachingClassIds" open="(" separator="," close=")" item="classId">
+            #{classId}
+     </foreach>
+  </select>
+  
+  <select id="selectAllRestrictStudent" resultType="com.server.edu.election.vo.RestrictStudent">
+  	select TEACHING_CLASS_ID_ teachingClassId, STUDENT_ID_ studentId from teaching_class_elective_restrict_student_t where TEACHING_CLASS_ID_ in
+  	    <foreach collection="teachingClassIds" open="(" separator="," close=")" item="classId">
+            #{classId}
+        </foreach>
+  </select>
 
   <delete id="deleteByClassId" parameterType="java.lang.Long">
     delete from teaching_class_elective_restrict_attr_t

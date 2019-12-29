@@ -348,5 +348,9 @@ public interface ElcCourseTakeDao
     
     /** 获取当前学年学期正在修读的课程  */
     List<TeachingClassCache> findCurrentCalendarCourses(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);
+    
+    List<ElcCourseTake> getUnSuggestStuents(@Param("calendarId") Long calendarId,@Param("index") Integer index);
+    
+    List<ElcCourseTake> selectAllTakes(@Param("calendarId") Long calendarId,@Param("index") Integer index);
 
 }
