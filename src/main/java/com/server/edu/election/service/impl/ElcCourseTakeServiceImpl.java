@@ -778,12 +778,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 
                 vo.setCalendarId(calendarId);
                 vo.setStudentId(studentId);
-                try{
-                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-
+//                try{
+//                    elecBkService.syncRemindTime(calendarId,2,studentId,stu.getName(),course.getName()+"("+elcCourseTake.getCourseCode()+")");
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
                 withdrawMap.put(
                     String
                         .format("%s-%s", vo.getCalendarId(), vo.getStudentId()),
