@@ -1622,6 +1622,7 @@ public class ElcResultServiceImpl implements ElcResultService
     			List<RebuildCourseRecycle> rebuildCourseRecycles = new ArrayList<RebuildCourseRecycle>();
     			List<ElcCourseTake> withdrawTakes = new ArrayList<ElcCourseTake>();
     			withdrawTakes.addAll(unSuggestCourses);
+    			int num = 0;
         		for(TeachingClass teachingClass :allTeachingClass) {
         			Long teachingClassId = teachingClass.getId();
         			AutoRemoveDto autoRemoveDto = new AutoRemoveDto();
@@ -1646,10 +1647,13 @@ public class ElcResultServiceImpl implements ElcResultService
         			TeachingClassElectiveRestrictAttr classAttrList =attrList.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).findFirst().orElse(null);
         			autoRemoveDto.setClassAttrList(classAttrList);
         			newAutoRemove(autoRemoveDto,rebuildCourseRecycles,withdrawTakes,classList,allStudents);
+        			num++;
+        			result.setDoneCount(num);
+        			this.updateResult(result);
         		}
         		classDao.updateClassRoundNum(classList);
                 rebuildCourseRecycleDao.insertList(rebuildCourseRecycles);
-                courseTakeService.newWithdraw(withdrawTakes,this,result);
+                courseTakeService.withdraw(withdrawTakes);
             }
         });
 		return resul;
@@ -1708,10 +1712,18 @@ public class ElcResultServiceImpl implements ElcResultService
         //班级配对 查找绑定班级
         Example example = new Example(ElcTeachingClassBind.class);
         example.createCriteria().andEqualTo("teachingClassId", teachingClass.getId());
-        ElcTeachingClassBind elcTeachingClassBind = elcTeachingClassBindDao.selectOneByExample(example);
+        ElcTeachingClassBind elcTeachingClassBind =  new ElcTeachingClassBind();
+        List<ElcTeachingClassBind> elcTeachingClassBinds = elcTeachingClassBindDao.selectByExample(example);
+        if(CollectionUtil.isNotEmpty(elcTeachingClassBinds)) {
+        	elcTeachingClassBind = elcTeachingClassBinds.get(0);
+        }
+        ElcTeachingClassBind bindElcTeachingClassBind = new ElcTeachingClassBind();
         Example bindExample = new Example(ElcTeachingClassBind.class);
         bindExample.createCriteria().andEqualTo("bindClassId", teachingClass.getId());
-        ElcTeachingClassBind bindElcTeachingClassBind = elcTeachingClassBindDao.selectOneByExample(bindExample);
+        List<ElcTeachingClassBind> bindElcTeachingClassBinds = elcTeachingClassBindDao.selectByExample(bindExample);
+        if(CollectionUtil.isNotEmpty(bindElcTeachingClassBinds)) {
+        	bindElcTeachingClassBind = bindElcTeachingClassBinds.get(0);
+        }
         List<ElcCourseTake> bindTakes = new ArrayList<ElcCourseTake>();
         List<String> bindStudentIds = new ArrayList<>();
         List<Student> bindStudents = new ArrayList<>();
