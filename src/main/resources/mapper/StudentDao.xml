@@ -60,6 +60,13 @@
         where STUDENT_CODE_=#{studentCode,jdbcType=VARCHAR}
     </select>
     
+    <select id="findAllStudents" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"></include>
+        from student_t
+        where LEAVE_SCHOOL_ = 1 AND PROJ_ID_ = 1
+    </select>
+    
     <select id="findStudentByIds" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"></include>

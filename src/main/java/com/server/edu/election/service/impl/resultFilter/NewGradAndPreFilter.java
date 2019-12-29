@@ -65,7 +65,7 @@ public class NewGradAndPreFilter {
 //                    }
 //                }
 //            }
-            gradAndPre(stuList, profNumMap, removeStus);
+            //gradAndPre(stuList, profNumMap, removeStus);
             gradAndPrePeople(stuList, profNumMap, removeStus);
         }
     }
