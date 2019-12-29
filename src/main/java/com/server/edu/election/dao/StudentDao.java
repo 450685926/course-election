@@ -18,6 +18,9 @@ import tk.mybatis.mapper.common.Mapper;
 public interface StudentDao extends Mapper<Student> {
     //通过学号获取学生信息
     Student findStudentByCode(String studentCode);
+    
+    //获取所有在校学生
+    List<Student> findAllStudents();
     //通过学生code集合
     List<Student> findStudentByIds(@Param("studentIds") List<String> studentIds);
     List<Student> selectElcStudents(StudentDto student);

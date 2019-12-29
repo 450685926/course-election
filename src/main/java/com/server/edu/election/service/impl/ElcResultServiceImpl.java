@@ -197,6 +197,7 @@ public class ElcResultServiceImpl implements ElcResultService
     @Autowired
     private ElecRoundsDao elecRoundsDao;
     
+    @Autowired
     private TeachingClassElectiveRestrictAttrDao restrictAttrDao;
     
     @Override
@@ -1611,6 +1612,8 @@ public class ElcResultServiceImpl implements ElcResultService
                 //查询多个教学班的限制学生
                 List<RestrictStudent> allRestrictStus =
                         restrictAttrDao.selectAllRestrictStudent(teachingClassIds);
+                //查询所有在校学生
+                List<Student> allStudents = studentDao.findAllStudents();
                 //查询多个教学班的限制
                 Example attrExample = new Example(TeachingClassElectiveRestrictAttr.class);
                 attrExample.createCriteria().andIn("teachingClassId", teachingClassIds);
@@ -1642,7 +1645,7 @@ public class ElcResultServiceImpl implements ElcResultService
         			autoRemoveDto.setRestrictStus(restrictStus);
         			TeachingClassElectiveRestrictAttr classAttrList =attrList.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).findFirst().orElse(null);
         			autoRemoveDto.setClassAttrList(classAttrList);
-        			newAutoRemove(autoRemoveDto,rebuildCourseRecycles,withdrawTakes,classList);
+        			newAutoRemove(autoRemoveDto,rebuildCourseRecycles,withdrawTakes,classList,allStudents);
         		}
         		classDao.updateClassRoundNum(classList);
                 rebuildCourseRecycleDao.insertList(rebuildCourseRecycles);
@@ -1652,7 +1655,7 @@ public class ElcResultServiceImpl implements ElcResultService
 		return resul;
 	}
 	
-    private void newAutoRemove(AutoRemoveDto dto,List<RebuildCourseRecycle> rebuildCourseRecycles,List<ElcCourseTake> withdrawTakes,List<TeachingClass> classList)
+    private void newAutoRemove(AutoRemoveDto dto,List<RebuildCourseRecycle> rebuildCourseRecycles,List<ElcCourseTake> withdrawTakes,List<TeachingClass> classList,List<Student> allStudents)
     {
     	TeachingClass updateTeachingClass = new TeachingClass();
     	TeachingClass teachingClass = dto.getTeachingClass();
@@ -1687,7 +1690,7 @@ public class ElcResultServiceImpl implements ElcResultService
         {
             String courseCode = take.getCourseCode();
             String studentId = take.getStudentId();
-            Student stu = studentDao.findStudentByCode(studentId);
+            Student stu = allStudents.stream().filter(c->studentId.equals(c.getStudentCode())).findFirst().orElse(null);
             if (invincibleStdIds.contains(studentId))
             {
                 invincibleStus.add(stu);
