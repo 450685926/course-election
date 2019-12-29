@@ -1651,7 +1651,7 @@ public class ElcResultServiceImpl implements ElcResultService
         			result.setDoneCount(num);
         			this.updateResult(result);
         		}
-        		List<TeachingClass> roundClassList = classList.stream().filter(c->c!=null).collect(Collectors.toList());
+        		List<TeachingClass> roundClassList = classList.stream().filter(c->c!=null && c.getId() !=null).collect(Collectors.toList());
         		classDao.updateClassRoundNum(roundClassList);
         		List<RebuildCourseRecycle> roundRebuildList = rebuildCourseRecycles.stream().filter(c->c!=null).collect(Collectors.toList());
                 rebuildCourseRecycleDao.insertList(roundRebuildList);
