@@ -1712,12 +1712,12 @@ public class ElcResultServiceImpl implements ElcResultService
         //班级配对 查找绑定班级
         Example example = new Example(ElcTeachingClassBind.class);
         example.createCriteria().andEqualTo("teachingClassId", teachingClass.getId());
-        ElcTeachingClassBind elcTeachingClassBind =  new ElcTeachingClassBind();
+        ElcTeachingClassBind elcTeachingClassBind = null;
         List<ElcTeachingClassBind> elcTeachingClassBinds = elcTeachingClassBindDao.selectByExample(example);
         if(CollectionUtil.isNotEmpty(elcTeachingClassBinds)) {
         	elcTeachingClassBind = elcTeachingClassBinds.get(0);
         }
-        ElcTeachingClassBind bindElcTeachingClassBind = new ElcTeachingClassBind();
+        ElcTeachingClassBind bindElcTeachingClassBind = null;
         Example bindExample = new Example(ElcTeachingClassBind.class);
         bindExample.createCriteria().andEqualTo("bindClassId", teachingClass.getId());
         List<ElcTeachingClassBind> bindElcTeachingClassBinds = elcTeachingClassBindDao.selectByExample(bindExample);
@@ -1847,7 +1847,7 @@ public class ElcResultServiceImpl implements ElcResultService
                 removeStus,dto.getLabel(),rebuildCourseRecycles,withdrawTakes);
             //移除绑定班级不符合学生
             if(bindTeachingClassId !=null) {
-            	TeachingClass bindClass = classDao.selectOversize(teachingClass.getId());
+            	TeachingClass bindClass = classDao.selectByPrimaryKey(bindTeachingClassId);
             	newRemoveAndRecordLog(dto,
                 		bindClass,
                 		bindremoveStus,dto.getLabel(),rebuildCourseRecycles,withdrawTakes);
