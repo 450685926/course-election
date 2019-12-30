@@ -1602,7 +1602,7 @@ public class ElcResultServiceImpl implements ElcResultService
             	List<ElcCourseTake> unSuggestCourses = courseTakeDao.getUnSuggestStuents(round.getCalendarId(),index);
             	List<Long> unSuggestCoursesIds = unSuggestCourses.stream().filter(c->c!=null).map(ElcCourseTake ::getId).collect(Collectors.toList());
             	List<ElcCourseTake> alltakes = courseTakeDao.selectAllTakes(round.getCalendarId(),index);
-            	List<ElcCourseTake> takes = alltakes.stream().filter(c->!unSuggestCoursesIds.contains(c.getTeachingClassId())).collect(Collectors.toList());
+            	List<ElcCourseTake> takes = alltakes.stream().filter(c->!unSuggestCoursesIds.contains(c.getId())).collect(Collectors.toList());
             	 // 特殊学生
                 List<String> invincibleStdIds =
                     invincibleStdsDao.selectAllStudentId();
