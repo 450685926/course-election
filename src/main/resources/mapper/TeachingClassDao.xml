@@ -936,5 +936,6 @@
         select COUNT(*) from elc_course_takes_t_${index}
         where CALENDAR_ID_ = #{calendarId}
         AND TEACHING_CLASS_ID_ = #{teachClassId}
+        and TURN_ = 1
     </select>
 </mapper>
