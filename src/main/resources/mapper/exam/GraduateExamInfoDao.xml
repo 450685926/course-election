@@ -110,7 +110,8 @@
         </where>
         group by
         t1.COURSE_CODE_,
-        t3.CAMPUS_
+        t3.CAMPUS_,
+        t4.ID_
         order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
@@ -191,7 +192,8 @@
         </where>
         group by
         t1.COURSE_CODE_,
-        t3.CAMPUS_
+        t3.CAMPUS_,
+        t4.ID_
         order by t4.EXAM_STATUS_ asc,t1.COURSE_CODE_ asc
     </select>
 
@@ -384,7 +386,7 @@
     <select id="findStudentByInfoId" resultType="int" >
     select COUNT(*) from   graduate_exam_student_t t1
     left join graduate_exam_info_t t2 on t1.EXAM_INFO_ID_ = t2.ID_
-    where t2.CALENDAR_ID_ = #{calendarId} and t2.COURSE_CODE_ = #{courseCode} and STUDENT_CODE_ = #{studentCode} and EXAM_SITUATION_ = 1
+    where t2.CALENDAR_ID_ = #{calendarId} and t2.COURSE_CODE_ = #{courseCode} and STUDENT_CODE_ = #{studentCode}
   </select>
 
     <select id="getExamRoomByExamInfoId" resultType="com.server.edu.exam.dto.ExamRoomDto"

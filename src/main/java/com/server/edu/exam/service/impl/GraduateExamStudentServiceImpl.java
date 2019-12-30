@@ -3,16 +3,19 @@ package com.server.edu.exam.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.StudentScore;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
 import com.server.edu.dictionary.utils.SpringUtils;
+import com.server.edu.election.entity.Course;
 import com.server.edu.exam.constants.ApplyStatus;
 import com.server.edu.exam.dao.*;
 import com.server.edu.exam.dto.*;
 import com.server.edu.exam.entity.*;
 import com.server.edu.exam.query.GraduateExamStudentQuery;
 import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
+import com.server.edu.exam.rpc.ScoreServiceExamInvoker;
 import com.server.edu.exam.service.GraduateExamApplyExaminationService;
 import com.server.edu.exam.service.GraduateExamInfoService;
 import com.server.edu.exam.service.GraduateExamStudentService;
@@ -362,7 +365,23 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
             //排考日志
             this.insertExamLog(dto,ApplyStatus.EXAM_LOG_NO);
             //todo 进入重修列表增量
-
+            //查询成绩记录方式
+            Course course = examStudentDao.findCourseScoreType(dto.getCourseCode(),currentSession.getCurrentManageDptId());
+            List<StudentScore> list = new ArrayList<>();
+            StudentScore score = new StudentScore();
+            score.setTeachingClassId(dto.getTeachingClassId());
+            score.setTeachingClassName(dto.getTeachingClassName());
+            score.setStudentId(dto.getStudentCode());
+            score.setCourseCode(dto.getCourseCode());
+            score.setCalendarId(dto.getCalendarId());
+            score.setTotalMarkScore("0");
+            score.setRemark("缺课1/3");
+            score.setExamType("8");
+            score.setRecoredType(course.getScoreType());
+            score.setPeriod(score.getPeriod());
+            score.setLearnType("1");
+            list.add(score);
+            ScoreServiceExamInvoker.setExamSituationRebuild(list);
         }
     }
 

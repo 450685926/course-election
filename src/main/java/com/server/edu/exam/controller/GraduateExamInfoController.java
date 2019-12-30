@@ -192,4 +192,9 @@ public class GraduateExamInfoController {
     public RestResult<ExamSaveTimeRebackDto> saveExamTimeAndDeleteExamRoom(@RequestBody List<GraduateExamInfo> examInfo) {
         return examInfoService.saveExamTimeAndDeleteExamRoom(examInfo);
     }
+
+    @PostMapping("/saveExamTimeAndBatch")
+    public RestResult<ExamSaveTimeRebackDto> saveExamTimeAndBatch(@RequestBody List<GraduateExamInfo> examInfo) {
+        return examInfoService.saveExamTimeAndBatch(examInfo);
+    }
 }

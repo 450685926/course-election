@@ -1,6 +1,9 @@
 package com.server.edu.exam.dto;
 
+import com.server.edu.exam.entity.GraduateExamInfo;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,6 +24,16 @@ public class ExamSaveTimeRebackDto implements Serializable {
     private Integer endMinute;
     private String examStartTime;
     private String examEndTime;
+    private List<GraduateExamInfo> examInfo = new ArrayList<>();
+
+
+    public List<GraduateExamInfo> getExamInfo() {
+        return examInfo;
+    }
+
+    public void setExamInfo(List<GraduateExamInfo> examInfo) {
+        this.examInfo = examInfo;
+    }
 
     public Integer getStartHour() {
         return startHour;
