@@ -527,7 +527,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 {
                     continue;
                 }
-                Map<String, List<TeacherClassTimeRoom>> timeRoomMap1 = rooms.stream()
+                Map<String, List<TeacherClassTimeRoom>> timeRoomMap1 = rooms.stream().
+                        filter(s->s.getTeacherCode() != null)
                         .collect(Collectors
                                 .groupingBy(TeacherClassTimeRoom::getTeacherCode));
                 for (Entry<String, List<TeacherClassTimeRoom>> entry3 : timeRoomMap1
