@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.TurnNumVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +27,11 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundCourseDao;
 import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.CourseOpenDto;
-import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -91,6 +91,15 @@ public class TeachClassCacheService extends AbstractCacheService
             redisTemplate.opsForHash();
         return ops;
     }
+
+    public HashOperations<String, String, TeachingClassCache> opsTurnClass()
+    {
+        RedisTemplate<String, TurnNumVo> redisTemplate =
+                redisTemplate(TurnNumVo.class);
+        HashOperations<String, String, TeachingClassCache> ops =
+                redisTemplate.opsForHash();
+        return ops;
+    }
     
     public HashOperations<String, String, Integer> opsClassNum()
     {
@@ -107,12 +116,13 @@ public class TeachClassCacheService extends AbstractCacheService
         PageInfo<CourseOpenDto> page = new PageInfo<>();
         page.setNextPage(1);
         page.setHasNextPage(true);
+        int index = TableIndexUtil.getIndex(calendarId);
         while (page.isHasNextPage())
         {
             PageHelper.startPage(page.getNextPage(), 300);
             List<CourseOpenDto> lessons =
                 roundCourseDao.selectTeachingClassByCalendarId(calendarId);
-            this.cacheTeachClass(600, lessons, year);
+            this.cacheTeachClass(600, lessons, year, index);
             page = new PageInfo<>(lessons);
         }
     }
@@ -142,14 +152,15 @@ public class TeachClassCacheService extends AbstractCacheService
      * 缓存教学班
      * 
      * @param template
+     * @param classKeys redis已经存在的教学班KEY
      * @param timeout 缓存过期时间分钟
      * @param teachClasss 教学班
-     * @param classKeys redis已经存在的教学班KEY
+     * @param index
      * @return
      * @see [类、类#方法、类#成员]
      */
     public void cacheTeachClass(long timeout, List<CourseOpenDto> teachClasss,
-                                String year)
+                                String year, int index)
     {
         if (CollectionUtil.isEmpty(teachClasss))
         {
@@ -158,10 +169,14 @@ public class TeachClassCacheService extends AbstractCacheService
         List<Long> classIds = teachClasss.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
+        List<TurnNumVo> selCount = courseTakeDao.findSelCount(index, classIds);
+        Map<String, TurnNumVo> turnNum = new HashMap<>(selCount.size());
+        for (TurnNumVo turnNumVo : selCount) {
+            turnNum.put(turnNumVo.getId().toString(), turnNumVo);
+        }
         //按周数拆分的选课数据集合
         Map<Long, List<ClassTimeUnit>> collect =
                 gradeLoad.groupByTime(classIds);
-
         Map<String, TeachingClassCache> map = new HashMap<>();
         Map<String, ElecCourse> publicCourseMap = new HashMap<>();
         Map<String, Integer> numMap = new HashMap<>();
@@ -208,8 +223,10 @@ public class TeachClassCacheService extends AbstractCacheService
                 publicCourseMap.put(tc.getCourseCode(), tc);
             }
         }
-
         // 缓存选课人数
+        String turnKey = Keys.getTurnNumKey();
+        opsTurnClass().putAll(turnKey, map);
+        strTemplate.expire(turnKey, timeout, TimeUnit.MINUTES);
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
         strTemplate
                 .expire(Keys.getClassElecNumberKey(), timeout, TimeUnit.MINUTES);

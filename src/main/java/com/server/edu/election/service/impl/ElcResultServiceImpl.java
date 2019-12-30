@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.vo.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -85,12 +86,6 @@ import com.server.edu.election.studentelec.service.cache.RoundCacheService;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.election.util.TableIndexUtil;
-import com.server.edu.election.vo.ElcAffinityCoursesStdsVo;
-import com.server.edu.election.vo.ElcResultCountVo;
-import com.server.edu.election.vo.RestrictStudent;
-import com.server.edu.election.vo.SuggestCourseVo;
-import com.server.edu.election.vo.TeachingClassLimitVo;
-import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -423,10 +418,10 @@ public class ElcResultServiceImpl implements ElcResultService
         		if (CollectionUtil.isNotEmpty(listPage)) {
                     List<Long> ids = listPage.stream().map(TeachingClassVo::getId).collect(Collectors.toList());
                     int index = TableIndexUtil.getIndex(condition.getCalendarId());
-                    List<TeachingClassVo> selCount = courseTakeDao.findSelCount(index, ids);
-                    Map<Long, TeachingClassVo> map = selCount.stream().collect(Collectors.toMap(s -> s.getId(), s -> s));
+                    List<TurnNumVo> selCount = courseTakeDao.findSelCount(index, ids);
+                    Map<Long, TurnNumVo> map = selCount.stream().collect(Collectors.toMap(s -> s.getId(), s -> s));
                     for (TeachingClassVo teachingClassVo : listPage) {
-                        TeachingClassVo vo = map.get(teachingClassVo.getId());
+                        TurnNumVo vo = map.get(teachingClassVo.getId());
                         if (vo != null) {
                             teachingClassVo.setFirstTurnNum(vo.getFirstTurnNum());
                             teachingClassVo.setSecondTurnNum(vo.getSecondTurnNum());
