@@ -344,7 +344,7 @@ public interface ElcCourseTakeDao
 
     List<ElcCourseTakeVo> findCompulsory(@Param("studentId") String studentId);
 
-    List<TeachingClassVo> findSelCount(@Param("index") int index, @Param("list") List<Long> list);
+    List<TurnNumVo> findSelCount(@Param("index") int index, @Param("list") List<Long> list);
     
     /** 获取当前学年学期正在修读的课程  */
     List<TeachingClassCache> findCurrentCalendarCourses(@Param("studentId") String studentId, @Param("calendarId") Long calendarId);

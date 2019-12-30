@@ -56,6 +56,11 @@ public class Keys
     {
         return String.format("elec-teachClass1");
     }
+
+    public static String getTurnNumKey()
+    {
+        return String.format("elec-turnNum");
+    }
     
     /**教学班选课人数Key elec-classNum1*/
     public static String getClassElecNumberKey()

@@ -2314,7 +2314,7 @@
         select courseCode, compulsory from v_student_plan_course where studentId = #{studentId}
     </select>
 
-    <select id="findSelCount" resultType="com.server.edu.election.vo.TeachingClassVo">
+    <select id="findSelCount" resultType="com.server.edu.election.vo.TurnNumVo">
         select
           TEACHING_CLASS_ID_ id,
           count(if(TURN_ = 1,true,null)) AS firstTurnNum,
