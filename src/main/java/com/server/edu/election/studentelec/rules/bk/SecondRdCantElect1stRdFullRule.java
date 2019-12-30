@@ -1,5 +1,7 @@
 package com.server.edu.election.studentelec.rules.bk;
 
+import com.server.edu.election.dao.TeachingClassDao;
+import com.server.edu.election.util.TableIndexUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,9 @@ public class SecondRdCantElect1stRdFullRule extends AbstractElecRuleExceutorBk
 {
     @Autowired
     private RoundDataProvider dataProvider;
+
+    @Autowired
+    private TeachingClassDao classDao;
     
     @Override
     public int getOrder()
@@ -46,9 +51,11 @@ public class SecondRdCantElect1stRdFullRule extends AbstractElecRuleExceutorBk
         if (round.getTurn().intValue() == 2)
         {//第二轮
             Integer maxNumber = courseClass.getMaxNumber();
-            Integer currentNumber = courseClass.getCurrentNumber();
-            if (maxNumber != null && currentNumber != null
-                && currentNumber.intValue() + 1 > maxNumber.intValue())
+            //获取第一轮选课人数
+            Integer FirstTurnNumber = classDao.getFirstTurnNum(round.getCalendarId(), TableIndexUtil.getIndex(round.getCalendarId()),courseClass.getTeachClassId());
+
+            if (maxNumber != null && FirstTurnNumber != null
+                && FirstTurnNumber.intValue() + 1 > maxNumber.intValue())
             {
                 ElecRespose respose = context.getRespose();
                 respose.getFailedReasons()
