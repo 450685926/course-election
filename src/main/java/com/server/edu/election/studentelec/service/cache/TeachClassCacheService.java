@@ -774,6 +774,8 @@ public class TeachClassCacheService extends AbstractCacheService
                     secondTurnNum = secondTurnNum - 1;
                 }
             }
+            teachingClassCache.setFirstTurnNum(firstTurnNum);
+            teachingClassCache.setSecondTurnNum(secondTurnNum);
             // 实时获取选课人数
             Integer elecNumber = getElecNumber(teachClassId);
             if(elecNumber!=null) {
