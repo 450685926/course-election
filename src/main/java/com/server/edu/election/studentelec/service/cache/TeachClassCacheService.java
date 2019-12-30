@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.util.TableIndexUtil;
@@ -749,7 +750,42 @@ public class TeachClassCacheService extends AbstractCacheService
         	saveTeachClassCache(teachClassId, teachingClassCache);
 		}
     }
-    
+    /**
+     * 更新教学班人数
+     * @param teachClassId
+     * @param type
+     * @return
+     */
+    public void updateTeachingClassNumber1(Long teachClassId, ElectRuleType type,Integer turn) {
+        TeachingClassCache teachingClassCache = getTeachClassByTeachClassId(teachClassId);
+        if (teachingClassCache != null) {
+            int firstTurnNum = teachingClassCache.getFirstTurnNum();
+            int secondTurnNum = teachingClassCache.getSecondTurnNum();
+            if (ElectRuleType.ELECTION.equals(type)){
+                if (turn == Constants.FIRST_TURN){
+                    firstTurnNum = firstTurnNum + 1;
+                }else if (turn == Constants.SECOND_TURN){
+                    secondTurnNum = secondTurnNum + 1;
+                }
+            }else{
+                if (turn == Constants.FIRST_TURN){
+                    firstTurnNum = firstTurnNum - 1;
+                }else if (turn == Constants.SECOND_TURN){
+                    secondTurnNum = secondTurnNum - 1;
+                }
+            }
+            // 实时获取选课人数
+            Integer elecNumber = getElecNumber(teachClassId);
+            if(elecNumber!=null) {
+                teachingClassCache.setCurrentNumber(elecNumber);
+            }
+            Integer thirdWithdrawNumber = getWitdthDrawNumber(teachClassId);
+            if(thirdWithdrawNumber!=null) {
+                teachingClassCache.setThirdWithdrawNumber(thirdWithdrawNumber);
+            }
+            saveTeachClassCache(teachClassId, teachingClassCache);
+        }
+    }
     /**
      * 释放第三、四轮退课人数
      * @param teachClassId

@@ -383,6 +383,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
         ElecRespose respose = context.getRespose();
+        respose.setTurn(round.getTurn());
         respose.setIsPlan(isPlan);
         respose.setIsLimit(isLimit);
         respose.setSemester(semester);
