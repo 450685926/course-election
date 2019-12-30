@@ -39,6 +39,16 @@ public class StudentQuery implements Serializable{
     private Integer mode;
     /** 0 未排考学生 1 已排考学生*/
     private Integer examStatus;
+    /** 根据infoId 找出相同校区多次排考的所有InfoId，为了除去已排考的学生*/
+    private List<Long> allCourseInfoIds;
+
+    public List<Long> getAllCourseInfoIds() {
+        return allCourseInfoIds;
+    }
+
+    public void setAllCourseInfoIds(List<Long> allCourseInfoIds) {
+        this.allCourseInfoIds = allCourseInfoIds;
+    }
 
     public String getCourseCode() {
         return courseCode;
