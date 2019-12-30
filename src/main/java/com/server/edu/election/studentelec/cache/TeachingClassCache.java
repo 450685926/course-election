@@ -97,7 +97,27 @@ public class TeachingClassCache extends ElecCourse implements Serializable
      * 选课第三、四轮退课人数
      */
     private Integer thirdWithdrawNumber;
-    
+
+    private int firstTurnNum;
+
+    private int secondTurnNum;
+
+    public int getFirstTurnNum() {
+        return firstTurnNum;
+    }
+
+    public void setFirstTurnNum(int firstTurnNum) {
+        this.firstTurnNum = firstTurnNum;
+    }
+
+    public int getSecondTurnNum() {
+        return secondTurnNum;
+    }
+
+    public void setSecondTurnNum(int secondTurnNum) {
+        this.secondTurnNum = secondTurnNum;
+    }
+
     public Integer getThirdWithdrawNumber() {
 		return thirdWithdrawNumber;
 	}
