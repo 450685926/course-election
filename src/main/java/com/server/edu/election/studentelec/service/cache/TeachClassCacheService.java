@@ -92,11 +92,11 @@ public class TeachClassCacheService extends AbstractCacheService
         return ops;
     }
 
-    public HashOperations<String, String, TeachingClassCache> opsTurnClass()
+    public HashOperations<String, String, TurnNumVo> opsTurnClass()
     {
         RedisTemplate<String, TurnNumVo> redisTemplate =
                 redisTemplate(TurnNumVo.class);
-        HashOperations<String, String, TeachingClassCache> ops =
+        HashOperations<String, String, TurnNumVo> ops =
                 redisTemplate.opsForHash();
         return ops;
     }
@@ -225,7 +225,7 @@ public class TeachClassCacheService extends AbstractCacheService
         }
         // 缓存选课人数
         String turnKey = Keys.getTurnNumKey();
-        opsTurnClass().putAll(turnKey, map);
+        opsTurnClass().putAll(turnKey, turnNum);
         strTemplate.expire(turnKey, timeout, TimeUnit.MINUTES);
         opsClassNum().putAll(Keys.getClassElecNumberKey(), numMap);
         strTemplate
