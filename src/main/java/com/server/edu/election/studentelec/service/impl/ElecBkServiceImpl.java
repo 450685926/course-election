@@ -385,7 +385,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 StudentInfoCache studentInfo = context.getStudentInfo();
                 ElecRequest request = context.getRequest();
                 int index = TableIndexUtil.getIndex(request.getCalendarId());
-                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), request.getCalendarId(),index, teachClass.getCourseCode());
+                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), round.getCalendarId(),index, teachClass.getCourseCode());
                 if (CollectionUtil.isNotEmpty(elcCourseTakeVo)){
                     Integer courseTakeType = hasRetakeCourse==true?2:1;
                     // 更新缓存中教学班人数
@@ -424,7 +424,9 @@ public class ElecBkServiceImpl implements ElecBkService
         
         ElecRespose respose = context.getRespose();
         Map<String, String> failedReasons = respose.getFailedReasons();
-        
+        ElecRequest request = context.getRequest();
+        Long roundId = request.getRoundId();
+        ElectionRounds round = dataProvider.getRound(roundId);
         for (ElecTeachClassDto data : teachClassIds)
         {
             Long teachClassId = data.getTeachClassId();
@@ -442,9 +444,7 @@ public class ElecBkServiceImpl implements ElecBkService
             }
             if (teachClass == null)
             {
-                ElecRequest request = context.getRequest();
-                Long roundId = request.getRoundId();
-                ElectionRounds round = dataProvider.getRound(roundId);
+
                 StudentInfoCache studentInfo = context.getStudentInfo();
                 //查询数据库，看这个教学班是否存在
                 TeachingClass teachingClass = classDao.selectByPrimaryKey(teachClassId);
@@ -500,9 +500,8 @@ public class ElecBkServiceImpl implements ElecBkService
             if (allSuccess)
             {
                 StudentInfoCache studentInfo = context.getStudentInfo();
-                ElecRequest request = context.getRequest();
                 int index = TableIndexUtil.getIndex(request.getCalendarId());
-                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), request.getCalendarId(),index, teachClass.getCourse().getCourseCode());
+                List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentInfo.getStudentId(), round.getCalendarId(),index, teachClass.getCourse().getCourseCode());
                 if (CollectionUtil.isEmpty(elcCourseTakeVo)){
                     // 更新缓存中教学班人数
                     teachClassCacheService.updateTeachingClassNumber(teachClassId);
@@ -533,6 +532,7 @@ public class ElecBkServiceImpl implements ElecBkService
     public void saveElc(ElecContextBk context, TeachingClassCache teachClass,
         ElectRuleType type,boolean hasRetakeCourse)
     {
+
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
@@ -545,7 +545,7 @@ public class ElecBkServiceImpl implements ElecBkService
         String TeachClassCode = teachClass.getTeachClassCode();
         String courseCode = teachClass.getCourseCode();
         String courseName = teachClass.getCourseName();
-        
+        Integer turn = round.getTurn();
         Integer logType = ElcLogVo.TYPE_1;
         
 //        Integer courseTakeType =
@@ -592,6 +592,8 @@ public class ElecBkServiceImpl implements ElecBkService
         }
         else
         {
+            List<ElcCourseTakeVo> elcCourseTakeVo = courseTakeDao.findElcCourse(studentId, round.getCalendarId(),TableIndexUtil.getIndex(round.getCalendarId()), teachClass.getCourseCode());
+            turn = elcCourseTakeVo.get(0).getTurn();
             logType = ElcLogVo.TYPE_2;
             ElcCourseTake take = new ElcCourseTake();
             take.setCalendarId(round.getCalendarId());
@@ -667,14 +669,15 @@ public class ElecBkServiceImpl implements ElecBkService
         studentPlanCoure.setStudentId(studentId);
         studentPlanCoure.setCourseCode(courseCode);
         studentPlanCoure.setElecStatus(elecStatus);
+        // 更新缓存中教学班人数
+        teachClassCacheService.updateTeachingClassNumber1(teachClassId,type,turn);
         try {
         	CultureSerivceInvoker.updateElecStatus(studentPlanCoure);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        // 更新缓存中教学班人数
-        teachClassCacheService.updateTeachingClassNumber(teachClassId);
+
     }
 
     @Override

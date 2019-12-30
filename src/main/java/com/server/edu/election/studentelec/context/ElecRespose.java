@@ -33,6 +33,8 @@ public class ElecRespose
 
     private Integer semester;
 
+    private  Integer turn;
+
     public Integer getIsLimit() {
         return isLimit;
     }
@@ -117,5 +119,13 @@ public class ElecRespose
 
     public void setSemester(Integer semester) {
         this.semester = semester;
+    }
+
+    public Integer getTurn() {
+        return turn;
+    }
+
+    public void setTurn(Integer turn) {
+        this.turn = turn;
     }
 }
