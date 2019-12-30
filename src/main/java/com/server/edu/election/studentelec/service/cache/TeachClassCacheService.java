@@ -213,7 +213,14 @@ public class TeachClassCacheService extends AbstractCacheService
             tc.setTerm(lesson.getTerm());
             tc.setCalendarName(year);
             tc.setReserveNumber(lesson.getReserveNumber());
-
+            TurnNumVo turnNumVo = turnNum.get(teachingClassId.toString());
+            if (turnNumVo != null) {
+                tc.setFirstTurnNum(turnNumVo.getFirstTurnNum());
+                tc.setSecondTurnNum(turnNumVo.getSecondTurnNum());
+            } else {
+                tc.setFirstTurnNum(0);
+                tc.setSecondTurnNum(0);
+            }
             numMap.put(teachingClassId.toString(), tc.getCurrentNumber());
             drawMap.put(teachingClassId.toString(), tc.getThirdWithdrawNumber());
             map.put(teachingClassId.toString(), tc);
