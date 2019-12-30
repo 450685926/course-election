@@ -1635,6 +1635,9 @@ public class ElcResultServiceImpl implements ElcResultService
         			BeanUtils.copyProperties(dto, autoRemoveDto);
         			autoRemoveDto.setTeachingClassId(teachingClass.getId());
         			List<ElcCourseTake> classTakes = takes.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).collect(Collectors.toList());
+        			if (CollectionUtil.isEmpty(classTakes)){
+        			    continue;
+                    }
         			String course = classTakes.get(0).getCourseCode();
         			autoRemoveDto.setTakes(classTakes);
         			autoRemoveDto.setTeachingClass(teachingClass);
