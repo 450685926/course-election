@@ -109,7 +109,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         Set<CompletedCourse> failedCourse = context.getFailedCourse();// 未通过课程
         
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-        List<CompletedCourse> coursess = new ArrayList<CompletedCourse>();
+        List<CompletedCourse> takenCourses = new ArrayList<CompletedCourse>(); // 已修读课程
         
         List<Long> teachClassIds = new ArrayList<>();
         List<CompletedCourse> course = new ArrayList<CompletedCourse>();
@@ -190,24 +190,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             logger.info("----------------course1-----------------:" + course.size());
         }
         
-        /** 获取当前学年学期的课程(正在修读没有成绩的课程) */
-		List<PlanCourseDto> plan = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
-        for (PlanCourseDto planCourseDto : plan) {
-			List<PlanCourseTypeDto> list = planCourseDto.getList();
-			for (PlanCourseTypeDto planCourseTypeDto : list) {
-                Long label = planCourseTypeDto.getLabelId();
-                String labelName = "";
-                if (label != null) {
-                	if (label == 999999) {
-                		labelName  = "跨院系或跨门类";
-					}else{
-						labelName  = courseDao.getCourseLabelName(label);
-					}
-                }
-                planCourseTypeDto.setLabelName(labelName);
-			}
-		}
-        
+        /** 获取历史选课记录(包括正在修读没有成绩的课程) */
         List<TeachingClassCache> historyElectedCourses = elcCourseTakeDao.findHistoryElectedCourses(studentId, context.getCalendarId());
         logger.info("--------historyElectedCourses size---------: " + historyElectedCourses.size());
         for (TeachingClassCache teachingClassCache : historyElectedCourses) {
@@ -234,24 +217,6 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             if (schoolCalendar != null) {
                 lesson.setCalendarName(schoolCalendar.getYear()+"");
             }
-        	// 如果课程是培养计划中的课程，则取培养计划的课程lableId
-        	for (PlanCourseDto planCourseDto : plan) {
-        		List<PlanCourseTypeDto> list = planCourseDto.getList();
-				Set<String> courseCodeSet = list.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
-				
-				if (courseCodeSet.contains(teachingClassCache.getCourseCode())) {
-					List<PlanCourseTypeDto> collect = list.stream().filter(vo->StringUtils.equals(vo.getCourseCode(), teachingClassCache.getCourseCode())).collect(Collectors.toList());
-					PlanCourseTypeDto planCourseTypeDto = collect.get(0);
-					lesson.setCourseLabelId(planCourseTypeDto.getLabelId());
-					lesson.setLabelName(planCourseTypeDto.getLabelName());
-					logger.info("----@@@@@@@@@@@----:" + teachingClassCache.getCourseCode() + ":" + planCourseTypeDto.getLabelId()+ ":" + planCourseTypeDto.getLabelName());
-				}else {
-					String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
-					lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
-					lesson.setLabelName(dict);
-					logger.info("----%%%%%%%%%%%----:" + teachingClassCache.getCourseCode() + ":" + teachingClassCache.getNature()+ ":" + dict);
-				}
-			}
         	course.add(lesson);
         	teachClassIds.add(teachingClassCache.getTeachClassId());
 		}
@@ -264,15 +229,53 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         		String codeAndStudentId = courseVo.getStudentId()+courseVo.getCalendarId()+courseVo.getCourseCode();
         		if (!codeAndStudentIdbuffer.toString().contains(codeAndStudentId)) {
         			codeAndStudentIdbuffer.append(codeAndStudentId).append(",");
-					coursess.add(courseVo);
+        			takenCourses.add(courseVo);
 				}
 			}
 		}
         
-        packageArrangementTime(coursess, teachClassIds);
+		List<PlanCourseDto> plan = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
+        for (PlanCourseDto planCourseDto : plan) {
+			List<PlanCourseTypeDto> list = planCourseDto.getList();
+			for (PlanCourseTypeDto planCourseTypeDto : list) {
+                Long label = planCourseTypeDto.getLabelId();
+                String labelName = "";
+                if (label != null) {
+                	if (label == 999999) {
+                		labelName  = "跨院系或跨门类";
+					}else{
+						labelName  = courseDao.getCourseLabelName(label);
+					}
+                }
+                planCourseTypeDto.setLabelName(labelName);
+			}
+		}
         
-        logger.info("----------coursess size--------: "+ coursess.size());
-        context.setTakenCourses(coursess);
+        // 处理课程类别-->如果课程是培养计划中的课程，则取培养计划的课程lableId
+    	for (PlanCourseDto planCourseDto : plan) {
+    		List<PlanCourseTypeDto> list = planCourseDto.getList();
+			Set<String> courseCodeSet = list.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
+			
+			for (CompletedCourse completedCourse : takenCourses) {
+				if (courseCodeSet.contains(completedCourse.getCourseCode())) {
+					List<PlanCourseTypeDto> collect = list.stream().filter(vo->StringUtils.equals(vo.getCourseCode(), completedCourse.getCourseCode())).collect(Collectors.toList());
+					PlanCourseTypeDto planCourseTypeDto = collect.get(0);
+					completedCourse.setCourseLabelId(planCourseTypeDto.getLabelId());
+					completedCourse.setLabelName(planCourseTypeDto.getLabelName());
+					logger.info("----@@@@@@@@@@@----:" + completedCourse.getCourseCode() + ":" + planCourseTypeDto.getLabelId()+ ":" + planCourseTypeDto.getLabelName());
+				}else {
+					String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),completedCourse.getNature());
+					completedCourse.setCourseLabelId(Long.parseLong(completedCourse.getNature()));
+					completedCourse.setLabelName(dict);
+					logger.info("----%%%%%%%%%%%----:" + completedCourse.getCourseCode() + ":" + completedCourse.getNature()+ ":" + dict);
+				}
+			}
+		}
+        
+        packageArrangementTime(takenCourses, teachClassIds);
+        
+        logger.info("----------takenCourses size--------: "+ takenCourses.size());
+        context.setTakenCourses(takenCourses);
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
@@ -306,12 +309,12 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
 	 * @param coursess
 	 * @param teachClassIds
 	 */
-	private void packageArrangementTime(List<CompletedCourse> coursess, List<Long> teachClassIds) {
+	private void packageArrangementTime(List<CompletedCourse> takenCourses, List<Long> teachClassIds) {
 		if (CollectionUtil.isNotEmpty(teachClassIds)) {
             List<TimeTableMessage> list = classDao.getYjsClassTimes(teachClassIds);
             Map<Long, List<TimeTableMessage>> collect = list.stream()
                     .collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-            for (CompletedCourse cours : coursess) {
+            for (CompletedCourse cours : takenCourses) {
             	logger.info("----------111111111---------:" + cours.toString());
                 Long teachClassId = cours.getTeachClassId();
                 if (teachClassId == null) {

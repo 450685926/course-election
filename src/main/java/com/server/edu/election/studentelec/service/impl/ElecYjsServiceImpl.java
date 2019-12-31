@@ -779,20 +779,18 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
 //        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
+        
+        List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
         LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses().size());
-//        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
-//        	takenCourse = packagingTakenCourse(c.getTakenCourses());
-//        }
-        for (CompletedCourse completedCourse : c.getTakenCourses()) {
-			Long courseLabelId = completedCourse.getCourseLabelId();
-			LOG.info("===========courseLabelId=============:" + courseLabelId+ "--"+ completedCourse.getCourseCode());
-		}
+        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
+        	takenCourse = packagingTakenCourse(c.getTakenCourses());
+        }
         
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
         c.setSelectedCourses(selectedCourseTreeSet);
         c.setOptionalCourses(sortOptionalCourses);
-       // c.setTakenCourses(c.getTakenCourses());
+        c.setTakenCourses(takenCourse);
         c.setElecResult(elecResult);
         return c;
     }
