@@ -243,53 +243,51 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
         condition.setNotice(ApplyStatus.PASS_INT);
         Page<MyGraduateExam> page = new Page<>();
         //查询已排考的课程
-        List<String> examCourseCode =  examStudentDao.findExamStuCourseCode(condition);
-        condition.setCourseCodes(examCourseCode);
+        //List<String> examCourseCode =  examStudentDao.findExamStuCourseCode(condition);
+        //condition.setCourseCodes(examCourseCode);
         PageHelper.startPage(myExam.getPageNum_(),myExam.getPageSize_());
         if(condition.getExamType().equals(ApplyStatus.FINAL_EXAM)){
             page = examStudentDao.listCourseTake(condition);
-            if(CollectionUtil.isNotEmpty(page)){
-                //查询已经排考的课程
-                List<MyGraduateExam> examList = examStudentDao.findExamStudentAndCourse(condition);
-                List<MyGraduateExam> result = page.getResult();
-                List<MyGraduateExam> noExamCourse = new ArrayList<>();
-                if(CollectionUtil.isNotEmpty(examList)){
-                    List<String> examCourses = examList.stream().map(vo -> vo.getCourseCode()).collect(Collectors.toList());
-                    noExamCourse = result.stream().filter(vo -> !examCourses.contains(vo.getCourseCode())).collect(Collectors.toList());
-                    for (MyGraduateExam myGraduateExam : examList) {
-                        for (MyGraduateExam graduateExam : result) {
+        }else{
+            page = applyExaminationDao.listPassCourse(condition);
+        }
+        if(CollectionUtil.isNotEmpty(page)){
+            //查询已经排考的课程
+            List<MyGraduateExam> examList = examStudentDao.findExamStudentAndCourse(condition);
+            List<MyGraduateExam> result = page.getResult();
+            List<MyGraduateExam> noExamCourse = new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(examList)){
+                List<String> examCourses = examList.stream().map(vo -> vo.getCourseCode()).collect(Collectors.toList());
+                noExamCourse = result.stream().filter(vo -> !examCourses.contains(vo.getCourseCode())).collect(Collectors.toList());
+                for (MyGraduateExam myGraduateExam : examList) {
+                    for (MyGraduateExam graduateExam : result) {
+                        if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
+                            graduateExam.setExamSituation(myGraduateExam.getExamSituation());
+                            graduateExam.setRoomId(myGraduateExam.getRoomId());
+                            graduateExam.setRoomName(myGraduateExam.getRoomName());
+                            graduateExam.setExamTime(myGraduateExam.getExamTime());
+                            graduateExam.setRemark(myGraduateExam.getRemark());
+                            break;
+                        }
+                    }
+                }
+            }else{
+                noExamCourse = result;
+            }
+
+            if(CollectionUtil.isNotEmpty(noExamCourse)){
+                List<MyGraduateExam> noList =  examStudentDao.findExamNotice(noExamCourse,condition.getExamType(),condition.getCalendarId());
+                if(CollectionUtil.isNotEmpty(noList)){
+                    for (MyGraduateExam graduateExam : result) {
+                        for (MyGraduateExam myGraduateExam : noList) {
                             if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
-                                graduateExam.setExamSituation(myGraduateExam.getExamSituation());
-                                graduateExam.setRoomId(myGraduateExam.getRoomId());
-                                graduateExam.setRoomName(myGraduateExam.getRoomName());
                                 graduateExam.setExamTime(myGraduateExam.getExamTime());
-                                graduateExam.setRemark(myGraduateExam.getRemark());
                                 break;
                             }
                         }
                     }
-                }else{
-                    noExamCourse = result;
                 }
-
-                if(CollectionUtil.isNotEmpty(noExamCourse)){
-                    List<MyGraduateExam> noList =  examStudentDao.findExamNotice(noExamCourse,condition.getExamType(),condition.getCalendarId());
-                    if(CollectionUtil.isNotEmpty(noList)){
-                        for (MyGraduateExam graduateExam : result) {
-                            for (MyGraduateExam myGraduateExam : noList) {
-                                if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
-                                    graduateExam.setExamTime(myGraduateExam.getExamTime());
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-
             }
-        }else{
-            page = examInfoDao.listMyExamTimeMakeUp(condition);
         }
         return new PageResult<>(page);
     }

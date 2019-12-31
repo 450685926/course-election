@@ -5,6 +5,7 @@ import com.server.edu.common.entity.ExamMakeUp;
 import com.server.edu.exam.dto.ExamStudentAddDto;
 import com.server.edu.exam.entity.GraduateExamApplyExamination;
 import com.server.edu.exam.vo.GraduateExamApplyExaminationVo;
+import com.server.edu.exam.vo.MyGraduateExam;
 import org.apache.ibatis.annotations.Param;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
@@ -26,4 +27,7 @@ public interface GraduateExamApplyExaminationDao extends Mapper<GraduateExamAppl
 
     /**查询补缓考应考学生列表*/
     Page<GraduateExamApplyExaminationVo> listExamGraduateMakeUp(GraduateExamApplyExaminationVo condition);
+
+    /**查询补缓考学生所有课程*/
+    Page<MyGraduateExam> listPassCourse(MyGraduateExam condition);
 }
