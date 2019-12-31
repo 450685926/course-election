@@ -269,4 +269,17 @@
       order by t4.APPLY_STATUS_ asc,t4.CREATE_AT_ desc
     </where>
   </select>
+
+  <select id="listPassCourse" parameterType="com.server.edu.exam.vo.MyGraduateExam" resultType="com.server.edu.exam.vo.MyGraduateExam">
+    SELECT
+          t1.EXAM_CALENDAR_ID_ calendarId,t1.STUDENT_CODE_ studentCode,t1.COURSE_CODE_ courseCode,t3.NAME_ courseName,t1.TEACHING_CLASS_ID_ teachingClassId,
+         t4.CAMPUS_ campus
+      FROM
+          graduate_exam_apply_examination_t t1
+      LEFT JOIN course_t t3 on t1.COURSE_CODE_ = t3.CODE_
+      LEFT JOIN teaching_class_t t4 on t1.TEACHING_CLASS_ID_ = t4.ID_
+      WHERE
+          t1.EXAM_CALENDAR_ID_ = #{calendarId}
+      AND t1.STUDENT_CODE_ = #{studentCode} and t1.APPLY_STATUS_ = 4
+  </select>
 </mapper>
