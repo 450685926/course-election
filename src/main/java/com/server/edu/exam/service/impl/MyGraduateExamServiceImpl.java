@@ -252,8 +252,10 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
                 //查询已经排考的课程
                 List<MyGraduateExam> examList = examStudentDao.findExamStudentAndCourse(condition);
                 List<MyGraduateExam> result = page.getResult();
+                List<MyGraduateExam> noExamCourse = new ArrayList<>();
                 if(CollectionUtil.isNotEmpty(examList)){
                     List<String> examCourses = examList.stream().map(vo -> vo.getCourseCode()).collect(Collectors.toList());
+                    noExamCourse = result.stream().filter(vo -> !examCourses.contains(vo.getCourseCode())).collect(Collectors.toList());
                     for (MyGraduateExam myGraduateExam : examList) {
                         for (MyGraduateExam graduateExam : result) {
                             if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
@@ -266,22 +268,24 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
                             }
                         }
                     }
-                    List<MyGraduateExam> noExamCourse = result.stream().filter(vo -> !examCourses.contains(vo.getCourseCode())).collect(Collectors.toList());
-                    if(CollectionUtil.isNotEmpty(noExamCourse)){
-                        List<MyGraduateExam> noList =  examStudentDao.findExamNotice(noExamCourse,condition.getExamType(),condition.getCalendarId());
-                        if(CollectionUtil.isNotEmpty(noList)){
+                }else{
+                    noExamCourse = result;
+                }
+
+                if(CollectionUtil.isNotEmpty(noExamCourse)){
+                    List<MyGraduateExam> noList =  examStudentDao.findExamNotice(noExamCourse,condition.getExamType(),condition.getCalendarId());
+                    if(CollectionUtil.isNotEmpty(noList)){
+                        for (MyGraduateExam graduateExam : result) {
                             for (MyGraduateExam myGraduateExam : noList) {
-                                for (MyGraduateExam graduateExam : result) {
-                                    if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
-                                        graduateExam.setExamTime(myGraduateExam.getExamTime());
-                                        break;
-                                    }
+                                if(myGraduateExam.getCourseCode().equals(graduateExam.getCourseCode())){
+                                    graduateExam.setExamTime(myGraduateExam.getExamTime());
+                                    break;
                                 }
                             }
                         }
                     }
-
                 }
+
 
             }
         }else{
