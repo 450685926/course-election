@@ -95,13 +95,12 @@ public class ElcCourseTakeYjsController
     {
         ElcCourseTakeQuery query = condition.getCondition();
         ValidatorUtil.validateAndThrow(query);
-//        Session session = SessionUtils.getCurrentSession();
+        Session session = SessionUtils.getCurrentSession();
 //        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
 //            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
 //            query.setFaculties(deptIds);
 //        }
-//        query.setProjectId(session.getCurrentManageDptId());
-        query.setProjectId("4");
+        query.setProjectId(session.getCurrentManageDptId());
         Integer index = TableIndexUtil.getIndex(query.getCalendarId());
         query.setIndex(index);
         PageResult<ElcCourseTakeVo> list = courseTakeService.graduatePage(condition);
