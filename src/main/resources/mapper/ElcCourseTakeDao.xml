@@ -1053,7 +1053,7 @@
         </where>
     </select>
     
-	<select id="findCurrentCalendarCourses" resultMap="VoTeachingClassCache">
+	<select id="findHistoryElectedCourses" resultMap="VoTeachingClassCache">
         select t1.ID_, t1.STUDENT_ID_, op.NATURE_, op.COURSE_CODE_, op.COURSE_NAME_, 
 	        op.CALENDAR_ID_, op.CREDITS_, op.FACULTY_, t3.TERM_, t3.LABEL_, t4.PERIOD_,
 	        t3.ASSESSMENT_MODE_, t4.ID_ teachClassId, t4.CODE_ as teachClassCode,

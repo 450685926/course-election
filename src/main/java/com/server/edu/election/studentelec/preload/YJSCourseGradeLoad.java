@@ -1,7 +1,6 @@
 package com.server.edu.election.studentelec.preload;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.JSONObject;
@@ -23,14 +22,11 @@ import org.springframework.stereotype.Component;
 
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
-import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.dictionary.utils.ClassroomCacheUtil;
-import com.server.edu.dictionary.utils.TeacherCacheUtil;
 import com.server.edu.election.constants.Constants;
-import com.server.edu.election.dto.TeacherClassTimeRoom;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
@@ -95,6 +91,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
     @Override
     public void load(ElecContext context)
     {
+    	logger.info("----------YJSCourseGradeLoad start------------");
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
         // 1. 查询学生课程成绩(包括已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
@@ -110,10 +107,14 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         BeanUtils.copyProperties(stu, studentInfo);
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();// 已完成通過课程
         Set<CompletedCourse> failedCourse = context.getFailedCourse();// 未通过课程
-        List<CompletedCourse> takenCourses = new ArrayList<CompletedCourse>(); // 已修读课程
         
         List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-        List<CompletedCourse> coursess = new ArrayList<CompletedCourse>();
+        List<CompletedCourse> takenCourses = new ArrayList<CompletedCourse>(); // 已修读课程
+        
+        List<Long> teachClassIds = new ArrayList<>();
+        List<CompletedCourse> course = new ArrayList<CompletedCourse>();
+        
+        /** 获取已完成通过的课程和未通过的课程 */
         if (CollectionUtil.isNotEmpty(stuScore))
         {
 //            List<Long> teachClassIds = stuScore.stream()
@@ -128,9 +129,7 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
             int size = stuScore.size();
             
             logger.info("=========stuScore is size==========:" + size); 
-            
-            List<Long> teachClassIds = new ArrayList<>();
-            List<CompletedCourse> course = new ArrayList<CompletedCourse>();
+                    
             for (ScoreStudentResultVo studentScore : stuScore)
             {
                 CompletedCourse lesson = new CompletedCourse();
@@ -186,145 +185,97 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
                 course.add(lesson);
             }
 
-            for (CompletedCourse completedCourse : completedCourses) {
-            	logger.info("----------$$$$$$$-----------" + completedCourse.toString());
-			}
             logger.info("-----------completedCourses------------:" + completedCourses.size());
             logger.info("-------------failedCourse--------------:" + failedCourse.size());
             logger.info("----------------course1-----------------:" + course.size());
+        }
+        
+        /** 获取历史选课记录(包括正在修读没有成绩的课程) */
+        List<TeachingClassCache> historyElectedCourses = elcCourseTakeDao.findHistoryElectedCourses(studentId, context.getCalendarId());
+        logger.info("--------historyElectedCourses size---------: " + historyElectedCourses.size());
+        for (TeachingClassCache teachingClassCache : historyElectedCourses) {
+        	CompletedCourse lesson = new CompletedCourse();
+        	lesson.setNature(teachingClassCache.getNature());
+        	lesson.setCourseCode(teachingClassCache.getCourseCode());
+        	lesson.setCourseName(teachingClassCache.getCourseName());
+        	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
+        	lesson.setCredits(teachingClassCache.getCredits());
+        	lesson.setFaculty(teachingClassCache.getFaculty());
 
-            // 获取当前学年学期的课程(正在修读没有成绩的课程)
-    		List<PlanCourseDto> plan = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
-            for (PlanCourseDto planCourseDto : plan) {
-    			List<PlanCourseTypeDto> list = planCourseDto.getList();
-    			for (PlanCourseTypeDto planCourseTypeDto : list) {
-                    Long label = planCourseTypeDto.getLabelId();
-                    String labelName = "";
-                    if (label != null) {
-                    	if (label == 999999) {
-                    		labelName  = "跨院系或跨门类";
-    					}else{
-    						labelName  = courseDao.getCourseLabelName(label);
-    					}
-                    }
-                    planCourseTypeDto.setLabelName(labelName);
-    			}
-    		}
+            SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
+            // 上课时间“春秋季”特殊处理
+            lesson.setTerm(schoolCalendar.getTerm().toString());
 
-            //Integer index =TableIndexUtil.getIndex(context.getCalendarId()-1);
-            List<TeachingClassCache> currentCalendarCourses = elcCourseTakeDao.findCurrentCalendarCourses(studentId, context.getCalendarId());
-            logger.info("--------studentId---------: " + studentId);
-            logger.info("--------calendarId---------: " + context.getCalendarId());
-            for (TeachingClassCache teachingClassCache : currentCalendarCourses) {
-            	logger.info("--------teachingClassCache---------: " + teachingClassCache);
-            	CompletedCourse lesson = new CompletedCourse();
-            	lesson.setNature(teachingClassCache.getNature());
-            	lesson.setCourseCode(teachingClassCache.getCourseCode());
-            	lesson.setCourseName(teachingClassCache.getCourseName());
-            	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
-            	lesson.setCredits(teachingClassCache.getCredits());
-            	lesson.setFaculty(teachingClassCache.getFaculty());
-
-                SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(teachingClassCache.getCalendarId());
-                // 上课时间“春秋季”特殊处理
-                lesson.setTerm(schoolCalendar.getTerm().toString());
-
-            	lesson.setRemark(teachingClassCache.getRemark());
-            	lesson.setTeacherName(teachingClassCache.getTeacherName());
-            	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
-            	lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
-            	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
-            	lesson.setCalendarId(teachingClassCache.getCalendarId());
-            	lesson.setStudentId(studentId);
-                // 根据校历id设置学年
-                if (schoolCalendar != null) {
-                    lesson.setCalendarName(schoolCalendar.getYear()+"");
-                }
-            	// 如果课程是培养计划中的课程，则取培养计划的课程lableId
-            	for (PlanCourseDto planCourseDto : plan) {
-            		List<PlanCourseTypeDto> list = planCourseDto.getList();
-    				Set<String> courseCodeSet = list.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
-    				
-    				if (courseCodeSet.contains(teachingClassCache.getCourseCode())) {
-    					List<PlanCourseTypeDto> collect = list.stream().filter(vo->StringUtils.equals(vo.getCourseCode(), teachingClassCache.getCourseCode())).collect(Collectors.toList());
-    					PlanCourseTypeDto planCourseTypeDto = collect.get(0);
-    					lesson.setCourseLabelId(planCourseTypeDto.getLabelId());
-    					lesson.setLabelName(planCourseTypeDto.getLabelName());
-    					logger.info("----@@@@@@@@@@@----:" + teachingClassCache.getCourseCode() + ":" + planCourseTypeDto.getLabelId()+ ":" + planCourseTypeDto.getLabelName());
-    				}else {
-    					String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),teachingClassCache.getNature());
-    					lesson.setCourseLabelId(Long.parseLong(teachingClassCache.getNature()));
-    					lesson.setLabelName(dict);
-    					logger.info("----%%%%%%%%%%%----:" + teachingClassCache.getCourseCode() + ":" + teachingClassCache.getNature()+ ":" + dict);
-    				}
-    			}
-            	course.add(lesson);
-            	teachClassIds.add(teachingClassCache.getTeachClassId());
-			}
-            logger.info("-----------course2------------:" + course.size());
-            
-            // 已修读课程去重(studentId+courseCode+calendarId)
-            if (CollectionUtil.isNotEmpty(course)) {
-            	StringBuffer codeAndStudentIdbuffer = new StringBuffer("");
-            	for (CompletedCourse courseVo : course) {
-            		String codeAndStudentId = courseVo.getStudentId()+courseVo.getCalendarId()+courseVo.getCourseCode();
-            		if (!codeAndStudentIdbuffer.toString().contains(codeAndStudentId)) {
-            			codeAndStudentIdbuffer.append(codeAndStudentId).append(",");
-						coursess.add(courseVo);
-					}
+        	lesson.setRemark(teachingClassCache.getRemark());
+        	lesson.setTeacherName(teachingClassCache.getTeacherName());
+        	lesson.setTeachClassId(teachingClassCache.getTeachClassId());
+        	lesson.setTeachClassCode(teachingClassCache.getTeachClassCode());
+        	lesson.setTeachClassName(teachingClassCache.getTeachClassName());
+        	lesson.setCalendarId(teachingClassCache.getCalendarId());
+        	lesson.setStudentId(studentId);
+            // 根据校历id设置学年
+            if (schoolCalendar != null) {
+                lesson.setCalendarName(schoolCalendar.getYear()+"");
+            }
+        	course.add(lesson);
+        	teachClassIds.add(teachingClassCache.getTeachClassId());
+		}
+        logger.info("-----------course2------------:" + course.size());
+        
+        // 已修读课程去重(studentId+courseCode+calendarId)
+        if (CollectionUtil.isNotEmpty(course)) {
+        	StringBuffer codeAndStudentIdbuffer = new StringBuffer("");
+        	for (CompletedCourse courseVo : course) {
+        		String codeAndStudentId = courseVo.getStudentId()+courseVo.getCalendarId()+courseVo.getCourseCode();
+        		if (!codeAndStudentIdbuffer.toString().contains(codeAndStudentId)) {
+        			codeAndStudentIdbuffer.append(codeAndStudentId).append(",");
+        			takenCourses.add(courseVo);
 				}
 			}
-            
-            if (CollectionUtil.isNotEmpty(teachClassIds)) {
-                List<TimeTableMessage> list = classDao.getYjsClassTimes(teachClassIds);
-                Map<Long, List<TimeTableMessage>> collect = list.stream()
-                        .collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
-                for (CompletedCourse cours : coursess) {
-                	logger.info("----------111111111---------:" + cours.toString());
-                    Long teachClassId = cours.getTeachClassId();
-                    if (teachClassId == null) {
-                        continue;
-                    }
-                    List<TimeTableMessage> timeTableMessages = collect.get(teachClassId);
-                    if (CollectionUtil.isNotEmpty(timeTableMessages)) {
-                        List<TimeAndRoom> timeAndRooms = new ArrayList<>();
-                        for (TimeTableMessage tableMessage : timeTableMessages) {
-                            TimeAndRoom time=new TimeAndRoom();
-                            Integer dayOfWeek = tableMessage.getDayOfWeek();
-                            Integer timeStart = tableMessage.getTimeStart();
-                            Integer timeEnd = tableMessage.getTimeEnd();
-                            String roomID = tableMessage.getRoomId();
-                            String weekNumber = tableMessage.getWeekNum();
-                            String[] str = weekNumber.split(",");
-                            List<Integer> weeks = Arrays.asList(str)
-                                    .stream()
-                                    .map(Integer::parseInt)
-                                    .collect(Collectors.toList());
-                            if (CollectionUtil.isEmpty(weeks)) {
-                                continue;
-                            }
-                            List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
-                            String weekNumStr = weekNums.toString();//周次
-                            if ("[1, 3, 5, 7, 9, 11, 13, 15, 17]".equals(weekNumStr)) {
-                                weekNumStr = "单周";
-                            } else if ("[2, 4, 6, 8, 10, 12, 14, 16".equals(weekNumStr)) {
-                                weekNumStr = "双周";
-                            }
-                            String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
-                            String timeStr = weekstr + " " + timeStart + "-" + timeEnd + " "
-                                    + weekNumStr + " ";
-                            time.setTimeAndRoom(timeStr);
-                            time.setRoomId(roomID);
-                            timeAndRooms.add(time);
-                        }
-                        cours.setTimeTableList(timeAndRooms);
-                    }
+		}
+        
+		List<PlanCourseDto> plan = CultureSerivceInvoker.findCourseTypeForGradute(studentId);
+        for (PlanCourseDto planCourseDto : plan) {
+			List<PlanCourseTypeDto> list = planCourseDto.getList();
+			for (PlanCourseTypeDto planCourseTypeDto : list) {
+                Long label = planCourseTypeDto.getLabelId();
+                String labelName = "";
+                if (label != null) {
+                	if (label == 999999) {
+                		labelName  = "跨院系或跨门类";
+					}else{
+						labelName  = courseDao.getCourseLabelName(label);
+					}
                 }
-            }
-//            takenCourses.addAll(course);
-        }
-        logger.info("----------TakenCourses--------: "+ coursess.size());
-        context.setTakenCourses(coursess);
+                planCourseTypeDto.setLabelName(labelName);
+			}
+		}
+        
+        // 处理课程类别-->如果课程是培养计划中的课程，则取培养计划的课程lableId
+    	for (PlanCourseDto planCourseDto : plan) {
+    		List<PlanCourseTypeDto> list = planCourseDto.getList();
+			Set<String> courseCodeSet = list.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
+			
+			for (CompletedCourse completedCourse : takenCourses) {
+				if (courseCodeSet.contains(completedCourse.getCourseCode())) {
+					List<PlanCourseTypeDto> collect = list.stream().filter(vo->StringUtils.equals(vo.getCourseCode(), completedCourse.getCourseCode())).collect(Collectors.toList());
+					PlanCourseTypeDto planCourseTypeDto = collect.get(0);
+					completedCourse.setCourseLabelId(planCourseTypeDto.getLabelId());
+					completedCourse.setLabelName(planCourseTypeDto.getLabelName());
+					logger.info("----@@@@@@@@@@@----:" + completedCourse.getCourseCode() + ":" + planCourseTypeDto.getLabelId()+ ":" + planCourseTypeDto.getLabelName());
+				}else {
+					String dict = dictionaryService.query(DictTypeEnum.X_KCXZ.getType(),completedCourse.getNature());
+					completedCourse.setCourseLabelId(Long.parseLong(completedCourse.getNature()));
+					completedCourse.setLabelName(dict);
+					logger.info("----%%%%%%%%%%%----:" + completedCourse.getCourseCode() + ":" + completedCourse.getNature()+ ":" + dict);
+				}
+			}
+		}
+        
+        packageArrangementTime(takenCourses, teachClassIds);
+        
+        logger.info("----------takenCourses size--------: "+ takenCourses.size());
+        context.setTakenCourses(takenCourses);
         
         //2.学生已选择课程
         Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
@@ -352,6 +303,60 @@ public class YJSCourseGradeLoad extends DataProLoad<ElecContext>
         
         // 4. 非本学期的选课并且没有成功的
     }
+
+	/**
+	 * 拼接课程的上课时间信息
+	 * @param coursess
+	 * @param teachClassIds
+	 */
+	private void packageArrangementTime(List<CompletedCourse> takenCourses, List<Long> teachClassIds) {
+		if (CollectionUtil.isNotEmpty(teachClassIds)) {
+            List<TimeTableMessage> list = classDao.getYjsClassTimes(teachClassIds);
+            Map<Long, List<TimeTableMessage>> collect = list.stream()
+                    .collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+            for (CompletedCourse cours : takenCourses) {
+            	logger.info("----------111111111---------:" + cours.toString());
+                Long teachClassId = cours.getTeachClassId();
+                if (teachClassId == null) {
+                    continue;
+                }
+                List<TimeTableMessage> timeTableMessages = collect.get(teachClassId);
+                if (CollectionUtil.isNotEmpty(timeTableMessages)) {
+                    List<TimeAndRoom> timeAndRooms = new ArrayList<>();
+                    for (TimeTableMessage tableMessage : timeTableMessages) {
+                        TimeAndRoom time=new TimeAndRoom();
+                        Integer dayOfWeek = tableMessage.getDayOfWeek();
+                        Integer timeStart = tableMessage.getTimeStart();
+                        Integer timeEnd = tableMessage.getTimeEnd();
+                        String roomID = tableMessage.getRoomId();
+                        String weekNumber = tableMessage.getWeekNum();
+                        String[] str = weekNumber.split(",");
+                        List<Integer> weeks = Arrays.asList(str)
+                                .stream()
+                                .map(Integer::parseInt)
+                                .collect(Collectors.toList());
+                        if (CollectionUtil.isEmpty(weeks)) {
+                            continue;
+                        }
+                        List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                        String weekNumStr = weekNums.toString();//周次
+                        if ("[1, 3, 5, 7, 9, 11, 13, 15, 17]".equals(weekNumStr)) {
+                            weekNumStr = "单周";
+                        } else if ("[2, 4, 6, 8, 10, 12, 14, 16".equals(weekNumStr)) {
+                            weekNumStr = "双周";
+                        }
+                        String weekstr = WeekUtil.findWeek(dayOfWeek);//星期
+                        String timeStr = weekstr + " " + timeStart + "-" + timeEnd + " "
+                                + weekNumStr + " ";
+                        time.setTimeAndRoom(timeStr);
+                        time.setRoomId(roomID);
+                        timeAndRooms.add(time);
+                    }
+                    cours.setTimeTableList(timeAndRooms);
+                }
+            }
+        }
+	}
     
     public void loadApplyRecord(Long calendarId, String studentId, Set<ElecCourse> applyForDropCourses) {
     	List<ElecCourse> applyRecord = applyDao.findApplyRecordForElection(studentId);

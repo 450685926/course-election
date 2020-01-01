@@ -445,6 +445,7 @@
       )
     </foreach>
     and CALENDAR_ID_ = #{calendarId} and EXAM_TYPE_ = #{examType} and NOTICE_ = 1 and EXAM_STATUS_ = 2
+    order by UPDATE_AT_ desc
   </select>
 
   <select id="listApplyListSlowAndCourseTake" parameterType="com.server.edu.exam.dto.SelectDto" resultType="com.server.edu.exam.dto.SelectDto">
