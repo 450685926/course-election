@@ -69,7 +69,7 @@
 		AND t5.TYPE_ = 0
 	)
   	<where>
-	  	t1.CALENDAR_ID_ = #{query.calendarId} 
+	  	t1.CALENDAR_ID_ = #{query.calendarId} and t1.DELETE_STATUS_ = 0
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
   		and t4.ROUNDS_ID_ = #{query.roundId}
   		</if>
@@ -129,7 +129,7 @@
 		LEFT JOIN teaching_class_teacher_t t5  ON (t5.TEACHING_CLASS_ID_  = t4.ID_ AND t5.TYPE_ =0)
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{query.calendarId}
-		  	and t1.IS_OPEN_ = 1
+		  	and t1.IS_OPEN_ = 1 and t1.DELETE_STATUS_ = 0
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
 		  	and t1.PROJ_ID_ = #{query.projectId}
 		  	</if>
@@ -189,7 +189,7 @@
   		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
   		left JOIN election_rounds_cour_t t2 ON t2.TEACHING_CLASS_ID_ = t4.ID_
   	<where>
-	  	t1.CALENDAR_ID_ = #{query.calendarId} 
+	  	t1.CALENDAR_ID_ = #{query.calendarId} and t1.DELETE_STATUS_ = 0
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.roundId)">
   			and t2.ROUNDS_ID_ = #{query.roundId}
   		</if>
@@ -236,7 +236,7 @@
 	  		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{query.calendarId}
-		  	and t1.IS_OPEN_ = 1
+		  	and t1.IS_OPEN_ = 1 and t1.DELETE_STATUS_ = 0
 		  	and t4.MAN_ARRANGE_FLAG_ in(1,2,3)
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
 		  	and t1.PROJ_ID_ = #{query.projectId}
@@ -269,6 +269,7 @@
 	  join teaching_task_t ta on op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl on cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0
 	  <where>
+		  op.DELETE_STATUS_ = 0 and
 		  cl.ID_ in (
 		   SELECT DISTINCT co.TEACHING_CLASS_ID_ 
 		   FROM election_rounds_t el
@@ -313,7 +314,7 @@
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0)
 	  JOIN election_rounds_cour_t co ON co.TEACHING_CLASS_ID_ = cl.ID_
 	  where
-		 co.ROUNDS_ID_ = #{roundId}
+		 co.ROUNDS_ID_ = #{roundId} and op.DELETE_STATUS_ = 0
 		 and op.CALENDAR_ID_ = #{calendarId}
 		 order by cl.CODE_
   </select>
@@ -331,7 +332,7 @@
 	  	 cl.MAN_ARRANGE_FLAG_ in(1,2,3)
 	  	 and op.PROJ_ID_ = #{manageDptId} 
 		 and co.ROUNDS_ID_ = #{roundId} 
-		 and op.CALENDAR_ID_ = #{calendarId}
+		 and op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
 		 order by cl.CODE_
   </select>
   
@@ -343,7 +344,7 @@
 	  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0 and cl.DELETE_STATUS_ =0)
 	  where
-		 op.CALENDAR_ID_ = #{calendarId}
+		 op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
   </select>
   <!-- 查询学年学期所有可选课程(研究生) -->
   <select id="selectCorseGraduteByCalendarId" resultMap="CourseOpenDtoMap">
@@ -357,7 +358,7 @@
 	  	 cl.MAN_ARRANGE_FLAG_ in(1,2,3) and
 	     cl.DELETE_STATUS_ = 0 and
 	  	 op.PROJ_ID_ = #{projectId} and
-		 op.CALENDAR_ID_ = #{calendarId}
+		 op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
 		 order by cl.CODE_
   </select>
   <!--教学班信息 -->
@@ -371,7 +372,7 @@
 	  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0 and cl.DELETE_STATUS_ =0)
 	  where
 		 op.CALENDAR_ID_ = #{calendarId}
-		 and op.PROJ_ID_ =1
+		 and op.PROJ_ID_ =1 and op.DELETE_STATUS_ = 0
   </select>
 
 	<select id="selectYjsTeachingClassByCalendarId" resultMap="CourseOpenDtoMap">
@@ -395,7 +396,7 @@
 		cl1.DELETE_STATUS_ = 0
 	AND	cl1.MAN_ARRANGE_FLAG_ in(1,2,3)
 	AND op1.PROJ_ID_ in(2,4)
-	AND op1.CALENDAR_ID_ = #{calendarId}
+	AND op1.CALENDAR_ID_ = #{calendarId} and op1.DELETE_STATUS_ = 0
 	ORDER BY
 		teachingClassCode
   </select>
@@ -413,7 +414,7 @@
 	  	 <!-- time.TYPE_ = '2' and  -->
 	  	 cl.MAN_ARRANGE_FLAG_ in(1,2,3) and
 	  	 op.PROJ_ID_ in(2,4) and 
-		 op.CALENDAR_ID_ = #{calendarId}
+		 op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
 	  order by cl.CODE_
   </select>
   
@@ -440,7 +441,7 @@
 		JOIN teaching_task_t t3 ON t3.ID_ = t2.TASK_ID_
 		JOIN course_open_t t4 ON t4.ID_ = t3.COURSE_OPEN_ID_
 		<where>
-	        t1.ROUNDS_ID_ in
+			t4.DELETE_STATUS_ = 0 and t1.ROUNDS_ID_ in
 	        <foreach item="id" collection="list" index="index" open="(" separator="," close=")">
 	          #{id}
 	        </foreach>
@@ -457,7 +458,7 @@
 					  JOIN teaching_task_t ta ON op.ID_=ta.COURSE_OPEN_ID_
 					  JOIN teaching_class_t cl ON (cl.TASK_ID_=ta.ID_ and cl.DEPLOY_FLAG_ &gt; 0 and cl.DELETE_STATUS_ =0)
 				  where
-			 		  op.CALENDAR_ID_ = #{calendarId}
+			 		  op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
 	   		</when>
 	   		<otherwise>
 	   			 select 
@@ -468,7 +469,7 @@
 	  			 where
 				  	 cl.MAN_ARRANGE_FLAG_ in(1,2,3) and
 				  	 op.PROJ_ID_ = #{projectId} and
-					 op.CALENDAR_ID_ = #{calendarId}
+					 op.CALENDAR_ID_ = #{calendarId} and op.DELETE_STATUS_ = 0
 	   		</otherwise>
 	   </choose>
   </select>

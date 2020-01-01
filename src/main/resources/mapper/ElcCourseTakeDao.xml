@@ -105,7 +105,7 @@
         t4.CAMPUS_, t5.LABEL_ AS courseLabel
         from elc_course_takes_t_${query.index} t1
         join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
-        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ and IS_OPEN_ = 1
+        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ and IS_OPEN_ = 1 and t3.DELETE_STATUS_ = 0
 	     AND t3.CALENDAR_ID_ = t1.CALENDAR_ID_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
@@ -343,7 +343,7 @@
         left join course_open_t open ON open.id_ = task.COURSE_OPEN_ID_
         left join course_t cour ON cour.code_ = open.COURSE_CODE_
         <where>
-            open.CALENDAR_ID_ = #{calendarId}
+            open.CALENDAR_ID_ = #{calendarId} and open.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassId)">
                 and class.id_ = #{teachingClassId}
             </if>
@@ -604,7 +604,7 @@
         join teaching_class_arrange_time_t ti on (te.ID_=ti.TEACHING_CLASS_ID_ and ti.TYPE_ =2)
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        te.DEPLOY_FLAG_ &gt; 0 and
+        te.DEPLOY_FLAG_ &gt; 0 and co.DELETE_STATUS_ = 0 and
         te.ID_ in
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
@@ -647,6 +647,7 @@
         join teaching_class_arrange_time_t ti on (te.ID_=ti.TEACHING_CLASS_ID_ and ti.TYPE_ =2)
         JOIN teaching_class_arrange_room_t ro ON ti.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
+        co.DELETE_STATUS_ = 0 and
         te.ID_ in
         <foreach collection="list" item="id" open="(" close=")" separator=",">
             #{id}
@@ -879,7 +880,7 @@
         LEFT JOIN teaching_task_t ts on ts.COURSE_OPEN_ID_=el.ID_
         LEFT JOIN teaching_class_t cl on cl.TASK_ID_=ts.ID_
         LEFT JOIN teaching_class_teacher_t tl on tl.TEACHING_CLASS_ID_ = cl.ID_
-        WHERE cl.DEPLOY_FLAG_ &gt; 0 and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode}
+        WHERE cl.DEPLOY_FLAG_ &gt; 0 and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT} and tl.TEACHER_CODE_ = #{teacherCode} and el.DELETE_STATUS_ = 0
     </select>
 
     <select id="findTeachingClassIds" resultType="com.server.edu.election.dto.ClassTeacherDto">
@@ -904,7 +905,7 @@
         JOIN teaching_class_t cl ON ts.ID_ = cl.TASK_ID_
         JOIN teaching_class_teacher_t te ON cl.ID_ = te.TEACHING_CLASS_ID_
         <where>
-            el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
+            el.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT} and el.DELETE_STATUS_ = 0
             and te.TEACHER_CODE_ = #{teacherCode}
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
                 and el.PROJ_ID_ = #{projectId}
@@ -1007,6 +1008,7 @@
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         <where>
             t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
+            and op.DELETE_STATUS_ = 0
             and t1.STUDENT_ID_ = #{studentId}
         </where>
     </select>
@@ -1029,6 +1031,7 @@
         <where>
             t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             and t1.STUDENT_ID_ = #{studentId}
+            and op.DELETE_STATUS_ = 0
         </where>
     </select>
     
@@ -1046,7 +1049,7 @@
         join course_t t3 ON t3.CODE_ = t1.COURSE_CODE_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         <where>
-            t1.STUDENT_ID_ = #{studentId}
+            t1.STUDENT_ID_ = #{studentId} and op.DELETE_STATUS_ = 0
         </where>
     </select>
     
@@ -1063,7 +1066,7 @@
         	left join teaching_class_teacher_t te on t1.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
         where
             t1.STUDENT_ID_ = #{studentId}
-            and t1.CALENDAR_ID_ &lt; #{calendarId}
+            and t1.CALENDAR_ID_ &lt; #{calendarId} and op.DELETE_STATUS_ = 0
         GROUP BY t4.CODE_
         union all 
         select t1.ID_, t1.STUDENT_ID_, op.NATURE_, op.COURSE_CODE_, op.COURSE_NAME_, 
@@ -1078,7 +1081,7 @@
         	left join teaching_class_teacher_t te on t1.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
         where
             t1.STUDENT_ID_ = #{studentId}
-            and t1.CALENDAR_ID_ &lt; #{calendarId}
+            and t1.CALENDAR_ID_ &lt; #{calendarId} and op.DELETE_STATUS_ = 0
         GROUP BY t4.CODE_
         union all 
         select t1.ID_, t1.STUDENT_ID_, op.NATURE_, op.COURSE_CODE_, op.COURSE_NAME_, 
@@ -1093,7 +1096,7 @@
         	left join teaching_class_teacher_t te on t1.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
         where
             t1.STUDENT_ID_ = #{studentId}
-            and t1.CALENDAR_ID_ &lt; #{calendarId}
+            and t1.CALENDAR_ID_ &lt; #{calendarId} and op.DELETE_STATUS_ = 0
         GROUP BY t4.CODE_
         union all 
         select t1.ID_, t1.STUDENT_ID_, op.NATURE_, op.COURSE_CODE_, op.COURSE_NAME_, 
@@ -1108,7 +1111,7 @@
         	left join teaching_class_teacher_t te on t1.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
         where
             t1.STUDENT_ID_ = #{studentId}
-            and t1.CALENDAR_ID_ &lt; #{calendarId}
+            and t1.CALENDAR_ID_ &lt; #{calendarId} and op.DELETE_STATUS_ = 0
         GROUP BY t4.CODE_
         union all 
                 select t1.ID_, t1.STUDENT_ID_, op.NATURE_, op.COURSE_CODE_, op.COURSE_NAME_, 
@@ -1123,7 +1126,7 @@
         	left join teaching_class_teacher_t te on t1.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
         where
             t1.STUDENT_ID_ = #{studentId}
-            and t1.CALENDAR_ID_ &lt; #{calendarId}
+            and t1.CALENDAR_ID_ &lt; #{calendarId} and op.DELETE_STATUS_ = 0
         GROUP BY t4.CODE_
         union all 
         select t1.ID_, t1.STUDENT_ID_, op.NATURE_, op.COURSE_CODE_, op.COURSE_NAME_, 
@@ -1138,7 +1141,7 @@
         	left join teaching_class_teacher_t te on t1.TEACHING_CLASS_ID_ = te.TEACHING_CLASS_ID_
         where
             t1.STUDENT_ID_ = #{studentId}
-            and t1.CALENDAR_ID_ &lt; #{calendarId}
+            and t1.CALENDAR_ID_ &lt; #{calendarId} and op.DELETE_STATUS_ = 0
         GROUP BY t4.CODE_
     </select>
 	
@@ -1172,7 +1175,7 @@
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         <where>
             t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
-            and t1.STUDENT_ID_ = #{studentId}
+            and t1.STUDENT_ID_ = #{studentId} and op.DELETE_STATUS_ = 0
         </where>
     </select>
 
@@ -1281,6 +1284,7 @@
         join teaching_task_t b on a.ID_ = b.COURSE_OPEN_ID_
         join teaching_class_t c on b.ID_ = c.TASK_ID_
         <where>
+            a.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
                 and a.PROJ_ID_ = #{projectId}
             </if>
@@ -1319,7 +1323,7 @@
         from teaching_class_t c
         join teaching_task_t b on c.TASK_ID_ = b.ID_
         join course_open_t a on b.COURSE_OPEN_ID_ = a.ID_
-        where c.ID_ in
+        where  a.DELETE_STATUS_ = 0 and c.ID_ in
         <foreach item="id" collection="ids" index="index" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -1356,7 +1360,7 @@
         join course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
         JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
         <where>
-            t3.DEPLOY_FLAG_ &gt; 0
+            t3.DEPLOY_FLAG_ &gt; 0 and t1.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
                 and t1.CALENDAR_ID_ =#{calendarId,jdbcType=BIGINT}
             </if>
@@ -1395,7 +1399,7 @@
         join teaching_class_teacher_t tt on tc.ID_ = tt.TEACHING_CLASS_ID_
         <where>
             op.CALENDAR_ID_ = #{calendarId,jdbcType=BIGINT}
-            and op.PROJ_ID_ = #{projectId}
+            and op.PROJ_ID_ = #{projectId} and op.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
                 and op.FACULTY_ =#{faculty,jdbcType=VARCHAR}
             </if>
@@ -1446,7 +1450,7 @@
         join teaching_task_t t4 on t3.TASK_ID_=t4.ID_
         JOIN teaching_class_teacher_t t2 ON t3.ID_ = t2.TEACHING_CLASS_ID_
         join course_open_t t1 on t4.COURSE_OPEN_ID_=t1.ID_
-        where t3.DEPLOY_FLAG_ &gt; 0 and t2.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId}
+        where t3.DEPLOY_FLAG_ &gt; 0 and t2.TEACHER_CODE_=#{teacherCode} and t1.CALENDAR_ID_=#{calendarId} and t1.DELETE_STATUS_ = 0
     </select>
 
     <select id="findSexNumber" resultType="com.server.edu.election.dto.ElcCourseLimitDto">
@@ -1630,7 +1634,7 @@
         join course_open_t op on op.COURSE_CODE_=t1.COURSE_CODE_ and op.CALENDAR_ID_ = t1.CALENDAR_ID_
         join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
         <where>
-            t1.STUDENT_ID_ = #{studentId}
+            t1.STUDENT_ID_ = #{studentId} and op.DELETE_STATUS_ = 0
         </where>
     </select>
 
@@ -1764,7 +1768,7 @@
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
             and (a.COURSE_NAME_ like concat('%',#{keyWord},'%') or d.CODE_ like concat('%',#{keyWord},'%'))
         </if>
-        and d.MAN_ARRANGE_FLAG_ in (1,2,3)
+        and d.MAN_ARRANGE_FLAG_ in (1,2,3) and a.DELETE_STATUS_ = 0
         group by d.ID_
     </select>
 
@@ -1783,7 +1787,7 @@
         </foreach>
         and a.CALENDAR_ID_ = #{calendarId}
         and a.PROJ_ID_ = #{projectId}
-        and a.NATURE_ = 2
+        and a.NATURE_ = 2 and a.DELETE_STATUS_ = 0
         and d.MAN_ARRANGE_FLAG_ in (1,2,3)
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
             and (a.COURSE_NAME_ like concat('%',#{keyWord},'%') or d.CODE_ like concat('%',#{keyWord},'%'))
@@ -1798,7 +1802,7 @@
         from teaching_class_t a
         join teaching_task_t b on b.ID_ = a.TASK_ID_
         join course_open_t c on c.ID_ = b.COURSE_OPEN_ID_
-        where a.ID_ in
+        where c.DELETE_STATUS_ = 0 and a.ID_ in
         <foreach item="item" collection="list" separator="," open="(" close=")">
             #{item, jdbcType=INTEGER}
         </foreach>
@@ -1833,7 +1837,7 @@
         from elc_course_takes_t a
         join course_open_t b on b.COURSE_CODE_ = a.COURSE_CODE_
         join teaching_class_t c on c.ID_ = a.TEACHING_CLASS_ID_
-        where a.CALENDAR_ID_ = #{calendarId} and a.STUDENT_ID_ = #{studentId}
+        where a.CALENDAR_ID_ = #{calendarId} and a.STUDENT_ID_ = #{studentId} and b.DELETE_STATUS_ = 0
         group by c.ID_
     </select>
 
@@ -2051,7 +2055,7 @@
         join teaching_class_arrange_time_t te on te.TEACHING_CLASS_ID_ = tc.ID_
         join teaching_class_arrange_room_t ro ON te.ID_ = ro.ARRANGE_TIME_ID_
         WHERE
-        tc.ID_ = #{teachingClassId}
+        tc.ID_ = #{teachingClassId} and co.DELETE_STATUS_ = 0
         GROUP BY ro.ARRANGE_TIME_ID_
         order by te.DAY_OF_WEEK_,te.TIME_START_
     </select>
@@ -2119,7 +2123,7 @@
         ON t6.`COURSE_OPEN_ID_` = t7.`ID_`
         <where>
             t1.`CALENDAR_ID_` = #{calendarId}
-            AND t1.`COURSE_TAKE_TYPE_` = 2
+            AND t1.`COURSE_TAKE_TYPE_` = 2 and t7.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
                 and t5.CODE_ = #{teachingClassCode}
             </if>
@@ -2188,7 +2192,7 @@
           LEFT JOIN elc_med_withdraw_t t4 ON t4.STUDENT_ID_ = t1.STUDENT_ID_
 	      AND t4.TEACHING_CLASS_ID_ = t2.ID_
 		WHERE t1.`STUDENT_ID_` = #{studentId}
-		  AND t1.`CALENDAR_ID_` = #{calendarId}
+		  AND t1.`CALENDAR_ID_` = #{calendarId} and t3.DELETE_STATUS_ = 0
 		UNION
 		SELECT
 		  0 AS id,
@@ -2212,7 +2216,7 @@
 		      AND t3.`CALENDAR_ID_` = t1.`CALENDAR_ID_`
 		    )
 		WHERE t1.`STUDENT_ID_` = #{studentId}
-		  AND t1.`CALENDAR_ID_` = #{calendarId}
+		  AND t1.`CALENDAR_ID_` = #{calendarId} and t3.DELETE_STATUS_ = 0
   </select>
 
     <select id="findNoChargeListByStuId" parameterType="com.server.edu.election.dto.RebuildCourseDto"
