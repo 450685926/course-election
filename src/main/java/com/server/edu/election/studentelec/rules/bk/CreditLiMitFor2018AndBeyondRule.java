@@ -75,6 +75,29 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 		//当前正在修读的课程
 		Set<CompletedCourse> unFinishedCourses = context.getUnFinishedCourses();
 
+		//通识选修课
+		List<BkPublicCourseVo> bkPublicCourse = ElecContextUtil.getBKPublicCourse();
+		Map<String, Double> collectMap = new HashMap<>();
+		Integer grade = studentInfo.getGrade();
+		List<BkPublicCourse> list = new ArrayList<>();
+		if (CollectionUtil.isNotEmpty(bkPublicCourse)){
+			for (BkPublicCourseVo bkPublicCourseVo : bkPublicCourse) {
+				String grades = bkPublicCourseVo.getGrades();
+				if (compare(grade, grades)) {
+					list = bkPublicCourseVo.getList();
+					if (CollectionUtil.isNotEmpty(list)){
+						List<PublicCourse> pList = new ArrayList<>();
+						for (BkPublicCourse publicCourse : list) {
+							if (CollectionUtil.isNotEmpty(publicCourse.getList())){
+								pList.addAll(publicCourse.getList());
+							}
+						}
+						collectMap = pList.stream().collect(Collectors.toMap(PublicCourse::getCourseCode, PublicCourse::getCreidits));
+					}
+					break;
+				}
+			}
+		}
 		//已选和已经完成的课程
 		List<String>  courses = new ArrayList<>();
 		if (CollectionUtil.isNotEmpty(selectedCourses)){
@@ -83,8 +106,16 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 			}
 		}
 		if (CollectionUtil.isNotEmpty(completedCourses)){
+			Double creidits = 0d;
 			for (CompletedCourse completedCourse:completedCourses){
 				courses.add(completedCourse.getCourse().getCourseCode());
+				Double creidit = collectMap.get(completedCourse.getCourse().getCourseCode());
+				if (creidit != null){
+					creidits += creidit;
+				}
+			}
+			if (creidits >= 8d){
+				return true;
 			}
 		}
 		if (CollectionUtil.isNotEmpty(unFinishedCourses)){
@@ -93,55 +124,46 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 			}
 		}
 
-		//通识选修课
-		List<BkPublicCourseVo> bkPublicCourse = ElecContextUtil.getBKPublicCourse();
-		Integer grade = studentInfo.getGrade();
-		if (CollectionUtil.isNotEmpty(bkPublicCourse)){
-			for (BkPublicCourseVo bkPublicCourseVo : bkPublicCourse) {
-				String grades = bkPublicCourseVo.getGrades();
-				if (compare(grade, grades)) {
-					List<BkPublicCourse> list = bkPublicCourseVo.getList();
-					if (CollectionUtil.isNotEmpty(list)) {
-						for (BkPublicCourse publicCourse : list) {
-							List<PublicCourse> publicCourseList = publicCourse.getList();
-							if (CollectionUtil.isNotEmpty(publicCourseList)) {
-								List<String> collect = publicCourseList.stream().map(PublicCourse::getCourseCode).collect(Collectors.toList());
-								if(collect.contains(courseClass.getCourseCode())){
-									List<String> courseList = new ArrayList<>();
-									int count = 0;
-									for (String cours : courses) {
-										if (collect.contains(cours)){
-											courseList.add(cours);
-											count ++;
-										}
-									}
-									if (count <= 1){
-										return true;
-									}else{
-										List<String> oldCourseList = new ArrayList<>();
-										for (String s : courseList) {
-											Example example = new Example(Course.class);
-											example.createCriteria().andEqualTo("code",s);
-											List<Course> coursesName = courseDao.selectByExample(example);
-											if (CollectionUtil.isNotEmpty(coursesName)){
-												oldCourseList.add(coursesName.get(0).getName());
-											}
-										}
-										ElecRespose respose = context.getRespose();
-										respose.getFailedReasons()
-												.put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
-														I18nUtil
-																.getMsg("ruleCheck.CreditLiMitFor2018AndBeyondLimit",publicCourse.getTag(),StringUtils.join(oldCourseList.toArray(),",")));
-										return false;
-									}
-								}
+
+
+		if (CollectionUtil.isNotEmpty(list)) {
+			for (BkPublicCourse publicCourse : list) {
+				List<PublicCourse> publicCourseList = publicCourse.getList();
+				if (CollectionUtil.isNotEmpty(publicCourseList)) {
+					List<String> collect = publicCourseList.stream().map(PublicCourse::getCourseCode).collect(Collectors.toList());
+					if(collect.contains(courseClass.getCourseCode())){
+						List<String> courseList = new ArrayList<>();
+						int count = 0;
+						for (String cours : courses) {
+							if (collect.contains(cours)){
+								courseList.add(cours);
+								count ++;
 							}
 						}
+						if (count <= 1){
+							return true;
+						}else{
+							List<String> oldCourseList = new ArrayList<>();
+							for (String s : courseList) {
+								Example example = new Example(Course.class);
+								example.createCriteria().andEqualTo("code",s);
+								List<Course> coursesName = courseDao.selectByExample(example);
+								if (CollectionUtil.isNotEmpty(coursesName)){
+									oldCourseList.add(coursesName.get(0).getName());
+								}
+							}
+							ElecRespose respose = context.getRespose();
+							respose.getFailedReasons()
+									.put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
+											I18nUtil
+													.getMsg("ruleCheck.CreditLiMitFor2018AndBeyondLimit",publicCourse.getTag(),StringUtils.join(oldCourseList.toArray(),",")));
+							return false;
+						}
 					}
-					break;
 				}
 			}
 		}
+
 		return true;
 
 

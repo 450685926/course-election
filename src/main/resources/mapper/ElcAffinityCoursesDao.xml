@@ -22,7 +22,7 @@
 		JOIN course_t t2 ON t1.COURSE_ID_ = t2.ID_
 		JOIN course_open_t t3 ON (
 			t2.CODE_ = t3.COURSE_CODE_
-			AND t3.IS_OPEN_ = 1
+			AND t3.IS_OPEN_ = 1 and t3.DELETE_STATUS_ = 0
 		)
 		<where>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
