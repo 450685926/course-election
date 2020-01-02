@@ -14,4 +14,18 @@ public interface StudentMutualElecService {
      * @return 当前状态
      */
     RestResult<ElecRespose> loading(ElecRequest elecRequest);
+
+	/**
+	 * 选课操作
+	 * @param elecRequest
+	 * @return
+	 */
+	RestResult<ElecRespose> elect(ElecRequest elecRequest);
+
+	/**
+	 * 获取学生选课结果
+	 * @param elecRequest
+	 * @return
+	 */
+	ElecRespose getElectResult(ElecRequest elecRequest);
 }

@@ -23,7 +23,7 @@ public abstract class AbstractMutualElecQueueComsumerService<T>
         // 启动
         starter.execute(() -> {
             Thread.currentThread()
-                .setName("elecConsume-" + Thread.currentThread().getName());
+                .setName("mutualElecConsume-" + Thread.currentThread().getName());
             while (true)
             {
                 try

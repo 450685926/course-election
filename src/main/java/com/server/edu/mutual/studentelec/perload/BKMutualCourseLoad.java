@@ -167,7 +167,11 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 						}
                 	}
                 	LOG.info("--------------teacherNameAndCode----------------:" + teacherNameAndCode);
-                	lesson.setTeacherNameAndCode(teacherNameAndCode.substring(0, teacherNameAndCode.length()-1));
+                	if (StringUtils.isNotBlank(teacherNameAndCode)) {
+                		lesson.setTeacherNameAndCode(teacherNameAndCode.substring(0, teacherNameAndCode.length()-1));
+					}else {
+						lesson.setTeacherNameAndCode("");
+					}
 				}
 
                 course.setCourse(lesson);
@@ -297,8 +301,6 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
                 String tName = names.get(i);
                 // 老师名称(老师编号)
                 sb.append(String.format("%s(%s) ", tName, tCode));
-                // 【修改问题单9599】 只展示老师名字
-                //  sb.append(tName);
             }
         }
         return sb.toString();
