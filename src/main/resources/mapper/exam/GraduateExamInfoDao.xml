@@ -735,4 +735,15 @@
         t1.ID_ = #{id} and t2.EXAM_SITUATION_ = 1 and t2.EXAM_INFO_ID_ =#{examInfoId}
         ORDER BY t3.COURSE_CODE_ asc ,t2.TEACHING_CLASS_CODE_ asc,t2.STUDENT_CODE_ asc
     </select>
+
+    <select id="findAllExamInfoIds" resultType="java.lang.Long" >
+        select EXAM_INFO_ID_ from graduate_exam_info_room_t
+        where EXAM_ROOM_ID_ in
+            (select EXAM_ROOM_ID_ from graduate_exam_info_room_t
+            where EXAM_INFO_ID_  in
+            <foreach collection="list" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            )
+    </select>
 </mapper>

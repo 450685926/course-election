@@ -150,4 +150,7 @@ public interface GraduateExamInfoDao extends Mapper<GraduateExamInfo> {
     List<GraduateExamInfoVo> editGraduateExamMakeUp(@Param("list") List<Long> examInfoIds);
 
     List<ExamStudent> listExamStusNoOrder(@Param("id") Long id,@Param("examInfoId") Long examInfoId);
+
+    /**根据examInfoId查询所有examInfoId*/
+    List<Long> findAllExamInfoIds(@Param("list") List<Long> ids);
 }
