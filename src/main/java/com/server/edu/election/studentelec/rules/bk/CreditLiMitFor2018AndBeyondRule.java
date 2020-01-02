@@ -79,25 +79,27 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 		List<BkPublicCourseVo> bkPublicCourse = ElecContextUtil.getBKPublicCourse();
 		Map<String, Double> collectMap = new HashMap<>();
 		Integer grade = studentInfo.getGrade();
-		List<BkPublicCourse> list = new ArrayList<>();
+		Set<BkPublicCourse> list = new HashSet<>();
 		if (CollectionUtil.isNotEmpty(bkPublicCourse)){
 			for (BkPublicCourseVo bkPublicCourseVo : bkPublicCourse) {
 				String grades = bkPublicCourseVo.getGrades();
 				if (compare(grade, grades)) {
-					list = bkPublicCourseVo.getList();
+					list.addAll(bkPublicCourseVo.getList());
 					if (CollectionUtil.isNotEmpty(list)){
-						List<PublicCourse> pList = new ArrayList<>();
+						Set<PublicCourse> pList = new HashSet<>();
 						for (BkPublicCourse publicCourse : list) {
 							if (CollectionUtil.isNotEmpty(publicCourse.getList())){
 								pList.addAll(publicCourse.getList());
 							}
 						}
-						collectMap = pList.stream().collect(Collectors.toMap(PublicCourse::getCourseCode, PublicCourse::getCreidits));
+						Map<String, Double> publicCourseMap = pList.stream().collect(Collectors.toMap(PublicCourse::getCourseCode, PublicCourse::getCreidits));
+						collectMap = publicCourseMap;
 					}
 					break;
 				}
 			}
 		}
+
 		//已选和已经完成的课程
 		List<String>  courses = new ArrayList<>();
 		if (CollectionUtil.isNotEmpty(selectedCourses)){
