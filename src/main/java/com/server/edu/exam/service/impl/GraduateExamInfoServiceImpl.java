@@ -122,9 +122,11 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         if (CollectionUtil.isEmpty(ids) || StringUtils.isBlank(type)) {
             throw new ParameterValidateException("入参有误");
         }
+        //如果是合考（就一起发布和撤回）
+        List<Long> allIds = examInfoDao.findAllExamInfoIds(ids);
         Example example = new Example(GraduateExamInfo.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andIn("id", ids);
+        criteria.andIn("id", allIds);
         GraduateExamInfo examInfo = new GraduateExamInfo();
         if (ApplyStatus.CONSTANTS_STRING.equals(type)) {
             examInfo.setExamStatus(ApplyStatus.CONSTANTS_INT);
