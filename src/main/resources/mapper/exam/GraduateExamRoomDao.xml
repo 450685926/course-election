@@ -81,7 +81,7 @@
   </update>
 
   <select id="getExamRoomCampus" resultType="com.server.edu.exam.dto.ExamRoomDto">
-    select t1.ROOM_NAME_ roomName,t3.COURSE_CODE_ courseCode,t4.NAME_ courseName,t3.CAMPUS_ campus
+    select t1.ROOM_NAME_ roomName,t3.COURSE_CODE_ courseCode,t4.NAME_ courseName,t3.CAMPUS_ campus,t3.EXAM_TIME_ examTime
     from graduate_exam_room_t t1
     left join graduate_exam_info_room_t t2 on t1.ID_ = t2.EXAM_ROOM_ID_
     left join graduate_exam_info_t t3 on t2.EXAM_INFO_ID_ = t3.ID_
