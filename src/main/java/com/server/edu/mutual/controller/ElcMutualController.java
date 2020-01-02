@@ -3,6 +3,8 @@ package com.server.edu.mutual.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,12 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.enums.UserTypeEnum;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
+import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.entity.ElectionRounds;
@@ -123,7 +127,6 @@ public class ElcMutualController {
         
         ElecContextMutualBk c =
             new ElecContextMutualBk(session.realUid(), round.getCalendarId());
-//        
 //        Set<SelectedCourse> courses = c.getSelectedCourses();
 //        courses.clear();
 //        courses.addAll(c.getSelectedMutualCourses());
@@ -152,5 +155,48 @@ public class ElcMutualController {
         }
         
         return RestResult.successData(teachClasss);
+    }
+    
+    /**
+     * 选课请求,选课时发送一次，此时应该返回ElecRespose.status=processing
+     */
+    @ApiOperation(value = "学生选课")
+    @PostMapping("/elect")
+    public RestResult<ElecRespose> elect(
+        @RequestBody @Valid ElecRequest elecRequest)
+    {
+        Session session = SessionUtils.getCurrentSession();
+        
+        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+        {
+            return RestResult.fail("elec.mustBeStu");
+        }
+        elecRequest.setChooseObj(ChooseObj.STU.type());
+        elecRequest.setStudentId(session.realUid());
+        elecRequest.setCreateBy(session.getUid());
+        elecRequest.setRequestIp(SessionUtils.getRequestIp());
+        elecRequest.setProjectId(session.getCurrentManageDptId());
+        
+        return mutualElecService.elect(elecRequest);
+    }
+    
+    /**
+     * 获取选课结果的请求 未完成时status为processing， 前端会定时执行请求直到status变为ready，此时应返回所有选课结果
+     */
+    @ApiOperation(value = "查询选课结果")
+    @PostMapping("/{roundId}/electRes")
+    public RestResult<ElecRespose> getElect(
+        @PathVariable("roundId") @NotNull Long roundId)
+    {
+        Session session = SessionUtils.getCurrentSession();
+        if (session.realType() != UserTypeEnum.STUDENT.getValue())
+        {
+            return RestResult.fail("elec.mustBeStu");
+        }
+        ElecRequest elecRequest = new ElecRequest();
+        elecRequest.setRoundId(roundId);
+        elecRequest.setStudentId(session.realUid());
+        ElecRespose response = mutualElecService.getElectResult(elecRequest);
+        return RestResult.successData(response);
     }
 }
