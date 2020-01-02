@@ -35,6 +35,8 @@ public class ElecRespose
 
     private  Integer turn;
 
+    private  Integer isDetainedStudent;
+
     public Integer getIsLimit() {
         return isLimit;
     }
@@ -127,5 +129,13 @@ public class ElecRespose
 
     public void setTurn(Integer turn) {
         this.turn = turn;
+    }
+
+    public Integer getIsDetainedStudent() {
+        return isDetainedStudent;
+    }
+
+    public void setIsDetainedStudent(Integer isDetainedStudent) {
+        this.isDetainedStudent = isDetainedStudent;
     }
 }
