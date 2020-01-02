@@ -92,8 +92,11 @@ public class CreditLiMitFor2018AndBeyondRule extends AbstractElecRuleExceutorBk
 								pList.addAll(publicCourse.getList());
 							}
 						}
-						Map<String, Double> publicCourseMap = pList.stream().collect(Collectors.toMap(PublicCourse::getCourseCode, PublicCourse::getCreidits));
-						collectMap = publicCourseMap;
+						for (PublicCourse publicCourse : pList) {
+							if (!collectMap.containsKey(publicCourse.getCourseCode())){
+								collectMap.put(publicCourse.getCourseCode(),publicCourse.getCreidits());
+							}
+						}
 					}
 					break;
 				}
