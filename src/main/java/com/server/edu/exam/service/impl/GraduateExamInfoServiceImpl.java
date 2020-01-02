@@ -124,6 +124,8 @@ public class GraduateExamInfoServiceImpl implements GraduateExamInfoService {
         }
         //如果是合考（就一起发布和撤回）
         List<Long> allIds = examInfoDao.findAllExamInfoIds(ids);
+        allIds.addAll(ids);
+        allIds = allIds.stream().distinct().collect(Collectors.toList());
         Example example = new Example(GraduateExamInfo.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andIn("id", allIds);

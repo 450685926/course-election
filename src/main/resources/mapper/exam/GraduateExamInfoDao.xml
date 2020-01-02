@@ -739,7 +739,7 @@
     <select id="findAllExamInfoIds" resultType="java.lang.Long" >
         select EXAM_INFO_ID_ from graduate_exam_info_room_t
         where EXAM_ROOM_ID_ in
-            (select EXAM_ROOM_ID_ from graduate_exam_info_room_t
+            (select DISTINCT EXAM_ROOM_ID_ from graduate_exam_info_room_t
             where EXAM_INFO_ID_  in
             <foreach collection="list" item="id" open="(" close=")" separator=",">
                 #{id}
