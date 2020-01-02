@@ -286,7 +286,8 @@
 		     class.MAN_ARRANGE_FLAG_ in(1,2,3) and
 		     course.CALENDAR_ID_ = #{calendarId} and
              course.TRAINING_LEVEL_ = #{trainingLevel}
-        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
+             and course.DELETE_STATUS_ = 0
+		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
             and course.PROJ_ID_ = #{projectId,jdbcType=VARCHAR} 
         </if>
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campu)">
