@@ -13,7 +13,7 @@ import org.springframework.data.redis.support.collections.RedisList;
 import org.springframework.stereotype.Service;
 
 import com.server.edu.election.studentelec.context.ElecRequest;
-import com.server.edu.election.studentelec.service.AbstractElecQueue;
+import com.server.edu.mutual.studentelec.service.AbstractMutualElecQueue;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
 import com.server.edu.mutual.studentelec.service.MutualElecQueueComsumerService;
 
@@ -22,7 +22,7 @@ import com.server.edu.mutual.studentelec.service.MutualElecQueueComsumerService;
  */
 @Service("mutualRedisQueue")
 @Primary
-public class MutualRedisQueueService extends AbstractElecQueue
+public class MutualRedisQueueService extends AbstractMutualElecQueue
     implements ElecMutualQueueService<ElecRequest>
 {
     protected Logger LOG = LoggerFactory.getLogger(getClass());
@@ -36,6 +36,7 @@ public class MutualRedisQueueService extends AbstractElecQueue
     @Override
     public boolean add(String group, ElecRequest data)
     {
+    	LOG.info("----------------------redis queue-------------------");
         RedisList<ElecRequest> queue = getQueue(group);
         return queue.add(data);
     }

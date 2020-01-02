@@ -1,23 +1,23 @@
 package com.server.edu.mutual.studentelec.service.impl;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
-import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
 import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
+import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
+import com.server.edu.util.CollectionUtil;
 
 @Service
 public class StudentMutualElecServiceImpl extends AbstractCacheService 
@@ -29,9 +29,6 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
     @Autowired
     private RoundDataProvider dataProvider;
 	
-    @Autowired
-    private ElecQueueService<ElecRequest> queueService;
-
     @Autowired
     private ElecMutualQueueService<ElecRequest> queueMutualService;
 	
@@ -66,7 +63,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             // 加入队列
             currentStatus = ElecStatus.Loading;
             ElecContextUtil.setElecStatus(calendarId, studentId, currentStatus);
-            if (!queueMutualService.add(QueueGroups.MUTUAL_STUDENT_LOADING, elecRequest))
+            if (!queueMutualService.add(MutualQueueGroups.MUTUAL_STUDENT_LOADING, elecRequest))
             {
                 currentStatus = ElecStatus.Init;
                 ElecContextUtil
@@ -76,6 +73,94 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
         }
         
         return RestResult.successData(new ElecRespose(currentStatus));
+	}
+
+	@Override
+	public RestResult<ElecRespose> elect(ElecRequest elecRequest) {
+        if (CollectionUtil.isEmpty(elecRequest.getElecClassList())
+                && CollectionUtil.isEmpty(elecRequest.getWithdrawClassList())){
+            return RestResult.fail("你没选择任何课程");
+        }
+        Long roundId = elecRequest.getRoundId();
+        String studentId = elecRequest.getStudentId();
+        String projectId = elecRequest.getProjectId();
+        Integer chooseObj = elecRequest.getChooseObj();
+        
+        // 研究生管理员代理选课
+//        if (!Constants.PROJ_UNGRADUATE.equals(projectId)
+//            && Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
+//        {
+//            calendarId = elecRequest.getCalendarId();
+//            elecRequest.setCalendarId(calendarId);
+//        }
+//        else
+//        {
+            ElectionRounds round = dataProvider.getRound(roundId);
+            Assert.notNull(round, "elec.roundCourseExistTip");
+            Long calendarId = round.getCalendarId();
+            elecRequest.setCalendarId(calendarId);
+//        }
+        
+        ElecStatus currentStatus =
+            ElecContextUtil.getElecStatus(calendarId, studentId);
+        
+        LOG.info("-----------66666------currentStatus:"+ currentStatus + "--------------------");
+        
+        if (ElecStatus.Ready.equals(currentStatus)
+            && ElecContextUtil.tryLock(calendarId, studentId))
+        {
+            try
+            {
+                ElecContextUtil.saveElecResponse(studentId, new ElecRespose());
+                // 加入选课队列
+                LOG.info("-----------77777------ElecRespose:"+ ElecContextUtil.getElecRespose(studentId).getStatus() + "--------------------");
+                
+                if (queueMutualService.add(MutualQueueGroups.MUTUAL_STUDENT_ELEC, elecRequest))
+                {
+                    ElecContextUtil.setElecStatus(calendarId,
+                        studentId,
+                        ElecStatus.Processing);
+                    currentStatus = ElecStatus.Processing;
+                }
+                else
+                {
+                    return RestResult.fail("请稍后再试");
+                }
+            }
+            finally
+            {
+                ElecContextUtil.unlock(calendarId, studentId);
+            }
+        }
+        return RestResult.successData(new ElecRespose(currentStatus));
+	}
+
+	@Override
+	public ElecRespose getElectResult(ElecRequest elecRequest) {
+        Long roundId = elecRequest.getRoundId();
+        String studentId = elecRequest.getStudentId();
+        Long calendarId = elecRequest.getCalendarId();
+        
+        // 本科生/研究生教务员
+        if (roundId != null) {
+            ElectionRounds round = dataProvider.getRound(roundId);
+            Assert.notNull(round, "elec.roundCourseExistTip");
+            calendarId = round.getCalendarId();
+        }
+        
+        ElecRespose response =
+            ElecContextUtil.getElecRespose(studentId);
+        ElecStatus status =
+            ElecContextUtil.getElecStatus(calendarId, studentId);
+        if (response == null)
+        {
+            response = new ElecRespose(status);
+        }
+        else
+        {
+            response.setStatus(status);
+        }
+        return response;
 	}
 
 }
