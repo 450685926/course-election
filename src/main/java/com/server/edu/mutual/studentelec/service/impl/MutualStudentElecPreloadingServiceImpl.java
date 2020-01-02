@@ -4,25 +4,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
-import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.studentelec.perload.MutualDataProLoad;
 import com.server.edu.mutual.studentelec.service.AbstractMutualElecQueueComsumerService;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
 import com.server.edu.mutual.studentelec.service.MutualStudentElecPreloadingService;
+import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
 
 /**
  * 本研互选学生选课登录时的准备工作
@@ -42,7 +40,7 @@ public class MutualStudentElecPreloadingServiceImpl
     public MutualStudentElecPreloadingServiceImpl(
     	ElecMutualQueueService<ElecRequest> elecQueueService)
     {
-        super(QueueGroups.MUTUAL_STUDENT_LOADING, elecQueueService);
+        super(MutualQueueGroups.MUTUAL_STUDENT_LOADING, elecQueueService);
     }
     
     @SuppressWarnings({"rawtypes", "unchecked"})
