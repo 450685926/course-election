@@ -763,16 +763,17 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
             courseName = examRoomDto.getCourseName();
             String s = examRoomDto.getCampus();
             String roomName = examRoomDto.getRoomName();
+            String examTimeStr = examRoomDto.getExamTime();
             String campus = dictionaryService.query("X_XQ", s, SessionUtils.getLang());
             for (ExamRoomDto roomDto : examRoomNumber) {
-                stringBuilder.append(String.format("%s(%s)_", roomDto.getCourseName().replaceAll("/|:",""),roomDto.getCourseCode()));
+                stringBuilder.append(String.format("%s(%s)_", roomDto.getCourseName(),roomDto.getCourseCode()));
             }
-            stringBuilder.append(campus).append("_").append(roomName).append(".xls");
+            stringBuilder.append(campus).append("_").append(roomName).append("_").append(examTimeStr).append(".xls");
         }
 
         FileUtil.mkdirs(cacheDirectory);
         FileUtil.deleteFile(cacheDirectory, 2);
-        String fileName =  stringBuilder.toString();
+        String fileName =  stringBuilder.toString().replaceAll("/|:","");
         String path = cacheDirectory + fileName;
         String title = "同济大学" + exportExamInfoDto.getCalendarName() + "研究生课程考试名单";
         Map<String,Object> myMap = new HashMap<>();
