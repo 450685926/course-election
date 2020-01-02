@@ -18,6 +18,7 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.bk.*;
 import com.server.edu.election.studentelec.preload.BKCourseGradeLoad;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
+import com.server.edu.election.studentelec.utils.*;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElectionRuleVo;
@@ -47,10 +48,6 @@ import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.service.ElecQueueService;
 import com.server.edu.election.studentelec.service.StudentElecService;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
-import com.server.edu.election.studentelec.utils.ElecContextUtil;
-import com.server.edu.election.studentelec.utils.ElecStatus;
-import com.server.edu.election.studentelec.utils.Keys;
-import com.server.edu.election.studentelec.utils.QueueGroups;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.async.AsyncExecuter;
 import com.server.edu.util.async.AsyncProcessUtil;
@@ -111,6 +108,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
     
     @Autowired
     private ElectionConstantsDao electionConstantsDao;
+
+    @Autowired
+    private TeachingClassDao tClassDao;
 
     @Override
     public RestResult<ElecRespose> loading(ElecRequest elecRequest)
@@ -382,11 +382,36 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 }
             }
         }
+        //查询学生是否留降转学生
+        Integer isDetainedStudent = 0;
+        //获取选课学期是否为当前学期
+        Long nowCalendarId = BaseresServiceInvoker.getCurrentCalendar();
+        //判断学生学籍变动范围
+        Long oldCalendarId = calendarId;
+        if (calendarId > nowCalendarId){
+            oldCalendarId = nowCalendarId;
+        }
+        SchoolCalendarVo calendarVo1 = SchoolCalendarCacheUtil.getCalendar(oldCalendarId);
+        SchoolCalendarVo calendarVo2 = SchoolCalendarCacheUtil.getCalendar(oldCalendarId - 1);
+        Integer year1 = calendarVo1.getYear();
+        Integer term1 = calendarVo1.getTerm();
+        Integer year2 = calendarVo2.getYear();
+        Integer term2 = calendarVo2.getTerm();
+        //查看学生是否有学籍异动信息
+
+        Integer count1 = tClassDao.getStudentAbnormalCountNew(studentId, year1, term1);
+
+        Integer count2 = tClassDao.getStudentAbnormalCountNew(studentId,year2,term2);
+        if (count1.intValue() > 0 || count2.intValue() > 0){
+            isDetainedStudent = 1;
+        }
+
         ElecRespose respose = context.getRespose();
         respose.setTurn(round.getTurn());
         respose.setIsPlan(isPlan);
         respose.setIsLimit(isLimit);
         respose.setSemester(semester);
+        respose.setIsDetainedStudent(isDetainedStudent);
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {

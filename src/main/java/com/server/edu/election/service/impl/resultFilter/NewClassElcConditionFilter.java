@@ -79,6 +79,7 @@ public class NewClassElcConditionFilter {
             Map<Integer, List<Student>> collect = stuList.stream()
                 .collect(Collectors.groupingBy(Student::getSex));
             String isDivsex = restrictAttr.getIsDivsex();
+            isDivsex = StringUtils.isEmpty(isDivsex) ? "0" : isDivsex;
             Integer numberMale = restrictAttr.getNumberMale();
             List<Student> newStudents = new ArrayList<>();
             //3. 删除超过人数的男生或女生
