@@ -190,6 +190,9 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
 
     TeachingClassVo getMaleToFemaleRatio(ElcResultQuery elcResultQuery);
 
+    TeachingClassVo getMaleToFemale(@Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
+
+
     Integer getStudentAbnormalCount(@Param("studentId")String studentId,@Param("beginDay")Long beginDay, @Param("endDay")Long endDay);
 
     Integer getStudentAbnormalCountNew(@Param("studentId")String studentId, @Param("year")Integer year,@Param("term") Integer term);

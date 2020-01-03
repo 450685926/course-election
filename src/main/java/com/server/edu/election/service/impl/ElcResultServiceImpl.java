@@ -156,6 +156,9 @@ public class ElcResultServiceImpl implements ElcResultService
     
     @Autowired
     private ElecRoundsDao electionRoundsDao;
+
+    @Autowired
+    private TeachingClassDao tClassDao;
     
     @Autowired
     private SqlSessionFactory factory;
@@ -1633,7 +1636,18 @@ public class ElcResultServiceImpl implements ElcResultService
         			if (CollectionUtil.isEmpty(classTakes)){
         			    continue;
                     }
-        			String course = classTakes.get(0).getCourseCode();
+                    //这个教学班第一轮选课的学生名单
+                    List<ElcCourseTakeVo> studentNum4FirstTurn = courseTakeDao.getStudentNum4FirstTurn(teachingClassId, Constants.ONE, TableIndexUtil.getIndex(round.getCalendarId()), round.getCalendarId());
+
+                    //判断轮次，重新构造选课上线
+                    if(round.getTurn() == Constants.TOW){
+                        if (CollectionUtil.isNotEmpty(studentNum4FirstTurn)){
+                            teachingClass.setNumber(teachingClass.getNumber() - studentNum4FirstTurn.size());
+                        }
+                    }
+
+
+                    String course = classTakes.get(0).getCourseCode();
         			autoRemoveDto.setTakes(classTakes);
         			autoRemoveDto.setTeachingClass(teachingClass);
         			autoRemoveDto.setInvincibleStdIds(invincibleStdIds);
@@ -1643,12 +1657,65 @@ public class ElcResultServiceImpl implements ElcResultService
         	                .collect(toSet());
         			autoRemoveDto.setAffinityCoursesStdSet(affinityCoursesStdSet);
         			List<SuggestProfessionDto> suggestProfessionList = allSuggestProfessionList.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).collect(Collectors.toList());
+                    Map<String, Map<String, List<ElcCourseTakeVo>>> professionMap = new HashMap<>();
+                    if (CollectionUtil.isNotEmpty(studentNum4FirstTurn)){
+                        professionMap = studentNum4FirstTurn.stream().collect(Collectors.groupingBy(ElcCourseTakeVo::getProfession, Collectors.groupingBy(ElcCourseTakeVo::getGrade)));
+                    }
+                    if(round.getTurn() == Constants.TOW && CollectionUtil.isNotEmpty(suggestProfessionList) && professionMap != null){
+                        //统计第一轮各建议专业选课人数
+                        for (SuggestProfessionDto suggestProfessionDto : suggestProfessionList) {
+                            //查询该专业第一轮选课人数
+                            Map<String, List<ElcCourseTakeVo>> elcCourseTakeVos = professionMap.get(suggestProfessionDto.getProfession());
+                            if (elcCourseTakeVos != null  && suggestProfessionDto.getNumber() != null){
+                                List<ElcCourseTakeVo> elcCourseTakeVos1 = elcCourseTakeVos.get(suggestProfessionDto.getGrade());
+                                if (CollectionUtil.isNotEmpty(elcCourseTakeVos1)){
+                                    suggestProfessionDto.setNumber(suggestProfessionDto.getNumber() - elcCourseTakeVos1.size());
+
+                                }
+                            }
+                        }
+                    }
         			autoRemoveDto.setSuggestProfessionList(suggestProfessionList);
         			List<SuggestProfessionDto> restrictProfessionList = allRestrictProfessionList.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).collect(Collectors.toList());
+                    if(round.getTurn() == Constants.TOW  && CollectionUtil.isNotEmpty(restrictProfessionList) && professionMap != null){
+                        //统计第一轮各限制专业选课人数
+                        //统计第一轮各建议专业选课人数
+                        for (SuggestProfessionDto  restrictProfessionDto : restrictProfessionList) {
+                            //查询该专业第一轮选课人数
+                            Map<String, List<ElcCourseTakeVo>> elcCourseTakeVos = professionMap.get(restrictProfessionDto.getProfession());
+                            if (elcCourseTakeVos != null  && restrictProfessionDto.getNumber() != null){
+                                List<ElcCourseTakeVo> elcCourseTakeVos1 = elcCourseTakeVos.get(restrictProfessionDto.getGrade());
+                                if (CollectionUtil.isNotEmpty(elcCourseTakeVos1)){
+                                    restrictProfessionDto.setNumber(restrictProfessionDto.getNumber() - elcCourseTakeVos1.size());
+
+                                }
+                            }
+                        }
+
+                    }
         			autoRemoveDto.setRestrictProfessionList(restrictProfessionList);
         			List<String> restrictStus = allRestrictStus.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).map(RestrictStudent ::getStudentId).collect(Collectors.toList());
         			autoRemoveDto.setRestrictStus(restrictStus);
         			TeachingClassElectiveRestrictAttr classAttrList =attrList.stream().filter(c->teachingClassId.equals(c.getTeachingClassId())).findFirst().orElse(null);
+                    if(round.getTurn() == Constants.TOW && classAttrList != null){
+                        //统计第一轮男女人数
+                        Map<String, List<ElcCourseTakeVo>> sexMap = new HashMap<>();
+                        if (CollectionUtil.isNotEmpty(studentNum4FirstTurn)){
+                            sexMap = studentNum4FirstTurn.stream().collect(Collectors.groupingBy(ElcCourseTakeVo::getSex));
+                        }
+                        if (classAttrList.getNumberFemale() != null && sexMap != null){
+                            List<ElcCourseTakeVo> elcCourseTakeVos = sexMap.get(2);
+                            if (CollectionUtil.isNotEmpty(elcCourseTakeVos)){
+                                classAttrList.setNumberFemale(classAttrList.getNumberFemale() - elcCourseTakeVos.size());
+                            }
+                        }
+                        if (classAttrList.getNumberMale() != null  && sexMap != null){
+                            List<ElcCourseTakeVo> elcCourseTakeVos = sexMap.get(1);
+                            if (CollectionUtil.isNotEmpty(elcCourseTakeVos)){
+                                classAttrList.setNumberMale(classAttrList.getNumberMale() - elcCourseTakeVos.size());
+                            }
+                        }
+                    }
         			autoRemoveDto.setClassAttrList(classAttrList);
         			newAutoRemove(autoRemoveDto,rebuildCourseRecycles,withdrawTakes,classList,allStudents);
         			num++;

@@ -88,7 +88,7 @@ public class NewClassElcConditionFilter {
             if (CollectionUtil.isNotEmpty(maleStus))
             {
                 if (StringUtils.containsAny(isDivsex, '0', '1')
-                    && null != numberMale && maleStus.size() > numberMale)
+                    && null != numberMale && 0 != numberMale && maleStus.size() > numberMale)
                 {
                     GradAndPreFilter
                         .randomRemove(removeStus, numberMale, maleStus);// 删除超过的男生
@@ -100,7 +100,7 @@ public class NewClassElcConditionFilter {
             if (CollectionUtil.isNotEmpty(femaleStus))
             {
                 if (StringUtils.containsAny(isDivsex, '0', '2')
-                    && null != numberFemale && femaleStus.size() > numberFemale)
+                    && null != numberFemale  && 0 != numberFemale && femaleStus.size() > numberFemale)
                 {
                     GradAndPreFilter
                         .randomRemove(removeStus, numberMale, femaleStus);// 删除超过的女生
