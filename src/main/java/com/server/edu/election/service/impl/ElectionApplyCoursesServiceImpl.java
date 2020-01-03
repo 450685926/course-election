@@ -48,6 +48,12 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	@Override
 	public PageInfo<ElectionApplyCoursesVo> applyCourseList(PageCondition<ElectionApplyCoursesDto> condition){
 		ElectionApplyCoursesDto dto = condition.getCondition();
+		Integer mode = dto.getMode();
+		if (Constants.ENGLISH_MODEL.equals(mode)) {
+			dto.setCollege("000268");
+		} else if (Constants.PE_MODEL.equals(mode)) {
+			dto.setCollege("000293");
+		}
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElectionApplyCoursesVo> list = electionApplyCoursesDao.selectApplyCourse(dto);
 		PageInfo<ElectionApplyCoursesVo> pageInfo = new PageInfo<>(list);
