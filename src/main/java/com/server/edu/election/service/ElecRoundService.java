@@ -73,4 +73,11 @@ public interface ElecRoundService
      * @return
      */
     ElectionRoundsDto getCalendarIdByRoundId(Long roundId);
+
+    /**
+     * 获取所有的轮次
+     * @param rounds
+     * @return
+     */
+    List<ElectionRounds> getAllList(ElectionRounds rounds);
 }

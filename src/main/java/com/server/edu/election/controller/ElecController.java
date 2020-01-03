@@ -7,6 +7,7 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -52,6 +53,9 @@ public class ElecController
     private StudentElecService elecService;
 
     @Autowired
+    private ElecRoundService roundService;
+
+    @Autowired
     private RoundDataProvider dataProvider;
 
     @ApiOperation(value = "获取生效的轮次")
@@ -81,7 +85,26 @@ public class ElecController
                 data.add(vo);
             }
         }
-        
+        if(CollectionUtil.isEmpty(data)){
+            ElectionRounds rounds = new ElectionRounds();
+            rounds.setElectionObj(Constants.STU);
+            rounds.setBeginTime(date);
+            rounds.setProjectId(projectId);
+            List<ElectionRounds> roundsList = roundService.getAllList(rounds);
+            for (ElectionRounds electionRounds : roundsList) {
+                Long roundId = electionRounds.getId();
+                if (dataProvider
+                        .containsStuCondition(roundId, studentId, projectId))
+                {
+                    ElectionRoundsVo vo = new ElectionRoundsVo(electionRounds);
+                    List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+                    vo.setRuleVos(rules);
+                    data.add(vo);
+                }
+            }
+
+        }
+
         return RestResult.successData(data);
     }
     
