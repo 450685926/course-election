@@ -87,11 +87,17 @@ public class NewClassElcConditionFilter {
             List<Student> maleStus = collect.get(1);
             if (CollectionUtil.isNotEmpty(maleStus))
             {
-                if (StringUtils.containsAny(isDivsex, '0', '1')
+                if (StringUtils.containsAny(isDivsex, '0')
                     && null != numberMale && 0 != numberMale && maleStus.size() > numberMale)
                 {
                     GradAndPreFilter
                         .randomRemove(removeStus, numberMale, maleStus);// 删除超过的男生
+                }
+                if (StringUtils.containsAny(isDivsex, '2')
+                        && null != numberMale && 0 != numberMale )
+                {
+                    GradAndPreFilter
+                            .randomRemove(removeStus, numberMale, maleStus);// 删除超过的男生
                 }
                 newStudents.addAll(maleStus);
             }
@@ -99,8 +105,14 @@ public class NewClassElcConditionFilter {
             List<Student> femaleStus = collect.get(2);
             if (CollectionUtil.isNotEmpty(femaleStus))
             {
-                if (StringUtils.containsAny(isDivsex, '0', '2')
+                if (StringUtils.containsAny(isDivsex, '0')
                     && null != numberFemale  && 0 != numberFemale && femaleStus.size() > numberFemale)
+                {
+                    GradAndPreFilter
+                        .randomRemove(removeStus, numberMale, femaleStus);// 删除超过的女生
+                }
+                if (StringUtils.containsAny(isDivsex, '1')
+                    && null != numberFemale  && 0 != numberFemale)
                 {
                     GradAndPreFilter
                         .randomRemove(removeStus, numberMale, femaleStus);// 删除超过的女生
