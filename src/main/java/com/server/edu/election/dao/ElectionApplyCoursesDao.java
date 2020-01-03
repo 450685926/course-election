@@ -17,5 +17,7 @@ public interface ElectionApplyCoursesDao extends Mapper<ElectionApplyCourses>,My
 
 	Page<Course> getApplyCourse2Add(CourseDto course);
 
+	Page<Course> getApplyCourse3Add(CourseDto course);
+
 	Page<Course> getApplyCourse4Add(CourseDto course);
 }

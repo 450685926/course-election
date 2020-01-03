@@ -18,7 +18,17 @@ public class CourseDto extends Course
     private Long calendarId;
     
     private List<String> codes;
-    
+
+    private String faculty;
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
+
     public String getProjectId()
     {
         return projectId;

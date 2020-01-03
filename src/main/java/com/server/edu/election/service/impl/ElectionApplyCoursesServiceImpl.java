@@ -99,38 +99,40 @@ public class ElectionApplyCoursesServiceImpl implements ElectionApplyCoursesServ
 	public PageResult<Course> courseList1(PageCondition<CourseDto> condition) {
 		CourseDto dto = condition.getCondition();
 		Integer model = dto.getMode();
-		CourseDto course = new CourseDto();
-		
-		course.setStatus(Constants.THREE+"");
-		course.setKeyword(dto.getKeyword());
+		dto.setStatus(Constants.THREE+"");
+		dto.setKeyword(dto.getKeyword());
 		Page<Course> page = null;
 		if (Constants.ENGLISH_MODEL.equals(model)) {
-			String englishCourses = constantsDao.findEnglishCourses();
-			if(StringUtils.isBlank(englishCourses)) {
-			    return new PageResult<>();
-			}
-			String[] split = englishCourses.split(",");
-			course.setCodes( Arrays.asList(split));
+//			String englishCourses = constantsDao.findEnglishCourses();
+//			if(StringUtils.isBlank(englishCourses)) {
+//			    return new PageResult<>();
+//			}
+//			String[] split = englishCourses.split(",");
+//			course.setCodes( Arrays.asList(split));
+//			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+//			page = electionApplyCoursesDao.getApplyCourse2Add(course);
+			dto.setFaculty("000268");
 			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-			page = electionApplyCoursesDao.getApplyCourse2Add(course);
+			page = electionApplyCoursesDao.getApplyCourse3Add(dto);
 		}else if (Constants.PE_MODEL.equals(model)){
-			String PECourses = constantsDao.findPECourses();
-			if(StringUtils.isBlank(PECourses)) {
-                return new PageResult<>();
-            }
-			String[] split = PECourses.split(",");
-			course.setCodes( Arrays.asList(split));
+//			String PECourses = constantsDao.findPECourses();
+//			if(StringUtils.isBlank(PECourses)) {
+//                return new PageResult<>();
+//            }
+//			String[] split = PECourses.split(",");
+//			course.setCodes( Arrays.asList(split));
+			dto.setFaculty("000293");
 			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-			page = electionApplyCoursesDao.getApplyCourse2Add(course);
+			page = electionApplyCoursesDao.getApplyCourse3Add(dto);
 		}else{
 			//查找申请列表中已经存在的课程，并排除掉
-			ElectionApplyCoursesDto electionApplyCoursesDto = new ElectionApplyCoursesDto();
-			electionApplyCoursesDto.setCalendarId(dto.getCalendarId());
-			List<ElectionApplyCoursesVo> selectApplyCourse = electionApplyCoursesDao.selectApplyCourse(electionApplyCoursesDto);
-			List<String> code = selectApplyCourse.stream().map(ElectionApplyCoursesVo::getCode).collect(Collectors.toList());
-			course.setCodes(code);
+//			ElectionApplyCoursesDto electionApplyCoursesDto = new ElectionApplyCoursesDto();
+//			electionApplyCoursesDto.setCalendarId(dto.getCalendarId());
+//			List<ElectionApplyCoursesVo> selectApplyCourse = electionApplyCoursesDao.selectApplyCourse(electionApplyCoursesDto);
+//			List<String> code = selectApplyCourse.stream().map(ElectionApplyCoursesVo::getCode).collect(Collectors.toList());
+//			course.setCodes(code);
 			PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-			page = electionApplyCoursesDao.getApplyCourse4Add(course);
+			page = electionApplyCoursesDao.getApplyCourse3Add(dto);
 		}
 		PageResult<Course> pageInfo = new PageResult<>(page);
 		return pageInfo;
