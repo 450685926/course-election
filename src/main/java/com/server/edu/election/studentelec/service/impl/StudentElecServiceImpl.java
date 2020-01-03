@@ -175,6 +175,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
 //            }
 //            return RestResult.successData(respose);
             ElectionRounds round = dataProvider.getRound(roundId);
+            if(round ==null) {
+            	round = roundDao.selectByPrimaryKey(roundId);
+            }
             Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();
             elecRequest.setCalendarId(calendarId);
@@ -225,11 +228,13 @@ public class StudentElecServiceImpl extends AbstractCacheService
         else
         {
             ElectionRounds round = dataProvider.getRound(roundId);
+            if(round ==null) {
+            	round = roundDao.selectByPrimaryKey(roundId);
+            }
             Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();
             elecRequest.setCalendarId(calendarId);
         }
-        
         ElecStatus currentStatus =
             ElecContextUtil.getElecStatus(calendarId, studentId);
         if (ElecStatus.Ready.equals(currentStatus)
@@ -269,6 +274,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
 			throw new ParameterValidateException("学生学号不能为空"); 
         }
         ElectionRounds round = dataProvider.getRound(roundId);
+        if(round ==null) {
+        	round = roundDao.selectByPrimaryKey(roundId);
+        }
         Assert.notNull(round, "elec.roundCourseExistTip");
         Long calendarId = round.getCalendarId();
         elecRequest.setCalendarId(calendarId);
@@ -437,6 +445,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
         // 本科生/研究生教务员
         if (roundId != null) {
             ElectionRounds round = dataProvider.getRound(roundId);
+            if(round ==null) {
+            	round = roundDao.selectByPrimaryKey(roundId);
+            }
             Assert.notNull(round, "elec.roundCourseExistTip");
             calendarId = round.getCalendarId();
         }
