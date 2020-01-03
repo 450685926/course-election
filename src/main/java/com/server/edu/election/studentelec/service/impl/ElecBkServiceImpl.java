@@ -33,6 +33,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.service.ElcNumberSetService;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -95,6 +96,9 @@ public class ElecBkServiceImpl implements ElecBkService
     
     @Autowired
     private TeachClassCacheService teachClassCacheService;
+    
+	@Autowired
+	private ElcNumberSetService elcNumberSetService;
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -609,8 +613,13 @@ public class ElecBkServiceImpl implements ElecBkService
             {
                 dataProvider.decrElcNumber(teachClassId);
             }
-            if (round.getTurn() == Constants.THIRD_TURN
-                || round.getTurn() == Constants.FOURTH_TURN)
+        	Integer status = 0;
+        	ElcNumberSet elcNumberSet = elcNumberSetService.getElcNumberSetInfo(round.getCalendarId());
+        	if(elcNumberSet !=null) {
+        		status = elcNumberSet.getStatus();
+        	}
+            if ((round.getTurn() == Constants.THIRD_TURN
+                || round.getTurn() == Constants.FOURTH_TURN) && Constants.FIRST.equals(status) )
             {
             	count= classDao.increDrawNumber(teachClassId);
             	 if (count > 0)
