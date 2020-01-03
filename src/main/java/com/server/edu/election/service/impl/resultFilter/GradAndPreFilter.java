@@ -168,7 +168,7 @@ public class GradAndPreFilter
         Integer limitNumber, List<Student> stuList)
     {
         //随机删除看过容量的学生
-        while (stuList.size() > limitNumber)
+        while (stuList.size() > 0 && stuList.size() > limitNumber)
         {
             int i = RandomUtils.nextInt(stuList.size());
             Student stu = stuList.get(i);

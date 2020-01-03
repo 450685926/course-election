@@ -353,4 +353,7 @@ public interface ElcCourseTakeDao
     
     List<ElcCourseTake> selectAllTakes(@Param("calendarId") Long calendarId,@Param("index") Integer index);
 
+    int getNumByProfession(@Param("profession")String profession, @Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
+
+    List<ElcCourseTakeVo> getStudentNum4FirstTurn( @Param("teachingClassId")Long teachingClassId, @Param("turn")Integer turn,@Param("index")int index,@Param("calendarId")Long calendarId);
 }
