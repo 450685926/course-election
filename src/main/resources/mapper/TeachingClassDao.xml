@@ -938,4 +938,10 @@
         AND TEACHING_CLASS_ID_ = #{teachClassId}
         and TURN_ = 1
     </select>
+    <select id="getMaleToFemale" parameterType="com.server.edu.election.query.ElcResultQuery" resultMap="TeachingClassVoMap">
+      select sum((case t2.SEX_ when 1 then 1 end)) NUMBER_MALE_,
+        sum((case t2.SEX_ when 2 then 1 end)) NUMBER_FEMALE_ from elc_course_takes_t_${index} t1
+         JOIN student_t t2 on t1.STUDENT_ID_=t2.STUDENT_CODE_
+        where t1.CALENDAR_ID_ = #{calendarId} AND t1.TURN_ = #{turn} and t1.TEACHING_CLASS_ID_ = #{teachingClassId}
+    </select>
 </mapper>
