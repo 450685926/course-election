@@ -318,7 +318,7 @@
   </select>
 
   <select id="listApplyCourseListMakeUp" parameterType="com.server.edu.exam.dto.SelectDto" resultType="com.server.edu.exam.dto.SelectDto">
-    select t2.CODE_ courseCode,t2.NAME_ courseName
+    select DISTINCT t2.CODE_ courseCode,t2.NAME_ courseName
     from score_student_result_t t1
     left join course_t t2 on t1.COURSE_CODE_ = t2.CODE_
     <where>
