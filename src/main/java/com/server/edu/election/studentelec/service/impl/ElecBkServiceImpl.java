@@ -564,7 +564,7 @@ public class ElecBkServiceImpl implements ElecBkService
                 if (count == 0)
                 {
                     respose.getFailedReasons()
-                        .put(teachClassId.toString(),
+                        .put(TeachClassCode + courseName,
                             I18nUtil.getMsg("ruleCheck.limitCount"));
                     return;
                 }
