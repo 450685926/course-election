@@ -143,7 +143,9 @@ public class TeacherLessonTableServiceServiceImpl
         Map<String, TeachingClassTeacherVo> map = teachers.stream().collect(Collectors.toMap(TeachingClassTeacherVo::getTeacherCode, s -> s));
         for (ClassCodeToTeacher codeToTeacher : teacherTimeTable) {
             TeachingClassTeacherVo teachingClassTeacherVo = map.get(codeToTeacher.getTeacherCode());
-            codeToTeacher.setSex(teachingClassTeacherVo.getSex());
+            if (teachingClassTeacherVo != null){
+                codeToTeacher.setSex(teachingClassTeacherVo.getSex());
+            }
 //            codeToTeacher.setFaculty(teachingClassTeacherVo.getFaculty());
         }
         return new PageResult<ClassCodeToTeacher>(teacherTimeTable);
