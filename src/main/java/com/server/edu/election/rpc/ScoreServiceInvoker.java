@@ -69,7 +69,7 @@ public class ScoreServiceInvoker {
         @SuppressWarnings("unchecked")
         RestResult<StudentScore> restResult =
                 ServicePathEnum.SCORESERVICE.getForObject(
-                        "/studentScoreCount/findViolationStu/?studentCode={studentCode}&courseCode={courseCode}&calendarId={calendarId}",
+                        "/studentScoreCount/findViolationStu?studentCode={studentCode}&courseCode={courseCode}&calendarId={calendarId}",
                         RestResult.class,
                         studentCode,courseCode,calendarId);
 
