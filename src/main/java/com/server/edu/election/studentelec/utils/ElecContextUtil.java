@@ -211,7 +211,7 @@ public class ElecContextUtil
             getRedisTemplate().opsForHash();
         String key = getRedisKey();
         ops.putAll(key, this.cacheData);
-        getRedisTemplate().expire(key, 1, TimeUnit.DAYS);
+        getRedisTemplate().expire(key, 15, TimeUnit.DAYS);
     }
     
     public StudentInfoCache getStudentInfo()
