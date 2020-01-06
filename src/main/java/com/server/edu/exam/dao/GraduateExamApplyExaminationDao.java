@@ -30,4 +30,7 @@ public interface GraduateExamApplyExaminationDao extends Mapper<GraduateExamAppl
 
     /**查询补缓考学生所有课程*/
     Page<MyGraduateExam> listPassCourse(MyGraduateExam condition);
+
+    /**查询补缓考学生所有课程*/
+    int findMakeUpCourse(ExamStudentAddDto condition);
 }
