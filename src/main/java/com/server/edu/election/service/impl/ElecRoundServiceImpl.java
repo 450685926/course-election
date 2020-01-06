@@ -210,4 +210,14 @@ public class ElecRoundServiceImpl implements ElecRoundService
         ElectionRoundsDto round = roundsDao.getOne(roundId);
         return round;
     }
+
+    @Override
+    public List<ElectionRounds> getAllList(ElectionRounds rounds) {
+        Example example = new Example(ElectionRounds.class);
+        example.createCriteria().andEqualTo("projectId",rounds.getProjectId())
+        .andEqualTo("electionObj",rounds.getElectionObj()).andLessThan("beginTime",rounds.getBeginTime())
+        .andGreaterThan("endTime",rounds.getBeginTime()).andEqualTo("openFlag",1).andEqualTo("deleteStatus",0);
+        List<ElectionRounds> roundsList = roundsDao.selectByExample(example);
+        return roundsList;
+    }
 }
