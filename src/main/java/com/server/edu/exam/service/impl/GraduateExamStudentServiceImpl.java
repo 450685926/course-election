@@ -239,6 +239,11 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
             if(addDto == null){
                 throw new ParameterValidateException("该学生没有修读这个课程，不能添加应考学生");
             }
+            //查询是否没有排考，但是申请了缓考
+            i = applyExaminationDao.findMakeUpCourse(condition);
+            if(i > 0){
+                throw new ParameterValidateException("该学生已经申请缓考，不能再次添加应考学生");
+            }
         }else{
             //查询该学生是课程补缓考审核通过
             addDto = applyExaminationDao.findStudentMakeUp(condition);

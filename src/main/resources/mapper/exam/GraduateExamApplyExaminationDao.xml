@@ -282,4 +282,10 @@
           t1.EXAM_CALENDAR_ID_ = #{calendarId}
       AND t1.STUDENT_CODE_ = #{studentCode} and t1.APPLY_STATUS_ = 4
   </select>
+
+  <select id="findMakeUpCourse" parameterType="com.server.edu.exam.dto.ExamStudentAddDto" resultType="int">
+    select COUNT(ID_) from graduate_exam_apply_examination_t t1
+    where t1.CALENDAR_ID_ = #{calendarId} and t1.STUDENT_CODE_ = #{studentCode} and t1.APPLY_STATUS_ = 4
+    and t1.COURSE_CODE_ = #{courseCode} and t1.APPLY_TYPE_ = 2
+  </select>
 </mapper>
