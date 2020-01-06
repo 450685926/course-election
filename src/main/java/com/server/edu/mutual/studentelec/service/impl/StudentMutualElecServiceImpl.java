@@ -1,19 +1,32 @@
 package com.server.edu.mutual.studentelec.service.impl;
 
 
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.Assert;
+import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
+import com.server.edu.mutual.service.ElcMutualRoundCourseService;
+import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
 import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
 import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
@@ -31,6 +44,9 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 	
     @Autowired
     private ElecMutualQueueService<ElecRequest> queueMutualService;
+    
+    @Autowired
+    private ElcMutualRoundCourseService elcMutualRoundCourseServiceImpl;
 	
 	@Override
 	public RestResult<ElecRespose> loading(ElecRequest elecRequest) {
@@ -161,6 +177,39 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             response.setStatus(status);
         }
         return response;
+	}
+
+	@Override
+	public ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId) {
+		Set<SelectedCourse> optionalCourses = c.getOptionalCourses();
+		
+		Set<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
+		Set<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
+		
+		// 获取轮次可选的互选课程
+		PageCondition<ElecRoundCourseQuery> dto = new PageCondition<ElecRoundCourseQuery>();
+		ElecRoundCourseQuery query = new ElecRoundCourseQuery();
+		query.setCalendarId(calendarId);
+		query.setMode(Constants.ONE);
+		query.setRoundId(round.getId());
+		query.setProjectId(round.getProjectId());
+		dto.setCondition(query);
+		PageResult<CourseOpenDto> pageResult = elcMutualRoundCourseServiceImpl.listPage(dto);
+		List<CourseOpenDto> list = pageResult.getList();
+		
+		if (CollectionUtil.isNotEmpty(list)) {
+			for (SelectedCourse unSelectedCourse : unSelectedMutualCourses) {
+				for (CourseOpenDto courseOpenDto : list) {
+					if (StringUtils.equals(unSelectedCourse.getCourse().getCourseCode(), courseOpenDto.getCourseCode())) {
+						optionalCourses.add(unSelectedCourse);
+					}
+				}
+			}
+		}
+		optionalCourses.addAll(selectedMutualCourses);
+		c.setOptionalCourses(optionalCourses);
+		
+		return c;
 	}
 
 }

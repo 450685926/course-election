@@ -125,13 +125,15 @@ public class ElcMutualController {
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundNotExistTip");
         
+        Long calendarId = round.getCalendarId();
+        
         ElecContextMutualBk c =
-            new ElecContextMutualBk(session.realUid(), round.getCalendarId());
+            new ElecContextMutualBk(session.realUid(), calendarId);
 //        Set<SelectedCourse> courses = c.getSelectedCourses();
 //        courses.clear();
 //        courses.addAll(c.getSelectedMutualCourses());
 //        c.getSelectedMutualCourses().clear();
-
+        c = mutualElecService.getData(c, round, calendarId);
         return RestResult.successData(c);
     }
     

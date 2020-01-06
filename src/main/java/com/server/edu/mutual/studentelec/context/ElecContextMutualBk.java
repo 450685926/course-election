@@ -53,14 +53,23 @@ public class ElecContextMutualBk implements IElecContext
     /**未通過課程*/
     private Set<CompletedCourse> failedCourse;
     
+    /** 未修完的课程 */
+    private Set<CompletedCourse>  unFinishedCourses;
+    
     /**所有申请课程*/
     private Set<String> applyCourse;
     
     /**学生的选课申请课程*/
     private Set<ElectionApply> elecApplyCourses;
     
-    /** 本研互选申请 审核通过的课程  */
+    /** 本学期已选择互选课程  */
     private Set<SelectedCourse> selectedMutualCourses;
+    
+    /** 未选择的互选课程  */
+    private Set<SelectedCourse> unSelectedMutualCourses;
+    
+    /** 本科生可选的互选课程  */
+    private Set<SelectedCourse> optionalCourses;
     
     private ElecRequest request;
     
@@ -104,6 +113,9 @@ public class ElecContextMutualBk implements IElecContext
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
         selectedMutualCourses = this.contextUtil.getSet("selectedMutualCourses", SelectedCourse.class);
+        unSelectedMutualCourses = this.contextUtil.getSet("unSelectedMutualCourses", SelectedCourse.class);
+        optionalCourses = this.contextUtil.getSet("optionalCourses", SelectedCourse.class);
+        unFinishedCourses = this.contextUtil.getSet("unFinishedCourses", CompletedCourse.class);
     }
     
     /**
@@ -130,6 +142,9 @@ public class ElecContextMutualBk implements IElecContext
         this.contextUtil.updateMem("elecApplyCourses", this.elecApplyCourses);
         this.contextUtil.updateMem(REPLACE_COURSES, this.replaceCourses);
         this.contextUtil.updateMem("selectedMutualCourses", this.selectedMutualCourses);
+        this.contextUtil.updateMem("unSelectedMutualCourses", this.unSelectedMutualCourses);
+        this.contextUtil.updateMem("optionalCourses", this.optionalCourses);
+        this.contextUtil.updateMem("unFinishedCourses",this.unFinishedCourses);
         // 保存所有到redis
         this.contextUtil.saveAll();
     }
@@ -163,6 +178,9 @@ public class ElecContextMutualBk implements IElecContext
         this.getElecApplyCourses().clear();
         this.getReplaceCourses().clear();
         this.getSelectedMutualCourses().clear();
+        this.getUnSelectedMutualCourses().clear();
+        this.getOptionalCourses().clear();
+        this.getUnFinishedCourses().clear();
     }
     
     public void courseClear()
@@ -264,6 +282,30 @@ public class ElecContextMutualBk implements IElecContext
 
 	public void setSelectedMutualCourses(Set<SelectedCourse> selectedMutualCourses) {
 		this.selectedMutualCourses = selectedMutualCourses;
+	}
+
+	public Set<CompletedCourse> getUnFinishedCourses() {
+		return unFinishedCourses;
+	}
+
+	public void setUnFinishedCourses(Set<CompletedCourse> unFinishedCourses) {
+		this.unFinishedCourses = unFinishedCourses;
+	}
+
+	public Set<SelectedCourse> getUnSelectedMutualCourses() {
+		return unSelectedMutualCourses;
+	}
+
+	public void setUnSelectedMutualCourses(Set<SelectedCourse> unSelectedMutualCourses) {
+		this.unSelectedMutualCourses = unSelectedMutualCourses;
+	}
+
+	public Set<SelectedCourse> getOptionalCourses() {
+		return optionalCourses;
+	}
+
+	public void setOptionalCourses(Set<SelectedCourse> optionalCourses) {
+		this.optionalCourses = optionalCourses;
 	}
     
 }
