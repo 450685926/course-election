@@ -317,6 +317,17 @@ public class ElecYjsController
 		}
     	
     	return result;
-    } 
+    }
     
+    @ApiOperation(value = "学生培养计划发生修改时删除redis中的选课状态")
+    @PostMapping("/deleteRedisSelectedStatus")
+    public RestResult<?> deleteRedisSelectedStatus(@RequestParam("studentId") @NotBlank String studentId)
+    {
+    	String pattern = "elec-stdstatus-*_"+studentId;
+    	Set<String> keys = strTemplate.keys(pattern);
+    	if (CollectionUtil.isNotEmpty(keys)) {
+    		strTemplate.delete(keys);
+		}
+    	return RestResult.success();
+    }
 }
