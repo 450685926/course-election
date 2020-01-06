@@ -1,8 +1,10 @@
 package com.server.edu.mutual.studentelec.service;
 
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
+import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 
 /**
  * 本研互选选课请求的主入口
@@ -28,4 +30,13 @@ public interface StudentMutualElecService {
 	 * @return
 	 */
 	ElecRespose getElectResult(ElecRequest elecRequest);
+
+	/**
+	 * 获取可选的互选课程
+	 * @param c
+	 * @param round
+	 * @param calendarId 
+	 * @return
+	 */
+	ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId);
 }

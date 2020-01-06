@@ -71,6 +71,10 @@ public interface Constants
     /** 本科生跨学科 */
     public static final Integer BK_CROSS =3;
 
+    /** 本研互选是否已选课程：1-已选；0未选  */
+    public static final Integer ELECTED =1;
+    public static final Integer UN_ELECTED =0;
+
     /** 优*/
     public static final String EXCELLENT = "优";
     

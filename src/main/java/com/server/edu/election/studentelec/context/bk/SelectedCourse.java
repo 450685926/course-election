@@ -37,6 +37,11 @@ public class SelectedCourse
     
     private Integer isApply;
     
+    /**
+     * 选课状态(1-已选；0-未选)
+     */
+    private Integer status;
+    
     public SelectedCourse()
     {
         
@@ -121,7 +126,15 @@ public class SelectedCourse
         this.isApply = isApply;
     }
     
-    @Override
+    public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	@Override
     public int hashCode()
     {
         return this.getCourse().hashCode();
