@@ -462,8 +462,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                     String s = dictionaryService.queryByCodeList("X_YX", Arrays.asList(propertySheetDto.getFaculty().split(",")), SessionUtils.getLang());
                     propertySheetDto.setFaculty(s);
                 }
-                SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                String fullName = calendarVo.getFullName();
+                String fullName = SchoolCalendarCacheUtil.getName(calendarId);
                 Map<String, List<PropertySheetDto>> sheetMaps = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getCampus,TreeMap::new,Collectors.toList()));
 
                 List<Map<String, Object>> sheetMap = new ArrayList<>();
@@ -532,8 +531,7 @@ public class GraduateExamMessageServiceImpl implements GraduateExamMessageServic
                     propertySheetDto.setDay(str.split(",")[1]);
                     propertySheetDto.setDayStr(str.split(",")[0]);
                 }
-                SchoolCalendarVo calendarVo = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
-                String fullName = calendarVo.getFullName();
+                String fullName = SchoolCalendarCacheUtil.getName(calendarId);
                 String title = fullName+"研究生考试巡考工作安排表";
                 Map<String, List<PropertySheetDto>> dayMap = SheetDto.stream().collect(Collectors.groupingBy(PropertySheetDto::getDayStr,TreeMap::new,Collectors.toList()));
                 List<Map<String,Object>> listSheet = new ArrayList<>();

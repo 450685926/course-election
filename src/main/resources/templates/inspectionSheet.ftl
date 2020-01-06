@@ -81,8 +81,10 @@
   <Table ss:ExpandedColumnCount="8"  x:FullColumns="1"
    x:FullRows="1" ss:StyleID="s63" ss:DefaultColumnWidth="54">
    <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="96"/>
-   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="142.5" ss:Span="2"/>
-   <Column ss:Index="5" ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="210"/>
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="142.5" />
+   <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="76.5"/>
+   <Column  ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="169.5"/>
+   <Column  ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="204.75"/>
    <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="67.5"/>
    <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="106.5"/>
    <Column ss:StyleID="s63" ss:AutoFitWidth="0" ss:Width="132"/>
@@ -113,9 +115,9 @@
  <#if item["list"]?size gt 0 >
   <#list item["list"] as myItem>
    <Row>
-    <Cell ss:Index="2" ss:StyleID="s76"><Data ss:Type="String">${myItem.faculty}</Data></Cell>
-    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.courseCode}</Data></Cell>
-    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.courseName}</Data></Cell>
+    <Cell ss:Index="2" ss:StyleID="s76"><Data ss:Type="String">${myItem.faculty?replace(",","&#x000A;")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.courseCode?replace(",","&#x000A;")}</Data></Cell>
+    <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.courseName?replace(",","&#x000A;")}</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.examTime?default("")}</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.roomNumber?default("")}</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">${myItem.roomName?default("")}</Data></Cell>
