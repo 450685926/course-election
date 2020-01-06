@@ -60,6 +60,8 @@ public class BKMutualStudentInfoLoad extends MutualDataProLoad<ElecContextMutual
                 studentInfo.getStudentId());
             throw new RuntimeException(msg);
         }
+        String major = studentDao.getStudentMajor(stu.getGrade(),stu.getProfession());
+        studentInfo.setBkMajor(major);
         studentInfo.setGrade(stu.getGrade());
         studentInfo.setMajor(stu.getProfession());
         studentInfo.setSex(stu.getSex());
@@ -81,7 +83,7 @@ public class BKMutualStudentInfoLoad extends MutualDataProLoad<ElecContextMutual
         ElcLoserDownStds loserDownStds = elcLoserDownStdsDao
             .findLoserDownStds(request.getRoundId(), stu.getStudentCode());
         studentInfo.setRepeater(loserDownStds == null ? false : true);
-        
+        studentInfo.setIsArrears(stu.getIsArrears());
         // 3. TODO 是否缴费
         
     }

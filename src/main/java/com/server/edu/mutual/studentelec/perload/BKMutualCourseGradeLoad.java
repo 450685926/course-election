@@ -13,6 +13,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,9 +39,11 @@ import com.server.edu.election.dao.TeachingClassTeacherDao;
 import com.server.edu.election.dto.ElcCouSubsDto;
 import com.server.edu.election.dto.StudentScoreDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.ScoreServiceInvoker;
 import com.server.edu.election.service.BkStudentScoreService;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
@@ -51,10 +55,11 @@ import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.util.WeekModeUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
-import com.server.edu.util.CalUtil;
+import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 
 import tk.mybatis.mapper.entity.Example;
@@ -71,6 +76,9 @@ import tk.mybatis.mapper.entity.Example;
 @Component
 public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutualBk>
 {
+    //log日志记录
+    Logger logger = LoggerFactory.getLogger(BKMutualCourseGradeLoad.class);
+
     @Autowired
     private StudentDao studentDao;
     
@@ -94,6 +102,9 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
     
     @Autowired
     private TeachingClassTeacherDao teacherDao;
+
+    @Autowired
+    private TeachingClassTeacherDao teachingClassTeacherDao;
     
     @Autowired
     private BkStudentScoreService bkStudentScoreService;
@@ -178,10 +189,17 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
     private void loadScore(ElecContextBk context, StudentInfoCache studentInfo,
         String studentId, Student stu)
     {
+        ElecRequest request = context.getRequest();
+        Long requesCalendarId = request.getCalendarId();
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
         BeanUtils.copyProperties(stu, studentInfo);
-        
+        //如果是选下学期的课程，获得当前学期正在修读的课程
+        Long currentCalendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
+        if(currentCalendarId.longValue() < requesCalendarId.longValue() ){
+
+        }
+
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScoreBest))
@@ -255,12 +273,34 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
         String studentId, Student stu,List<ElcCouSubsVo> list)
     {
 //        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
-    	
+        ElecRequest request = context.getRequest();
+        Long requesCalendarId = request.getCalendarId();
+
     	StudentScoreDto dto = new StudentScoreDto();
     	dto.setStudentId(studentId);
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
+        Set<CompletedCourse> unFinishedCourses = context.getUnFinishedCourses();
+
+        //如果是选下学期的课程，获得当前学期正在修读的课程
+        Long currentCalendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
+        if(currentCalendarId.longValue() < requesCalendarId.longValue() ){
+            List<ElcCourseTakeVo> courseTakes = elcCourseTakeDao.findBkSelectedCourses(request.getStudentId(), currentCalendarId, TableIndexUtil.getIndex(currentCalendarId));
+            for (ElcCourseTakeVo courseTake : courseTakes) {
+                CompletedCourse c = new CompletedCourse();
+                TeachingClassCache lesson = new TeachingClassCache();
+                c.setCourseCode(courseTake.getCourseCode());
+                lesson.setCourseCode(courseTake.getCourseCode());
+                lesson.setCourseName(courseTake.getCourseName());
+                lesson.setFaculty(courseTake.getFaculty());
+                lesson.setTerm(courseTake.getTerm());
+                lesson.setTeachClassId(courseTake.getTeachingClassId());
+                lesson.setCredits(courseTake.getCredits());
+                c.setCourse(lesson);
+                unFinishedCourses.add(c);
+            }
+        }
         Set<CompletedCourse> completedCourses = context.getCompletedCourses();
         Set<CompletedCourse> failedCourse = context.getFailedCourse();//未完成
         if (CollectionUtil.isNotEmpty(stuScore))
@@ -316,7 +356,7 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
                 c.setCourse(lesson);
                 c.setScore(studentScore.getFinalScore());
                 boolean excellent = false;
-                if(Constants.EXCELLENT.equals(studentScore.isBestScore())) {
+                if(Constants.EXCELLENT.equals(studentScore.getFinalScore())) {
                 	excellent = true;
                 }
                 c.setExcellent(excellent);
@@ -364,12 +404,24 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
         Set<SelectedCourse> selectedCourses, Long calendarId)
     {
     	Integer index =TableIndexUtil.getIndex(calendarId);
+    	//记录日志
+        logger.info("----alex---it is start to findBkSelectedCourses.........................");
         List<ElcCourseTakeVo> courseTakes =
             elcCourseTakeDao.findBkSelectedCourses(studentId, calendarId,index);
         String name = SchoolCalendarCacheUtil.getName(calendarId);
         // 获取学历年
         if (CollectionUtil.isNotEmpty(courseTakes))
         {
+            List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentId);
+            Map<String, String> map = new HashMap<>();
+            if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+                for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                    String compulsory = elcCourseTakeVo.getCompulsory();
+                    if (StringUtils.isNotBlank(compulsory)) {
+                        map.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    }
+                }
+            }
             List<Long> teachClassIds = courseTakes.stream()
                 .map(temp -> temp.getTeachingClassId())
                 .collect(Collectors.toList());
@@ -392,7 +444,7 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
                 lesson.setTeachClassCode(c.getTeachingClassCode());
                 lesson.setFaculty(c.getFaculty());
                 lesson.setTerm(c.getTerm());
-                lesson.setCompulsory(c.getCompulsory());
+                lesson.setCompulsory(map.get(c.getCourseCode()));
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
                 course.setCourse(lesson);
@@ -403,6 +455,29 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
                 course.setTurn(c.getTurn());
                 selectedCourses.add(course);
             }
+        }
+    }
+    
+    
+    /**
+     * 加载本学期已选课课程数据
+     * 
+     * @param studentId
+     * @param selectedCourses
+     * @param calendarId
+     * @see [类、类#方法、类#成员]
+     */
+    public void loadElecApplyCourse(String studentId,
+    		Set<ElectionApply> elecApplyCourses, Long calendarId)
+    {
+    	Example aExample = new Example(ElectionApply.class);
+        Example.Criteria aCriteria = aExample.createCriteria();
+        aCriteria.andEqualTo("studentId", studentId);
+        aCriteria.andEqualTo("calendarId", calendarId);
+        List<ElectionApply> electionApplys =
+            electionApplyDao.selectByExample(aExample);
+        if(CollectionUtil.isNotEmpty(electionApplys)) {
+        	elecApplyCourses = new HashSet<>(elecApplyCourses);
         }
     }
     
@@ -451,50 +526,65 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
                 {
                     continue;
                 }
-                ClassTimeUnit un = new ClassTimeUnit();
-                TeacherClassTimeRoom room = rooms.get(0);
-                un.setArrangeTimeId(room.getArrangeTimeId());
-                un.setDayOfWeek(room.getDayOfWeek());
-                un.setTeachClassId(room.getTeachClassId());
-                un.setTimeEnd(room.getTimeEnd());
-                un.setTimeStart(room.getTimeStart());
-                un.setTeacherCode(room.getTeacherCode());
-                un.setRoomId(room.getRoomId());
-                // 所有周
-                List<Integer> weeks = rooms.stream()
-                    .map(TeacherClassTimeRoom::getWeekNumber)
-                    .collect(Collectors.toList());
-                // 相同教室相同老师的周次
-                Map<String, List<TeacherClassTimeRoom>> roomTeacherMap =
-                    rooms.stream().collect(Collectors.groupingBy(r -> {
-                        return r.getRoomId() + "_" + r.getTeacherCode();
-                    }));
-                
-                StringBuilder sb = new StringBuilder();
-                for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
-                    .entrySet())
-                {
-                    List<TeacherClassTimeRoom> roomTeachers = e.getValue();
-                    TeacherClassTimeRoom r = roomTeachers.get(0);
-                    List<Integer> roomWeeks = roomTeachers.stream()
-                        .map(TeacherClassTimeRoom::getWeekNumber)
-                        .collect(Collectors.toList());
-                    
-                    String weekStr = CalUtil.getWeeks(roomWeeks);
-                    
-                    String teacherNames = getTeacherInfo(r.getTeacherCode());
-                    
-                    String roomName =
-                        ClassroomCacheUtil.getRoomName(r.getRoomId());
-                    // 老师名称(老师编号)[周] 教室
-                    sb.append(String
-                        .format("%s[%s] %s", teacherNames, weekStr, roomName))
-                        .append(" ");
+                Map<String, List<TeacherClassTimeRoom>> timeRoomMap1 = rooms.stream().
+                        filter(s->s.getTeacherCode() != null)
+                        .collect(Collectors
+                                .groupingBy(TeacherClassTimeRoom::getTeacherCode));
+                for (Entry<String, List<TeacherClassTimeRoom>> entry3 : timeRoomMap1
+                        .entrySet()){
+                    List<TeacherClassTimeRoom> rooms3 = entry3.getValue();
+                    if (CollectionUtil.isEmpty(rooms3))
+                    {
+                        continue;
+                    }
+                    ClassTimeUnit un = new ClassTimeUnit();
+                    TeacherClassTimeRoom room = rooms3.get(0);
+                    un.setArrangeTimeId(room.getArrangeTimeId());
+                    un.setDayOfWeek(room.getDayOfWeek());
+                    un.setTeachClassId(room.getTeachClassId());
+                    un.setTimeEnd(room.getTimeEnd());
+                    un.setTimeStart(room.getTimeStart());
+                    un.setTeacherCode(room.getTeacherCode());
+                    un.setRoomId(room.getRoomId());
+                    // 所有周
+                    List<Integer> weeks = rooms3.stream()
+                            .map(TeacherClassTimeRoom::getWeekNumber)
+                            .collect(Collectors.toList());
+                    // 相同教室相同老师的周次
+                    Map<String, List<TeacherClassTimeRoom>> roomTeacherMap =
+                            rooms3.stream().collect(Collectors.groupingBy(r -> {
+                                return r.getRoomId() + "_" + r.getTeacherCode();
+                            }));
+
+                    StringBuilder sb = new StringBuilder();
+                    for (Entry<String, List<TeacherClassTimeRoom>> e : roomTeacherMap
+                            .entrySet())
+                    {
+                        List<TeacherClassTimeRoom> roomTeachers = e.getValue();
+                        TeacherClassTimeRoom r = roomTeachers.get(0);
+                        List<Integer> roomWeeks = roomTeachers.stream()
+                                .map(TeacherClassTimeRoom::getWeekNumber)
+                                .collect(Collectors.toList());
+
+                        //String weekStr = CalUtil.getWeeks(roomWeeks);
+                        //单双周
+                        String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
+
+                        String teacherNames = getTeacherInfo(r.getTeacherCode());
+
+                        String roomName =
+                                ClassroomCacheUtil.getRoomName(r.getRoomId());
+                        // 老师名称(老师编号)[周] 教室
+                        sb.append(String
+                                .format("%s %s %s", teacherNames, weekStr, roomName))
+                                .append(" ");
+                    }
+                    Collections.sort(weeks);
+                    un.setValue(sb.toString());
+                    un.setWeeks(weeks);
+                    times.add(un);
                 }
-                Collections.sort(weeks);
-                un.setValue(sb.toString());
-                un.setWeeks(weeks);
-                times.add(un);
+
             }
             
             map.put(entry.getKey(), times);
@@ -502,7 +592,7 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
         
         return map;
     }
-    
+
     /**
      * 拼接上课时间
      * 
@@ -525,10 +615,10 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
             {
                 ctu.setValue(String.format("%s(%s) %s",
                     c.getCourseName(),
-                    c.getCourseCode(),
+                    c.getTeachClassCode(),
                     ctu.getValue()));
             }
-            
+
             teacherName = this.getTeacherName(times);
             
             c.setTeacherName(teacherName);
@@ -542,6 +632,41 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
         }
         
         return null;
+    }
+
+    public List<ClassTimeUnit> concatYjsTime(
+            List<TimeTableMessage> timeTableMessages, TeachingClassCache c)
+    {
+        //一个教学班的排课时间信息
+        Long teachClassId = c.getTeachClassId();
+        List<String> names = teachingClassTeacherDao.findNamesByTeachingClassId(teachClassId);
+        String teacherName = null;
+        if (CollectionUtil.isNotEmpty(names)) {
+            teacherName = String.join(",", names);
+        }
+        c.setTeacherName(teacherName);
+        List<ClassTimeUnit> list = new ArrayList<>(10);
+        if (CollectionUtil.isNotEmpty(timeTableMessages))
+        {
+            String str = new StringBuilder().append(teacherName).append(" ").append(c.getCourseName()).toString();
+            for (TimeTableMessage timeTableMessage : timeTableMessages)
+            {
+                ClassTimeUnit ct = new ClassTimeUnit();
+                ct.setTeachClassId(timeTableMessage.getTeachingClassId());
+                ct.setArrangeTimeId(timeTableMessage.getTimeId());
+                ct.setTimeStart(timeTableMessage.getTimeStart());
+                ct.setTimeEnd(timeTableMessage.getTimeEnd());
+                ct.setDayOfWeek(timeTableMessage.getDayOfWeek());
+                List<Integer> weeks = timeTableMessage.getWeeks();
+                ct.setWeeks(weeks);
+                String weekStr = WeekModeUtil.parse(weeks, SessionUtils.getLocale());
+                String roomName =
+                        ClassroomCacheUtil.getRoomName(timeTableMessage.getRoomId());
+                ct.setValue(str + weekStr + roomName);
+                list.add(ct);
+            }
+        }
+        return list;
     }
     
     private String getTeacherName(List<ClassTimeUnit> times)
@@ -584,15 +709,17 @@ public class BKMutualCourseGradeLoad extends MutualDataProLoad<ElecContextMutual
         }
         StringBuilder sb = new StringBuilder();
         String[] codes = teacherCode.split(",");
-        List<String> names = TeacherCacheUtil.getNames(codes);
-        if (CollectionUtil.isNotEmpty(names))
+        List<Teacher> teachers = TeacherCacheUtil.getTeachers(codes);
+
+        if (CollectionUtil.isNotEmpty(teachers))
         {
-            for (int i = 0; i < codes.length; i++)
-            {
-                String tCode = codes[i];
-                String tName = names.get(i);
-                // 老师名称(老师编号)
-                sb.append(String.format("%s(%s) ", tName, tCode));
+            for (Teacher teacher : teachers) {
+                if(teacher != null){
+                    String tName = teacher.getName();
+                    // 老师名称(老师编号)
+                    sb.append(String.format("%s(%s) ", tName, teacher.getCode()));
+                }
+
             }
         }
         return sb.toString();
