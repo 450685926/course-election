@@ -32,4 +32,6 @@ public interface GraduateExamApplyExaminationService {
     /**补缓考对外提交接口*/
     PageResult<ExamMakeUp> makeUpCourseList(PageCondition<ExamMakeUp> condition);
 
+    /**补缓考审核通过撤回*/
+    void withdrawnGraduateApply(List<Long> ids);
 }

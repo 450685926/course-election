@@ -73,4 +73,11 @@ public class GraduateExamApplyExaminationController {
         return RestResult.successData(pageResult);
     }
 
+
+    @PostMapping("/withdrawnGraduateApply")
+    public RestResult<?> withdrawnGraduateApply(@RequestBody List<Long> ids){
+        applyExaminationService.withdrawnGraduateApply(ids);
+        return RestResult.success();
+    }
+
 }

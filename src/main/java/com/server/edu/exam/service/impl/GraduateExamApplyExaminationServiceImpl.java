@@ -278,32 +278,10 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
                 GraduateExamApplyExamination examinationVo = examInfos.get(0);
                 Long calendarId = examinationVo.getCalendarId();
                 Integer applyType = examinationVo.getApplyType();
-                List<GraduateExamStudent> list =  examStudentDao.findGraduateStudent(examInfos,calendarId);
+                List<GraduateExamStudent> list =  examStudentDao.findGraduateStudent(examInfos,calendarId,ApplyStatus.FINAL_EXAM);
                 if(CollectionUtil.isNotEmpty(list)){
                     examStudentDao.updateSituationByIds(list,aduitOpinions,applyType);
-                    Map<Long, List<GraduateExamStudent>> roomIds = list.stream().collect(Collectors.groupingBy(GraduateExamStudent::getExamRoomId));
-                    List<ExamInfoRoomDto> dtoList = new ArrayList<>();
-                    for (Long examRoomId : roomIds.keySet()) {
-                        ExamInfoRoomDto dto = new ExamInfoRoomDto();
-                        dto.setExamInfoId(examRoomId);
-                        dto.setExamRooms(roomIds.get(examRoomId).size());
-                        dtoList.add(dto);
-                    }
-
-                    //批量更新对应考生考场人数
-                    roomDao.updateRoomNumberByList(dtoList);
-                    infoService.updateActualNumber(list,ApplyStatus.EXAM_REDUCE);
-                    //退考
-                    List<Long> studentIds = list.stream().map(GraduateExamStudent::getId).collect(Collectors.toList());
-                    List<GraduateExamLog> logList = examStudentDao.findRoomIdByExamStudentId(studentIds);
-                    for (GraduateExamLog examLog : logList) {
-                        examLog.setCreateAt(new Date());
-                        examLog.setExamType(ApplyStatus.EXAM_LOG_NO);
-                        examLog.setOperatorCode(session.realUid());
-                        examLog.setOperatorName(session.realName());
-                        examLog.setIp(session.getIp());
-                    }
-                    logDao.insertList(logList);
+                    this.withdrawExamination(list,session);
                     //infoService.insertExamLog(list,ApplyStatus.EXAM_LOG_NO);
                 }
 
@@ -389,6 +367,89 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
         Page<ExamMakeUp> page = applyExaminationDao.makeUpCourseList(condition.getCondition());
         return new PageResult<>(page);
+    }
+
+    @Override
+    @Transactional
+    public void withdrawnGraduateApply(List<Long> ids) {
+        if(CollectionUtil.isEmpty(ids)){
+            throw new ParameterValidateException("请选择至少一条数据撤回");
+        }
+        Example example = new Example(GraduateExamApplyExamination.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andIn("id",ids);
+        List<GraduateExamApplyExamination> examinations = applyExaminationDao.selectByExample(example);
+        if(CollectionUtil.isNotEmpty(examinations)){
+            //学校审核通过
+            List<GraduateExamApplyExamination> collect = examinations.stream().filter(vo -> vo.getApplyStatus().equals(ApplyStatus.SCHOOL_EXAMINE_PASS)).collect(Collectors.toList());
+            if(CollectionUtil.isNotEmpty(collect)){
+                //撤回通过就是删除审核通过（只能重新排考）
+                Map<Boolean, List<GraduateExamApplyExamination>> map = collect.stream().collect(Collectors.partitioningBy(vo -> vo.getApplyType().equals(ApplyStatus.EXAM_SITUATION_SLOW)));
+                List<GraduateExamApplyExamination> slow = map.get(true);
+                List<GraduateExamApplyExamination> makeUp = map.get(false);
+                List<Long> deleIds = collect.stream().map(GraduateExamApplyExamination::getId).collect(Collectors.toList());
+
+                Example exampleTwo = new Example(GraduateExamApplyExamination.class);
+                Example.Criteria criteriaTwo = exampleTwo.createCriteria();
+                criteriaTwo.andIn("id",deleIds);
+                applyExaminationDao.deleteByExample(exampleTwo);
+                Long examCalendarId = collect.get(0).getExamCalendarId();
+                //缓考处理(删除缓考数据)
+                if(CollectionUtil.isNotEmpty(slow)){
+                    Long calendarId = slow.get(0).getCalendarId();
+                    List<Long> slowDeleteIds = examStudentDao.findSlowStuDelete(slow,calendarId);
+                    if(CollectionUtil.isNotEmpty(slowDeleteIds)){
+                        Example exampleSlow = new Example(GraduateExamStudent.class);
+                        Example.Criteria criteriaSlow = exampleSlow.createCriteria();
+                        criteriaSlow.andIn("id",slowDeleteIds);
+                        examStudentDao.deleteByExample(exampleSlow);
+                    }
+                }
+                //补考处理（删除补考的记录）
+                if(CollectionUtil.isNotEmpty(makeUp)){
+                    examStudentDao.updateStudentScoreMessage(makeUp,"");
+                }
+
+                //如果撤回的数据中有已经排考的补缓考课程学生，那么进行退考
+                List<GraduateExamStudent> list =  examStudentDao.findGraduateStudent(collect,examCalendarId,ApplyStatus.MAKE_UP_EXAM);
+                if(CollectionUtil.isNotEmpty(list)){
+                    Session currentSession = SessionUtils.getCurrentSession();
+                    List<Long> longList = this.withdrawExamination(list, currentSession);
+                    Example exampleWith = new Example(GraduateExamStudent.class);
+                    Example.Criteria criteriaWith = exampleWith.createCriteria();
+                    criteriaWith.andIn("id",longList);
+                    examStudentDao.deleteByExample(exampleWith);
+                }
+            }
+        }
+
+    }
+
+    private List<Long> withdrawExamination(List<GraduateExamStudent> list,Session session){
+        Map<Long, List<GraduateExamStudent>> roomIds = list.stream().collect(Collectors.groupingBy(GraduateExamStudent::getExamRoomId));
+        List<ExamInfoRoomDto> dtoList = new ArrayList<>();
+        for (Long examRoomId : roomIds.keySet()) {
+            ExamInfoRoomDto dto = new ExamInfoRoomDto();
+            dto.setExamInfoId(examRoomId);
+            dto.setExamRooms(roomIds.get(examRoomId).size());
+            dtoList.add(dto);
+        }
+
+        //批量更新对应考生考场人数
+        roomDao.updateRoomNumberByList(dtoList);
+        infoService.updateActualNumber(list,ApplyStatus.EXAM_REDUCE);
+        //退考
+        List<Long> studentIds = list.stream().map(GraduateExamStudent::getId).collect(Collectors.toList());
+        List<GraduateExamLog> logList = examStudentDao.findRoomIdByExamStudentId(studentIds);
+        for (GraduateExamLog examLog : logList) {
+            examLog.setCreateAt(new Date());
+            examLog.setExamType(ApplyStatus.EXAM_LOG_NO);
+            examLog.setOperatorCode(session.realUid());
+            examLog.setOperatorName(session.realName());
+            examLog.setIp(session.getIp());
+        }
+        logDao.insertList(logList);
+        return studentIds;
     }
 
 
