@@ -67,6 +67,16 @@ public class ElecController
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
         Date date = new Date();
+        if(CollectionUtil.isEmpty(allRound)) {
+            ElectionRounds rounds = new ElectionRounds();
+            rounds.setElectionObj(Constants.STU);
+            rounds.setBeginTime(date);
+            rounds.setProjectId(projectId);
+            allRound = roundService.getAllList(rounds);
+        	for(ElectionRounds electionRounds :allRound) {
+        		dataProvider.updateRoundCache(electionRounds.getId());
+        	}
+        }
         String studentId = session.realUid();
         for (ElectionRounds round : allRound)
         {
@@ -85,26 +95,6 @@ public class ElecController
                 data.add(vo);
             }
         }
-        if(CollectionUtil.isEmpty(data)){
-            ElectionRounds rounds = new ElectionRounds();
-            rounds.setElectionObj(Constants.STU);
-            rounds.setBeginTime(date);
-            rounds.setProjectId(projectId);
-            List<ElectionRounds> roundsList = roundService.getAllList(rounds);
-            for (ElectionRounds electionRounds : roundsList) {
-                Long roundId = electionRounds.getId();
-                if (dataProvider
-                        .containsStuCondition(roundId, studentId, projectId))
-                {
-                    ElectionRoundsVo vo = new ElectionRoundsVo(electionRounds);
-                    List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-                    vo.setRuleVos(rules);
-                    data.add(vo);
-                }
-            }
-
-        }
-
         return RestResult.successData(data);
     }
     

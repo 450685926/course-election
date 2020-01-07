@@ -36,6 +36,8 @@ import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.util.CollectionUtil;
 
+import tk.mybatis.mapper.entity.Example;
+
 /**
  * 轮次缓存服务类，缓存轮次、轮次规则、轮次条件、可选学生、可选教学任务
  * 
@@ -82,7 +84,7 @@ public class RoundCacheService extends AbstractCacheService
         String key = Keys.getRoundKey();
         hash.put(key, round.getId().toString(), round);
         
-        strTemplate.expire(key, 1, TimeUnit.DAYS);
+        strTemplate.expire(key, timeout, TimeUnit.DAYS);
     }
     
     public Set<String> getRoundKeys()
@@ -153,7 +155,7 @@ public class RoundCacheService extends AbstractCacheService
         ops.set(roundConKey,
             JSONArray.toJSONString(elcRoundCondition),
             timeout,
-            TimeUnit.MINUTES);
+            TimeUnit.DAYS);
     }
     
     /**
@@ -211,6 +213,11 @@ public class RoundCacheService extends AbstractCacheService
             student = JSON.parseObject(text, Student.class);
         }
         ElcRoundCondition con = getRoundCondition(roundId);
+        if(con==null) {
+        	con =  elcRoundConditionDao.selectByPrimaryKey(roundId);
+        	long timeout = 15L;
+        	cacheRoundCondition(roundId, timeout);
+        }
         if (con != null)
         {
         	boolean matchConditionFlag = contains(con.getCampus(), student.getCampus())
@@ -449,7 +456,7 @@ public class RoundCacheService extends AbstractCacheService
             }
             
             ops.putAll(key, collect);
-            strTemplate.expire(key, timeout, TimeUnit.MINUTES);
+            strTemplate.expire(key, timeout, TimeUnit.DAYS);
         }
         else
         {

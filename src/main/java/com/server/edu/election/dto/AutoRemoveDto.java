@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.entity.TeachingClass;
 import com.server.edu.election.entity.TeachingClassElectiveRestrictAttr;
 import com.server.edu.election.vo.ElcAffinityCoursesStdsVo;
@@ -64,6 +65,37 @@ public class AutoRemoveDto
     
     private TeachingClassElectiveRestrictAttr classAttrList;
     
+    private Integer turn;
+    
+    private List<Student> firstStudent;
+    
+    private Integer overSize;
+    
+    
+	public Integer getOverSize() {
+		return overSize;
+	}
+
+	public void setOverSize(Integer overSize) {
+		this.overSize = overSize;
+	}
+
+	public List<Student> getFirstStudent() {
+		return firstStudent;
+	}
+
+	public void setFirstStudent(List<Student> firstStudent) {
+		this.firstStudent = firstStudent;
+	}
+
+	public Integer getTurn() {
+		return turn;
+	}
+
+	public void setTurn(Integer turn) {
+		this.turn = turn;
+	}
+
 	public TeachingClassElectiveRestrictAttr getClassAttrList() {
 		return classAttrList;
 	}

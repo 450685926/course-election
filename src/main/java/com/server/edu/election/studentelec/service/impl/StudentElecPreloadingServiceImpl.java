@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Objects;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecContext;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -46,6 +47,9 @@ public class StudentElecPreloadingServiceImpl
     @Autowired
     private RoundDataProvider dataProvider;
     
+    @Autowired
+    private ElecRoundsDao roundsDao;
+    
     public StudentElecPreloadingServiceImpl(
         ElecQueueService<ElecRequest> elecQueueService)
     {
@@ -72,6 +76,9 @@ public class StudentElecPreloadingServiceImpl
             else
             {
                 ElectionRounds round = dataProvider.getRound(roundId);
+                if(round ==null) {
+                	round = roundsDao.selectByPrimaryKey(roundId);
+                }
                 calendarId = round.getCalendarId();
                 projectId = round.getProjectId();
             }
