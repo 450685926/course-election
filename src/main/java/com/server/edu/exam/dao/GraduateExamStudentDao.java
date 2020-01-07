@@ -31,7 +31,7 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
     void updateExamStudentRemark(@Param("list") List<GraduateExamApplyExamination> list,@Param("aduitOpinions") String aduitOpinions);
 
     /**查找需要修改状态的学生并减少考场人数*/
-    List<GraduateExamStudent> findGraduateStudent(@Param("list") List<GraduateExamApplyExamination > list,@Param("calendarId") Long calendarId);
+    List<GraduateExamStudent> findGraduateStudent(@Param("list") List<GraduateExamApplyExamination > list,@Param("calendarId") Long calendarId,@Param("examType") Integer examType);
 
     /**更新状态*/
     void updateSituationByIds(@Param("list") List<GraduateExamStudent> list,@Param("aduitOpinions") String aduitOpinions,@Param("applyType") Integer applyType);
@@ -118,4 +118,6 @@ public interface GraduateExamStudentDao extends Mapper<GraduateExamStudent>,MySq
     List<Long> finaAllExamCourseInfoIds(List<Long> list);
 
     Course findCourseScoreType(@Param("courseCode") String courseCode,@Param("projId") String projId);
+
+    List<Long> findSlowStuDelete(@Param("list") List<GraduateExamApplyExamination> slow,@Param("calendarId") Long calendarId);
 }
