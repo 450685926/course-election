@@ -407,22 +407,25 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
                 }
                 //补考处理（删除补考的记录）
                 if(CollectionUtil.isNotEmpty(makeUp)){
-                    String aduitOpinions = "";
-                    examStudentDao.updateStudentScoreMessage(makeUp,aduitOpinions);
+                    examStudentDao.updateStudentScoreMessage(makeUp,"");
                 }
 
-                //如果撤回的数据中有已经排考的学生，那么进行退考
+                //如果撤回的数据中有已经排考的补缓考课程学生，那么进行退考
                 List<GraduateExamStudent> list =  examStudentDao.findGraduateStudent(collect,examCalendarId,ApplyStatus.MAKE_UP_EXAM);
                 if(CollectionUtil.isNotEmpty(list)){
                     Session currentSession = SessionUtils.getCurrentSession();
-                    this.withdrawExamination(list,currentSession);
+                    List<Long> longList = this.withdrawExamination(list, currentSession);
+                    Example exampleWith = new Example(GraduateExamStudent.class);
+                    Example.Criteria criteriaWith = exampleWith.createCriteria();
+                    criteriaWith.andIn("id",longList);
+                    examStudentDao.deleteByExample(exampleWith);
                 }
             }
         }
 
     }
 
-    private void withdrawExamination(List<GraduateExamStudent> list,Session session){
+    private List<Long> withdrawExamination(List<GraduateExamStudent> list,Session session){
         Map<Long, List<GraduateExamStudent>> roomIds = list.stream().collect(Collectors.groupingBy(GraduateExamStudent::getExamRoomId));
         List<ExamInfoRoomDto> dtoList = new ArrayList<>();
         for (Long examRoomId : roomIds.keySet()) {
@@ -446,6 +449,7 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
             examLog.setIp(session.getIp());
         }
         logDao.insertList(logList);
+        return studentIds;
     }
 
 
