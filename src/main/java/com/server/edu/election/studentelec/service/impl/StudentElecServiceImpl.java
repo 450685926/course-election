@@ -746,7 +746,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
     	AsyncResult resul = AsyncProcessUtil.submitTask("initRoundStuCache", new AsyncExecuter() {
             @Override
             public void execute() {
-            	 ElectionRounds round = dataProvider.getRound(roundId);
+            	 ElectionRounds round = roundDao.selectByPrimaryKey(roundId);
                  Long calendarId = round.getCalendarId();
                  //String key = Keys.getRoundStuKey(round.getId());
                  //HashOperations<String, String, String> ops = strTemplate.opsForHash();

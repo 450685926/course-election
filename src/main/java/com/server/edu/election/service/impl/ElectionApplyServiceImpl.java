@@ -297,9 +297,10 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         	oldApplyStatus = Constants.AGENTELC;
         }
         criteria.andEqualTo("apply", oldApplyStatus);
-        ElectionApply apply = electionApplyDao.selectOneByExample(example);
-        if (apply != null)
+        List<ElectionApply> applyList = electionApplyDao.selectByExample(example);
+        if (CollectionUtil.isNotEmpty(applyList))
         {
+        	ElectionApply apply = applyList.get(0);
         	ElectionApply newApply = new ElectionApply();
             Integer applyStatus = Constants.AGENTELC;
             if(ElectRuleType.WITHDRAW.equals(type)) {
@@ -309,9 +310,11 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             Example newExample = new Example(ElectionApply.class);
             Example.Criteria newCriteria = newExample.createCriteria();
             newCriteria.andEqualTo("id", apply.getId());
-            electionApplyDao.updateByExampleSelective(newApply, newExample);
+            int count = electionApplyDao.updateByExampleSelective(newApply, newExample);
+            if(count >0) {
+            	this.updateCache(studentId, calendarId);
+            }
         }
-        this.updateCache(studentId, calendarId);
     }
     
     @Override

@@ -74,6 +74,15 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     int decrElcNumber(@Param("teachingClassId") Long teachingClassId);
     
     /**
+     * 对第三、四轮选课人数进行自减，选课人数需要大于0
+     * 
+     * @param teachingClassId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int decrElcThirdNumber(@Param("teachingClassId") Long teachingClassId);
+    
+    /**
      * 对第三、四轮退课人数进行自增，不会判断限制人数
      * 
      * @param teachingClassId

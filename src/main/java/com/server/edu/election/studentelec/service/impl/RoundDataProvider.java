@@ -158,9 +158,10 @@ public class RoundDataProvider
         Long roundId = round.getId();
         Long calendarId = round.getCalendarId();
         Date endTime = round.getEndTime();
-        long timeout =
-            TimeUnit.MILLISECONDS.toMinutes(endTime.getTime() - now.getTime())
-                + 3;
+//        long timeout =
+//            TimeUnit.MILLISECONDS.toMinutes(endTime.getTime() - now.getTime())
+//                + 3;
+        long timeout = 15;
         // 缓存轮次数据
         roundCacheService.cacheRound(round, timeout);
         
@@ -197,7 +198,7 @@ public class RoundDataProvider
             BaseresServiceInvoker.getPreSemester(calendarId);
         Long id = preSemester.getId();
         String roundPreSemester = Keys.getRoundPresemesterKey(round.getId());
-        ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.MINUTES);
+        ops.set(roundPreSemester, Long.toString(id), timeout, TimeUnit.DAYS);
     }
     
     /**

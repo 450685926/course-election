@@ -9,6 +9,9 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import com.server.edu.common.enums.GroupDataEnum;
+import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElecRoundCourseDao;
+import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.entity.ElcRoundCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
@@ -52,6 +55,7 @@ import com.server.edu.util.async.AsyncResult;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
+import tk.mybatis.mapper.entity.Example;
 
 @SwaggerDefinition(info = @Info(title = "代理选课", version = ""))
 @RestSchema(schemaId = "ElecAgentController")
@@ -69,6 +73,9 @@ public class ElecAgentController
     @Autowired
     private RedisTemplate redisTemplate;
     
+    @Autowired
+    private ElecRoundsDao roundsDao;
+    
     @ApiOperation(value = "获取生效的轮次")
     @PostMapping("/getRounds")
     public RestResult<List<ElectionRoundsVo>> getRounds(
@@ -78,6 +85,15 @@ public class ElecAgentController
     {
         List<ElectionRoundsVo> data = new ArrayList<>();
         List<ElectionRounds> allRound = dataProvider.getAllRound();
+        if(CollectionUtil.isEmpty(allRound)) {
+        	Date now = new Date();
+        	Example example = new Example(ElectionRounds.class);
+        	example.createCriteria().andEqualTo("projectId", Constants.ONE).andEqualTo("deleteStatus", Constants.ZERO).andEqualTo("openFlag", 1).andGreaterThan("beginTime", now).andLessThan("endTime", now);
+        	allRound = roundsDao.selectByExample(example);
+        	for(ElectionRounds electionRounds :allRound) {
+        		dataProvider.updateRoundCache(electionRounds.getId());
+        	}
+        }
         Date date = new Date();
         for (ElectionRounds round : allRound)
         {

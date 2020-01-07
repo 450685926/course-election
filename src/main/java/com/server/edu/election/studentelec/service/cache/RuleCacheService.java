@@ -95,7 +95,7 @@ public class RuleCacheService extends AbstractCacheService
         ops.set(key,
             JSON.toJSONString(serviceNames),
             timeout,
-            TimeUnit.MINUTES);
+            TimeUnit.DAYS);
     }
     
     /**
