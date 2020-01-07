@@ -536,7 +536,6 @@ public class ElecBkServiceImpl implements ElecBkService
     public void saveElc(ElecContextBk context, TeachingClassCache teachClass,
         ElectRuleType type,boolean hasRetakeCourse)
     {
-
         StudentInfoCache stu = context.getStudentInfo();
         ElecRequest request = context.getRequest();
         ElecRespose respose = context.getRespose();
@@ -546,11 +545,13 @@ public class ElecBkServiceImpl implements ElecBkService
         Long roundId = request.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
         Long teachClassId = teachClass.getTeachClassId();
-        String TeachClassCode = teachClass.getTeachClassCode();
+        String teachClassCode = teachClass.getTeachClassCode();
         String courseCode = teachClass.getCourseCode();
         String courseName = teachClass.getCourseName();
         Integer turn = round.getTurn();
         Integer logType = ElcLogVo.TYPE_1;
+        
+        int count = 0; 
         
 //        Integer courseTakeType =
 //            Constants.REBUILD_CALSS.equals(teachClass.getTeachClassType())
@@ -564,18 +565,25 @@ public class ElecBkServiceImpl implements ElecBkService
             {
                 LOG.info("---- LimitCountCheckerRule ----");
                 // 增加选课人数
-                int count = classDao.increElcNumberAtomic(teachClassId);
+                count = classDao.increElcNumberAtomic(teachClassId);
                 if (count == 0)
                 {
                     respose.getFailedReasons()
-                        .put(TeachClassCode + courseName,
+                        .put(teachClassCode + courseName,
                             I18nUtil.getMsg("ruleCheck.limitCount"));
                     return;
                 }
             }
             else
             {
-                classDao.increElcNumber(teachClassId);
+                count = classDao.increElcNumber(teachClassId);
+                if (count == 0)
+                {
+                    respose.getFailedReasons()
+                        .put(teachClassCode + courseName,
+                            "增加教学班选课人数失败");
+                    return;
+                }
             }
             
             ElcCourseTake take = new ElcCourseTake();
@@ -588,10 +596,17 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTeachingClassId(teachClassId);
             take.setMode(round.getMode());
             take.setTurn(round.getTurn());
-            courseTakeDao.insertSelective(take);
+            count = courseTakeDao.insertUseGeneratedKeys(take);
+            if (count == 0)
+            {
+            	count = classDao.decrElcNumber(teachClassId);
+                respose.getFailedReasons()
+                    .put(teachClassCode + courseName,
+                        I18nUtil.getMsg("election.saveElcCourseTakeError"));
+                return;
+            }
             if(ChooseObj.STU.type() != request.getChooseObj()){
                 this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_1,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
-
             }
         }
         else
@@ -604,15 +619,33 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setCourseCode(courseCode);
             take.setStudentId(studentId);
             take.setTeachingClassId(teachClassId);
-            courseTakeDao.delete(take);
+            Example takeExample = new Example(ElcCourseTake.class);
+            takeExample.createCriteria().andEqualTo("studentId", studentId).andEqualTo("courseCode", courseCode).andEqualTo("teachingClassId",teachClassId).andEqualTo("calendarId", round.getCalendarId());
+            List<ElcCourseTake> trueTakes = courseTakeDao.selectByExample(takeExample);
+            count = courseTakeDao.delete(take);
+            if (count == 0)
+            {
+                respose.getFailedReasons()
+                    .put(teachClassCode + courseName,
+                    		"删除选课记录失败");
+                return;
+            }
             if(ChooseObj.STU.type() != request.getChooseObj()){
                 this.syncRemindTime(round.getCalendarId(),ElcLogVo.TYPE_2,studentId,stu.getStudentName(),courseName+"("+courseCode+")");
             }
-            int count = classDao.decrElcNumber(teachClassId);
-            if (count > 0)
+            count = classDao.decrElcNumber(teachClassId);
+            if (count == 0)
             {
-                dataProvider.decrElcNumber(teachClassId);
+            	if(CollectionUtil.isNotEmpty(trueTakes)) {
+            		ElcCourseTake trueTake = trueTakes.get(0);
+            		courseTakeDao.insertSelective(trueTake);
+            	}
+                respose.getFailedReasons()
+                    .put(teachClassCode + courseName,
+                    		"减少教学班选课人数失败");
+                return;
             }
+            dataProvider.decrElcNumber(teachClassId);
         	Integer status = 0;
         	ElcNumberSet elcNumberSet = elcNumberSetService.getElcNumberSetInfo(round.getCalendarId());
         	if(elcNumberSet !=null) {
@@ -621,14 +654,18 @@ public class ElecBkServiceImpl implements ElecBkService
             if ((round.getTurn() == Constants.THIRD_TURN
                 || round.getTurn() == Constants.FOURTH_TURN) && Constants.FIRST.equals(status) )
             {
-            	count= classDao.increDrawNumber(teachClassId);
-            	 if (count > 0)
+            	 count= classDao.increDrawNumber(teachClassId);
+                 if (count == 0)
                  {
-                     dataProvider.incrementDrawNumber(teachClassId);
+                	 classDao.increElcNumber(teachClassId);
+                     respose.getFailedReasons()
+                         .put(teachClassCode + courseName,
+                         		"新增第三四轮退课人数失败");
+                     return;
                  }
+                 dataProvider.incrementDrawNumber(teachClassId);
             }
         }
-        
         // 添加选课日志
         ElcLog log = new ElcLog();
         log.setCalendarId(round.getCalendarId());
@@ -641,10 +678,27 @@ public class ElecBkServiceImpl implements ElecBkService
             ChooseObj.STU.type() == request.getChooseObj() ? ElcLogVo.MODE_1
                 : ElcLogVo.MODE_2);
         log.setStudentId(studentId);
-        log.setTeachingClassCode(TeachClassCode);
+        log.setTeachingClassCode(teachClassCode);
         log.setTurn(round.getTurn());
         log.setType(logType);
-        this.elcLogDao.insertSelective(log);
+        count = this.elcLogDao.insertSelective(log);
+        if (count == 0)
+        {
+        	if(ElectRuleType.ELECTION.equals(type)) {
+        		ElcCourseTake take = new ElcCourseTake();
+                take.setCalendarId(round.getCalendarId());
+                take.setCourseCode(courseCode);
+                take.setStudentId(studentId);
+                take.setTeachingClassId(teachClassId);
+                courseTakeDao.delete(take);
+        	}else {
+        		classDao.decrElcThirdNumber(teachClassId);
+        	}
+            respose.getFailedReasons()
+                .put(teachClassCode + courseName,
+                		"新增选课日志失败");
+            return;
+        }
         //更新选课申请数据
         electionApplyService
             .update(studentId, round.getCalendarId(), courseCode,type);

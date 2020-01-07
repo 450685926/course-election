@@ -10,6 +10,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
@@ -70,7 +71,7 @@ public class NewGradAndPreFilter {
 //                }
 //            }
             //gradAndPre(stuList, profNumMap, removeStus);
-            gradAndPrePeople(stuList, profNumMap, removeStus);
+            gradAndPrePeople(stuList, profNumMap, removeStus,dto.getFirstStudent(),dto.getTurn());
         }
     }
     
@@ -128,23 +129,35 @@ public class NewGradAndPreFilter {
      * @see [类、类#方法、类#成员]
      */
     public static void gradAndPrePeople(List<Student> stuList,
-        Map<String, Integer> profNumMap, List<String> removeStus)
+        Map<String, Integer> profNumMap, List<String> removeStus,List<Student> firstStudent,Integer turn)
     {
         if (CollectionUtil.isNotEmpty(stuList)
             && CollectionUtil.isNotEmptyMap(profNumMap))
         {
         	List<Student> students= new ArrayList<>();
             //年级专业对应的学生
-        	
             Map<String, List<Student>> gradeStuMap = stuList.stream().filter(c->c!=null)
                 .collect(Collectors.groupingBy(
                     stu -> stu.getGrade() + "-" + stu.getProfession()));
+            Map<String, List<Student>> firstStuMap  = new HashMap<>();
+            if(Constants.SECOND.equals(turn)) {
+            	firstStuMap = firstStudent.stream().filter(c->c!=null)
+                        .collect(Collectors.groupingBy(
+                                stu -> stu.getGrade() + "-" + stu.getProfession()));
+            }
             for (String key : gradeStuMap.keySet())
             {
                 Integer number = profNumMap.get(key);//年级专业分配的人数
                 List<Student> stus = gradeStuMap.get(key);//年级专业选课人数
+                if(CollectionUtil.isNotEmptyMap(firstStuMap)) {
+                	
+                }
+                List<Student> firstStus = firstStuMap.get(key);
                 if (number != null && stus.size() > number)
                 {
+                	if(Constants.SECOND.equals(turn)) {
+                		number = number- firstStus.size();
+                	}
                     randomRemove(removeStus, number, stus);
                     students.addAll(stus);
                 }
@@ -161,7 +174,7 @@ public class NewGradAndPreFilter {
         Integer limitNumber, List<Student> stuList)
     {
         //随机删除看过容量的学生
-        while (stuList.size() > limitNumber)
+        while (stuList.size() > 0 && stuList.size() > limitNumber)
         {
             int i = RandomUtils.nextInt(stuList.size());
             Student stu = stuList.get(i);

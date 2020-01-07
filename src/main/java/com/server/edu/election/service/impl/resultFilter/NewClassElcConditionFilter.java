@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.TeachingClassElectiveRestrictAttrDao;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
@@ -68,9 +69,8 @@ public class NewClassElcConditionFilter {
                 }
             }
             //1. 按教学班选课限制的专业与人数
-            GradAndPreFilter.gradAndPre(stuList, profNumMap, removeStus);
-            GradAndPreFilter.gradAndPrePeople(stuList, profNumMap, removeStus);
-            
+            NewGradAndPreFilter.gradAndPre(stuList, profNumMap, removeStus);
+            NewGradAndPreFilter.gradAndPrePeople(stuList, profNumMap, removeStus,dto.getFirstStudent(),dto.getTurn());
             if (null == restrictAttr)
             {
                 return;
@@ -78,46 +78,63 @@ public class NewClassElcConditionFilter {
             //2. 将男女分开类，1男性 2女性
             Map<Integer, List<Student>> collect = stuList.stream()
                 .collect(Collectors.groupingBy(Student::getSex));
+            List<Student> firstStudent = dto.getFirstStudent();
+            Map<Integer, List<Student>> firstCollect = firstStudent.stream()
+                    .collect(Collectors.groupingBy(Student::getSex));
             String isDivsex = restrictAttr.getIsDivsex();
             isDivsex = StringUtils.isEmpty(isDivsex) ? "0" : isDivsex;
-            Integer numberMale = restrictAttr.getNumberMale();
             List<Student> newStudents = new ArrayList<>();
             //3. 删除超过人数的男生或女生
             //是否男女生班 0：不区分  1：男生班 2：女生班
+            Integer numberMale = restrictAttr.getNumberMale();
             List<Student> maleStus = collect.get(1);
+            Integer numberFemale = restrictAttr.getNumberFemale();
+            List<Student> femaleStus = collect.get(2);
+            List<Student> firstStus = new ArrayList<>();
+            if(CollectionUtil.isNotEmptyMap(firstCollect)) {
+            	firstStus =  firstCollect.get(1);
+            }
+        	if(Constants.SECOND.equals(dto.getTurn())) {
+        		numberMale = numberMale- firstStus.size();
+        	}
             if (CollectionUtil.isNotEmpty(maleStus))
             {
                 if (StringUtils.containsAny(isDivsex, '0')
                     && null != numberMale && 0 != numberMale && maleStus.size() > numberMale)
                 {
-                    GradAndPreFilter
+                    NewGradAndPreFilter
                         .randomRemove(removeStus, numberMale, maleStus);// 删除超过的男生
+                    newStudents.addAll(maleStus);
                 }
                 if (StringUtils.containsAny(isDivsex, '2')
-                        && null != numberMale && 0 != numberMale )
+                         )
                 {
-                    GradAndPreFilter
-                            .randomRemove(removeStus, numberMale, maleStus);// 删除超过的男生
+                	if(Constants.SECOND.equals(dto.getTurn())) {
+                		numberMale = numberMale- firstStus.size();
+                	}
+                	removeStus.addAll(maleStus.stream().map(Student ::getStudentCode).collect(Collectors.toList()));
+//                	NewGradAndPreFilter
+//                            .randomRemove(removeStus, numberMale, maleStus);// 删除超过的男生
+                	newStudents.addAll(femaleStus);
                 }
-                newStudents.addAll(maleStus);
             }
-            Integer numberFemale = restrictAttr.getNumberFemale();
-            List<Student> femaleStus = collect.get(2);
             if (CollectionUtil.isNotEmpty(femaleStus))
             {
                 if (StringUtils.containsAny(isDivsex, '0')
                     && null != numberFemale  && 0 != numberFemale && femaleStus.size() > numberFemale)
                 {
-                    GradAndPreFilter
+                	NewGradAndPreFilter
                         .randomRemove(removeStus, numberMale, femaleStus);// 删除超过的女生
+                	newStudents.addAll(femaleStus);
                 }
                 if (StringUtils.containsAny(isDivsex, '1')
                     && null != numberFemale  && 0 != numberFemale)
                 {
-                    GradAndPreFilter
-                        .randomRemove(removeStus, numberMale, femaleStus);// 删除超过的女生
+//                	NewGradAndPreFilter
+//                        .randomRemove(removeStus, numberMale, femaleStus);// 删除超过的女生
+                	removeStus.addAll(femaleStus.stream().map(Student ::getStudentCode).collect(Collectors.toList()));
+                	newStudents.addAll(maleStus);
                 }
-                newStudents.addAll(femaleStus);
             }
             if(CollectionUtil.isNotEmpty(newStudents)) {
             	stuList.clear();
