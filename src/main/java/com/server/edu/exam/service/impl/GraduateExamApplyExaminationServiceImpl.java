@@ -231,7 +231,7 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
     public void checkRepeat(GraduateExamApplyExamination applyExamination) {
         Example example = new Example(GraduateExamApplyExamination.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("calendarId",applyExamination.getExamCalendarId());
+        criteria.andEqualTo("examCalendarId",applyExamination.getExamCalendarId());
         criteria.andEqualTo("studentCode",applyExamination.getStudentCode());
         criteria.andEqualTo("courseCode",applyExamination.getCourseCode());
         criteria.andEqualTo("projId",applyExamination.getProjId());
