@@ -231,11 +231,11 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
     public void checkRepeat(GraduateExamApplyExamination applyExamination) {
         Example example = new Example(GraduateExamApplyExamination.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("calendarId",applyExamination.getCalendarId());
+        criteria.andEqualTo("calendarId",applyExamination.getExamCalendarId());
         criteria.andEqualTo("studentCode",applyExamination.getStudentCode());
         criteria.andEqualTo("courseCode",applyExamination.getCourseCode());
         criteria.andEqualTo("projId",applyExamination.getProjId());
-        criteria.andEqualTo("applyType",applyExamination.getApplyType());
+        //criteria.andEqualTo("applyType",applyExamination.getApplyType());
         GraduateExamApplyExamination examination = applyExaminationDao.selectOneByExample(example);
         if(examination == null){
             applyExaminationDao.insertSelective(applyExamination);
@@ -248,7 +248,11 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
                 applyExamination.setUpdateAt(new Date());
                 applyExaminationDao.updateByPrimaryKeySelective(applyExamination);
             }else{
-                throw new ParameterValidateException("该课程已经提交申请，请勿反复提交");
+                if(examination.getApplyType().equals(ApplyStatus.EXAM_SITUATION_SLOW)){
+                    throw new ParameterValidateException("该课程已经提交了缓考申请，请勿反复提交");
+                }else{
+                    throw new ParameterValidateException("该课程已经提交了补考申请，请勿反复提交");
+                }
             }
 
         }
