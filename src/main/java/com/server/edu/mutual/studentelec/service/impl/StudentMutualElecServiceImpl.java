@@ -194,6 +194,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 		query.setRoundId(round.getId());
 		query.setProjectId(round.getProjectId());
 		dto.setCondition(query);
+		dto.setPageSize_(99999);
 		PageResult<CourseOpenDto> pageResult = elcMutualRoundCourseServiceImpl.listPage(dto);
 		List<CourseOpenDto> list = pageResult.getList();
 		
