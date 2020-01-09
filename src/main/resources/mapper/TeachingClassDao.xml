@@ -821,6 +821,10 @@
       id_ = #{item.id}
     </foreach>
    </update>
+    <update id="clearDrawNumber" parameterType="com.server.edu.election.vo.TeachingClassVo">
+        update teaching_class_t set THIRD_WITHDRAW_NUMBER = 0 where
+        id_ = #{id}
+    </update>
    
    <update id="batchAddDrawNumber" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"
