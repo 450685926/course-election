@@ -166,6 +166,12 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
      * @return
      */
     int batchClearDrawNumber(List<TeachingClassVo> list);
+    /**
+     * 批量清除第三四轮退课人数
+     * @param list
+     * @return
+     */
+    int clearDrawNumber(TeachingClassVo list);
     
     /**
      * 批量修改第三四轮教学班退课人数
