@@ -135,9 +135,10 @@ public class ElcNumberSetServiceImpl implements ElcNumberSetService
                         teachingClassDao.selectDrawClasss(elcNumberSetDto);
 
                 if (CollectionUtil.isNotEmpty(list)) {
-                    asyncResult.setTotal(list.size());
+
                     List<TeachingClassVo> decrElcNumberList = list.stream().filter(c -> c.getId() != null).collect(Collectors.toList());
                     if (CollectionUtil.isNotEmpty(decrElcNumberList)) {
+                        asyncResult.setTotal(list.size());
                         SqlSession session = factory.openSession(ExecutorType.BATCH, false);
                         TeachingClassDao mapper = session.getMapper(TeachingClassDao.class);
                         for (int i = 0; i < decrElcNumberList.size(); i++) {
