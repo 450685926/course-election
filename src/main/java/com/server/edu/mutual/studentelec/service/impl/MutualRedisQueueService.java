@@ -36,7 +36,6 @@ public class MutualRedisQueueService extends AbstractMutualElecQueue
     @Override
     public boolean add(String group, ElecRequest data)
     {
-    	LOG.info("----------------------redis queue-------------------");
         RedisList<ElecRequest> queue = getQueue(group);
         return queue.add(data);
     }
