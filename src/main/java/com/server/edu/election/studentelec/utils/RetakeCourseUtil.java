@@ -70,8 +70,13 @@ public class RetakeCourseUtil {
      */
     public static boolean isRetakeCourseBk(ElecContextBk context, String courseCode) {
         List<com.server.edu.election.studentelec.context.bk.CompletedCourse> list = new ArrayList<>();
-        list.addAll(context.getCompletedCourses());
-        list.addAll(context.getFailedCourse());
+        
+        if (!CollectionUtil.isEmpty(context.getCompletedCourses())) {
+        	list.addAll(context.getCompletedCourses());
+		}
+        if (!CollectionUtil.isEmpty(context.getFailedCourse())) {
+        	list.addAll(context.getFailedCourse());
+        }
         
         long count = 0L;
         if (CollectionUtil.isNotEmpty(list)) {

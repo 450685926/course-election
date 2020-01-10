@@ -275,6 +275,12 @@ public class ElecYjsController
     	
     	RestResult<?> result = null;
     	
+    	Session session = SessionUtils.getCurrentSession();
+    	Boolean isAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && session.isAdmin(); 
+    	if (!isAdmin) {
+			return new RestResult().error();
+		}
+    	
     	if (StringUtils.equalsIgnoreCase(method, Constants.QUERY)) { // 查询
     		/** 支持精确查询和模糊匹配查询
     		 *  elec-stdstatus-109_1931454

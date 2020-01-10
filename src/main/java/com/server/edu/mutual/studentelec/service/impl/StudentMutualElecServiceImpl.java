@@ -43,7 +43,8 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
     private RoundDataProvider dataProvider;
 	
     @Autowired
-    private ElecMutualQueueService<ElecRequest> queueMutualService;
+//    private ElecMutualQueueService<ElecRequest> queueMutualService;
+    private ElecMutualQueueService<ElecRequest> mutualRedisQueue;
     
     @Autowired
     private ElcMutualRoundCourseService elcMutualRoundCourseServiceImpl;
@@ -79,7 +80,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             // 加入队列
             currentStatus = ElecStatus.Loading;
             ElecContextUtil.setElecStatus(calendarId, studentId, currentStatus);
-            if (!queueMutualService.add(MutualQueueGroups.MUTUAL_STUDENT_LOADING, elecRequest))
+            if (!mutualRedisQueue.add(MutualQueueGroups.MUTUAL_STUDENT_LOADING, elecRequest))
             {
                 currentStatus = ElecStatus.Init;
                 ElecContextUtil
@@ -120,8 +121,6 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
         ElecStatus currentStatus =
             ElecContextUtil.getElecStatus(calendarId, studentId);
         
-        LOG.info("-----------66666------currentStatus:"+ currentStatus + "--------------------");
-        
         if (ElecStatus.Ready.equals(currentStatus)
             && ElecContextUtil.tryLock(calendarId, studentId))
         {
@@ -129,9 +128,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             {
                 ElecContextUtil.saveElecResponse(studentId, new ElecRespose());
                 // 加入选课队列
-                LOG.info("-----------77777------ElecRespose:"+ ElecContextUtil.getElecRespose(studentId).getStatus() + "--------------------");
-                
-                if (queueMutualService.add(MutualQueueGroups.MUTUAL_STUDENT_ELEC, elecRequest))
+                if (mutualRedisQueue.add(MutualQueueGroups.MUTUAL_STUDENT_ELEC, elecRequest))
                 {
                     ElecContextUtil.setElecStatus(calendarId,
                         studentId,
