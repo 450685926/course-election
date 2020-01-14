@@ -491,6 +491,9 @@
       <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseLabelId)">
         and t1.COURSE_LABEL_ID_ = #{courseLabelId}
       </if>
+        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(campus)">
+            and t1.CAMPUS_ = #{campus}
+        </if>
       <if test="actualAndUpper != null and actualAndUpper !=0 and actualAndUpper==1">
         and t1.ELC_NUMBER_ &gt; t1.NUMBER_
       </if>
