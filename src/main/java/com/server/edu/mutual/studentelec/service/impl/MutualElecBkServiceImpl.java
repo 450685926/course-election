@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -49,10 +50,12 @@ import com.server.edu.mutual.studentelec.service.MutualElecBkService;
 import com.server.edu.util.BeanUtil;
 import com.server.edu.util.CollectionUtil;
 
+
 /**
  * 本科生选课
  * @author xlluoc
  */
+@Service
 public class MutualElecBkServiceImpl implements MutualElecBkService{
 	Logger LOG = LoggerFactory.getLogger(MutualElecBkServiceImpl.class);
 	
