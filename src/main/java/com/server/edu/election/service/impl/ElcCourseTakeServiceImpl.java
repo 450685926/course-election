@@ -173,7 +173,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
         List<String> stds = new ArrayList<>();
-        if(cond.getIsLimit().intValue() == 1 && cond.getTeachingClassId() != null){
+        if(cond.getIsLimit() != null && cond.getIsLimit().intValue() == 1 && cond.getTeachingClassId() != null){
             Example example = new Example(ElcAffinityCoursesStds.class);
             example.createCriteria().andEqualTo("teachingClassId", cond.getTeachingClassId());
             List<ElcAffinityCoursesStds> elcAffinityCoursesStds = elcAffinityCoursesStdsDao.selectByExample(example);
