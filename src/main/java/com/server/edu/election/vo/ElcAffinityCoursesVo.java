@@ -30,7 +30,11 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
     
     @NotEmpty
     private List<String> studentIds;
-    
+
+
+    @NotEmpty
+    private List<Long> teachingClassIds;
+
     public List<String> getStudentIds()
     {
         return studentIds;
@@ -95,5 +99,13 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
 
     public void setFaculty(String faculty) {
         this.faculty = faculty;
+    }
+
+    public List<Long> getTeachingClassIds() {
+        return teachingClassIds;
+    }
+
+    public void setTeachingClassIds(List<Long> teachingClassIds) {
+        this.teachingClassIds = teachingClassIds;
     }
 }
