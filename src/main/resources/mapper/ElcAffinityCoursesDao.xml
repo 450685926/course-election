@@ -9,27 +9,25 @@
    <result column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
   </resultMap>
   <select id="selectElcAffinityCourses" parameterType="com.server.edu.election.dto.ElcAffinityCoursesDto" resultType="com.server.edu.election.vo.ElcAffinityCoursesVo">
-		SELECT DISTINCT
-		    t1.COURSE_ID_ courseId,
-			t3.COURSE_CODE_ courseCode,
-			t3.COURSE_NAME_ courseName,
--- 			t3.COURSE_NAME_EN_ courseNameEn,
-			t3.TRAINING_LEVEL_ trainingLevel,
-			t3.CREDITS_ credits,
-	  		t3.FACULTY_ faculty
-		FROM
-			elc_affinity_courses_t t1
-		JOIN course_t t2 ON t1.COURSE_ID_ = t2.ID_
-		JOIN course_open_t t3 ON (
-			t2.CODE_ = t3.COURSE_CODE_
-			AND t3.IS_OPEN_ = 1 and t3.DELETE_STATUS_ = 0
-		)
+	  SELECT
+	  t1.COURSE_CODE_ courseCode,
+	  t1.COURSE_NAME_ courseName,
+	  t1.TRAINING_LEVEL_ trainingLevel,
+	  t1.CREDITS_ credits,
+	  t1.FACULTY_ faculty
+	  FROM
+	  course_open_t t1
+	  JOIN teaching_task_t t2 ON t2.COURSE_OPEN_ID_ = t1.ID_
+	  JOIN teaching_class_t t3 ON t3.TASK_ID_ = t2.ID_
+	  JOIN elc_affinity_courses_t t4 ON t4.TEACHING_CLASS_ID_ = t3.ID_
+	  LEFT JOIN courses_label_t CL ON t3.COURSE_LABEL_ID_ = CL.ID_
 		<where>
+		t4.CALENDAR_ID_ = #{calendarId}
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-		        and t2.CODE_ like concat('%',#{courseCode},'%')
+		        and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-		        and t2.NAME_ like concat('%',#{courseName},'%')
+		        and t2.COURSE_NAME_ like concat('%',#{courseName},'%')
 		    </if>
 		</where>
   </select>

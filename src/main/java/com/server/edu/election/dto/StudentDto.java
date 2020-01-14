@@ -25,6 +25,8 @@ public class StudentDto extends Student
 
     private List<String> faculties;
 
+    private Long teachingClassId;
+
     public List<String> getFaculties() {
         return faculties;
     }
@@ -90,7 +92,13 @@ public class StudentDto extends Student
 	public void setStudentIds(List<String> studentIds) {
 		this.studentIds = studentIds;
 	}
-    
-    
-    
+
+
+    public Long getTeachingClassId() {
+        return teachingClassId;
+    }
+
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
+    }
 }

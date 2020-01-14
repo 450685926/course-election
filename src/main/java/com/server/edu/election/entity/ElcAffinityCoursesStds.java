@@ -5,12 +5,6 @@ import javax.persistence.*;
 
 @Table(name = "elc_affinity_courses_stds_t")
 public class ElcAffinityCoursesStds implements Serializable {
-    /**
-     * 优先学生名单-课程
-     */
-    @Id
-    @Column(name = "COURSE_ID_")
-    private Long courseId;
 
     /**
      * 学号
@@ -19,25 +13,13 @@ public class ElcAffinityCoursesStds implements Serializable {
     @Column(name = "STUDENT_ID_")
     private String studentId;
 
+    /**
+     * 教学班ID
+     */
+    @Column(name = "TEACHING_CLASS_ID_")
+    private Long teachingClassId;
+
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 获取优先学生名单-课程
-     *
-     * @return COURSE_ID_ - 优先学生名单-课程
-     */
-    public Long getCourseId() {
-        return courseId;
-    }
-
-    /**
-     * 设置优先学生名单-课程
-     *
-     * @param courseId 优先学生名单-课程
-     */
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
-    }
 
     /**
      * 获取学号
@@ -63,10 +45,17 @@ public class ElcAffinityCoursesStds implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
-        sb.append(", courseId=").append(courseId);
         sb.append(", studentId=").append(studentId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
+    }
+
+    public Long getTeachingClassId() {
+        return teachingClassId;
+    }
+
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
     }
 }

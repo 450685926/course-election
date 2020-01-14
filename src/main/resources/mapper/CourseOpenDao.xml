@@ -26,39 +26,38 @@
   <resultMap id="affinityMap" type="com.server.edu.election.vo.CourseOpenVo" extends="com.server.edu.election.dao.CourseOpenDao.BaseResultMap">
      <result column="courseId" jdbcType="BIGINT" property="courseId" />
      <result column="suggestStatus" jdbcType="INTEGER" property="suggestStatus" />
+	  <result column="teachingClassId" jdbcType="BIGINT" property="teachingClassId" />
   </resultMap>
   <select id="selectCourseList" parameterType="com.server.edu.election.entity.CourseOpen" resultMap="affinityMap">
-		SELECT
-			DISTINCT
-			<!-- t1.ID_, -->
-			t2.ID_ courseId,
-			t1.COURSE_CODE_,
-			t1.COURSE_NAME_,
-			t1.TRAINING_LEVEL_,
-			t1.CREDITS_,
-			t1.PERIOD_,
-			t1.FACULTY_
-		FROM
-			course_open_t t1
-		JOIN course_t t2 ON (
-			t1.IS_OPEN_ = 1
-			AND t1.COURSE_CODE_ = t2.CODE_
-		)
-		WHERE
-			COURSE_CODE_ NOT IN (
-				SELECT
-					t2.CODE_
-				FROM
-					course_t t2
-				JOIN elc_affinity_courses_t t3 ON t2.ID_ = t3.COURSE_ID_
-			)
-			and t1.PROJ_ID_ = 1 and t1.DELETE_STATUS_ = 0
-		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-	        and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
-	    </if>
-	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
-	        and t1.COURSE_NAME_ like concat('%',#{courseName},'%')
-	    </if> 
+	  SELECT DISTINCT
+	  t4.ID_ teachingClassId,
+	  t1.COURSE_CODE_,
+	  t1.COURSE_NAME_,
+	  t1.TRAINING_LEVEL_,
+	  t1.CREDITS_,
+	  t1.PERIOD_,
+	  t1.FACULTY_
+	  FROM
+	  course_open_t t1
+	  JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
+	  JOIN teaching_class_t t4 ON (t4.TASK_ID_ = t3.ID_ and t4.DELETE_STATUS_ =0)
+	  LEFT JOIN courses_label_t CL ON t4.COURSE_LABEL_ID_ = CL.ID_
+	  WHERE
+	  t1.CALENDAR_ID_ = #{calendarId}
+	  and t1.IS_OPEN_ = 1 and t1.DELETE_STATUS_ = 0
+	  and t1.PROJ_ID_ = 1
+	  and t4.DEPLOY_FLAG_ &gt; 0
+	  and t4.ID_ NOT IN (
+	  select t.TEACHING_CLASS_ID_ from elc_affinity_courses_t t where t.CALENDAR_ID_ = #{calendarId}
+	  )
+	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
+		  and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
+	  </if>
+	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
+		  and t1.COURSE_NAME_ like concat('%',#{courseName},'%')
+	  </if>
+	  GROUP BY t4.ID_
+	  order by t4.ID_
   </select>
   <select id="selectCourseSuggestSwitch" parameterType="com.server.edu.election.dto.CourseOpenDto" resultMap="affinityMap">
     SELECT DISTINCT * from (
