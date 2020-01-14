@@ -72,6 +72,11 @@ public class ElcMutualApply implements Serializable {
     @Column(name = "AUDIT_REASON_")
     private String auditReason;
 
+    /**
+     * 申请类型
+     */
+    @Column(name = "MODE_")
+    private Integer mode;
     private static final long serialVersionUID = 1L;
 
     /**
@@ -236,6 +241,14 @@ public class ElcMutualApply implements Serializable {
         this.auditReason = auditReason == null ? null : auditReason.trim();
     }
 
+    public Integer getMode() {
+        return mode;
+    }
+
+    public void setMode(Integer mode) {
+        this.mode = mode;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -251,6 +264,7 @@ public class ElcMutualApply implements Serializable {
         sb.append(", mutualCourseId=").append(mutualCourseId);
         sb.append(", remark=").append(remark);
         sb.append(", auditReason=").append(auditReason);
+        sb.append(", mode=").append(mode);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
