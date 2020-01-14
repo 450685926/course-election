@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -119,12 +118,13 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int addCourse(List<Long> ids)
+    public int addCourse(List<Long> ids, Long calendarId)
     {
         List<ElcAffinityCourses> list = new ArrayList<>();
         ids.forEach(temp -> {
             ElcAffinityCourses elcAffinityCourses = new ElcAffinityCourses();
             elcAffinityCourses.setTeachingClassId(temp);
+            elcAffinityCourses.setCalendarId(calendarId);
             list.add(elcAffinityCourses);
         });
         int result = elcAffinityCoursesDao.insertList(list);

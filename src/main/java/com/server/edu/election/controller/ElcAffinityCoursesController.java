@@ -107,11 +107,11 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "添加课程")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(
-        @RequestBody @NotEmpty List<Long> teachingClassIds)
+            @RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
         throws Exception
     {
         LOG.info("addCourse.start");
-        int result = elcAffinityCoursesService.addCourse(teachingClassIds);
+        int result = elcAffinityCoursesService.addCourse(elcAffinityCoursesVo.getTeachingClassIds(),elcAffinityCoursesVo.getCalendarId());
         return RestResult.successData(result);
     }
     
