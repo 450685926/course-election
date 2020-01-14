@@ -98,6 +98,8 @@ public class ElcCourseTakeVo extends ElcCourseTake
     /*部门id*/
     private String projId;
 
+    private Integer affinityStds;
+
     public String getProjId() {
         return projId;
     }
@@ -372,5 +374,13 @@ public class ElcCourseTakeVo extends ElcCourseTake
     @Override
     public void setTurn(Integer turn) {
         this.turn = turn;
+    }
+
+    public Integer getAffinityStds() {
+        return affinityStds;
+    }
+
+    public void setAffinityStds(Integer affinityStds) {
+        this.affinityStds = affinityStds;
     }
 }

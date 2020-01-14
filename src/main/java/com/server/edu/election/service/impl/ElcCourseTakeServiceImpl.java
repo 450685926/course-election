@@ -119,6 +119,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
     @Autowired
     private DictionaryService dictionaryService;
 
+    @Autowired
+    private ElcAffinityCoursesStdsDao elcAffinityCoursesStdsDao;
+
     @Value("${cache.directory}")
     private String cacheDirectory;
     
@@ -169,12 +172,25 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
         cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
+        List<String> stds = new ArrayList<>();
+        if(cond.getIsLimit().intValue() == 1 && cond.getTeachingClassId() != null){
+            Example example = new Example(ElcAffinityCoursesStds.class);
+            example.createCriteria().andEqualTo("teachingClassId", cond.getTeachingClassId());
+            List<ElcAffinityCoursesStds> elcAffinityCoursesStds = elcAffinityCoursesStdsDao.selectByExample(example);
+            if (CollectionUtil.isNotEmpty(elcAffinityCoursesStds)){
+                stds =  elcAffinityCoursesStds.stream().map(ElcAffinityCoursesStds::getStudentId).collect(Collectors.toList()) ;
+            }
+        }
         for (ElcCourseTakeVo elcCourseTakeVo : listPage) {
 			if (elcCourseTakeVo.getChooseObj().intValue() == 1) {
 				elcCourseTakeVo.setElectionMode(1);
 			}else{
 				elcCourseTakeVo.setElectionMode(2);
 			}
+			if(CollectionUtil.isNotEmpty(stds) && stds.contains(elcCourseTakeVo.getStudentId())){
+                elcCourseTakeVo.setAffinityStds(Constants.ONE);
+            }
+
 		}
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
 
