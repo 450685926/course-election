@@ -11,4 +11,5 @@ import tk.mybatis.mapper.common.MySqlMapper;
 
 public interface ElcCrossStdsDao extends Mapper<ElcCrossStds>,MySqlMapper<ElcCrossStds> {
 	List<ElcMutualCrossStuVo> getCrossStds(ElcMutualCrossStuDto dto);
+	ElcMutualCrossStuVo isInElcMutualStdList(ElcMutualCrossStuDto dto);
 }

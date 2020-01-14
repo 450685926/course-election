@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.server.edu.election.mutual.dao.ElcCrossStdsDao">
+<mapper namespace="com.server.edu.mutual.dao.ElcCrossStdsDao">
   <resultMap id="BaseResultMap" type="com.server.edu.mutual.entity.ElcCrossStds">
     <!--
       WARNING - @mbg.generated
@@ -53,4 +53,21 @@
 		    </if>
 		</where>  
   </select>
+	<select id="isInElcMutualStdList" parameterType="com.server.edu.mutual.dto.ElcMutualCrossStuDto"
+			resultType="com.server.edu.mutual.vo.ElcMutualCrossStuVo">
+		SELECT
+		ID_ id,
+		CALENDAR_ID_ calendarId,
+		STUDENT_ID_ studentId
+		FROM
+		elc_cross_stds_t
+		<where>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+				and CALENDAR_ID_ = #{calendarId}
+			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+				and STUDENT_ID_ = #{studentId}
+			</if>
+		</where>
+	</select>
 </mapper>
