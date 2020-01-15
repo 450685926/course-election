@@ -1,6 +1,7 @@
 package com.server.edu.mutual.service.impl;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -64,16 +65,17 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     	if (!isAcdemicDean) {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
     	}
-    	
+
+		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
+			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
+			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 			dto.setByType(Constants.FIRST);
 		}
 		
 		dto.setCollege(session.getFaculty());
-		
-		List<String> projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		dto.setProjectIds(projectIds);
 
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
