@@ -379,12 +379,15 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
             score.setStudentId(dto.getStudentCode());
             score.setCourseCode(dto.getCourseCode());
             score.setCalendarId(dto.getCalendarId());
-            score.setTotalMarkScore("0");
-            score.setRemark("缺课1/3");
-            score.setExamType("8");
-            score.setRecoredType(course.getScoreType());
-            score.setPeriod(score.getPeriod());
-            score.setLearnType("1");
+            score.setTotalMarkScore(ApplyStatus.FINAM_SCORE);
+            score.setRemark(ApplyStatus.MISS_CLASS);
+            score.setExamType(ApplyStatus.EXAM_TYPE);
+            if(course != null){
+                score.setCredit(course.getCredits());
+                score.setRecoredType(course.getScoreType());
+                score.setPeriod(course.getPeriod());
+            }
+            score.setLearnType(ApplyStatus.LEARN_TYPE);
             list.add(score);
             ScoreServiceExamInvoker.setExamSituationRebuild(list);
         }
