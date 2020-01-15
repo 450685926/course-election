@@ -23,6 +23,11 @@ public class ApplyStatus {
     public static final Integer PASS_INT = 1;
     public static final Integer NOT_PASS_INT = 0;
     public static final String TEACHER_ROLE = "2";
+    public static final String FINAM_SCORE = "0";
+    public static final String MISS_CLASS = "缺课1/3";
+    public static final String EXAM_TYPE = "8";
+    public static final String LEARN_TYPE = "1";
+
 
     /**考试类型 1 期末考试 2 补缓考*/
     public static final Integer FINAL_EXAM = 1;

@@ -307,10 +307,14 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         //List<GraduateExamStudentDto> studentDtos = condition.stream().filter(vo -> !examSituation.equals(vo.getExamSituation())).collect(Collectors.toList());
         Session currentSession = SessionUtils.getCurrentSession();
         if(CollectionUtil.isNotEmpty(condition)){
+            List<StudentScore> list = new ArrayList<>();
             for (GraduateExamStudentDto dto : condition) {
-                this.setExamSituationByOne(dto,examSituation,currentSession);
+                this.setExamSituationByOne(dto,examSituation,currentSession,list);
             }
 
+            if(CollectionUtil.isNotEmpty(list)){
+                ScoreServiceExamInvoker.setExamSituationRebuild(list);
+            }
         }
 
     }
@@ -331,7 +335,7 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
         return list;
     }
 
-    private void setExamSituationByOne(GraduateExamStudentDto dto, Integer examSituation,Session currentSession) {
+    private void setExamSituationByOne(GraduateExamStudentDto dto, Integer examSituation,Session currentSession,List<StudentScore> list) {
 
         //正常状态变为缓考
         if(examSituation.equals(ApplyStatus.EXAM_SITUATION_SLOW)){
@@ -372,21 +376,23 @@ public class GraduateExamStudentServiceImpl implements GraduateExamStudentServic
             //todo 进入重修列表增量
             //查询成绩记录方式
             Course course = examStudentDao.findCourseScoreType(dto.getCourseCode(),currentSession.getCurrentManageDptId());
-            List<StudentScore> list = new ArrayList<>();
+
             StudentScore score = new StudentScore();
             score.setTeachingClassId(dto.getTeachingClassId());
             score.setTeachingClassName(dto.getTeachingClassName());
             score.setStudentId(dto.getStudentCode());
             score.setCourseCode(dto.getCourseCode());
             score.setCalendarId(dto.getCalendarId());
-            score.setTotalMarkScore("0");
-            score.setRemark("缺课1/3");
-            score.setExamType("8");
-            score.setRecoredType(course.getScoreType());
-            score.setPeriod(score.getPeriod());
-            score.setLearnType("1");
+            score.setTotalMarkScore(ApplyStatus.FINAM_SCORE);
+            score.setRemark(ApplyStatus.MISS_CLASS);
+            score.setExamType(ApplyStatus.EXAM_TYPE);
+            if(course != null){
+                score.setCredit(course.getCredits());
+                score.setRecoredType(course.getScoreType());
+                score.setPeriod(course.getPeriod());
+            }
+            score.setLearnType(ApplyStatus.LEARN_TYPE);
             list.add(score);
-            ScoreServiceExamInvoker.setExamSituationRebuild(list);
         }
     }
 
