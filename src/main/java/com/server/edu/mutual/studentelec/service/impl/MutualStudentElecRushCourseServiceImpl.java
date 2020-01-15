@@ -1,5 +1,7 @@
 package com.server.edu.mutual.studentelec.service.impl;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,10 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.IElecContext;
+import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
+import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.studentelec.service.AbstractMutualElecQueueComsumerService;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
 import com.server.edu.mutual.studentelec.service.MutualElecBkService;
@@ -86,6 +91,12 @@ public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQu
             {
                 // 数据保存到缓存
             	LOG.info("-----------------111333 elec saveToCache--------------------------");
+            	ElecContextMutualBk aaa = (ElecContextMutualBk)context;
+            	List<SelectedCourse> list = aaa.getSelectedMutualCourses();
+            	for (SelectedCourse selectedCourse : list) {
+            		TeachingClassCache classCache = selectedCourse.getCourse();
+					LOG.info("========"+ classCache.getCourseCode() + "===" + classCache.getCourseName());
+				}
                 context.saveToCache();
             }
         }
