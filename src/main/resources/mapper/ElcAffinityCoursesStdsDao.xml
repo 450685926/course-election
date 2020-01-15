@@ -5,19 +5,19 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <id column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
+    <id column="TEACHING_CLASS_ID_" jdbcType="BIGINT" property="teachingClassId" />
     <id column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
   </resultMap>
   
   <insert id="batchInsert" parameterType="java.util.List">
     insert into elc_affinity_courses_stds_t(
-    COURSE_ID_,STUDENT_ID_
+      TEACHING_CLASS_ID_,STUDENT_ID_
     )
     values
     <foreach item="item" collection="list" index="index"
              separator=",">
       (
-      #{item.courseId},
+      #{item.teachingClassId},
       #{item.studentId}
       )
     </foreach>
