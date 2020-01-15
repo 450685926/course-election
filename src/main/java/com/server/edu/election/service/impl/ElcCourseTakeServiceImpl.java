@@ -65,6 +65,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
@@ -163,11 +164,11 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
         List<String> stds = new ArrayList<>();
         if(cond.getIsLimit() != null && cond.getIsLimit().intValue() == 1 && cond.getTeachingClassId() != null){
-            Example example = new Example(ElcAffinityCoursesStds.class);
-            example.createCriteria().andEqualTo("teachingClassId", cond.getTeachingClassId());
-            List<ElcAffinityCoursesStds> elcAffinityCoursesStds = elcAffinityCoursesStdsDao.selectByExample(example);
+            Student stu = new Student();
+            stu.setManagerDeptId("1");
+            List<Student> elcAffinityCoursesStds = studentDao.selectElcInvincibleStds(stu);
             if (CollectionUtil.isNotEmpty(elcAffinityCoursesStds)){
-                stds =  elcAffinityCoursesStds.stream().map(ElcAffinityCoursesStds::getStudentId).collect(Collectors.toList()) ;
+                stds =  elcAffinityCoursesStds.stream().map(Student::getStudentCode).collect(Collectors.toList()) ;
             }
         }
         for (ElcCourseTakeVo elcCourseTakeVo : listPage) {
