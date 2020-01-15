@@ -18,6 +18,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.dto.ElectionApplyDto;
+import com.server.edu.election.dto.ElectionApplyRejectDto;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.vo.ElectionApplyVo;
@@ -107,6 +108,24 @@ public class ElectionApplyController {
     {
         LOG.info("reply.start");
         int result =electionApplyService.reply(electionApply);
+        return RestResult.successData(result);
+    }
+    
+    /**
+     * 驳回
+     * 
+     * @param dto
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "驳回")
+    @PostMapping("/reject")
+    public RestResult<Integer> reject(
+    		@RequestBody @Valid ElectionApplyRejectDto dto)
+        throws Exception
+    {
+        LOG.info("reject.start");
+        int result =electionApplyService.reject(dto);
         return RestResult.successData(result);
     }
 	
