@@ -11,8 +11,7 @@ public class StudentDto extends Student
     private static final long serialVersionUID = 1L;
     
     private String courseCode;
-    
-    @NotNull
+
     private Long courseId;
     
     private Long calendarId;
