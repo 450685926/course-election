@@ -6,7 +6,8 @@
       WARNING - @mbg.generated
     -->
     <id column="ID_" jdbcType="BIGINT" property="id" />
-   <result column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
+    <result column="COURSE_ID_" jdbcType="BIGINT" property="courseId" />
+	<result column="teachingClassId" jdbcType="BIGINT" property="teachingClassId" />
   </resultMap>
   <select id="selectElcAffinityCourses" parameterType="com.server.edu.election.dto.ElcAffinityCoursesDto" resultType="com.server.edu.election.vo.ElcAffinityCoursesVo">
 	  SELECT
@@ -14,7 +15,8 @@
 	  t1.COURSE_NAME_ courseName,
 	  t1.TRAINING_LEVEL_ trainingLevel,
 	  t1.CREDITS_ credits,
-	  t1.FACULTY_ faculty
+	  t1.FACULTY_ faculty,
+	  t3.ID_ teachingClassId
 	  FROM
 	  course_open_t t1
 	  JOIN teaching_task_t t2 ON t2.COURSE_OPEN_ID_ = t1.ID_
@@ -29,6 +31,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
 		        and t2.COURSE_NAME_ like concat('%',#{courseName},'%')
 		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+				AND (t1.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t2.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+			</if>
 		</where>
   </select>
 </mapper>

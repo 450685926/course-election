@@ -3,8 +3,6 @@ package com.server.edu.election.service.impl;
 import java.util.Date;
 import java.util.List;
 
-import com.server.edu.common.enums.GroupDataEnum;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
@@ -22,6 +20,7 @@ import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ElectionApplyDao;
 import com.server.edu.election.dto.ElectionApplyDto;
+import com.server.edu.election.dto.ElectionApplyRejectDto;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
@@ -185,6 +184,35 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
             throw new ParameterValidateException(
                 I18nUtil.getMsg("common.saveError",
                     I18nUtil.getMsg("electionApply.reply")));
+        }
+        this.updateCache(electionApply.getStudentId(), electionApply.getCalendarId());
+        return result;
+    }
+    
+    @Override
+    @Transactional
+    public int reject(ElectionApplyRejectDto dto)
+    {
+    	ElectionRounds electionRounds = elecRoundsDao.selectByPrimaryKey(dto.getRoundId());
+    	if(electionRounds ==null) {
+    		throw new ParameterValidateException("轮次数据错误");
+    	}
+    	Example example = new Example(ElectionApply.class);
+    	example.createCriteria().andEqualTo("studentId", dto.getStudentId()).andEqualTo("calendarId", electionRounds.getCalendarId()).andEqualTo("courseCode",dto.getCourseCode());
+    	List<ElectionApply> electionApplys = electionApplyDao.selectByExample(example);
+    	if(CollectionUtil.isEmpty(electionApplys)) {
+    		throw new ParameterValidateException("学生选课申请数据异常");
+    	}
+    	ElectionApply electionApply = electionApplys.get(0);
+    	electionApply.setApply(Constants.TOW);
+    	electionApply.setRemark(dto.getRemark());
+        int result =
+            electionApplyDao.updateByPrimaryKeySelective(electionApply);
+        if (result <= 0)
+        {
+            throw new ParameterValidateException(
+                I18nUtil.getMsg("common.saveError",
+                    I18nUtil.getMsg("electionApply.reject")));
         }
         this.updateCache(electionApply.getStudentId(), electionApply.getCalendarId());
         return result;

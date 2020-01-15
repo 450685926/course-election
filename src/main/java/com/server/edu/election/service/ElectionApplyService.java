@@ -5,6 +5,7 @@ import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.ElectRuleType;
 import com.server.edu.election.dto.ElectionApplyDto;
+import com.server.edu.election.dto.ElectionApplyRejectDto;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.vo.ElectionApplyVo;
 
@@ -46,6 +47,15 @@ public interface ElectionApplyService
      * @see [类、类#方法、类#成员]
      */
     int reply(ElectionApply electionApply);
+    
+    /**
+     * 驳回
+     * 
+     * @param electionApply
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    int reject(ElectionApplyRejectDto dto);
     
     /**
      * 删除
