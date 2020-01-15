@@ -31,6 +31,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
 		        and t2.COURSE_NAME_ like concat('%',#{courseName},'%')
 		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+				AND (t1.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t2.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+			</if>
 		</where>
   </select>
 </mapper>

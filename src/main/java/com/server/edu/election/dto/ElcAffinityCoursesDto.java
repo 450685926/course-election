@@ -9,6 +9,8 @@ public class ElcAffinityCoursesDto extends ElcAffinityCourses {
 
     private String courseName;
 
+    private String keyword;
+
     private String courseNameEn;
     
 	public String getCourseCode() {
@@ -34,8 +36,13 @@ public class ElcAffinityCoursesDto extends ElcAffinityCourses {
 	public void setCourseNameEn(String courseNameEn) {
 		this.courseNameEn = courseNameEn;
 	}
-    
-    
 
 
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
 }
