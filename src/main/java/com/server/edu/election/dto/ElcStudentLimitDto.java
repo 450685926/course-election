@@ -28,7 +28,7 @@ public class ElcStudentLimitDto extends ElcStudentLimit {
     
     /**年级*/
     private String grade;
-    
+
     private double minLimitCredits;
     
     private double maxLimitCredits;
@@ -56,7 +56,17 @@ public class ElcStudentLimitDto extends ElcStudentLimit {
 	/**分库分表标识*/
 	private Integer index;
 
+	private String keyword;
+
 	private List<String> faculties;
+
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
 
 	public List<String> getFaculties() {
 		return faculties;

@@ -23,9 +23,19 @@ public class StudentDto extends Student
     
     private String projectId;
 
+    private String keyword;
+
     private List<String> faculties;
 
     private Long teachingClassId;
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
     public List<String> getFaculties() {
         return faculties;
