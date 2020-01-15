@@ -77,7 +77,7 @@
 		        and t1.STUDENT_ID_ = #{studentId}
 		    </if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-				and (t4.STUDENT_CODE_ like concat('%', #{keyCode},'%') or t4.NAME_ like concat('%', #{keyCode},'%'))
+				and (t4.STUDENT_CODE_ like concat('%', #{keyword},'%') or t4.NAME_ like concat('%', #{keyword},'%'))
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
 		        and t4.NAME_ = #{name}

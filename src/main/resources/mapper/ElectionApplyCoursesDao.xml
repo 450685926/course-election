@@ -41,7 +41,7 @@
 		        and t2.NAME_ = #{name}
 		   </if>
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-		        and (t2.CODE_ like concat(#{keyword},'%') or t2.NAME_ like concat(#{keyword},'%') or t2.NAME_EN_ like concat(#{keyword},'%'))
+		        and (t2.CODE_ like concat('%', #{keyword},'%') or t2.NAME_ like concat('%', #{keyword},'%') or t2.NAME_EN_ like concat('%', #{keyword},'%'))
 		   </if>
 		   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
 		        and t2.COLLEGE_ = #{college}
