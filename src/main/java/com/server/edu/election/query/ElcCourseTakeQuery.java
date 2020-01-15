@@ -12,6 +12,8 @@ public class ElcCourseTakeQuery
     public static final Integer PE_COURSE_TYPE = 1;
     /**英语课程类型*/
     public static final Integer EN_COURSE_TYPE = 2;
+
+    private Integer isLimit;
     
     /**
      * 校历ID（学年学期）
@@ -442,4 +444,11 @@ public class ElcCourseTakeQuery
 		this.electionMode = electionMode;
 	}
 
+    public Integer getIsLimit() {
+        return isLimit;
+    }
+
+    public void setIsLimit(Integer isLimit) {
+        this.isLimit = isLimit;
+    }
 }

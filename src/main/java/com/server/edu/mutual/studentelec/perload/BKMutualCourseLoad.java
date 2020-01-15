@@ -101,12 +101,12 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 		List<ElcMutualApplyVo> list = elcMutualAuditService.getOpenCollegeAuditList(dto);
 		
 		// 未选择的互选课程
-		Set<SelectedCourse> unSelectedMutual = new HashSet<SelectedCourse>();
+		List<SelectedCourse> unSelectedMutual = new ArrayList<SelectedCourse>();
 		this.loadUnSelectedCourses(studentId, unSelectedMutual, list, round);
 		context.setUnSelectedMutualCourses(unSelectedMutual);
 		
         // 本学期已选的互选课程
-		Set<SelectedCourse> selectedMutualCourses = context.getSelectedMutualCourses();
+		List<SelectedCourse> selectedMutualCourses = context.getSelectedMutualCourses();
 		this.loadSelectedCourses(studentId, selectedMutualCourses, calendarId, list, round);
 		context.setSelectedMutualCourses(selectedMutualCourses);
 	}
@@ -120,36 +120,24 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
      * @see [类、类#方法、类#成员]
      */
     public void loadUnSelectedCourses(String studentId,
-        Set<SelectedCourse> unSelectedMutual, List<ElcMutualApplyVo> list, ElectionRounds round)
+        List<SelectedCourse> unSelectedMutual, List<ElcMutualApplyVo> list, ElectionRounds round)
     {
-//    	Integer index =TableIndexUtil.getIndex(calendarId);
     	//记录日志
-    	LOG.info("----alex---it is start to findBkSelectedCourses.........................");
         List<ElcCourseTakeVo> courseTakes = elcCourseTakeDao.findAllSelectedCourses(studentId);
-        List<ElcCourseTakeVo> selectedMutualCourse = new ArrayList<ElcCourseTakeVo>();
+        List<ElcMutualApplyVo> unSelectedCourse = new ArrayList<ElcMutualApplyVo>();
+        List<ElcMutualApplyVo> selectedMutualCourse = new ArrayList<ElcMutualApplyVo>();
+
         for (ElcMutualApplyVo elcMutualApplyVo : list) {
-			for (ElcCourseTakeVo elcCourseTakeVo : courseTakes) {
-				if (StringUtils.equals(elcMutualApplyVo.getCourseCode(),elcCourseTakeVo.getCourseCode())) {
-					selectedMutualCourse.add(elcCourseTakeVo);
-				}
-			}
-		}
+        	for (ElcCourseTakeVo elcCourseTakeVo : courseTakes) {
+        		if (StringUtils.equals(elcMutualApplyVo.getCourseCode(),elcCourseTakeVo.getCourseCode())) {
+        			selectedMutualCourse.add(elcMutualApplyVo);
+        			break;
+        		}
+        	}
+        }
+        unSelectedCourse.addAll(list);
+        unSelectedCourse.removeAll(selectedMutualCourse);
         
-		boolean flag = false;
-		List<ElcMutualApplyVo> unSelectedCourse = new ArrayList<ElcMutualApplyVo>();
-		for (ElcMutualApplyVo listVo : list) {
-			for (ElcCourseTakeVo elcMutualApplyVo : selectedMutualCourse) {
-				if (StringUtils.equals(listVo.getCourseCode(), elcMutualApplyVo.getCourseCode())) {
-					flag = true;
-				}
-			}
-			if (!flag) {
-				unSelectedCourse.add(listVo); 
-			}
-		}
-        
-//        String name = SchoolCalendarCacheUtil.getName(calendarId);
-        // 获取学历年
         if (CollectionUtil.isNotEmpty(unSelectedCourse))
         {
             List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentId);
@@ -162,10 +150,10 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
                     }
                 }
             }
-            List<Long> teachClassIds = unSelectedCourse.stream()
-                .map(temp -> Long.parseLong(temp.getTeachingClassId()))
-                .collect(Collectors.toList());
-            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
+//            List<Long> teachClassIds = unSelectedCourse.stream()
+//                .map(temp -> Long.parseLong(temp.getTeachingClassId()))
+//                .collect(Collectors.toList());
+//            Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
             for (ElcMutualApplyVo c : unSelectedCourse)
             {
                 SelectedCourse course = new SelectedCourse();
@@ -180,13 +168,13 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
                 lesson.setCalendarId(c.getCalendarId());
 //                lesson.setPublicElec(
 //                    c.getIsPublicCourse() == Constants.ZERO ? false : true);
-                lesson.setTeachClassId(Long.parseLong(c.getTeachingClassId()));
-                lesson.setTeachClassCode(c.getTeachingClassCode());
+//                lesson.setTeachClassId(Long.parseLong(c.getTeachingClassId()));
+//                lesson.setTeachClassCode(c.getTeachingClassCode());
                 lesson.setFaculty(c.getFaculty());
                 lesson.setTerm(c.getTerm());
                 lesson.setCompulsory(map.get(c.getCourseCode()));
-                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
-                lesson.setTimes(times);
+//                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
+//                lesson.setTimes(times);
                 course.setCourse(lesson);
 //                course.setLabel(c.getLabel());
                 course.setChooseObj(getChooseObj(round.getElectionObj()));
@@ -233,7 +221,7 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 	 * @param round
 	 */
 	private void loadSelectedCourses(String studentId,
-	        Set<SelectedCourse> selectedMutualCourses, Long calendarId, List<ElcMutualApplyVo> list, ElectionRounds round) {
+	        List<SelectedCourse> selectedMutualCourses, Long calendarId, List<ElcMutualApplyVo> list, ElectionRounds round) {
 		String name = SchoolCalendarCacheUtil.getName(calendarId);
 		
         List<ElcCourseTakeVo> courseTakes = elcCourseTakeDao.findAllSelectedCourses(studentId);
@@ -242,11 +230,11 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 			for (ElcCourseTakeVo elcCourseTakeVo : courseTakes) {
 				if (StringUtils.equals(elcMutualApplyVo.getCourseCode(),elcCourseTakeVo.getCourseCode())) {
 					selectedMutualCourse.add(elcCourseTakeVo);
+					break;
 				}
 			}
 		}
-		
-		
+        
 		if (CollectionUtil.isNotEmpty(selectedMutualCourse))
         {
             List<Long> teachClassIds = selectedMutualCourse.stream().map(temp -> temp.getTeachingClassId()).collect(Collectors.toList());
@@ -300,8 +288,6 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
                 selectedMutualCourses.add(course);
             }
         }
-		
-		
 	}
 	
     /**

@@ -14,6 +14,7 @@
     <result column="MUTUAL_COURSE_ID_" jdbcType="BIGINT" property="mutualCourseId" />
     <result column="REMARK_" jdbcType="VARCHAR" property="remark" />
     <result column="AUDIT_REASON_" jdbcType="VARCHAR" property="auditReason" />
+
   </resultMap>
   <resultMap type="com.server.edu.mutual.vo.ElcMutualApplyVo" id="MutualApplyMap" extends="BaseResultMap">
       <result column="COURSE_ID_" jdbcType="VARCHAR" property="courseId" />
@@ -59,6 +60,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_  = #{studentId}
 		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+				and t1.MODE_  = #{mode}
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
 		        and t2.BY_TYPE_  = #{byType}
 		    </if>
@@ -117,6 +121,7 @@
 		  FROM
 		     elc_mutual_apply_t t3 
 		  WHERE t3.`CALENDAR_ID_` = #{calendarId} AND t3.`STUDENT_ID_` = #{studentId}
+			AND t3.MODE_=#{mode}
 		    )
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
 		        and t1.BY_TYPE_  = #{byType}

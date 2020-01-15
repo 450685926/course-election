@@ -70,11 +70,11 @@ public class ElcAffinityCoursesController
      */
     @ApiOperation(value = "删除")
     @PostMapping("/delete")
-    public RestResult<Integer> delete(@RequestBody @NotEmpty List<Long> courseIds)
+    public RestResult<Integer> delete(@RequestBody @NotEmpty List<Long> teachingClassIds)
         throws Exception
     {
         LOG.info("delete.start");
-        int result = elcAffinityCoursesService.delete(courseIds);
+        int result = elcAffinityCoursesService.delete(teachingClassIds);
         return RestResult.successData(result);
     }
     
@@ -107,11 +107,11 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "添加课程")
     @PostMapping("/addCourse")
     public RestResult<Integer> addCourse(
-        @RequestBody @NotEmpty List<Long> courseIds)
+            @RequestBody @Valid ElcAffinityCoursesVo elcAffinityCoursesVo)
         throws Exception
     {
         LOG.info("addCourse.start");
-        int result = elcAffinityCoursesService.addCourse(courseIds);
+        int result = elcAffinityCoursesService.addCourse(elcAffinityCoursesVo.getTeachingClassIds(),elcAffinityCoursesVo.getCalendarId());
         return RestResult.successData(result);
     }
     
@@ -236,11 +236,11 @@ public class ElcAffinityCoursesController
     @ApiOperation(value = "移除所有学生")
     @PostMapping("/batchDeleteStudent")
     public RestResult<Integer> batchDeleteStudent(
-    		@RequestParam("courseId")  @NotNull Long courseId)
+    		@RequestParam("teachingClassId")  @NotNull Long teachingClassId)
         throws Exception
     {
         LOG.info("batchDeleteStudent.start");
-        int result = elcAffinityCoursesService.batchDeleteStudent(courseId);
+        int result = elcAffinityCoursesService.batchDeleteStudent(teachingClassId);
         return RestResult.successData(result);
     }
     

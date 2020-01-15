@@ -21,7 +21,7 @@ public interface ElcAffinityCoursesService
     
     PageInfo<CourseOpenVo> courseList(PageCondition<CourseOpen> condition);
     
-    int addCourse(List<Long> ids);
+    int addCourse(List<Long> ids, Long calendarId);
     
     PageInfo<Student> studentList(PageCondition<StudentDto> condition);
     

@@ -596,7 +596,7 @@ public class ElecBkServiceImpl implements ElecBkService
             take.setTeachingClassId(teachClassId);
             take.setMode(round.getMode());
             take.setTurn(round.getTurn());
-            count = courseTakeDao.insertUseGeneratedKeys(take);
+            count = courseTakeDao.insertSelective(take);
             if (count == 0)
             {
             	count = classDao.decrElcNumber(teachClassId);

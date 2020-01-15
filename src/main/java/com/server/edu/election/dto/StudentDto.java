@@ -11,8 +11,7 @@ public class StudentDto extends Student
     private static final long serialVersionUID = 1L;
     
     private String courseCode;
-    
-    @NotNull
+
     private Long courseId;
     
     private Long calendarId;
@@ -24,6 +23,8 @@ public class StudentDto extends Student
     private String projectId;
 
     private List<String> faculties;
+
+    private Long teachingClassId;
 
     public List<String> getFaculties() {
         return faculties;
@@ -90,7 +91,13 @@ public class StudentDto extends Student
 	public void setStudentIds(List<String> studentIds) {
 		this.studentIds = studentIds;
 	}
-    
-    
-    
+
+
+    public Long getTeachingClassId() {
+        return teachingClassId;
+    }
+
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
+    }
 }

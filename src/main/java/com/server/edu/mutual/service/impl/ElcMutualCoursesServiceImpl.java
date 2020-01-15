@@ -123,12 +123,17 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		Session session = SessionUtils.getCurrentSession();
 		List<CourseOpenDto> courses = getOpenedCourses(calendarId,session.getCurrentManageDptId());
 
-		if(CollectionUtil.isEmpty(courses)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",I18nUtil.getMsg("elcMutualCourses.course"))); 
-		}
+//		if(CollectionUtil.isEmpty(courses)) {
+//			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",I18nUtil.getMsg("elcMutualCourses.course")));
+//		}
 		
 		if (StringUtils.isNotBlank(college)) {
 			courses = courses.stream().filter(CourseOpenDto->StringUtils.equals(CourseOpenDto.getFaculty(), college)).collect(Collectors.toList());
+		}
+
+		//将检验条件放在过滤后，防止 courses 为空导致 sveElcMutualCourses 报错
+		if(CollectionUtil.isEmpty(courses)) {
+			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",I18nUtil.getMsg("elcMutualCourses.course")));
 		}
 
 		//保存数据

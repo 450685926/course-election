@@ -1,5 +1,8 @@
 package com.server.edu.election.entity;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.translator.SchoolCalendarTranslator;
+
 import java.io.Serializable;
 
 import javax.persistence.Column;
@@ -22,11 +25,31 @@ public class ElcAffinityCourses implements Serializable {
     /**
      * 课程ID
      */
-    @NotNull
     @Column(name = "COURSE_ID_")
     private Long courseId;
 
+    /**
+     * 教学班ID
+     */
+    @Column(name = "TEACHING_CLASS_ID_")
+    private Long teachingClassId;
+
+    /**
+     * 学年学期
+     */
+    /**
+     * 校历ID（学年学期）
+     */
+    @Column(name = "CALENDAR_ID_")
+    private Long calendarId;
+
+
+
+
     private static final long serialVersionUID = 1L;
+
+    public ElcAffinityCourses() {
+    }
 
     /**
      * 获取主键（自增）
@@ -64,6 +87,8 @@ public class ElcAffinityCourses implements Serializable {
         this.courseId = courseId;
     }
 
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -75,5 +100,21 @@ public class ElcAffinityCourses implements Serializable {
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
+    }
+
+    public Long getCalendarId() {
+        return calendarId;
+    }
+
+    public void setCalendarId(Long calendarId) {
+        this.calendarId = calendarId;
+    }
+
+    public Long getTeachingClassId() {
+        return teachingClassId;
+    }
+
+    public void setTeachingClassId(Long teachingClassId) {
+        this.teachingClassId = teachingClassId;
     }
 }

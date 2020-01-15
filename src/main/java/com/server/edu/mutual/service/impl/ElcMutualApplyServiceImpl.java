@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.server.edu.mutual.dao.ElcCrossStdsDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,39 +57,44 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	
 	@Autowired
 	private ElcMutualStdsDao elcMutualStdsDao;
-	
+
+	@Autowired
+	private ElcCrossStdsDao elcCrossStdsDao;
+
 	@Autowired
 	private ElcMutualApplySwitchDao elcMutualApplySwitchDao;
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualApplyList(PageCondition<ElcMutualApplyDto> condition) {
+		LOG.info("xuguangjie...........234567");
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		if(session.realType() != UserTypeEnum.STUDENT.getValue()) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elec.mustBeStu")); 
 		}
-		
-		if(Constants.BK_CROSS.equals(dto.getMode())) {
+		List<String> projectIds = new ArrayList<>();
+		if (Constants.BK_CROSS.equals(dto.getMode())) {
+			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
-		}else {
+		} else {
+			projectIds = ProjectUtil.getProjectIds(dto.getProjectId());
 			dto.setByType(Constants.FIRST);
 		}
-		
-		List<String> projectIds = ProjectUtil.getProjectIds(dto.getProjectId());
+
 		dto.setProjectIds(projectIds);
 		
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualApplyList(condition.getCondition());
 		
-		if (StringUtils.equals(dto.getProjectId(),Constants.PROJ_UNGRADUATE)) {
-			
-		}else {
+//		if (StringUtils.equals(dto.getProjectId(),Constants.PROJ_UNGRADUATE)) {
+//
+//		}else {
 			PageInfo<ElcMutualApplyVo> coursesForStu = getElcMutualCoursesForStu(condition);
 			List<ElcMutualApplyVo> coursesForStuList = coursesForStu.getList();
 			if (CollectionUtil.isNotEmpty(coursesForStuList)) {
 				list.addAll(coursesForStuList);
 			}
-		}
+//		}
 		
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
@@ -131,22 +137,37 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualCoursesForStu(PageCondition<ElcMutualApplyDto> condition){
+		LOG.info("*******getElcMutualCoursesForStu********");
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		String projectId = session.getCurrentManageDptId();
 		String studentId = dto.getStudentId();
 		
-		// 判断该学生是否在本研互选名单中
+
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
 		stuDto.setCalendarId(dto.getCalendarId());
 		stuDto.setStudentId(studentId);
-		ElcMutualCrossStuVo elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
+		ElcMutualCrossStuVo elcMutualCrossStuVo = null;
+		// 判断该学生是否在本研互选名单中
+		if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
+			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
+		}
+		// 判断该学生是否在跨院系互选名单中
+		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
+			elcMutualCrossStuVo = elcCrossStdsDao.isInElcMutualStdList(stuDto);
+		}
+
 		if (elcMutualCrossStuVo == null) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInMutualStuList")); 
 		}
-		
-		List<String> projectIds = ProjectUtil.getProjectIds(projectId);
+		List<String> projectIds =new ArrayList<>();
+		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
+			projectIds.add(Constants.PROJ_UNGRADUATE);
+		} else {
+			projectIds = ProjectUtil.getProjectIds(projectId);
+		}
+
 		dto.setProjectIds(projectIds);
 		
 		dto.setStudentId(studentId);
@@ -158,7 +179,41 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
 		
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
-			// 本科生可申请的互选课程为: 研究生管理员维护的互选课程
+			// 本科生可申请的跨院系课程为: 研究生管理员维护的跨院系课程
+			List<LabelCreditCount> planKYX = new ArrayList<LabelCreditCount>();
+			List<LabelCreditCount> planCount = CultureSerivceInvokerToMutual.studentPlanCountByStuId(studentId);
+			if (CollectionUtil.isNotEmpty(planCount)) {
+				planKYX = planCount.stream().filter(vo->StringUtils.equals(vo.getLabelName(), "跨院系课程")).collect(Collectors.toList());
+			}
+
+			if (CollectionUtil.isNotEmpty(planKYX)) {
+				LabelCreditCount labelCreditCount = planKYX.get(0);
+				long labelId = labelCreditCount.getLabelId().longValue();
+
+				// 获取培养计划中的课程列表
+				List<CulturePlan> listPlanVos = new ArrayList<CulturePlan>();
+				RestResult restResult = CultureSerivceInvokerToMutual.getCulturePlanByStudentId(studentId, 0);
+				String json = JSONObject.toJSON(restResult.getData()).toString();
+				Map<String, Object> parse = (Map)JSON.parse(json);
+				for (String key : parse.keySet()) {
+					if (StringUtils.equals(key, "culturePlanList")) {
+						String value = parse.get(key).toString();
+						listPlanVos = JSONArray.parseArray(value, CulturePlan.class);
+					}
+				}
+
+				// 获取培养计划中的跨院系课courseCode
+				List<String> courseCodeKYX = listPlanVos.stream()
+						.filter(vo->vo.getLabelId().longValue()==labelId)
+						.map(CulturePlan::getCourseCode)
+						.collect(Collectors.toList());
+				LOG.info("---------------courseCodeKYX:" + courseCodeKYX.toString() + "--------------");
+
+				// 补修课与互选维护课程取交集
+				list = list.stream().filter(vo->courseCodeKYX.contains(vo.getCourseCode())).collect(Collectors.toList());
+			}else {
+				list = new ArrayList<ElcMutualApplyVo>();
+			}
 			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集

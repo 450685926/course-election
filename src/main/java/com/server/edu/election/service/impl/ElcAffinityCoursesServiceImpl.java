@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -78,11 +77,11 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int delete(List<Long> courseIds)
+    public int delete(List<Long> teachingClassIds)
     {
         Example example = new Example(ElcAffinityCourses.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andIn("courseId", courseIds);
+        criteria.andIn("teachingClassId", teachingClassIds);
         int result = elcAffinityCoursesDao.deleteByExample(example);
         if (result <= Constants.ZERO)
         {
@@ -92,7 +91,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         }
         Example refExample = new Example(ElcAffinityCoursesStds.class);
         Example.Criteria refCriteria = refExample.createCriteria();
-        refCriteria.andIn("courseId", courseIds);
+        refCriteria.andIn("courseId", teachingClassIds);
         List<ElcAffinityCoursesStds> list =
             elcAffinityCoursesStdsDao.selectByExample(refExample);
         if (CollectionUtil.isNotEmpty(list))
@@ -119,12 +118,13 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int addCourse(List<Long> ids)
+    public int addCourse(List<Long> ids, Long calendarId)
     {
         List<ElcAffinityCourses> list = new ArrayList<>();
         ids.forEach(temp -> {
             ElcAffinityCourses elcAffinityCourses = new ElcAffinityCourses();
-            elcAffinityCourses.setCourseId(temp);
+            elcAffinityCourses.setTeachingClassId(temp);
+            elcAffinityCourses.setCalendarId(calendarId);
             list.add(elcAffinityCourses);
         });
         int result = elcAffinityCoursesDao.insertList(list);
@@ -165,7 +165,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
         //新增学生不在已经添加的名单
         StudentDto student =
                 new StudentDto();
-        student.setCourseId(elcAffinityCoursesVo.getCourseId());
+        student.setTeachingClassId(elcAffinityCoursesVo.getTeachingClassId());
         student.setStudentIds(elcAffinityCoursesVo.getStudentIds());
         List<Student> selectUnElcStudents = studentDao.selectUnElcStudents(student);
         List<String> stuIds = selectUnElcStudents.stream().map(Student::getStudentCode).collect(Collectors.toList());
@@ -187,7 +187,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
             ElcAffinityCoursesStds elcAffinityCoursesStds =
                 new ElcAffinityCoursesStds();
             elcAffinityCoursesStds
-                .setCourseId(elcAffinityCoursesVo.getCourseId());
+                .setTeachingClassId(elcAffinityCoursesVo.getTeachingClassId());
             elcAffinityCoursesStds.setStudentId(temp);
             stuList.add(elcAffinityCoursesStds);
         });
@@ -211,7 +211,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
             list.forEach(temp -> {
                 ElcAffinityCoursesStds elcAffinityCoursesStds =
                     new ElcAffinityCoursesStds();
-                elcAffinityCoursesStds.setCourseId(studentDto.getCourseId());
+                elcAffinityCoursesStds.setTeachingClassId(studentDto.getTeachingClassId());
                 elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
                 stuList.add(elcAffinityCoursesStds);
             });
@@ -243,7 +243,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
 		            list.forEach(temp -> {
 		                ElcAffinityCoursesStds elcAffinityCoursesStds =
 		                    new ElcAffinityCoursesStds();
-		                elcAffinityCoursesStds.setCourseId(studentDto.getCourseId());
+		                elcAffinityCoursesStds.setTeachingClassId(studentDto.getTeachingClassId());
 		                elcAffinityCoursesStds.setStudentId(temp.getStudentCode());
 		                stuList.add(elcAffinityCoursesStds);
 		            });
@@ -292,7 +292,7 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     {
         Example example = new Example(ElcAffinityCoursesStds.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("courseId", vo.getCourseId());
+        criteria.andEqualTo("teachingClassId", vo.getTeachingClassId());
         criteria.andIn("studentId", vo.getStudentIds());
         int result = elcAffinityCoursesStdsDao.deleteByExample(example);
         if (result <= Constants.ZERO)
@@ -305,11 +305,11 @@ public class ElcAffinityCoursesServiceImpl implements ElcAffinityCoursesService
     }
     
     @Override
-    public int batchDeleteStudent(Long courseId)
+    public int batchDeleteStudent(Long teachingClassId)
     {
         Example example = new Example(ElcAffinityCoursesStds.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("courseId", courseId);
+        criteria.andEqualTo("teachingClassId", teachingClassId);
         int result = elcAffinityCoursesStdsDao.deleteByExample(example);
         if (result <= Constants.ZERO)
         {

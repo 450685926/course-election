@@ -3,6 +3,7 @@ package com.server.edu.mutual.studentelec.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import com.server.edu.election.constants.Constants;
@@ -17,6 +18,7 @@ import com.server.edu.mutual.studentelec.service.MutualElecYjsService;
 import com.server.edu.mutual.studentelec.service.MutualStudentElecRushCourseService;
 import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
 
+@Service
 public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQueueComsumerService<ElecRequest>
       implements MutualStudentElecRushCourseService{
 	

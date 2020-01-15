@@ -3,6 +3,7 @@ package com.server.edu.election.controller;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.server.edu.util.async.AsyncResult;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,23 @@ public class ElcNumberSetController {
     {
         LOG.info("releaseAll.start");
         int result =elcNumberSetService.releaseAll(calendarId);
+        return RestResult.successData(result);
+    }
+    /**
+     *releaseAll
+     *
+     * @param calendarId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "释放全部(异步)")
+    @PostMapping("/releaseAllAsync")
+    public RestResult<AsyncResult> releaseAllAsync(
+            @RequestParam("calendarId") @NotNull Long calendarId)
+            throws Exception
+    {
+        LOG.info("releaseAll.start");
+        AsyncResult result =elcNumberSetService.releaseAllAsync(calendarId);
         return RestResult.successData(result);
     }
     

@@ -27,10 +27,11 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
     //开课学院
     @Code2Text(transformer = "X_YX")
     private String faculty;
-    
-    @NotEmpty
+
     private List<String> studentIds;
-    
+
+    private List<Long> teachingClassIds;
+
     public List<String> getStudentIds()
     {
         return studentIds;
@@ -95,5 +96,13 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
 
     public void setFaculty(String faculty) {
         this.faculty = faculty;
+    }
+
+    public List<Long> getTeachingClassIds() {
+        return teachingClassIds;
+    }
+
+    public void setTeachingClassIds(List<Long> teachingClassIds) {
+        this.teachingClassIds = teachingClassIds;
     }
 }

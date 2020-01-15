@@ -11,6 +11,10 @@ public class CourseOpenVo extends CourseOpen {
     private Integer suggestStatus;
     
     private Long courseId;
+
+    private Long teachingClassId;
+
+    private String teachingClassCode;
     
     
     
@@ -29,5 +33,21 @@ public class CourseOpenVo extends CourseOpen {
 
 	public void setSuggestStatus(Integer suggestStatus) {
 		this.suggestStatus = suggestStatus;
+	}
+
+	public Long getTeachingClassId() {
+		return teachingClassId;
+	}
+
+	public void setTeachingClassId(Long teachingClassId) {
+		this.teachingClassId = teachingClassId;
+	}
+
+	public String getTeachingClassCode() {
+		return teachingClassCode;
+	}
+
+	public void setTeachingClassCode(String teachingClassCode) {
+		this.teachingClassCode = teachingClassCode;
 	}
 }

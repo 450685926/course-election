@@ -43,7 +43,8 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
     private RoundDataProvider dataProvider;
 	
     @Autowired
-    private ElecMutualQueueService<ElecRequest> queueMutualService;
+//    private ElecMutualQueueService<ElecRequest> queueMutualService;
+    private ElecMutualQueueService<ElecRequest> mutualRedisQueue;
     
     @Autowired
     private ElcMutualRoundCourseService elcMutualRoundCourseServiceImpl;
@@ -79,7 +80,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             // 加入队列
             currentStatus = ElecStatus.Loading;
             ElecContextUtil.setElecStatus(calendarId, studentId, currentStatus);
-            if (!queueMutualService.add(MutualQueueGroups.MUTUAL_STUDENT_LOADING, elecRequest))
+            if (!mutualRedisQueue.add(MutualQueueGroups.MUTUAL_STUDENT_LOADING, elecRequest))
             {
                 currentStatus = ElecStatus.Init;
                 ElecContextUtil
@@ -120,8 +121,6 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
         ElecStatus currentStatus =
             ElecContextUtil.getElecStatus(calendarId, studentId);
         
-        LOG.info("-----------66666------currentStatus:"+ currentStatus + "--------------------");
-        
         if (ElecStatus.Ready.equals(currentStatus)
             && ElecContextUtil.tryLock(calendarId, studentId))
         {
@@ -129,9 +128,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             {
                 ElecContextUtil.saveElecResponse(studentId, new ElecRespose());
                 // 加入选课队列
-                LOG.info("-----------77777------ElecRespose:"+ ElecContextUtil.getElecRespose(studentId).getStatus() + "--------------------");
-                
-                if (queueMutualService.add(MutualQueueGroups.MUTUAL_STUDENT_ELEC, elecRequest))
+                if (mutualRedisQueue.add(MutualQueueGroups.MUTUAL_STUDENT_ELEC, elecRequest))
                 {
                     ElecContextUtil.setElecStatus(calendarId,
                         studentId,
@@ -181,10 +178,10 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 
 	@Override
 	public ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId) {
-		Set<SelectedCourse> optionalCourses = c.getOptionalCourses();
+		List<SelectedCourse> optionalCourses = c.getOptionalCourses();
 		
-		Set<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
-		Set<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
+		List<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
+		List<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
 		
 		// 获取轮次可选的互选课程
 		PageCondition<ElecRoundCourseQuery> dto = new PageCondition<ElecRoundCourseQuery>();
@@ -194,6 +191,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 		query.setRoundId(round.getId());
 		query.setProjectId(round.getProjectId());
 		dto.setCondition(query);
+		dto.setPageSize_(99999);
 		PageResult<CourseOpenDto> pageResult = elcMutualRoundCourseServiceImpl.listPage(dto);
 		List<CourseOpenDto> list = pageResult.getList();
 		

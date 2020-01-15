@@ -358,7 +358,7 @@ public class ElcResultServiceImpl implements ElcResultService
 	private void getProportion(ElcResultQuery condition, TeachingClassVo vo) {
 		if(condition.getIsHaveLimit() != null && Constants.ONE== condition.getIsHaveLimit().intValue()) {
             //没有设置男女比例时，页面显示 无/无
-		    if(vo.getNumberMale()==null||vo.getNumberFemale()==null) {
+		    if(vo.getNumberMale()==null||vo.getNumberFemale()==null || (vo.getNumberMale()==0 &&vo.getNumberFemale()==0)) {
                 vo.setProportion("无/无");
                 return;
             }
@@ -432,26 +432,15 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
             }else {
-                List<String> includeCodes = new ArrayList<>();
                 // 1体育课
                 if (Objects.equals(condition.getCourseType(), 1))
                 {
-                    String findPECourses = constantsDao.findPECourses();
-                    if (StringUtils.isNotBlank(findPECourses))
-                    {
-                        includeCodes.addAll(Arrays.asList(findPECourses.split(",")));
-                    }
+                    condition.setFaculty("000293");
                 }
                 else if (Objects.equals(condition.getCourseType(), 2))
                 {// 2英语课
-                    String findEnglishCourses = constantsDao.findEnglishCourses();
-                    if (StringUtils.isNotBlank(findEnglishCourses))
-                    {
-                        includeCodes
-                            .addAll(Arrays.asList(findEnglishCourses.split(",")));
-                    }
+                    condition.setFaculty("000268");
                 }
-                condition.setIncludeCodes(includeCodes);
 //                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
                 if(condition.getIsHaveLimit() != null && condition.getIsHaveLimit().intValue() == Constants.ONE){
                     PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
@@ -1358,9 +1347,7 @@ public class ElcResultServiceImpl implements ElcResultService
         TeachingClassElectiveRestrictAttr teachingClassAttr = attrDao.selectOneByExample(example);
         //获取是否是男女班，男1 女2 不区分0
         String limitIsDivsex = teachingClassVo.getLimitIsDivsex();
-        if(teachingClassAttr != null){
-            limitIsDivsex = teachingClassAttr.getIsDivsex();
-        }
+        limitIsDivsex = StringUtils.isEmpty(limitIsDivsex) ? "0" : limitIsDivsex;
 		TeachingClassElectiveRestrictAttr attr = new TeachingClassElectiveRestrictAttr();
 		attr.setTeachingClassId(teachingClassVo.getId());
 		int numberMale = teachingClassVo.getNumberMale();
