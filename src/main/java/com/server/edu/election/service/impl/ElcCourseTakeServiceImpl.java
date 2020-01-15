@@ -142,26 +142,15 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageCondition<ElcCourseTakeQuery> page)
     {
         ElcCourseTakeQuery cond = page.getCondition();
-        List<String> includeCodes = new ArrayList<>();
         // 1体育课
         if (Objects.equals(cond.getCourseType(), ElcCourseTakeQuery.PE_COURSE_TYPE))
         {
-            String findPECourses = constantsDao.findPECourses();
-            if (StringUtils.isNotBlank(findPECourses))
-            {
-                includeCodes.addAll(Arrays.asList(findPECourses.split(",")));
-            }
+            cond.setCourseFaculty("000293");
         }
         else if (Objects.equals(cond.getCourseType(), ElcCourseTakeQuery.EN_COURSE_TYPE))
         {// 2英语课
-            String findEnglishCourses = constantsDao.findEnglishCourses();
-            if (StringUtils.isNotBlank(findEnglishCourses))
-            {
-                includeCodes
-                    .addAll(Arrays.asList(findEnglishCourses.split(",")));
-            }
+            cond.setCourseFaculty("000268");
         }
-        cond.setIncludeCourseCodes(includeCodes);
         Session session = SessionUtils.getCurrentSession();
         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             if (StringUtils.isBlank(cond.getFaculty())) {

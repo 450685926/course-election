@@ -432,26 +432,15 @@ public class ElcResultServiceImpl implements ElcResultService
                     }
                 }
             }else {
-                List<String> includeCodes = new ArrayList<>();
                 // 1体育课
                 if (Objects.equals(condition.getCourseType(), 1))
                 {
-                    String findPECourses = constantsDao.findPECourses();
-                    if (StringUtils.isNotBlank(findPECourses))
-                    {
-                        includeCodes.addAll(Arrays.asList(findPECourses.split(",")));
-                    }
+                    condition.setFaculty("000293");
                 }
                 else if (Objects.equals(condition.getCourseType(), 2))
                 {// 2英语课
-                    String findEnglishCourses = constantsDao.findEnglishCourses();
-                    if (StringUtils.isNotBlank(findEnglishCourses))
-                    {
-                        includeCodes
-                            .addAll(Arrays.asList(findEnglishCourses.split(",")));
-                    }
+                    condition.setFaculty("000268");
                 }
-                condition.setIncludeCodes(includeCodes);
 //                PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
                 if(condition.getIsHaveLimit() != null && condition.getIsHaveLimit().intValue() == Constants.ONE){
                     PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
