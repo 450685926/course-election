@@ -43,7 +43,7 @@ public class ElcMutualApplyController {
     		@RequestBody PageCondition<ElcMutualApplyDto> dto)
         throws Exception
     {
-        LOG.info("page.start");
+        LOG.info("获取已申请的互选课程列表 page.start");
         PageInfo<ElcMutualApplyVo> list = elcMutualApplyService.getElcMutualApplyList(dto);
         return RestResult.successData(list);
     }

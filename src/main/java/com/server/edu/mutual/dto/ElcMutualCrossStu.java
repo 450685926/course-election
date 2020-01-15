@@ -2,7 +2,10 @@ package com.server.edu.mutual.dto;
 
 import com.server.edu.election.dto.Student4Elc;
 
-public class ElcMutualCrossStu extends Student4Elc {
+import java.io.Serializable;
+
+public class ElcMutualCrossStu extends Student4Elc implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private Long calendarId;
 	private Integer mode;
 	public Long getCalendarId() {
