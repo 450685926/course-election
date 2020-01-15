@@ -156,8 +156,8 @@
                 and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-                and (t2.STUDENT_CODE_ like concat(#{query.keyword},'%') or t2.NAME_ like
-                concat(#{query.keyword},'%'))
+                and ('%', t2.STUDENT_CODE_ like concat(#{query.keyword},'%') or t2.NAME_ like
+                concat('%', #{query.keyword},'%'))
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
                 and t2.PROFESSION_ = #{query.profession}
