@@ -146,6 +146,12 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         ElectionRounds round = dataProvider.getRound(roundId);
         doElec(context, elecExceutors, request.getElecClassList(), round);
         
+        List<SelectedCourse> list = context.getSelectedMutualCourses();
+        for (SelectedCourse selectedCourse : list) {
+        	TeachingClassCache classCache = selectedCourse.getCourse();
+        	LOG.info("--------------%%%%%%%%%%%%%%%-------classCache:"+ classCache.getCourseCode() + "===" + classCache.getCourseName() +"------");
+		}
+        
         return context;
 	}
 	
