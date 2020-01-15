@@ -188,7 +188,7 @@
         </foreach>
       </if>
   	   <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-  		and (t1.CODE_ like CONCAT(#{keyword}, '%') or t3.COURSE_CODE_ like CONCAT(#{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT(#{keyword}, '%'))
+  		and (t1.CODE_ like CONCAT('%', #{keyword}, '%') or t3.COURSE_CODE_ like CONCAT('%', #{keyword}, '%') OR t3.COURSE_NAME_ like CONCAT('%', #{keyword}, '%'))
   	  </if>
     </where>
        GROUP BY t1.ID_
