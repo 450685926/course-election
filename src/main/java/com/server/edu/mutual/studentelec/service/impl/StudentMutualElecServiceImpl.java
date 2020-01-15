@@ -178,10 +178,10 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 
 	@Override
 	public ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId) {
-		Set<SelectedCourse> optionalCourses = c.getOptionalCourses();
+		List<SelectedCourse> optionalCourses = c.getOptionalCourses();
 		
-		Set<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
-		Set<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
+		List<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
+		List<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
 		
 		// 获取轮次可选的互选课程
 		PageCondition<ElecRoundCourseQuery> dto = new PageCondition<ElecRoundCourseQuery>();
