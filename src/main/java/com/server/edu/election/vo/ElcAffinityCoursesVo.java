@@ -27,12 +27,9 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
     //开课学院
     @Code2Text(transformer = "X_YX")
     private String faculty;
-    
-    @NotEmpty
+
     private List<String> studentIds;
 
-
-    @NotEmpty
     private List<Long> teachingClassIds;
 
     public List<String> getStudentIds()
