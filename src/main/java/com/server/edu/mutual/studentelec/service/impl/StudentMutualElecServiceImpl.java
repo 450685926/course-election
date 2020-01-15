@@ -3,8 +3,8 @@ package com.server.edu.mutual.studentelec.service.impl;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,14 +196,14 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 		List<CourseOpenDto> list = pageResult.getList();
 		
 		if (CollectionUtil.isNotEmpty(list)) {
+			Set<String> courseCodes = list.stream().map(CourseOpenDto::getCourseCode).collect(Collectors.toSet());
 			for (SelectedCourse unSelectedCourse : unSelectedMutualCourses) {
-				for (CourseOpenDto courseOpenDto : list) {
-					if (StringUtils.equals(unSelectedCourse.getCourse().getCourseCode(), courseOpenDto.getCourseCode())) {
-						optionalCourses.add(unSelectedCourse);
-					}
+				if (courseCodes.contains(unSelectedCourse.getCourse().getCourseCode())) {
+					optionalCourses.add(unSelectedCourse);
 				}
 			}
 		}
+		
 		optionalCourses.addAll(selectedMutualCourses);
 		c.setOptionalCourses(optionalCourses);
 		
