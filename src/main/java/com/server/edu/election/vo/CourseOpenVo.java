@@ -13,6 +13,8 @@ public class CourseOpenVo extends CourseOpen {
     private Long courseId;
 
     private Long teachingClassId;
+
+    private String teachingClassCode;
     
     
     
@@ -39,5 +41,13 @@ public class CourseOpenVo extends CourseOpen {
 
 	public void setTeachingClassId(Long teachingClassId) {
 		this.teachingClassId = teachingClassId;
+	}
+
+	public String getTeachingClassCode() {
+		return teachingClassCode;
+	}
+
+	public void setTeachingClassCode(String teachingClassCode) {
+		this.teachingClassCode = teachingClassCode;
 	}
 }
