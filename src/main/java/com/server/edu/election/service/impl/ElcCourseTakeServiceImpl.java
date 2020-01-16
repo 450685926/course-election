@@ -196,19 +196,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 // 处理教学安排（上课时间地点）信息
                 List<TimeAndRoom> tableMessages = getTimeById(vo.getTeachingClassId());
                 vo.setTimeTableList(tableMessages);
-                String timeAndRoom = "";
-                for (TimeAndRoom tAndR : tableMessages) {
-                    timeAndRoom = timeAndRoom + tAndR.getTimeAndRoom();
-                    if (org.apache.commons.lang.StringUtils.isNotEmpty(tAndR.getRoomId())) {
-                        ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
-                        if (classroom != null) {
-                            timeAndRoom = "/" + classroom.getName()+" ";
-                        }
-                    }else {
-                        timeAndRoom = timeAndRoom + " ";
-                    }
-                }
-                vo.setTimeAndRoom(timeAndRoom);
             }
         }
 
