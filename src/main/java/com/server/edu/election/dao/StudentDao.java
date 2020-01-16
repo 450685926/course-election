@@ -2,6 +2,7 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
+import com.server.edu.election.vo.StudentVo;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
@@ -25,7 +26,7 @@ public interface StudentDao extends Mapper<Student> {
     List<Student> findStudentByIds(@Param("studentIds") List<String> studentIds);
     List<Student> selectElcStudents(StudentDto student);
     List<Student> selectUnElcStudents(StudentDto student);
-    List<Student> selectElcInvincibleStds(Student student);
+    List<Student> selectElcInvincibleStds(StudentVo studentVo);
     List<Student> selectUnElcInvincibleStds(Student student);
 
 

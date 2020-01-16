@@ -2,6 +2,7 @@ package com.server.edu.election.controller;
 
 import java.util.List;
 
+import com.server.edu.election.vo.StudentVo;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class ElcInvincibleStdsController {
     @ApiOperation(value = "特殊学生名单列表")
     @PostMapping("/list")
     public RestResult<PageInfo<Student>> list(
-        @RequestBody PageCondition<Student> condition)
+        @RequestBody PageCondition<StudentVo> condition)
         throws Exception
     {
         LOG.info("list.start");
