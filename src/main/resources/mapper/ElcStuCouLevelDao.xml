@@ -47,7 +47,7 @@
 	      and t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=VARCHAR}
 	     </if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-	      and (t1.STUDENT_ID_ LIKE CONCAT(#{query.keyword}, '%') or t2.NAME_ LIKE CONCAT(#{query.keyword}, '%'))
+	      and (t1.STUDENT_ID_ LIKE CONCAT('%', #{query.keyword}, '%') or t2.NAME_ LIKE CONCAT('%', #{query.keyword}, '%'))
 	     </if>
   	</where>
   </select>

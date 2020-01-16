@@ -28,11 +28,21 @@ public class StudentVo extends Student {
     
     private String exportName;
 
+    private String keyword;
+
     /**学生性别*/
     private String sexStr;
 
     /**学生重修，冲突前缀*/
     private List<String> prefix;
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
     public String getSexStr() {
         return sexStr;
