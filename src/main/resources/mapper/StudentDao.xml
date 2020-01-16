@@ -206,7 +206,7 @@
 		    </foreach>
 	    </if>
     </select>
-    <select id="selectElcInvincibleStds" parameterType="com.server.edu.election.entity.Student" resultMap="BaseResultMap">
+    <select id="selectElcInvincibleStds" parameterType="com.server.edu.election.vo.StudentVo" resultMap="BaseResultMap">
 			SELECT
 			t2.*
 			FROM
@@ -219,6 +219,9 @@
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(name)">
 			        and t2.NAME_ =#{name}
 			    </if>
+				<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+					and (t2.STUDENT_CODE_ like concat('%',#{keyword},'%') or t2.NAME_ like concat('%',#{keyword},'%'))
+				</if>
 			    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(managerDeptId)">
 			        and t2.MANAGER_DEPT_ID_ =#{managerDeptId}
 			    </if>

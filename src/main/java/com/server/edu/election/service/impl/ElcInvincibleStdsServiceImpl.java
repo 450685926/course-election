@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.server.edu.election.vo.StudentVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class ElcInvincibleStdsServiceImpl implements ElcInvincibleStdsService {
 	@Autowired
 	private ElcInvincibleStdsDao elcInvincibleStdsDao;
 	@Override
-	public PageInfo<Student> list(PageCondition<Student> condition){
+	public PageInfo<Student> list(PageCondition<StudentVo> condition){
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<Student> list = studentDao.selectElcInvincibleStds(condition.getCondition());
 		PageInfo<Student> pageInfo =new PageInfo<>(list);
