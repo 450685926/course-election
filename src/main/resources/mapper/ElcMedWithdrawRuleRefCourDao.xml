@@ -60,7 +60,7 @@
 				and t4.IS_ELECTIVE_= #{nature}
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(parameter)">
-				and (t4.COURSE_CODE_ like concat(#{parameter},'%') or t2.ID_ like concat(#{parameter},'%'))
+				and (t2.CODE_ like concat('%', #{parameter},'%') or t4.COURSE_CODE_ like concat('%', #{parameter},'%') or t4.COURSE_NAME_ like concat('%', #{parameter},'%'))
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClasscode)">
 				and t2.CODE_= #{teachingClasscode}
@@ -125,7 +125,7 @@
 				and t4.IS_ELECTIVE_= #{nature}
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(parameter)">
-				and (t4.COURSE_CODE_ like concat(#{parameter},'%') or t2.ID_ like concat(#{parameter},'%'))
+				and (t2.CODE_ like concat('%', #{parameter},'%') or t4.COURSE_CODE_ like concat('%', #{parameter},'%') or t4.COURSE_NAME_ like concat('%', #{parameter},'%'))
 			</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClasscode)">
 				and t2.CODE_= #{teachingClasscode}
