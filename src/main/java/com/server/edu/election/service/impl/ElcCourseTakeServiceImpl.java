@@ -186,16 +186,16 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             }
 
 		}
-        if(CollectionUtil.isNotEmpty(listPage)) {
-            // 添加教室容量
-            Set<String> roomIds = listPage.stream().filter(t->StringUtils.isNotBlank(t.getRoomId())).map(ElcCourseTakeVo::getRoomId).collect(toSet());
-            List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
-            for(ElcCourseTakeVo vo: listPage) {
-                // 处理教学安排（上课时间地点）信息
-                List<TimeAndRoom> tableMessages = getTimeById(vo.getTeachingClassId());
-                vo.setTimeTableList(tableMessages);
-            }
-        }
+//        if(CollectionUtil.isNotEmpty(listPage)) {
+//            // 添加教室容量
+//            Set<String> roomIds = listPage.stream().filter(t->StringUtils.isNotBlank(t.getRoomId())).map(ElcCourseTakeVo::getRoomId).collect(toSet());
+//            List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
+//            for(ElcCourseTakeVo vo: listPage) {
+//                // 处理教学安排（上课时间地点）信息
+//                List<TimeAndRoom> tableMessages = getTimeById(vo.getTeachingClassId());
+//                vo.setTimeTableList(tableMessages);
+//            }
+//        }
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
     }
