@@ -300,7 +300,9 @@
 		  JOIN course_t t3 ON t3.CODE_ = t4.COURSE_CODE_
 		 <where>
 		    t1.CALENDAR_ID_  = #{calendarId}
-		    and t4.FACULTY_ = #{openCollege}		    
+             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
+                 and t4.FACULTY_ = #{openCollege}
+             </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
 		        and t2.BY_TYPE_  = #{byType}
 		    </if>
@@ -359,7 +361,9 @@
 		  JOIN `student_t` t4 ON t4.`STUDENT_CODE_` = t1.`STUDENT_ID_`
 		<where>
 		    t1.CALENDAR_ID_  = #{calendarId}
-		    and t5.FACULTY_ = #{openCollege}
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
+				and t5.FACULTY_ = #{openCollege}
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
 		    </if>
