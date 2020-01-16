@@ -104,8 +104,7 @@
         t3.FACULTY_,
         t3.COURSE_NAME_ AS courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
         t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
-        t4.CAMPUS_, t5.LABEL_ AS courseLabel,room.ROOM_ID_ roomId,
-        GROUP_CONCAT(DISTINCT t7.`TEACHER_CODE_`) teacherCodes
+        t4.CAMPUS_, t5.LABEL_ AS courseLabel,room.ROOM_ID_ roomId
 
         from elc_course_takes_t_${query.index} t1
         join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
@@ -115,7 +114,6 @@
         left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
         left join teaching_class_arrange_time_t time on (t4.ID_ = time.TEACHING_CLASS_ID_ and time.TYPE_ =2)
         left join teaching_class_arrange_room_t room on room.ARRANGE_TIME_ID_ = time.ID_
-        LEFT JOIN teaching_class_teacher_t t7 ON t7.TEACHING_CLASS_ID_ = t4.ID_ AND t7.`TYPE_` = 0
         <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.ids)">
                 and t1.ID_ IN
