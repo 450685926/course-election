@@ -92,14 +92,14 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     	if (!isAcdemicDean) {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
     	}
-    	
+        List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			dto.setInType(Constants.FIRST);
+			projectIds.add(Constants.PROJ_UNGRADUATE);
 		}else {
 			dto.setByType(Constants.FIRST);
+            projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		}
-		
-		List<String> projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		dto.setProjectIds(projectIds);
 		
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyStuList(condition.getCondition());
