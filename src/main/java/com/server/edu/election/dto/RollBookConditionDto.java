@@ -19,8 +19,17 @@ public class RollBookConditionDto {
     private List<String> classCodeList;
     private String isElective;
     private String projectId;
+    private String keyword;
     private List<Long> ids;//导出列表id集合
     private List<String> faculties;
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
     public List<String> getFaculties() {
         return faculties;

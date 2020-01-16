@@ -1272,6 +1272,9 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseNature)">
                 and t3.NATURE_ =#{courseNature,jdbcType=VARCHAR}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
+                and (t2.CODE_ like CONCAT('%', #{keyword}, '%') OR t3.CODE_ like CONCAT('%', #{keyword}, '%') OR t3.NAME_ like CONCAT('%', #{keyword}, '%'))
+            </if>
         </where>
         GROUP BY t1.TEACHING_CLASS_ID_,t1.CALENDAR_ID_
     </select>
