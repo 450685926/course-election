@@ -16,7 +16,8 @@
 	  t1.TRAINING_LEVEL_ trainingLevel,
 	  t1.CREDITS_ credits,
 	  t1.FACULTY_ faculty,
-	  t3.ID_ teachingClassId
+	  t3.ID_ teachingClassId,
+	  t3.CODE_ teachingClassCode,
 	  FROM
 	  course_open_t t1
 	  JOIN teaching_task_t t2 ON t2.COURSE_OPEN_ID_ = t1.ID_

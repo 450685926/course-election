@@ -32,6 +32,8 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
 
     private List<Long> teachingClassIds;
 
+    private String teachingClassCode;
+
     public List<String> getStudentIds()
     {
         return studentIds;
@@ -104,5 +106,13 @@ public class ElcAffinityCoursesVo extends ElcAffinityCourses
 
     public void setTeachingClassIds(List<Long> teachingClassIds) {
         this.teachingClassIds = teachingClassIds;
+    }
+
+    public String getTeachingClassCode() {
+        return teachingClassCode;
+    }
+
+    public void setTeachingClassCode(String teachingClassCode) {
+        this.teachingClassCode = teachingClassCode;
     }
 }
