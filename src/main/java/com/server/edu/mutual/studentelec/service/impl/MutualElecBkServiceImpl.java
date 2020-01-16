@@ -364,6 +364,9 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
             course.setTurn(round.getTurn());
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
+            
+            // 更新本研互选和学生选课数据
+            context.getSelectedMutualCourses().add(course);
             context.getSelectedCourses().add(course);
             
             LOG.info("--------------404040 selected size: "+ context.getSelectedCourses().size() +" --------------");
