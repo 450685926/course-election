@@ -164,7 +164,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Page<ElcCourseTakeVo> listPage = courseTakeDao.listPage(cond);
         List<String> stds = new ArrayList<>();
         if(cond.getIsLimit() != null && cond.getIsLimit().intValue() == 1 && cond.getTeachingClassId() != null){
-            Student stu = new Student();
+            StudentVo stu = new StudentVo();
             stu.setManagerDeptId("1");
             List<Student> elcAffinityCoursesStds = studentDao.selectElcInvincibleStds(stu);
             if (CollectionUtil.isNotEmpty(elcAffinityCoursesStds)){
