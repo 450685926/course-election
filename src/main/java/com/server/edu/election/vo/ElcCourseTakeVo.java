@@ -6,6 +6,9 @@ import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
 import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
+
+import java.util.List;
 
 @CodeI18n
 public class ElcCourseTakeVo extends ElcCourseTake
@@ -99,6 +102,17 @@ public class ElcCourseTakeVo extends ElcCourseTake
     private String projId;
 
     private Integer affinityStds;
+
+    private String roomId;
+
+    private String teacherCodes;
+
+    /**
+     * 教学安排（上课时间地点）
+     */
+    private List<TimeAndRoom> timeTableList;
+
+    private String timeAndRoom;
 
     public String getProjId() {
         return projId;
@@ -382,5 +396,37 @@ public class ElcCourseTakeVo extends ElcCourseTake
 
     public void setAffinityStds(Integer affinityStds) {
         this.affinityStds = affinityStds;
+    }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    public String getTeacherCodes() {
+        return teacherCodes;
+    }
+
+    public void setTeacherCodes(String teacherCodes) {
+        this.teacherCodes = teacherCodes;
+    }
+
+    public List<TimeAndRoom> getTimeTableList() {
+        return timeTableList;
+    }
+
+    public void setTimeTableList(List<TimeAndRoom> timeTableList) {
+        this.timeTableList = timeTableList;
+    }
+
+    public String getTimeAndRoom() {
+        return timeAndRoom;
+    }
+
+    public void setTimeAndRoom(String timeAndRoom) {
+        this.timeAndRoom = timeAndRoom;
     }
 }

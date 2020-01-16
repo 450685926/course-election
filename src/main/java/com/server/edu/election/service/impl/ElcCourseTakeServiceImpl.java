@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.entity.ClassroomN;
 import com.server.edu.common.entity.StudentPlanCoure;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
@@ -31,6 +32,7 @@ import com.server.edu.election.service.ElecResultSwitchService;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
 import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
@@ -72,6 +74,8 @@ import tk.mybatis.mapper.entity.Example.Criteria;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toSet;
 
 @Service
 public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
@@ -183,8 +187,91 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
 		}
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        List<ElcCourseTakeVo> list = result.getList();
+        if(CollectionUtil.isNotEmpty(list)) {
+            // 添加教室容量
+            Set<String> roomIds = list.stream().filter(t->StringUtils.isNotBlank(t.getRoomId())).map(ElcCourseTakeVo::getRoomId).collect(toSet());
+            List<ClassroomN> classroomList = ClassroomCacheUtil.getList(roomIds);
+            for(ElcCourseTakeVo vo: list) {
+                // 处理教学安排（上课时间地点）信息
+                List<TimeAndRoom> tableMessages = getTimeById(vo.getTeachingClassId());
+                vo.setTimeTableList(tableMessages);
+                String timeAndRoom = "";
+                for (TimeAndRoom tAndR : tableMessages) {
+                    timeAndRoom = timeAndRoom + tAndR.getTimeAndRoom();
+                    if (org.apache.commons.lang.StringUtils.isNotEmpty(tAndR.getRoomId())) {
+                        ClassroomN classroom = ClassroomCacheUtil.getClassroom(tAndR.getRoomId());
+                        if (classroom != null) {
+                            timeAndRoom = "/" + classroom.getName()+" ";
+                        }
+                    }else {
+                        timeAndRoom = timeAndRoom + " ";
+                    }
+                }
+                vo.setTimeAndRoom(timeAndRoom);
+            }
+        }
 
         return result;
+    }
+
+    private List<TimeAndRoom>  getTimeById(Long teachingClassId){
+        List<TimeAndRoom> list=new ArrayList<>();
+        List<ClassTeacherDto> classTimeAndRoom = courseTakeDao.findClassTimeAndRoomStr(teachingClassId);
+        if(CollectionUtil.isNotEmpty(classTimeAndRoom)){
+            for (ClassTeacherDto classTeacherDto : classTimeAndRoom) {
+                TimeAndRoom time=new TimeAndRoom();
+                Integer dayOfWeek = classTeacherDto.getDayOfWeek();
+                Integer timeStart = classTeacherDto.getTimeStart();
+                Integer timeEnd = classTeacherDto.getTimeEnd();
+                String roomID = classTeacherDto.getRoomID();
+                String weekNumber = classTeacherDto.getWeekNumberStr();
+                Long timeId = classTeacherDto.getTimeId();
+                String[] str = weekNumber.split(",");
+
+                List<Integer> weeks = Arrays.asList(str).stream().map(Integer::parseInt).collect(Collectors.toList());
+                List<String> weekNums = CalUtil.getWeekNums(weeks.toArray(new Integer[] {}));
+                String weekNumStr = weekNums.toString();//周次
+                String weekstr = findWeek(dayOfWeek);//星期
+                String timeStr=weekstr+" "+timeStart+"-"+timeEnd+" "+weekNumStr+" ";
+                time.setTimeId(timeId);
+                time.setTimeAndRoom(timeStr);
+                time.setRoomId(roomID);
+                list.add(time);
+            }
+        }
+        return list;
+    }
+
+    /**
+     *  @Description: 星期
+     */
+    private String findWeek(Integer number){
+        String week="";
+        switch(number){
+            case 1:
+                week="星期一";
+                break;
+            case 2:
+                week="星期二";
+                break;
+            case 3:
+                week="星期三";
+                break;
+            case 4:
+                week="星期四";
+                break;
+            case 5:
+                week="星期五";
+                break;
+            case 6:
+                week="星期六";
+                break;
+            case 7:
+                week="星期日";
+                break;
+        }
+        return week;
     }
 
     @Override
