@@ -1,6 +1,7 @@
 package com.server.edu.mutual.studentelec.service.impl;
 
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,6 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.IElecContext;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.ElecStatus;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
@@ -22,6 +22,7 @@ import com.server.edu.mutual.studentelec.service.MutualElecBkService;
 import com.server.edu.mutual.studentelec.service.MutualElecYjsService;
 import com.server.edu.mutual.studentelec.service.MutualStudentElecRushCourseService;
 import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
+import com.server.edu.mutual.vo.SelectedCourse;
 
 @Service
 public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQueueComsumerService<ElecRequest>
@@ -92,7 +93,7 @@ public class MutualStudentElecRushCourseServiceImpl extends AbstractMutualElecQu
                 // 数据保存到缓存
             	LOG.info("-----------------111333 elec saveToCache--------------------------");
             	ElecContextMutualBk aaa = (ElecContextMutualBk)context;
-            	List<SelectedCourse> list = aaa.getSelectedMutualCourses();
+            	Set<SelectedCourse> list = aaa.getSelectedMutualCourses();
             	for (SelectedCourse selectedCourse : list) {
             		TeachingClassCache classCache = selectedCourse.getCourse();
 					LOG.info("========"+ classCache.getCourseCode() + "===" + classCache.getCourseName());

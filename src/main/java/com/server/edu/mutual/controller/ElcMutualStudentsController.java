@@ -172,11 +172,12 @@ public class ElcMutualStudentsController {
     @ApiOperation(value = "全部删除学生名单")
     @PostMapping("/deleteAll")
     public RestResult<Integer> deleteAll(
-    		@RequestParam("calendarId") Long calendarId,@RequestParam("mode") Integer mode)
+            @RequestParam("calendarId") Long calendarId,@RequestParam("mode") Integer mode)
         throws Exception
     {
         LOG.info("deleteAll.start");
         int result =elcMutualCrossService.deleteAll(calendarId,mode);
+//        int result =elcMutualCrossService.deleteAll(dto);
         return RestResult.successData(result);
     }
 	

@@ -59,6 +59,8 @@ public interface ElcMutualCrossService {
 	 * @return
 	 */
 	int deleteAll(Long calendarId,Integer mode);
+	//全部删除改成以对象方式接收
+//	int deleteAll(ElcMutualCrossStu dto);
 	
 	
 

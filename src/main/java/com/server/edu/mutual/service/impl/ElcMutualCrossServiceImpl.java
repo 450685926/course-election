@@ -160,6 +160,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		if (isDepartAdmin() && StringUtils.equals(faculty, dto.getFaculty())) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 		}
+//		if (isDepartAdmin() && !StringUtils.equals(faculty, dto.getFaculty())) {
+//			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
+//		}
 		
 		List<Student> students = getStudentInfos(dto);
 		int result = Constants.ZERO;
@@ -277,6 +280,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	@Override
 	public int deleteAll(Long calendarId, Integer mode) {
 		int result = Constants.ZERO;
+		//修改为以对象形式接收前端参数，因为前端使用json格式上传
+//		Long calendarId = dto.getCalendarId();
+//		Integer mode = dto.getMode();
 		if(Constants.BK_CROSS.equals(mode)) {
 			Example example = new Example(ElcCrossStds.class);
 			Example.Criteria criteria =example.createCriteria();
