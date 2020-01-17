@@ -106,7 +106,7 @@ public class MutualApplyJugeUtil {
 				if(CollectionUtil.isEmpty(mutualCourseIds)) {
 					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualCourses.courseNullError")); 
 				}
-				if (CollectionUtil.isNotEmpty(list) && elcMutualApplyTurns.getAppLimit() < list.size()+mutualCourseIds.size()) {
+				if (!Constants.BK_CROSS.equals(dto.getMode()) && CollectionUtil.isNotEmpty(list) && elcMutualApplyTurns.getAppLimit() < list.size() + mutualCourseIds.size()) {
 					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.outOfLimit"));
 				}
 			}
