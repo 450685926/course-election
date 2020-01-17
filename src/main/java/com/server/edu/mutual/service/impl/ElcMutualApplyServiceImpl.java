@@ -137,7 +137,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualCoursesForStu(PageCondition<ElcMutualApplyDto> condition){
-		LOG.info("*******getElcMutualCoursesForStu********");
+		LOG.info("*******getElcMutualCoursesForStu********"); 
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
