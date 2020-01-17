@@ -2,15 +2,15 @@ package com.server.edu.election.dao;
 
 import java.util.List;
 
-import com.server.edu.election.dto.TimeTableMessage;
-import com.server.edu.election.entity.TeachingClassTeacher;
 import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.ElcNumberSetDto;
 import com.server.edu.election.dto.SuggestProfessionDto;
 import com.server.edu.election.dto.TeacherClassTimeRoom;
+import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.TeachingClass;
+import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.query.ElcResultQuery;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -225,4 +225,6 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     int deleteBindClass(@Param("id") Long id);
 
     int getFirstTurnNum(@Param("calendarId") Long calendarId, @Param("index")int index, @Param("teachClassId")Long teachClassId);
+    
+    TeachingClassVo getTeachingClassVo( @Param("teachingClassId")Long teachingClassId);
 }

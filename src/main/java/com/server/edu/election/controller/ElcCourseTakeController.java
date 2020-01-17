@@ -144,9 +144,9 @@ public class ElcCourseTakeController
     @ApiOperation(value = "根据教学班退课")
     @PostMapping("/withdrawByTeachingClassId")
     public RestResult<?> withdrawByTeachingClassId(
-        @RequestParam("teachingClassId") @NotNull Long teachingClassId,@RequestParam("calendarId") @NotNull Long calendarId)
+        @RequestParam("teachingClassId") @NotNull Long teachingClassId)
     {
-        courseTakeService.withdrawByTeachingClassId(teachingClassId,calendarId);
+        courseTakeService.withdrawByTeachingClassId(teachingClassId);
         return RestResult.success();
     }
     
