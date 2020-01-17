@@ -1,8 +1,8 @@
 package com.server.edu.mutual.studentelec.rule;
 
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.vo.SelectedCourse;
 
 /**
  *    本研互选-退课规则

@@ -8,8 +8,8 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -37,7 +37,7 @@ public class TimeConflictCheckerRule extends AbstractMutualElecRuleExceutor
             if (CollectionUtil.isNotEmpty(teachingClassTime))
             {
                 Set<SelectedCourse> selectedCourses =
-                    context.getSelectedCourses();//已经选择的课程，时间班级
+                    context.getSelectedMutualCourses();//已经选择的课程，时间班级
                 if (CollectionUtil.isNotEmpty(selectedCourses))
                 {
                     for (SelectedCourse selectedCours : selectedCourses)

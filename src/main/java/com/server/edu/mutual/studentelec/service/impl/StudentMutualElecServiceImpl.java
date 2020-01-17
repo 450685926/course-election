@@ -20,7 +20,6 @@ import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.ElecRoundCourseQuery;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.service.cache.AbstractCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
@@ -30,6 +29,7 @@ import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
 import com.server.edu.mutual.studentelec.service.ElecMutualQueueService;
 import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
 import com.server.edu.mutual.studentelec.utils.MutualQueueGroups;
+import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.util.CollectionUtil;
 
 @Service
@@ -180,8 +180,8 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 	public ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId) {
 		List<SelectedCourse> optionalCourses = c.getOptionalCourses();
 		
-		List<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
-		List<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
+		Set<SelectedCourse> selectedMutualCourses = c.getSelectedMutualCourses();     // 本学期已选的互选课程
+		Set<SelectedCourse> unSelectedMutualCourses = c.getUnSelectedMutualCourses(); // 未选的互选课程
 		
 		// 获取轮次可选的互选课程
 		PageCondition<ElecRoundCourseQuery> dto = new PageCondition<ElecRoundCourseQuery>();
@@ -198,7 +198,7 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 		if (CollectionUtil.isNotEmpty(list)) {
 			Set<String> courseCodes = list.stream().map(CourseOpenDto::getCourseCode).collect(Collectors.toSet());
 			for (SelectedCourse unSelectedCourse : unSelectedMutualCourses) {
-				if (courseCodes.contains(unSelectedCourse.getCourse().getCourseCode())) {
+				if (courseCodes.contains(unSelectedCourse.getCourseCode())) {
 					optionalCourses.add(unSelectedCourse);
 				}
 			}

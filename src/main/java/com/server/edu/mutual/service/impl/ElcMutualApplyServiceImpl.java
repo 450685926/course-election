@@ -177,10 +177,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 			dto.setByType(Constants.FIRST);
 		}
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
-		
+
+		// 本科生可申请的跨院系课程与培养方案无关
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
-			
-			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
 			List<LabelCreditCount> planBXK = new ArrayList<LabelCreditCount>();
