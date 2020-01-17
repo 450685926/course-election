@@ -95,6 +95,7 @@ import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElcLogVo;
 import com.server.edu.election.vo.ElcStudentVo;
 import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.TeachingClassVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -1922,13 +1923,13 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
 	@Override
 	@Transactional
-	public void withdrawByTeachingClassId(Long teachingClassId,Long calendarId) {
-		TeachingClass teachingClass = teachingClassDao.selectByPrimaryKey(teachingClassId);
+	public void withdrawByTeachingClassId(Long teachingClassId) {
+		TeachingClassVo teachingClass = teachingClassDao.getTeachingClassVo(teachingClassId);
 		if(teachingClass==null) {
             throw new ParameterValidateException("教学班信息不存在");
 		}
 		Example example = new Example(ElcCourseTake.class);
-		example.createCriteria().andEqualTo("calendarId", calendarId).andEqualTo("teachingClassId", teachingClass.getId());
+		example.createCriteria().andEqualTo("calendarId", teachingClass.getCalendarId()).andEqualTo("teachingClassId", teachingClass.getId());
 		List<ElcCourseTake> list = courseTakeDao.selectByExample(example);
 		if(CollectionUtil.isNotEmpty(list)) {
 			withdraw(list);
