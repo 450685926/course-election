@@ -257,6 +257,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			dto2.setCalendarId(dto.getCalendarId());
 			dto2.setCategory(dto.getCategory());
 			dto2.setMutualCourseIds(Arrays.asList(dto.getMutualCourseId()));
+			dto2.setMode(dto.getMode());
 			
 			MutualApplyJugeUtil mutualApplyJugeUtil = new MutualApplyJugeUtil(elcMutualApplySwitchDao,elcMutualApplyDao);
 			Boolean isApplyMutualCourseFlag = mutualApplyJugeUtil.jugeApplyMutualCourses(dto2, projectId, dto.getStudentId());
