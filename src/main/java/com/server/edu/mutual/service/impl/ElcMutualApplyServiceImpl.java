@@ -179,41 +179,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
 		
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
-			// 本科生可申请的跨院系课程为: 研究生管理员维护的跨院系课程
-			List<LabelCreditCount> planKYX = new ArrayList<LabelCreditCount>();
-			List<LabelCreditCount> planCount = CultureSerivceInvokerToMutual.studentPlanCountByStuId(studentId);
-			if (CollectionUtil.isNotEmpty(planCount)) {
-				planKYX = planCount.stream().filter(vo->StringUtils.equals(vo.getLabelName(), "跨院系课程")).collect(Collectors.toList());
-			}
-
-			if (CollectionUtil.isNotEmpty(planKYX)) {
-				LabelCreditCount labelCreditCount = planKYX.get(0);
-				long labelId = labelCreditCount.getLabelId().longValue();
-
-				// 获取培养计划中的课程列表
-				List<CulturePlan> listPlanVos = new ArrayList<CulturePlan>();
-				RestResult restResult = CultureSerivceInvokerToMutual.getCulturePlanByStudentId(studentId, 0);
-				String json = JSONObject.toJSON(restResult.getData()).toString();
-				Map<String, Object> parse = (Map)JSON.parse(json);
-				for (String key : parse.keySet()) {
-					if (StringUtils.equals(key, "culturePlanList")) {
-						String value = parse.get(key).toString();
-						listPlanVos = JSONArray.parseArray(value, CulturePlan.class);
-					}
-				}
-
-				// 获取培养计划中的跨院系课courseCode
-				List<String> courseCodeKYX = listPlanVos.stream()
-						.filter(vo->vo.getLabelId().longValue()==labelId)
-						.map(CulturePlan::getCourseCode)
-						.collect(Collectors.toList());
-				LOG.info("---------------courseCodeKYX:" + courseCodeKYX.toString() + "--------------");
-
-				// 补修课与互选维护课程取交集
-				list = list.stream().filter(vo->courseCodeKYX.contains(vo.getCourseCode())).collect(Collectors.toList());
-			}else {
-				list = new ArrayList<ElcMutualApplyVo>();
-			}
+			
 			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
