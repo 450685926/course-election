@@ -7,7 +7,6 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.server.edu.util.excel.export.ExcelResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
@@ -26,12 +25,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.PageCondition;
-import com.server.edu.common.jackson.JacksonUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.AddGroup;
@@ -48,10 +46,8 @@ import com.server.edu.election.service.ElecRoundCourseService;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.util.CollectionUtil;
-import com.server.edu.util.ExportUtil;
-import com.server.edu.util.excel.ExcelWriterUtil;
-import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import com.server.edu.util.excel.export.ExcelResult;
 import com.server.edu.util.excel.parse.ExcelParseConfig;
 import com.server.edu.util.excel.parse.ExcelParseDesigner;
 
@@ -142,6 +138,15 @@ public class ElcCourseTakeController
         
         courseTakeService.withdraw(value);
         
+        return RestResult.success();
+    }
+    
+    @ApiOperation(value = "根据教学班退课")
+    @PostMapping("/withdrawByTeachingClassId")
+    public RestResult<?> withdrawByTeachingClassId(
+        @RequestParam("teachingClassId") @NotNull Long teachingClassId,@RequestParam("calendarId") @NotNull Long calendarId)
+    {
+        courseTakeService.withdrawByTeachingClassId(teachingClassId,calendarId);
         return RestResult.success();
     }
     
