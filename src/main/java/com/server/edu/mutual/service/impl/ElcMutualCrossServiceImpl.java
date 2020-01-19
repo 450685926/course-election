@@ -206,6 +206,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		if(StringUtils.isNotBlank(dto.getIsOverseas())) {
 			criteria.andEqualTo("isOverseas", dto.getIsOverseas());                 // 是否留学生( 0：否  1：是)
 		}
+		criteria.andEqualTo("leaveSchool",Constants.ONE);
 		List<Student> students = studentDao.selectByExample(example);
 		return students;
 	}
