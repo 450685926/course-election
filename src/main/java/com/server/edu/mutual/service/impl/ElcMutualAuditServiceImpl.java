@@ -283,6 +283,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		apply.setStudentId(dto.getStudentId());
 		apply.setMutualCourseId(dto.getMutualCourseId());
 		apply.setUserId(session.realUid());
+        apply.setMode(dto.getMode());
 		apply.setApplyAt(new Date());
 		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 			apply.setStatus(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status());
