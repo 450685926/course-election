@@ -140,7 +140,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 			criteria.andIn("studentId", studentIdList);
 			List<ElcMutualStds> list = elcMutualStdsDao.selectByExample(example);
 			if(CollectionUtil.isNotEmpty(list)) {
-				throw new ParameterValidateException(I18nUtil.getMsg("common.exist","学生")); 
+				//如果已添加学生，则求二者差集
+				Set<String> studentIds = list.stream().map(e -> e.getStudentId()).collect(Collectors.toSet());
+				studentIdList = studentIdList.stream().filter(e -> !studentIds.contains(e)).collect(Collectors.toList());
+//				throw new ParameterValidateException(I18nUtil.getMsg("common.exist","学生"));
 			}
 			
 			List<ElcMutualStds> mutualList = new ArrayList<>();
