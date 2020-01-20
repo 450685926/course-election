@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.entity.ElectionRounds;
@@ -90,8 +92,7 @@ public class ElecMutualAgentController {
 		try {
 			result = mutualElecService.findStuRound(elecRequest.getRoundId(),elecRequest.getStudentId());
 		} catch (Exception e) {
-			e.printStackTrace();
-			result.fail(e.getMessage());
+			result.setMsg(e.getMessage());
 		}
         return result;
     }
