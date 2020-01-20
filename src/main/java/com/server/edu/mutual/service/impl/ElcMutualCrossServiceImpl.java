@@ -132,7 +132,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcCrossStds.setStudentId(studentId);
 				crossList.add(elcCrossStds);
 			}
-			result =  elcCrossStdsDao.insertList(crossList);
+			if (CollectionUtil.isNotEmpty(crossList)) {
+				result =  elcCrossStdsDao.insertList(crossList);
+			}
 		}else { // 本研互选学生名单管理
 			Example example = new Example(ElcMutualStds.class);
 			Example.Criteria criteria =example.createCriteria();
@@ -153,7 +155,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcMutualStds.setStudentId(studentId);
 				mutualList.add(elcMutualStds);
 			}
-			result = elcMutualStdsDao.insertList(mutualList);
+			if (CollectionUtil.isNotEmpty(mutualList)) {
+				result = elcMutualStdsDao.insertList(mutualList);
+			}
 		}
 		return result;
 	}
