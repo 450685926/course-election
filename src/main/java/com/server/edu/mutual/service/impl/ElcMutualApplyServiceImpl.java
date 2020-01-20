@@ -150,12 +150,14 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		stuDto.setStudentId(studentId);
 		ElcMutualCrossStuVo elcMutualCrossStuVo = null;
 		// 判断该学生是否在本研互选名单中
-		if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
-			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
-		}
+//		if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
+//			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
+//		}
 		// 判断该学生是否在跨院系互选名单中
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
 			elcMutualCrossStuVo = elcCrossStdsDao.isInElcMutualStdList(stuDto);
+		} else {
+			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
 		}
 
 		if (elcMutualCrossStuVo == null) {
