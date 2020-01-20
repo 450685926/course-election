@@ -84,15 +84,9 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
 	@SuppressWarnings("rawtypes")
 	@Override
 	public IElecContext doELec(ElecRequest request) {
-		LOG.info("-----------------------111444------------doELec start -------------------");
-		 
         Long roundId = request.getRoundId();
         String studentId = request.getStudentId();
         Long calendarId = request.getCalendarId();
-
-        LOG.info("-----------------------111555------------roundId:" + roundId + "-------------------");
-        LOG.info("-----------------------111666------------studentId:" + studentId + "-------------------");
-        LOG.info("-----------------------111777------------calendarId:" + calendarId + "-------------------");
         
         Assert.notNull(calendarId, "calendarId must be not null");
         
@@ -101,18 +95,11 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
         
-        LOG.info("-----------------------111888------------rules:" + rules.size() + "-------------------");
-        
         List<AbstractMutualElecRuleExceutor> elecExceutors = new ArrayList<>();
         List<AbstractMutualWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
         // 获取执行规则
         Map<String, AbstractRuleExceutor> map =
             applicationContext.getBeansOfType(AbstractRuleExceutor.class);
-        
-        Set<Entry<String,AbstractRuleExceutor>> set = map.entrySet();
-        for (Entry<String, AbstractRuleExceutor> entry : set) {
-			LOG.info("============entry" + entry.getKey() + "====================");
-		}
         
         for (ElectionRuleVo ruleVo : rules)
         {
@@ -133,8 +120,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                 }
             }
         }
-        LOG.info("--------------111999-------cancelExceutors:"+ cancelExceutors.size() +"-------------------------------");
-        LOG.info("--------------202020-------elecExceutors:"+ elecExceutors.size() +"-------------------------------");
         
         ElecRespose respose = context.getRespose();
         respose.getSuccessCourses().clear();
@@ -146,12 +131,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         // 选课
         ElectionRounds round = dataProvider.getRound(roundId);
         doElec(context, elecExceutors, request.getElecClassList(), round);
-        
-        Set<SelectedCourse> list = context.getSelectedMutualCourses();
-        for (SelectedCourse selectedCourse : list) {
-        	TeachingClassCache classCache = selectedCourse.getCourse();
-        	LOG.info("--------------%%%%%%%%%%%%%%%-------classCache:"+ classCache.getCourseCode() + "===" + classCache.getCourseName() +"------");
-		}
         
         return context;
 	}

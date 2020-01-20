@@ -78,24 +78,12 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 	@Override
 	public RestResult<ElecRespose> loading(ElecRequest elecRequest) {
         Long roundId = elecRequest.getRoundId();
-        Integer chooseObj = elecRequest.getChooseObj();
         String studentId = elecRequest.getStudentId();
-        String projectId = elecRequest.getProjectId();
         
-//        // 研究生管理员代理选课
-//        if (!Constants.PROJ_UNGRADUATE.equals(projectId)
-//            && Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
-//        {
-//            calendarId = elecRequest.getCalendarId();
-//            elecRequest.setCalendarId(calendarId);
-//        }
-//        else
-//        {
         ElectionRounds round = dataProvider.getRound(roundId);
         Assert.notNull(round, "elec.roundCourseExistTip");
         Long calendarId = round.getCalendarId();
         elecRequest.setCalendarId(calendarId);
-//        }
         
         ElecStatus currentStatus =
             ElecContextUtil.getElecStatus(calendarId, studentId);
@@ -126,23 +114,11 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
         }
         Long roundId = elecRequest.getRoundId();
         String studentId = elecRequest.getStudentId();
-        String projectId = elecRequest.getProjectId();
-        Integer chooseObj = elecRequest.getChooseObj();
         
-        // 研究生管理员代理选课
-//        if (!Constants.PROJ_UNGRADUATE.equals(projectId)
-//            && Objects.equals(ChooseObj.ADMIN.type(), chooseObj))
-//        {
-//            calendarId = elecRequest.getCalendarId();
-//            elecRequest.setCalendarId(calendarId);
-//        }
-//        else
-//        {
-            ElectionRounds round = dataProvider.getRound(roundId);
-            Assert.notNull(round, "elec.roundCourseExistTip");
-            Long calendarId = round.getCalendarId();
-            elecRequest.setCalendarId(calendarId);
-//        }
+        ElectionRounds round = dataProvider.getRound(roundId);
+        Assert.notNull(round, "elec.roundCourseExistTip");
+        Long calendarId = round.getCalendarId();
+        elecRequest.setCalendarId(calendarId);
         
         ElecStatus currentStatus =
             ElecContextUtil.getElecStatus(calendarId, studentId);
