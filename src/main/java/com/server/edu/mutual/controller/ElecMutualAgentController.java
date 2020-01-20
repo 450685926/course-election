@@ -90,6 +90,7 @@ public class ElecMutualAgentController {
 		try {
 			result = mutualElecService.findStuRound(elecRequest.getRoundId(),elecRequest.getStudentId());
 		} catch (Exception e) {
+			e.printStackTrace();
 			result.fail(e.getMessage());
 		}
         return result;
