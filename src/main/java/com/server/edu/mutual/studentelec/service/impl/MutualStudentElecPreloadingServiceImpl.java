@@ -53,18 +53,6 @@ public class MutualStudentElecPreloadingServiceImpl
         String projectId = preloadRequest.getProjectId();
         try
         {
-//            // 研究生的管理员代选是没有轮次和规则的
-//            if (StringUtils.isNotBlank(projectId)
-//                && !Constants.PROJ_UNGRADUATE.equals(projectId)
-//                && Objects.equal(ChooseObj.ADMIN.type(), chooseObj))
-//            {
-//            }
-//            else
-//            {
-//                  ElectionRounds round = dataProvider.getRound(roundId);
-//                  calendarId = round.getCalendarId();
-//                  projectId = round.getProjectId();
-//            }
             if (ElecContextUtil.tryLock(calendarId, studentId))
             {
                 IElecContext context = null;
