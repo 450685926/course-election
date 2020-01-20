@@ -121,7 +121,7 @@ public class ElcMutualStudentsController {
     		@RequestBody @Valid ElcMutualCrossStu dto)
         throws Exception
     {
-        LOG.info("batchAdd.start");
+        LOG.info("addAll.start");
         int result =elcMutualCrossService.addAll(dto);
         return RestResult.successData(result);
     }
