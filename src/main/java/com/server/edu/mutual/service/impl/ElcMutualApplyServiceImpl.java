@@ -66,7 +66,6 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualApplyList(PageCondition<ElcMutualApplyDto> condition) {
-		LOG.info("xuguangjie...........234567");
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
@@ -86,15 +85,15 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualApplyList(condition.getCondition());
 		
-//		if (StringUtils.equals(dto.getProjectId(),Constants.PROJ_UNGRADUATE)) {
-//
-//		}else {
+		if (StringUtils.equals(dto.getProjectId(),Constants.PROJ_UNGRADUATE)) {
+
+		}else {
 			PageInfo<ElcMutualApplyVo> coursesForStu = getElcMutualCoursesForStu(condition);
 			List<ElcMutualApplyVo> coursesForStuList = coursesForStu.getList();
 			if (CollectionUtil.isNotEmpty(coursesForStuList)) {
 				list.addAll(coursesForStuList);
 			}
-//		}
+		}
 		
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;

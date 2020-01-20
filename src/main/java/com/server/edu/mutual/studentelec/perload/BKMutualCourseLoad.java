@@ -164,29 +164,6 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
                 course.setAssessmentMode(c.getAssessmentMode());
                 course.setStatus(Constants.UN_ELECTED);
                 unSelectedMutual.add(course);
-                
-                
-//                TeachingClassCache lesson = new TeachingClassCache();
-//                lesson.setCalendarName(name);
-//                lesson.setNature(c.getNature());
-//                lesson.setApply(c.getApply());
-//                lesson.setCampus(c.getCampus());
-//                lesson.setCourseCode(c.getCourseCode());
-//                lesson.setCourseName(c.getCourseName());
-//                lesson.setCredits(c.getCredits());
-//                lesson.setCalendarId(c.getCalendarId());
-//                lesson.setPublicElec(
-//                    c.getIsPublicCourse() == Constants.ZERO ? false : true);
-//                lesson.setTeachClassId(Long.parseLong(c.getTeachingClassId()));
-//                lesson.setTeachClassCode(c.getTeachingClassCode());
-//                lesson.setFaculty(c.getFaculty());
-//                lesson.setTerm(c.getTerm());
-//                lesson.setCompulsory(map.get(c.getCourseCode()));
-//                List<ClassTimeUnit> times = this.concatTime(collect, lesson);
-//                lesson.setTimes(times);
-//                course.setCourse(lesson);
-//                course.setLabel(c.getLabel());
-//                course.setCourseTakeType(c.getCourseTakeType());
             }
         }
     }
