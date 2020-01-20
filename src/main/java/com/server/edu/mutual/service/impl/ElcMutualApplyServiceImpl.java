@@ -68,10 +68,11 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	public PageInfo<ElcMutualApplyVo> getElcMutualApplyList(PageCondition<ElcMutualApplyDto> condition) {
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
-		Session session = SessionUtils.getCurrentSession();
-		if(session.realType() != UserTypeEnum.STUDENT.getValue()) {
-			throw new ParameterValidateException(I18nUtil.getMsg("elec.mustBeStu")); 
-		}
+//		Session session = SessionUtils.getCurrentSession();
+//		if(session.realType() != UserTypeEnum.STUDENT.getValue()) {
+//			throw new ParameterValidateException(I18nUtil.getMsg("elec.mustBeStu")); 
+//		}
+		
 		List<String> projectIds = new ArrayList<>();
 		if (Constants.BK_CROSS.equals(dto.getMode())) {
 			projectIds.add(Constants.PROJ_UNGRADUATE);
