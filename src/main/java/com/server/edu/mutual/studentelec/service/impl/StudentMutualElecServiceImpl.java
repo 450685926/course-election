@@ -221,11 +221,14 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
 		Student stu = stuDao.findStudentByCode(studentId);
         ElectionRounds round = elecMutualRoundsDao.selectByPrimaryKey(roundId);
         
+        LOG.info("--------------1111-------:" + stu.toString());
+        
         if (stu != null) {
 //        	String major = stuDao.getStudentMajor(stu.getGrade(),stu.getProfession());
 //            stu.setProfession(major);
             result.setData(stu);
-
+            
+            LOG.info("--------------22222--------------");
             if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             	List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
             	if (stu.getFaculty() == null || !deptIds.contains(stu.getFaculty())) {
@@ -233,22 +236,26 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
             		return result;
             	}
             }
-
+            LOG.info("--------------33333--------------");
+            
             if (!dataProvider.containsMutualStu(studentId, round.getCalendarId(), projectId)) {
             	result.setMsg(I18nUtil.getMsg("mutualAgent.mutualStudentList"));
             	return result;
             }
             
+            LOG.info("--------------444444--------------");
+            
             if (!dataProvider.containsMutualStuCondition(roundId, studentId, projectId)) {
             	result.setMsg(I18nUtil.getMsg("mutualAgent.studentJuge"));
             	return result;
             }
-            
+            LOG.info("--------------55555--------------");
             
             if (!getMutualCourseForStu(studentId, projectId, round)) {
             	result.setMsg(I18nUtil.getMsg("mutualAgent.mutualCourse"));
             	return result;
 			}
+            LOG.info("--------------66666--------------");
         }
         return result;
 	}
