@@ -10,17 +10,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.Student;
+import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.mutual.studentelec.service.StudentMutualElecService;
 import com.server.edu.mutual.util.ProjectUtil;
-
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
@@ -33,6 +36,9 @@ public class ElecMutualAgentController {
 	
     @Autowired
     private RoundDataProvider dataProvider;
+    
+    @Autowired
+    private StudentMutualElecService mutualElecService;
     
 	
     @ApiOperation(value = "获取生效的轮次")
@@ -62,5 +68,19 @@ public class ElecMutualAgentController {
             }
         }
         return RestResult.successData(data);
+    }
+    
+    @ApiOperation(value = "查询轮次学生信息")
+    @PostMapping("/findStuRound")
+    public RestResult<Student> findStuRound(
+        @RequestBody ElecRequest elecRequest)
+    {
+        RestResult<Student> result = new RestResult<Student>();
+		try {
+			result = mutualElecService.findStuRound(elecRequest.getRoundId(),elecRequest.getStudentId());
+		} catch (Exception e) {
+			result.fail(e.getMessage());
+		}
+        return result;
     }
 }

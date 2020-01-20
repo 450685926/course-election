@@ -3,7 +3,6 @@ package com.server.edu.mutual.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -77,6 +76,7 @@ public class ElcMutualController {
             	&& round.getMode().intValue() == RoundMode.BenYanHuXuan.mode()	
                 && date.after(round.getBeginTime())
                 && date.before(round.getEndTime())
+                && dataProvider.containsMutualStu(studentId, round.getCalendarId(),projectId)
                 && dataProvider.containsMutualStuCondition(roundId, studentId, projectId))
             {
                 ElectionRoundsVo vo = new ElectionRoundsVo(round);
