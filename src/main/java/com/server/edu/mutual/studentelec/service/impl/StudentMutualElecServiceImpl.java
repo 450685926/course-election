@@ -246,8 +246,8 @@ public class StudentMutualElecServiceImpl extends AbstractCacheService
         ElectionRounds round = elecMutualRoundsDao.selectByPrimaryKey(roundId);
         
         if (stu != null) {
-        	String major = stuDao.getStudentMajor(stu.getGrade(),stu.getProfession());
-            stu.setProfession(major);
+//        	String major = stuDao.getStudentMajor(stu.getGrade(),stu.getProfession());
+//            stu.setProfession(major);
             result.setData(stu);
 
             if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
