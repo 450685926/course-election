@@ -2,6 +2,7 @@ package com.server.edu.election.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -16,16 +17,21 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
 import com.server.edu.election.dao.ElectionApplyDao;
+import com.server.edu.election.dto.CourseDto;
 import com.server.edu.election.dto.ElectionApplyDto;
 import com.server.edu.election.dto.ElectionApplyRejectDto;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.service.ElectionApplyService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
+import com.server.edu.election.util.TableIndexUtil;
+import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.election.vo.ElectionApplyVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
@@ -56,6 +62,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     
     @Autowired
     private ApplicationContext applicationContext;
+    
+    @Autowired
+    private ElcCourseTakeDao courseTakeDao;
     
     @Override
     public PageInfo<ElectionApplyVo> applyList(
@@ -283,7 +292,6 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         wCriteria.andEqualTo("studentId", studentId);
         wCriteria.andEqualTo("calendarId", calendarId);
         wCriteria.andEqualTo("courseCode", courseCode);
-        wCriteria.andEqualTo("apply", Constants.APPLY_WITHDRAW);
         int result = electionApplyDao.deleteByExample(wExample);
         Example cExample = new Example(ElectionApplyCourses.class);
         Example.Criteria cCriteria = cExample.createCriteria();
@@ -294,6 +302,24 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         if(electionApplyCourses==null) {
         	throw new ParameterValidateException("选课申请课程不存在");
         }
+        //查询学生的已选课程
+        Integer index = TableIndexUtil.getIndex(calendarId);
+        List<ElcCourseTakeVo> list = courseTakeDao.findBkSelectedCourses(studentId, calendarId, index);
+        //查询所有英语课
+        CourseDto dto = new CourseDto();
+		dto.setFaculty("000268");
+		dto.setStatus(Constants.THREE+"");
+		dto.setCalendarId(calendarId);
+		List<Course> engLishCourses= electionApplyCoursesDao.getApplyCourseAdd(dto);
+		if(CollectionUtil.isNotEmpty(engLishCourses)) {
+			List<String> engLishCourseCodes = engLishCourses.stream().map(c->c.getCode()).collect(Collectors.toList());
+			if(engLishCourseCodes.contains(courseCode)) {
+				List<String> engLishTakeCourse = list.stream().filter(c->c!=null).filter(c->engLishCourseCodes.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
+				if(CollectionUtil.isNotEmpty(engLishTakeCourse)) {
+					throw new ParameterValidateException("已选英语课不能申请!");
+				}
+			}
+		}
         ElectionApply electionApply = new ElectionApply();
         electionApply.setStudentId(studentId);
         electionApply.setCalendarId(calendarId);
