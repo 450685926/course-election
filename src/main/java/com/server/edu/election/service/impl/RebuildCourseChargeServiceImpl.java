@@ -764,7 +764,7 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
                             .query(DictTypeEnum.X_XDLX.getType(), value);
                     return dict;
                 });
-        design.addCell(I18nUtil.getMsg("rebuildCourse.turn"), "turnName");
+        design.addCell(I18nUtil.getMsg("rebuildCourse.turn"), "turn");
         design.addCell("筛选标签", "labelName");
 
         return design;
