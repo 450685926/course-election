@@ -74,7 +74,7 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 					 }
 					 return value;
 				 });
-        design.addCell("学分", "facultyI18n");
+        design.addCell("学分", "credits");
 	 	design.addCell("应缴金额","amount").setValueHandler(doubleHandler);
 	 	design.addCell("已缴金额","pay").setValueHandler(doubleHandler);
 	 	design.addCell("是否已缴费","paid").setValueHandler(
