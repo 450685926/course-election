@@ -844,6 +844,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             Course course = courseDao.selectOneByExample(example1);
             courseTakeDao.deleteByExample(example);
             //减少选课人数
+            logger.info("-----------------decrElcNumber: "+teachingClassId+"---------------");
             int count =classDao.decrElcNumber(teachingClassId);
             //保存第三、四轮退课人数
             if (turn == Constants.THIRD_TURN
@@ -1935,6 +1936,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		Example example = new Example(ElcCourseTake.class);
 		example.createCriteria().andEqualTo("calendarId", teachingClass.getCalendarId()).andEqualTo("teachingClassId", teachingClass.getId());
 		List<ElcCourseTake> list = courseTakeDao.selectByExample(example);
+		logger.info("---------------------------take length:"+list.size()+"--------------------------------------------------------------");
 		if(CollectionUtil.isNotEmpty(list)) {
 			withdraw(list);
 		}

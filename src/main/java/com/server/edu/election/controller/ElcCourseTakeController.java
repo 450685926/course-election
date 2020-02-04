@@ -146,6 +146,7 @@ public class ElcCourseTakeController
     public RestResult<?> withdrawByTeachingClassId(
         @RequestParam("teachingClassId") @NotNull Long teachingClassId)
     {
+    	logger.info("-------------------withdrawByTeachingClassId： "+teachingClassId+"-------------------");
         courseTakeService.withdrawByTeachingClassId(teachingClassId);
         return RestResult.success();
     }
