@@ -13,6 +13,7 @@ import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.CourseDao;
 import com.server.edu.election.dao.ElcStuCouLevelDao;
 import com.server.edu.election.dao.ElectionConstantsDao;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcStuCouLevel;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.studentelec.context.ElecRequest;
@@ -93,13 +94,18 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
     public void load(ElecContextBk context)
     {
         //查库得到所有体育课
-        // 体育课程代码
-        String PECourses = electionConstantsDao.findPECourses();
-        List<String> PEList = new ArrayList<>(20);
-        if (StringUtils.isNotBlank(PECourses)){
-            String[] courseCodes = PECourses.split(",");//体育课程代码
-            PEList = Arrays.asList(courseCodes);
-        }
+//        // 体育课程代码
+//        String PECourses = electionConstantsDao.findPECourses();
+//        List<String> PEList = new ArrayList<>(20);
+//        if (StringUtils.isNotBlank(PECourses)){
+//            String[] courseCodes = PECourses.split(",");//体育课程代码
+//            PEList = Arrays.asList(courseCodes);
+//        }
+        Example example = new Example(Course.class);
+        Example.Criteria criteria =example.createCriteria();
+        criteria.andEqualTo("college", "000293");
+        List<Course> courses = courseDao.selectByExample(example);
+        List<String> PEList = courses.stream().map(Course::getCode).collect(Collectors.toList());
         StudentInfoCache stu = context.getStudentInfo();
         List<PlanCourseDto> courseType = CultureSerivceInvoker.findUnGraduateCourse(stu.getStudentId());
 //        Map<String, String> map = new HashMap<>(60);
