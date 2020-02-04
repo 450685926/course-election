@@ -69,7 +69,8 @@ public class MutualApplyJugeUtil {
 			}
 			
 			// 检测绩点是否合格
-			if (elcMutualApplyTurns.getGpa() != null && elcMutualApplyTurns.getGpa().floatValue() > 0.0f) {
+            // 检测绩点的前提是首先校验成绩检测是否开启，只有在成绩检测开启状态下才继续校验绩点
+			if (elcMutualApplyTurns.getFail().intValue() == 1 && elcMutualApplyTurns.getGpa() != null && elcMutualApplyTurns.getGpa().floatValue() > 0.0f) {
 				PageCondition<StudentScoreChangeCondition> pageCondition = new PageCondition<StudentScoreChangeCondition>();
 				StudentScoreChangeCondition studentScore = new StudentScoreChangeCondition();
 				studentScore.setCalendarId(dto.getCalendarId());
