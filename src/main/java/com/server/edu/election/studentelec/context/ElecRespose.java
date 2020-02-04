@@ -31,6 +31,10 @@ public class ElecRespose
 
     private Integer isLimit;
 
+    private Integer onlyRetakeFilter;
+
+    private Integer noRetakeRule;
+
     private Integer semester;
 
     private  Integer turn;
@@ -137,5 +141,21 @@ public class ElecRespose
 
     public void setIsDetainedStudent(Integer isDetainedStudent) {
         this.isDetainedStudent = isDetainedStudent;
+    }
+
+    public Integer getOnlyRetakeFilter() {
+        return onlyRetakeFilter;
+    }
+
+    public void setOnlyRetakeFilter(Integer onlyRetakeFilter) {
+        this.onlyRetakeFilter = onlyRetakeFilter;
+    }
+
+    public Integer getNoRetakeRule() {
+        return noRetakeRule;
+    }
+
+    public void setNoRetakeRule(Integer noRetakeRule) {
+        this.noRetakeRule = noRetakeRule;
     }
 }

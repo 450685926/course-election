@@ -287,6 +287,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
     	List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
         List<ElectionRuleVo> collect = rules.stream().filter(c -> "LoserNotElcRule".equals(c.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> planRules = rules.stream().filter(r -> "PlanCourseGroupCreditsRule".equals(r.getServiceName())).collect(Collectors.toList());
+        List<ElectionRuleVo> onlyRetakeRules = rules.stream().filter(r -> "OnlyRetakeFilter".equals(r.getServiceName())).collect(Collectors.toList());
+        List<ElectionRuleVo> noRetakeRules = rules.stream().filter(r -> "NoRetakeRule".equals(r.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> limitRules = rules.stream().filter(r -> "TimeConflictCheckerRule".equals(r.getServiceName())).collect(Collectors.toList());
         List<ElectionRuleVo> peRules = rules.stream().filter(r -> "OnePeCourseCheckerRule".equals(r.getServiceName())).collect(Collectors.toList());
 
@@ -314,6 +316,14 @@ public class StudentElecServiceImpl extends AbstractCacheService
             }
         }
 
+        Integer onlyRetakeRule = 1;
+        Integer noRetakeRule = 1;
+        if (CollectionUtil.isEmpty(onlyRetakeRules)){
+            onlyRetakeRule = 0;
+        }
+        if (CollectionUtil.isEmpty(noRetakeRules)){
+            noRetakeRule = 0;
+        }
 
 
 
@@ -420,6 +430,8 @@ public class StudentElecServiceImpl extends AbstractCacheService
         respose.setIsLimit(isLimit);
         respose.setSemester(semester);
         respose.setIsDetainedStudent(isDetainedStudent);
+        respose.setOnlyRetakeFilter(onlyRetakeRule);
+        respose.setNoRetakeRule(noRetakeRule);
         TeachingClassCache teachClass = new TeachingClassCache();
         if(CollectionUtil.isNotEmpty(loginExceutors)) {
             for(int i=0;i<loginExceutors.size();i++) {
