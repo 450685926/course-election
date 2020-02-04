@@ -53,12 +53,12 @@ import com.server.edu.election.studentelec.context.ElecCourse;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekModeUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
 import com.server.edu.election.vo.ElcCourseTakeVo;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
+import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 

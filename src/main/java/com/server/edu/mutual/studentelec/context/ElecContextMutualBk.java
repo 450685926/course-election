@@ -11,9 +11,9 @@ import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.CompletedCourse;
 import com.server.edu.election.studentelec.context.bk.PlanCourse;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.vo.ElcCouSubsVo;
+import com.server.edu.mutual.vo.SelectedCourse;
 
 /**
  * 执行“学生选课请求”时的上下文环境，组装成本对象，供各种约束调用
@@ -33,7 +33,7 @@ public class ElecContextMutualBk implements IElecContext
     /** 已完成通過课程 */
     private Set<CompletedCourse> completedCourses;
     
-    /** 本学期已选择课程 */
+    /** 本学期已选择课程(学生选课加互选课程) */
     private Set<SelectedCourse> selectedCourses;
     
     /** 免修申请课程 */
@@ -64,10 +64,10 @@ public class ElecContextMutualBk implements IElecContext
     private Set<ElectionApply> elecApplyCourses;
     
     /** 本学期已选择互选课程  */
-    private List<SelectedCourse> selectedMutualCourses;
+    private Set<SelectedCourse> selectedMutualCourses;
     
     /** 未选择的互选课程  */
-    private List<SelectedCourse> unSelectedMutualCourses;
+    private Set<SelectedCourse> unSelectedMutualCourses;
     
     /** 本科生可选的互选课程  */
     private List<SelectedCourse> optionalCourses;
@@ -113,8 +113,8 @@ public class ElecContextMutualBk implements IElecContext
         applyCourse = ElecContextUtil.getApplyCourse(calendarId);
         elecApplyCourses =this.contextUtil.getSet(ELEC_APPLY_COURSES, ElectionApply.class);
         replaceCourses = this.contextUtil.getSet(REPLACE_COURSES, ElcCouSubsVo.class);
-        selectedMutualCourses = this.contextUtil.getList("selectedMutualCourses", SelectedCourse.class);
-        unSelectedMutualCourses = this.contextUtil.getList("unSelectedMutualCourses", SelectedCourse.class);
+        selectedMutualCourses = this.contextUtil.getSet("selectedMutualCourses", SelectedCourse.class);
+        unSelectedMutualCourses = this.contextUtil.getSet("unSelectedMutualCourses", SelectedCourse.class);
         optionalCourses = this.contextUtil.getList("optionalCourses", SelectedCourse.class);
         unFinishedCourses = this.contextUtil.getSet("unFinishedCourses", CompletedCourse.class);
     }
@@ -277,11 +277,11 @@ public class ElecContextMutualBk implements IElecContext
         return replaceCourses;
     }
 
-	public List<SelectedCourse> getSelectedMutualCourses() {
+	public Set<SelectedCourse> getSelectedMutualCourses() {
 		return selectedMutualCourses;
 	}
 
-	public void setSelectedMutualCourses(List<SelectedCourse> selectedMutualCourses) {
+	public void setSelectedMutualCourses(Set<SelectedCourse> selectedMutualCourses) {
 		this.selectedMutualCourses = selectedMutualCourses;
 	}
 
@@ -293,11 +293,11 @@ public class ElecContextMutualBk implements IElecContext
 		this.unFinishedCourses = unFinishedCourses;
 	}
 
-	public List<SelectedCourse> getUnSelectedMutualCourses() {
+	public Set<SelectedCourse> getUnSelectedMutualCourses() {
 		return unSelectedMutualCourses;
 	}
 
-	public void setUnSelectedMutualCourses(List<SelectedCourse> unSelectedMutualCourses) {
+	public void setUnSelectedMutualCourses(Set<SelectedCourse> unSelectedMutualCourses) {
 		this.unSelectedMutualCourses = unSelectedMutualCourses;
 	}
 

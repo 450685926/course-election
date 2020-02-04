@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,6 @@ import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.IElecContext;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
-import com.server.edu.election.studentelec.context.bk.SelectedCourse;
 import com.server.edu.election.studentelec.dto.ElecTeachClassDto;
 import com.server.edu.election.studentelec.rules.AbstractRuleExceutor;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
@@ -47,6 +47,7 @@ import com.server.edu.mutual.studentelec.rule.AbstractMutualElecRuleExceutor;
 import com.server.edu.mutual.studentelec.rule.AbstractMutualWithdrwRuleExceutor;
 import com.server.edu.mutual.studentelec.rule.LimitCountCheckerRule;
 import com.server.edu.mutual.studentelec.service.MutualElecBkService;
+import com.server.edu.mutual.vo.SelectedCourse;
 import com.server.edu.util.BeanUtil;
 import com.server.edu.util.CollectionUtil;
 
@@ -83,15 +84,9 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
 	@SuppressWarnings("rawtypes")
 	@Override
 	public IElecContext doELec(ElecRequest request) {
-		LOG.info("-----------------------111444------------doELec start -------------------");
-		 
         Long roundId = request.getRoundId();
         String studentId = request.getStudentId();
         Long calendarId = request.getCalendarId();
-
-        LOG.info("-----------------------111555------------roundId:" + roundId + "-------------------");
-        LOG.info("-----------------------111666------------studentId:" + studentId + "-------------------");
-        LOG.info("-----------------------111777------------calendarId:" + calendarId + "-------------------");
         
         Assert.notNull(calendarId, "calendarId must be not null");
         
@@ -100,18 +95,11 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         
         List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
         
-        LOG.info("-----------------------111888------------rules:" + rules.size() + "-------------------");
-        
         List<AbstractMutualElecRuleExceutor> elecExceutors = new ArrayList<>();
         List<AbstractMutualWithdrwRuleExceutor> cancelExceutors = new ArrayList<>();
         // 获取执行规则
         Map<String, AbstractRuleExceutor> map =
             applicationContext.getBeansOfType(AbstractRuleExceutor.class);
-        
-        Set<Entry<String,AbstractRuleExceutor>> set = map.entrySet();
-        for (Entry<String, AbstractRuleExceutor> entry : set) {
-			LOG.info("============entry" + entry.getKey() + "====================");
-		}
         
         for (ElectionRuleVo ruleVo : rules)
         {
@@ -132,8 +120,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                 }
             }
         }
-        LOG.info("--------------111999-------cancelExceutors:"+ cancelExceutors.size() +"-------------------------------");
-        LOG.info("--------------202020-------elecExceutors:"+ elecExceutors.size() +"-------------------------------");
         
         ElecRespose respose = context.getRespose();
         respose.getSuccessCourses().clear();
@@ -145,12 +131,6 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
         // 选课
         ElectionRounds round = dataProvider.getRound(roundId);
         doElec(context, elecExceutors, request.getElecClassList(), round);
-        
-        List<SelectedCourse> list = context.getSelectedMutualCourses();
-        for (SelectedCourse selectedCourse : list) {
-        	TeachingClassCache classCache = selectedCourse.getCourse();
-        	LOG.info("--------------%%%%%%%%%%%%%%%-------classCache:"+ classCache.getCourseCode() + "===" + classCache.getCourseName() +"------");
-		}
         
         return context;
 	}
@@ -364,11 +344,23 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
             course.setTurn(round.getTurn());
             course.setCourseTakeType(courseTakeType);
             course.setChooseObj(request.getChooseObj());
-            
+            course.setCourseCode(teachClass.getCourseCode());
+            course.setCourseName(teachClass.getCourseName());
+            course.setCredits(teachClass.getCredits());
+            course.setStatus(Constants.ELECTED);
+             
             // 更新本研互选和学生选课数据
             context.getSelectedMutualCourses().add(course);
             context.getSelectedCourses().add(course);
             
+            // 深复制
+            Set<SelectedCourse> unSelectedMutualCourses = context.getUnSelectedMutualCourses();
+            for (SelectedCourse unsSelectedCourse : unSelectedMutualCourses) {
+				if (StringUtils.equals(unsSelectedCourse.getCourseCode(), course.getCourseCode())) {
+					unSelectedMutualCourses.remove(unsSelectedCourse);
+					break;
+				}
+			}
             LOG.info("--------------404040 selected size: "+ context.getSelectedCourses().size() +" --------------");
         }
         // 更新缓存中教学班人数
@@ -397,7 +389,8 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
             Long teachClassId = data.getTeachClassId();
             SelectedCourse teachClass = null;
             Set<SelectedCourse> selectedCourses = context.getSelectedCourses();
-            for (SelectedCourse selectCourse : selectedCourses)
+            Set<SelectedCourse> selectedMutualCourses = context.getSelectedMutualCourses();
+            for (SelectedCourse selectCourse : selectedMutualCourses)
             {
                 if (selectCourse.getCourse()
                     .getTeachClassId()
@@ -436,11 +429,34 @@ public class MutualElecBkServiceImpl implements MutualElecBkService{
                 this.saveElc(context,
                     teachClass.getCourse(),
                     ElectRuleType.WITHDRAW,false);
-                // 删除缓存中的数据
-                Iterator<SelectedCourse> iterator = selectedCourses.iterator();
+                // 删除缓存中的互选数据
+                Set<SelectedCourse> unSelectedMutualCourses = context.getUnSelectedMutualCourses();
+                Iterator<SelectedCourse> iterator = selectedMutualCourses.iterator();
                 while (iterator.hasNext())
                 {
-                    SelectedCourse c = iterator.next();
+                	SelectedCourse c = new SelectedCourse();
+                	try {
+						BeanUtil.copyProperties(c, iterator.next());
+						if (c.getCourse().getTeachClassId().equals(teachClassId))
+						{
+							c.setCourse(null);
+							c.setStatus(Constants.UN_ELECTED);
+							c.setTurn(null);
+							unSelectedMutualCourses.add(c);
+							
+							iterator.remove();
+							break;
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+                }
+                
+                // 删除缓存中的选课数据
+                iterator = selectedCourses.iterator();
+                while (iterator.hasNext())
+                {
+                	SelectedCourse c = iterator.next();
                     if (c.getCourse().getTeachClassId().equals(teachClassId))
                     {
                         iterator.remove();

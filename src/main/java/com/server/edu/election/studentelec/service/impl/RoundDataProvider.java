@@ -3,17 +3,17 @@ package com.server.edu.election.studentelec.service.impl;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.github.pagehelper.PageInfo;
+import com.server.edu.common.PageCondition;
 import com.server.edu.common.entity.BkPublicCourseVo;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.server.edu.common.validator.Assert;
@@ -32,6 +32,9 @@ import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.utils.ElecContextUtil;
 import com.server.edu.election.studentelec.utils.Keys;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
+import com.server.edu.mutual.service.ElcMutualCrossService;
+import com.server.edu.mutual.vo.ElcMutualCrossStuVo;
 import com.server.edu.util.CollectionUtil;
 
 /**
@@ -62,6 +65,9 @@ public class RoundDataProvider
     
     @Autowired
     private StringRedisTemplate strTemplate;
+    
+	@Autowired
+	private ElcMutualCrossService elcMutualCrossService;
     
     public RoundDataProvider()
     {
@@ -399,6 +405,38 @@ public class RoundDataProvider
     public boolean containsStu(Long roundId, String studentId)
     {
         return this.roundCacheService.containsStu(roundId, studentId);
+    }
+    
+    /**
+     * 判断学生是否在本研互选名单中
+     * 
+     * @param roundId
+     * @param studentId
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    public boolean containsMutualStu(String studentId, Long calendarId, String projectId)
+    {
+    	PageCondition<ElcMutualCrossStuDto> condition = new PageCondition<ElcMutualCrossStuDto>();
+    	ElcMutualCrossStuDto crossStuDto = new ElcMutualCrossStuDto();
+    	crossStuDto.setCalendarId(calendarId);
+    	crossStuDto.setProjectId(projectId);
+    	crossStuDto.setStudentId(studentId);
+    	if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+    		crossStuDto.setMode(Constants.FIRST);
+		}else if (StringUtils.equals(projectId, Constants.PROJ_GRADUATE) 
+				|| StringUtils.equals(projectId, Constants.PROJ_LINE_GRADUATE)) {
+			crossStuDto.setMode(Constants.SECOND);
+		}
+    	condition.setPageSize_(Constants.PAGE_SIZE);
+    	condition.setCondition(crossStuDto);
+    	
+    	PageInfo<ElcMutualCrossStuVo> pageInfo = elcMutualCrossService.getElcMutualCrossList(condition);
+    	if (CollectionUtil.isNotEmpty(pageInfo.getList())) {
+    		return true;
+		}else {
+			return false;
+		}
     }
     
     /**

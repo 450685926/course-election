@@ -120,7 +120,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 			criteria.andIn("studentId", studentIdList);
 			List<ElcCrossStds> list = elcCrossStdsDao.selectByExample(example);
 			if(CollectionUtil.isNotEmpty(list)) {
-				throw new ParameterValidateException(I18nUtil.getMsg("common.exist","学生")); 
+				//如果已添加学生，则求二者差集
+				Set<String> studentIds = list.stream().map(e -> e.getStudentId()).collect(Collectors.toSet());
+				studentIdList = studentIdList.stream().filter(e -> !studentIds.contains(e)).collect(Collectors.toList());
+//				throw new ParameterValidateException(I18nUtil.getMsg("common.exist","学生"));
 			}
 			List<ElcCrossStds> crossList = new ArrayList<>();
 			for(String studentId:studentIdList) {
@@ -129,7 +132,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcCrossStds.setStudentId(studentId);
 				crossList.add(elcCrossStds);
 			}
-			result =  elcCrossStdsDao.insertList(crossList);
+			if (CollectionUtil.isNotEmpty(crossList)) {
+				result =  elcCrossStdsDao.insertList(crossList);
+			}
 		}else { // 本研互选学生名单管理
 			Example example = new Example(ElcMutualStds.class);
 			Example.Criteria criteria =example.createCriteria();
@@ -137,7 +142,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 			criteria.andIn("studentId", studentIdList);
 			List<ElcMutualStds> list = elcMutualStdsDao.selectByExample(example);
 			if(CollectionUtil.isNotEmpty(list)) {
-				throw new ParameterValidateException(I18nUtil.getMsg("common.exist","学生")); 
+				//如果已添加学生，则求二者差集
+				Set<String> studentIds = list.stream().map(e -> e.getStudentId()).collect(Collectors.toSet());
+				studentIdList = studentIdList.stream().filter(e -> !studentIds.contains(e)).collect(Collectors.toList());
+//				throw new ParameterValidateException(I18nUtil.getMsg("common.exist","学生"));
 			}
 			
 			List<ElcMutualStds> mutualList = new ArrayList<>();
@@ -147,7 +155,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcMutualStds.setStudentId(studentId);
 				mutualList.add(elcMutualStds);
 			}
-			result = elcMutualStdsDao.insertList(mutualList);
+			if (CollectionUtil.isNotEmpty(mutualList)) {
+				result = elcMutualStdsDao.insertList(mutualList);
+			}
 		}
 		return result;
 	}
@@ -160,6 +170,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		if (isDepartAdmin() && StringUtils.equals(faculty, dto.getFaculty())) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 		}
+//		if (isDepartAdmin() && !StringUtils.equals(faculty, dto.getFaculty())) {
+//			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
+//		}
 		
 		List<Student> students = getStudentInfos(dto);
 		int result = Constants.ZERO;
@@ -203,6 +216,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		if(StringUtils.isNotBlank(dto.getIsOverseas())) {
 			criteria.andEqualTo("isOverseas", dto.getIsOverseas());                 // 是否留学生( 0：否  1：是)
 		}
+		criteria.andEqualTo("leaveSchool",Constants.ONE);
 		List<Student> students = studentDao.selectByExample(example);
 		return students;
 	}
@@ -277,6 +291,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	@Override
 	public int deleteAll(Long calendarId, Integer mode) {
 		int result = Constants.ZERO;
+		//修改为以对象形式接收前端参数，因为前端使用json格式上传
+//		Long calendarId = dto.getCalendarId();
+//		Integer mode = dto.getMode();
 		if(Constants.BK_CROSS.equals(mode)) {
 			Example example = new Example(ElcCrossStds.class);
 			Example.Criteria criteria =example.createCriteria();

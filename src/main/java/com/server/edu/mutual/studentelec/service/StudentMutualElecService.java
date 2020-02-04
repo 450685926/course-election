@@ -2,6 +2,7 @@ package com.server.edu.mutual.studentelec.service;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.mutual.studentelec.context.ElecContextMutualBk;
@@ -39,4 +40,12 @@ public interface StudentMutualElecService {
 	 * @return
 	 */
 	ElecContextMutualBk getData(ElecContextMutualBk c, ElectionRounds round, Long calendarId);
+
+	/**
+	 * 查询轮次学生信息
+	 * @param roundId
+	 * @param studentId
+	 * @return
+	 */
+	RestResult<Student> findStuRound(Long roundId, String studentId) throws Exception;
 }

@@ -140,6 +140,8 @@ public interface Constants
     public static final String DELETE = "delete";
     public static final String ONE_TERM = "1";
     public static final String TWO_TERM = "2";
+    
+    public static final Integer PAGE_SIZE = 1000;
 
     
 
