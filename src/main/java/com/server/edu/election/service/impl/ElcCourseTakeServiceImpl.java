@@ -1924,6 +1924,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	@Transactional
 	public void withdrawByTeachingClassId(Long teachingClassId) {
+		logger.info("--------------------------withdrawByTeachingClassId:"+teachingClassId+"------------------------------");
 		TeachingClassVo teachingClass = teachingClassDao.getTeachingClassVo(teachingClassId);
 		if(teachingClass==null) {
             throw new ParameterValidateException("教学班信息不存在");
