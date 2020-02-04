@@ -77,6 +77,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 		// 取消根据学院过滤
 //		dto.setCollege(session.getFaculty());
+		//封装学院集合
+		packageCollegeList(session,dto);
+		//封装部门数据
 		dto.setProjectIds(projectIds);
 
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
@@ -317,6 +320,32 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	@Override
 	public List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto) {
 		return elcMutualApplyDao.getOpenCollegeAuditList(dto);
+	}
+
+	/**
+	 * 功能描述:封装当前的学院数据（当前学院+管理的学院）
+	 *
+	 * 备注：教务员不仅仅存在当前学院，还可以管理多个学院
+	 *
+	 * @params: [session, dto]
+	 * @return: void
+	 * @author: zhaoerhu
+	 * @date: 2020/2/4 17:04
+	 */
+	private void packageCollegeList(Session session, ElcMutualApplyDto dto) {
+		// session中当前学院和管理的学院集合
+		List<String> collegeList = new ArrayList<>();
+		//添加当前学院
+		collegeList.add(session.getFaculty());
+		//获取当前教务员管理的学院
+		String manageFaculty = session.getManageFaculty();
+		if (StringUtils.isNotEmpty(manageFaculty)) {
+			List<String> manageFacultyList = Arrays.asList(session.getManageFaculty().split(","));
+			//添加当前教务员管理的学院集合
+			collegeList.addAll(manageFacultyList);
+		}
+		//封装学院数据
+		dto.setCollegeList(collegeList);
 	}
 
 }
