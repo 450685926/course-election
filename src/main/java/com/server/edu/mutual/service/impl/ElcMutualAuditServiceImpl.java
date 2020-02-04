@@ -74,8 +74,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 			dto.setByType(Constants.FIRST);
 		}
-		
-		dto.setCollege(session.getFaculty());
+
+		// 取消根据学院过滤
+//		dto.setCollege(session.getFaculty());
 		dto.setProjectIds(projectIds);
 
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
