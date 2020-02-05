@@ -494,16 +494,16 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     && compare(roundCondition.getTrainingLevels(), stu.getTrainingLevel())
 
             ) {
-//                List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
-//                if (CollectionUtil.isNotEmpty(rules)) {
-//                    List<String> collect = rules.stream().map(ElectionRuleVo::getServiceName).collect(Collectors.toList());
-//                    if (collect.contains("MustInElectableListRule")) {
-//                        Student student = stuDao.findStuRound(roundId, studentId);
-//                        if (student == null) {
-//                            return null;
-//                        }
-//                    }
-//                }
+                List<ElectionRuleVo> rules = dataProvider.getRules(roundId);
+                if (CollectionUtil.isNotEmpty(rules)) {
+                    List<String> collect = rules.stream().map(ElectionRuleVo::getServiceName).collect(Collectors.toList());
+                    if (collect.contains("MustInElectableListRule")) {
+                        Student student = stuDao.findStuRound(roundId, studentId);
+                        if (student == null) {
+                            return null;
+                        }
+                    }
+                }
                 stu.setProfession(major);
             	Session session = SessionUtils.getCurrentSession();
                 if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
