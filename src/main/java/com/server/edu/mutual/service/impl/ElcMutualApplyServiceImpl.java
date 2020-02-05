@@ -148,19 +148,20 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
 		stuDto.setCalendarId(dto.getCalendarId());
 		stuDto.setStudentId(studentId);
-		ElcMutualCrossStuVo elcMutualCrossStuVo = null;
+		//返回单个po对象在切换学期时代码报错（切换未上送学生id所以返回多条记录），故统一使用list接收
+		List<ElcMutualCrossStuVo> elcMutualCrossStuVos = null;
 		// 判断该学生是否在本研互选名单中
 //		if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
 //			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
 //		}
 		// 判断该学生是否在跨院系互选名单中
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
-			elcMutualCrossStuVo = elcCrossStdsDao.isInElcMutualStdList(stuDto);
+			elcMutualCrossStuVos = elcCrossStdsDao.isInElcMutualStdList(stuDto);
 		} else {
-			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
+			elcMutualCrossStuVos = elcMutualStdsDao.isInElcMutualStdList(stuDto);
 		}
 
-		if (elcMutualCrossStuVo == null) {
+		if (elcMutualCrossStuVos == null || elcMutualCrossStuVos.isEmpty()) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInMutualStuList")); 
 		}
 		List<String> projectIds =new ArrayList<>();
