@@ -150,6 +150,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
 		        and t2.IS_ELECTIVE_  = #{isElective}
 		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(calendarId)">
+				and t1.CALENDAR_ID_  = #{calendarId}
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
 		        and t2.PROJ_ID_ in  
 		        <foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">

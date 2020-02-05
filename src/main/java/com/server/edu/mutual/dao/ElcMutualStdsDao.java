@@ -15,8 +15,10 @@ public interface ElcMutualStdsDao extends Mapper<ElcMutualStds>,MySqlMapper<ElcM
 	
 	/**
 	   *  判断学生是否在本研互选学生名单中
+	 *
+	 *  修改说明：返回单个po对象在切换学期时代码报错（切换未上送学生id所以返回多条记录），故统一使用list接收
 	 * @param dto
 	 * @return
 	 */
-	ElcMutualCrossStuVo isInElcMutualStdList(ElcMutualCrossStuDto dto);
+	List<ElcMutualCrossStuVo> isInElcMutualStdList(ElcMutualCrossStuDto dto);
 }

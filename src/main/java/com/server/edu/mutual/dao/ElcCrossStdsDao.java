@@ -11,5 +11,7 @@ import tk.mybatis.mapper.common.MySqlMapper;
 
 public interface ElcCrossStdsDao extends Mapper<ElcCrossStds>,MySqlMapper<ElcCrossStds> {
 	List<ElcMutualCrossStuVo> getCrossStds(ElcMutualCrossStuDto dto);
-	ElcMutualCrossStuVo isInElcMutualStdList(ElcMutualCrossStuDto dto);
+
+	//返回单个po对象在切换学期时代码报错（切换未上送学生id所以返回多条记录），故统一使用list接收
+	List<ElcMutualCrossStuVo> isInElcMutualStdList(ElcMutualCrossStuDto dto);
 }
