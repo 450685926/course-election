@@ -3,7 +3,8 @@ package com.server.edu.mutual.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
+import com.server.edu.common.locale.I18nUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,10 +133,18 @@ public class ElcMutualAuditController {
     @ApiOperation(value = "互选代理申请")
     @PostMapping("/agentApply")
     public RestResult<Integer> agentApply(
-    		@RequestBody @Valid AgentApplyDto dto)
+    		@RequestBody AgentApplyDto dto)
         throws Exception
     {
         LOG.info("agentApply.start");
+        String studentId = dto.getStudentId();
+        Long mutualCourseId = dto.getMutualCourseId();
+        if (StringUtils.isBlank(studentId)) {
+            return RestResult.fail(I18nUtil.getMsg("student.notNull"));
+        }
+        if (null == mutualCourseId) {
+            return RestResult.fail(I18nUtil.getMsg("courseId.notNull"));
+        }
         int result =elcMutualAuditService.agentApply(dto);
         return RestResult.successData(result);
     }
