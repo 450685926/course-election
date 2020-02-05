@@ -239,7 +239,7 @@ public class BKMutualCourseLoad extends MutualDataProLoad<ElecContextMutualBk>{
 	            course.setCourseCode(vo.getCourseCode());
 	            course.setCourseName(vo.getCourseName());
 	            course.setCompulsory(map.get(vo.getCourseCode()));
-	            course.setChooseObj(getChooseObj(round.getElectionObj()));
+	            course.setChooseObj(vo.getChooseObj());
 	            course.setAssessmentMode(vo.getAssessmentMode());
 	            course.setTurn(round.getTurn());
 	            course.setStatus(Constants.ELECTED);

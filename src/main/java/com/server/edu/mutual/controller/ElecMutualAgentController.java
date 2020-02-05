@@ -104,14 +104,11 @@ public class ElecMutualAgentController {
     @ApiOperation(value = "数据加载")
     @PostMapping("/{roundId}/loading")
     public RestResult<ElecRespose> studentLoading(
-        @PathVariable("roundId") @NotNull Long roundId, @RequestParam("studentId") String studentId)
+        @PathVariable("roundId") @NotNull Long roundId, @RequestBody @Valid ElecRequest elecRequest)
     {
         Session session = SessionUtils.getCurrentSession();
-        ElecRequest elecRequest = new ElecRequest();
         elecRequest.setRoundId(roundId);
-        elecRequest.setStudentId(studentId);
         elecRequest.setProjectId(session.getCurrentManageDptId());
-        
         return mutualElecService.loading(elecRequest);
     }
     
@@ -137,11 +134,9 @@ public class ElecMutualAgentController {
     @ApiOperation(value = "查询选课结果")
     @PostMapping("/{roundId}/electRes")
     public RestResult<ElecRespose> getElect(
-        @PathVariable("roundId") @NotNull Long roundId, @RequestParam("studentId") String studentId)
+        @PathVariable("roundId") @NotNull Long roundId, @RequestBody @Valid ElecRequest elecRequest)
     {
-        ElecRequest elecRequest = new ElecRequest();
         elecRequest.setRoundId(roundId);
-        elecRequest.setStudentId(studentId);
         ElecRespose response = mutualElecService.getElectResult(elecRequest);
         return RestResult.successData(response);
     }
@@ -151,16 +146,12 @@ public class ElecMutualAgentController {
      */
     @ApiOperation(value = "学生选课")
     @PostMapping("/elect")
-    public RestResult<ElecRespose> elect(
-        @RequestBody @Valid ElecRequest elecRequest, @RequestParam("studentId") String studentId, @RequestParam("chooseObj") Integer chooseObj)
+    public RestResult<ElecRespose> elect(@RequestBody @Valid ElecRequest elecRequest)
     {
-    	Session session = SessionUtils.getCurrentSession();
-        elecRequest.setChooseObj(chooseObj);
-        elecRequest.setStudentId(studentId);
+        Session session = SessionUtils.getCurrentSession();
         elecRequest.setCreateBy(session.getUid());
         elecRequest.setRequestIp(SessionUtils.getRequestIp());
         elecRequest.setProjectId(session.getCurrentManageDptId());
-        
         return mutualElecService.elect(elecRequest);
     }
     
