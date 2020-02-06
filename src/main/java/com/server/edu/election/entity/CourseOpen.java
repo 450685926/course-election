@@ -135,6 +135,16 @@ public class CourseOpen implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private String teachingClassCode;
+
+    public String getTeachingClassCode() {
+        return teachingClassCode;
+    }
+
+    public void setTeachingClassCode(String teachingClassCode) {
+        this.teachingClassCode = teachingClassCode;
+    }
+
     /**
      * 获取主键（自增）
      *
