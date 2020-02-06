@@ -53,14 +53,11 @@
 	  select t.TEACHING_CLASS_ID_ from elc_affinity_courses_t t where t.CALENDAR_ID_ = #{calendarId}
 	  )
 	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
-		  and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
+		  and t4.CODE_ like concat('%',#{courseCode},'%')
 	  </if>
 	  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
 		  and t1.COURSE_NAME_ like concat('%',#{courseName},'%')
 	  </if>
-		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
-			and t4.CODE_ like concat('%',#{teachingClassCode},'%')
-		</if>
 	  GROUP BY t4.ID_
 	  order by t4.ID_
   </select>
