@@ -279,48 +279,12 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                             BkPublicCourse publicCourse = list.get(i);
                             String tag = publicCourse.getTag();
                             List<PublicCourse> publicCourseList = publicCourse.getList();
-//                            if (CollectionUtil.isEmpty(publicCourseList)) {
-//                                TsCourse tsCourse = new TsCourse();
-//                                tsCourse.setTag(tag);
-//                                tsCourse.setIndex(i);
-//                                publicCourses.add(tsCourse);
-//                            } else {
-//                                for (PublicCourse pc : publicCourseList) {
-//                                    String courseCode = pc.getCourseCode();
-//                                    List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
-//                                    if (!selectedCourse.contains(courseCode) && CollectionUtil.isNotEmpty(teachingClassCaches)) {
-//                                        Set<String> set = new HashSet(5);
-//                                        Set<String> collect = teachingClassCaches.stream().map(TeachingClassCache::getCampus).collect(Collectors.toSet());
-//                                        for (String s : collect) {
-//                                            if (StringUtils.isNotBlank(s)) {
-//                                                String campus = dictionaryService.query("X_XQ", s);
-//                                                if (StringUtils.isNotBlank(campus)) {
-//                                                    set.add(campus);
-//                                                }
-//                                            }
-//                                        }
-//                                        ElecCourse elecCourse = new ElecCourse();
-//                                        elecCourse.setCampus(String.join(",", set));
-//                                        elecCourse.setCourseCode(courseCode);
-////                                            elecCourse.setCompulsory(map.get(courseCode));
-//                                        elecCourse.setCourseName(pc.getCourseName());
-//                                        elecCourse.setCredits(pc.getCreidits());
-//                                        elecCourse.setJp(pc.getJp());
-//                                        elecCourse.setCx(pc.isCx());
-//                                        elecCourse.setYs(pc.isYs());
-//                                        TsCourse tsCourse = new TsCourse();
-//                                        tsCourse.setTag(tag);
-//                                        tsCourse.setIndex(i);
-//                                        tsCourse.setCourse(elecCourse);
-//                                        publicCourses.add(tsCourse);
-//                                    }
-//                                }
-//                            }
-                            TsCourse tsCourse = new TsCourse();
-                            tsCourse.setTag(tag);
-                            tsCourse.setIndex(i);
-                            publicCourses.add(tsCourse);
-                            if (CollectionUtil.isNotEmpty(publicCourseList)) {
+                            if (CollectionUtil.isEmpty(publicCourseList)) {
+                                TsCourse tsCourse = new TsCourse();
+                                tsCourse.setTag(tag);
+                                tsCourse.setIndex(i);
+                                publicCourses.add(tsCourse);
+                            } else {
                                 for (PublicCourse pc : publicCourseList) {
                                     String courseCode = pc.getCourseCode();
                                     List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
@@ -338,20 +302,56 @@ public class BKCoursePlanLoad extends DataProLoad<ElecContextBk>
                                         ElecCourse elecCourse = new ElecCourse();
                                         elecCourse.setCampus(String.join(",", set));
                                         elecCourse.setCourseCode(courseCode);
+//                                            elecCourse.setCompulsory(map.get(courseCode));
                                         elecCourse.setCourseName(pc.getCourseName());
                                         elecCourse.setCredits(pc.getCreidits());
                                         elecCourse.setJp(pc.getJp());
                                         elecCourse.setCx(pc.isCx());
                                         elecCourse.setYs(pc.isYs());
-                                        TsCourse course = new TsCourse();
-                                        course.setTag(tag);
-                                        course.setIndex(i);
-                                        course.setCourse(elecCourse);
-                                        publicCourses.add(course);
+                                        TsCourse tsCourse = new TsCourse();
+                                        tsCourse.setTag(tag);
+                                        tsCourse.setIndex(i);
+                                        tsCourse.setCourse(elecCourse);
+                                        publicCourses.add(tsCourse);
                                     }
                                 }
-
                             }
+//                            TsCourse tsCourse = new TsCourse();
+//                            tsCourse.setTag(tag);
+//                            tsCourse.setIndex(i);
+//                            publicCourses.add(tsCourse);
+//                            if (CollectionUtil.isNotEmpty(publicCourseList)) {
+//                                for (PublicCourse pc : publicCourseList) {
+//                                    String courseCode = pc.getCourseCode();
+//                                    List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, courseCode);
+//                                    if (!selectedCourse.contains(courseCode) && CollectionUtil.isNotEmpty(teachingClassCaches)) {
+//                                        Set<String> set = new HashSet(5);
+//                                        Set<String> collect = teachingClassCaches.stream().map(TeachingClassCache::getCampus).collect(Collectors.toSet());
+//                                        for (String s : collect) {
+//                                            if (StringUtils.isNotBlank(s)) {
+//                                                String campus = dictionaryService.query("X_XQ", s);
+//                                                if (StringUtils.isNotBlank(campus)) {
+//                                                    set.add(campus);
+//                                                }
+//                                            }
+//                                        }
+//                                        ElecCourse elecCourse = new ElecCourse();
+//                                        elecCourse.setCampus(String.join(",", set));
+//                                        elecCourse.setCourseCode(courseCode);
+//                                        elecCourse.setCourseName(pc.getCourseName());
+//                                        elecCourse.setCredits(pc.getCreidits());
+//                                        elecCourse.setJp(pc.getJp());
+//                                        elecCourse.setCx(pc.isCx());
+//                                        elecCourse.setYs(pc.isYs());
+//                                        TsCourse course = new TsCourse();
+//                                        course.setTag(tag);
+//                                        course.setIndex(i);
+//                                        course.setCourse(elecCourse);
+//                                        publicCourses.add(course);
+//                                    }
+//                                }
+//
+//                            }
                         }
                     }
                     break;
