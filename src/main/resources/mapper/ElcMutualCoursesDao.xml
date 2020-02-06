@@ -68,6 +68,12 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
 		        and t2.IS_ELECTIVE_  = #{isElective}
 		    </if>
+			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(collegeList)">
+				 and t2.FACULTY_ in
+				 <foreach item="college" collection="collegeList" open="(" close=")" separator=",">
+					 #{college}
+				 </foreach>
+			 </if>
 		 </where>
   </select>
   

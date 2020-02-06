@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 	
 	@Autowired
 	private ElecRoundCourseDao elecRoundCourseDao;
+
+	@Autowired
+	private ElcMutualCommonService elcMutualCommonService;
 	
 	@Override
 	public PageInfo<ElcMutualCoursesVo> getElcMutualCourseList(PageCondition<ElcMutualCoursesDto> condition) {
@@ -43,6 +47,10 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		ElcMutualCoursesDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		dto.setProjectId(session.getCurrentManageDptId());
+		if (elcMutualCommonService.isDepartAdmin()) {
+			//修改说明：当前教务员除了当前所属学院还管理其他学院
+			dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
+		}
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			dto.setInType(Constants.FIRST);
 		}else {

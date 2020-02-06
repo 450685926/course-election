@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	@Autowired
 	private ElcMutualApplyService elcMutualApplyService;
 
+	@Autowired
+	private ElcMutualCommonService elcMutualCommonService;
 
 	@Override
 	public PageInfo<ElcMutualApplyVo> collegeApplyCourseList(PageCondition<ElcMutualApplyDto> condition) {
@@ -333,19 +336,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	 * @date: 2020/2/4 17:04
 	 */
 	private void packageCollegeList(Session session, ElcMutualApplyDto dto) {
-		// session中当前学院和管理的学院集合
-		List<String> collegeList = new ArrayList<>();
-		//添加当前学院
-		collegeList.add(session.getFaculty());
-		//获取当前教务员管理的学院
-		String manageFaculty = session.getManageFaculty();
-		if (StringUtils.isNotEmpty(manageFaculty)) {
-			List<String> manageFacultyList = Arrays.asList(session.getManageFaculty().split(","));
-			//添加当前教务员管理的学院集合
-			collegeList.addAll(manageFacultyList);
-		}
 		//封装学院数据
-		dto.setCollegeList(collegeList);
+		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 	}
 
 }
