@@ -12,7 +12,17 @@ public class ElcAffinityCoursesDto extends ElcAffinityCourses {
     private String keyword;
 
     private String courseNameEn;
-    
+
+    private String teachingClassCode;
+
+	public String getTeachingClassCode() {
+		return teachingClassCode;
+	}
+
+	public void setTeachingClassCode(String teachingClassCode) {
+		this.teachingClassCode = teachingClassCode;
+	}
+
 	public String getCourseCode() {
 		return courseCode;
 	}

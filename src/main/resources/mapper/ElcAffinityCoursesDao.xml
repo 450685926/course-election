@@ -26,6 +26,9 @@
 	  LEFT JOIN courses_label_t CL ON t3.COURSE_LABEL_ID_ = CL.ID_
 		<where>
 		t4.CALENDAR_ID_ = #{calendarId}
+				<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
+					and t3.CODE_ like concat('%',#{teachingClassCode},'%')
+				</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
 		        and t1.COURSE_CODE_ like concat('%',#{courseCode},'%')
 		    </if>
