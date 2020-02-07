@@ -105,6 +105,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 
 		Example stuExample = new Example(Student.class);
 		Example.Criteria stuCriteria = stuExample.createCriteria();
+		stuExample.selectProperties("studentCode");
 		stuCriteria.andIn("studentCode", studentIdList);
 		stuCriteria.andEqualTo("managerDeptId", session.getCurrentManageDptId());
 		stuCriteria.andEqualTo("leaveSchool", Constants.INSCHOOL);
@@ -122,6 +123,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		if(Constants.BK_CROSS.equals(mode)) { // 跨学科互选学生名单管理
 			Example example = new Example(ElcCrossStds.class);
 			Example.Criteria criteria =example.createCriteria();
+			example.selectProperties("studentId");
 			criteria.andEqualTo("calendarId", calendarId);
 			criteria.andIn("studentId", studentIdList);
 			List<ElcCrossStds> list = elcCrossStdsDao.selectByExample(example);
@@ -144,8 +146,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		}else { // 本研互选学生名单管理
 			Example example = new Example(ElcMutualStds.class);
 			Example.Criteria criteria =example.createCriteria();
+			example.selectProperties("studentId");
 			criteria.andEqualTo("calendarId", calendarId);
-			criteria.andIn("studentId", studentIdList);
+			//criteria.andIn("studentId", studentIdList);
 			List<ElcMutualStds> list = elcMutualStdsDao.selectByExample(example);
 			if(CollectionUtil.isNotEmpty(list)) {
 				//如果已添加学生，则求二者差集
@@ -233,6 +236,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		Example example = new Example(Student.class);
 		Session session = SessionUtils.getCurrentSession();
 		Example.Criteria criteria = example.createCriteria();
+		example.selectProperties("studentCode");
 		criteria.andEqualTo("leaveSchool", Constants.INSCHOOL);
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
 		List<Student> students  = studentDao.selectByExample(example);
