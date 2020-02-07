@@ -37,6 +37,7 @@ import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.election.dto.CourseOpenDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
+import com.server.edu.election.dto.StuHonorDto;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElcCourseTakeQuery;
@@ -90,6 +91,44 @@ public class ElcCourseTakeController
         
         PageResult<ElcCourseTakeVo> list =
             courseTakeService.listPage(condition);
+        
+        return RestResult.successData(list);
+    }
+    
+    /**
+     * 学生全部荣誉课程
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "学生全部荣誉课程")
+    @PostMapping("/stuHonorPage")
+    public RestResult<PageResult<ElcCourseTakeVo>> stuHonorPage(
+        @RequestBody PageCondition<StuHonorDto> condition)
+        throws Exception
+    {
+        PageResult<ElcCourseTakeVo> list =
+            courseTakeService.stuHonorPage(condition);
+        
+        return RestResult.successData(list);
+    }
+    
+    /**
+     * 荣誉课上课名单列表
+     * 
+     * @param condition
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    @ApiOperation(value = "荣誉课上课名单列表")
+    @PostMapping("/honorPage")
+    public RestResult<PageResult<ElcCourseTakeVo>> honorPage(
+        @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+        throws Exception
+    {
+        PageResult<ElcCourseTakeVo> list =
+            courseTakeService.honorPage(condition);
         
         return RestResult.successData(list);
     }

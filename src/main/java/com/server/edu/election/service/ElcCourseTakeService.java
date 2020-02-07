@@ -8,6 +8,7 @@ import com.server.edu.election.dto.AddCourseDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.StuHonorDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.Student;
@@ -33,6 +34,27 @@ public interface ElcCourseTakeService
      */
     PageResult<ElcCourseTakeVo> listPage(
         PageCondition<ElcCourseTakeQuery> page);
+    
+    
+    /**
+     * 分页查询荣誉课程已选课名单
+     * 
+     * @param page
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<ElcCourseTakeVo> honorPage(
+        PageCondition<ElcCourseTakeQuery> page);
+    
+    /**
+     * 分页查询荣誉课程已选课名单
+     * 
+     * @param page
+     * @return
+     * @see [类、类#方法、类#成员]
+     */
+    PageResult<ElcCourseTakeVo> stuHonorPage(
+        PageCondition<StuHonorDto> page);
 
     /**
      * 研究生课程维护模块学生选课记录列表

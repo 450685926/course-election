@@ -11,6 +11,13 @@ public interface BkStudentScoreService {
 	 * @param dto
 	 * @return
 	 */
-	List<ScoreStudentResultVo> getStudentScoreList(StudentScoreDto dto); 
+	List<ScoreStudentResultVo> getStudentScoreList(StudentScoreDto dto);
+	
+	/**
+	 * 本科生所有选课成绩数据
+	 * @param dto
+	 * @return
+	 */
+	List<ScoreStudentResultVo> getAllStudentScoreList(StudentScoreDto dto);
 
 }

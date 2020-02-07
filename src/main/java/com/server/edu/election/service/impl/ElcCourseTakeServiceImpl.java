@@ -61,6 +61,7 @@ import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.ElcCourseTakeAddDto;
 import com.server.edu.election.dto.ElcCourseTakeDto;
 import com.server.edu.election.dto.ElcCourseTakeWithDrawDto;
+import com.server.edu.election.dto.StuHonorDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Course;
@@ -228,6 +229,46 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
         return result;
     }
+    
+    
+    @Override
+    public PageResult<ElcCourseTakeVo> honorPage(
+        PageCondition<ElcCourseTakeQuery> page)
+    {
+        ElcCourseTakeQuery cond = page.getCondition();
+        Session session = SessionUtils.getCurrentSession();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            if (StringUtils.isBlank(cond.getFaculty())) {
+                List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+                cond.setFaculties(deptIds);
+            }
+        }
+        PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
+        cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.honorPage(cond);
+        List<String> stds = new ArrayList<>();
+        for (ElcCourseTakeVo elcCourseTakeVo : listPage) {
+			if (elcCourseTakeVo.getChooseObj().intValue() == 1) {
+				elcCourseTakeVo.setElectionMode(1);
+			}else{
+				elcCourseTakeVo.setElectionMode(2);
+			}
+			if(CollectionUtil.isNotEmpty(stds) && stds.contains(elcCourseTakeVo.getStudentId())){
+                elcCourseTakeVo.setAffinityStds(Constants.ONE);
+            }
+
+		}
+        if(CollectionUtil.isNotEmpty(listPage)) {
+            for(ElcCourseTakeVo vo: listPage) {
+                // 处理教学安排（上课时间地点）信息
+                List<TimeAndRoom> tableMessages = getTimeById(vo.getTeachingClassId());
+                vo.setTimeTableList(tableMessages);
+            }
+        }
+        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        return result;
+    }
+
 
     private List<TimeAndRoom>  getTimeById(Long teachingClassId){
         List<TimeAndRoom> list=new ArrayList<>();
@@ -1942,6 +1983,17 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		}
 		
 	}
+	
+	@Override
+	public PageResult<ElcCourseTakeVo> stuHonorPage(
+	        PageCondition<StuHonorDto> page){
+		StuHonorDto cond = page.getCondition();
+        PageHelper.startPage(page.getPageNum_() ,page.getPageSize_());
+        cond.setIndex(TableIndexUtil.getIndex(cond.getCalendarId()));
+        Page<ElcCourseTakeVo> listPage = courseTakeDao.stuHonorPage(cond);
+        PageResult<ElcCourseTakeVo> result = new PageResult<>(listPage);
+        return result;
+	};
     
     
 
