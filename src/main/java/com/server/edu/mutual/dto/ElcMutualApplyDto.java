@@ -82,6 +82,9 @@ public class ElcMutualApplyDto extends ElcMutualApply {
      */
     private List<Integer> statusArray;
 
+    //可管理的学院（当前学院+管理的学院）
+    private List<String> collegeList;
+
     public Integer getGrade() {
 		return grade;
 	}
@@ -226,5 +229,12 @@ public class ElcMutualApplyDto extends ElcMutualApply {
 	public void setStatusArray(List<Integer> statusArray) {
 		this.statusArray = statusArray;
 	}
-	
+
+	public List<String> getCollegeList() {
+		return collegeList;
+	}
+
+	public void setCollegeList(List<String> collegeList) {
+		this.collegeList = collegeList;
+	}
 }
