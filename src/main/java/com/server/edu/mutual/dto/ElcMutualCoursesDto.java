@@ -38,6 +38,9 @@ public class ElcMutualCoursesDto extends ElcMutualCourses {
     
     /** 开课学院 */
     private String faculty;
+
+	//可管理的学院（当前学院+管理的学院）
+	private List<String> collegeList;
     
 	public String getOpenCollege() {
 		return openCollege;
@@ -117,5 +120,12 @@ public class ElcMutualCoursesDto extends ElcMutualCourses {
 	public void setIsElective(String isElective) {
 		this.isElective = isElective;
 	}
-	
+
+	public List<String> getCollegeList() {
+		return collegeList;
+	}
+
+	public void setCollegeList(List<String> collegeList) {
+		this.collegeList = collegeList;
+	}
 }

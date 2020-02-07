@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,8 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	private ElcCrossStdsDao elcCrossStdsDao;
 	@Autowired
 	private StudentDao studentDao;
+	@Autowired
+	private ElcMutualCommonService elcMutualCommonService;
 	
 	@Override
 	public PageInfo<ElcMutualCrossStuVo> getElcMutualCrossList(PageCondition<ElcMutualCrossStuDto> condition) {
@@ -106,7 +109,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		stuCriteria.andEqualTo("managerDeptId", session.getCurrentManageDptId());
 		stuCriteria.andEqualTo("leaveSchool", Constants.INSCHOOL);
 		if (isDepartAdmin()) {
-			stuCriteria.andEqualTo("faculty", session.getFaculty());
+			//修改说明：当前教务员除了当前所属学院还管理其他学院
+//			stuCriteria.andEqualTo("faculty", session.getFaculty());
+			//封装学院数据
+			stuCriteria.andIn("faculty",elcMutualCommonService.getCollegeList(session));
 		}
 		List<Student> students = studentDao.selectByExample(stuExample);
 		if(CollectionUtil.isEmpty(students) || students.size()<studentIdList.size()) {

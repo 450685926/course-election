@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	@Autowired
 	private ElcMutualApplyService elcMutualApplyService;
 
+	@Autowired
+	private ElcMutualCommonService elcMutualCommonService;
 
 	@Override
 	public PageInfo<ElcMutualApplyVo> collegeApplyCourseList(PageCondition<ElcMutualApplyDto> condition) {
@@ -74,8 +77,12 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 			dto.setByType(Constants.FIRST);
 		}
-		
-		dto.setCollege(session.getFaculty());
+
+		// 取消根据学院过滤
+//		dto.setCollege(session.getFaculty());
+		//封装学院集合
+		packageCollegeList(session,dto);
+		//封装部门数据
 		dto.setProjectIds(projectIds);
 
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
@@ -316,6 +323,21 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	@Override
 	public List<ElcMutualApplyVo> getOpenCollegeAuditList(ElcMutualApplyDto dto) {
 		return elcMutualApplyDao.getOpenCollegeAuditList(dto);
+	}
+
+	/**
+	 * 功能描述:封装当前的学院数据（当前学院+管理的学院）
+	 *
+	 * 备注：教务员不仅仅存在当前学院，还可以管理多个学院
+	 *
+	 * @params: [session, dto]
+	 * @return: void
+	 * @author: zhaoerhu
+	 * @date: 2020/2/4 17:04
+	 */
+	private void packageCollegeList(Session session, ElcMutualApplyDto dto) {
+		//封装学院数据
+		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 	}
 
 }
