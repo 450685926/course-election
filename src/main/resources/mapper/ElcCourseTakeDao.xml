@@ -224,6 +224,135 @@
        </if> -->
         
     </select>
+    
+   <select id="honorPage" resultMap="VoResultMap">
+        select
+        t1.*,
+        t2.NAME_,t2.PROFESSION_,t2.GRADE_,
+        t2.TRAINING_LEVEL_,t2.SEX_,
+        t2.FACULTY_ studentFaculty,
+        t3.FACULTY_,
+        t3.COURSE_NAME_ AS courseName, t3.IS_ELECTIVE_,t3.CREDITS_,
+        t4.CODE_ as teachingClassCode,t4.NAME_ teachingClassName,
+        t4.CAMPUS_, t5.LABEL_ AS courseLabel,t6.DETAIL_ timeAndRoom
+        from elc_course_takes_t_${query.index} t1
+        join honor_plan_stds_t t7 on t1.STUDENT_ID_ = t7.STUDENT_ID_
+        join student_t t2 ON t2.STUDENT_CODE_ = t1.STUDENT_ID_
+        JOIN course_open_t t3 ON t3.COURSE_CODE_ = t1.COURSE_CODE_ and IS_OPEN_ = 1 and t3.DELETE_STATUS_ = 0
+	     AND t3.CALENDAR_ID_ = t1.CALENDAR_ID_
+        join teaching_class_t t4 ON t4.ID_ = t1.TEACHING_CLASS_ID_
+        left join courses_label_t t5 ON t4.COURSE_LABEL_ID_ = t5.ID_
+        left join teaching_class_arrange_profile_t t6 on t6.TEACHING_CLASS_ID_ = t1.TEACHING_CLASS_ID_
+        <where>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.ids)">
+                and t1.ID_ IN
+                <foreach collection="query.ids" open="(" separator="," close=")" item="id">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.calendarId)">
+                and t1.CALENDAR_ID_ =#{query.calendarId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.studentId)">
+                and t1.STUDENT_ID_ = #{query.studentId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseTakeType)">
+                and t1.COURSE_TAKE_TYPE_ = #{query.courseTakeType}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassId)">
+                and t1.TEACHING_CLASS_ID_ = #{query.teachingClassId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.mode)">
+                and t1.MODE_ = #{query.mode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.electionMode)">
+                <if test="query.electionMode == 1">
+                	and t1.CHOOSE_OBJ_ = 1
+            	</if>
+            	<if test="query.electionMode != 1">
+                	and t1.CHOOSE_OBJ_ &gt; 1 
+            	</if>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
+                and t2.MANAGER_DEPT_ID_ =#{query.projectId,jdbcType=BIGINT}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.stuName)">
+                and t2.NAME_ = #{query.stuName}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.grade)">
+                and t2.GRADE_ = #{query.grade}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingCategory)">
+                and t2.TRAINING_CATEGORY_ = #{query.trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.trainingLevel)">
+                and t2.TRAINING_LEVEL_ = #{query.trainingLevel}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
+                and (t2.STUDENT_CODE_ like concat('%', #{query.keyword},'%') or t2.NAME_ like
+                concat('%', #{query.keyword},'%'))
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.profession)">
+                and t2.PROFESSION_ = #{query.profession}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.researchDirection)">
+                and t2.RESEARCH_DIRECTION_ = #{query.researchDirection}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.degreeType)">
+                and t2.DEGREE_TYPE_= #{query.degreeType}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.formLearning)">
+                and t2.FORM_LEARNING_= #{query.formLearning}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
+                and t2.FACULTY_ = #{query.faculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculties)">
+                and t3.FACULTY_ in
+                <foreach collection="query.faculties" open="(" separator="," close=")" item="fy">
+                    #{fy}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseFaculty)">
+                and t3.FACULTY_ = #{query.courseFaculty}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseName)">
+                and t3.COURSE_NAME_ = #{query.courseName}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
+                and t3.NATURE_ = #{query.nature}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseCode)">
+                and t3.COURSE_CODE_ = #{query.courseCode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.label)">
+                and t3.LABEL_ = #{query.label}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.isElective)">
+                and t3.IS_ELECTIVE_ = #{query.isElective}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.includeCourseCodes)">
+                and t3.COURSE_CODE_ IN
+                <foreach collection="query.includeCourseCodes" open="(" separator="," close=")" item="code">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.teachingClassCode)">
+                and t4.CODE_ = #{query.teachingClassCode}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.courseLabelId)">
+                and t4.COURSE_LABEL_ID_ = #{query.courseLabelId}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
+                and t4.CAMPUS_ =#{query.campus,jdbcType=BIGINT}
+            </if>
+        </where>
+        order by CREATED_AT_ DESC, t1.STUDENT_ID_ 
+       <!--  <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.endRow)">
+        	limit ${query.startRow},${query.endRow}
+       </if> -->
+        
+    </select>
 
     <select id="courseTakeNameList" resultMap="VoResultMap">
         select

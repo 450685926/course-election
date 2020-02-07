@@ -19,6 +19,7 @@ import com.server.edu.election.dto.PayResultDto;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.ReportManagementCondition;
 import com.server.edu.election.dto.RollBookConditionDto;
+import com.server.edu.election.dto.StuHonorDto;
 import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.dto.StudentRebuildFeeDto;
 import com.server.edu.election.dto.StudentSchoolTimetab;
@@ -47,6 +48,12 @@ public interface ElcCourseTakeDao
     /**分页查询选课名单*/
     Page<ElcCourseTakeVo> listPage(@Param("query") ElcCourseTakeQuery take);
 
+    /**分页查询荣誉课程选课名单*/
+    Page<ElcCourseTakeVo> honorPage(@Param("query") ElcCourseTakeQuery take);
+    
+    Page<ElcCourseTakeVo> stuHonorPage(@Param("query") StuHonorDto dto);
+
+    
     Page<ElcCourseTakeVo> courseTakeNameList(@Param("query") ElcCourseTakeQuery take);
 
     /**研究生课程维护模块分页查询选课记录*/

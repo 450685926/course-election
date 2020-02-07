@@ -280,7 +280,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     	StudentScoreDto dto = new StudentScoreDto();
     	dto.setStudentId(studentId);
 //    	dto.setCalendarId(context.getCalendarId());
-    	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getStudentScoreList(dto);
+    	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
         Set<CompletedCourse> unFinishedCourses = context.getUnFinishedCourses();
 

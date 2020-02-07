@@ -27,5 +27,13 @@ public class BkStudentScoreServiceImpl implements BkStudentScoreService {
 		List<ScoreStudentResultVo> list = infoDao.getStudentScoreList(dto);
 		return list;
 	}
+	
+	
+	@Override
+	public List<ScoreStudentResultVo> getAllStudentScoreList(StudentScoreDto dto) {
+		// TODO Auto-generated method stub
+		List<ScoreStudentResultVo> list = infoDao.getStudentScoreList(dto);
+		return list;
+	}
 
 }
