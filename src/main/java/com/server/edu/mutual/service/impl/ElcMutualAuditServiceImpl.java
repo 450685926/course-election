@@ -120,18 +120,22 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		String projectId = session.getCurrentManageDptId();
-		
+
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
     	}
-    	
+
+		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
+			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
+			projectIds = ProjectUtil.getProjectIds("1");
 			dto.setByType(Constants.FIRST);
 		}
-		dto.setProjectId(projectId);
+		dto.setProjectIds(projectIds);
+//		dto.setProjectId(projectId);
 		dto.setOpenCollege(session.getFaculty());
 
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
@@ -151,19 +155,23 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		String projectId = session.getCurrentManageDptId();
-		
+
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
     	}
-    	
+
+		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
+			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
+			projectIds = ProjectUtil.getProjectIds("1");
 			dto.setByType(Constants.FIRST);
 		}
 		dto.setOpenCollege(session.getFaculty());
-		dto.setProjectId(projectId);
+		dto.setProjectIds(projectIds);
+//		dto.setProjectId(projectId);
 		
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
 		if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
