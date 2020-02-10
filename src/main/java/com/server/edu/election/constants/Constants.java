@@ -142,6 +142,11 @@ public interface Constants
     public static final String TWO_TERM = "2";
     
     public static final Integer PAGE_SIZE = 1000;
+    
+    /** 管理员*/
+    public static final String MANAGER_TYPE = "1";
+    /** 教务员*/
+    public static final String INNER_ROLE_ACDEMIC_DEAN = "2";
 
     
 

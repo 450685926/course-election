@@ -40,16 +40,13 @@
 		        and t2.GRADE_  = #{grade}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-		        and t2.FACULTY_  = #{faculty}
+		        and FIND_IN_SET(t2.FACULTY_, #{faculty})
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 		        and t2.PROFESSION_  = #{profession}
 		    </if>			    
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 		        and t2.TRAINING_LEVEL_  = #{trainingLevel}
-		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-		        and t2.FACULTY_  = #{faculty}
 		    </if>
 		</where>  
   </select>

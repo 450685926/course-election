@@ -57,6 +57,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		ElcMutualCrossStuDto dto = condition.getCondition();
 		dto.setLeaveSchool(Constants.INSCHOOL);
 		
+		// 获取所属学院及管理学院信息
+		this.roleCheck(dto);
+		
 		List<ElcMutualCrossStuVo> list = new ArrayList<ElcMutualCrossStuVo>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			list = elcCrossStdsDao.getCrossStds(dto);
@@ -67,7 +70,36 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		return pageInfo;
 	}
 	
-	@Transactional
+    private String roleCheck(ElcMutualCrossStuDto dto)
+    {
+        if(Constants.MANAGER_TYPE.equals(SessionUtils.getCurrentSession().getCurrentRole()))
+        {
+            if(SessionUtils.getCurrentSession().isAcdemicDean())
+            {
+                if(StringUtils.isEmpty(dto.getFaculty()))
+                {
+                    String manageFaculty = SessionUtils.getCurrentSession().getManageFaculty();
+                    if(!StringUtils.isEmpty(manageFaculty))
+                    {
+                        dto.setFaculty(manageFaculty);
+                    }
+                    else
+                    {
+                        String faculty = SessionUtils.getCurrentSession().getFaculty();
+                        dto.setFaculty(faculty);
+                    }
+                }
+                return Constants.INNER_ROLE_ACDEMIC_DEAN;
+            }
+            else if(SessionUtils.getCurrentSession().isAdmin())
+            {
+                return Constants.MANAGER_TYPE;
+            }
+        }
+        return null;
+    }
+
+    @Transactional
 	@Override
 	public int init(Long calendarId) {
 		int result = Constants.ZERO;
