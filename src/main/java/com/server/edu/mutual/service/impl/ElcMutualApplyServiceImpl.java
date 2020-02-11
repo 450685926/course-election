@@ -178,6 +178,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		}else {
 			dto.setByType(Constants.FIRST);
 		}
+		//移动分页位置
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
 

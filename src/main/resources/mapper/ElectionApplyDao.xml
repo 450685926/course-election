@@ -23,6 +23,7 @@
       <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
       <result column="GRADE_" jdbcType="INTEGER" property="grade" />
 	  <result column="CREDITS_" jdbcType="DOUBLE" property="credits" />
+	  <result column="studentFaculty" jdbcType="VARCHAR" property="studentFaculty" />
   </resultMap>
   <select id="selectApplys" parameterType="com.server.edu.election.dto.ElectionApplyDto" resultMap="ApplyMap">
 		SELECT
@@ -82,7 +83,8 @@
 		  t2.CREDITS_,
 		  t3.PROFESSION_,
 		  t3.TRAINING_LEVEL_,
-		  t3.GRADE_ 
+		  t3.GRADE_ ,
+	      t3.FACULTY_ studentFaculty
 		FROM
 			election_applys_t t1
 		INNER JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
@@ -131,7 +133,8 @@
 		  t2.CREDITS_,
 		  t3.PROFESSION_,
 		  t3.TRAINING_LEVEL_,
-		  t3.GRADE_ 
+		  t3.GRADE_ ,
+		  t3.FACULTY_ studentFaculty
 		FROM
 			election_applys_t t1
 		INNER JOIN course_t t2 ON t1.COURSE_CODE_ = t2.CODE_
