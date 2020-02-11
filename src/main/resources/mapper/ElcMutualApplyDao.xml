@@ -309,6 +309,12 @@
              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
                  and t4.FACULTY_ = #{openCollege}
              </if>
+			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(collegeList)">
+				 and t4.FACULTY_ in
+				 <foreach item="college" collection="collegeList" open="(" close=")" separator=",">
+					 #{college}
+				 </foreach>
+			 </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
 		        and t2.BY_TYPE_  = #{byType}
 		    </if>
@@ -375,6 +381,12 @@
 		    t1.CALENDAR_ID_  = #{calendarId}
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(openCollege)">
 				and t5.FACULTY_ = #{openCollege}
+			</if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(collegeList)">
+				and t5.FACULTY_ in
+				<foreach item="college" collection="collegeList" open="(" close=")" separator=",">
+					#{college}
+				</foreach>
 			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
 		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
