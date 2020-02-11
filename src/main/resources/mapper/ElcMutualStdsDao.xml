@@ -46,7 +46,10 @@
 		        and t2.GRADE_  = #{grade}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-		        and FIND_IN_SET(t2.FACULTY_, #{faculty})
+				and t2.FACULTY_  in
+				<foreach item="item" index="index" collection="faculty.split(',')" open="(" separator="," close=")">
+					'${item}'
+				</foreach>
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 		        and t2.PROFESSION_  = #{profession}
