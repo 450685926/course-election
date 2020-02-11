@@ -39,7 +39,21 @@ public class ElcMutualCrossStuVo {
      */
     @Code2Text(transformer = "G_ZY")
     private String profession;
-    
+    /**
+     * 培养类型
+     */
+    @Code2Text(transformer = "X_PYLB")
+    private String trainingCategory;
+    /**
+     * 学位类型
+     */
+    @Code2Text(transformer = "X_XWLX")
+    private String degreeCategory;
+    /**
+     * 学习形式
+     */
+    @Code2Text(transformer = "X_XXXS")
+    private String formLearning;
     /**
      * 年级
      */
@@ -117,6 +131,29 @@ public class ElcMutualCrossStuVo {
 	public void setGrade(Integer grade) {
 		this.grade = grade;
 	}
-    
+
+	public String getTrainingCategory() {
+		return trainingCategory;
+	}
+
+	public void setTrainingCategory(String trainingCategory) {
+		this.trainingCategory = trainingCategory;
+	}
+
+	public String getDegreeCategory() {
+		return degreeCategory;
+	}
+
+	public void setDegreeCategory(String degreeCategory) {
+		this.degreeCategory = degreeCategory;
+	}
+
+	public String getFormLearning() {
+		return formLearning;
+	}
+
+	public void setFormLearning(String formLearning) {
+		this.formLearning = formLearning;
+	}
     
 }
