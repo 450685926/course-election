@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.server.edu.mutual.service.ElcMutualCommonService;
+import com.server.edu.mutual.util.ProjectUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,26 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	
 	@Override
 	public PageInfo<ElcMutualCrossStuVo> getElcMutualCrossList(PageCondition<ElcMutualCrossStuDto> condition) {
+		Session session = SessionUtils.getCurrentSession();
+		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
+				&& !session.isAdmin() && session.isAcdemicDean();
+
+		//判断是否是教务员，如果是进行下列操作
+		if(isAcdemicDean){
+			//判断是否选择学院
+			String facultyCondition = condition.getCondition().getFaculty();
+
+			if(StringUtils.isEmpty(facultyCondition)){
+				//获取当前用户的所属学院
+				String faculty = session.getFaculty();
+				//获取当前用户的管理学院和
+				String manageFaculty = session.getManageFaculty();
+				//将两个学院合并
+				String newFaculty = ProjectUtil.stringGoHeavy(faculty,manageFaculty);
+				condition.getCondition().setFaculty(newFaculty);
+			}
+		}
+
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualCrossStuDto dto = condition.getCondition();
 		dto.setLeaveSchool(Constants.INSCHOOL);

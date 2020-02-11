@@ -1,7 +1,9 @@
 package com.server.edu.mutual.util;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -26,5 +28,30 @@ public class ProjectUtil {
 			projectIds.add(Constants.PROJ_UNGRADUATE);
 		}
 		return projectIds;
+	}
+	/**
+	 * 两个字符串的合并
+	 * @param strOne
+	 * @return strTwo
+	 */
+	public static String stringGoHeavy(String strOne,String strTwo){
+		String[] strArr = strOne.split(",");
+		String[] strArrNew = strTwo.split(",");
+		Set<String> temp = new HashSet<String>();
+
+
+		if(strArr.length>0 && StringUtils.isNotEmpty(strTwo)){
+			for (String object: strArrNew) {
+				temp.add(object);
+			}
+		}
+
+		if(strArrNew.length>0 && StringUtils.isNotEmpty(strOne)){
+			for (String objectTwo : strArr) {
+				temp.add(objectTwo);
+			}
+		}
+
+		return String.join(",",new ArrayList(temp));
 	}
 }

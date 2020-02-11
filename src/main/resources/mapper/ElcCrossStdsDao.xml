@@ -48,9 +48,6 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 		        and t2.TRAINING_LEVEL_  = #{trainingLevel}
 		    </if>
-		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-		        and t2.FACULTY_  = #{faculty}
-		    </if>
 		</where>  
   </select>
 	<select id="isInElcMutualStdList" parameterType="com.server.edu.mutual.dto.ElcMutualCrossStuDto"
