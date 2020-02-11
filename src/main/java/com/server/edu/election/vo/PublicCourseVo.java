@@ -1,9 +1,12 @@
 package com.server.edu.election.vo;
 
+import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.dictionary.annotation.CodeI18n;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
 
 import java.util.List;
 
+@CodeI18n
 public class PublicCourseVo {
     private Long teachClassId;
 
@@ -18,6 +21,7 @@ public class PublicCourseVo {
     /**学分*/
     private Double credits;
 
+    @Code2Text(transformer = "X_XQ")
     private String campus;
 
     private List<ClassTimeUnit> times;
