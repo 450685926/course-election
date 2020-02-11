@@ -21,6 +21,12 @@ public class ElectionApplyVo extends ElectionApply {
      */
     @Code2Text(transformer = "X_YX")
     private String faculty;
+
+    /**
+     * 学生学院
+     */
+    @Code2Text(transformer = "X_YX")
+    private String studentFaculty;
     
     /**
      * 专业
@@ -82,8 +88,13 @@ public class ElectionApplyVo extends ElectionApply {
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
-    
-	
-    
 
+
+	public String getStudentFaculty() {
+		return studentFaculty;
+	}
+
+	public void setStudentFaculty(String studentFaculty) {
+		this.studentFaculty = studentFaculty;
+	}
 }
