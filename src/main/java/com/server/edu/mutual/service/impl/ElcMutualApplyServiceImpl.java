@@ -138,7 +138,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualCoursesForStu(PageCondition<ElcMutualApplyDto> condition){
 		LOG.info("*******getElcMutualCoursesForStu********"); 
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		String projectId = session.getCurrentManageDptId();
@@ -179,6 +179,8 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		}else {
 			dto.setByType(Constants.FIRST);
 		}
+		//移动分页位置
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
 
 		// 本科生可申请的跨院系课程与培养方案无关

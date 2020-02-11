@@ -196,11 +196,13 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	@Override
 	public int batchAdd(ElcMutualCrossStu dto) {
 		// 教务员只能添加本行政学院学生
-		String faculty = SessionUtils.getCurrentSession().getFaculty();
+//		String faculty = SessionUtils.getCurrentSession().getFaculty();
+		Session session = SessionUtils.getCurrentSession();
+		List<String> collegeList = elcMutualCommonService.getCollegeList(session);
 //		if (isDepartAdmin() && StringUtils.equals(faculty, dto.getFaculty())) {
 //			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 //		}
-		if (isDepartAdmin() && !StringUtils.equals(faculty, dto.getFaculty())) {
+		if (isDepartAdmin() && !collegeList.contains(dto.getFaculty())) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 		}
 		
