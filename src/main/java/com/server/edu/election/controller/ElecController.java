@@ -7,6 +7,7 @@ import com.server.edu.common.validator.Assert;
 import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.query.PublicCourseQuery;
 import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -18,6 +19,7 @@ import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.studentelec.service.impl.RoundDataProvider;
 import com.server.edu.election.vo.ElectionRoundsVo;
 import com.server.edu.election.vo.ElectionRuleVo;
+import com.server.edu.election.vo.PublicCourseVo;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -250,6 +252,17 @@ public class ElecController
     {
         RestResult conflict = elecService.getConflict(roundId, studentId, teachClassId);
         return conflict;
+    }
+
+    /**
+     * 查询课程冲突
+     */
+    @ApiOperation(value = "查询通识选修课")
+    @PostMapping("/getPublicCourse")
+    public RestResult<List<PublicCourseVo>> getPublicCourse(@RequestBody PublicCourseQuery query)
+    {
+        List<PublicCourseVo> publicCourse = elecService.getPublicCourse(query);
+        return RestResult.successData(publicCourse);
     }
 
 }
