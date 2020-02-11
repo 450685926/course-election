@@ -497,4 +497,11 @@
 		where GRADE_ = #{grade}
 		AND PROFESSION_CODE_ = #{profession}
 	</select>
+	<select id="getStudentCampus" resultType="java.lang.String">
+		select CAMPUS_
+		from profession_campus_number_t
+		where GRADE_ = #{grade}
+		AND PROFESSION_ = #{profession}
+		AND CALENDAR_ID_ = #{calendarId}
+	</select>
 </mapper>
