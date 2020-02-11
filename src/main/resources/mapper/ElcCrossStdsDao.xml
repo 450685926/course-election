@@ -20,7 +20,10 @@
 		  t2.`FACULTY_` faculty,
 		  t2.`PROFESSION_` profession,
 		  t2.`GRADE_` grade,
-		  t2.`MANAGER_DEPT_ID_` projectId
+		  t2.`MANAGER_DEPT_ID_` projectId,
+		  t2.TRAINING_CATEGORY_ trainingCategory,
+		  t2.DEGREE_CATEGORY_ degreeCategory,
+		  t2.FORM_LEARNING_ formLearning
 		FROM
 		  `elc_cross_stds_t` t1 
 		   JOIN `student_t` t2 
