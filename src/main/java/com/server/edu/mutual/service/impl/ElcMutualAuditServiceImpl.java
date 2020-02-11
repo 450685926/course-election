@@ -136,7 +136,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		}
 		dto.setProjectIds(projectIds);
 //		dto.setProjectId(projectId);
-		dto.setOpenCollege(session.getFaculty());
+//		dto.setOpenCollege(session.getFaculty());
+		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
 		if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
@@ -169,7 +170,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			projectIds = ProjectUtil.getProjectIds("1");
 			dto.setByType(Constants.FIRST);
 		}
-		dto.setOpenCollege(session.getFaculty());
+//		dto.setOpenCollege(session.getFaculty());
+		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 		dto.setProjectIds(projectIds);
 //		dto.setProjectId(projectId);
 		
