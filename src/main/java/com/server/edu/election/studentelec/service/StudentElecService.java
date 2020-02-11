@@ -2,10 +2,12 @@ package com.server.edu.election.studentelec.service;
 
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.entity.Student;
+import com.server.edu.election.query.PublicCourseQuery;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecRequest;
 import com.server.edu.election.studentelec.context.ElecRespose;
 import com.server.edu.election.studentelec.context.bk.ElecContextBk;
+import com.server.edu.election.vo.PublicCourseVo;
 import com.server.edu.util.async.AsyncResult;
 
 import java.util.List;
@@ -60,4 +62,6 @@ public interface StudentElecService
     
     /** 排除有限制学生的教学班*/
     AsyncResult initRoundStuCache(Long roundId);
+
+    List<PublicCourseVo> getPublicCourse(PublicCourseQuery query);
 }
