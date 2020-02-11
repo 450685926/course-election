@@ -65,7 +65,7 @@ public class ElcMutualCrossStuDto extends ElcCrossStds{
     private String keyWords;
     
     /**
-            * 在校状态(1 校内在读、2 校外在读、3 不在读、4 离校)
+     * 在校状态(1 校内在读、2 校外在读、3 不在读、4 离校)
      */
     private String leaveSchool;
     
