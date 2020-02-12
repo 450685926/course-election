@@ -20,7 +20,10 @@
 		  t2.`FACULTY_` faculty,
 		  t2.`PROFESSION_` profession,
 		  t2.`GRADE_` grade,
-		  t2.`MANAGER_DEPT_ID_` projectId
+		  t2.`MANAGER_DEPT_ID_` projectId,
+		  t2.TRAINING_CATEGORY_ trainingCategory,
+		  t2.DEGREE_CATEGORY_ degreeCategory,
+		  t2.FORM_LEARNING_ formLearning
 		FROM
 		  `elc_mutual_stds_t` t1 
 		  JOIN `student_t` t2 
@@ -43,7 +46,10 @@
 		        and t2.GRADE_  = #{grade}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-		        and FIND_IN_SET(t2.FACULTY_, #{faculty})
+				and t2.FACULTY_  in
+				<foreach item="item" index="index" collection="faculty.split(',')" open="(" separator="," close=")">
+					'${item}'
+				</foreach>
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
 		        and t2.PROFESSION_  = #{profession}

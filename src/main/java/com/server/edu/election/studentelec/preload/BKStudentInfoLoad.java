@@ -1,5 +1,6 @@
 package com.server.edu.election.studentelec.preload;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +52,9 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
     public void load(ElecContextBk context)
     {
         StudentInfoCache studentInfo = context.getStudentInfo();
-        
+
+        ElecRequest request = context.getRequest();
+
         Student stu = studentDao.findStudentByCode(studentInfo.getStudentId());
         if (null == stu)
         {
@@ -59,12 +62,20 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
                 studentInfo.getStudentId());
             throw new RuntimeException(msg);
         }
+
+        //查询学生专业校区维护是否有记录
+        String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
+
+        if (StringUtils.isNotBlank(campus)){
+            campus = stu.getCampus();
+
+        }
         String major = studentDao.getStudentMajor(stu.getGrade(),stu.getProfession());
         studentInfo.setGrade(stu.getGrade());
         studentInfo.setMajor(stu.getProfession());
         studentInfo.setSex(stu.getSex());
         studentInfo.setStudentName(stu.getName());
-        studentInfo.setCampus(stu.getCampus());
+        studentInfo.setCampus(campus);
         studentInfo.setManagerDeptId(stu.getManagerDeptId());
         studentInfo.setBkMajor(major);
         //专项计划
@@ -78,7 +89,7 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
         studentInfo.setGraduate(elcNoGraduateStds == null ? false : true);
         
         // 否为留降级学生
-        ElecRequest request = context.getRequest();
+
         ElcLoserDownStds loserDownStds = elcLoserDownStdsDao
             .findLoserDownStds(request.getRoundId(), stu.getStudentCode());
         studentInfo.setRepeater(loserDownStds == null ? false : true);

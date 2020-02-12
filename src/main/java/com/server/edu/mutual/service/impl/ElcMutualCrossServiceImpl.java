@@ -57,7 +57,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		Session session = SessionUtils.getCurrentSession();
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				&& !session.isAdmin() && session.isAcdemicDean();
-
+		
 		//判断是否是教务员，如果是进行下列操作
 		if(isAcdemicDean){
 			//判断是否选择学院
