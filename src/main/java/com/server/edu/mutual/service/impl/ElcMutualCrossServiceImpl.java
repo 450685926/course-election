@@ -57,7 +57,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		Session session = SessionUtils.getCurrentSession();
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				&& !session.isAdmin() && session.isAcdemicDean();
-		
+
 		//判断是否是教务员，如果是进行下列操作
 		if(isAcdemicDean){
 			//判断是否选择学院
@@ -69,8 +69,12 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				//获取当前用户的管理学院和
 				String manageFaculty = session.getManageFaculty();
 				//将两个学院合并
-				String newFaculty = ProjectUtil.stringGoHeavy(faculty,manageFaculty);
-				condition.getCondition().setFaculty(newFaculty);
+				if(StringUtils.isNotEmpty(faculty)&&StringUtils.isNotEmpty(manageFaculty)){
+					faculty = ProjectUtil.stringGoHeavy(faculty,manageFaculty);
+
+				}
+				condition.getCondition().setFaculty(faculty);
+
 			}
 		}
 
@@ -192,6 +196,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcCrossStds.setCalendarId(calendarId);
 				elcCrossStds.setStudentId(studentId);
 				crossList.add(elcCrossStds);
+				if(crossList.size() > 500) {
+					result = elcCrossStdsDao.insertList(crossList);
+					crossList = new ArrayList<>();
+				}
 			}
 			if (CollectionUtil.isNotEmpty(crossList)) {
 				result =  elcCrossStdsDao.insertList(crossList);
@@ -216,6 +224,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcMutualStds.setCalendarId(calendarId);
 				elcMutualStds.setStudentId(studentId);
 				mutualList.add(elcMutualStds);
+				if(mutualList.size() > 500) {
+					result = elcMutualStdsDao.insertList(mutualList);
+					mutualList = new ArrayList<>();
+				}
 			}
 			if (CollectionUtil.isNotEmpty(mutualList)) {
 				result = elcMutualStdsDao.insertList(mutualList);
