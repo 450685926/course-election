@@ -1,6 +1,7 @@
 package com.server.edu.election.entity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
@@ -174,5 +175,24 @@ public class RebuildCourseNoChargeType implements Serializable {
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RebuildCourseNoChargeType that = (RebuildCourseNoChargeType) o;
+        return Objects.equals(trainingLevel, that.trainingLevel) &&
+                Objects.equals(trainingCategory, that.trainingCategory) &&
+                Objects.equals(enrolMethods, that.enrolMethods) &&
+                Objects.equals(spcialPlan, that.spcialPlan) &&
+                Objects.equals(isOverseas, that.isOverseas) &&
+                Objects.equals(registrationStatus, that.registrationStatus);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(trainingLevel, trainingCategory, enrolMethods, spcialPlan, isOverseas, registrationStatus);
     }
 }
