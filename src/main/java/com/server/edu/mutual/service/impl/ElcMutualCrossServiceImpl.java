@@ -192,6 +192,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcCrossStds.setCalendarId(calendarId);
 				elcCrossStds.setStudentId(studentId);
 				crossList.add(elcCrossStds);
+				if(crossList.size() > 500) {
+					result = elcCrossStdsDao.insertList(crossList);
+					crossList = new ArrayList<>();
+				}
 			}
 			if (CollectionUtil.isNotEmpty(crossList)) {
 				result =  elcCrossStdsDao.insertList(crossList);
