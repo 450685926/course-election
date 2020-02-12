@@ -366,14 +366,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 c.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 
-                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
-                { // 已通过的课程
+//                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
+//                { // 已通过的课程
                     completedCourses.add(c);
-                }
-                else
-                { // 未通过的课程
-                    failedCourse.add(c);
-                }
+//                }
+//                else
+//                { // 未通过的课程
+//                    failedCourse.add(c);
+//                }
             }
             
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);
