@@ -503,5 +503,6 @@
 		where GRADE_ = #{grade}
 		AND PROFESSION_ = #{profession}
 		AND CALENDAR_ID_ = #{calendarId}
+		limit 1
 	</select>
 </mapper>
