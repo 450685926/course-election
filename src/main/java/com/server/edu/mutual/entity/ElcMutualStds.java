@@ -1,18 +1,12 @@
 package com.server.edu.mutual.entity;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.Table;
 
 @Table(name = "elc_mutual_stds_t")
 public class ElcMutualStds implements Serializable {
-    /**
-     * 主键ID
-     */
-    @Id
-    @Column(name = "ID_")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     /**
      * 校历ID（学年学期）
      */
@@ -26,24 +20,6 @@ public class ElcMutualStds implements Serializable {
     private String studentId;
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * 获取主键ID
-     *
-     * @return ID_ - 主键ID
-     */
-    public Long getId() {
-        return id;
-    }
-
-    /**
-     * 设置主键ID
-     *
-     * @param id 主键ID
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     /**
      * 获取校历ID（学年学期）
@@ -87,7 +63,6 @@ public class ElcMutualStds implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
         sb.append(", calendarId=").append(calendarId);
         sb.append(", studentId=").append(studentId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
