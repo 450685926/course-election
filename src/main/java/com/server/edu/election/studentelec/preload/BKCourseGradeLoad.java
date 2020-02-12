@@ -250,14 +250,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
                 
-                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
-                { // 已通过的课程
+//                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
+//                { // 已通过的课程
                     completedCourses.add(c);
-                }
-                else
-                { // 未通过的课程
-                    failedCourse.add(c);
-                }
+//                }
+//                else
+//                { // 未通过的课程
+//                    failedCourse.add(c);
+//                }
             }
         }
     }

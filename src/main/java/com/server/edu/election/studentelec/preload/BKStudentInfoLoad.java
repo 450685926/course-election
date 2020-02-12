@@ -66,7 +66,7 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
         //查询学生专业校区维护是否有记录
         String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
 
-        if (StringUtils.isNotBlank(campus)){
+        if (StringUtils.isBlank(campus)){
             campus = stu.getCampus();
 
         }

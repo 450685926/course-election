@@ -192,6 +192,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcCrossStds.setCalendarId(calendarId);
 				elcCrossStds.setStudentId(studentId);
 				crossList.add(elcCrossStds);
+				if(crossList.size() > 500) {
+					result = elcCrossStdsDao.insertList(crossList);
+					crossList = new ArrayList<>();
+				}
 			}
 			if (CollectionUtil.isNotEmpty(crossList)) {
 				result =  elcCrossStdsDao.insertList(crossList);
@@ -216,6 +220,10 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				elcMutualStds.setCalendarId(calendarId);
 				elcMutualStds.setStudentId(studentId);
 				mutualList.add(elcMutualStds);
+				if(mutualList.size() > 500) {
+					result = elcMutualStdsDao.insertList(mutualList);
+					mutualList = new ArrayList<>();
+				}
 			}
 			if (CollectionUtil.isNotEmpty(mutualList)) {
 				result = elcMutualStdsDao.insertList(mutualList);
