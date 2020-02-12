@@ -243,8 +243,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public void addCourseNoChargeType(RebuildCourseNoChargeType noChargeType) {
 
-        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(noChargeType);
-        if (item != null) {
+        List<RebuildCourseNoChargeType> item= noChargeTypeDao.findTypeByCondition(noChargeType);
+        if (CollectionUtil.isNotEmpty(item) && item.contains(noChargeType)) {
             throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("rebuildCourse.noCharge")));
         }
         noChargeTypeDao.insertSelective(noChargeType);
@@ -275,9 +275,12 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public void editCourseNoChargeType(
             RebuildCourseNoChargeType courseNoCharge) {
-        RebuildCourseNoChargeType item= noChargeTypeDao.findTypeByCondition(courseNoCharge);
-        if(item!=null){
-            if(item.getId().intValue()!=courseNoCharge.getId().intValue()){
+        List<RebuildCourseNoChargeType> list= noChargeTypeDao.findTypeByCondition(courseNoCharge);
+        if(CollectionUtil.isNotEmpty(list)){
+            Map<Boolean, List<RebuildCourseNoChargeType>> map = list.stream().collect(Collectors.partitioningBy(vo -> vo.getId().equals(courseNoCharge.getId())));
+            List<RebuildCourseNoChargeType> otherId = map.get(false);
+            if(CollectionUtil.isNotEmpty(otherId) && otherId.contains(courseNoCharge)){
+
                 throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("rebuildCourse.noCharge")));
             }
         }

@@ -14,6 +14,6 @@ public interface RebuildCourseNoChargeTypeDao extends Mapper<RebuildCourseNoChar
 
     void deleteRebuildCourseNoChargeType(List<Long> list);
 
-    RebuildCourseNoChargeType findTypeByCondition(RebuildCourseNoChargeType noChargeType);
+    List<RebuildCourseNoChargeType> findTypeByCondition(RebuildCourseNoChargeType noChargeType);
 
 }
