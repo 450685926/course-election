@@ -28,11 +28,18 @@ public class RebuildCourseNoChargeType implements Serializable {
     private String trainingLevel;
 
     /**
-     * 学习形式(全日制,非全日制,其他)
+     * 培养类别
      */
-    @Code2Text(DictTypeEnum.X_XXXS)
-    @Column(name = "FORM_LEARNING_")
-    private String formLearning;
+    @Code2Text(DictTypeEnum.X_PYLB)
+    @Column(name = "TRAINING_CATEGORY_")
+    private String trainingCategory;
+
+    /**
+     * 入学方式
+     */
+    @Code2Text(DictTypeEnum.X_RXFS)
+    @Column(name = "ENROL_METHODS_")
+    private String enrolMethods;
 
     /**
      * 专项计划
@@ -41,18 +48,20 @@ public class RebuildCourseNoChargeType implements Serializable {
     @Column(name = "SPCIAL_PLAN_")
     private String spcialPlan;
 
+
+
     /**
-     * 学籍状态
+     * 是否国际学生
+     */
+    @Column(name = "IS_OVERSEAS_")
+    private Integer isOverseas;
+
+    /**
+     * 学籍异动状态
      */
     @Code2Text(DictTypeEnum.G_XJZT)
     @Column(name = "REGISTRATION_STATUS_")
     private String registrationStatus;
-
-    /**
-     * 结业证书类型 1 结业生 空 未结业
-     */
-    @Column(name = "CERTIFICATE_TYPE_")
-    private Integer certificateType;
 
     private static final long serialVersionUID = 1L;
 
@@ -88,23 +97,6 @@ public class RebuildCourseNoChargeType implements Serializable {
         this.trainingLevel = trainingLevel == null ? null : trainingLevel.trim();
     }
 
-    /**
-     * 获取学习形式(全日制,非全日制,其他)
-     *
-     * @return FORM_LEARNING_ - 学习形式(全日制,非全日制,其他)
-     */
-    public String getFormLearning() {
-        return formLearning;
-    }
-
-    /**
-     * 设置学习形式(全日制,非全日制,其他)
-     *
-     * @param formLearning 学习形式(全日制,非全日制,其他)
-     */
-    public void setFormLearning(String formLearning) {
-        this.formLearning = formLearning == null ? null : formLearning.trim();
-    }
 
     /**
      * 获取专项计划
@@ -142,22 +134,28 @@ public class RebuildCourseNoChargeType implements Serializable {
         this.registrationStatus = registrationStatus == null ? null : registrationStatus.trim();
     }
 
-    /**
-     * 获取结业证书类型 1 结业生 空 未结业
-     *
-     * @return CERTIFICATE_TYPE_ - 结业证书类型 1 结业生 空 未结业
-     */
-    public Integer getCertificateType() {
-        return certificateType;
+    public String getTrainingCategory() {
+        return trainingCategory;
     }
 
-    /**
-     * 设置结业证书类型 1 结业生 空 未结业
-     *
-     * @param certificateType 结业证书类型 1 结业生 空 未结业
-     */
-    public void setCertificateType(Integer certificateType) {
-        this.certificateType = certificateType;
+    public void setTrainingCategory(String trainingCategory) {
+        this.trainingCategory = trainingCategory;
+    }
+
+    public String getEnrolMethods() {
+        return enrolMethods;
+    }
+
+    public void setEnrolMethods(String enrolMethods) {
+        this.enrolMethods = enrolMethods;
+    }
+
+    public Integer getIsOverseas() {
+        return isOverseas;
+    }
+
+    public void setIsOverseas(Integer isOverseas) {
+        this.isOverseas = isOverseas;
     }
 
     @Override
@@ -168,10 +166,11 @@ public class RebuildCourseNoChargeType implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", trainingLevel=").append(trainingLevel);
-        sb.append(", formLearning=").append(formLearning);
+        sb.append(", trainingCategory=").append(trainingCategory);
+        sb.append(", enrolMethods=").append(enrolMethods);
         sb.append(", spcialPlan=").append(spcialPlan);
+        sb.append(", isOverseas=").append(isOverseas);
         sb.append(", registrationStatus=").append(registrationStatus);
-        sb.append(", certificateType=").append(certificateType);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

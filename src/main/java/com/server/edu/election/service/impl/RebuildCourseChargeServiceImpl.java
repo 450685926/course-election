@@ -777,10 +777,11 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         Student student = studentDao.selectOne(record);
         List<RebuildCourseNoChargeType> list = noChargeTypeDao.selectAll();
         for (RebuildCourseNoChargeType t : list) {
-            if (t.getFormLearning().equals(student.getFormLearning())
+            if (t.getTrainingCategory().equals(student.getFormLearning())
                     && t.getRegistrationStatus().equals(student.getRegistrationStatus())
                     && t.getSpcialPlan().equals(student.getSpcialPlan())
-                    && t.getTrainingLevel().equals(student.getTrainingLevel())) {
+                    && t.getTrainingLevel().equals(student.getTrainingLevel())
+                    && student.getIsOverseas().equals(String.valueOf(t.getIsOverseas()))) {
                 return true;
             }
         }
