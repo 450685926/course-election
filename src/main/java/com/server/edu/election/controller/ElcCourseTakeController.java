@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.servicecomb.provider.rest.common.RestSchema;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,10 +184,10 @@ public class ElcCourseTakeController
     @ApiOperation(value = "根据教学班退课")
     @PostMapping("/withdrawByTeachingClassId")
     public RestResult<?> withdrawByTeachingClassId(
-        @RequestParam("teachingClassId") @NotNull Long teachingClassId)
+        @RequestParam("teachingClassId") @NotNull Long teachingClassId,@RequestParam("status") @NotBlank String status)
     {
     	logger.info("-------------------withdrawByTeachingClassId： "+teachingClassId+"-------------------");
-        courseTakeService.withdrawByTeachingClassId(teachingClassId);
+        courseTakeService.withdrawByTeachingClassId(teachingClassId,status);
         return RestResult.success();
     }
     
