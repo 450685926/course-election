@@ -1,5 +1,7 @@
 package com.server.edu.election.service.impl;
 
+import static java.util.stream.Collectors.toSet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -31,6 +33,7 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.entity.ClassroomN;
 import com.server.edu.common.entity.StudentPlanCoure;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
@@ -1965,27 +1968,19 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 
 	@Override
 	@Transactional
-	public void withdrawByTeachingClassId(Long teachingClassId, String status) {
+	public void withdrawByTeachingClassId(Long teachingClassId) {
 		logger.info("--------------------------withdrawByTeachingClassId:"+teachingClassId+"------------------------------");
 		TeachingClassVo teachingClass = teachingClassDao.getTeachingClassVo(teachingClassId);
-        TeachingClass t = teachingClassDao.selectByPrimaryKey(teachingClassId);
-        t.setUpdatedAt(new Date());
-        t.setStatus(status);
-
 		if(teachingClass==null) {
             throw new ParameterValidateException("教学班信息不存在");
 		}
-        //如果是关闭，则调用退课操作
-        if ("1".equals(status)) {
-            Example example = new Example(ElcCourseTake.class);
-            example.createCriteria().andEqualTo("calendarId", teachingClass.getCalendarId()).andEqualTo("teachingClassId", teachingClass.getId());
-            List<ElcCourseTake> list = courseTakeDao.selectByExample(example);
-            logger.info("---------------------------take length:"+list.size()+"--------------------------------------------------------------");
-            if(CollectionUtil.isNotEmpty(list)) {
-                withdrawNow(list);
-            }
-        }
-        teachingClassDao.updateByPrimaryKey(t);
+		Example example = new Example(ElcCourseTake.class);
+		example.createCriteria().andEqualTo("calendarId", teachingClass.getCalendarId()).andEqualTo("teachingClassId", teachingClass.getId());
+		List<ElcCourseTake> list = courseTakeDao.selectByExample(example);
+		logger.info("---------------------------take length:"+list.size()+"--------------------------------------------------------------");
+		if(CollectionUtil.isNotEmpty(list)) {
+			withdrawNow(list);
+		}
 		
 	}
 
