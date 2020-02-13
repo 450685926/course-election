@@ -60,9 +60,8 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 
 		//判断是否是教务员，如果是进行下列操作
 		if(isAcdemicDean){
-			//判断是否选择学院
+			//判断是否选择学院(有的前端接口会上送学院字段为筛选条件，有的前端接口不会上送)
 			String facultyCondition = condition.getCondition().getFaculty();
-
 			if(StringUtils.isEmpty(facultyCondition)){
 				//获取当前用户的所属学院
 				String faculty = session.getFaculty();
@@ -71,10 +70,8 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				//将两个学院合并
 				if(StringUtils.isNotEmpty(faculty)&&StringUtils.isNotEmpty(manageFaculty)){
 					faculty = ProjectUtil.stringGoHeavy(faculty,manageFaculty);
-
 				}
 				condition.getCondition().setFaculty(faculty);
-
 			}
 		}
 
