@@ -73,8 +73,7 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
         studentInfo.setMajor(stu.getProfession());
         studentInfo.setSex(stu.getSex());
         studentInfo.setStudentName(stu.getName());
-//        studentInfo.setCampus(stu.getCampus());
-        studentInfo.setCampus("3");
+        studentInfo.setCampus(stu.getCampus());
         studentInfo.setManagerDeptId(stu.getManagerDeptId());
         studentInfo.setBkMajor(major);
         //专项计划
