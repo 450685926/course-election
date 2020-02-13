@@ -227,4 +227,7 @@ public interface TeachingClassDao extends Mapper<TeachingClass>
     int getFirstTurnNum(@Param("calendarId") Long calendarId, @Param("index")int index, @Param("teachClassId")Long teachClassId);
     
     TeachingClassVo getTeachingClassVo( @Param("teachingClassId")Long teachingClassId);
+
+    int clearElcNumber(@Param("teachingClassId") Long teachingClassId);
+
 }

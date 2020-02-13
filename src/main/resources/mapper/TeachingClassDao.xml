@@ -829,6 +829,9 @@
         update teaching_class_t set THIRD_WITHDRAW_NUMBER = 0 where
         id_ = #{id}
     </update>
+    <update id="clearElcNumber">
+  	update teaching_class_t set ELC_NUMBER_ = 0 where id_ = #{teachingClassId} and ELC_NUMBER_ > 0
+  </update>
    
    <update id="batchAddDrawNumber" parameterType="java.util.List">
     <foreach item="item" collection="list" index="index"

@@ -1991,6 +1991,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
         List<ElcLog> logList = new ArrayList<>();
         Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
+        int count =classDao.clearElcNumber(value.get(0).getTeachingClassId());
         for (ElcCourseTake take : value)
         {
             Long calendarId = take.getCalendarId();
@@ -2014,7 +2015,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             courseTakeDao.deleteByExample(example);
             //减少选课人数
             logger.info("-----------------decrElcNumber: "+teachingClassId+"---------------");
-            int count =classDao.decrElcNumber(teachingClassId);
+
             Student stu  = studentDao.findStudentByCode(studentId);
             ElcCourseTakeVo vo = null;
             String key = calendarId + "-" + teachingClassId;
