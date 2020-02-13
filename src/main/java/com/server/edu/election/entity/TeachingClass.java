@@ -235,7 +235,9 @@ public class TeachingClass extends BaseEntity implements Serializable
     @Column(name = "MAX_SECOND_ROUND_NUM")
     private Integer maxSecondRoundNum;
 
-    
+    @Column(name = "STATUS_")
+    private String status;
+
     public Integer getMaxFirstRoundNum() {
 		return maxFirstRoundNum;
 	}
@@ -763,8 +765,13 @@ public class TeachingClass extends BaseEntity implements Serializable
 	public void setReserveNumberRate(Double reserveNumberRate) {
 		this.reserveNumberRate = reserveNumberRate;
 	}
-    
-    
 
-    
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
