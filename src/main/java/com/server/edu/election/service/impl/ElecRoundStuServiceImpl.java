@@ -84,26 +84,20 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
         {
             if (listExistStu.contains(code) && !listAddedStu.contains(code))
             {
-                Student studentByCode = studentDao.findStudentByCode(code);
-                //studentByCode.getIsOverseas()是否留学生
-                if(RoundMode.JieYe.eq(mode) && "0".equals(studentByCode.getIsOverseas())){//结业生
-//                    ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
-//                    if(student!=null){
-//                        elecRoundStuDao.add(roundId, code);
-//                    }else{
-//                        //添加学生不再结业表中
-//                        notExistStu.add(code);
-//                    }
-                    elecRoundStuDao.add(roundId, code);
-                }else if(RoundMode.LiuXueJieYe.eq(mode) && "1".equals(studentByCode.getIsOverseas())){//留学结业生
-//                    ElcNoGraduateStds student = noGraduateStdsDao.findStudentByCode(code);
-//                    if(student!=null){
-//                        elecRoundStuDao.add(roundId, code);
-//                    }else{
-//                        //添加学生不再留学结业表中
-//                        notExistStu.add(code);
-//                    }
-                    elecRoundStuDao.add(roundId, code);
+                if(RoundMode.JieYe.eq(mode) ){//结业生
+                    int i = studentDao.findJieYeStudent(code);
+                    if(i > 0){
+                        elecRoundStuDao.add(roundId, code);
+                    }else{
+                        notExistStu.add(code);
+                    }
+                }else if(RoundMode.LiuXueJieYe.eq(mode) ){//留学结业生
+                    int i = studentDao.findLiuXueJieYeStudent(code);
+                    if(i > 0){
+                        elecRoundStuDao.add(roundId, code);
+                    }else{
+                        notExistStu.add(code);
+                    }
                 }else if (RoundMode.NORMAL.eq(mode) || RoundMode.ShiJian.eq(mode)){
                     elecRoundStuDao.add(roundId, code);
                 }else {
@@ -139,7 +133,13 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
             } else {
                 throw new ParameterValidateException("没有匹配的学生");
             }
-        }else{//选课学生来源与结业表
+        }else{
+            //选课学生来源与结业表
+            String tableName = "tj_ungraduate";
+            if(RoundMode.LiuXueJieYe.eq(stu.getMode())){
+                tableName = "tj_ungraduate_foreign";
+            }
+            stu.setTableName(tableName);
             List<String> stringList = elecRoundStuDao.notExistStudent(stu);
             if(CollectionUtil.isNotEmpty(stringList)){
                 for (String s : stringList) {
@@ -184,6 +184,12 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
 		            	result.setMsg("没有匹配的学生");
 		            }
 		        }else{//选课学生来源与结业表
+                    //选课学生来源与结业表
+                    String tableName = "tj_ungraduate";
+                    if(RoundMode.LiuXueJieYe.eq(stu.getMode())){
+                        tableName = "tj_ungraduate_foreign";
+                    }
+                    stu.setTableName(tableName);
 		            List<String> stringList = elecRoundStuDao.notExistStudent(stu);
 		            if(CollectionUtil.isNotEmpty(stringList)){
 		            	int i = 0;
