@@ -31,14 +31,17 @@
 		<where>
 		    t1.CALENDAR_ID_  = #{calendarId}
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-		        and t1.STUDENT_ID_  = #{studentId}
+		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 		        and t2.MANAGER_DEPT_ID_  = #{projectId}
 		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
-		        and t2.NAME_  = #{studentName}
+		        and t2.NAME_ like concat ('%', #{studentName},'%')
 		    </if>
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWords)">
+				and (t1.STUDENT_ID_ like concat ('%', #{keyWords},'%') or t2.NAME_ like concat ('%', #{keyWords},'%'))
+			</if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
 		        and t2.GRADE_  = #{grade}
 		    </if>
