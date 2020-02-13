@@ -5,11 +5,13 @@
     <!--
       WARNING - @mbg.generated
     -->
+    <id column="ID_" jdbcType="BIGINT" property="id" />
     <result column="CALENDAR_ID_" jdbcType="BIGINT" property="calendarId" />
     <result column="STUDENT_ID_" jdbcType="VARCHAR" property="studentId" />
   </resultMap>
   <select id="getMutualStds" parameterType="com.server.edu.mutual.dto.ElcMutualCrossStuDto" resultType="com.server.edu.mutual.vo.ElcMutualCrossStuVo">
 		SELECT
+		  t1.ID_ id,
 		  t1.`CALENDAR_ID_` calendarId,
 		  t1.`STUDENT_ID_` studentId,
 		  t2.`NAME_` studentName,
@@ -72,6 +74,7 @@
   
   <select id="isInElcMutualStdList" parameterType="com.server.edu.mutual.dto.ElcMutualCrossStuDto" resultType="com.server.edu.mutual.vo.ElcMutualCrossStuVo">
 		SELECT
+		  ID_ id,
 		  CALENDAR_ID_ calendarId,
 		  STUDENT_ID_ studentId
 		FROM

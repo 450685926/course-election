@@ -132,7 +132,7 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		List<CourseOpenDto> courses = getOpenedCourses(calendarId,session.getCurrentManageDptId());
 
 //		if(CollectionUtil.isEmpty(courses)) {
-//			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",I18nUtil.getMsg("elcMutualCourses.course")));
+//			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualCourses.facultyNoCourse"));
 //		}
 		
 		if (StringUtils.isNotBlank(college)) {
@@ -141,7 +141,7 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 
 		//将检验条件放在过滤后，防止 courses 为空导致 sveElcMutualCourses 报错
 		if(CollectionUtil.isEmpty(courses)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.dataError",I18nUtil.getMsg("elcMutualCourses.course")));
+			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualCourses.facultyNoCourse"));
 		}
 
 		//保存数据

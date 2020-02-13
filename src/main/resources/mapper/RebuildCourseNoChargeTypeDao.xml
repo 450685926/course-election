@@ -4,13 +4,14 @@
     <resultMap id="BaseResultMap" type="com.server.edu.election.entity.RebuildCourseNoChargeType">
         <id column="ID_" jdbcType="BIGINT" property="id" />
         <result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
-        <result column="FORM_LEARNING_" jdbcType="VARCHAR" property="formLearning" />
+        <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
+        <result column="ENROL_METHODS_" jdbcType="VARCHAR" property="enrolMethods" />
         <result column="SPCIAL_PLAN_" jdbcType="VARCHAR" property="spcialPlan" />
+        <result column="IS_OVERSEAS_" jdbcType="INTEGER" property="isOverseas" />
         <result column="REGISTRATION_STATUS_" jdbcType="VARCHAR" property="registrationStatus" />
-        <result column="CERTIFICATE_TYPE_" jdbcType="INTEGER" property="certificateType" />
     </resultMap>
     <sql id="Base_Column_List">
-        ID_, TRAINING_LEVEL_, FORM_LEARNING_, SPCIAL_PLAN_, REGISTRATION_STATUS_, CERTIFICATE_TYPE_
+        ID_, TRAINING_LEVEL_, TRAINING_CATEGORY_,ENROL_METHODS_, SPCIAL_PLAN_,IS_OVERSEAS_, REGISTRATION_STATUS_
     </sql>
 
     <select id="findCourseNoChargeType" parameterType="com.server.edu.election.vo.RebuildCourseNoChargeTypeVo" resultMap="BaseResultMap">
@@ -18,11 +19,23 @@
         <include refid="Base_Column_List"></include>
         from rebuild_course_nocharge_type_t
         <where>
-            <if test="trainingLevel !=null and trainingLevel !='' ">
-                and TRAINING_LEVEL_ =#{trainingLevel,jdbcType=VARCHAR}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
+                and TRAINING_LEVEL_ = #{trainingLevel}
             </if>
-            <if test="formLearning !=null and formLearning!='' ">
-                and FORM_LEARNING_ =#{formLearning,jdbcType=VARCHAR}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+                and TRAINING_CATEGORY_ = #{trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(enrolMethods)">
+                and ENROL_METHODS_ = #{enrolMethods}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(spcialPlan)">
+                and SPCIAL_PLAN_ = #{spcialPlan}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+                and IS_OVERSEAS_ = #{isOverseas}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(registrationStatus)">
+                and REGISTRATION_STATUS_ = #{registrationStatus}
             </if>
         </where>
         order by ID_ DESC
@@ -44,17 +57,20 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
                 and TRAINING_LEVEL_ = #{trainingLevel}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(formLearning)">
-                and FORM_LEARNING_ = #{formLearning}
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+                and TRAINING_CATEGORY_ = #{trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(enrolMethods)">
+                and ENROL_METHODS_ = #{enrolMethods}
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(spcialPlan)">
                 and SPCIAL_PLAN_ = #{spcialPlan}
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+                and IS_OVERSEAS_ = #{isOverseas}
+            </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(registrationStatus)">
                 and REGISTRATION_STATUS_ = #{registrationStatus}
-            </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(certificateType)">
-                and CERTIFICATE_TYPE_ = #{certificateType}
             </if>
         </where>
     </select>
