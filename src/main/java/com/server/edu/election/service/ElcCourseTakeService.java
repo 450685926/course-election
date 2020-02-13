@@ -115,11 +115,12 @@ public interface ElcCourseTakeService
     /**
      * 为指定教学班学生退课
      * 
-     * @param teachingClassId
      * @param studentId
+     * @param classId
+     * @param teachingClassId
      * @see [类、类#方法、类#成员]
      */
-    void withdrawByTeachingClassId(Long teachingClassId);
+    void withdrawByTeachingClassId(Long classId, String status);
 
 
     /**
