@@ -13,6 +13,15 @@ public class GraduateExamScore implements Serializable {
     private Long teachingClassId;
     private String courseCode;
     private Integer isPass;
+    private String scoreExamType;
+
+    public String getScoreExamType() {
+        return scoreExamType;
+    }
+
+    public void setScoreExamType(String scoreExamType) {
+        this.scoreExamType = scoreExamType;
+    }
 
     public Integer getIsPass() {
         return isPass;

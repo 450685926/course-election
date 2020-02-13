@@ -244,7 +244,7 @@
   </select>
 
   <select id="findStudentScore" resultType="com.server.edu.exam.dto.GraduateExamScore" parameterType="com.server.edu.exam.entity.GraduateExamApplyExamination">
-    select STUDENT_ID_ studentCode,COURSE_CODE_ courseCode,TEACHING_CLASS_ID_ teachingClassId,IS_PASS_ isPass
+    select STUDENT_ID_ studentCode,COURSE_CODE_ courseCode,TEACHING_CLASS_ID_ teachingClassId,IS_PASS_ isPass,EXAM_TYPE_ scoreExamType
     from score_student_result_t
     where STUDENT_ID_ = #{studentCode} and COURSE_CODE_ = #{courseCode}  and RELEASE_TYPE_ = 1
   </select>

@@ -133,8 +133,13 @@ public class GraduateExamApplyExaminationServiceImpl implements GraduateExamAppl
                 throw new ParameterValidateException("该生补考申请不满足条件");
             }else{
                 int isPass = examScore.get(0).getIsPass();
+                String scoreExamType = examScore.get(0).getScoreExamType();
                 if(isPass != 0){
                     throw new ParameterValidateException("该生补考申请不满足条件");
+                }
+                //缺课1/3不能申请补考
+                if(ApplyStatus.EXAM_TYPE.equals(scoreExamType)){
+                    throw new ParameterValidateException("该生补考缺课1/3,补考申请不满足条件");
                 }
                 Long teachingClassId = examScore.get(0).getTeachingClassId();
                 applyExamination.setTeachingClassId(teachingClassId);

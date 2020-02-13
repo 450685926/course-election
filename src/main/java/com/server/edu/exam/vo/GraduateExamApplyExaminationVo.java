@@ -24,6 +24,16 @@ public class GraduateExamApplyExaminationVo extends GraduateExamApplyExamination
     private String keyword;
     private String isAdmin;
     private List<Long> ids;
+    //补缓考应考学生查询查询成绩对应学期
+    private Long preCalendarId;
+
+    public Long getPreCalendarId() {
+        return preCalendarId;
+    }
+
+    public void setPreCalendarId(Long preCalendarId) {
+        this.preCalendarId = preCalendarId;
+    }
 
     public List<Long> getIds() {
         return ids;

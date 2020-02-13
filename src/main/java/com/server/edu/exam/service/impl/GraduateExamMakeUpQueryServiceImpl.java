@@ -5,8 +5,10 @@ import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.common.vo.SchoolCalendarVo;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.exam.dao.GraduateExamApplyExaminationDao;
+import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
 import com.server.edu.exam.service.GraduateExamMakeUpQueryService;
 import com.server.edu.exam.vo.GraduateExamApplyExaminationVo;
 import com.server.edu.exception.ParameterValidateException;
@@ -48,8 +50,11 @@ public class GraduateExamMakeUpQueryServiceImpl implements GraduateExamMakeUpQue
         List<String> facultys = session.getGroupData().get(GroupDataEnum.department.getValue());
         examinationVo.setFacultys(facultys);
         examinationVo.setProjId(dptId);
+        SchoolCalendarVo calendarVo = BaseresServiceExamInvoker.getPreOrNextTerm(examinationVo.getCalendarId(), false);
+        examinationVo.setPreCalendarId(calendarVo.getId());
         PageHelper.startPage(condition.getPageNum_(),condition.getPageSize_());
-        Page<GraduateExamApplyExaminationVo> page = applyExaminationDao.listExamGraduateMakeUp(examinationVo);
+        //Page<GraduateExamApplyExaminationVo> page = applyExaminationDao.listExamGraduateMakeUp(examinationVo);
+        Page<GraduateExamApplyExaminationVo> page = applyExaminationDao.listGraduateMakeUp(examinationVo);
         return new PageResult<>(page);
     }
 

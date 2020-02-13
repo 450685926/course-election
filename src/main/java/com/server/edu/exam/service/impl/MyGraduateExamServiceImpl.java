@@ -15,6 +15,7 @@ import com.server.edu.exam.dao.GraduateExamApplyExaminationDao;
 import com.server.edu.exam.dao.GraduateExamInfoDao;
 import com.server.edu.exam.dao.GraduateExamMakeUpAuthDao;
 import com.server.edu.exam.dao.GraduateExamStudentDao;
+import com.server.edu.exam.dto.GraduateExamScore;
 import com.server.edu.exam.entity.GraduateExamApplyExamination;
 import com.server.edu.exam.entity.GraduateExamMakeUpAuth;
 import com.server.edu.exam.rpc.BaseresServiceExamInvoker;
@@ -146,10 +147,7 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
             }else{
                 applyExamination.setCalendarId(examCalendarId);
                 //校验学生课程是否有资格申请补考
-               Boolean flag = this.checkMakeUp(currentSession.realUid(),myGraduateExam.getCourseCode());
-               if(!flag){
-                   throw new ParameterValidateException("课程:"+myGraduateExam.getCourseCode()+",不满足申请补考的资格");
-               }
+                this.checkMakeUp(currentSession.realUid(),myGraduateExam.getCourseCode());
             }
             applyExamination.setExamCalendarId(examCalendarId);
             applyExamination.setApplySource(ApplyStatus.APPLY_SOURCE_MYSELF);
@@ -215,12 +213,25 @@ public class MyGraduateExamServiceImpl implements MyGraduateExamService {
     }
 
     @Override
-    public Boolean checkMakeUp(String studentCode, String courseCode) {
-       int i =  examStudentDao.checkMakeUp(studentCode,courseCode);
-       if(i > 1){
-           return false;
-       }
-        return true;
+    public void checkMakeUp(String studentCode, String courseCode) {
+       //int i =  examStudentDao.checkMakeUp(studentCode,courseCode);
+        GraduateExamApplyExamination applyExamination = new GraduateExamApplyExamination();
+        applyExamination.setStudentCode(studentCode);
+        applyExamination.setCourseCode(courseCode);
+        List<GraduateExamScore> examScore = examStudentDao.findStudentScore(applyExamination);
+        if(CollectionUtil.isEmpty(examScore) || examScore.size() > 1){
+            throw new ParameterValidateException("该生补考申请不满足条件");
+        }else{
+            int isPass = examScore.get(0).getIsPass();
+            String scoreExamType = examScore.get(0).getScoreExamType();
+            if(isPass != 0){
+                throw new ParameterValidateException("该生补考申请不满足条件");
+            }
+            //缺课1/3不能申请补考
+            if(ApplyStatus.EXAM_TYPE.equals(scoreExamType)){
+                throw new ParameterValidateException("该生补考缺课1/3,补考申请不满足条件");
+            }
+        }
     }
 
     @Override
