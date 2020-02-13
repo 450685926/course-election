@@ -12,6 +12,15 @@ public class ElecRoundStuQuery extends Student4Elc
     private Integer mode;
     
     private String keyword;
+    private String tableName;
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
 
     public Integer getMode() {
         return mode;

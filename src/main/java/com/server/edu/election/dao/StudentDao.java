@@ -84,6 +84,13 @@ public interface StudentDao extends Mapper<Student> {
     String getStudentMajor(@Param("grade")Integer grade, @Param("profession")String profession);
 
     String getStudentCampus(@Param("calendarId")Long calendarId, @Param("grade")Integer grade, @Param("profession")String profession);
+
+    /**判断是否在结业生名单中*/
+    int findJieYeStudent(String code);
+
+    /**判断是否在留学结业生名单中*/
+    int findLiuXueJieYeStudent(String code);
+
 }
 
 

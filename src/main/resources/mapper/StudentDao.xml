@@ -506,4 +506,12 @@
 		and TRAINING_LEVEL_ in (1,2,5)
 		limit 1
 	</select>
+
+	<select id="findJieYeStudent" resultType="int">
+		select COUNT(*) from tj_ungraduate where XH = #{code}
+	</select>
+
+	<select id="findLiuXueJieYeStudent" resultType="int">
+		select COUNT(*) from tj_ungraduate_foreign where XH = #{code}
+	</select>
 </mapper>
