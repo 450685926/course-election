@@ -109,6 +109,9 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
 							stdsDto.setStdStatusChanges(abnormalTypeElection.getAbnormalClassCode());
 						}
 					 }
+					 //转换学生类型
+                     String studentType = this.transStudentType(stdsDto);
+                     stdsDto.setStudentType(studentType);
 				}
             }
          }else {
@@ -137,7 +140,36 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
          return new PageResult<>(electCourseList);
      }
 
-     /**
+    private String transStudentType(NoSelectCourseStdsDto stdsDto) {
+         StringBuilder build = new StringBuilder();
+         if(StringUtils.isNotBlank(stdsDto.getTrainingCategory())){
+             String trainingCategory = dictionaryService.query("X_PYLB", stdsDto.getTrainingCategory());
+             build.append(trainingCategory).append(",");
+         }
+
+        if(StringUtils.isNotBlank(stdsDto.getEnrolMethods())){
+            String enrolMethods = dictionaryService.query("X_RXFS", stdsDto.getEnrolMethods());
+            build.append(enrolMethods).append(",");
+        }
+
+        if(StringUtils.isNotBlank(stdsDto.getSpecialPlan())){
+            String specialPlan = dictionaryService.query("X_ZXJH", stdsDto.getSpecialPlan());
+            build.append(specialPlan).append(",");
+        }
+
+        if(StringUtils.isNotBlank(stdsDto.getIsOverseas()) && "1".equals(stdsDto.getIsOverseas())){
+            build.append("外国留学生").append(",");
+        }
+
+        if(build.length() > 0 ){
+            String studentType = build.substring(0, build.length() - 1);
+            return studentType;
+        }
+
+        return "";
+    }
+
+    /**
       * 增加未选课原因
       * */
      @Override
@@ -300,6 +332,7 @@ public class NoSelectStudentServiceImpl implements NoSelectStudentService
         		   });*/
            design.addCell(I18nUtil.getMsg("rebuildCourse.studentStatus"), "stdStatusChanges");
            design.addCell(I18nUtil.getMsg("rebuildCourse.noSelectCourseReason"), "noSelectReason");
+           design.addCell("学生类型", "studentType");
            return design;
        }
 

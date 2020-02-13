@@ -148,6 +148,8 @@ public interface Constants
     /** 教务员*/
     public static final String INNER_ROLE_ACDEMIC_DEAN = "2";
 
+    public static final Integer THREE_MODE=3;
+    public static final Integer FOUR_MODE=4;
     
 
 }

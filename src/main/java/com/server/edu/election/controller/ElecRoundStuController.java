@@ -38,6 +38,8 @@ import com.server.edu.common.rest.RestResult;
 import com.server.edu.common.validator.ValidatorUtil;
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.service.DictionaryService;
+import com.server.edu.election.dto.BatchAutoRemoveDto;
+import com.server.edu.election.dto.ElecRoundStuDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
@@ -345,4 +347,15 @@ public class ElecRoundStuController
         AsyncResult asyncResult = AsyncProcessUtil.getResult(key);
         return RestResult.successData(asyncResult);
     }
+    
+    @ApiOperation(value = "初始化可选名单")
+    @PostMapping("/initData")
+    public RestResult<?> initData(@RequestBody @Valid ElecRoundStuDto dto)
+        throws Exception
+    {
+    	int result = elecRoundStuService.initData(dto);
+        return RestResult.successData(result);
+    }
+    
+    
 }

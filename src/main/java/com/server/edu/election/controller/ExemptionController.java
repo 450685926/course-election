@@ -736,6 +736,7 @@ public class ExemptionController {
     		return RestResult.fail("elec.mustBeStu");
 		}
     	String studentId = session.realUid();
+    	
     	StudentAndCourseVo result = exemptionCourseService.findStudentApplyCourse(studentId,calendarId);
     	return RestResult.successData(result);
     } 

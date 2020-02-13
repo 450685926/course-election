@@ -57,6 +57,17 @@ public class NoSelectCourseStdsDto{
     /** 培养类别 */
     @Code2Text(transformer = "X_PYLB")
     private String trainingCategory;
+
+    /** 入学方式 */
+    @Code2Text(transformer = "X_RXFS")
+    private String enrolMethods;
+
+    /** 专项计划 */
+    @Code2Text(transformer = "X_ZXJH")
+    private String specialPlan;
+
+    /** 是否国际学生 */
+    private String isOverseas;
     
     /**  学位类型 */
     @Code2Text(transformer = "X_XWLX")
@@ -65,6 +76,9 @@ public class NoSelectCourseStdsDto{
     /** 学习形式 */
     @Code2Text(transformer = "X_XXXS")
     private String formLearning;
+
+    /**新老系统不一样，新系统有四种途径*/
+    private String studentType;
     
     /** 用户角色 */
     private String role;
@@ -235,6 +249,38 @@ public class NoSelectCourseStdsDto{
 
     public void setListStudentCode(List<String> listStudentCode) {
         ListStudentCode = listStudentCode;
+    }
+
+    public String getEnrolMethods() {
+        return enrolMethods;
+    }
+
+    public void setEnrolMethods(String enrolMethods) {
+        this.enrolMethods = enrolMethods;
+    }
+
+    public String getSpecialPlan() {
+        return specialPlan;
+    }
+
+    public void setSpecialPlan(String specialPlan) {
+        this.specialPlan = specialPlan;
+    }
+
+    public String getIsOverseas() {
+        return isOverseas;
+    }
+
+    public void setIsOverseas(String isOverseas) {
+        this.isOverseas = isOverseas;
+    }
+
+    public String getStudentType() {
+        return studentType;
+    }
+
+    public void setStudentType(String studentType) {
+        this.studentType = studentType;
     }
 
     @Override
