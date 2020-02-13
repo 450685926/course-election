@@ -181,7 +181,7 @@ public class ElcCourseTakeController
     }
     
     @ApiOperation(value = "根据教学班退课")
-    @PostMapping("/withdrawByTeachingClassId")
+    @GetMapping("/withdrawByTeachingClassId")
     public RestResult<?> withdrawByTeachingClassId(
         @RequestParam("teachingClassId") @NotNull Long teachingClassId,@RequestParam("status") @NotNull String status)
     {
