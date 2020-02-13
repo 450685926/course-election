@@ -60,9 +60,8 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 
 		//判断是否是教务员，如果是进行下列操作
 		if(isAcdemicDean){
-			//判断是否选择学院
+			//判断是否选择学院(有的前端接口会上送学院字段为筛选条件，有的前端接口不会上送)
 			String facultyCondition = condition.getCondition().getFaculty();
-
 			if(StringUtils.isEmpty(facultyCondition)){
 				//获取当前用户的所属学院
 				String faculty = session.getFaculty();
@@ -71,10 +70,8 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				//将两个学院合并
 				if(StringUtils.isNotEmpty(faculty)&&StringUtils.isNotEmpty(manageFaculty)){
 					faculty = ProjectUtil.stringGoHeavy(faculty,manageFaculty);
-
 				}
 				condition.getCondition().setFaculty(faculty);
-
 			}
 		}
 
@@ -265,6 +262,13 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		Session session = SessionUtils.getCurrentSession();
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
+		if (isDepartAdmin()) {
+			if(StringUtils.isBlank(dto.getFaculty())) {
+				//修改说明：当前教务员除了当前所属学院还管理其他学院
+				//封装学院数据
+				criteria.andIn("faculty",elcMutualCommonService.getCollegeList(session));
+			}
+		}
 		if(dto.getGrade()!=null) {
 			criteria.andEqualTo("grade", dto.getGrade());
 		}
@@ -306,6 +310,12 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		example.selectProperties("studentCode");
 		criteria.andEqualTo("leaveSchool", Constants.INSCHOOL);
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
+		if (isDepartAdmin()) {
+			//修改说明：当前教务员除了当前所属学院还管理其他学院
+
+			//封装学院数据
+			criteria.andIn("faculty",elcMutualCommonService.getCollegeList(session));
+		}
 		List<Student> students  = studentDao.selectByExample(example);
 		int result = Constants.ZERO;
 		if(CollectionUtil.isNotEmpty(students)) {
