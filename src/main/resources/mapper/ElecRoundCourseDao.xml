@@ -98,7 +98,7 @@
 		and t1.IS_ELECTIVE_ = #{query.isElective}
 		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  		and (t1.COURSE_CODE_ like CONCAT('%', #{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT('%', #{query.keyword}, '%') OR t3.CODE_ like CONCAT('%', #{query.keyword}, '%'))
+  		and (t1.COURSE_CODE_ like CONCAT('%', #{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT('%', #{query.keyword}, '%'))
   		</if>
   	</where>
   		GROUP BY t3.ID_
@@ -159,7 +159,7 @@
 	  		and t4.COURSE_LABEL_ID_ = #{query.label}
 	  		</if>
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-	  		and (t1.COURSE_CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+	  		and (t1.COURSE_CODE_ like CONCAT( '%',#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT('%',#{query.keyword}, '%'))
 	  		</if>
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.isElective)">
 				and t1.IS_ELECTIVE_ = #{query.isElective}
@@ -206,7 +206,7 @@
 			and t1.IS_ELECTIVE_ = #{query.isElective}
 		</if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-  			and  (t4.CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+  			and  (t1.COURSE_CODE_ like CONCAT('%',#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT('%',#{query.keyword}, '%'))
   		</if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.campus)">
 	  		and t4.CAMPUS_ = #{query.campus}
@@ -257,7 +257,7 @@
 	  			and t1.TRAINING_LEVEL_ = #{query.trainingLevel}
 	  		</if>
 	    	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.keyword)">
-	  		 	and  (t4.CODE_ like CONCAT(#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT(#{query.keyword}, '%'))
+	  		 	and  (t1.COURSE_CODE_ like CONCAT('%',#{query.keyword}, '%') OR t1.COURSE_NAME_ like CONCAT('%',#{query.keyword}, '%'))
 	  		</if>
 	  	</where>
 	  		order by t4.CODE_

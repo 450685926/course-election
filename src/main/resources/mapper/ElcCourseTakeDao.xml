@@ -1171,7 +1171,7 @@
     <select id="findAllSelectedCourses" resultMap="VoResultMap">
         select
         t1.*,op.NATURE_ NATURE,
-        op.COURSE_NAME_ as courseName,op.CREDITS_, op.FACULTY_,t3.TERM_,
+        op.COURSE_NAME_ as courseName, op.CREDITS_, op.FACULTY_,t3.TERM_,
         t3.LABEL_, t4.PERIOD_,
         t3.ASSESSMENT_MODE_,
         t4.CODE_ as teachingClassCode,
@@ -1627,7 +1627,8 @@
             resultType="com.server.edu.election.dto.NoSelectCourseStdsDto">
         select
         t1.STUDENT_CODE_ studentCode,t1.NAME_ studentName,t1.GRADE_ grade,t1.FACULTY_ faculty,t1.PROFESSION_ major,
-        t1.STUDENT_CATEGORY_ studentCategory,t1.TRAINING_CATEGORY_ trainingCategory, t2.REASON_ noSelectReason
+        t1.STUDENT_CATEGORY_ studentCategory,t1.TRAINING_CATEGORY_ trainingCategory, t2.REASON_ noSelectReason,
+        t1.ENROL_METHODS_ enrolMethods,t1.IS_OVERSEAS_ isOverseas,t1.SPCIAL_PLAN_ specialPlan
         from student_t t1
         left join elc_no_elect_reason_t t2 on (t1.STUDENT_CODE_=t2.STUDENT_ID_ and t2.CALENDAR_ID_=#{calendarId})
         <where>
@@ -1659,6 +1660,18 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
                 and (t1.STUDENT_CODE_ like concat('%',#{keyword},'%') or t1.NAME_ like concat('%',#{keyword},'%') )
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingCategory)">
+                and t1.TRAINING_CATEGORY_ =#{trainingCategory}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(enrolMethods)">
+                and t1.ENROL_METHODS_ =#{enrolMethods}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isOverseas)">
+                and t1.IS_OVERSEAS_ =#{isOverseas}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(specialPlan)">
+                and t1.SPCIAL_PLAN_ =#{specialPlan}
             </if>
         </where>
     </select>

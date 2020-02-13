@@ -13,14 +13,17 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.RoundMode;
 import com.server.edu.election.dao.ElcNoGraduateStdsDao;
 import com.server.edu.election.dao.ElecRoundStuDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.StudentDao;
+import com.server.edu.election.dto.ElecRoundStuDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.entity.ElcNoGraduateStds;
 import com.server.edu.election.entity.ElectionRounds;
+import com.server.edu.election.entity.ElectionRoundsStu;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.election.service.ElecRoundStuService;
@@ -31,6 +34,8 @@ import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.async.AsyncExecuter;
 import com.server.edu.util.async.AsyncProcessUtil;
 import com.server.edu.util.async.AsyncResult;
+
+import tk.mybatis.mapper.entity.Example;
 @Service
 public class ElecRoundStuServiceImpl implements ElecRoundStuService
 {
@@ -255,6 +260,30 @@ public class ElecRoundStuServiceImpl implements ElecRoundStuService
                 throw new ParameterValidateException("无可移除名单或没有匹配的学生");
             }
         }
+    }
+    
+    @Transactional
+    @Override
+    public int initData(ElecRoundStuDto dto) {
+    	int result = Constants.ZERO;
+    	elecRoundStuDao.deleteByRoundId(dto.getRoundId());
+    	List<String> stuList = new ArrayList<>();
+    	if(Constants.THREE_MODE.equals(dto.getMode())) {
+    		stuList = elecRoundStuDao.getGradStus(); 
+    	}else if(Constants.FOUR_MODE.equals(dto.getMode())) {
+    		stuList = elecRoundStuDao.getOverseasStus();
+    	}
+    	if(CollectionUtil.isNotEmpty(stuList)) {
+    		List<ElectionRoundsStu> electionRoundsStus = new ArrayList<>();
+    		for(String studentId :stuList) {
+    			ElectionRoundsStu electionRoundsStu = new ElectionRoundsStu();
+    			electionRoundsStu.setRoundsId(dto.getRoundId());
+    			electionRoundsStu.setStudentId(studentId);
+    			electionRoundsStus.add(electionRoundsStu);
+    		}
+    		result = elecRoundStuDao.insertList(electionRoundsStus);
+    	}
+    	return result;
     }
 
 }

@@ -47,7 +47,7 @@ public class ElectionConfig
         {
             JedisConnectionFactory con = (JedisConnectionFactory)factory;
             
-            LOG.info("---- redis ip: {}, port: {}, database: {} ----",
+            LOG.info("---- reids ip: {}, port: {}, database: {} ----",
                 con.getHostName(),
                 con.getPort(),
                 con.getDatabase());

@@ -882,7 +882,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             Course course = courseDao.selectOneByExample(example1);
             courseTakeDao.deleteByExample(example);
             //减少选课人数
-            logger.info("-----------------decrElcNumber: "+teachingClassId+"---------------");
             int count =classDao.decrElcNumber(teachingClassId);
             //保存第三、四轮退课人数
             if (turn == Constants.THIRD_TURN
@@ -1966,15 +1965,15 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 	@Override
 	@Transactional
 	public void withdrawByTeachingClassId(Long teachingClassId, String status) {
-		logger.info("--------------------------withdrawByTeachingClassId:"+teachingClassId+"------------------------------");
-		TeachingClassVo teachingClass = teachingClassDao.getTeachingClassVo(teachingClassId);
-		if(teachingClass==null) {
+        logger.info("--------------------------withdrawByTeachingClassId:"+teachingClassId+"------------------------------");
+        TeachingClassVo teachingClass = teachingClassDao.getTeachingClassVo(teachingClassId);
+        if(teachingClass==null) {
             throw new ParameterValidateException("教学班信息不存在");
-		}
-        TeachingClass t = teachingClassDao.selectByPrimaryKey(teachingClassId);
+        }
+        TeachingClass t = new TeachingClass();
         t.setUpdatedAt(new Date());
         t.setStatus(status);
-
+        t.setId(teachingClass.getId());
         //如果是关闭，则调用退课操作
         if ("1".equals(status)) {
             Example example = new Example(ElcCourseTake.class);
@@ -1982,12 +1981,10 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             List<ElcCourseTake> list = courseTakeDao.selectByExample(example);
             logger.info("---------------------------take length:"+list.size()+"--------------------------------------------------------------");
             if(CollectionUtil.isNotEmpty(list)) {
-                withdrawNow(list);
+            	withdraw(list);
+            	teachingClassDao.updateByPrimaryKeySelective(t);
             }
-            t.setElcNumber(0);
         }
-
-        teachingClassDao.updateByPrimaryKey(t);
 	}
 
     @Transactional

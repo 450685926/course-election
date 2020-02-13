@@ -32,6 +32,8 @@
     <result column="UPDATED_AT_" jdbcType="TIMESTAMP" property="updatedAt" />
     <result column="NAME_" jdbcType="VARCHAR" property="name" />
     <result column="THIRD_WITHDRAW_NUMBER" jdbcType="INTEGER" property="thirdWithdrawNumber" />
+    <result column="MAX_FIRST_ROUND_NUM" jdbcType="INTEGER" property="maxFirstRoundNum" />
+    <result column="MAX_SECOND_ROUND_NUM" jdbcType="INTEGER" property="maxSecondRoundNum" />
   </resultMap>
 
   <resultMap type="com.server.edu.election.vo.TeachingClassVo" id="TeachingClassVoMap" extends="BaseResultMap">

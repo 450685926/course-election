@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.rest.PageResult;
+import com.server.edu.election.dto.ElecRoundStuDto;
 import com.server.edu.election.dto.Student4Elc;
 import com.server.edu.election.query.ElecRoundStuQuery;
 import com.server.edu.util.async.AsyncResult;
@@ -62,6 +63,8 @@ public interface ElecRoundStuService
      * @see [类、类#方法、类#成员]
      */
     void deleteByCondition(ElecRoundStuQuery condition);
+    
+    int initData(ElecRoundStuDto dto);
 
 
 }

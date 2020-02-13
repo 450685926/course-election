@@ -48,7 +48,7 @@ public class RebuildCourseCharge implements Serializable {
      * 单价/每学分
      */
     @Column(name = "UNIT_PRICE_")
-    private Double unitPrice;
+    private Integer unitPrice;
 
     private static final long serialVersionUID = 1L;
 
@@ -125,7 +125,7 @@ public class RebuildCourseCharge implements Serializable {
      *
      * @return UNIT_PRICE_ - 单价/每学分
      */
-    public Double getUnitPrice() {
+    public Integer getUnitPrice() {
         return unitPrice;
     }
 
@@ -134,7 +134,7 @@ public class RebuildCourseCharge implements Serializable {
      *
      * @param unitPrice 单价/每学分
      */
-    public void setUnitPrice(Double unitPrice) {
+    public void setUnitPrice(Integer unitPrice) {
         this.unitPrice = unitPrice;
     }
 
