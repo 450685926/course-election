@@ -1974,6 +1974,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         TeachingClass t = teachingClassDao.selectByPrimaryKey(teachingClassId);
         t.setUpdatedAt(new Date());
         t.setStatus(status);
+
         //如果是关闭，则调用退课操作
         if ("1".equals(status)) {
             Example example = new Example(ElcCourseTake.class);
@@ -1983,6 +1984,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             if(CollectionUtil.isNotEmpty(list)) {
                 withdrawNow(list);
             }
+            t.setElcNumber(0);
         }
 
         teachingClassDao.updateByPrimaryKey(t);
@@ -1995,7 +1997,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         Map<String, ElcCourseTakeVo> classInfoMap = new HashMap<>();
         List<ElcLog> logList = new ArrayList<>();
         Map<String, ElcCourseTake> withdrawMap = new HashMap<>();
-        int count =classDao.clearElcNumber(value.get(0).getTeachingClassId());
+//        int count =classDao.clearElcNumber(value.get(0).getTeachingClassId());
         for (ElcCourseTake take : value)
         {
             Long calendarId = take.getCalendarId();
