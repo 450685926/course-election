@@ -265,6 +265,13 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		Session session = SessionUtils.getCurrentSession();
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
+		if (isDepartAdmin()) {
+			if(StringUtils.isBlank(dto.getFaculty())) {
+				//修改说明：当前教务员除了当前所属学院还管理其他学院
+				//封装学院数据
+				criteria.andIn("faculty",elcMutualCommonService.getCollegeList(session));
+			}
+		}
 		if(dto.getGrade()!=null) {
 			criteria.andEqualTo("grade", dto.getGrade());
 		}
@@ -306,6 +313,12 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		example.selectProperties("studentCode");
 		criteria.andEqualTo("leaveSchool", Constants.INSCHOOL);
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
+		if (isDepartAdmin()) {
+			//修改说明：当前教务员除了当前所属学院还管理其他学院
+
+			//封装学院数据
+			criteria.andIn("faculty",elcMutualCommonService.getCollegeList(session));
+		}
 		List<Student> students  = studentDao.selectByExample(example);
 		int result = Constants.ZERO;
 		if(CollectionUtil.isNotEmpty(students)) {
