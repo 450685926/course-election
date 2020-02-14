@@ -119,7 +119,10 @@
   </select>
   
   <select id="listExistStu" resultType="string">
-  	select STUDENT_CODE_ from student_t where MANAGER_DEPT_ID_ = #{projectId} and LEAVE_SCHOOL_ = 1 and STUDENT_CODE_ IN
+  	select STUDENT_CODE_
+  	from student_t
+  	where MANAGER_DEPT_ID_ = #{projectId}
+  	and STUDENT_CODE_ IN
   	<foreach item="id" collection="studentCodes"  index="index" open="(" separator="," close=")">  
        #{id}  
     </foreach>
