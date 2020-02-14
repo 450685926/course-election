@@ -260,6 +260,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	public List<Student> getStudentInfos(ElcMutualCrossStu dto) {
 		Example example = new Example(Student.class);
 		Session session = SessionUtils.getCurrentSession();
+		example.selectProperties("studentCode");
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
 		if (isDepartAdmin()) {
