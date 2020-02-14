@@ -1411,8 +1411,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String studentId = courseTakeQuerytudentVo.getStudentId();
         Long calendarId = courseTakeQuerytudentVo.getCalendarId();
         String keyword = courseTakeQuerytudentVo.getKeyword();
-        // 获取学生所有已修课程成绩
-        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         Session session = SessionUtils.getCurrentSession();
         String currentManageDptId = session.getCurrentManageDptId();
         List<PlanCourseDto> courseType;
@@ -1431,18 +1429,34 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             List<PlanCourseTypeDto> list = planCourseDto.getList();
             planCourseTypeDtos.addAll(list);
         }
-        List<String> allCourseCode = planCourseTypeDtos.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
+        Set<String> planCourseCode = planCourseTypeDtos.stream().
+                map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
+        // 获取学生所有已修课程成绩
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         // 获取学生通过课程集合
-        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
-        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+        Set<String> collect1 = stuScore.stream().
+                filter(item -> item.getIsPass() == 1).
+                map(ScoreStudentResultVo::getCourseCode).
+                collect(Collectors.toSet());
+
         // 组合学生已选课程和考试通过课程
-        codes.addAll(passedCourseCodes);
+        codes.addAll(collect1);
+
+        // 获取学生未通过课程集合
+        Set<String> collect2 = stuScore.stream().
+                filter(item -> item.getIsPass() != 1).
+                map(ScoreStudentResultVo::getCourseCode).
+                collect(Collectors.toSet());
+
+        // 将未通过课程放到培养计划，防止培养计划里面没有未通过课程
+       planCourseCode.addAll(collect2);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
-        List<String> elcCourses = allCourseCode.stream()
+        List<String> elcCourses = planCourseCode.stream()
                 .filter(item -> !codes.contains(item))
                 .collect(Collectors.toList());
+
         Page<ElcStudentVo> elcStudentVos = new Page<ElcStudentVo>();
         if (CollectionUtil.isEmpty(elcCourses)) {
             return new PageResult<>(elcStudentVos);
