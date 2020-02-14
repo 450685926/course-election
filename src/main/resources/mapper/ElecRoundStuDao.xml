@@ -165,7 +165,7 @@
 	</delete>
 
 	<select id="notExistStudent" resultType="java.lang.String">
-		select t2.STUDENT_ID_ from ${stu.tableName} t2 LEFT JOIN student_t t1 on t2.XH = t1.STUDENT_CODE_
+		select t2.XH from ${stu.tableName} t2 LEFT JOIN student_t t1 on t2.XH = t1.STUDENT_CODE_
 		<where>
 
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stu.faculty)">
