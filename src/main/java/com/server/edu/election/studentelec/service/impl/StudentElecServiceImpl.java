@@ -807,7 +807,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                     if (CollectionUtil.isNotEmpty(times)) {
                         for (ClassTimeUnit time : times) {
                             if (time.getDayOfWeek() == day
-                                    && time.getTimeStart() <= start
+                                    && time.getTimeStart() >= start
                                     && time.getTimeEnd() <= end) {
                                 PublicCourseVo publicCourseVo = new PublicCourseVo();
                                 publicCourseVo.setTeachClassId(teachingClassCach.getTeachClassId());
