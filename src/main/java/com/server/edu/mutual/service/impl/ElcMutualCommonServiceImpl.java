@@ -26,16 +26,18 @@ public class ElcMutualCommonServiceImpl implements ElcMutualCommonService {
 //    	有管理学院以管理学院为准，没有管理学院以所属学院为准
         List<String> collegeList = new ArrayList<>();
         //添加当前学院
-        if (StringUtils.isNotEmpty(session.getFaculty())) {
-        	collegeList.add(session.getFaculty());
-        	return collegeList;
-        }
+       
         //获取当前教务员管理的学院
         String manageFaculty = session.getManageFaculty();
         if (StringUtils.isNotEmpty(manageFaculty)) {
             List<String> manageFacultyList = Arrays.asList(session.getManageFaculty().split(","));
             //添加当前教务员管理的学院集合
             collegeList.addAll(manageFacultyList);
+            return collegeList;
+        }
+        if (StringUtils.isNotEmpty(session.getFaculty())) {
+        	collegeList.add(session.getFaculty());
+        	return collegeList;
         }
         return collegeList;
     }
