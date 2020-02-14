@@ -211,4 +211,12 @@ public interface ElcCourseTakeService
 	Integer getRetakeNumber(String studentId,Long calendarId);
 
     ExcelResult export(ElcCourseTakeQuery query);
+
+    /**
+     * 个人培养计划中有该课程且又没有通过的课程
+     * @param data
+     * @param condition
+     * @return
+     */
+    PageResult<Student4Elc> getGraduateStudentForCulturePlan4Retake(PageCondition<ElcResultQuery> condition);
 }

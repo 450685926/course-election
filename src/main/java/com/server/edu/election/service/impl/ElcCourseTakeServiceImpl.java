@@ -1254,6 +1254,30 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
 	}
+	@Override
+	public PageResult<Student4Elc> getGraduateStudentForCulturePlan4Retake(PageCondition<ElcResultQuery> page) {
+		Session currentSession = SessionUtils.getCurrentSession();
+		ElcResultQuery cond = page.getCondition();
+		cond.setProjectId(currentSession.getCurrentManageDptId());
+
+		//查询本门课是否有选课
+		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
+
+		Example example = new Example(ElcCourseTake.class);
+		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
+		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
+//		List<String> collect = selectByExample.stream().map(ElcCourseTake::getStudentId).collect(Collectors.toList());
+		List<String> collect = new ArrayList<>();
+		for (ElcCourseTake string : selectByExample) {
+			collect.add(string.getStudentId());
+		}
+		collect.add("0");
+		cond.setStudentCodes(collect);
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+        Page<Student4Elc> listPage = studentDao.getStudent4CulturePlanRetake(cond);
+        PageResult<Student4Elc> result = new PageResult<>(listPage);
+		return result;
+	}
     /**
     *@Description: 查找加课学生
     *@Param:

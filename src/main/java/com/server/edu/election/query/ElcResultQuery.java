@@ -170,6 +170,13 @@ public class ElcResultQuery
 	/**转移教学班列表标识*/
 	private Integer isChange;
 
+	/**
+	 * 修读类别
+	 * @return
+	 */
+	private String courseTakeType;
+
+
 	public List<String> getFaculties() {
 		return faculties;
 	}
@@ -568,7 +575,13 @@ public class ElcResultQuery
 	public void setIsTake(String isTake) {
 		this.isTake = isTake;
 	}
-	
-	
-	
+
+
+	public String getCourseTakeType() {
+		return courseTakeType;
+	}
+
+	public void setCourseTakeType(String courseTakeType) {
+		this.courseTakeType = courseTakeType;
+	}
 }

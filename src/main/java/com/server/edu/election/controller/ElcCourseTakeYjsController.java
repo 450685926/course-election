@@ -298,21 +298,38 @@ public class ElcCourseTakeYjsController
     public RestResult<PageResult<Student4Elc>> getGraduateStudentForCulturePlan(
     		@RequestBody PageCondition<ElcResultQuery> condition)
     {
-    	ValidatorUtil.validateAndThrow(condition.getCondition());
-    	/**
-    	 * 调用培养：个人培养计划中有该课程且又没有选课的学生名单
-    	 * coursesLabelList (课程分类列表)
-    	 * cultureCourseLabelRelationList(课程列表)
-    	 */
-    	String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByCourseCodeForElection?courseCode={courseCode}&&selCourse={selCourse}");
-    	RestResult<List<String>> restResult = restTemplate.getForObject(path,RestResult.class, condition.getCondition().getCourseCode(), 0);
-    	
-    	if (CollectionUtil.isEmpty(restResult.getData())) {
-    		return RestResult.successData(null);
-		}
-    	condition.getCondition().setStudentIds(restResult.getData());
-    	PageResult<Student4Elc> msg = courseTakeService.getGraduateStudentForCulturePlan(condition);
-    	
+        ElcResultQuery cond = condition.getCondition();
+        ValidatorUtil.validateAndThrow(cond);
+    	if(StringUtils.isEmpty(cond.getCourseTakeType())){
+            return RestResult.fail("修读类别不能为空");
+        }
+
+    	PageResult<Student4Elc> msg = null;
+    	if(StringUtils.equalsIgnoreCase(cond.getCourseTakeType(),"1")){
+            /**
+             * 调用培养：个人培养计划中有该课程且又没有选课的学生名单，和成绩为不及格的学生名单
+             * coursesLabelList (课程分类列表)
+             * cultureCourseLabelRelationList(课程列表)
+             */
+            String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByCourseCodeForElection?courseCode={courseCode}&&selCourse={selCourse}");
+            RestResult<List<String>> restResult = restTemplate.getForObject(path,RestResult.class, condition.getCondition().getCourseCode(), 0);
+
+            if (CollectionUtil.isEmpty(restResult.getData())) {
+                return RestResult.successData(null);
+            }
+            condition.getCondition().setStudentIds(restResult.getData());
+            msg = courseTakeService.getGraduateStudentForCulturePlan(condition);
+        }else{
+            String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByCourseCodeForElection4Retake?courseCode={courseCode}&&selCourse={selCourse}");
+            RestResult<List<String>> restResult = restTemplate.getForObject(path,RestResult.class, condition.getCondition().getCourseCode(), 0);
+
+            if (CollectionUtil.isEmpty(restResult.getData())) {
+                return RestResult.successData(null);
+            }
+            condition.getCondition().setStudentIds(restResult.getData());
+            msg = courseTakeService.getGraduateStudentForCulturePlan4Retake(condition);
+        }
+
     	return RestResult.successData(msg);
     }    
     
