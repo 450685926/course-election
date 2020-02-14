@@ -1982,9 +1982,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             logger.info("---------------------------take length:"+list.size()+"--------------------------------------------------------------");
             if(CollectionUtil.isNotEmpty(list)) {
             	withdraw(list);
-            	teachingClassDao.updateByPrimaryKeySelective(t);
             }
         }
+        teachingClassDao.updateByPrimaryKeySelective(t);
 	}
 
     @Transactional
