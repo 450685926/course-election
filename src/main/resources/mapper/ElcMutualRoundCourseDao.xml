@@ -39,6 +39,7 @@
   	<result column="manArrangeFlag" jdbcType="INTEGER" property="manArrangeFlag" />
   	<result column="COURSE_LABEL_NAME_" jdbcType="VARCHAR" property="courseLabelName" />
   	<result column="thirdWithdrawNumber" jdbcType="INTEGER" property="thirdWithdrawNumber" />
+	<result column="TRAINING_LEVEL_" jdbcType="VARCHAR" property="trainingLevel" />
   </resultMap>
   
   <select id="listUnAddPage" resultMap="CourseOpenDtoMap">
@@ -120,6 +121,7 @@
 			t1.NATURE_,
 			t1.CREDITS_,
 			t1.FACULTY_,
+	  		t1.TRAINING_LEVEL_,
 			t4.CAMPUS_ campus,
 	    	t4.CODE_ teachingClassCode,
 			t4.NAME_ teachingClassName,
