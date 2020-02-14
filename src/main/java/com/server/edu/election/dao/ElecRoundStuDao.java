@@ -6,7 +6,12 @@ import org.apache.ibatis.annotations.Param;
 
 import com.github.pagehelper.Page;
 import com.server.edu.election.dto.Student4Elc;
+import com.server.edu.election.entity.ElcResultSwitch;
+import com.server.edu.election.entity.ElectionRoundsStu;
 import com.server.edu.election.query.ElecRoundStuQuery;
+
+import tk.mybatis.mapper.common.Mapper;
+import tk.mybatis.mapper.common.MySqlMapper;
 
 /**
  * 可选课学生名单
@@ -17,7 +22,7 @@ import com.server.edu.election.query.ElecRoundStuQuery;
  * @see  [相关类/方法]
  * @since  [产品/模块版本]
  */
-public interface ElecRoundStuDao
+public interface ElecRoundStuDao extends MySqlMapper<ElectionRoundsStu>
 {
     /**
      * 分页查询可选课学生列表
@@ -112,5 +117,19 @@ public interface ElecRoundStuDao
      * @see [类、类#方法、类#成员]
      */
 	void deleteAll(@Param("roundId") Long roundId);
+	
+    /**
+     * 结业生名单
+     * 
+     * @see [类、类#方法、类#成员]
+     */
+	List<String> getGradStus();
+	
+    /**
+     * 留学结业生名单
+     * 
+     * @see [类、类#方法、类#成员]
+     */
+	List<String> getOverseasStus();
 
 }

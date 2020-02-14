@@ -64,19 +64,19 @@ import io.swagger.annotations.SwaggerDefinition;
 public class ElcCourseTakeController
 {
     Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     @Autowired
     private ElcCourseTakeService courseTakeService;
-    
+
     @Autowired
     private ElecRoundCourseService roundCourseService;
-    
+
     @Value("${cache.directory}")
     private String cacheDirectory;
-    
+
     /**
      * 上课名单列表
-     * 
+     *
      * @param condition
      * @return
      * @see [类、类#方法、类#成员]
@@ -84,20 +84,20 @@ public class ElcCourseTakeController
     @ApiOperation(value = "上课名单列表")
     @PostMapping("/page")
     public RestResult<PageResult<ElcCourseTakeVo>> page(
-        @RequestBody PageCondition<ElcCourseTakeQuery> condition)
-        throws Exception
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+            throws Exception
     {
         ValidatorUtil.validateAndThrow(condition.getCondition());
-        
+
         PageResult<ElcCourseTakeVo> list =
-            courseTakeService.listPage(condition);
-        
+                courseTakeService.listPage(condition);
+
         return RestResult.successData(list);
     }
-    
+
     /**
      * 学生全部荣誉课程
-     * 
+     *
      * @param condition
      * @return
      * @see [类、类#方法、类#成员]
@@ -105,18 +105,18 @@ public class ElcCourseTakeController
     @ApiOperation(value = "学生全部荣誉课程")
     @PostMapping("/stuHonorPage")
     public RestResult<PageResult<ElcCourseTakeVo>> stuHonorPage(
-        @RequestBody PageCondition<StuHonorDto> condition)
-        throws Exception
+            @RequestBody PageCondition<StuHonorDto> condition)
+            throws Exception
     {
         PageResult<ElcCourseTakeVo> list =
-            courseTakeService.stuHonorPage(condition);
-        
+                courseTakeService.stuHonorPage(condition);
+
         return RestResult.successData(list);
     }
-    
+
     /**
      * 荣誉课上课名单列表
-     * 
+     *
      * @param condition
      * @return
      * @see [类、类#方法、类#成员]
@@ -124,27 +124,27 @@ public class ElcCourseTakeController
     @ApiOperation(value = "荣誉课上课名单列表")
     @PostMapping("/honorPage")
     public RestResult<PageResult<ElcCourseTakeVo>> honorPage(
-        @RequestBody PageCondition<ElcCourseTakeQuery> condition)
-        throws Exception
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+            throws Exception
     {
         PageResult<ElcCourseTakeVo> list =
-            courseTakeService.honorPage(condition);
-        
+                courseTakeService.honorPage(condition);
+
         return RestResult.successData(list);
     }
-    
+
     @ApiOperation(value = "分页查询已可选课程信息")
     @PostMapping("/coursePage")
     public RestResult<PageResult<CourseOpenDto>> coursePage(
-        @RequestBody PageCondition<ElecRoundCourseQuery> query)
+            @RequestBody PageCondition<ElecRoundCourseQuery> query)
     {
         ValidatorUtil.validateAndThrow(query.getCondition());
         PageResult<CourseOpenDto> page =
-            roundCourseService.listTeachingClassPage(query);
-        
+                roundCourseService.listTeachingClassPage(query);
+
         return RestResult.successData(page);
     }
-    
+
     @ApiOperation(value = "学生加课")
     @PutMapping()
     public RestResult<?> add(@RequestBody ElcCourseTakeAddDto value)
@@ -167,61 +167,61 @@ public class ElcCourseTakeController
         return RestResult.success(msg);
 
     }
-    
+
     @ApiOperation(value = "学生退课")
     @DeleteMapping()
     public RestResult<?> withdraw(
-        @RequestBody @NotEmpty List<ElcCourseTake> value)
+            @RequestBody @NotEmpty List<ElcCourseTake> value)
     {
         ValidatorUtil.validateAndThrow(value, AddGroup.class);
-        
+
         courseTakeService.withdraw(value);
-        
+
         return RestResult.success();
     }
-    
+
     @ApiOperation(value = "根据教学班退课")
-    @PostMapping("/withdrawByTeachingClassId")
+    @GetMapping("/withdrawByTeachingClassId")
     public RestResult<?> withdrawByTeachingClassId(
-        @RequestParam("teachingClassId") @NotNull Long teachingClassId,@RequestParam("status") @NotNull String status)
+            @RequestParam("teachingClassId") @NotNull Long teachingClassId,@RequestParam("status") @NotNull String status)
     {
-    	logger.info("-------------------withdrawByTeachingClassId： "+teachingClassId+"-------------------");
+        logger.info("-------------------withdrawByTeachingClassId： "+teachingClassId+"-------------------");
         courseTakeService.withdrawByTeachingClassId(teachingClassId,status);
         return RestResult.success();
     }
-    
+
     @ApiOperation(value = "查询学生学期是否有选课")
     @GetMapping("/hasElc")
     public RestResult<Boolean> hasElc(
-        @RequestBody @Valid ElcCourseTakeQuery query)
+            @RequestBody @Valid ElcCourseTakeQuery query)
     {
         if (StringUtils.isBlank(query.getStudentId()))
         {
             throw new ParameterValidateException("studentId not be empty");
         }
-        
+
         PageCondition<ElcCourseTakeQuery> condition = new PageCondition<>();
         condition.setPageNum_(1);
         condition.setPageSize_(10);
         condition.setCondition(query);
-        
+
         PageResult<ElcCourseTakeVo> page =
-            courseTakeService.listPage(condition);
-        
+                courseTakeService.listPage(condition);
+
         Boolean data = Boolean.FALSE;
         if (CollectionUtil.isNotEmpty(page.getList()))
         {
             data = Boolean.TRUE;
         }
-        
+
         return RestResult.successData(data);
     }
-    
+
     @ApiOperation(value = "学生学籍异动选课列表")
     @PostMapping("/page2StuAbnormal")
     public RestResult<List<ElcCourseTakeVo>> page2StuAbnormal(
-        @RequestBody @Valid ElcCourseTakeQuery query)
-        throws Exception
+            @RequestBody @Valid ElcCourseTakeQuery query)
+            throws Exception
     {
         if (StringUtils.isBlank(query.getStudentId()))
         {
@@ -231,11 +231,11 @@ public class ElcCourseTakeController
         List<ElcCourseTakeVo> list = courseTakeService.page2StuAbnormal(query);
         return RestResult.successData(list);
     }
-    
+
     @ApiOperation(value = "学生学籍异动退课")
     @DeleteMapping("/withdraw2StuAbnormal")
     public RestResult<?> withdraw2StuAbnormal(
-        @RequestBody @Valid ElcCourseTakeQuery query)
+            @RequestBody @Valid ElcCourseTakeQuery query)
     {
         if (StringUtils.isBlank(query.getStudentId()))
         {
@@ -245,56 +245,56 @@ public class ElcCourseTakeController
         courseTakeService.withdraw2StuAbnormal(query);
         return RestResult.success();
     }
-    
+
     /**
      *@Description: 根据学期模式查找可以加课的学生
      *@Param:
-     *@return: 
+     *@return:
      *@Author: bear
      *@date: 2019/2/23 14:16
      */
     @ApiOperation(value = "加课学生列表")
     @PostMapping("/studentPage")
     public RestResult<PageResult<Student>> studentPage(
-        @RequestBody PageCondition<ElcCourseTakeQuery> condition)
-        throws Exception
+            @RequestBody PageCondition<ElcCourseTakeQuery> condition)
+            throws Exception
     {
         ValidatorUtil.validateAndThrow(condition.getCondition());
-        
+
         PageResult<Student> list = courseTakeService.findStudentList(condition);
-        
+
         return RestResult.successData(list);
     }
-    
+
     @PostMapping(value = "/upload")
     public RestResult<?> upload(@RequestPart(name = "file") MultipartFile file,
-        @RequestPart(name = "calendarId") @NotNull Long calendarId,
-        @RequestPart(name = "mode") @NotNull Integer mode)
+                                @RequestPart(name = "calendarId") @NotNull Long calendarId,
+                                @RequestPart(name = "mode") @NotNull Integer mode)
     {
         if (file == null)
         {
             return RestResult.error("文件不能为空");
         }
-        
+
         String originalFilename = file.getOriginalFilename();
         if (!originalFilename.endsWith(".xls"))
         {
             return RestResult.error("请使用1999-2003(.xls)类型的Excle");
         }
-        
+
         try (HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream()))
         {
             ExcelParseDesigner designer = new ExcelParseDesigner();
             designer.setDataStartRowIdx(1);
             designer.setConfigs(new ArrayList<>());
-            
+
             designer.getConfigs().add(new ExcelParseConfig("studentId", 0));
             designer.getConfigs()
-                .add(new ExcelParseConfig("teachingClassCode", 1));
-            
+                    .add(new ExcelParseConfig("teachingClassCode", 1));
+
             List<ElcCourseTakeAddDto> datas = GeneralExcelUtil
-                .parseExcel(workbook, designer, ElcCourseTakeAddDto.class);
-            
+                    .parseExcel(workbook, designer, ElcCourseTakeAddDto.class);
+
             String msg = courseTakeService.addByExcel(calendarId, datas, mode);
             return RestResult.success(msg);
         }
@@ -304,21 +304,21 @@ public class ElcCourseTakeController
             return RestResult.error("解析文件错误" + e.getMessage());
         }
     }
-    
+
     @ApiResponses({
-        @ApiResponse(code = 200, response = File.class, message = "下载模版")})
+            @ApiResponse(code = 200, response = File.class, message = "下载模版")})
     @GetMapping(value = "/download")
     public ResponseEntity<Resource> download()
     {
         Resource resource = new ClassPathResource("/excel/shangKeMingDan.xls");
-        
+
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
-            .header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment;filename=" + "shangKeMingDan.xls")
-            .body(resource);
+                .header(HttpHeaders.CONTENT_TYPE, "application/vnd.ms-excel")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename=" + "shangKeMingDan.xls")
+                .body(resource);
     }
-    
+
 //    @ApiResponses({
 //        @ApiResponse(code = 200, response = File.class, message = "导出")})
 //    @PostMapping(value = "/export")
@@ -378,14 +378,14 @@ public class ElcCourseTakeController
         ExcelResult export = courseTakeService.export(query);
         return RestResult.successData(export);
     }
-    
+
     @ApiOperation(value = "修改修读类别")
     @PostMapping("/editStudyType")
     public RestResult<Integer> editStudyType(
-        @RequestBody ElcCourseTakeDto elcCourseTakeDto)
+            @RequestBody ElcCourseTakeDto elcCourseTakeDto)
     {
         int result = courseTakeService.editStudyType(elcCourseTakeDto);
         return RestResult.successData(result);
     }
-    
+
 }
