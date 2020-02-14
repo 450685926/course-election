@@ -1,10 +1,7 @@
 package com.server.edu.mutual.util;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -103,5 +100,28 @@ public class ProjectUtil {
 			flag = false;
 		}
 		return flag;
+	}
+
+	/**
+	 * 将两个数组合并，并且输出字符串
+	 * @param a 数组A
+	 * @param b 数组b
+	 * @param index 初始化数组的索引
+	 * */
+	public static String mergeString(int[] a,int[] b,int index) {
+		Map<Integer, Integer> map = new TreeMap<>();
+		for (int i = 0; i < a.length; i++) {
+			map.put(a[i], a[i]);
+		}
+		for (int i = 0; i < b.length; i++) {
+			map.put(b[i], b[i]);
+		}
+		Collection<Integer> values = map.values();
+		Iterator<Integer> iterator = values.iterator();
+		int c[] = new int[values.size()];
+		while (iterator.hasNext()) {
+			c[index++] = iterator.next();
+		}
+		return c.toString();
 	}
 }

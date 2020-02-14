@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.server.edu.election.util.CommonConstant;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +108,13 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 		criteria.andIn("courseId", courseIds);
 		List<ElcMutualCourses> elcMutualCourses = elcMutualCoursesDao.selectByExample(example);
 		if(CollectionUtil.isNotEmpty(elcMutualCourses)) {
-			throw new ParameterValidateException(I18nUtil.getMsg("common.exist",I18nUtil.getMsg("election.elcMutualCourses"))); 
+			/**
+			 * 如果已经存在部分课程在跨学科课程里面，那就把剩下的增量添加进去
+			 * 2020-2-13 yidonge修改bug10616
+			 */
+			for (ElcMutualCourses mutualCourses : elcMutualCourses) {
+				courseIds.remove(mutualCourses.getCourseId());
+			}
 		}
 		List<ElcMutualCourses> mutualCourses = new ArrayList<ElcMutualCourses>();
 		for(Long courseId:courseIds) {
@@ -121,7 +128,10 @@ public class ElcMutualCoursesServiceImpl implements ElcMutualCoursesService {
 			temp.setCourseId(courseId);
 			mutualCourses.add(temp);
 		}
-		int result = elcMutualCoursesDao.insertList(mutualCourses);
+		int result = 0;
+		if (!CommonConstant.isEmptyList(mutualCourses)) {
+			result = elcMutualCoursesDao.insertList(mutualCourses);
+		}
 		return result;
 	}
 
