@@ -195,6 +195,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
         BeanUtils.copyProperties(stu, studentInfo);
+        String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
+        if(StringUtils.isEmpty(campus)){
+            campus = stu.getCampus();
+        }
+        studentInfo.setCampus(campus);
+
         //如果是选下学期的课程，获得当前学期正在修读的课程
         Long currentCalendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
         if(currentCalendarId.longValue() < requesCalendarId.longValue() ){
