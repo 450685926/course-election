@@ -91,6 +91,7 @@ public interface StudentDao extends Mapper<Student> {
     /**判断是否在留学结业生名单中*/
     int findLiuXueJieYeStudent(String code);
 
+    Page<Student4Elc> getStudent4CulturePlanRetake(@Param("query")ElcResultQuery cond);
 }
 
 
