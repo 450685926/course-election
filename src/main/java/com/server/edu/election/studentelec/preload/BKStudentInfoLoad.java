@@ -65,15 +65,15 @@ public class BKStudentInfoLoad extends DataProLoad<ElecContextBk>
 
         //查询学生专业校区维护是否有记录
         String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
-        System.out.println(campus);
-        stu.setCampus(campus);
-        System.out.println(campus);
+        if(StringUtils.isEmpty(campus)){
+            campus = stu.getCampus();
+        }
         String major = studentDao.getStudentMajor(stu.getGrade(),stu.getProfession());
         studentInfo.setGrade(stu.getGrade());
         studentInfo.setMajor(stu.getProfession());
         studentInfo.setSex(stu.getSex());
         studentInfo.setStudentName(stu.getName());
-        studentInfo.setCampus(stu.getCampus());
+        studentInfo.setCampus(campus);
         studentInfo.setManagerDeptId(stu.getManagerDeptId());
         studentInfo.setBkMajor(major);
         //专项计划

@@ -58,7 +58,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				&& !session.isAdmin() && session.isAcdemicDean();
 
-		//判断是否是教务员，如果是进行下列操作
+		//判断是否是教务员，如果是进行下列操作  
 		if(isAcdemicDean){
 			//判断是否选择学院(有的前端接口会上送学院字段为筛选条件，有的前端接口不会上送)
 			String facultyCondition = condition.getCondition().getFaculty();
@@ -67,9 +67,9 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 				String faculty = session.getFaculty();
 				//获取当前用户的管理学院和
 				String manageFaculty = session.getManageFaculty();
-				//将两个学院合并
-				if(StringUtils.isNotEmpty(faculty)&&StringUtils.isNotEmpty(manageFaculty)){
-					faculty = ProjectUtil.stringGoHeavy(faculty,manageFaculty);
+				//有管理学院以管理学院为准，没有管理学院以所属学院为准
+				if(StringUtils.isNotEmpty(manageFaculty)){
+					faculty = manageFaculty;
 				}
 				condition.getCondition().setFaculty(faculty);
 			}
@@ -260,6 +260,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 	public List<Student> getStudentInfos(ElcMutualCrossStu dto) {
 		Example example = new Example(Student.class);
 		Session session = SessionUtils.getCurrentSession();
+		example.selectProperties("studentCode");
 		Example.Criteria criteria = example.createCriteria();
 		criteria.andEqualTo("managerDeptId",session.getCurrentManageDptId());
 		if (isDepartAdmin()) {
