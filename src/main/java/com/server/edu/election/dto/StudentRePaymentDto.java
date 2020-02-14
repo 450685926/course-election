@@ -15,7 +15,7 @@ public class StudentRePaymentDto{
     private String courseCode;
     private String courseName;
     private Double credits;
-    private Integer unitPrice;
+    private Double unitPrice;
     private Double Payable;
     private Integer paid;
     private String studentCode;
@@ -104,11 +104,11 @@ public class StudentRePaymentDto{
         this.credits = credits;
     }
 
-    public Integer getUnitPrice() {
+    public Double getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(Integer unitPrice) {
+    public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
 
