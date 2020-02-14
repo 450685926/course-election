@@ -282,6 +282,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
+        String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
+        if(StringUtils.isEmpty(campus)){
+            campus = stu.getCampus();
+        }
+        studentInfo.setCampus(campus);
+
         Set<CompletedCourse> unFinishedCourses = context.getUnFinishedCourses();
 
         //如果是选下学期的课程，获得当前学期正在修读的课程
