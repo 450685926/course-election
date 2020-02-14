@@ -243,7 +243,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 //		if (isDepartAdmin() && StringUtils.equals(faculty, dto.getFaculty())) {
 //			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 //		}
-		if (isDepartAdmin() && !collegeList.contains(dto.getFaculty())) {
+		if (isDepartAdmin() && (StringUtils.isNotBlank(dto.getFaculty()) && !collegeList.contains(dto.getFaculty()))) {
 			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuFaculty"));
 		}
 		
