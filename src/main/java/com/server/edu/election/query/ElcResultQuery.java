@@ -164,6 +164,8 @@ public class ElcResultQuery
     
     private List<String> studentCodes;
 
+    private List<String> studentCodess;
+
 	/**分库分表标识*/
 	private Integer index;
 	
@@ -583,5 +585,13 @@ public class ElcResultQuery
 
 	public void setCourseTakeType(String courseTakeType) {
 		this.courseTakeType = courseTakeType;
+	}
+
+	public List<String> getStudentCodess() {
+		return studentCodess;
+	}
+
+	public void setStudentCodess(List<String> studentCodess) {
+		this.studentCodess = studentCodess;
 	}
 }

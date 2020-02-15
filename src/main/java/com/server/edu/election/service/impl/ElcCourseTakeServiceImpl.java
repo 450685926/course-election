@@ -1274,6 +1274,15 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		}
 		collect.add("0");
 		cond.setStudentCodes(collect);
+		Example example1 = new Example(ElcCourseTake.class);
+		example1.createCriteria().andEqualTo("courseCode",cond.getCourseCode()).andEqualTo("calendarId",cond.getCalendarId());
+		List<ElcCourseTake> selectByExample1 = courseTakeDao.selectByExample(example);
+		List<String> collect1 = new ArrayList<>();
+		for (ElcCourseTake string : selectByExample1) {
+			collect1.add(string.getStudentId());
+		}
+		collect1.add("0");
+		cond.setStudentCodess(collect1);
 		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
         Page<Student4Elc> listPage = studentDao.getStudent4CulturePlanRetake(cond);
         PageResult<Student4Elc> result = new PageResult<>(listPage);
