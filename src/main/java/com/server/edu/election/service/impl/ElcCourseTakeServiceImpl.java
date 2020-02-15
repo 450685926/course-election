@@ -801,6 +801,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentId);
         record.setCourseCode(courseCode);
+        record.setCalendarId(calendarId);
         int selectCount = courseTakeDao.selectCount(record);
         if (selectCount == 0)
         {
