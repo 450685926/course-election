@@ -327,7 +327,7 @@ public class ElecYjsController
     
     @ApiOperation(value = "学生培养计划发生修改时删除redis中的选课状态")
     @PostMapping("/deleteRedisSelectedStatus")
-    public RestResult<?> deleteRedisSelectedStatus(@RequestParam("studentId") @NotBlank String studentId)
+    public RestResult<?> deleteRedisSelectedStatus(@RequestBody String studentId)
     {
     	String pattern = "elec-stdstatus-*_"+studentId;
     	Set<String> keys = strTemplate.keys(pattern);
