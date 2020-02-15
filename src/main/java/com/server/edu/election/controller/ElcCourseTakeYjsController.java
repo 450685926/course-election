@@ -319,7 +319,7 @@ public class ElcCourseTakeYjsController
             }
             condition.getCondition().setStudentIds(restResult.getData());
             msg = courseTakeService.getGraduateStudentForCulturePlan(condition);
-        }else{
+        }else if(StringUtils.equalsIgnoreCase(cond.getCourseTakeType(),"2")){
             String path = ServicePathEnum.CULTURESERVICE.getPath("/culturePlan/getCulturePlanByCourseCodeForElection4Retake?courseCode={courseCode}&&selCourse={selCourse}");
             RestResult<List<String>> restResult = restTemplate.getForObject(path,RestResult.class, condition.getCondition().getCourseCode(), 0);
 
