@@ -351,6 +351,8 @@ public interface ElcCourseTakeDao
 
     List<ElcCourseTakeVo> findCompulsory(@Param("studentId") String studentId);
 
+    String getLabelName(@Param("lableId") String lableId);
+
     List<TurnNumVo> findSelCount(@Param("index") int index, @Param("list") List<Long> list);
     
     /** 获取历史选课记录 */

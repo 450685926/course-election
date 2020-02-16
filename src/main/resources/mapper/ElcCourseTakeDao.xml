@@ -2464,7 +2464,10 @@
     </select>
 
     <select id="findCompulsory" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
-        select courseCode, compulsory from v_student_plan_course where studentId = #{studentId}
+        select courseCode, compulsory , labelId as label from v_student_plan_course where studentId = #{studentId}
+    </select>
+    <select id="getLabelName" resultType="java.lang.String">
+        select nameCN_ from course_lable_bachelor_t where labID_ = #{lableId}
     </select>
 
     <select id="findSelCount" resultType="com.server.edu.election.vo.TurnNumVo">
