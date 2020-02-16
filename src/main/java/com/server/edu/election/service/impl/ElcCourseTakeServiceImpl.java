@@ -1276,7 +1276,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
 		cond.setStudentCodes(collect);
 		Example example1 = new Example(ElcCourseTake.class);
 		example1.createCriteria().andEqualTo("courseCode",cond.getCourseCode()).andEqualTo("calendarId",cond.getCalendarId());
-		List<ElcCourseTake> selectByExample1 = courseTakeDao.selectByExample(example);
+		List<ElcCourseTake> selectByExample1 = courseTakeDao.selectByExample(example1);
 		List<String> collect1 = new ArrayList<>();
 		for (ElcCourseTake string : selectByExample1) {
 			collect1.add(string.getStudentId());
