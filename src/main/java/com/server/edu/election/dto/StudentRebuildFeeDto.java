@@ -2,6 +2,7 @@ package com.server.edu.election.dto;
 
 import com.server.edu.election.entity.ElcCourseTake;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StudentRebuildFeeDto extends ElcCourseTake {
@@ -30,6 +31,19 @@ public class StudentRebuildFeeDto extends ElcCourseTake {
      * @date 2019/10/15 14:39
      */
     private String manageDptId;
+
+    /**
+	 * 重修不收费学生类型
+	 */
+    private List<String> noPayStudentType = new ArrayList<>();
+
+	public List<String> getNoPayStudentType() {
+		return noPayStudentType;
+	}
+
+	public void setNoPayStudentType(List<String> noPayStudentType) {
+		this.noPayStudentType = noPayStudentType;
+	}
 
 	public String getManageDptId() {
 		return manageDptId;

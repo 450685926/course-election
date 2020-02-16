@@ -1,5 +1,6 @@
 package com.server.edu.election.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -74,6 +75,19 @@ public class RebuildCourseDto {
 
     @Code2Text(DictTypeEnum.X_XDLX)
     private Integer courseTakeType;
+
+    /**
+     * 不收费学生类型
+     */
+    private List<String> noChargeTypeStudent = new ArrayList<>();
+
+    public List<String> getNoChargeTypeStudent() {
+        return noChargeTypeStudent;
+    }
+
+    public void setNoChargeTypeStudent(List<String> noChargeTypeStudent) {
+        this.noChargeTypeStudent = noChargeTypeStudent;
+    }
 
     public Integer getType() {
 		return type;

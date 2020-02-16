@@ -10,17 +10,26 @@ import com.server.edu.dictionary.service.DictionaryService;
 import com.server.edu.election.config.DoubleHandler;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
 import com.server.edu.election.dto.StudentRebuildFeeDto;
+import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.service.ElcRebuildFeeStatisticsService;
+import com.server.edu.election.service.RebuildCourseChargeService;
+import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.session.util.SessionUtils;
+import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 @Service
 public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisticsService{
 
@@ -29,17 +38,45 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 	
     @Autowired
     private DictionaryService dictionaryService;
+
+
+	@Autowired
+	private RebuildCourseChargeService noChargeTypeservice;
+
 	@Override
 	public PageResult<StudentRebuildFeeVo> getStudentRebuildFeeList(PageCondition<StudentRebuildFeeDto> condition) {
 		// TODO Auto-generated method stub
 		String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+
 		StudentRebuildFeeDto dto = condition.getCondition();
 		/*int mode = TableIndexUtil.getMode(dto.getCalendarId());
 		dto.setMode(mode);*/
 		dto.setManageDptId(dptId);
-		Page<StudentRebuildFeeVo> list = (Page<StudentRebuildFeeVo>)elcCourseTakeDao.getStudentRebuildFeeList(condition.getCondition());
+		List<String> noStuPay = this.transNoChargeTypeStudent();
+		dto.setNoPayStudentType(noStuPay);
+		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+		Page<StudentRebuildFeeVo> list = elcCourseTakeDao.getStudentRebuildFeeList(condition.getCondition());
 		return new PageResult<>(list);
+	}
+
+	@Override
+	public List<String> transNoChargeTypeStudent(){
+		Set<String> noTypeStudent = new HashSet<>();
+		PageCondition<RebuildCourseNoChargeTypeVo> condition = new PageCondition<>();
+		condition.setCondition(new RebuildCourseNoChargeTypeVo());
+		condition.setPageNum_(0);
+		condition.setPageSize_(0);
+		PageResult<RebuildCourseNoChargeType> noChargeType = noChargeTypeservice.findCourseNoChargeType(condition);
+		if(noChargeType != null && CollectionUtil.isNotEmpty(noChargeType.getList())){
+			List<RebuildCourseNoChargeType> list = noChargeType.getList();
+			for (RebuildCourseNoChargeType noChargeStudent : list) {
+				noTypeStudent.add(noChargeStudent.getTrainingLevel() + noChargeStudent.getTrainingCategory()
+				+ noChargeStudent.getEnrolMethods() + noChargeStudent.getSpcialPlan() + noChargeStudent.getIsOverseas()
+				+ noChargeStudent.getRegistrationStatus());
+			}
+		}
+
+		return new ArrayList<>(noTypeStudent);
 	}
 
 	@Override
