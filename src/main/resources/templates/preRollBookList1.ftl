@@ -139,7 +139,7 @@
     <Cell ss:StyleID="s62"><Data ss:Type="String">姓名</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">性别</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">年级</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">专业</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">学院</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="Number">1</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="Number">2</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="Number">3</Data></Cell>
