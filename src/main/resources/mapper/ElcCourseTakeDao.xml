@@ -540,6 +540,7 @@
         FROM elc_course_takes_t el
         JOIN course_t co on el.COURSE_CODE_=co.CODE_
         JOIN student_t st on el.STUDENT_ID_=st.STUDENT_CODE_
+        left join student_abnormal_apply_v t8 on el.STUDENT_ID_ = t8.STUDENT_ID_ and t8.STATUS_ = 3
         JOIN teaching_class_t te on el.TEACHING_CLASS_ID_=te.ID_
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(hasChangeGrade)">
             left JOIN student.student_abnormal_apply_t sa
@@ -601,6 +602,20 @@
             </if>
             <if test="hasChangeGrade == 0">
                 and sa.ID_ is null
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noChargeTypeStudent)">
+                 and CONCAT_WS("",
+                if(st.TRAINING_LEVEL_ is null,"",st.TRAINING_LEVEL_),
+                if(st.TRAINING_CATEGORY_ is null,"",st.TRAINING_CATEGORY_),
+                if(st.ENROL_METHODS_ is null,"",st.ENROL_METHODS_),
+                if(st.SPCIAL_PLAN_ is null,"",st.SPCIAL_PLAN_),
+                if(st.IS_OVERSEAS_ is null,"",st.IS_OVERSEAS_),
+                if(t8.CLASS_ID_ is null,"",t8.CLASS_ID_)
+                )
+                not in
+                <foreach item="noTypeStudent" collection="noChargeTypeStudent" separator="," open="(" close=")">
+                    #{noTypeStudent}
+                </foreach>
             </if>
         </where>
     </select>
@@ -2261,6 +2276,7 @@
         ON t1.BILL_ID_ = t2.ID_
         JOIN student_t t3
         ON t1.`STUDENT_ID_` = t3.`STUDENT_CODE_`
+        left join student_abnormal_apply_v t8 on t1.STUDENT_ID_ = t8.STUDENT_ID_ and t8.STATUS_ = 3
         left JOIN rebuild_course_charge_t rc
         on t3.TRAINING_LEVEL_ = rc.TRAINING_LEVEL_
         and t3.FORM_LEARNING_ = rc.FORM_LEARNING_
@@ -2308,6 +2324,20 @@
             </if>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
                 and st.STUDENT_CODE_ =#{studentId,jdbcType=VARCHAR}
+            </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noPayStudentType)">
+                and CONCAT_WS("",
+                if(t3.TRAINING_LEVEL_ is null,"",t3.TRAINING_LEVEL_),
+                if(t3.TRAINING_CATEGORY_ is null,"",t3.TRAINING_CATEGORY_),
+                if(t3.ENROL_METHODS_ is null,"",t3.ENROL_METHODS_),
+                if(t3.SPCIAL_PLAN_ is null,"",t3.SPCIAL_PLAN_),
+                if(t3.IS_OVERSEAS_ is null,"",t3.IS_OVERSEAS_),
+                if(t8.CLASS_ID_ is null,"",t8.CLASS_ID_)
+                )
+                not in
+                <foreach collection="noPayStudentType" item="noType" separator="," open="(" close=")">
+                    #{noType}
+                </foreach>
             </if>
         </where>
     </select>

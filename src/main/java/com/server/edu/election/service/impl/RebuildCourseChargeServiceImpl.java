@@ -24,6 +24,7 @@ import com.server.edu.election.dto.StudentRePaymentDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ElcCourseTakeService;
+import com.server.edu.election.service.ElcRebuildFeeStatisticsService;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
@@ -106,6 +107,9 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
 
     @Autowired
     private RebuildCourseRecycleDao courseRecycleDao;
+
+    @Autowired
+    private ElcRebuildFeeStatisticsService feeStatisticsService;
 
     /**
      * @Description: 查询收费管理
@@ -303,6 +307,8 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         condition.getCondition().setBeginTime(calendar.getBeginDay());
         condition.getCondition().setEndTime(calendar.getEndDay());
         condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
+        List<String> noChargeTypeStudent = feeStatisticsService.transNoChargeTypeStudent();
+        condition.getCondition().setNoChargeTypeStudent(noChargeTypeStudent);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
        /* if (courseNoChargeList != null) {

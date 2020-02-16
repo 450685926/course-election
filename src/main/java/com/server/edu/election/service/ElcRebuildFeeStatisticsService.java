@@ -6,6 +6,8 @@ import com.server.edu.election.dto.StudentRebuildFeeDto;
 import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.util.excel.ExcelWriterUtil;
 
+import java.util.List;
+
 public interface ElcRebuildFeeStatisticsService {
 
     /**
@@ -25,4 +27,9 @@ public interface ElcRebuildFeeStatisticsService {
 	* @see [类、类#方法、类#成员]
 	*/
 	ExcelWriterUtil export(StudentRebuildFeeDto studentRebuildFeeDto) throws Exception;
+
+	/**
+	* 不收费学生类型
+	*/
+	List<String>  transNoChargeTypeStudent();
 }

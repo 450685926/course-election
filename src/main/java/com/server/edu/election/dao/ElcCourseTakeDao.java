@@ -316,7 +316,7 @@ public interface ElcCourseTakeDao
 	 * @param dto
 	 * @return
 	 */
-	List<StudentRebuildFeeVo> getStudentRebuildFeeList(StudentRebuildFeeDto dto);
+	Page<StudentRebuildFeeVo> getStudentRebuildFeeList(StudentRebuildFeeDto dto);
 	
     /**期中退课列表*/
 	List<ElcCourseTakeVo> getElcMedWithdraw(ElcMedWithdrawDto dto);
