@@ -55,7 +55,13 @@ public class MutualApplyJugeUtil {
 						 criteria.andEqualTo("open", Constants.DELETE_TRUE);
 		ElcMutualApplyTurns elcMutualApplyTurns  = elcMutualApplySwitchDao.selectOneByExample(example);
 		if (elcMutualApplyTurns == null) {
-			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.applyStatusError")); 
+			String appendStr = "";
+			if(Constants.BK_CROSS.equals(dto.getMode())) {//跨学科选课
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.applyStatusError2"));
+			}else {	//本研互选
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.applyStatusError"));
+			}
+//			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApply.applyStatusError"));
 		}
 		
 		Date date = new Date();
