@@ -38,6 +38,21 @@ public class CompletedCourse
      * 课程分类
      */
     private Long courseLabelId;
+
+    /**
+     * 课程分类
+     */
+    private String label;
+    /**
+     * 课程分类
+     */
+    private String labelName;
+    /**
+     * 课程分类
+     */
+    private String compulsory;
+
+
     
     private Integer isPass;
     
@@ -152,5 +167,28 @@ public class CompletedCourse
         }
         return false;
     }
-    
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getLabelName() {
+        return labelName;
+    }
+
+    public void setLabelName(String labelName) {
+        this.labelName = labelName;
+    }
+
+    public String getCompulsory() {
+        return compulsory;
+    }
+
+    public void setCompulsory(String compulsory) {
+        this.compulsory = compulsory;
+    }
 }

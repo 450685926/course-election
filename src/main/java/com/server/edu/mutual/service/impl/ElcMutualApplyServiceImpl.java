@@ -178,12 +178,18 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		}else {
 			dto.setByType(Constants.FIRST);
 		}
+		LOG.info("--------------projectIds--------------"+JSONArray.toJSONString(projectIds));
 		//移动分页位置
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
+		List<String> courseCode = list.stream()
+                .filter(v->v.getCourseCode().isEmpty()).map(ElcMutualApplyVo::getCourseCode)
+                .collect(Collectors.toList());
+		LOG.info("---------------可申请的课程代码--------------"+JSONArray.toJSONString(courseCode));
 
 		// 本科生可申请的跨院系课程与培养方案无关
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
+			LOG.info("---------------本科生可申请的跨院系课程与培养方案无关--------------");
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
 			List<LabelCreditCount> planBXK = new ArrayList<LabelCreditCount>();
