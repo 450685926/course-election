@@ -266,7 +266,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 c.setCompulsory(compulsory);
                 if(StringUtils.isNotEmpty(label)){
                     c.setLabel(label);
-                    String labelName = elcCourseTakeDao.getLabelName(studentScore.getCourseCode());
+                    String labelName = elcCourseTakeDao.getLabelName(label);
                     c.setLabelName(labelName);
                 }
                 c.setScore(studentScore.getTotalMarkScore());
@@ -407,7 +407,7 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 c.setCompulsory(compulsory);
                 if(StringUtils.isNotEmpty(label)){
                     c.setLabel(label);
-                    String labelName = elcCourseTakeDao.getLabelName(studentScore.getCourseCode());
+                    String labelName = elcCourseTakeDao.getLabelName(label);
                     c.setLabelName(labelName);
                 }
 
