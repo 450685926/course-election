@@ -347,7 +347,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	 */
 	private void packageCollegeList(Session session, ElcMutualApplyDto dto) {
 		//封装学院数据
-		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
+//		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
+		LOG.info("进入   packageCollegeList   。。。");
+		dto.setCollegeList(elcMutualCommonService.getCollegeList());
 	}
 
 }
