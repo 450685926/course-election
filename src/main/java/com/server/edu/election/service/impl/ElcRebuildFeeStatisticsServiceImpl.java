@@ -18,6 +18,7 @@ import com.server.edu.election.service.ElcRebuildFeeStatisticsService;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
 import com.server.edu.election.vo.StudentRebuildFeeVo;
+import com.server.edu.election.vo.StudentVo;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
@@ -27,10 +28,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisticsService{
@@ -44,6 +44,9 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 
 	@Autowired
 	private RebuildCourseChargeService noChargeTypeservice;
+
+	@Autowired
+	private RebuildCourseNoChargeTypeDao noChargeTypeDao;
 
 	@Override
 	public PageResult<StudentRebuildFeeVo> getStudentRebuildFeeList(PageCondition<StudentRebuildFeeDto> condition) {
@@ -71,12 +74,71 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 		PageResult<RebuildCourseNoChargeType> noChargeType = noChargeTypeservice.findCourseNoChargeType(condition);
 		if(noChargeType != null && CollectionUtil.isNotEmpty(noChargeType.getList())){
 			List<RebuildCourseNoChargeType> list = noChargeType.getList();
-			Student student = new Student();
-			for (RebuildCourseNoChargeType noChargeStudent : list) {
-				String level = noChargeStudent.getTrainingLevel();
+            List<StudentRebuildFeeVo> abnormalStu = new ArrayList<>();
+			//判断是否需要去学籍异动里面查找一年内异动学生
+            List<String> collect = list.stream().filter(vo ->StringUtils.isNotBlank(vo.getRegistrationStatus())).map(RebuildCourseNoChargeType::getRegistrationStatus).collect(Collectors.toList());
+            if(CollectionUtil.isNotEmpty(collect)){
+                //查找一年内异动学生
+                Long oneYearTime =System.currentTimeMillis();
+               abnormalStu = noChargeTypeDao.getAbnormalStudent(collect,oneYearTime);
+            }
+            //分组获取异动类型的学生集合
+            Map<String, List<StudentRebuildFeeVo>> listMap = new HashMap<>();
+            if(CollectionUtil.isNotEmpty(abnormalStu)){
+                 listMap = abnormalStu.stream().collect(Collectors.groupingBy(StudentRebuildFeeVo::getRegistrationStatus));
+            }
+            //todo 获取所有重修的学生
+            List<Student> stuList = new ArrayList<>();
+            for (Student student : stuList) {
+                for (RebuildCourseNoChargeType noChargeStudent : list) {
+                    String trainingLevel = noChargeStudent.getTrainingLevel();
+                    String trainingCategory = noChargeStudent.getTrainingCategory();
+                    String enrolMethods = noChargeStudent.getEnrolMethods();
+                    String spcialPlan = noChargeStudent.getSpcialPlan();
+                    String isOverseas = noChargeStudent.getIsOverseas();
+                    String registrationStatus = noChargeStudent.getRegistrationStatus();
 
+                    if(StringUtils.isNotBlank(trainingLevel) && !trainingLevel.equals(student.getTrainingLevel())){
+                         continue;
+                    }
 
-			}
+                    if(StringUtils.isNotBlank(trainingCategory) && !trainingCategory.equals(student.getTrainingCategory())){
+                        continue;
+                    }
+
+                    if(StringUtils.isNotBlank(enrolMethods) && !enrolMethods.equals(student.getEnrolMethods())){
+                        continue;
+                    }
+
+                    if(StringUtils.isNotBlank(spcialPlan) && !spcialPlan.equals(student.getSpcialPlan())){
+                        continue;
+                    }
+
+                    if(StringUtils.isNotBlank(isOverseas) && !isOverseas.equals(student.getIsOverseas())){
+                        continue;
+                    }
+
+                    if(StringUtils.isNotBlank(registrationStatus)){
+                        if(listMap.size() == 0){
+                            continue;
+                        }
+                        if(listMap.size() > 0){
+                            List<StudentRebuildFeeVo> feeVoList = listMap.get(registrationStatus);
+                            if(CollectionUtil.isEmpty(feeVoList)){
+                                continue;
+                            }else{
+                                List<String> stringList = feeVoList.stream().map(StudentRebuildFeeVo::getStudentId).collect(Collectors.toList());
+                                if(!stringList.contains(student.getStudentCode())){
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                    noTypeStudent.add(student.getStudentCode());
+                    break;
+                }
+            }
 		}
 
 		return new ArrayList<>(noTypeStudent);
