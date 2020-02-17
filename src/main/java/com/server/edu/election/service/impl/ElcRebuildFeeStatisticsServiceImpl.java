@@ -13,6 +13,7 @@ import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.RebuildCourseNoChargeTypeDao;
 import com.server.edu.election.dto.StudentRebuildFeeDto;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
+import com.server.edu.election.entity.Student;
 import com.server.edu.election.service.ElcRebuildFeeStatisticsService;
 import com.server.edu.election.service.RebuildCourseChargeService;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
@@ -22,6 +23,7 @@ import com.server.edu.util.CollectionUtil;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.GeneralExcelDesigner;
 import com.server.edu.util.excel.GeneralExcelUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,10 +71,11 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 		PageResult<RebuildCourseNoChargeType> noChargeType = noChargeTypeservice.findCourseNoChargeType(condition);
 		if(noChargeType != null && CollectionUtil.isNotEmpty(noChargeType.getList())){
 			List<RebuildCourseNoChargeType> list = noChargeType.getList();
+			Student student = new Student();
 			for (RebuildCourseNoChargeType noChargeStudent : list) {
-				noTypeStudent.add(noChargeStudent.getTrainingLevel() + noChargeStudent.getTrainingCategory()
-				+ noChargeStudent.getEnrolMethods() + noChargeStudent.getSpcialPlan() + noChargeStudent.getIsOverseas()
-				+ noChargeStudent.getRegistrationStatus());
+				String level = noChargeStudent.getTrainingLevel();
+
+
 			}
 		}
 
