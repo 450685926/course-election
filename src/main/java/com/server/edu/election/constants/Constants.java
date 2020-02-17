@@ -86,7 +86,11 @@ public interface Constants
     public static final Integer SECOND = 2;
     public static final Integer THIRD = 3;
 
+    //学生校内在读状态
     public static final String INSCHOOL = "1";
+
+    //学生离校状态
+    public static final String OUTSCHOOL = "4";
 
     
     /** 2018级及以后学分门数限制   年级 */

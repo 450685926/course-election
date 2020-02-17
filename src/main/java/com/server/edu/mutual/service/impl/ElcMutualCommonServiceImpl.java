@@ -57,7 +57,7 @@ public class ElcMutualCommonServiceImpl implements ElcMutualCommonService {
 
         //获取当前教务员管理的学院
         String manageFaculty = session.getManageFaculty();
-        LOG.info("current manageFaculty：" + manageFaculty);
+        LOG.info("current manageFaculty:" + manageFaculty);
         if (StringUtils.isNotEmpty(manageFaculty)) {
             List<String> manageFacultyList = Arrays.asList(session.getManageFaculty().split(","));
             //添加当前教务员管理的学院集合
