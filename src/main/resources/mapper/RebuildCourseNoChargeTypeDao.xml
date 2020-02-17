@@ -7,7 +7,7 @@
         <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />
         <result column="ENROL_METHODS_" jdbcType="VARCHAR" property="enrolMethods" />
         <result column="SPCIAL_PLAN_" jdbcType="VARCHAR" property="spcialPlan" />
-        <result column="IS_OVERSEAS_" jdbcType="INTEGER" property="isOverseas" />
+        <result column="IS_OVERSEAS_" jdbcType="VARCHAR" property="isOverseas" />
         <result column="REGISTRATION_STATUS_" jdbcType="VARCHAR" property="registrationStatus" />
     </resultMap>
     <sql id="Base_Column_List">
