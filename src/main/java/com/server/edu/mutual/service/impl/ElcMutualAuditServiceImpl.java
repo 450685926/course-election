@@ -84,7 +84,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		packageCollegeList(session,dto);
 		//封装部门数据
 		dto.setProjectIds(projectIds);
-
+		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
+		LOG.info("dto==condition.getCondition()?--->" + (dto == condition.getCondition()));
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
