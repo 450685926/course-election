@@ -183,7 +183,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
 		List<String> courseCode = list.stream()
-                .filter(v->v.getCourseCode().isEmpty()).map(ElcMutualApplyVo::getCourseCode)
+                .filter(v->!v.getCourseCode().isEmpty()).map(ElcMutualApplyVo::getCourseCode)
                 .collect(Collectors.toList());
 		LOG.info("---------------可申请的课程代码--------------"+JSONArray.toJSONString(courseCode));
 
