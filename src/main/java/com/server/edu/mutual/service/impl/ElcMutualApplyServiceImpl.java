@@ -161,7 +161,11 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		}
 
 		if (elcMutualCrossStuVos == null || elcMutualCrossStuVos.isEmpty()) {
-			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInMutualStuList")); 
+			if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInCrossStuList")); 
+			} else {
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInMutualStuList")); 
+			}
 		}
 		List<String> projectIds =new ArrayList<>();
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
