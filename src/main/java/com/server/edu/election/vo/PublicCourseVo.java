@@ -26,6 +26,39 @@ public class PublicCourseVo {
 
     private List<ClassTimeUnit> times;
 
+    // 精品
+    private String jp;
+
+    // 创新
+    private boolean isCx;
+
+    // 艺术
+    private boolean isYs;
+
+    public String getJp() {
+        return jp;
+    }
+
+    public void setJp(String jp) {
+        this.jp = jp;
+    }
+
+    public boolean isCx() {
+        return isCx;
+    }
+
+    public void setCx(boolean cx) {
+        isCx = cx;
+    }
+
+    public boolean isYs() {
+        return isYs;
+    }
+
+    public void setYs(boolean ys) {
+        isYs = ys;
+    }
+
     public Long getTeachClassId() {
         return teachClassId;
     }

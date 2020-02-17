@@ -817,6 +817,9 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                 publicCourseVo.setCredits(teachingClassCach.getCredits());
                                 publicCourseVo.setCourseCode(course.getCourseCode());
                                 publicCourseVo.setCourseName(course.getCourseName());
+                                publicCourseVo.setJp(course.getJp());
+                                publicCourseVo.setCx(course.isCx());
+                                publicCourseVo.setYs(course.isYs());
                                 publicCourseVo.setTimes(times);
                                 list.add(publicCourseVo);
                             }
