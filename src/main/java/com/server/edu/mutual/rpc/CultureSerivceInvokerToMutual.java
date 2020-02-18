@@ -45,7 +45,19 @@ public class CultureSerivceInvokerToMutual {
 		return resultList;
 	}
 	
-	
+	/**
+	 * 获取本科生培养计划里的所有课程代码
+	 * @param studentId
+	 * @return
+	 */
+	public static List<String> studentPlanCourseCode(String studentId)
+    {
+		RestResult resultList = ServicePathEnum.CULTURESERVICE
+            .getForObject("/bclCulturePlan/getCourseCode?studentId={studentId}&isPass={isPass}", RestResult.class, studentId,0);
+		String json =JSONObject.toJSON(resultList.getData()).toString();
+		List<String> list = JSONArray.parseArray(json, String.class);
+        return list;
+    }
 	
 	
 	
