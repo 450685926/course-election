@@ -307,8 +307,6 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         condition.getCondition().setBeginTime(calendar.getBeginDay());
         condition.getCondition().setEndTime(calendar.getEndDay());
         condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
-        List<String> noChargeTypeStudent = feeStatisticsService.transNoChargeTypeStudent();
-        condition.getCondition().setNoChargeTypeStudent(noChargeTypeStudent);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
        /* if (courseNoChargeList != null) {

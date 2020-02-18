@@ -40,6 +40,17 @@ public class StudentRebuildFeeVo extends ElcCourseTake {
     @Code2Text(translator= SchoolCalendarTranslator.class)
     private Long couCalendarId;
 
+	//异动大类
+	private String registrationStatus;
+
+	public String getRegistrationStatus() {
+		return registrationStatus;
+	}
+
+	public void setRegistrationStatus(String registrationStatus) {
+		this.registrationStatus = registrationStatus;
+	}
+
 	public Long getCouCalendarId() {
 		return couCalendarId;
 	}

@@ -9,6 +9,7 @@ import com.server.edu.election.entity.RebuildCourseCharge;
 import com.server.edu.election.entity.RebuildCourseNoChargeType;
 import com.server.edu.election.vo.RebuildCourseNoChargeList;
 import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
+import com.server.edu.election.vo.StudentRebuildFeeVo;
 import com.server.edu.election.vo.StudentVo;
 import com.server.edu.util.excel.ExcelWriterUtil;
 import com.server.edu.util.excel.export.ExcelResult;
@@ -116,5 +117,7 @@ public interface RebuildCourseChargeService {
     List<StudentRePaymentDto> payDetailById(Long id);
 
     boolean hasRetakeCourseNoPay(Long calendarId, String studentId);
+
+
 }
 
