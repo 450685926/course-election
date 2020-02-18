@@ -60,6 +60,7 @@
 		GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
 		FROM
 			course_open_t t1
+		JOIN elc_mutual_courses_t elc  ON elc.`COURSE_ID_` = t1.`id_`
 		JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
 		JOIN teaching_class_t t4 ON (t4.TASK_ID_ = t3.ID_ and t4.DELETE_STATUS_ =0)
 		LEFT JOIN courses_label_t CL ON t4.COURSE_LABEL_ID_ = CL.ID_
@@ -129,6 +130,7 @@
 			t4.MAN_ARRANGE_FLAG_ manArrangeFlag,
 			GROUP_CONCAT(distinct t5.TEACHER_CODE_) teacherCode
 		from course_open_t t1 
+		    LEFT JOIN elc_mutual_courses_t elc  ON elc.`COURSE_ID_` = t1.`id_`
 	  		left JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
 	  		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
 	  		LEFT JOIN teaching_class_teacher_t t5  ON (t5.TEACHING_CLASS_ID_  = t4.ID_ AND t5.TYPE_ =0)
@@ -207,6 +209,7 @@
 		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
 	FROM
 		course_open_t t1
+	LEFT JOIN elc_mutual_courses_t elc  ON elc.`COURSE_ID_` = t1.`id_`
 	JOIN teaching_task_t t2 ON t2.COURSE_OPEN_ID_ = t1.ID_
 	JOIN teaching_class_t t3 ON t3.TASK_ID_ = t2.ID_
 	JOIN election_rounds_cour_t t4 ON t4.TEACHING_CLASS_ID_ = t3.ID_
@@ -269,6 +272,7 @@
 		t4.MAN_ARRANGE_FLAG_ manArrangeFlag,
 		GROUP_CONCAT(DISTINCT t5.TEACHER_CODE_) teacherCode
   	from course_open_t t1 
+  	    LEFT JOIN elc_mutual_courses_t elc ON elc.`COURSE_ID_` = t1.`id_`
   		left JOIN teaching_task_t t3 ON t3.COURSE_OPEN_ID_ = t1.ID_
   		left JOIN teaching_class_t t4 ON t4.TASK_ID_ = t3.ID_
   		left JOIN election_rounds_cour_t t2 ON t2.TEACHING_CLASS_ID_ = t4.ID_
