@@ -34,7 +34,7 @@ public class ElcMutualCommonServiceImpl implements ElcMutualCommonService {
         //获取当前教务员管理的学院
         String manageFaculty = session.getManageFaculty();
         if (StringUtils.isNotEmpty(manageFaculty)) {
-            List<String> manageFacultyList = Arrays.asList(session.getManageFaculty().split(","));
+            List<String> manageFacultyList = Arrays.asList(trimManageFaculty(manageFaculty));
             //添加当前教务员管理的学院集合
             collegeList.addAll(manageFacultyList);
             return collegeList;
@@ -59,7 +59,7 @@ public class ElcMutualCommonServiceImpl implements ElcMutualCommonService {
         String manageFaculty = session.getManageFaculty();
         LOG.info("current manageFaculty:" + manageFaculty);
         if (StringUtils.isNotEmpty(manageFaculty)) {
-            List<String> manageFacultyList = Arrays.asList(session.getManageFaculty().split(","));
+            List<String> manageFacultyList = Arrays.asList(trimManageFaculty(manageFaculty));
             //添加当前教务员管理的学院集合
             collegeList.addAll(manageFacultyList);
             LOG.info("collegeList1:" + collegeList.toString());
@@ -80,5 +80,21 @@ public class ElcMutualCommonServiceImpl implements ElcMutualCommonService {
         boolean isDepartAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
                 && !session.isAdmin() && session.isAcdemicDean();
         return isDepartAdmin;
+    }
+
+    /**
+     * 功能描述: 去空格
+     *
+     * @params: [manageFaculty]
+     * @return: java.lang.String[]
+     * @author: zhaoerhu
+     * @date: 2020/2/18 10:10
+     */
+    private String[] trimManageFaculty(String manageFaculty){
+        String manageFacultyArray[] = manageFaculty.split(",");
+        for(int i = 0;i < manageFacultyArray.length;i ++){
+            manageFacultyArray[i] = manageFacultyArray[i].trim();
+        }
+        return manageFacultyArray;
     }
 }

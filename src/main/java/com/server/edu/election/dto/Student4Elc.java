@@ -80,9 +80,9 @@ public class Student4Elc
     private String projectId;
     
     /**
-     * 研究方向
+     * 方向
      */
-    @Code2Text(DictTypeEnum.X_YJFX)
+//    @Code2Text(DictTypeEnum.X_YJFX)
     private String researchDirection;
     
     /**入学方式*/
