@@ -301,14 +301,19 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<RebuildCourseNoChargeList> findCourseNoChargeList(PageCondition<RebuildCourseDto> condition) {
         String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-        condition.getCondition().setDeptId(dptId);
+        RebuildCourseDto dto = condition.getCondition();
         //查询校历时间
-        SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(condition.getCondition().getCalendarId());
-        condition.getCondition().setBeginTime(calendar.getBeginDay());
-        condition.getCondition().setEndTime(calendar.getEndDay());
-        condition.getCondition().setIndex(TableIndexUtil.getIndex(condition.getCondition().getCalendarId()));
+        SchoolCalendarVo calendar = SchoolCalendarCacheUtil.getCalendar(dto.getCalendarId());
+        dto.setBeginTime(calendar.getBeginDay());
+        dto.setEndTime(calendar.getEndDay());
+        dto.setIndex(TableIndexUtil.getIndex(dto.getCalendarId()));
+        List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
+        dto.setNoStuPay(noStuPay);
+        dto.setDeptId(dptId);
+        dto.setAbnormalEndTime(System.currentTimeMillis());
+        dto.setAbnormalStartTime(System.currentTimeMillis() - 365*24*60*60*1000);
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(condition.getCondition());
+        Page<RebuildCourseNoChargeList> courseNoChargeList = courseTakeDao.findCourseNoChargeList(dto);
        /* if (courseNoChargeList != null) {
             List<RebuildCourseNoChargeList> list = courseNoChargeList.getResult();
             for (RebuildCourseNoChargeList rebuildList : list) {

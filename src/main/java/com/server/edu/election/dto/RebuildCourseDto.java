@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import com.server.edu.dictionary.DictTypeEnum;
 import com.server.edu.dictionary.annotation.Code2Text;
+import com.server.edu.election.entity.RebuildCourseNoChargeType;
 
 /**
  * @description:
@@ -79,14 +80,33 @@ public class RebuildCourseDto {
     /**
      * 不收费学生类型
      */
-    private List<String> noChargeTypeStudent = new ArrayList<>();
+    private List<RebuildCourseNoChargeType> noStuPay = new ArrayList<>();
 
-    public List<String> getNoChargeTypeStudent() {
-        return noChargeTypeStudent;
+    private Long abnormalEndTime;
+    private Long abnormalStartTime;
+
+    public Long getAbnormalEndTime() {
+        return abnormalEndTime;
     }
 
-    public void setNoChargeTypeStudent(List<String> noChargeTypeStudent) {
-        this.noChargeTypeStudent = noChargeTypeStudent;
+    public void setAbnormalEndTime(Long abnormalEndTime) {
+        this.abnormalEndTime = abnormalEndTime;
+    }
+
+    public Long getAbnormalStartTime() {
+        return abnormalStartTime;
+    }
+
+    public void setAbnormalStartTime(Long abnormalStartTime) {
+        this.abnormalStartTime = abnormalStartTime;
+    }
+
+    public List<RebuildCourseNoChargeType> getNoStuPay() {
+        return noStuPay;
+    }
+
+    public void setNoStuPay(List<RebuildCourseNoChargeType> noStuPay) {
+        this.noStuPay = noStuPay;
     }
 
     public Integer getType() {
