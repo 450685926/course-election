@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.server.edu.mutual.dao.ElcCrossStdsDao;
+import com.server.edu.mutual.vo.CulturePlanVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,21 +210,21 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 				long labelId = labelCreditCount.getLabelId().longValue();
 				
 				// 获取培养计划中的课程列表
-				List<CulturePlan> listPlanVos = new ArrayList<CulturePlan>();
+				List<CulturePlanVo> listPlanVos = new ArrayList<CulturePlanVo>();
 				RestResult restResult = CultureSerivceInvokerToMutual.getCulturePlanByStudentId(studentId, 0);
 				String json = JSONObject.toJSON(restResult.getData()).toString();
 				Map<String, Object> parse = (Map)JSON.parse(json);
 				for (String key : parse.keySet()) {
 					if (StringUtils.equals(key, "culturePlanList")) {
 						String value = parse.get(key).toString();
-						listPlanVos = JSONArray.parseArray(value, CulturePlan.class);
+						listPlanVos = JSONArray.parseArray(value, CulturePlanVo.class);
 					}
 				}
 				
 				// 获取培养计划中的补修课courseCode
 				List<String> courseCodeBXK = listPlanVos.stream()
 						                          .filter(vo->vo.getLabelId().longValue()==labelId)
-						                          .map(CulturePlan::getCourseCode)
+						                          .map(CulturePlanVo::getCourseCode)
 						                          .collect(Collectors.toList());
 				LOG.info("---------------courseCodeBXK:" + courseCodeBXK.toString() + "--------------");
 				
