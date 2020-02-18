@@ -1240,6 +1240,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     {
     	newClassCache.setManArrangeFlag(oldClassCache.getManArrangeFlag());
         newClassCache.setFaculty(oldClassCache.getFaculty());
+        newClassCache.setCampus(oldClassCache.getCampus());
         newClassCache.setTeachClassId(oldClassCache.getTeachClassId());
         newClassCache.setTeachClassCode(oldClassCache.getTeachClassCode());
         newClassCache.setTeacherCode(oldClassCache.getTeacherCode());
