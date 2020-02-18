@@ -1,6 +1,7 @@
 package com.server.edu.election.dto;
 
 import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.entity.RebuildCourseNoChargeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +36,33 @@ public class StudentRebuildFeeDto extends ElcCourseTake {
     /**
 	 * 重修不收费学生类型
 	 */
-    private List<String> noPayStudentType = new ArrayList<>();
+    private List<RebuildCourseNoChargeType> noPayStudentType = new ArrayList<>();
 
-	public List<String> getNoPayStudentType() {
+    private Long abnormalStatuStartTime;
+
+	private Long abnormalStatuEndTime;
+
+	public Long getAbnormalStatuStartTime() {
+		return abnormalStatuStartTime;
+	}
+
+	public void setAbnormalStatuStartTime(Long abnormalStatuStartTime) {
+		this.abnormalStatuStartTime = abnormalStatuStartTime;
+	}
+
+	public Long getAbnormalStatuEndTime() {
+		return abnormalStatuEndTime;
+	}
+
+	public void setAbnormalStatuEndTime(Long abnormalStatuEndTime) {
+		this.abnormalStatuEndTime = abnormalStatuEndTime;
+	}
+
+	public List<RebuildCourseNoChargeType> getNoPayStudentType() {
 		return noPayStudentType;
 	}
 
-	public void setNoPayStudentType(List<String> noPayStudentType) {
+	public void setNoPayStudentType(List<RebuildCourseNoChargeType> noPayStudentType) {
 		this.noPayStudentType = noPayStudentType;
 	}
 

@@ -57,8 +57,10 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 		/*int mode = TableIndexUtil.getMode(dto.getCalendarId());
 		dto.setMode(mode);*/
 		dto.setManageDptId(dptId);
-		List<String> noStuPay = this.transNoChargeTypeStudent();
+        List<RebuildCourseNoChargeType> noStuPay = noChargeTypeDao.selectAll();
 		dto.setNoPayStudentType(noStuPay);
+		dto.setAbnormalStatuEndTime(System.currentTimeMillis());
+        dto.setAbnormalStatuStartTime(System.currentTimeMillis() - 365*24*60*60*1000);
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		Page<StudentRebuildFeeVo> list = elcCourseTakeDao.getStudentRebuildFeeList(condition.getCondition());
 		return new PageResult<>(list);
@@ -147,10 +149,14 @@ public class ElcRebuildFeeStatisticsServiceImpl implements ElcRebuildFeeStatisti
 	@Override
 	public ExcelWriterUtil export(StudentRebuildFeeDto studentRebuildFeeDto) throws Exception {
 		// TODO Auto-generated method stub
-		String dptId = SessionUtils.getCurrentSession().getCurrentManageDptId();
-		studentRebuildFeeDto.setManageDptId(dptId);
-		List<StudentRebuildFeeVo> list = elcCourseTakeDao.getStudentRebuildFeeList(studentRebuildFeeDto);
-		GeneralExcelDesigner design = getDesign();
+		PageCondition<StudentRebuildFeeDto> pageCondition = new PageCondition<>();
+        pageCondition.setCondition(studentRebuildFeeDto);
+        pageCondition.setPageSize_(0);
+        pageCondition.setPageNum_(0);
+		//List<StudentRebuildFeeVo> list = elcCourseTakeDao.getStudentRebuildFeeList(studentRebuildFeeDto);
+        PageResult<StudentRebuildFeeVo> studentRebuildFeeList = getStudentRebuildFeeList(pageCondition);
+        List<StudentRebuildFeeVo> list = studentRebuildFeeList.getList();
+        GeneralExcelDesigner design = getDesign();
 		List<JSONObject> convertList = JacksonUtil.convertList(list);
 	    design.setDatas(convertList);
 	    ExcelWriterUtil excelUtil = GeneralExcelUtil.generalExcelHandle(design);
