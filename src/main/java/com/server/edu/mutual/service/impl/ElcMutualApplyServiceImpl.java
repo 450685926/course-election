@@ -191,9 +191,11 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
                 .collect(Collectors.toList());
 		LOG.info("---------------可申请的课程代码--------------"+JSONArray.toJSONString(courseCode));
 
-		// 本科生可申请的跨院系课程与培养方案无关
+		// 本科生可申请的跨院系课程不在培养计划内
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
-			LOG.info("---------------本科生可申请的跨院系课程与培养方案无关--------------");
+			List<String> courseCodes = CultureSerivceInvokerToMutual.studentPlanCourseCode(studentId);
+			list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
 			List<LabelCreditCount> planBXK = new ArrayList<LabelCreditCount>();
