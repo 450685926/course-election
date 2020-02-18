@@ -666,7 +666,10 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			                   elcCourseResult.setTimes(teachClass.getTimes());
 			                   elcCourseResult.setRemark(teachClass.getRemark());
 			                   elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
-			                   setOptionalCourses.add(elcCourseResult);
+
+                               elcCourseResult.setCampus(teachClass.getCampus());
+
+                               setOptionalCourses.add(elcCourseResult);
 			               }
 			           }
 			       }
@@ -721,6 +724,8 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 							elcCourseResult.setTimes(teachClass.getTimes());
 							elcCourseResult.setRemark(teachClass.getRemark());
 		                    elcCourseResult.setTeachClassName(teachClass.getTeachClassName());
+
+                            elcCourseResult.setCampus(teachClass.getCampus());
 
                             setOptionalCourses.add(elcCourseResult);
 					   }
