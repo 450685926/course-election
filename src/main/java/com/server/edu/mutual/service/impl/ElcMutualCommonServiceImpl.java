@@ -49,7 +49,7 @@ public class ElcMutualCommonServiceImpl implements ElcMutualCommonService {
     @Override
     public List<String> getCollegeList() {
         Session session = SessionUtils.getCurrentSession();
-        LOG.info("当前 session :" + session);
+        LOG.info("current session :" + session);
         // session中当前学院和管理的学院集合
 //    	有管理学院以管理学院为准，没有管理学院以所属学院为准
         List<String> collegeList = new ArrayList<>();
@@ -57,19 +57,21 @@ public class ElcMutualCommonServiceImpl implements ElcMutualCommonService {
 
         //获取当前教务员管理的学院
         String manageFaculty = session.getManageFaculty();
-        LOG.info("当前管理学院：" + manageFaculty);
+        LOG.info("current manageFaculty:" + manageFaculty);
         if (StringUtils.isNotEmpty(manageFaculty)) {
             List<String> manageFacultyList = Arrays.asList(session.getManageFaculty().split(","));
             //添加当前教务员管理的学院集合
             collegeList.addAll(manageFacultyList);
+            LOG.info("collegeList1:" + collegeList.toString());
             return collegeList;
         }
         LOG.info("当前学院：" + session.getFaculty());
         if (StringUtils.isNotEmpty(session.getFaculty())) {
             collegeList.add(session.getFaculty());
+            LOG.info("collegeList2:" + collegeList.toString());
             return collegeList;
         }
-        LOG.info("collegeList:" + collegeList.toString());
+        LOG.info("collegeList3:" + collegeList.toString());
         return collegeList;
     }
 

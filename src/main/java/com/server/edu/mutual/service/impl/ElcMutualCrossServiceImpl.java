@@ -149,6 +149,7 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		}
 		Set<String> studentIdSet = new HashSet<String>(Arrays.asList(studentIdsStr.split(",")));
 		List<String> studentIdList =new ArrayList<>(studentIdSet);
+		checkStuIsLeaveSchool(studentIdList);
 		int result = saveElcMutualCross(calendarId, mode, studentIdList);
 		return result;
 	}
@@ -406,5 +407,28 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
         boolean isDepartAdmin = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE))
 				                && !session.isAdmin() && session.isAcdemicDean();
         return isDepartAdmin;
+	}
+
+	/**
+	 * 功能描述: 校验添加学生时，是否存在离校学生
+	 *
+	 * 备注：抽取该方法，避免后续单个添加、批量添加、全部添加时共用。已和需求确认，目前学生是否在校只校验单个添加。
+	 *
+	 * @params: [studentIdList]
+	 * @return: void
+	 * @author: zhaoerhu
+	 * @date: 2020/2/17 16:02
+	 */
+	private void checkStuIsLeaveSchool(List<String> studentIdList) {
+		Example stuExample = new Example(Student.class);
+		Example.Criteria stuCriteria = stuExample.createCriteria();
+		stuExample.selectProperties("studentCode");
+		stuCriteria.andIn("studentCode", studentIdList);
+		stuCriteria.andNotEqualTo("leaveSchool", Constants.INSCHOOL);
+		List<Student> students = studentDao.selectByExample(stuExample);
+		//上送学号中若存在离校学生则直抛异常
+		if (students != null && students.size() > 0) {
+			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.addStuLeave"));
+		}
 	}
 }

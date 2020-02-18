@@ -161,7 +161,11 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		}
 
 		if (elcMutualCrossStuVos == null || elcMutualCrossStuVos.isEmpty()) {
-			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInMutualStuList")); 
+			if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInCrossStuList")); 
+			} else {
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInMutualStuList")); 
+			}
 		}
 		List<String> projectIds =new ArrayList<>();
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
@@ -183,7 +187,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
 		List<String> courseCode = list.stream()
-                .filter(v->v.getCourseCode().isEmpty()).map(ElcMutualApplyVo::getCourseCode)
+                .filter(v->!v.getCourseCode().isEmpty()).map(ElcMutualApplyVo::getCourseCode)
                 .collect(Collectors.toList());
 		LOG.info("---------------可申请的课程代码--------------"+JSONArray.toJSONString(courseCode));
 

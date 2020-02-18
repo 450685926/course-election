@@ -84,7 +84,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		packageCollegeList(session,dto);
 		//封装部门数据
 		dto.setProjectIds(projectIds);
-
+		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
+		LOG.info("dto==condition.getCondition()?--->" + (dto == condition.getCondition()));
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyCourseList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
@@ -140,7 +141,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
-		if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 			dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
 					MutualApplyAuditStatus.AUDITED_APPROVED.status(),MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
 		}
@@ -176,7 +177,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 //		dto.setProjectId(projectId);
 		
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
-		if (!StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 			if (dto.getStatus() == null) {
 				dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
 						MutualApplyAuditStatus.AUDITED_APPROVED.status(),MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
