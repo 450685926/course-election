@@ -1148,6 +1148,7 @@
         t3.LABEL_, t4.PERIOD_,
         t3.ASSESSMENT_MODE_,
         t4.CODE_ as teachingClassCode,
+        t4.CAMPUS_,
         t4.NAME_ as teachingClassName,
         op.IS_ELECTIVE_ as isPublicCourse
         from elc_course_takes_t t1
