@@ -20,7 +20,7 @@
       <result column="GRADE_" jdbcType="INTEGER" property="grade" />
       <result column="college" jdbcType="VARCHAR" property="college" />
       <result column="PROFESSION_" jdbcType="VARCHAR" property="profession" />
-      <result column="stuTrainingLevel" jdbcType="VARCHAR" property="stuTrainingLevel" /> 
+      <result column="stuTrainingLevel" jdbcType="VARCHAR" property="stuTrainingLevel" />
       <result column="courseTrainingLevel" jdbcType="DOUBLE" property="courseTrainingLevel" />                             
       <result column="TRAINING_CATEGORY_" jdbcType="VARCHAR" property="trainingCategory" />                              
       <result column="DEGREE_TYPE_" jdbcType="VARCHAR" property="degreeType" />                              
@@ -44,8 +44,8 @@
 	         t4.GRADE_,
 	         t4.FACULTY_ college,
 	         t4.PROFESSION_,
-	         t4.STUDENT_CATEGORY_ studentCategory,
-		  	 t4.TRAINING_LEVEL_ stuTrainingLevel,
+	         t4.STUDENT_CATEGORY_ ,
+		  	 t4.TRAINING_LEVEL_  stuTrainingLevel,
 			 t4.TRAINING_CATEGORY_,
 			 t4.DEGREE_TYPE_, 
 			 t4.FORM_LEARNING_, 
