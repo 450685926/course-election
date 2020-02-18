@@ -796,7 +796,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
                 Example stuExample = new Example(Student.class);
                 stuExample.createCriteria()
                         .andIn("studentCode", studentIds);
-                List<Student> students = studentDao.selectByExample(example);
+                List<Student> students = studentDao.selectByExample(stuExample);
                 String campus = teachingClass.getCampus();
                 List<String> list = new ArrayList<>(studentIds.size());
                 for (Student student : students) {
