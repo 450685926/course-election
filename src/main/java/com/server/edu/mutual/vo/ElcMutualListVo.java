@@ -23,6 +23,7 @@ public class ElcMutualListVo extends ElcMutualApply{
     /**
      * 学生学院（学生所在行政学院）
      */
+    @Code2Text(transformer = "X_YX")
     private String college;
     
     /**
