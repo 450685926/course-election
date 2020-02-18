@@ -603,6 +603,36 @@
             <if test="hasChangeGrade == 0">
                 and sa.ID_ is null
             </if>
+            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(noStuPay)">
+                and not EXISTS
+                (select t8.STUDENT_ID_ from elc_course_takes_t t8
+                left join student_t t10 on t8.STUDENT_ID_ = t10.STUDENT_CODE_
+                left join student_abnormal_apply_v t9 on t8.STUDENT_ID_ = t9.STUDENT_ID_ and t9.STATUS_ = 3
+                where el.STUDENT_ID_ = t8.STUDENT_ID_ and t8.CALENDAR_ID_ = #{calendarId} and t8.COURSE_TAKE_TYPE_ = 2 and t10.MANAGER_DEPT_ID_ = #{deptId} and
+                <foreach collection="noStuPay" item="item" separator="or" open="(" close=")">
+                    (
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingLevel)">
+                        t10.TRAINING_LEVEL_ = #{item.trainingLevel}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.trainingCategory)">
+                        and t10.TRAINING_CATEGORY_ = #{item.trainingCategory}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.enrolMethods)">
+                        and t10.ENROL_METHODS_ = #{item.enrolMethods}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.spcialPlan)">
+                        and t10.SPCIAL_PLAN_ = #{item.spcialPlan}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.isOverseas)">
+                        and t10.IS_OVERSEAS_ = #{item.isOverseas}
+                    </if>
+                    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
+                        and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime}
+                    </if>
+                    )
+                </foreach>
+                )
+            </if>
         </where>
     </select>
 
