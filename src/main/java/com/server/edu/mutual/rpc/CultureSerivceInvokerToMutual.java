@@ -1,7 +1,11 @@
 package com.server.edu.mutual.rpc;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.ServicePathEnum;
@@ -54,8 +58,15 @@ public class CultureSerivceInvokerToMutual {
     {
 		RestResult resultList = ServicePathEnum.CULTURESERVICE
             .getForObject("/bclCulturePlan/getCourseCode?studentId={studentId}&isPass={isPass}", RestResult.class, studentId,0);
-		String json =JSONObject.toJSON(resultList.getData()).toString();
-		List<String> list = JSONArray.parseArray(json, String.class);
+		String json ="";
+		List<String> list = new ArrayList<>();
+		if(resultList.getCode() == 200 && null != resultList.getData() && StringUtils.isNotEmpty(resultList.getData().toString())) {
+			json =JSONObject.toJSON(resultList.getData()).toString();
+		}
+		if(StringUtils.isNotEmpty(json)) {
+			list = JSONArray.parseArray(json, String.class);
+		}
+		
         return list;
     }
 	
