@@ -176,18 +176,35 @@ public class ElecYjsController
 
         logger.info("isStudent: {};isAdmin: {}; isDepartAdmin {}",isStudent, isAdmin, isDepartAdmin);
         // 如果前端传值campu和trainingLevel,则不需要访问后端接口
-        if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) && CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
-            RestResult<Student> studentMessage = new RestResult<>();
-            logger.info("arrangementCourses enter findStudentMessage");
-            if (isStudent) {
-                studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
-            }else if (isAdmin || isDepartAdmin) {
-                studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getCondition().getStudentCode());
+//        if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) && CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
+//            RestResult<Student> studentMessage = new RestResult<>();
+//            logger.info("arrangementCourses enter findStudentMessage");
+//            if (isStudent) {
+//                studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
+//            }else if (isAdmin || isDepartAdmin) {
+//                studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getCondition().getStudentCode());
+//            }
+//            Student student = studentMessage.getData();
+//            allCourseVo.getCondition().setTrainingLevel(student.getTrainingLevel());
+//            allCourseVo.getCondition().setCampu(student.getCampus());
+//        }
+
+        // 管理员不受校区，培养层次限制
+        if(!isAdmin) {
+            if (CommonConstant.isEmptyStr(allCourseVo.getCondition().getCampu()) && CommonConstant.isEmptyStr(allCourseVo.getCondition().getTrainingLevel())) {
+                RestResult<Student> studentMessage = new RestResult<>();
+                logger.info("arrangementCourses enter findStudentMessage");
+                if (isStudent) {
+                    studentMessage = exemptionCourseServiceImpl.findStudentMessage(session.realUid());
+                }else if (isAdmin || isDepartAdmin) {
+                    studentMessage = exemptionCourseServiceImpl.findStudentMessage(allCourseVo.getCondition().getStudentCode());
+                }
+                Student student = studentMessage.getData();
+                allCourseVo.getCondition().setTrainingLevel(student.getTrainingLevel());
+                allCourseVo.getCondition().setCampu(student.getCampus());
             }
-            Student student = studentMessage.getData();
-            allCourseVo.getCondition().setTrainingLevel(student.getTrainingLevel());
-            allCourseVo.getCondition().setCampu(student.getCampus());
         }
+
         if (isStudent || isDepartAdmin) {
             logger.info("arrangementCourses enter getCalendarIdByRoundId");
         	ElectionRoundsDto roundsDto =
