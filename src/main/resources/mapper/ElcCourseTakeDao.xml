@@ -2246,7 +2246,7 @@
     </select>
 
     <select id="isRetake" resultType="int">
-        select count(ID_) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and COURSE_CODE_ = #{calendarId}
+        select count(ID_) from elc_course_takes_t where STUDENT_ID_ = #{studentId} and COURSE_CODE_ = #{courseCode}
     </select>
 
     <select id="findRetakeCount" resultType="java.lang.String">
