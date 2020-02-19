@@ -5,6 +5,9 @@ import com.server.edu.dictionary.annotation.CodeI18n;
 @CodeI18n
 public class ElcMutualCrossStuVo {
 
+	/*学位类别*/
+	private String degreeType;
+
 	private Long id;
    
     private Long calendarId;
@@ -58,7 +61,14 @@ public class ElcMutualCrossStuVo {
      * 年级
      */
     private Integer grade;
-    
+
+	public String getDegreeType() {
+		return degreeType;
+	}
+
+	public void setDegreeType(String degreeType) {
+		this.degreeType = degreeType;
+	}
 
 	public Long getId() {
 		return id;
@@ -155,5 +165,42 @@ public class ElcMutualCrossStuVo {
 	public void setFormLearning(String formLearning) {
 		this.formLearning = formLearning;
 	}
-    
+
+	public ElcMutualCrossStuVo() {
+	}
+
+	public ElcMutualCrossStuVo(String degreeType, Long id, Long calendarId, String studentId, String studentName, Integer sex, String trainingLevel, String faculty, String profession, String trainingCategory, String degreeCategory, String formLearning, Integer grade) {
+		this.degreeType = degreeType;
+		this.id = id;
+		this.calendarId = calendarId;
+		this.studentId = studentId;
+		this.studentName = studentName;
+		this.sex = sex;
+		this.trainingLevel = trainingLevel;
+		this.faculty = faculty;
+		this.profession = profession;
+		this.trainingCategory = trainingCategory;
+		this.degreeCategory = degreeCategory;
+		this.formLearning = formLearning;
+		this.grade = grade;
+	}
+
+	@Override
+	public String toString() {
+		return "ElcMutualCrossStuVo{" +
+				"degreeType='" + degreeType + '\'' +
+				", id=" + id +
+				", calendarId=" + calendarId +
+				", studentId='" + studentId + '\'' +
+				", studentName='" + studentName + '\'' +
+				", sex=" + sex +
+				", trainingLevel='" + trainingLevel + '\'' +
+				", faculty='" + faculty + '\'' +
+				", profession='" + profession + '\'' +
+				", trainingCategory='" + trainingCategory + '\'' +
+				", degreeCategory='" + degreeCategory + '\'' +
+				", formLearning='" + formLearning + '\'' +
+				", grade=" + grade +
+				'}';
+	}
 }
