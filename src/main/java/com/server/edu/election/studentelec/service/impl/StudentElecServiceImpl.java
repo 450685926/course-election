@@ -793,7 +793,6 @@ public class StudentElecServiceImpl extends AbstractCacheService
         Long calendarId = round.getCalendarId();
         ElecContextBk context = new ElecContextBk(query.getStudentId(), calendarId);
         Set<TsCourse> publicCourses = context.getPublicCourses();
-        List<PublicCourseTag> list = new ArrayList<>(5);
         if (CollectionUtil.isEmpty(publicCourses)) {
             return list;
         }
@@ -802,6 +801,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
         int end = query.getEnd();
         Map<String, List<TsCourse>> map = publicCourses.stream().collect(Collectors.groupingBy(TsCourse::getTag));
         Set<String> keySet = map.keySet();
+        List<PublicCourseTag> list = new ArrayList<>(keySet.size());
         for (String tag : keySet) {
             PublicCourseTag publicCourseTag = new PublicCourseTag();
             publicCourseTag.setTag(tag);
@@ -836,9 +836,10 @@ public class StudentElecServiceImpl extends AbstractCacheService
                             }
                         }
                     }
-                    publicCourseTag.setList(publicCourseVos);
                 }
             }
+            publicCourseTag.setList(publicCourseVos);
+
         }
         return list;
     }
