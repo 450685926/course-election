@@ -1453,6 +1453,7 @@
         join teaching_class_t c on b.ID_ = c.TASK_ID_
         <where>
             a.DELETE_STATUS_ = 0
+            and c.DELETE_STATUS_ = 0
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
                 and a.PROJ_ID_ = #{projectId}
             </if>
