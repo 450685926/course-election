@@ -1510,7 +1510,7 @@
         LEFT JOIN course_t co on el.COURSE_CODE_ =co.CODE_
         LEFT JOIN v_student_plan_course pc on (el.COURSE_CODE_ =pc.courseCode  and el.STUDENT_ID_ = pc.studentId)
         LEFT JOIN student_t st on st.STUDENT_CODE_ =el.STUDENT_ID_
-        LEFT JOIN teaching_class_t te on (te.ID_=el.TEACHING_CLASS_ID_ and teDELETE_STATUS_ = 0)
+        LEFT JOIN teaching_class_t te on (te.ID_=el.TEACHING_CLASS_ID_ and te.DELETE_STATUS_ = 0)
         where el.STUDENT_ID_=#{studentId,jdbcType=VARCHAR} and el.CALENDAR_ID_=#{calendarId,jdbcType=BIGINT}
     </select>
 
