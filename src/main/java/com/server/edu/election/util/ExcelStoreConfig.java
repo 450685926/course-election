@@ -41,13 +41,20 @@ public class ExcelStoreConfig
     private List<String> graduateNoSelectStudenExportKey;   // 研究生未选课学生名单
     
     /**
-     * 本研互选名单
+     * 本研互选研究生名单
      */
     private List<String> exportelcMutualStuListExcelKey;
 
     private List<String> exportelcMutualStuListExcelTitle;
     
+    /**
+     * 本研互选本科生名单
+     */
+    private List<String> exportelcMutualUNGRADUATEStuListExcelKey;
 
+    private List<String> exportelcMutualUNGRADUATEStuListExcelTitle;
+    
+    
 	public List<String> getElcResultCountExportByStudentTitle() {
 		return elcResultCountExportByStudentTitle;
 	}
@@ -162,6 +169,26 @@ public class ExcelStoreConfig
     public void setExportelcMutualStuListExcelTitle(List<String> exportelcMutualStuListExcelTitle)
     {
         this.exportelcMutualStuListExcelTitle = exportelcMutualStuListExcelTitle;
+    }
+
+    public List<String> getExportelcMutualUNGRADUATEStuListExcelKey()
+    {
+        return exportelcMutualUNGRADUATEStuListExcelKey;
+    }
+
+    public void setExportelcMutualUNGRADUATEStuListExcelKey(List<String> exportelcMutualUNGRADUATEStuListExcelKey)
+    {
+        this.exportelcMutualUNGRADUATEStuListExcelKey = exportelcMutualUNGRADUATEStuListExcelKey;
+    }
+
+    public List<String> getExportelcMutualUNGRADUATEStuListExcelTitle()
+    {
+        return exportelcMutualUNGRADUATEStuListExcelTitle;
+    }
+
+    public void setExportelcMutualUNGRADUATEStuListExcelTitle(List<String> exportelcMutualUNGRADUATEStuListExcelTitle)
+    {
+        this.exportelcMutualUNGRADUATEStuListExcelTitle = exportelcMutualUNGRADUATEStuListExcelTitle;
     }
 
 	
