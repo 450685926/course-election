@@ -839,7 +839,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                 }
             }
             publicCourseTag.setList(publicCourseVos);
-
+            list.add(publicCourseTag);
         }
         return list;
     }
