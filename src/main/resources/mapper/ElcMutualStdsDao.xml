@@ -35,7 +35,7 @@
 		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
 		    </if>
 			<!-- 学位类型-->
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(degreeType)">
 				and t2.DEGREE_TYPE_ =#{degreeType}
 			</if>
 			<!-- 学生名字-->
