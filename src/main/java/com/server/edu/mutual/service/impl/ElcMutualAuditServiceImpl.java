@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -353,4 +355,20 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		dto.setCollegeList(elcMutualCommonService.getCollegeList());
 	}
 
+	/**
+	 * 功能描述: 如果开课学院审核通过，则远程调用培养接口，更新学生培养计划选课状态
+	 *
+	 * @params: [elcMutualApply]
+	 * @return: void
+	 * @author: zhaoerhu
+	 * @date: 2020/2/18 11:07
+	 */
+	private void updateCultureStuPlanRpc(ElcMutualApply elcMutualApply) {
+		if (elcMutualApply.getStatus().equals(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.AUDITED_APPROVED.status())))) {
+			RestResult result = CultureSerivceInvokerToMutual.updateCulturePlan4Stu(elcMutualApply);
+			if (result.getCode() != 200) {//更新培养计划异常，则手动抛出运行时异常，事务回滚
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualApplyAudit.planFail"));
+			}
+		}
+	}
 }
