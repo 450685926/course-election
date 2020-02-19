@@ -12,6 +12,7 @@ import com.server.edu.election.dao.*;
 import com.server.edu.election.dto.AutoRemoveDto;
 import com.server.edu.election.entity.*;
 import com.server.edu.election.query.PublicCourseQuery;
+import com.server.edu.election.query.PublicCourseTag;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.studentelec.cache.StudentInfoCache;
 import com.server.edu.election.studentelec.context.ClassTimeUnit;
@@ -786,48 +787,58 @@ public class StudentElecServiceImpl extends AbstractCacheService
     }
 
     @Override
-    public List<PublicCourseVo> getPublicCourse(PublicCourseQuery query) {
+    public List<PublicCourseTag> getPublicCourse(PublicCourseQuery query) {
         Long roundId = query.getRoundId();
         ElectionRounds round = dataProvider.getRound(roundId);
         Long calendarId = round.getCalendarId();
         ElecContextBk context = new ElecContextBk(query.getStudentId(), calendarId);
         Set<TsCourse> publicCourses = context.getPublicCourses();
-        List<PublicCourseVo> list = new ArrayList<>(100);
+        List<PublicCourseTag> list = new ArrayList<>(5);
         if (CollectionUtil.isEmpty(publicCourses)) {
             return list;
         }
         int day = query.getDay();
         int start = query.getStart();
         int end = query.getEnd();
-        for (TsCourse publicCours : publicCourses) {
-            ElecCourse course = publicCours.getCourse();
-            if (course != null) {
-                List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, course.getCourseCode());
-                for (TeachingClassCache teachingClassCach : teachingClassCaches) {
-                    List<ClassTimeUnit> times = teachingClassCach.getTimes();
-                    if (CollectionUtil.isNotEmpty(times)) {
-                        for (ClassTimeUnit time : times) {
-                            if (time.getDayOfWeek() == day
-                                    && time.getTimeStart() >= start
-                                    && time.getTimeEnd() <= end) {
-                                PublicCourseVo publicCourseVo = new PublicCourseVo();
-                                publicCourseVo.setTeachClassId(teachingClassCach.getTeachClassId());
-                                publicCourseVo.setTeachClassCode(teachingClassCach.getTeachClassCode());
-                                publicCourseVo.setCampus(teachingClassCach.getCampus());
-                                publicCourseVo.setCredits(teachingClassCach.getCredits());
-                                publicCourseVo.setCourseCode(course.getCourseCode());
-                                publicCourseVo.setCourseName(course.getCourseName());
-                                publicCourseVo.setJp(course.getJp());
-                                publicCourseVo.setCx(course.isCx());
-                                publicCourseVo.setYs(course.isYs());
-                                publicCourseVo.setTimes(times);
-                                list.add(publicCourseVo);
+        Map<String, List<TsCourse>> map = publicCourses.stream().collect(Collectors.groupingBy(TsCourse::getTag));
+        Set<String> keySet = map.keySet();
+        for (String tag : keySet) {
+            PublicCourseTag publicCourseTag = new PublicCourseTag();
+            publicCourseTag.setTag(tag);
+            List<TsCourse> tsCourses = map.get(tag);
+            List<PublicCourseVo> publicCourseVos = new ArrayList<>(20);
+            if (CollectionUtil.isNotEmpty(tsCourses)) {
+                for (TsCourse tsCours : tsCourses) {
+                    ElecCourse course = tsCours.getCourse();
+                    if (course != null) {
+                        List<TeachingClassCache> teachingClassCaches = teachClassCacheService.getTeachClasss(roundId, course.getCourseCode());
+                        for (TeachingClassCache teachingClassCach : teachingClassCaches) {
+                            List<ClassTimeUnit> times = teachingClassCach.getTimes();
+                            if (CollectionUtil.isNotEmpty(times)) {
+                                for (ClassTimeUnit time : times) {
+                                    if (time.getDayOfWeek() == day
+                                            && time.getTimeStart() >= start
+                                            && time.getTimeEnd() <= end) {
+                                        PublicCourseVo publicCourseVo = new PublicCourseVo();
+                                        publicCourseVo.setTeachClassId(teachingClassCach.getTeachClassId());
+                                        publicCourseVo.setTeachClassCode(teachingClassCach.getTeachClassCode());
+                                        publicCourseVo.setCampus(teachingClassCach.getCampus());
+                                        publicCourseVo.setCredits(teachingClassCach.getCredits());
+                                        publicCourseVo.setCourseCode(course.getCourseCode());
+                                        publicCourseVo.setCourseName(course.getCourseName());
+                                        publicCourseVo.setJp(course.getJp());
+                                        publicCourseVo.setCx(course.isCx());
+                                        publicCourseVo.setYs(course.isYs());
+                                        publicCourseVo.setTimes(times);
+                                        publicCourseVos.add(publicCourseVo);
+                                    }
+                                }
                             }
                         }
                     }
+                    publicCourseTag.setList(publicCourseVos);
                 }
             }
-
         }
         return list;
     }
