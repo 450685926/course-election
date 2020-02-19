@@ -1,13 +1,36 @@
 package com.server.edu.mutual.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.LabelCreditCount;
+import com.server.edu.common.locale.I18nUtil;
+import com.server.edu.common.rest.RestResult;
+import com.server.edu.election.constants.Constants;
+import com.server.edu.exception.ParameterValidateException;
+import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
+import com.server.edu.mutual.controller.ElcMutualApplyController;
 import com.server.edu.mutual.dao.ElcCrossStdsDao;
+import com.server.edu.mutual.dao.ElcMutualApplyDao;
+import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
+import com.server.edu.mutual.dao.ElcMutualStdsDao;
+import com.server.edu.mutual.dto.ElcMutualApplyDto;
+import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
+import com.server.edu.mutual.entity.ElcMutualApply;
+import com.server.edu.mutual.entity.ElcMutualApplyTurns;
+import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
+import com.server.edu.mutual.service.ElcMutualApplyService;
+import com.server.edu.mutual.util.MutualApplyJugeUtil;
+import com.server.edu.mutual.util.ProjectUtil;
 import com.server.edu.mutual.vo.CulturePlanVo;
+import com.server.edu.mutual.vo.ElcMutualApplyVo;
+import com.server.edu.mutual.vo.ElcMutualCrossStuVo;
+import com.server.edu.session.util.SessionUtils;
+import com.server.edu.session.util.entity.Session;
+import com.server.edu.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,39 +38,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.server.edu.common.PageCondition;
-import com.server.edu.common.entity.CulturePlan;
-import com.server.edu.common.entity.LabelCreditCount;
-import com.server.edu.common.enums.UserTypeEnum;
-import com.server.edu.common.locale.I18nUtil;
-import com.server.edu.common.rest.RestResult;
-import com.server.edu.election.constants.Constants;
-import com.server.edu.exception.ParameterValidateException;
-import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
-import com.server.edu.mutual.controller.ElcMutualApplyController;
-import com.server.edu.mutual.dao.ElcMutualApplyDao;
-import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
-import com.server.edu.mutual.dao.ElcMutualStdsDao;
-import com.server.edu.mutual.dto.ElcMutualApplyDto;
-import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
-import com.server.edu.mutual.entity.ElcMutualApply;
-import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
-import com.server.edu.mutual.service.ElcMutualApplyService;
-import com.server.edu.mutual.util.MutualApplyJugeUtil;
-import com.server.edu.mutual.util.ProjectUtil;
-import com.server.edu.mutual.vo.ElcMutualApplyVo;
-import com.server.edu.mutual.vo.ElcMutualCrossStuVo;
-import com.server.edu.session.util.SessionUtils;
-import com.server.edu.session.util.entity.Session;
-import com.server.edu.util.CollectionUtil;
-
 import tk.mybatis.mapper.entity.Example;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 @Service
 public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	private static Logger LOG =
@@ -138,12 +135,14 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualCoursesForStu(PageCondition<ElcMutualApplyDto> condition){
-		LOG.info("*******getElcMutualCoursesForStu********"); 
+		LOG.info("*******getElcMutualCoursesForStu********");
+//		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		ElcMutualApplyDto dto = condition.getCondition();
 		Session session = SessionUtils.getCurrentSession();
 		String projectId = session.getCurrentManageDptId();
+		//本地调试部门id
+		//String projectId="1";
 		String studentId = dto.getStudentId();
-		
 
 		ElcMutualCrossStuDto stuDto = new ElcMutualCrossStuDto();
 		stuDto.setCalendarId(dto.getCalendarId());
@@ -151,16 +150,34 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		//返回单个po对象在切换学期时代码报错（切换未上送学生id所以返回多条记录），故统一使用list接收
 		List<ElcMutualCrossStuVo> elcMutualCrossStuVos = null;
 		// 判断该学生是否在本研互选名单中
-//		if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
-//			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
-//		}
-		// 判断该学生是否在跨院系互选名单中
+		/*if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
+			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
+		}*/
+		//判断校验是否开启选课、选课时间是否符合
+		Example example = new Example(ElcMutualApplyTurns.class);
+		Example.Criteria criteria = example.createCriteria();
+		criteria.andEqualTo("calendarId", dto.getCalendarId());
+		criteria.andEqualTo("projectId", projectId);
+		criteria.andEqualTo("category", dto.getCategory());
+		criteria.andEqualTo("open", Constants.DELETE_TRUE);
+		//查询选课时间开关
+		ElcMutualApplyTurns elcMutualApplyTurns  = elcMutualApplySwitchDao.selectOneByExample(example);
+		Date date = new Date();
+		//当前时间如果早于开始时间或者晚于结束时间,则抛出异常、无法添加选课课程
+		if(elcMutualApplyTurns!=null) {
+			if (date.before(elcMutualApplyTurns.getBeginAt()) || date.after(elcMutualApplyTurns.getEndAt())) {
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notDateInCrossElection"));
+			}
+		}else{
+			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notSearchCrossOpen"));
+		}
+		// 查询跨院系互选名单中
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
 			elcMutualCrossStuVos = elcCrossStdsDao.isInElcMutualStdList(stuDto);
 		} else {
 			elcMutualCrossStuVos = elcMutualStdsDao.isInElcMutualStdList(stuDto);
 		}
-
+        //判断该学生是否在跨院系互选名单中
 		if (elcMutualCrossStuVos == null || elcMutualCrossStuVos.isEmpty()) {
 			if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
 				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInCrossStuList")); 
@@ -168,6 +185,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notInMutualStuList")); 
 			}
 		}
+		//校验通过,查询学生本研申请列表
 		List<String> projectIds =new ArrayList<>();
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
 			projectIds.add(Constants.PROJ_UNGRADUATE);
