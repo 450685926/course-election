@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.server.edu.mutual.entity.ElcMutualApply;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,20 @@ public class CultureSerivceInvokerToMutual {
 		
         return list;
     }
-	
+
+	/**
+	 * 功能描述: 更新学生培养计划
+	 *
+	 * @params: [elcMutualApply]
+	 * @return: com.server.edu.common.rest.RestResult
+	 * @author: zhaoerhu
+	 * @date: 2020/2/18 15:11
+	 */
+	public static RestResult updateCulturePlan4Stu(ElcMutualApply elcMutualApply) {
+		RestResult restResult = ServicePathEnum.CULTURESERVICE.
+				postForObject("/culturePlan/getCulturePlanByStudentId?id={id}&isPass={isPass}", elcMutualApply, RestResult.class);
+		return restResult;
+	}
 	
 	
 }
