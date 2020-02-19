@@ -77,6 +77,11 @@ public class ElcMutualApply implements Serializable {
      */
     @Column(name = "MODE_")
     private Integer mode;
+    /**
+     * 修读类型
+     */
+    @Column(name = "COURSE_TAKE_TYPE_")
+    private Integer courseTakeType;
     private static final long serialVersionUID = 1L;
 
     /**
@@ -249,7 +254,17 @@ public class ElcMutualApply implements Serializable {
         this.mode = mode;
     }
 
-    @Override
+    
+    
+    public Integer getCourseTakeType() {
+		return courseTakeType;
+	}
+
+	public void setCourseTakeType(Integer courseTakeType) {
+		this.courseTakeType = courseTakeType;
+	}
+
+	@Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());

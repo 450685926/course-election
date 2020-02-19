@@ -2,6 +2,8 @@ package com.server.edu.mutual.dao;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.server.edu.mutual.dto.ElcMutualListDto;
 import com.server.edu.mutual.entity.ElcMutualApply;
 import com.server.edu.mutual.vo.ElcMutualListVo;
@@ -23,5 +25,7 @@ public interface ElcMutualListDao extends Mapper<ElcMutualApply>,MySqlMapper<Elc
 	 * @return
 	 */
 	List<ElcMutualListVo> getMutualCourseList(ElcMutualListDto dto);
+	
+	int countElectionCourse(@Param("mutualCourseId") String mutualCourseId,@Param("studentId") String studentId);
 	
 }
