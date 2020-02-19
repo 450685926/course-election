@@ -13,6 +13,7 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.mutual.dao.ElcMutualListDao;
@@ -126,21 +127,33 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
             }
         }
 
-        List<ElcMutualListVo> exportElcMutualCrossList = elcMutualListDao.getMutualStuList(dto);
-
+        List<ElcMutualListVo> selectElcMutualListVoList = elcMutualListDao.getMutualStuList(dto);
         try
         {
-            ExcelEntityExport<ElcMutualListVo> excelExport = new ExcelEntityExport(exportElcMutualCrossList,
-                excelStoreConfig.getExportelcMutualStuListExcelKey(),
-                excelStoreConfig.getExportelcMutualStuListExcelTitle(),
-                cacheDirectory);
-            String path = excelExport.exportExcelToCacheDirectory("本研互选名单列表");
+            List<ElcMutualListVo> exportElcMutualCrossList = SpringUtils.convert(selectElcMutualListVoList);
+            String path ;
+            // 本科生名单
+            if(dto.getProjectIds().contains(Constants.PROJ_UNGRADUATE))
+            {
+                ExcelEntityExport<ElcMutualListVo> excelExport = new ExcelEntityExport(exportElcMutualCrossList,
+                        excelStoreConfig.getExportelcMutualUNGRADUATEStuListExcelKey(),
+                        excelStoreConfig.getExportelcMutualUNGRADUATEStuListExcelTitle(),
+                        cacheDirectory);
+                path = excelExport.exportExcelToCacheDirectory("本研互选名单列表(本科生)");
+            }
+            else
+            {
+                ExcelEntityExport<ElcMutualListVo> excelExport = new ExcelEntityExport(exportElcMutualCrossList,
+                        excelStoreConfig.getExportelcMutualStuListExcelKey(),
+                        excelStoreConfig.getExportelcMutualStuListExcelTitle(),
+                        cacheDirectory);
+                path = excelExport.exportExcelToCacheDirectory("本研互选名单列表(研究生)");
+            }
             restResult = RestResult.successData(I18nUtil.getMsg("export.success"), path);
             return restResult;
         }
         catch (Exception e)
         {
-    //        LOG.error("exportElcMutualCrossList: [{}]", e.getMessage());
             return RestResult.fail();
         }
     }
