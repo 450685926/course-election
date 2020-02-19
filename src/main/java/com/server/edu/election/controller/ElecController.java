@@ -8,6 +8,7 @@ import com.server.edu.election.constants.ChooseObj;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.entity.ElectionRounds;
 import com.server.edu.election.query.PublicCourseQuery;
+import com.server.edu.election.query.PublicCourseTag;
 import com.server.edu.election.service.ElecRoundService;
 import com.server.edu.election.studentelec.cache.TeachingClassCache;
 import com.server.edu.election.studentelec.context.ElecCourse;
@@ -259,9 +260,9 @@ public class ElecController
      */
     @ApiOperation(value = "查询通识选修课")
     @PostMapping("/getPublicCourse")
-    public RestResult<List<PublicCourseVo>> getPublicCourse(@RequestBody PublicCourseQuery query)
+    public RestResult<List<PublicCourseTag>> getPublicCourse(@RequestBody PublicCourseQuery query)
     {
-        List<PublicCourseVo> publicCourse = elecService.getPublicCourse(query);
+        List<PublicCourseTag> publicCourse = elecService.getPublicCourse(query);
         return RestResult.successData(publicCourse);
     }
 

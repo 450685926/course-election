@@ -203,6 +203,9 @@ public class ElecYjsController
                 allCourseVo.getCondition().setTrainingLevel(student.getTrainingLevel());
                 allCourseVo.getCondition().setCampu(student.getCampus());
             }
+        } else {
+            allCourseVo.getCondition().setTrainingLevel("");
+            allCourseVo.getCondition().setCampu("");
         }
 
         if (isStudent || isDepartAdmin) {
