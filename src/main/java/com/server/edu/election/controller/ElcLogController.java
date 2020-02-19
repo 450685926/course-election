@@ -1,5 +1,6 @@
 package com.server.edu.election.controller;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -64,6 +65,15 @@ public class ElcLogController
         if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
             List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
             condition2.setFaculties(deptIds);
+        }
+        if("1".equals(projId)){
+            //体育部和外语学院教务员比较特殊能看所有学生 体育教学部000293 外国语学院 000268
+            List<String> faculties = condition2.getFaculties();
+            if(CollectionUtil.isNotEmpty(faculties)){
+                if(faculties.contains("000293") || faculties.contains("000268")){
+                    condition2.setFaculties(new ArrayList<>());
+                }
+            }
         }
         PageResult<ElcLogVo> list = service.listPage(condition);
         
