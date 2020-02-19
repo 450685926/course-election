@@ -378,7 +378,7 @@
 		where
 		class.DELETE_STATUS_ = 0 and
 		class.MAN_ARRANGE_FLAG_ in(1,2,3) and
-		course.CALENDAR_ID_ = #{calendarId} and
+		course.CALENDAR_ID_ = #{calendarId}
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 			and course.TRAINING_LEVEL_ = #{trainingLevel}
 		</if>
