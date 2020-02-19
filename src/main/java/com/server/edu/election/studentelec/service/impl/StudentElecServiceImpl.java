@@ -833,6 +833,7 @@ public class StudentElecServiceImpl extends AbstractCacheService
                                         publicCourseVo.setYs(course.isYs());
                                         publicCourseVo.setTimes(times);
                                         publicCourseVos.add(publicCourseVo);
+                                        break;
                                     }
                                 }
                             }
