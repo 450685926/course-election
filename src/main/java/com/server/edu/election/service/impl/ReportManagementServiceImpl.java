@@ -411,6 +411,14 @@ public class ReportManagementServiceImpl implements ReportManagementService
                 reportManagementCondition.setFaculties(deptIds);
             }
         }
+
+        //体育部和外语学院教务员比较特殊能看所有学生 体育教学部000293 外国语学院 000268
+        List<String> faculties = reportManagementCondition.getFaculties();
+        if(CollectionUtil.isNotEmpty(faculties)){
+            if(faculties.contains("000293") || faculties.contains("000268")){
+                reportManagementCondition.setFaculties(new ArrayList<>());
+            }
+        }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         Page<StudentVo> allSchoolTimetab =
             courseTakeDao.findAllSchoolTimetab(reportManagementCondition);
