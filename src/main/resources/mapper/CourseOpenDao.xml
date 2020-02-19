@@ -154,6 +154,7 @@
 		and a.CALENDAR_ID_ = #{calendarId}
 		and a.PROJ_ID_ = #{projectId}
 		and a.DELETE_STATUS_ = 0
+		and c.DELETE_STATUS_ = 0
 		and c.MAN_ARRANGE_FLAG_ in (1,2,3)
 		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyWord)">
 			and (a.COURSE_NAME_ like CONCAT('%', #{keyWord}, '%') or c.CODE_ like CONCAT(#{keyWord}, '%'))
@@ -177,8 +178,9 @@
 			JOIN course_open_t t3 ON t2.COURSE_OPEN_ID_ = t3.ID_
 			JOIN teaching_class_teacher_t t4 ON t1.ID_ = t4.TEACHING_CLASS_ID_
 		WHERE
-		    t3.DELETE_STATUS_ = 0 and
-			t1.ID_ in
+		    t3.DELETE_STATUS_ = 0
+		and t1.DELETE_STATUS_ = 0
+		and t1.ID_ in
 		<foreach item="item" collection="teachClassIds" separator="," open="(" close=")" >
 			#{item}
 		</foreach>
