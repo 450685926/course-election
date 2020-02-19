@@ -10,12 +10,14 @@ import com.server.edu.common.entity.LabelCreditCount;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
 import com.server.edu.mutual.controller.ElcMutualApplyController;
 import com.server.edu.mutual.dao.ElcCrossStdsDao;
 import com.server.edu.mutual.dao.ElcMutualApplyDao;
 import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
+import com.server.edu.mutual.dao.ElcMutualListDao;
 import com.server.edu.mutual.dao.ElcMutualStdsDao;
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
@@ -61,6 +63,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 	@Autowired
 	private ElcMutualApplySwitchDao elcMutualApplySwitchDao;
+	
+	@Autowired
+	private ElcMutualListDao elcMutualListDao;
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualApplyList(PageCondition<ElcMutualApplyDto> condition) {
@@ -120,12 +125,21 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		List<ElcMutualApply>  elcMutualApplys= new ArrayList<ElcMutualApply>();
 		for(Long mutualCourseId: mutualCourseIds) {
 			ElcMutualApply elcMutualApply = new ElcMutualApply();
+			
 			BeanUtils.copyProperties(dto, elcMutualApply);
 			elcMutualApply.setMutualCourseId(mutualCourseId);
 			elcMutualApply.setStatus(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.UN_AUDITED.status())));
 			elcMutualApply.setStudentId(studentId);
 			elcMutualApply.setUserId(studentId);
 			elcMutualApply.setApplyAt(new Date());
+			int count = elcMutualListDao.countElectionCourse(String.valueOf(mutualCourseId), studentId);
+			if(count>0) {
+				elcMutualApply.setCourseTakeType(2);
+			}else {
+				elcMutualApply.setCourseTakeType(1);
+			}
+			LOG.info("elcMutualApplycount: "+count);
+			LOG.info("elcMutualApplygetCourseTakeType: "+elcMutualApply.getCourseTakeType());
 			elcMutualApplys.add(elcMutualApply);
 		}
 		result = elcMutualApplyDao.insertList(elcMutualApplys);
