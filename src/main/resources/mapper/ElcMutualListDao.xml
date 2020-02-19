@@ -145,6 +145,9 @@
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
 		        and t2.IN_TYPE_  = #{inType}
 		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
+		        and t1.MODE_  = #{mode}
+		    </if>
 		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseTrainingLevel)">
 		        and t4.TRAINING_LEVEL_  = #{courseTrainingLevel}
 		    </if>

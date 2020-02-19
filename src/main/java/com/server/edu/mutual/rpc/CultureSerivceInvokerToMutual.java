@@ -5,12 +5,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.LabelCreditCount;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.mutual.controller.ElcMutualApplyController;
 
 /**
  * 培养计划微服务调用
@@ -21,6 +24,8 @@ import com.server.edu.common.rest.RestResult;
  * @since [产品/模块版本]
  */
 public class CultureSerivceInvokerToMutual {
+	private static Logger LOG =
+	        LoggerFactory.getLogger(CultureSerivceInvokerToMutual.class);
     
 	/**
 	 * 学生个人计划统计
@@ -57,9 +62,10 @@ public class CultureSerivceInvokerToMutual {
 	public static List<String> studentPlanCourseCode(String studentId)
     {
 		RestResult resultList = ServicePathEnum.CULTURESERVICE
-            .getForObject("/bclCulturePlan/getCourseCode?studentId={studentId}&isPass={isPass}", RestResult.class, studentId,0);
+            .getForObject("/bclCulturePlan/getCourseCode?studentId={studentId}&isPass={isPass}", RestResult.class, studentId,1);
 		String json ="";
 		List<String> list = new ArrayList<>();
+		LOG.info("studentPlanCourseCode"+JSONObject.toJSONString(resultList));
 		if(resultList.getCode() == 200 && null != resultList.getData() && StringUtils.isNotEmpty(resultList.getData().toString())) {
 			json =JSONObject.toJSON(resultList.getData()).toString();
 		}
