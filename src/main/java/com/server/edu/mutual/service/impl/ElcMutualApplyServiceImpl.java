@@ -11,6 +11,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.util.CommonConstant;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
 import com.server.edu.mutual.controller.ElcMutualApplyController;
@@ -167,23 +168,27 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		/*if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
 			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
 		}*/
-		//判断校验是否开启选课、选课时间是否符合
-		Example example = new Example(ElcMutualApplyTurns.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("calendarId", dto.getCalendarId());
-		criteria.andEqualTo("projectId", projectId);
-		criteria.andEqualTo("category", dto.getCategory());
-		criteria.andEqualTo("open", Constants.DELETE_TRUE);
-		//查询选课时间开关
-		ElcMutualApplyTurns elcMutualApplyTurns  = elcMutualApplySwitchDao.selectOneByExample(example);
-		Date date = new Date();
-		//当前时间如果早于开始时间或者晚于结束时间,则抛出异常、无法添加选课课程
-		if(elcMutualApplyTurns!=null) {
-			if (date.before(elcMutualApplyTurns.getBeginAt()) || date.after(elcMutualApplyTurns.getEndAt())) {
-				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notDateInCrossElection"));
+		boolean checkFlag = !CommonConstant.isEmptyStr(dto.getCourseSelectionMark()) && "true".equalsIgnoreCase(dto.getCourseSelectionMark());
+		LOG.info("-------------------it is check add course election flag:{}",checkFlag);
+		if(checkFlag) {
+			//判断校验是否开启选课、选课时间是否符合
+			Example example = new Example(ElcMutualApplyTurns.class);
+			Example.Criteria criteria = example.createCriteria();
+			criteria.andEqualTo("calendarId", dto.getCalendarId());
+			criteria.andEqualTo("projectId", projectId);
+			criteria.andEqualTo("category", dto.getCategory());
+			criteria.andEqualTo("open", Constants.DELETE_TRUE);
+			//查询选课时间开关
+			ElcMutualApplyTurns elcMutualApplyTurns = elcMutualApplySwitchDao.selectOneByExample(example);
+			Date date = new Date();
+			//当前时间如果早于开始时间或者晚于结束时间,则抛出异常、无法添加选课课程
+			if (elcMutualApplyTurns != null) {
+				if (date.before(elcMutualApplyTurns.getBeginAt()) || date.after(elcMutualApplyTurns.getEndAt())) {
+					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notDateInCrossElection"));
+				}
+			} else {
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notSearchCrossOpen"));
 			}
-		}else{
-			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notSearchCrossOpen"));
 		}
 		// 查询跨院系互选名单中
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
