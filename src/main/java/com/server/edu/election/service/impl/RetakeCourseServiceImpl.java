@@ -3,6 +3,7 @@ package com.server.edu.election.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.common.vo.SchoolCalendarVo;
@@ -15,6 +16,7 @@ import com.server.edu.election.dto.ClassTeacherDto;
 import com.server.edu.election.dto.RebuildCourseDto;
 import com.server.edu.election.dto.RetakeCourseCountDto;
 import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.entity.Course;
 import com.server.edu.election.entity.ElcCourseTake;
 import com.server.edu.election.entity.ElcLog;
 import com.server.edu.election.entity.ElectionRule;
@@ -31,6 +33,7 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.util.CalUtil;
 import com.server.edu.util.CollectionUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +58,9 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
 
     @Autowired
     private CourseOpenDao courseOpenDao;
+
+    @Autowired
+    private CourseDao courseDao;
 
     @Autowired
     private ElectionRuleDao electionRuleDao;
@@ -305,6 +311,47 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         } else {
             throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.statusError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
         }
+    }
+
+    @Override
+    public RebuildStuVo findRebuildStu(Long calendarId, String studentId) {
+        Session session = SessionUtils.getCurrentSession();
+        Student student = studentDao.selectByPrimaryKey(studentId);
+        String currentManageDptId = session.getCurrentManageDptId();
+        // 判断是不是教务员
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+            List<String> deptIds = SessionUtils.getCurrentSession().getGroupData().get(GroupDataEnum.department.getValue());
+            String faculty = student.getFaculty();
+            // 教务员只能对其管理学院的学生进行代选
+            if (!deptIds.contains(faculty)) {
+                throw new ParameterValidateException("学生" + student.getName() + "不在您的管理范围之内");
+            }
+            // 判断重修选课开关是否开启
+            Boolean retakeRule = getRetakeRule(calendarId, currentManageDptId);
+            if (!retakeRule) {
+                throw new ParameterValidateException("重修选课未开放，您不能进行代选课！");
+            }
+        }
+        Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
+        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
+        Example example = new Example(Course.class);
+        example.createCriteria()
+                .andIn("code", failedCourseCodes);
+        List<Course> courses = courseDao.selectByExample(example);
+        List<String> collect = courses.stream().map(s -> s.getCode() + " " + s.getName()).collect(Collectors.toList());
+        RebuildStuVo rebuildStuVo = new RebuildStuVo();
+        rebuildStuVo.setStudentCode(studentId);
+        rebuildStuVo.setName(student.getName());
+        rebuildStuVo.setGrade(student.getGrade());
+        rebuildStuVo.setFaculty(student.getFaculty());
+        rebuildStuVo.setProfession(student.getProfession());
+        rebuildStuVo.setTrainingCategory(student.getTrainingCategory());
+        rebuildStuVo.setTrainingLevel(student.getTrainingLevel());
+        rebuildStuVo.setDegreeType(student.getDegreeType());
+        rebuildStuVo.setFormLearning(student.getFormLearning());
+        rebuildStuVo.setCount(maxCount);
+        rebuildStuVo.setCourses(collect);
+        return rebuildStuVo;
     }
 
 
