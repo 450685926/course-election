@@ -359,19 +359,40 @@ public class ElcMutualCrossServiceImpl implements ElcMutualCrossService {
 		int result = Constants.ZERO;
 		List<Student> students = getStudentInfos(dto);
 		if(CollectionUtil.isNotEmpty(students)) {
-			List<String> studentIdList = students.stream().map(Student::getStudentCode).collect(Collectors.toList());
-			if(Constants.BK_CROSS.equals(dto.getMode())) {
-				Example example = new Example(ElcCrossStds.class);
-				Example.Criteria criteria =example.createCriteria();
-				criteria.andEqualTo("calendarId", dto.getCalendarId());
-				criteria.andIn("studentId", studentIdList);
-				result = elcCrossStdsDao.deleteByExample(example);
-			}else {
-				Example example = new Example(ElcMutualStds.class);
-				Example.Criteria criteria =example.createCriteria();
-				criteria.andEqualTo("calendarId", dto.getCalendarId());
-				criteria.andIn("studentId", studentIdList);
-				result = elcMutualStdsDao.deleteByExample(example);
+			List<String> studentIdList = new ArrayList<>();
+			for(Student student : students) {
+				studentIdList.add(student.getStudentCode());
+				if(studentIdList.size() > 500) {
+					if(Constants.BK_CROSS.equals(dto.getMode())) {
+						Example example = new Example(ElcCrossStds.class);
+						Example.Criteria criteria =example.createCriteria();
+						criteria.andEqualTo("calendarId", dto.getCalendarId());
+						criteria.andIn("studentId", studentIdList);
+						result = elcCrossStdsDao.deleteByExample(example);
+					} else {
+						Example example = new Example(ElcMutualStds.class);
+						Example.Criteria criteria =example.createCriteria();
+						criteria.andEqualTo("calendarId", dto.getCalendarId());
+						criteria.andIn("studentId", studentIdList);
+						result = elcMutualStdsDao.deleteByExample(example);
+					}
+					studentIdList = new ArrayList<>();
+				}
+			}
+			if (CollectionUtil.isNotEmpty(studentIdList)) {
+				if(Constants.BK_CROSS.equals(dto.getMode())) {
+					Example example = new Example(ElcCrossStds.class);
+					Example.Criteria criteria =example.createCriteria();
+					criteria.andEqualTo("calendarId", dto.getCalendarId());
+					criteria.andIn("studentId", studentIdList);
+					result = elcCrossStdsDao.deleteByExample(example);
+				} else {
+					Example example = new Example(ElcMutualStds.class);
+					Example.Criteria criteria =example.createCriteria();
+					criteria.andEqualTo("calendarId", dto.getCalendarId());
+					criteria.andIn("studentId", studentIdList);
+					result = elcMutualStdsDao.deleteByExample(example);
+				}
 			}
 		}
 		return result;
