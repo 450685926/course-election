@@ -129,9 +129,19 @@ public class RetakeCourseController {
     @ApiOperation(value = "研究生重修代选课学生信息查询")
     @GetMapping("/findRebuildStu")
     public RestResult<RebuildStuVo> findRebuildStu(@RequestParam("calendarId") Long calendarId,
-                                                   @RequestParam("calendarId") String studentId) {
+                                                   @RequestParam("studentId") String studentId)
+    {
         RebuildStuVo rebuildStuVo = retakeCourseService.findRebuildStu(calendarId, studentId);
         return RestResult.successData(rebuildStuVo);
+    }
+
+    @ApiOperation(value = "研究生重修代选课学生不及格课程列表")
+    @GetMapping("/failedCourses")
+    public RestResult<List<FailedCourseVo>> failedCourses(@RequestParam("calendarId") Long calendarId,
+                                                          @RequestParam("studentId") String studentId)
+    {
+        List<FailedCourseVo> list = retakeCourseService.failedCourses(calendarId, studentId);
+        return RestResult.successData(list);
     }
 
 }
