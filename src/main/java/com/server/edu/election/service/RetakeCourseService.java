@@ -31,6 +31,8 @@ public interface RetakeCourseService {
 
     PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition);
 
+    PageResult<RebuildCourseVo> findRebuildCourses(PageCondition<RebuildCourseDto> condition);
+
     void updateRebuildCourse(RebuildCourseVo rebuildCourseVo);
 
     RebuildStuVo findRebuildStu(Long calendarId, String studentId);

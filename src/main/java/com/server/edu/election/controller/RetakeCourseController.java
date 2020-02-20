@@ -144,4 +144,16 @@ public class RetakeCourseController {
         return RestResult.successData(list);
     }
 
+    /**
+     * 研究生重修代选课可选课程列表
+     *
+     * @param condition
+     * @return
+     */
+    @ApiOperation(value = "研究生重修代选课可选课程列表")
+    @PostMapping("/findRebuildCourses")
+    public RestResult<PageResult<RebuildCourseVo>> findRebuildCourses(@RequestBody PageCondition<RebuildCourseDto> condition) {
+        PageResult<RebuildCourseVo> rebuildCourseList = retakeCourseService.findRebuildCourses(condition);
+        return RestResult.successData(rebuildCourseList);
+    }
 }
