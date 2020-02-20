@@ -32,40 +32,45 @@
     <result column="TEARCHER_CODE" jdbcType="VARCHAR" property="tearcherCode" />
   </resultMap>
   <select id="getStudentScoreList" parameterType="com.server.edu.election.dto.StudentScoreDto" resultType="com.server.edu.common.vo.ScoreStudentResultVo">
-     SELECT  ID id,
-             ACADEMIC_YEAR_ academicYear,
-             SEMESTER_ semester,
-             STUDENT_NUM_  studentId,
-             STUDENT_NAME_ studentName,
-             COURSE_NUM_ teachingClassCode,
-             COURSE_CODE_  courseCode,
-             COURSE_NAME_  courseName,
-             EXAM_WAY_ examType,
-             CREDIT_ credit,
-             SCORE_ finalScore,
-             GRADE_POINT_ greadePoint,
-             case IS_PASS_ 
+     SELECT  t1.ID id,
+             t1.ACADEMIC_YEAR_ academicYear,
+             t1.SEMESTER_ semester,
+              t1.STUDENT_NUM_  studentId,
+              t1.STUDENT_NAME_ studentName,
+              t1.COURSE_NUM_ teachingClassCode,
+              t1.COURSE_CODE_  courseCode,
+              t1.COURSE_NAME_  courseName,
+              t1.EXAM_WAY_ examType,
+              t1.CREDIT_ credit,
+              t1.SCORE_ finalScore,
+              t1.GRADE_POINT_ greadePoint,
+             case t1.IS_PASS_
              when 'Y' then 1
              else 0 end 
              isPass,
-             TEARCHER_CODE teacherId,
-             TEARCHER_NAME_ teacherName
-         FROM student_undergraduate_score_info_t
+             t1.TEARCHER_CODE teacherId,
+             t1.TEARCHER_NAME_ teacherName,
+             t2.XQ cheat
+         FROM student_undergraduate_score_info_t t1
+          LEFT JOIN kswjb_t t2 ON t1.COURSE_CODE_ = t2.KSKCDM
+          AND t1.ACADEMIC_YEAR_ = t2.XND
+          AND t1.SEMESTER_ = t2.XQ
+          AND t1.STUDENT_NUM_ = t2.XH
          <where>
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-               STUDENT_NUM_ = #{studentId}
+                t1.STUDENT_NUM_ = #{studentId}
              </if>
              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(academicYear)">
-               and ACADEMIC_YEAR_ = #{academicYear}
+               and t1.ACADEMIC_YEAR_ = #{academicYear}
              </if>
              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(semester)">
-               and SEMESTER_ = #{semester}
+               and t1.SEMESTER_ = #{semester}
              </if>
              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(score)">
-               and SCORE_ = #{score}
+               and t1.SCORE_ = #{score}
              </if>
              <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isPass)">
-               and IS_PASS_ = #{isPass}
+               and t1.IS_PASS_ = #{isPass}
              </if>
          </where>
   </select>
