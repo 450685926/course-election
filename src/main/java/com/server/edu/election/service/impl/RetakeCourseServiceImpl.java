@@ -269,14 +269,21 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         log.setCreateIp(ip);
         if (rebuildCourseVo.getStatus() == 0) {
             Student student = studentDao.findStudentByCode(studentId);
-            Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
-            if (maxCount == null) {
-                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+
+            boolean isAdmin = StringUtils.equals(currentSession.getCurrentRole(), "1")
+                    && currentSession.isAdmin();
+            // 如果不是管理员，要校验重修门数上限
+            if (!isAdmin) {
+                Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
+                if (maxCount == null) {
+                    throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimitError",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+                }
+                Set<String> set =courseTakeDao.findRetakeCount(studentId);
+                if (set.size() >= maxCount.intValue()) {
+                    throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
+                }
             }
-            Set<String> set =courseTakeDao.findRetakeCount(studentId);
-            if (set.size() >= maxCount.intValue()) {
-                throw new ParameterValidateException(I18nUtil.getMsg("rebuildCourse.countLimit",I18nUtil.getMsg("election.elcNoGradCouSubs")));
-            }
+
             // 判断学生是否已经选过该门课程
             int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, courseCode);
             if (count != 0) {
