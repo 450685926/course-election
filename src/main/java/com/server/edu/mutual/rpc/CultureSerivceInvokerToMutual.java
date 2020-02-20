@@ -72,7 +72,7 @@ public class CultureSerivceInvokerToMutual {
         {
         	LOG.info("return value:"+JSONObject.toJSONString(result));
         	HashMap<String,Object> objMap = (HashMap<String,Object>)result.getData();
-        	List<HashMap<String,Object>> mapList=(List<HashMap<String,Object>>)objMap.get("culturePlanList");
+        	List<HashMap<String,Object>> mapList=(List<HashMap<String,Object>>)objMap.get("cultureCourseLabelRelationList");
         	List<String> list=new ArrayList<>(); 
         	for(HashMap<String,Object> hashMap:mapList){
         		list.add(Optional.ofNullable(hashMap.get("code")).orElse("").toString());
