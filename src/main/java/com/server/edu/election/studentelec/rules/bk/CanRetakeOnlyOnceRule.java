@@ -34,23 +34,26 @@ public class CanRetakeOnlyOnceRule extends AbstractElecRuleExceutorBk
                     .equals(c.getCourse().getCourseCode())).count();
         }
 
-        if(CollectionUtil.isEmpty(failedCourse)){
-            failCount = completedCourses.stream().filter(c -> courseClass.getCourseCode()
+        if(CollectionUtil.isNotEmpty(failedCourse)){
+            failCount = failedCourse.stream().filter(c -> courseClass.getCourseCode()
                     .equals(c.getCourse().getCourseCode())).count();
         }
 
-        if(successCount==1 && failCount==0){
-            return true;
-        }
-        if(successCount<1){
+
+        if(successCount == 1  && failCount == 0 ){
             return true;
         }
 
-            ElecRespose respose = context.getRespose();
-            respose.getFailedReasons()
-                    .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
-                            I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
-            return false;
+        if(successCount < 1){
+            return true;
+        }
+        ElecRespose respose = context.getRespose();
+        respose.getFailedReasons()
+                .put(courseClass.getTeachClassCode() + courseClass.getCourseName(),
+                        I18nUtil.getMsg("ruleCheck.canRetakeOnlyOnce"));
+        return false;
+
+
 
     }
     
