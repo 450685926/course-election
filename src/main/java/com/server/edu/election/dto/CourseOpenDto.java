@@ -252,5 +252,58 @@ public class CourseOpenDto extends CourseOpen
     {
         this.courseLabelName = courseLabelName;
     }
-	
+
+    public CourseOpenDto() {
+    }
+
+    public CourseOpenDto(Long roundId, Long teachingClassId, String teachingClassCode, String campus, String teachingClassName, String teachClassType, Integer maxNumber, Integer currentNumber, Integer suggestStatus, String keyWord, List<String> courses, String projectId, String teachingClassRemark, Long courseLabelId, String teacherCode, Integer reserveNumber, Integer manArrangeFlag, String courseLabelName, Integer thirdWithdrawNumber, String timeAndRoom, String teachingLanguage) {
+        this.roundId = roundId;
+        this.teachingClassId = teachingClassId;
+        this.teachingClassCode = teachingClassCode;
+        this.campus = campus;
+        this.teachingClassName = teachingClassName;
+        this.teachClassType = teachClassType;
+        this.maxNumber = maxNumber;
+        this.currentNumber = currentNumber;
+        this.suggestStatus = suggestStatus;
+        this.keyWord = keyWord;
+        this.courses = courses;
+        this.projectId = projectId;
+        this.teachingClassRemark = teachingClassRemark;
+        this.courseLabelId = courseLabelId;
+        this.teacherCode = teacherCode;
+        this.reserveNumber = reserveNumber;
+        this.manArrangeFlag = manArrangeFlag;
+        this.courseLabelName = courseLabelName;
+        this.thirdWithdrawNumber = thirdWithdrawNumber;
+        this.timeAndRoom = timeAndRoom;
+        this.teachingLanguage = teachingLanguage;
+    }
+
+    @Override
+    public String toString() {
+        return "CourseOpenDto{" +
+                "roundId=" + roundId +
+                ", teachingClassId=" + teachingClassId +
+                ", teachingClassCode='" + teachingClassCode + '\'' +
+                ", campus='" + campus + '\'' +
+                ", teachingClassName='" + teachingClassName + '\'' +
+                ", teachClassType='" + teachClassType + '\'' +
+                ", maxNumber=" + maxNumber +
+                ", currentNumber=" + currentNumber +
+                ", suggestStatus=" + suggestStatus +
+                ", keyWord='" + keyWord + '\'' +
+                ", courses=" + courses +
+                ", projectId='" + projectId + '\'' +
+                ", teachingClassRemark='" + teachingClassRemark + '\'' +
+                ", courseLabelId=" + courseLabelId +
+                ", teacherCode='" + teacherCode + '\'' +
+                ", reserveNumber=" + reserveNumber +
+                ", manArrangeFlag=" + manArrangeFlag +
+                ", courseLabelName='" + courseLabelName + '\'' +
+                ", thirdWithdrawNumber=" + thirdWithdrawNumber +
+                ", timeAndRoom='" + timeAndRoom + '\'' +
+                ", teachingLanguage='" + teachingLanguage + '\'' +
+                '}';
+    }
 }
