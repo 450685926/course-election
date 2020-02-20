@@ -115,8 +115,12 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			dto.setByType(Constants.FIRST);
             projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		}
+		/**
+		 * 解决本研互选bug10674 行政学院教务员要查询本学院或本学院管理的学生 2020-2-20
+		 */
+		packageCollegeList(session,dto);
 		dto.setProjectIds(projectIds);
-		
+		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyStuList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
