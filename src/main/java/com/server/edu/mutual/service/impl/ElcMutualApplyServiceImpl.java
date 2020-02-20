@@ -231,10 +231,14 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 		// 本科生可申请的跨院系课程不在培养计划内
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
+			LOG.info("---------------dto.getMode()--------------"+dto.getMode());
+
 			if(Constants.BK_CROSS.equals(dto.getMode())) {
 				List<String> courseCodes = CultureSerivceInvokerToMutual.getCulturePlanCourseCodeByStudentId(studentId);
+				LOG.info("---------------getCulturePlanCourseCodeByStudentId--------------"+courseCodes.size());
 				list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
 			}
+			
 			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
