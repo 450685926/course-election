@@ -10,12 +10,15 @@ import com.server.edu.common.entity.LabelCreditCount;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.CourseTakeType;
+import com.server.edu.election.util.CommonConstant;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
 import com.server.edu.mutual.controller.ElcMutualApplyController;
 import com.server.edu.mutual.dao.ElcCrossStdsDao;
 import com.server.edu.mutual.dao.ElcMutualApplyDao;
 import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
+import com.server.edu.mutual.dao.ElcMutualListDao;
 import com.server.edu.mutual.dao.ElcMutualStdsDao;
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
@@ -61,6 +64,9 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 	@Autowired
 	private ElcMutualApplySwitchDao elcMutualApplySwitchDao;
+	
+	@Autowired
+	private ElcMutualListDao elcMutualListDao;
 	
 	@Override
 	public PageInfo<ElcMutualApplyVo> getElcMutualApplyList(PageCondition<ElcMutualApplyDto> condition) {
@@ -120,12 +126,21 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		List<ElcMutualApply>  elcMutualApplys= new ArrayList<ElcMutualApply>();
 		for(Long mutualCourseId: mutualCourseIds) {
 			ElcMutualApply elcMutualApply = new ElcMutualApply();
+			
 			BeanUtils.copyProperties(dto, elcMutualApply);
 			elcMutualApply.setMutualCourseId(mutualCourseId);
 			elcMutualApply.setStatus(Integer.parseInt(String.valueOf(MutualApplyAuditStatus.UN_AUDITED.status())));
 			elcMutualApply.setStudentId(studentId);
 			elcMutualApply.setUserId(studentId);
 			elcMutualApply.setApplyAt(new Date());
+			int count = elcMutualListDao.countElectionCourse(String.valueOf(mutualCourseId), studentId);
+			if(count>0) {
+				elcMutualApply.setCourseTakeType(2);
+			}else {
+				elcMutualApply.setCourseTakeType(1);
+			}
+			LOG.info("elcMutualApplycount: "+count);
+			LOG.info("elcMutualApplygetCourseTakeType: "+elcMutualApply.getCourseTakeType());
 			elcMutualApplys.add(elcMutualApply);
 		}
 		result = elcMutualApplyDao.insertList(elcMutualApplys);
@@ -153,23 +168,27 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		/*if (null != dto.getMode() && dto.getMode() == Constants.BK_MUTUAL) {
 			elcMutualCrossStuVo = elcMutualStdsDao.isInElcMutualStdList(stuDto);
 		}*/
-		//判断校验是否开启选课、选课时间是否符合
-		Example example = new Example(ElcMutualApplyTurns.class);
-		Example.Criteria criteria = example.createCriteria();
-		criteria.andEqualTo("calendarId", dto.getCalendarId());
-		criteria.andEqualTo("projectId", projectId);
-		criteria.andEqualTo("category", dto.getCategory());
-		criteria.andEqualTo("open", Constants.DELETE_TRUE);
-		//查询选课时间开关
-		ElcMutualApplyTurns elcMutualApplyTurns  = elcMutualApplySwitchDao.selectOneByExample(example);
-		Date date = new Date();
-		//当前时间如果早于开始时间或者晚于结束时间,则抛出异常、无法添加选课课程
-		if(elcMutualApplyTurns!=null) {
-			if (date.before(elcMutualApplyTurns.getBeginAt()) || date.after(elcMutualApplyTurns.getEndAt())) {
-				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notDateInCrossElection"));
+		boolean checkFlag = !CommonConstant.isEmptyStr(dto.getCourseSelectionMark()) && "true".equalsIgnoreCase(dto.getCourseSelectionMark());
+		LOG.info("-------------------it is check add course election flag:{}",checkFlag);
+		if(checkFlag) {
+			//判断校验是否开启选课、选课时间是否符合
+			Example example = new Example(ElcMutualApplyTurns.class);
+			Example.Criteria criteria = example.createCriteria();
+			criteria.andEqualTo("calendarId", dto.getCalendarId());
+			criteria.andEqualTo("projectId", projectId);
+			criteria.andEqualTo("category", dto.getCategory());
+			criteria.andEqualTo("open", Constants.DELETE_TRUE);
+			//查询选课时间开关
+			ElcMutualApplyTurns elcMutualApplyTurns = elcMutualApplySwitchDao.selectOneByExample(example);
+			Date date = new Date();
+			//当前时间如果早于开始时间或者晚于结束时间,则抛出异常、无法添加选课课程
+			if (elcMutualApplyTurns != null) {
+				if (date.before(elcMutualApplyTurns.getBeginAt()) || date.after(elcMutualApplyTurns.getEndAt())) {
+					throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notDateInCrossElection"));
+				}
+			} else {
+				throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notSearchCrossOpen"));
 			}
-		}else{
-			throw new ParameterValidateException(I18nUtil.getMsg("elcMutualStu.notSearchCrossOpen"));
 		}
 		// 查询跨院系互选名单中
 		if (null != dto.getMode() && dto.getMode() == Constants.BK_CROSS) {
@@ -212,8 +231,14 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 
 		// 本科生可申请的跨院系课程不在培养计划内
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
-			List<String> courseCodes = CultureSerivceInvokerToMutual.studentPlanCourseCode(studentId);
-			list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+			LOG.info("---------------dto.getMode()--------------"+dto.getMode());
+
+			if(Constants.BK_CROSS.equals(dto.getMode())) {
+				List<String> courseCodes = CultureSerivceInvokerToMutual.getCulturePlanCourseCodeByStudentId(studentId);
+				LOG.info("---------------getCulturePlanCourseCodeByStudentId--------------"+courseCodes.size());
+				list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+			}
+			
 			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集

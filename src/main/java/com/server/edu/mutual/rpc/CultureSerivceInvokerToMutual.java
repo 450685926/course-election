@@ -1,8 +1,11 @@
 package com.server.edu.mutual.rpc;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.server.edu.mutual.entity.ElcMutualApply;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.server.edu.common.ServicePathEnum;
 import com.server.edu.common.entity.LabelCreditCount;
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.common.rest.ResultStatus;
 import com.server.edu.mutual.controller.ElcMutualApplyController;
 
 /**
@@ -60,6 +64,23 @@ public class CultureSerivceInvokerToMutual {
 	 * @param studentId
 	 * @return
 	 */
+	public static List<String> getCulturePlanCourseCodeByStudentId(String studentId){
+		RestResult result = ServicePathEnum.CULTURESERVICE
+                .getForObject("/bclCulturePlan/getCulturePlanByStudentId?id={0}&isPass=1", RestResult.class,studentId);
+		LOG.info("return value:"+JSONObject.toJSONString(result));
+		if (null != result
+                && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
+        {
+        	HashMap<String,Object> objMap = (HashMap<String,Object>)result.getData();
+        	List<HashMap<String,Object>> mapList=(List<HashMap<String,Object>>)objMap.get("cultureCourseLabelRelationList");
+        	List<String> list=new ArrayList<>(); 
+        	for(HashMap<String,Object> hashMap:mapList){
+        		list.add(Optional.ofNullable(hashMap.get("code")).orElse("").toString());
+        	}
+        	return list;
+        }
+        return Collections.emptyList();
+	}
 	public static List<String> studentPlanCourseCode(String studentId)
     {
 		RestResult resultList = ServicePathEnum.CULTURESERVICE

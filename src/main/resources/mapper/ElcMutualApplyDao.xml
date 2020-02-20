@@ -249,44 +249,50 @@
 		t4.`PROFESSION_`,
 		t4.`TRAINING_LEVEL_` stuTrainingLevel
 		FROM
-		`elc_mutual_apply_t` t1
-		JOIN `elc_mutual_courses_t` t2 ON t1.`MUTUAL_COURSE_ID_` = t2.`COURSE_ID_`
-		JOIN course_open_t t5 on t5.ID_ = t2.COURSE_ID_
-		JOIN `course_t` t3 ON t3.`CODE_` = t5.`COURSE_CODE_`
-		JOIN `student_t` t4 ON t4.`STUDENT_CODE_` = t1.`STUDENT_ID_`
-		<where>
-			t1.CALENDAR_ID_  = #{calendarId}
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
-				and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
-				and t4.NAME_ like concat ('%', #{studentName},'%')
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
-				and t2.BY_TYPE_  = #{byType}
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
-				and t2.IN_TYPE_  = #{inType}
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
-				and t5.PROJ_ID_ in
-				<foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">
-					#{projectId}
-				</foreach>
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
-				and t4.GRADE_  = #{grade}
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
-				and t4.FACULTY_  = #{college}
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
-				and t4.PROFESSION_  = #{profession}
-			</if>
-			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuTrainingLevel)">
-				and t4.TRAINING_LEVEL_  = #{stuTrainingLevel}
-			</if>
-		</where>
+		  `elc_mutual_apply_t` t1
+		  JOIN `elc_mutual_courses_t` t2 ON t1.`MUTUAL_COURSE_ID_` = t2.`COURSE_ID_`
+		  JOIN course_open_t t5 on t5.ID_ = t2.COURSE_ID_  
+		  JOIN `course_t` t3 ON t3.`CODE_` = t5.`COURSE_CODE_`
+		  JOIN `student_t` t4 ON t4.`STUDENT_CODE_` = t1.`STUDENT_ID_`
+		 <where>
+		    t1.CALENDAR_ID_  = #{calendarId}
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentId)">
+		        and t1.STUDENT_ID_ like concat ('%', #{studentId},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(studentName)">
+		        and t4.NAME_ like concat ('%', #{studentName},'%')
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+		        and t2.BY_TYPE_  = #{byType}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+		        and t2.IN_TYPE_  = #{inType}
+		    </if>		    
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectIds)">
+		        and t5.PROJ_ID_ in  
+		        <foreach item="projectId" collection="projectIds" open="(" close=")" separator=",">
+                    #{projectId}
+                </foreach>
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(grade)">
+		        and t4.GRADE_  = #{grade}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(college)">
+		        and t4.FACULTY_  = #{college}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(profession)">
+		        and t4.PROFESSION_  = #{profession}
+		    </if>
+		    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(stuTrainingLevel)">
+		        and t4.TRAINING_LEVEL_  = #{stuTrainingLevel}
+		    </if>
+			 <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(collegeList)">
+				 and t4.FACULTY_ in
+				 <foreach item="college" collection="collegeList" open="(" close=")" separator=",">
+					 #{college}
+				 </foreach>
+			 </if>
+		 </where>
 		GROUP BY t1.`STUDENT_ID_`
 	</select>
 

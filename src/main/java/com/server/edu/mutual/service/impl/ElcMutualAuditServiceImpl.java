@@ -21,12 +21,14 @@ import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
 import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.constants.CourseTakeType;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.mutual.Enum.MutualApplyAuditStatus;
 import com.server.edu.mutual.Enum.MutualApplyAuditType;
 import com.server.edu.mutual.dao.ElcMutualApplyAuditLogsDao;
 import com.server.edu.mutual.dao.ElcMutualApplyDao;
 import com.server.edu.mutual.dao.ElcMutualApplySwitchDao;
+import com.server.edu.mutual.dao.ElcMutualListDao;
 import com.server.edu.mutual.dto.AgentApplyDto;
 import com.server.edu.mutual.dto.ElcMutualApplyDto;
 import com.server.edu.mutual.entity.ElcMutualApply;
@@ -60,6 +62,9 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 	@Autowired
 	private ElcMutualCommonService elcMutualCommonService;
+	
+	@Autowired
+	private ElcMutualListDao elcMutualListDao;
 
 	@Override
 	public PageInfo<ElcMutualApplyVo> collegeApplyCourseList(PageCondition<ElcMutualApplyDto> condition) {
@@ -110,8 +115,12 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 			dto.setByType(Constants.FIRST);
             projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		}
+		/**
+		 * 解决本研互选bug10674 行政学院教务员要查询本学院或本学院管理的学生 2020-2-20
+		 */
+		packageCollegeList(session,dto);
 		dto.setProjectIds(projectIds);
-		
+		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyStuList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
 		return pageInfo;
@@ -305,6 +314,12 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		apply.setUserId(session.realUid());
         apply.setMode(dto.getMode());
 		apply.setApplyAt(new Date());
+		int count = elcMutualListDao.countElectionCourse(String.valueOf(dto.getMutualCourseId()), dto.getStudentId());
+		if(count>0) {
+			apply.setCourseTakeType(CourseTakeType.RETAKE.type());
+		}else {
+			apply.setCourseTakeType(CourseTakeType.NORMAL.type());
+		}
 		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
 			apply.setStatus(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status());
 		}else {
