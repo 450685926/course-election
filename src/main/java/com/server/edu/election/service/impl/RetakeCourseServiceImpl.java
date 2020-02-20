@@ -211,15 +211,29 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     public List<FailedCourseVo> failedCourseList(Long calendarId) {
         Session currentSession = SessionUtils.getCurrentSession();
         String uid = currentSession.realUid();
-        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(uid);
+        String currentManageDptId = currentSession.getCurrentManageDptId();
+        return failedCourse(calendarId, uid, currentManageDptId);
+    }
+
+    @Override
+    public List<FailedCourseVo> failedCourses(Long calendarId, String studentId) {
+        Session currentSession = SessionUtils.getCurrentSession();
+        String currentManageDptId = currentSession.getCurrentManageDptId();
+        return failedCourse(calendarId, studentId, currentManageDptId);
+    }
+
+    private List<FailedCourseVo> failedCourse(Long calendarId,
+                                              String studentId, String currentManageDptId)
+    {
+        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         List<FailedCourseVo> failedCourseInfo = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
-            failedCourseInfo = courseOpenDao.findFailedCourseInfo(failedCourseCodes, calendarId, currentSession.getCurrentManageDptId());
+            failedCourseInfo = courseOpenDao.findFailedCourseInfo(failedCourseCodes, calendarId, currentManageDptId);
             for (FailedCourseVo failedCourseVo : failedCourseInfo) {
                 SchoolCalendarVo schoolCalendar = BaseresServiceInvoker.getSchoolCalendarById(calendarId);
                 failedCourseVo.setCalendarName(schoolCalendar.getFullName());
                 // 借用 判断申请免修免考课程是否已经选课 判断学生是否选课
-                int count = courseTakeDao.findIsEletionCourse(uid, calendarId, failedCourseVo.getCourseCode());
+                int count = courseTakeDao.findIsEletionCourse(studentId, calendarId, failedCourseVo.getCourseCode());
                 if (count == 0) {
                     failedCourseVo.setSelected(false);
                 } else {

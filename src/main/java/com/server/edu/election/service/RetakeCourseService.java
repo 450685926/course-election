@@ -27,6 +27,8 @@ public interface RetakeCourseService {
 
     List<FailedCourseVo> failedCourseList(Long calendarId);
 
+    List<FailedCourseVo> failedCourses(Long calendarId, String studentId);
+
     PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition);
 
     void updateRebuildCourse(RebuildCourseVo rebuildCourseVo);
