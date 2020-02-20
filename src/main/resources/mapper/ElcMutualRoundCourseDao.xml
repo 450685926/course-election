@@ -137,31 +137,42 @@
 	  	<where>
 		  	t1.CALENDAR_ID_ = #{calendarId}
 		  	and t1.IS_OPEN_ = 1
+			AND t4.`DELETE_STATUS_`=0
 		  	and t4.MAN_ARRANGE_FLAG_ in(1,2,3)
+			<!--逻辑删除标识-->
+			AND t4.`DELETE_STATUS_`=0
+			<!--部门id-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(projectId)">
 		  	and t1.PROJ_ID_ = #{projectId}
 		  	</if>
 		  	and t4.ID_ NOT IN (
 		  	 	select TEACHING_CLASS_ID_ from election_rounds_cour_t where ROUNDS_ID_ = #{roundId}
 		  	)
+			<!--学院-->
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 	  			and t1.FACULTY_ = #{faculty}
 	  		</if>
+			<!--课程性质-->
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
 	  			and t1.NATURE_ = #{nature}
 	  		</if>
+			<!--是否公共选修课-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(isElective)">
 				and t1.IS_ELECTIVE_ = #{isElective}
 			</if>
+			<!--课程代码-->
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseCode)">
 	  			and t1.COURSE_CODE_ = #{courseCode}
 	  		</if>
+			<!--课程名字-->
 	  	    <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(courseName)">
 	  			and t1.COURSE_NAME_ = #{courseName}
 	  		</if>
+			<!--教学任务编号-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(teachingClassCode)">
 				and t4.CODE_  = #{teachingClassCode}
 			</if>
+			<!--关键字搜索-->
 			<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
 	  		and (t1.COURSE_CODE_ like CONCAT('%', #{keyword}, '%') OR t1.COURSE_NAME_ like CONCAT('%', #{keyword}, '%'))
 	  		</if>
