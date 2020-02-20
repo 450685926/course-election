@@ -373,16 +373,65 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
     public PageResult<RebuildCourseVo> findRebuildCourseList(PageCondition<RebuildCourseDto> condition) {
         Session session = SessionUtils.getCurrentSession();
         String studentId = session.realUid();
+        condition.getCondition().setStudentId(studentId);
         String currentManageDptId = session.getCurrentManageDptId();
+        Page<RebuildCourseVo> page = findRebuildCourse(currentManageDptId, condition);
+        return new PageResult<>(page);
+    }
+
+    @Override
+    public PageResult<RebuildCourseVo> findRebuildCourses(PageCondition<RebuildCourseDto> condition) {
+        // 区分管理员教务员
+        Session session = SessionUtils.getCurrentSession();
+        String currentManageDptId = session.getCurrentManageDptId();
+        Page<RebuildCourseVo> page = new Page<RebuildCourseVo>();
+        if (StringUtils.equals(session.getCurrentRole(), "1") && !session.isAdmin() && session.isAcdemicDean()) {
+           // 如果是教务员则和学生一样受选课规则限制
+            page = findRebuildCourse(currentManageDptId, condition);
+        } else {
+            String studentId = condition.getCondition().getStudentId();
+            // 管理员不做校验，所有课程都可以选
+            List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
+            if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
+                // 通过重修的课程代码获取当前学期可重修的课程
+                RebuildCourseDto rebuildCourseDto = condition.getCondition();
+                Long calendarId = rebuildCourseDto.getCalendarId();
+                PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+                page = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord(), currentManageDptId);
+                if (CollectionUtil.isNotEmpty(page)) {
+                    // 获取重修课程教学安排
+                    List<TimeTableMessage> timeTableMessages = getTimeById(page);
+                    Map<Long, List<TimeTableMessage>> map = timeTableMessages.stream().
+                            collect(Collectors.groupingBy(TimeTableMessage::getTeachingClassId));
+                    for (RebuildCourseVo rebuildCourseVo : page) {
+                        setCourseArrange(map, rebuildCourseVo);
+                        // 判断这门课程是可以进行选课操作还是退课操作
+                        int count = courseTakeDao.findCount(studentId, calendarId, rebuildCourseVo.getTeachingClassId());
+                        if (count == 0) {
+                            rebuildCourseVo.setStatus(0);
+                        } else {
+                            rebuildCourseVo.setStatus(1);
+                        }
+                    }
+                }
+            }
+        }
+        return new PageResult<>(page);
+    }
+
+    private Page<RebuildCourseVo> findRebuildCourse(
+           String currentManageDptId, PageCondition<RebuildCourseDto> condition)
+    {
+        RebuildCourseDto rebuildCourseDto = condition.getCondition();
+        String studentId = rebuildCourseDto.getStudentId();
         List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
         if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
             // 通过重修的课程代码获取当前学期可重修的课程
-            RebuildCourseDto rebuildCourseDto = condition.getCondition();
             Long calendarId = rebuildCourseDto.getCalendarId();
             PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
             Page<RebuildCourseVo> page = courseOpenDao.findRebuildCourses(failedCourseCodes, calendarId, rebuildCourseDto.getKeyWord(), currentManageDptId);
             if (CollectionUtil.isEmpty(page)) {
-                return new PageResult<>(page);
+                return page;
             }
             // 获取学生已选课程上课安排
             List<Long> ids = courseTakeDao.findTeachingClassIdByStudentId(studentId, calendarId);
@@ -529,11 +578,10 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     }
                 }
             }
-            return  new PageResult<>(page);
+            return  page;
         }
-        return new PageResult<>();
+        return new Page<RebuildCourseVo>();
     }
-
 
     /**
      * 设置教学安排
