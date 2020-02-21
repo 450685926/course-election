@@ -4,6 +4,7 @@ package com.server.edu.mutual.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,10 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.RestResult;
 import com.server.edu.dictionary.utils.SpringUtils;
 import com.server.edu.election.constants.Constants;
+import com.server.edu.election.dao.ElcCourseTakeDao;
+import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.entity.ElcCourseTake;
+import com.server.edu.election.studentelec.context.TimeAndRoom;
 import com.server.edu.election.util.ExcelStoreConfig;
 import com.server.edu.mutual.dao.ElcMutualListDao;
 import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
@@ -25,6 +30,8 @@ import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
 import com.server.edu.welcomeservice.util.ExcelEntityExport;
 
+import tk.mybatis.mapper.entity.Example;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,6 +41,9 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
 
     @Autowired
     private ExcelStoreConfig excelStoreConfig;
+    
+    @Autowired
+    private ElcCourseTakeDao courseTakeDao;
     
     /**
      * 文件存储路径
@@ -68,6 +78,23 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         }
 
         List<ElcMutualListVo> list = elcMutualListDao.getMutualStuList(dto);
+        //获取教学安排
+        for(ElcMutualListVo vo:list) {
+        	ElcCourseTake elcCourseTake = getElcCourseTake(String.valueOf(dto.getCalendarId()),vo.getStudentId(),vo.getCourseCode());
+        	List<TimeAndRoom> timeTableList = new ArrayList<>();
+        	if(null != elcCourseTake) {
+        		TimeTableMessage timeTableMessage = getTimeTableMessage(elcCourseTake.getTeachingClassId());
+        		if(null != timeTableMessage) {
+        			TimeAndRoom timeAndRoom = new TimeAndRoom();
+        			timeAndRoom.setRoomId(timeTableMessage.getRoomId());
+        			timeAndRoom.setTimeId(timeTableMessage.getTimeId());
+        			timeAndRoom.setTimeAndRoom(timeTableMessage.getTimeAndRoom());
+        			timeTableList.add(timeAndRoom);
+        		}
+        	}
+        	vo.setTimeTableList(timeTableList);
+        	
+        }
         PageInfo<ElcMutualListVo> pageInfo = new PageInfo<ElcMutualListVo>(list);
         return pageInfo;
     }
@@ -158,5 +185,36 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         }
     }
 
+    /**
+     * 查询互选课程选课结果
+     * 
+     * @return
+     */
+    public ElcCourseTake getElcCourseTake(String calendarId, String studentId, String courseCode){
+    	Example example = new Example(ElcCourseTake.class);
+    	example.createCriteria()
+        .andEqualTo("calendarId", calendarId)
+        .andEqualTo("studentId", studentId)
+        .andEqualTo("courseCode", courseCode);
+    	ElcCourseTake elcCourseTake =courseTakeDao.selectOneByExample(example);
+    	return elcCourseTake;
+    }
+    
+    /**
+     * 查询教学安排
+     * 
+     * @return
+     */
+    
+    public TimeTableMessage getTimeTableMessage(Long teachingClassId) {
+    	List<Long> ids = new ArrayList<>();
+    	ids.add(teachingClassId);
+    	List<TimeTableMessage> tableMessages = courseTakeDao.findClassTime(ids);
+    	if(CollectionUtils.isNotEmpty(tableMessages)) {
+    		return tableMessages.get(0);
+    	}
+    	return null;
+    }
+    
 
 }
