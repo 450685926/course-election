@@ -35,6 +35,35 @@
             (SELECT MAX(ID_) FROM elc_mutual_apply_audit_logs_t 
             where MU_APPLY_ID_ = #{muApplyId} and AUDIT_TYPE_ = 2)
         )
-   </select>  
-  
+   </select>
+
+    <!--根据申请id查询本研互选申请信息-->
+    <select id="getElcMutualApplyById" parameterType="java.lang.Long"
+            resultType="com.server.edu.mutual.entity.ElcMutualApplyCopyVo">
+        SELECT
+          t.`ID_` AS id,
+          t.`CALENDAR_ID_` AS calendarId,
+          t.`STUDENT_ID_` AS studentId,
+          t.`APPLY_AT_` AS applyAt,
+          t.`USER_ID_` AS userId,
+          t.`STATUS_` AS STATUS,
+          t.`MUTUAL_COURSE_ID_` AS mutualCourseId,
+          t.`REMARK_` AS remark,
+          t.`AUDIT_REASON_` AS auditReason,
+          t.`MODE_` AS MODE,
+          t.`COURSE_TAKE_TYPE_` AS courseTakeType
+        FROM elc_mutual_apply_t t WHERE t.`ID_`=#{muApplyId}
+    </select>
+
+    <select id="queryAuditLogLists" parameterType="com.server.edu.mutual.vo.ElcMutualApplyAuditLogsVo" resultMap="ElcMutualApplyAuditLogsVoMap">
+        SELECT * from elc_mutual_apply_audit_logs_t where ID_ = (
+         (SELECT MAX(ID_) FROM elc_mutual_apply_audit_logs_t
+         where MU_APPLY_ID_ = #{muApplyId} and AUDIT_TYPE_ = 1)
+        )
+        union all
+        SELECT * from elc_mutual_apply_audit_logs_t where ID_ = (
+        (SELECT MAX(ID_) FROM elc_mutual_apply_audit_logs_t
+        where MU_APPLY_ID_ = #{muApplyId} and AUDIT_TYPE_ = 2)
+        )
+   </select>
 </mapper>
