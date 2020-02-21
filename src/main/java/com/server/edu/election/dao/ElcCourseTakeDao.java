@@ -185,6 +185,8 @@ public interface ElcCourseTakeDao
 
     /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
+    /**新点名册*/
+    Page<RollBookList> findCourseTake(RollBookConditionDto condition);
 
     /**研究生点名册*/
     Page<RollBookList> findTeachingClass(RollBookConditionDto condition);
