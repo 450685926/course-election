@@ -40,6 +40,17 @@ public class ElcMutualRoundCourseServiceImpl implements ElcMutualRoundCourseServ
     public PageResult<CourseOpenDto> listUnAddPage(PageCondition<ElecRoundCourseQuery> condition) {
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
         ElecRoundCourseQuery query = condition.getCondition();
+        // 根据类型查找匹配,筛选对应信息
+        if(Constants.BK_CROSS.equals(query.getMode()))
+        {
+            // 跨学院互选字段
+            query.setInType(Constants.FIRST);
+        }
+        else
+        {
+            //本研互选
+            query.setByType(Constants.FIRST);
+        }
         Page<CourseOpenDto> listPage;
         if (Constants.PROJ_UNGRADUATE.equals(query.getProjectId())) {
             listPage = elcMutualRoundCourseDao.listUnAddPage(query);
@@ -53,6 +64,42 @@ public class ElcMutualRoundCourseServiceImpl implements ElcMutualRoundCourseServ
         }
         PageResult<CourseOpenDto> result = new PageResult<>(listPage);
 
+        return result;
+    }
+
+    @Override
+    public PageResult<CourseOpenDto> elcMutualRoundCourselistPage(PageCondition<ElecRoundCourseQuery> condition) {
+        PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
+        ElecRoundCourseQuery query = condition.getCondition();
+        // 根据类型查找匹配,筛选对应信息
+        if(Constants.BK_CROSS.equals(query.getMode()))
+        {
+            // 跨学院互选字段
+            query.setInType(Constants.FIRST);
+        }
+        else
+        {
+            query.setInType(null);
+            //本研互选
+            query.setByType(Constants.FIRST);
+        }
+        Page<CourseOpenDto> listPage;
+        if(Constants.PROJ_UNGRADUATE.equals(query.getProjectId()))
+        {
+            listPage = elcMutualRoundCourseDao.listPage(query);
+            if(CollectionUtil.isNotEmpty(listPage))
+            {
+                for(CourseOpenDto courseOpenDto : listPage)
+                {
+                    getTeacgerName(courseOpenDto);
+                }
+            }
+        }
+        else
+        {
+            listPage = elcMutualRoundCourseDao.listPageGraduate(query);
+        }
+        PageResult<CourseOpenDto> result = new PageResult<>(listPage);
         return result;
     }
 

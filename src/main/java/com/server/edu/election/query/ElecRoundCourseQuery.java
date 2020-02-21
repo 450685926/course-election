@@ -53,6 +53,12 @@ public class ElecRoundCourseQuery
 
     private Integer isElective;
 
+    /**跨学院互选标识字段,1为互选课程*/
+    private Integer inType;
+    
+    /**本研互选标识字段,1为互选课程*/
+    private Integer byType;
+    
     public Integer getIsElective() {
         return isElective;
     }
@@ -200,5 +206,25 @@ public class ElecRoundCourseQuery
 	public void setTeachingClassCode(String teachingClassCode) {
 		this.teachingClassCode = teachingClassCode;
 	}
+
+    public Integer getInType()
+    {
+        return inType;
+    }
+
+    public void setInType(Integer inType)
+    {
+        this.inType = inType;
+    }
+
+    public Integer getByType()
+    {
+        return byType;
+    }
+
+    public void setByType(Integer byType)
+    {
+        this.byType = byType;
+    }
     
 }
