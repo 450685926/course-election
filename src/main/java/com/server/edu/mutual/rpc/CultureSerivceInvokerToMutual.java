@@ -70,10 +70,12 @@ public class CultureSerivceInvokerToMutual {
 		RestResult result = ServicePathEnum.CULTURESERVICE
                 .getForObject("/bclCulturePlan/findPlanCourseTab?studentID={0}", RestResult.class,studentId);
 		LOG.info("return value:"+JSONObject.toJSONString(result));
+		
 		if (null != result
                 && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
         {
-			List<PlanCourseTabVo> ls = (List<PlanCourseTabVo>) result.getData();
+			String json =JSONObject.toJSON(result.getData()).toString();
+			List<PlanCourseTabVo> ls = JSONArray.parseArray(json, PlanCourseTabVo.class);
 			List<String> list=new ArrayList<>(); 
 			ls.stream().forEach(v->{
 				list.add(v.getCourseCode());
