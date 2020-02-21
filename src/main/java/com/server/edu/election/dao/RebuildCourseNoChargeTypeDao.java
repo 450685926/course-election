@@ -20,4 +20,7 @@ public interface RebuildCourseNoChargeTypeDao extends Mapper<RebuildCourseNoChar
 
     /**查询异动大类对应学号和异动大类*/
     List<StudentRebuildFeeVo> getAbnormalStudent(@Param("list") List<String> list,@Param("time") Long time);
+
+    List<StudentRebuildFeeVo> getAbnormalStudentByOne(@Param("list")List<String> collect, @Param("startTime") Long oneYearAgo,
+                                                      @Param("endTime") Long oneYearTime, @Param("studentId") String studentId);
 }

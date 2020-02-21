@@ -30,10 +30,7 @@ import com.server.edu.election.studentelec.event.ElectLoadEvent;
 import com.server.edu.election.studentelec.service.cache.TeachClassCacheService;
 import com.server.edu.election.util.CommonConstant;
 import com.server.edu.election.util.TableIndexUtil;
-import com.server.edu.election.vo.ElcLogVo;
-import com.server.edu.election.vo.RebuildCourseNoChargeList;
-import com.server.edu.election.vo.RebuildCourseNoChargeTypeVo;
-import com.server.edu.election.vo.StudentVo;
+import com.server.edu.election.vo.*;
 import com.server.edu.exception.ParameterValidateException;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -788,14 +785,57 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
         record.setStudentCode(studentId);
         Student student = studentDao.selectOne(record);
         List<RebuildCourseNoChargeType> list = noChargeTypeDao.selectAll();
-        for (RebuildCourseNoChargeType t : list) {
-            if (t.getTrainingCategory().equals(student.getFormLearning())
-                    && t.getRegistrationStatus().equals(student.getRegistrationStatus())
-                    && t.getSpcialPlan().equals(student.getSpcialPlan())
-                    && t.getTrainingLevel().equals(student.getTrainingLevel())
-                    && student.getIsOverseas().equals(String.valueOf(t.getIsOverseas()))) {
-                return true;
+        if(CollectionUtil.isNotEmpty(list)){
+            List<String> collect = list.stream().filter(vo ->StringUtils.isNotBlank(vo.getRegistrationStatus())).map(RebuildCourseNoChargeType::getRegistrationStatus).collect(Collectors.toList());
+            List<StudentRebuildFeeVo> abnormalStu = new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(collect)){
+                //查找一年内异动学生
+                Long oneYearTime =System.currentTimeMillis();
+                Long oneYearAgo = System.currentTimeMillis() - 365*24*60*60*1000;
+                abnormalStu = noChargeTypeDao.getAbnormalStudentByOne(collect,oneYearAgo,oneYearTime,studentId);
             }
+            for (RebuildCourseNoChargeType t : list) {
+                String trainingLevel = t.getTrainingLevel();
+                String trainingCategory = t.getTrainingCategory();
+                String enrolMethods = t.getEnrolMethods();
+                String spcialPlan = t.getSpcialPlan();
+                String isOverseas = t.getIsOverseas();
+                String registrationStatus = t.getRegistrationStatus();
+                if(StringUtils.isNotBlank(trainingLevel) && !trainingLevel.equals(student.getTrainingLevel())){
+                    continue;
+                }
+
+                if(StringUtils.isNotBlank(trainingCategory) && !trainingCategory.equals(student.getTrainingCategory())){
+                    continue;
+                }
+
+                if(StringUtils.isNotBlank(enrolMethods) && !enrolMethods.equals(student.getEnrolMethods())){
+                    continue;
+                }
+
+                if(StringUtils.isNotBlank(spcialPlan) && !spcialPlan.equals(student.getSpcialPlan())){
+                    continue;
+                }
+
+                if(StringUtils.isNotBlank(isOverseas) && !isOverseas.equals(student.getIsOverseas())){
+                    continue;
+                }
+
+                if(StringUtils.isNotBlank(registrationStatus)){
+                    if(CollectionUtil.isEmpty(abnormalStu)){
+                        continue;
+                    }else{
+                        List<String> stringList = abnormalStu.stream().map(StudentRebuildFeeVo::getRegistrationStatus).collect(Collectors.toList());
+                        if(!stringList.contains(registrationStatus)){
+                            continue;
+                        }
+                    }
+
+                }
+                return true;
+
+            }
+            return false;
         }
         return false;
     }
@@ -810,13 +850,13 @@ public class RebuildCourseChargeServiceImpl implements RebuildCourseChargeServic
     @Override
     public PageResult<StudentRePaymentDto> findStuRePayment(PageCondition<StudentRePaymentDto> pageCondition) {
         PageResult<StudentRePaymentDto> paymentDtoList=new PageResult<>();
-        //String studentCode = studentRePaymentDto.getStudentCode();
+        String studentCode = pageCondition.getCondition().getStudentCode();
         /**是否在不缴费学生类型中*/
         // todo 因为毕业证书类型现在取不到，暂时无法判断是否需要收费
-        /*boolean retake = isNoNeedPayForRetake(studentCode);
+        boolean retake = isNoNeedPayForRetake(studentCode);
         if(retake){
             return null;
-        }*/
+        }
         //去收费标准查询，是否需要缴费
         List<RebuildCourseCharge> rebuildCourseChargeList =  courseChargeDao.selectByStuId(pageCondition.getCondition().getStudentCode());
         if (CollectionUtil.isNotEmpty(rebuildCourseChargeList) && rebuildCourseChargeList.get(0).getIsCharge().equals(1)){
