@@ -1104,7 +1104,6 @@
         st.STUDENT_CODE_ = t2.STUDENT_ID_
         AND t2.ROUNDS_ID_ IN (
         SELECT ID_ FROM election_rounds_t WHERE CALENDAR_ID_=#{calendarId}
-        and st.LEAVE_SCHOOL_ = 1
         <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(mode)">
             AND MODE_=#{mode}
         </if>
