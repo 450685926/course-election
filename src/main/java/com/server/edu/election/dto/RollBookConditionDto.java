@@ -22,6 +22,7 @@ public class RollBookConditionDto {
     private String keyword;
     private List<Long> ids;//导出列表id集合
     private List<String> faculties;
+    private String keyword;
 
     public String getKeyword() {
         return keyword;
@@ -134,5 +135,14 @@ public class RollBookConditionDto {
 	public void setIsElective(String isElective) {
 		this.isElective = isElective;
 	}
+
+	public String getKeyword() {
+		return keyword;
+	}
+
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
     
+	
 }
