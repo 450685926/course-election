@@ -353,13 +353,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                 throw new ParameterValidateException("重修选课未开放，您不能进行代选课！");
             }
         }
-        Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
-        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
-        Example example = new Example(Course.class);
-        example.createCriteria()
-                .andIn("code", failedCourseCodes);
-        List<Course> courses = courseDao.selectByExample(example);
-        List<String> collect = courses.stream().map(s -> s.getCode() + " " + s.getName()).collect(Collectors.toList());
+
         RebuildStuVo rebuildStuVo = new RebuildStuVo();
         rebuildStuVo.setStudentCode(studentId);
         rebuildStuVo.setName(student.getName());
@@ -370,8 +364,20 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
         rebuildStuVo.setTrainingLevel(student.getTrainingLevel());
         rebuildStuVo.setDegreeType(student.getDegreeType());
         rebuildStuVo.setFormLearning(student.getFormLearning());
+        Integer maxCount = retakeCourseCountDao.findRetakeCount(student);
         rebuildStuVo.setCount(maxCount);
-        rebuildStuVo.setCourses(collect);
+
+        List<String> failedCourseCodes = ScoreServiceInvoker.findStuFailedCourseCodes(studentId);
+        if (CollectionUtil.isNotEmpty(failedCourseCodes)) {
+            Example example = new Example(Course.class);
+            example.createCriteria()
+                    .andIn("code", failedCourseCodes);
+            List<Course> courses = courseDao.selectByExample(example);
+            List<String> collect = courses.stream().
+                    map(s -> s.getCode() + " " + s.getName()).collect(Collectors.toList());
+            rebuildStuVo.setCourses(collect);
+        }
+
         return rebuildStuVo;
     }
 
