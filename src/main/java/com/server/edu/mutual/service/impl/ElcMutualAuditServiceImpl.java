@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.server.edu.common.rest.RestResult;
+import com.server.edu.mutual.entity.ElcMutualApplyCopyVo;
 import com.server.edu.mutual.rpc.CultureSerivceInvokerToMutual;
 import com.server.edu.mutual.service.ElcMutualCommonService;
 import org.apache.commons.lang.StringUtils;
@@ -358,10 +359,14 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 	@Override
 	public List<ElcMutualApplyAuditLogsVo> queryAuditLogList(ElcMutualApplyAuditLogsVo vo) throws IllegalAccessException, InvocationTargetException {
 		ElcMutualApplyAuditLogsVo elcMutualApplyAuditLogsVo = new ElcMutualApplyAuditLogsVo();
-		ElcMutualApply elcMutualApply = elcMutualApplyService.getElcMutualApplyById(vo.getMuApplyId());
+		//ElcMutualApply elcMutualApply = elcMutualApplyService.getElcMutualApplyById(vo.getMuApplyId());
+		//查询学生本研互选申请记录
+		ElcMutualApplyCopyVo elcMutualApply = elcMutualApplyAuditLogsDao.getElcMutualApplyById(vo.getMuApplyId());
 		BeanUtil.copyProperties(elcMutualApplyAuditLogsVo, elcMutualApply);
-		
-		List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogList(vo);
+
+		//List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogList(vo);
+		//查询本研互选审核记录
+		List<ElcMutualApplyAuditLogsVo> list = elcMutualApplyAuditLogsDao.queryAuditLogLists(vo);
 		list.add(0, elcMutualApplyAuditLogsVo);
 		return list;
 	}
