@@ -82,8 +82,14 @@
 				</foreach>
 			</if>
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-	  		and t1.FACULTY_ = #{faculty}
+	  			and t1.FACULTY_ = #{faculty}
 	  		</if>
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+	                	and elc.`IN_TYPE_` = #{inType}
+	            	</if>
+	            	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+	                	and elc.`BY_TYPE_` = #{byType}
+	            	</if>
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 	  		and t1.TRAINING_LEVEL_ = #{trainingLevel}
 	  		</if>
@@ -138,7 +144,7 @@
 		  	t1.CALENDAR_ID_ = #{calendarId}
 		  	and t1.IS_OPEN_ = 1
 			AND t4.`DELETE_STATUS_`=0
-		  	<!--经与需求沟通,状态为调整课程时间的也可以出现在选课列表中-->
+		  	<!--经与需求沟通,状态为调整课程时间的也可以出现在选课列表中 1:已排课 2:教室待定 3:学院通知 19:调整课时-->
 			AND t4.MAN_ARRANGE_FLAG_ IN(1,2,3,19)
 			<!--逻辑删除标识-->
 			AND t4.`DELETE_STATUS_`=0
@@ -153,7 +159,13 @@
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 	  			and t1.FACULTY_ = #{faculty}
 	  		</if>
-			<!--课程性质-->
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+	                	and elc.`IN_TYPE_` = #{inType}
+	            	</if>
+	            	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+	                	and elc.`BY_TYPE_` = #{byType}
+	            	</if>
+		    	<!--课程性质-->
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
 	  			and t1.NATURE_ = #{nature}
 	  		</if>
@@ -238,6 +250,12 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
   		and t1.PROJ_ID_ = #{query.projectId}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.inType)">
+	            and elc.`IN_TYPE_` = #{query.inType}
+	        </if>
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.byType)">
+	            and elc.`BY_TYPE_` = #{query.byType}
+	        </if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
   		and t1.FACULTY_ = #{query.faculty}
   		</if>
@@ -302,6 +320,12 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
   			and t1.FACULTY_ = #{query.faculty}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.inType)">
+	            and elc.`IN_TYPE_` = #{query.inType}
+	        </if>
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.byType)">
+	            and elc.`BY_TYPE_` = #{query.byType}
+	        </if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
   			and t1.NATURE_ = #{query.nature}
   		</if>

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.server.edu.mutual.entity.ElcMutualApply;
+import com.server.edu.mutual.vo.PlanCourseTabVo;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,17 +68,18 @@ public class CultureSerivceInvokerToMutual {
 	 */
 	public static List<String> getCulturePlanCourseCodeByStudentId(String studentId){
 		RestResult result = ServicePathEnum.CULTURESERVICE
-                .getForObject("/bclCulturePlan/getCulturePlanByStudentId?id={0}&isPass=1", RestResult.class,studentId);
+                .getForObject("/bclCulturePlan/findPlanCourseTab?studentID={0}", RestResult.class,studentId);
 		LOG.info("return value:"+JSONObject.toJSONString(result));
+		
 		if (null != result
                 && ResultStatus.SUCCESS.code() == result.getCode()&&null!=result.getData())
         {
-        	HashMap<String,Object> objMap = (HashMap<String,Object>)result.getData();
-        	List<HashMap<String,Object>> mapList=(List<HashMap<String,Object>>)objMap.get("cultureCourseLabelRelationList");
-        	List<String> list=new ArrayList<>(); 
-        	for(HashMap<String,Object> hashMap:mapList){
-        		list.add(Optional.ofNullable(hashMap.get("code")).orElse("").toString());
-        	}
+			String json =JSONObject.toJSON(result.getData()).toString();
+			List<PlanCourseTabVo> ls = JSONArray.parseArray(json, PlanCourseTabVo.class);
+			List<String> list=new ArrayList<>(); 
+			ls.stream().forEach(v->{
+				list.add(v.getCourseCode());
+			});
         	return list;
         }
         return Collections.emptyList();
