@@ -180,18 +180,23 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
 
-		List<String> projectIds = new ArrayList<>();
+    	/**
+    	 * 功能描述: bug 10896
+    	 * @author: zhaoerhu
+    	 * @date: 2020/2/21 15:06
+    	 */
+//		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
-			projectIds.add(Constants.PROJ_UNGRADUATE);
+//			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
-			projectIds = ProjectUtil.getProjectIds("1");
+//			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 			dto.setByType(Constants.FIRST);
 		}
 //		dto.setOpenCollege(session.getFaculty());
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
-		dto.setProjectIds(projectIds);
-//		dto.setProjectId(projectId);
+//		dto.setProjectIds(projectIds);
+		dto.setProjectId(projectId);
 		
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
 		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
