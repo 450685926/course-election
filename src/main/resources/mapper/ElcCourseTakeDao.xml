@@ -1480,9 +1480,6 @@
             <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(classCode)">
                 and c.CODE_ =#{classCode,jdbcType=VARCHAR}
             </if>
-            <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(keyword)">
-            and (a.COURSE_CODE_ = #{keyword,jdbcType=VARCHAR} or a.COURSE_NAME_ =#{keyword,jdbcType=VARCHAR} )
-            </if>
         </where>
     </select>
 
