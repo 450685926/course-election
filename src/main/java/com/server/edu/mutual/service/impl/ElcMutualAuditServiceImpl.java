@@ -107,13 +107,13 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     	if (!isAcdemicDean) {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
-//        List<String> projectIds = new ArrayList<>();
+        List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			dto.setInType(Constants.FIRST);
-//			projectIds.add(Constants.PROJ_UNGRADUATE);
+			projectIds.add(Constants.PROJ_UNGRADUATE);
 		}else {
 			dto.setByType(Constants.FIRST);
-//            projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
+            projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		}
 		/**
 		 * 解决本研互选bug10674 行政学院教务员要查询本学院或本学院管理的学生 2020-2-20
@@ -124,8 +124,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		 * @author: zhaoerhu
 		 * @date: 2020/2/21 14:29
 		 */
-		dto.setProjectId(session.getCurrentManageDptId());
-//		dto.setProjectIds(projectIds);
+//		dto.setProjectId(session.getCurrentManageDptId());
+		dto.setProjectIds(projectIds);
 		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyStuList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
@@ -144,16 +144,21 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
     	}
 
-		List<String> projectIds = new ArrayList<>();
+		/**
+		 * 功能描述: 解决本研互选bug 10896
+		 * @author: zhaoerhu
+		 * @date: 2020/2/21 14:29
+		 */
+//		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
-			projectIds.add(Constants.PROJ_UNGRADUATE);
+//			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
-			projectIds = ProjectUtil.getProjectIds("1");
+//			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 			dto.setByType(Constants.FIRST);
 		}
-		dto.setProjectIds(projectIds);
-//		dto.setProjectId(projectId);
+//		dto.setProjectIds(projectIds);
+		dto.setProjectId(projectId);
 //		dto.setOpenCollege(session.getFaculty());
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 
@@ -180,29 +185,31 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
     		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
 
-    	/**
-    	 * 功能描述: bug 10896
-    	 * @author: zhaoerhu
-    	 * @date: 2020/2/21 15:06
-    	 */
+		/**
+		 * 功能描述: 解决本研互选bug 10896
+		 * @author: zhaoerhu
+		 * @date: 2020/2/21 14:29
+		 */
 //		List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 //			projectIds.add(Constants.PROJ_UNGRADUATE);
 			dto.setInType(Constants.FIRST);
 		}else {
-//			projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
+//			projectIds = ProjectUtil.getProjectIds(projectId);
 			dto.setByType(Constants.FIRST);
 		}
 //		dto.setOpenCollege(session.getFaculty());
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 //		dto.setProjectIds(projectIds);
 		dto.setProjectId(projectId);
-		
-		// 本科生只有行政学院审核通过，才能进行开课学院审核
-		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+
+		// 只有本科生发起的申请流程才走该逻辑：本科生申请，只有当本科生行政学院审核通过，才能进行开课学院审核
+		// 研究生发起的申请流程，本科生教务员直接进行开课学院审核
+//		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+		if (StringUtils.equals(projectId, Constants.PROJ_GRADUATE) || StringUtils.equals(projectId,Constants.PROJ_LINE_GRADUATE)) {
 			if (dto.getStatus() == null) {
 				dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
-						MutualApplyAuditStatus.AUDITED_APPROVED.status(),MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
+						MutualApplyAuditStatus.AUDITED_APPROVED.status(), MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
 			}
 		}
 		
