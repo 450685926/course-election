@@ -73,7 +73,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		Session session = SessionUtils.getCurrentSession();
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
+    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
 
 		List<String> projectIds = new ArrayList<>();
@@ -105,21 +105,27 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		Session session = SessionUtils.getCurrentSession();
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
+    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
-        List<String> projectIds = new ArrayList<>();
+//        List<String> projectIds = new ArrayList<>();
 		if(Constants.BK_CROSS.equals(dto.getMode())) {
 			dto.setInType(Constants.FIRST);
-			projectIds.add(Constants.PROJ_UNGRADUATE);
+//			projectIds.add(Constants.PROJ_UNGRADUATE);
 		}else {
 			dto.setByType(Constants.FIRST);
-            projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
+//            projectIds = ProjectUtil.getProjectIds(session.getCurrentManageDptId());
 		}
 		/**
 		 * 解决本研互选bug10674 行政学院教务员要查询本学院或本学院管理的学生 2020-2-20
 		 */
 		packageCollegeList(session,dto);
-		dto.setProjectIds(projectIds);
+		/**
+		 * 功能描述: 解决本研互选bug 10896
+		 * @author: zhaoerhu
+		 * @date: 2020/2/21 14:29
+		 */
+		dto.setProjectId(session.getCurrentManageDptId());
+//		dto.setProjectIds(projectIds);
 		LOG.info("dto collegeList:" + dto.getCollegeList().toString());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.collegeApplyStuList(condition.getCondition());
 		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<>(list);
@@ -171,7 +177,7 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 
 		boolean isAcdemicDean = StringUtils.equals(session.getCurrentRole(), String.valueOf(Constants.ONE)) && !session.isAdmin() && session.isAcdemicDean();
     	if (!isAcdemicDean) {
-    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean")); 
+    		throw new ParameterValidateException(I18nUtil.getMsg("elec.mustAcdemicDean"));
     	}
 
 		List<String> projectIds = new ArrayList<>();
