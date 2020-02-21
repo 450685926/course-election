@@ -80,19 +80,23 @@ public class ElcMutualListServiceImpl implements ElcMutualListService {
         List<ElcMutualListVo> list = elcMutualListDao.getMutualStuList(dto);
         //获取教学安排
         for(ElcMutualListVo vo:list) {
-        	ElcCourseTake elcCourseTake = getElcCourseTake(String.valueOf(dto.getCalendarId()),vo.getStudentId(),vo.getCourseCode());
-        	List<TimeAndRoom> timeTableList = new ArrayList<>();
-        	if(null != elcCourseTake) {
-        		TimeTableMessage timeTableMessage = getTimeTableMessage(elcCourseTake.getTeachingClassId());
-        		if(null != timeTableMessage) {
-        			TimeAndRoom timeAndRoom = new TimeAndRoom();
-        			timeAndRoom.setRoomId(timeTableMessage.getRoomId());
-        			timeAndRoom.setTimeId(timeTableMessage.getTimeId());
-        			timeAndRoom.setTimeAndRoom(timeTableMessage.getTimeAndRoom());
-        			timeTableList.add(timeAndRoom);
-        		}
+        	if(org.apache.commons.lang3.StringUtils.isNotEmpty(String.valueOf(dto.getCalendarId()))
+        			&& org.apache.commons.lang3.StringUtils.isNotEmpty(vo.getStudentId())
+        			&& org.apache.commons.lang3.StringUtils.isNotEmpty(vo.getCourseCode())) {
+        		ElcCourseTake elcCourseTake = getElcCourseTake(String.valueOf(dto.getCalendarId()),vo.getStudentId(),vo.getCourseCode());
+            	List<TimeAndRoom> timeTableList = new ArrayList<>();
+            	if(null != elcCourseTake) {
+            		TimeTableMessage timeTableMessage = getTimeTableMessage(elcCourseTake.getTeachingClassId());
+            		if(null != timeTableMessage) {
+            			TimeAndRoom timeAndRoom = new TimeAndRoom();
+            			timeAndRoom.setRoomId(timeTableMessage.getRoomId());
+            			timeAndRoom.setTimeId(timeTableMessage.getTimeId());
+            			timeAndRoom.setTimeAndRoom(timeTableMessage.getTimeAndRoom());
+            			timeTableList.add(timeAndRoom);
+            		}
+            	}
+            	vo.setTimeTableList(timeTableList);
         	}
-        	vo.setTimeTableList(timeTableList);
         	
         }
         PageInfo<ElcMutualListVo> pageInfo = new PageInfo<ElcMutualListVo>(list);
