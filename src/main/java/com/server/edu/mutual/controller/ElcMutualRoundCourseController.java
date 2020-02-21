@@ -59,7 +59,7 @@ public class ElcMutualRoundCourseController {
         @RequestBody PageCondition<ElecRoundCourseQuery> query)
     {
         ValidatorUtil.validateAndThrow(query.getCondition(), RoundGroup.class);
-        PageResult<CourseOpenDto> page = elcMutualRoundCourseService.listPage(query);
+        PageResult<CourseOpenDto> page = elcMutualRoundCourseService.elcMutualRoundCourselistPage(query);
         
         return RestResult.successData(page);
     }

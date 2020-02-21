@@ -82,8 +82,14 @@
 				</foreach>
 			</if>
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
-	  		and t1.FACULTY_ = #{faculty}
+	  			and t1.FACULTY_ = #{faculty}
 	  		</if>
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+	                	and elc.`IN_TYPE_` = #{inType}
+	            	</if>
+	            	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+	                	and elc.`BY_TYPE_` = #{byType}
+	            	</if>
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(trainingLevel)">
 	  		and t1.TRAINING_LEVEL_ = #{trainingLevel}
 	  		</if>
@@ -153,7 +159,13 @@
 	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(faculty)">
 	  			and t1.FACULTY_ = #{faculty}
 	  		</if>
-			<!--课程性质-->
+	  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(inType)">
+	                	and elc.`IN_TYPE_` = #{inType}
+	            	</if>
+	            	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(byType)">
+	                	and elc.`BY_TYPE_` = #{byType}
+	            	</if>
+		    	<!--课程性质-->
 		  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(nature)">
 	  			and t1.NATURE_ = #{nature}
 	  		</if>
@@ -238,6 +250,12 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.projectId)">
   		and t1.PROJ_ID_ = #{query.projectId}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.inType)">
+	            and elc.`IN_TYPE_` = #{query.inType}
+	        </if>
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.byType)">
+	            and elc.`BY_TYPE_` = #{query.byType}
+	        </if>
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
   		and t1.FACULTY_ = #{query.faculty}
   		</if>
@@ -302,6 +320,12 @@
   		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.faculty)">
   			and t1.FACULTY_ = #{query.faculty}
   		</if>
+  		<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.inType)">
+	            and elc.`IN_TYPE_` = #{query.inType}
+	        </if>
+	        <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.byType)">
+	            and elc.`BY_TYPE_` = #{query.byType}
+	        </if>
 	  	<if test="@com.server.edu.util.MybatisUtil@isNotEmpty(query.nature)">
   			and t1.NATURE_ = #{query.nature}
   		</if>
