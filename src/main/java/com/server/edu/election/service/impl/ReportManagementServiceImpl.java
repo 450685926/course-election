@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import com.server.edu.common.dto.PlanCourseDto;
 import com.server.edu.common.dto.PlanCourseTypeDto;
+import com.server.edu.common.entity.Teacher;
 import com.server.edu.common.enums.GroupDataEnum;
 import com.server.edu.election.entity.TeachingClassTeacher;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
@@ -69,6 +70,7 @@ import com.server.edu.election.dto.TimeTableMessage;
 import com.server.edu.election.entity.Student;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.service.ReportManagementService;
+import com.server.edu.election.util.TableIndexUtil;
 import com.server.edu.election.util.WeekUtil;
 import com.server.edu.session.util.SessionUtils;
 import com.server.edu.session.util.entity.Session;
@@ -540,39 +542,75 @@ public class ReportManagementServiceImpl implements ReportManagementService
             }
         }
         PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
-        Page<RollBookList> rollBookList =
-            courseTakeDao.findClassByTeacherCode(rollBookConditionDto);
-        if (rollBookList != null)
-        {
-            List<RollBookList> result = rollBookList.getResult();
-            if (CollectionUtil.isNotEmpty(result))
-            {
-                List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
-                Map<Long, List<RollBookList>> map = new HashMap<>();
-                //批量查询教师名字
-                List<RollBookList> teahers = courseTakeDao.findTeacherName(list);
-                if (CollectionUtil.isNotEmpty(teahers))
-                {
-                    map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
-                }
-                if (map.size() != 0)
-                {
-                    for (RollBookList bookList : result)
-                    {
-                        List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
-                        if (CollectionUtil.isNotEmpty(rollBookLists))
-                        {
-                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherCodeAndName).collect(Collectors.toSet());
-                            String teacherName = String.join(",", collect);
-                            bookList.setTeacherName(teacherName);
-                        }
-
-                    }
-                }
-            }
+        int index = TableIndexUtil.getIndex(rollBookConditionDto.getCalendarId());
+        rollBookConditionDto.setIndex(index);
+        Page<RollBookList> result  = courseTakeDao.findCourseTake(rollBookConditionDto);
+        List<RollBookList> coureseTakes = result.getResult();
+        if(CollectionUtil.isNotEmpty(coureseTakes)) {
+        	for(RollBookList rollBook:coureseTakes) {
+        		getTeacgerName(rollBook);
+        	}
         }
-        return new PageResult<>(rollBookList);
+//        Page<RollBookList> rollBookList =
+//            courseTakeDao.findClassByTeacherCode(rollBookConditionDto);
+//        if (rollBookList != null)
+//        {
+//            List<RollBookList> result = rollBookList.getResult();
+//            if (CollectionUtil.isNotEmpty(result))
+//            {
+//                List<Long> list = result.stream().map(RollBookList::getTeachingClassId).collect(Collectors.toList());
+//                Map<Long, List<RollBookList>> map = new HashMap<>();
+//                //批量查询教师名字
+//                List<RollBookList> teahers = courseTakeDao.findTeacherName(list);
+//                if (CollectionUtil.isNotEmpty(teahers))
+//                {
+//                    map = teahers.stream().collect(Collectors.groupingBy(RollBookList::getTeachingClassId));
+//                }
+//                if (map.size() != 0)
+//                {
+//                    for (RollBookList bookList : result)
+//                    {
+//                        List<RollBookList> rollBookLists = map.get(bookList.getTeachingClassId());
+//                        if (CollectionUtil.isNotEmpty(rollBookLists))
+//                        {
+//                            Set<String> collect = rollBookLists.stream().map(RollBookList::getTeacherCodeAndName).collect(Collectors.toSet());
+//                            String teacherName = String.join(",", collect);
+//                            bookList.setTeacherName(teacherName);
+//                        }
+//
+//                    }
+//                }
+//            }
+//        }
+//        return new PageResult<>(rollBookList);
+        return new PageResult<>(result);
     }
+    
+    
+    private void getTeacgerName(RollBookList vo) {
+		if(StringUtils.isNotBlank(vo.getTeacherCodes())) {
+			String[] codes = vo.getTeacherCodes().split(",");
+			List<Teacher> teachers = new ArrayList<Teacher>();
+			for (String code : codes) {
+				teachers.addAll(TeacherCacheUtil.getTeachers(code));
+			}
+		     	if(CollectionUtil.isNotEmpty(teachers)) {
+		     		StringBuilder stringBuilder = new StringBuilder();
+		    		for(Teacher teacher:teachers) {
+		    			if(teacher!=null) {
+			    			stringBuilder.append(teacher.getName());
+			    			stringBuilder.append("(");
+			    			stringBuilder.append(teacher.getCode());
+			    			stringBuilder.append(")");
+			    			stringBuilder.append(",");
+		    			}
+		    		}
+		    		if(stringBuilder.length()>Constants.ZERO) {
+			    		vo.setTeacherName(stringBuilder.deleteCharAt(stringBuilder.length()-1).toString());
+		    		}
+				}
+		    }
+	}
 
     /**
      *@Description: 查询研究生点名册

@@ -22,8 +22,21 @@ public class RollBookConditionDto {
     private String keyword;
     private List<Long> ids;//导出列表id集合
     private List<String> faculties;
+    
+    private int index;
+    
+    
+    
 
-    public String getKeyword() {
+    public int getIndex() {
+		return index;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public String getKeyword() {
         return keyword;
     }
 
