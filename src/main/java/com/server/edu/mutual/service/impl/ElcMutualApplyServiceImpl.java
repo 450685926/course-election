@@ -224,6 +224,7 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		//移动分页位置
 		PageHelper.startPage(condition.getPageNum_(), condition.getPageSize_());
 		List<ElcMutualApplyVo> list = elcMutualApplyDao.getElcMutualCoursesForStu(dto);
+		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<ElcMutualApplyVo>(list);
 		List<String> courseCode = list.stream()
                 .filter(v->!v.getCourseCode().isEmpty()).map(ElcMutualApplyVo::getCourseCode)
                 .collect(Collectors.toList());
@@ -233,12 +234,14 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 		if (StringUtils.equals(projectId,Constants.PROJ_UNGRADUATE)) {
 			LOG.info("---------------dto.getMode()--------------"+dto.getMode());
 
+			List<ElcMutualApplyVo> list2 =pageInfo.getList();
+			
 			if(Constants.BK_CROSS.equals(dto.getMode())) {
 				List<String> courseCodes = CultureSerivceInvokerToMutual.getCulturePlanCourseCodeByStudentId(studentId);
 				LOG.info("---------------getCulturePlanCourseCodeByStudentId--------------"+courseCodes.size());
-				list = list.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
+				list2 = list2.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
 			}
-			
+			pageInfo=new PageInfo<ElcMutualApplyVo>(list2);
 			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
@@ -270,14 +273,17 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 						                          .map(CulturePlanVo::getCourseCode)
 						                          .collect(Collectors.toList());
 				LOG.info("---------------courseCodeBXK:" + courseCodeBXK.toString() + "--------------");
+				List<ElcMutualApplyVo> list2 =pageInfo.getList();
 				
 				// 补修课与互选维护课程取交集
-				list = list.stream().filter(vo->courseCodeBXK.contains(vo.getCourseCode())).collect(Collectors.toList());
+				list2 = list2.stream().filter(vo->courseCodeBXK.contains(vo.getCourseCode())).collect(Collectors.toList());
+				pageInfo = new PageInfo<ElcMutualApplyVo>(list2);
 			}else {
 				list = new ArrayList<ElcMutualApplyVo>();
+				pageInfo = new PageInfo<ElcMutualApplyVo>(list);
 			}
 		}
-		PageInfo<ElcMutualApplyVo> pageInfo = new PageInfo<ElcMutualApplyVo>(list);
+		
 		return pageInfo;
 	}
 	
