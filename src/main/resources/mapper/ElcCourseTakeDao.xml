@@ -627,7 +627,7 @@
                         and t10.IS_OVERSEAS_ = #{item.isOverseas}
                     </if>
                     <if test="@com.server.edu.util.MybatisUtil@isNotEmpty(item.registrationStatus)">
-                        and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStatuStartTime} and #{abnormalStatuEndTime}
+                        and t9.CLASS_ID_ = #{item.registrationStatus} and t9.EFFECTIVE_TIME_ BETWEEN #{abnormalStartTime} and #{abnormalEndTime}
                     </if>
                     )
                 </foreach>
