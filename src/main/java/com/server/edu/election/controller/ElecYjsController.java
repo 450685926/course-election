@@ -88,9 +88,6 @@ public class ElecYjsController
     @Autowired
     private StringRedisTemplate strTemplate;
 
-    private static Logger LOG =
-            LoggerFactory.getLogger(ExemptionController.class);
-    
     @ApiOperation(value = "研究生选课获取生效的轮次")
     @PostMapping("/getGraduateRounds")
     public RestResult<List<ElectionRoundsVo>> getGraduateRounds(
@@ -352,12 +349,8 @@ public class ElecYjsController
     @PostMapping("/deleteRedisSelectedStatus")
     public RestResult<?> deleteRedisSelectedStatus(@RequestBody String studentId)
     {
-        LOG.info("deleteRedisSelectedStatus.start");
         String pattern = "elec-stdstatus-*_"+studentId;
-        System.out.println(studentId);
-        System.out.println(pattern);
         Set<String> keys = strTemplate.keys(pattern);
-        System.out.println(keys.toString());
         if (CollectionUtil.isNotEmpty(keys)) {
     		strTemplate.delete(keys);
 		}
