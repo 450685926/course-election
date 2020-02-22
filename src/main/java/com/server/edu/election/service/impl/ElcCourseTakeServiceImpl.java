@@ -1761,6 +1761,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             ElcCourseTake elcCourseTake = value.get(i);
             ElcLog elcLog = new ElcLog();
             elcLog.setStudentId(elcCourseTake.getStudentId());
+            elcStudentVo.setStudentId(elcCourseTake.getStudentId());
             elcLog.setCourseCode(elcStudentVo.getCourseCode());
             elcLog.setCourseName(elcStudentVo.getCourseName());
             elcLog.setTeachingClassCode(elcStudentVo.getClassCode());
