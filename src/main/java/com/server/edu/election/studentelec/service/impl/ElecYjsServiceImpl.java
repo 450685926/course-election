@@ -855,18 +855,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * @return
      */
     private List<CompletedCourse> packagingTakenCourse(List<CompletedCourse> takenCourse) {
-    	List<CompletedCourse> takenC = new ArrayList<CompletedCourse>();
     	for (CompletedCourse completedCourse : takenCourse) {
-    		CompletedCourse com = new CompletedCourse();
-    		completedCourse.setTeacherName(com.getTeacherName());
-    		completedCourse.setTeacherCode(com.getTeacherCode());
-    		completedCourse.setTeacherNameAndCode(com.getTeacherNameAndCode());
-    		takenC.add(completedCourse);
 			Long courseLabelId = completedCourse.getCourseLabelId();
 			LOG.info("===========courseLabelId=============:" + courseLabelId);
 		}
-    	takenC.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
-    	return takenC;
+    	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
+    	return takenCourse;
     }
 
 	/**
