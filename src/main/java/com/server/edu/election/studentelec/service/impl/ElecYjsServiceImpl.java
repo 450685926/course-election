@@ -785,13 +785,13 @@ public class ElecYjsServiceImpl extends AbstractCacheService
 			}
 		}
         List<ElcCourseResult> sortOptionalCourses = sortOptionalCourses(setOptionalCourses);
-//        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
+        List<CompletedCourse> takenCourse = packagingTakenCourse(setCompletedCourses,failedCourses,selectedCourseTreeSet);
         
-        List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
-        LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses().size());
-        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
-        	takenCourse = packagingTakenCourse(c.getTakenCourses());
-        }
+//        List<CompletedCourse> takenCourse = new ArrayList<CompletedCourse>();
+//        LOG.info("-----------takenCourse size---------------: " + c.getTakenCourses().size());
+//        if (CollectionUtil.isNotEmpty(c.getTakenCourses())) {
+//        	takenCourse = packagingTakenCourse(c.getTakenCourses());
+//        }
         
         c.setCompletedCourses(setCompletedCourses);
         c.setFailedCourse(failedCourses);
@@ -855,18 +855,12 @@ public class ElecYjsServiceImpl extends AbstractCacheService
      * @return
      */
     private List<CompletedCourse> packagingTakenCourse(List<CompletedCourse> takenCourse) {
-    	List<CompletedCourse> takenC = new ArrayList<CompletedCourse>();
     	for (CompletedCourse completedCourse : takenCourse) {
-    		CompletedCourse com = new CompletedCourse();
-    		completedCourse.setTeacherName(com.getTeacherName());
-    		completedCourse.setTeacherCode(com.getTeacherCode());
-    		completedCourse.setTeacherNameAndCode(com.getTeacherNameAndCode());
-    		takenC.add(completedCourse);
 			Long courseLabelId = completedCourse.getCourseLabelId();
 			LOG.info("===========courseLabelId=============:" + courseLabelId);
 		}
-    	takenC.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
-    	return takenC;
+    	takenCourse.sort(Comparator.comparing(CompletedCourse::getCourseLabelId));
+    	return takenCourse;
     }
 
 	/**
