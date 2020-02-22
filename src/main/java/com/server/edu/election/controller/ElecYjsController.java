@@ -350,8 +350,11 @@ public class ElecYjsController
     public RestResult<?> deleteRedisSelectedStatus(@RequestBody String studentId)
     {
     	String pattern = "elec-stdstatus-*_"+studentId;
-    	Set<String> keys = strTemplate.keys(pattern);
-    	if (CollectionUtil.isNotEmpty(keys)) {
+        System.out.println(studentId);
+        System.out.println(pattern);
+        Set<String> keys = strTemplate.keys(pattern);
+        System.out.println(keys.toString());
+        if (CollectionUtil.isNotEmpty(keys)) {
     		strTemplate.delete(keys);
 		}
     	return RestResult.success();
