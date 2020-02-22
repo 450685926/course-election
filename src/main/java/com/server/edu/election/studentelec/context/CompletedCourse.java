@@ -94,7 +94,29 @@ public class CompletedCourse extends TeachingClassCache {
 	public void setLabelName(String labelName) {
 		this.labelName = labelName;
 	}
+	public CompletedCourse (TeachingClassCache course) {
+    	this.setNature(course.getNature());
+        this.setCampus(course.getCampus());
+        this.setCourseCode(course.getCourseCode());
+        this.setCourseName(course.getCourseName());
+        this.setCredits(course.getCredits());
+        this.setNameEn(course.getNameEn());
+        this.setPublicElec(course.isPublicElec());
+        this.setTeachClassId(course.getTeachClassId());
+        this.setTeachClassCode(course.getTeachClassCode());
+        this.setTeachClassType(course.getTeachClassType());
+        this.setPractice(course.getPractice());
+        this.setRetraining(course.getRetraining());
+        this.setMaxNumber(course.getMaxNumber());
+        this.setCurrentNumber(course.getCurrentNumber());
+        this.setTeacherName(course.getTeacherName());
+        this.setTimes(course.getTimes());
+        this.setTerm(course.getTerm());
+        this.setCalendarName(course.getCalendarName());
+	}
+	public CompletedCourse() {
 
+	}
 	@Override
     public int hashCode() {
         return Objects.hash(this.score, this.getCourseCode(), this.getCalendarId());
