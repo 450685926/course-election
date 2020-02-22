@@ -652,7 +652,7 @@ public class RetakeCourseServiceImpl implements RetakeCourseService {
                     // 比较上课天是否相同
                     if (dayOfWeek == tableMessage.getDayOfWeek().intValue()) {
                         // 上课天相同，比价上课节次
-                        int start = timeTableMessage.getTimeStart().intValue();
+                        int start = tableMessage.getTimeStart().intValue();
                         int end = tableMessage.getTimeEnd().intValue();
                         // 判断要添加课程上课开始、结束节次是否与已选课上课节次冲突
                         if ((timeStart <= start && start <= timeEnd) || (timeStart <= end && end <= timeEnd)) {
