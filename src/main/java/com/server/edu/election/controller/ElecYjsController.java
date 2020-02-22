@@ -349,13 +349,10 @@ public class ElecYjsController
     @PostMapping("/deleteRedisSelectedStatus")
     public RestResult<?> deleteRedisSelectedStatus(@RequestBody String studentId)
     {
-        System.out.println(studentId);
     	String pattern = "elec-stdstatus-*_"+studentId;
     	Set<String> keys = strTemplate.keys(pattern);
-        System.out.println(pattern);
-        System.out.println(keys.toString());
     	if (CollectionUtil.isNotEmpty(keys)) {
-    	    strTemplate.delete(keys);
+    		strTemplate.delete(keys);
 		}
     	return RestResult.success();
     }
