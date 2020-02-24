@@ -164,7 +164,8 @@ public class ElcMutualAuditServiceImpl implements ElcMutualAuditService {
 		dto.setCollegeList(elcMutualCommonService.getCollegeList(session));
 
 		// 本科生只有行政学院审核通过，才能进行开课学院审核
-		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+//		if (StringUtils.equals(projectId, Constants.PROJ_UNGRADUATE)) {
+		if (StringUtils.equals(projectId, Constants.PROJ_GRADUATE) || StringUtils.equals(projectId,Constants.PROJ_LINE_GRADUATE)) {
 			dto.setStatusArray(Arrays.asList(MutualApplyAuditStatus.DEPART_AUDITED_APPROVED.status(),
 					MutualApplyAuditStatus.AUDITED_APPROVED.status(),MutualApplyAuditStatus.AUDITED_UN_APPROVED.status()));
 		}
