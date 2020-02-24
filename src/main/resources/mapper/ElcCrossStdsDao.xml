@@ -76,4 +76,43 @@
 			</if>
 		</where>
 	</select>
+	<select id="findFaculty"  parameterType = "java.lang.String" resultType="com.server.edu.common.entity.Department" >
+		SELECT
+		t.DEPT_ID_ AS deptId,
+		t.DEPT_CODE_ AS deptCode,
+		t.DEPT_NAME_ AS deptName,
+		t.DEPT_NAME_EN_ AS deptNameEn,
+		t.ADDRESS_ AS address,
+		t.CONTACT_TELEPHONE_ AS contactTelephone,
+		t.DESC_ AS description,
+		t.PARENT_DEPT_ID_ AS parentDeptId,
+		t.IS_POST_STUDENT_ AS isPostStudent,
+		t.IS_POST_ONJOB_STUDENT_ AS isPostOnjobStudent,
+		t.IS_UNDER_STUDENT_  AS isUnderStudent,
+		t.CURRENT_STATE_  AS currentState,
+		t.IS_COURSE_ AS isCourse,
+		t.CREATE_BY_ AS createBy,
+		t.CREATE_DATE_ AS createDate,
+		t.IS_FACULTY_  AS isFaculty,
+		t.LAST_UPDATE_BY_ AS lastUpdateBy,
+		t.LAST_UPDATE_DATE_ AS lastUpdateDate
+		FROM department_t t
+		WHERE 1 = 1
+		AND t.DEPT_CODE_ IS NOT NULL
+		AND t.CURRENT_STATE_ = '1'
+		<if test='type==1'>
+			AND t.IS_FACULTY_ = '1'
+		</if>
+		<if test='virtualDept=="0"'>
+			AND t.DEPT_CODE_ <![CDATA[ <> ]]> '-10000'
+		</if>
+
+		<if test='managDeptId!=null and managDeptId!="" and managDeptId == "1"'>
+			AND t.IS_UNDER_STUDENT_ =1
+		</if>
+		<if test='managDeptId!=null and managDeptId!="" and managDeptId != "1"'>
+			AND t.IS_POST_STUDENT_ =1
+		</if>
+		ORDER BY  t.DEPT_ID_ NOT IN ('697'),t.DEPT_CODE_ ASC
+	</select>
 </mapper>
