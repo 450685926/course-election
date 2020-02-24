@@ -2,9 +2,13 @@ package com.server.edu.mutual.service;
 
 import com.github.pagehelper.PageInfo;
 import com.server.edu.common.PageCondition;
+import com.server.edu.common.entity.Department;
+import com.server.edu.common.rest.RestResult;
 import com.server.edu.mutual.dto.ElcMutualCrossStu;
 import com.server.edu.mutual.dto.ElcMutualCrossStuDto;
 import com.server.edu.mutual.vo.ElcMutualCrossStuVo;
+
+import java.util.List;
 
 public interface ElcMutualCrossService {
 	/**
@@ -62,6 +66,8 @@ public interface ElcMutualCrossService {
 	//全部删除改成以对象方式接收
 //	int deleteAll(ElcMutualCrossStu dto);
 	
-	
-
+	/**
+	 * 获取当前所有启动的部门列表（包括虚拟部门）
+	 * */
+	RestResult<List<Department>> findDept(String virtualDept,Integer type,Integer manageDept);
 }
