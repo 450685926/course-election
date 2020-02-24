@@ -150,6 +150,7 @@ public class ElecYjsServiceImpl extends AbstractCacheService
     
 
     @SuppressWarnings("rawtypes")
+    @Transactional(rollbackFor = { Exception.class })
     @Override
     public IElecContext doELec(ElecRequest request)
     {
@@ -513,7 +514,11 @@ public class ElecYjsServiceImpl extends AbstractCacheService
         return true;
     }
 
-    @Transactional(rollbackFor = { Exception.class })
+
+    public boolean callDoRealElectiveCourse(ElcCourseTake take){
+        System.out.println("enter callDoRealElectiveCourse;");
+        return doRealElectiveCourse(take);
+    }
     public boolean doRealElectiveCourse(ElcCourseTake take) {
         if (courseTakeDao.insertSelective(take) > 0 && classDao.increElcNumberAtomic(take.getTeachingClassId()) > 0 ){
             dataProvider.incrementElecNumber(take.getTeachingClassId());
