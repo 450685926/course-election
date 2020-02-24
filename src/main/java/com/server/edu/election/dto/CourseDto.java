@@ -20,8 +20,18 @@ public class CourseDto extends Course
     private List<String> codes;
 
     private String faculty;
+    
+    private List<String> facultyList;
+    
+    public List<String> getFacultyList() {
+		return facultyList;
+	}
 
-    public String getFaculty() {
+	public void setFacultyList(List<String> facultyList) {
+		this.facultyList = facultyList;
+	}
+
+	public String getFaculty() {
         return faculty;
     }
 

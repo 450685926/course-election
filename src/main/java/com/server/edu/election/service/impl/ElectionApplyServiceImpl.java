@@ -1,5 +1,6 @@
 package com.server.edu.election.service.impl;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import com.server.edu.common.locale.I18nUtil;
 import com.server.edu.common.rest.PageResult;
 import com.server.edu.election.constants.Constants;
 import com.server.edu.election.constants.ElectRuleType;
+import com.server.edu.election.dao.CourseOpenDao;
 import com.server.edu.election.dao.ElcCourseTakeDao;
 import com.server.edu.election.dao.ElecRoundsDao;
 import com.server.edu.election.dao.ElectionApplyCoursesDao;
@@ -25,6 +27,7 @@ import com.server.edu.election.dto.CourseDto;
 import com.server.edu.election.dto.ElectionApplyDto;
 import com.server.edu.election.dto.ElectionApplyRejectDto;
 import com.server.edu.election.entity.Course;
+import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.entity.ElectionApply;
 import com.server.edu.election.entity.ElectionApplyCourses;
 import com.server.edu.election.entity.ElectionRounds;
@@ -65,6 +68,9 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
     
     @Autowired
     private ElcCourseTakeDao courseTakeDao;
+    
+    @Autowired
+    private CourseOpenDao courseOpenDao;
     
     @Override
     public PageInfo<ElectionApplyVo> applyList(
@@ -305,18 +311,24 @@ public class ElectionApplyServiceImpl implements ElectionApplyService
         //查询学生的已选课程
         Integer index = TableIndexUtil.getIndex(calendarId);
         List<ElcCourseTakeVo> list = courseTakeDao.findBkSelectedCourses(studentId, calendarId, index);
-        //查询所有英语课
-        CourseDto dto = new CourseDto();
-		dto.setFaculty("000268");
-		dto.setStatus(Constants.THREE+"");
-		dto.setCalendarId(calendarId);
-		List<Course> engLishCourses= electionApplyCoursesDao.getApplyCourseAdd(dto);
-		if(CollectionUtil.isNotEmpty(engLishCourses)) {
-			List<String> engLishCourseCodes = engLishCourses.stream().map(c->c.getCode()).collect(Collectors.toList());
-			if(engLishCourseCodes.contains(courseCode)) {
+        //查询所有英语课、体育课
+        List<String> facultyList = Arrays.asList("000268","000293");
+        Example courseExample  = new Example(CourseOpen.class);
+        courseExample.createCriteria().andEqualTo("calendarId", calendarId).andIn("faculty", facultyList);
+		List<CourseOpen> engLishPECourses= courseOpenDao.selectByExample(courseExample);
+		if(CollectionUtil.isNotEmpty(engLishPECourses)) {
+			List<String> PECourses = engLishPECourses.stream().filter(c->"000293".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
+			List<String> engLishCourseCodes = engLishPECourses.stream().filter(c->"000268".equals(c.getFaculty())).map(c->c.getCourseCode()).collect(Collectors.toList());
+			if(CollectionUtil.isNotEmpty(engLishCourseCodes) && engLishCourseCodes.contains(courseCode)) {
 				List<String> engLishTakeCourse = list.stream().filter(c->c!=null).filter(c->engLishCourseCodes.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
 				if(CollectionUtil.isNotEmpty(engLishTakeCourse)) {
 					throw new ParameterValidateException("已选英语课不能申请!");
+				}
+			}
+			if(CollectionUtil.isNotEmpty(PECourses) && PECourses.contains(courseCode)) {
+				List<String> peTakeCourse = list.stream().filter(c->c!=null).filter(c->PECourses.contains(c.getCourseCode())).map(c->c.getCourseCode()).collect(Collectors.toList());
+				if(CollectionUtil.isNotEmpty(peTakeCourse)) {
+					throw new ParameterValidateException("已选体育课不能申请!");
 				}
 			}
 		}

@@ -60,7 +60,7 @@ public class RebuildCourseNoChargeType implements Serializable {
     /**
      * 学籍异动状态
      */
-    @Code2Text(DictTypeEnum.G_XJZT)
+    @Code2Text(transformer = "G_XJDL")
     @Column(name = "REGISTRATION_STATUS_")
     private String registrationStatus;
 

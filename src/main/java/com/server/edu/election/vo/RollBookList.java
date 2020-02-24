@@ -32,14 +32,27 @@ public class RollBookList {
     private String faculty;
     private String teacherName;
     private String teacherCodeAndName;
+    private String teacherCodes;
     @Code2Text(transformer = "K_BKKCXZ")
     private String isElective;
 
     public String getTeacherCodeAndName() {
         return teacherCodeAndName;
     }
+    
+    
+    public String getTeacherCodes() {
+		return teacherCodes;
+	}
 
-    public void setTeacherCodeAndName(String teacherCodeAndName) {
+
+	public void setTeacherCodes(String teacherCodes) {
+		this.teacherCodes = teacherCodes;
+	}
+
+
+
+	public void setTeacherCodeAndName(String teacherCodeAndName) {
         this.teacherCodeAndName = teacherCodeAndName;
     }
 

@@ -185,6 +185,8 @@ public interface ElcCourseTakeDao
 
     /**点名册*/
     Page<RollBookList> findClassByTeacherCode(RollBookConditionDto condition);
+    /**新点名册*/
+    Page<RollBookList> findCourseTake(RollBookConditionDto condition);
 
     /**研究生点名册*/
     Page<RollBookList> findTeachingClass(RollBookConditionDto condition);
@@ -350,6 +352,8 @@ public interface ElcCourseTakeDao
 	List<Long> selectClassByRoundId(@Param("roundId") Long roundId,@Param("calendarId") Long calendarId,@Param("index") Integer index);
 
     List<ElcCourseTakeVo> findCompulsory(@Param("studentId") String studentId);
+
+    String getLabelName(@Param("lableId") String lableId);
 
     List<TurnNumVo> findSelCount(@Param("index") int index, @Param("list") List<Long> list);
     

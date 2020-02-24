@@ -801,6 +801,7 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         ElcCourseTake record = new ElcCourseTake();
         record.setStudentId(studentId);
         record.setCourseCode(courseCode);
+        record.setCalendarId(calendarId);
         int selectCount = courseTakeDao.selectCount(record);
         if (selectCount == 0)
         {
@@ -1254,6 +1255,39 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         PageResult<Student4Elc> result = new PageResult<>(listPage);
 		return result;
 	}
+	@Override
+	public PageResult<Student4Elc> getGraduateStudentForCulturePlan4Retake(PageCondition<ElcResultQuery> page) {
+		Session currentSession = SessionUtils.getCurrentSession();
+		ElcResultQuery cond = page.getCondition();
+		cond.setProjectId(currentSession.getCurrentManageDptId());
+
+		//查询本门课是否有选课
+		logger.info("cond.getCourseCode()+++++++++++++++++++++++"+cond.getCourseCode());
+
+		Example example = new Example(ElcCourseTake.class);
+		example.createCriteria().andEqualTo("courseCode",cond.getCourseCode());
+		List<ElcCourseTake> selectByExample = courseTakeDao.selectByExample(example);
+//		List<String> collect = selectByExample.stream().map(ElcCourseTake::getStudentId).collect(Collectors.toList());
+		List<String> collect = new ArrayList<>();
+		for (ElcCourseTake string : selectByExample) {
+			collect.add(string.getStudentId());
+		}
+		collect.add("0");
+		cond.setStudentCodes(collect);
+		Example example1 = new Example(ElcCourseTake.class);
+		example1.createCriteria().andEqualTo("courseCode",cond.getCourseCode()).andEqualTo("calendarId",cond.getCalendarId());
+		List<ElcCourseTake> selectByExample1 = courseTakeDao.selectByExample(example1);
+		List<String> collect1 = new ArrayList<>();
+		for (ElcCourseTake string : selectByExample1) {
+			collect1.add(string.getStudentId());
+		}
+		collect1.add("0");
+		cond.setStudentCodess(collect1);
+		PageHelper.startPage(page.getPageNum_(), page.getPageSize_());
+        Page<Student4Elc> listPage = studentDao.getStudent4CulturePlanRetake(cond);
+        PageResult<Student4Elc> result = new PageResult<>(listPage);
+		return result;
+	}
     /**
     *@Description: 查找加课学生
     *@Param:
@@ -1411,8 +1445,6 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
         String studentId = courseTakeQuerytudentVo.getStudentId();
         Long calendarId = courseTakeQuerytudentVo.getCalendarId();
         String keyword = courseTakeQuerytudentVo.getKeyword();
-        // 获取学生所有已修课程成绩
-        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         Session session = SessionUtils.getCurrentSession();
         String currentManageDptId = session.getCurrentManageDptId();
         List<PlanCourseDto> courseType;
@@ -1431,18 +1463,34 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             List<PlanCourseTypeDto> list = planCourseDto.getList();
             planCourseTypeDtos.addAll(list);
         }
-        List<String> allCourseCode = planCourseTypeDtos.stream().map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toList());
+        Set<String> planCourseCode = planCourseTypeDtos.stream().
+                map(PlanCourseTypeDto::getCourseCode).collect(Collectors.toSet());
         //获取学生本学期已选的课程
         List<String> codes = courseTakeDao.findSelectedCourseCode(studentId, calendarId);
+        // 获取学生所有已修课程成绩
+        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         // 获取学生通过课程集合
-        List<ScoreStudentResultVo> collect = stuScore.stream().filter(item -> item.getIsPass().intValue() == 1).collect(Collectors.toList());
-        List<String> passedCourseCodes = collect.stream().map(ScoreStudentResultVo::getCourseCode).collect(Collectors.toList());
+        Set<String> collect1 = stuScore.stream().
+                filter(item -> item.getIsPass() == 1).
+                map(ScoreStudentResultVo::getCourseCode).
+                collect(Collectors.toSet());
+
         // 组合学生已选课程和考试通过课程
-        codes.addAll(passedCourseCodes);
+        codes.addAll(collect1);
+
+        // 获取学生未通过课程集合
+        Set<String> collect2 = stuScore.stream().
+                filter(item -> item.getIsPass() != 1).
+                map(ScoreStudentResultVo::getCourseCode).
+                collect(Collectors.toSet());
+
+        // 将未通过课程放到培养计划，防止培养计划里面没有未通过课程
+       planCourseCode.addAll(collect2);
         //剔除培养计划课程集合中学生已通过的课程，获取学生还需要修读的课程
-        List<String> elcCourses = allCourseCode.stream()
+        List<String> elcCourses = planCourseCode.stream()
                 .filter(item -> !codes.contains(item))
                 .collect(Collectors.toList());
+
         Page<ElcStudentVo> elcStudentVos = new Page<ElcStudentVo>();
         if (CollectionUtil.isEmpty(elcCourses)) {
             return new PageResult<>(elcStudentVos);
@@ -1982,9 +2030,9 @@ public class ElcCourseTakeServiceImpl implements ElcCourseTakeService
             logger.info("---------------------------take length:"+list.size()+"--------------------------------------------------------------");
             if(CollectionUtil.isNotEmpty(list)) {
             	withdraw(list);
-            	teachingClassDao.updateByPrimaryKeySelective(t);
             }
         }
+        teachingClassDao.updateByPrimaryKeySelective(t);
 	}
 
     @Transactional

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import com.server.edu.common.dto.PlanCourseTypeDto;
 import com.server.edu.election.controller.ElecAgentYjsController;
 import com.server.edu.election.dto.TimeTableMessage;
+import com.server.edu.election.entity.CourseOpen;
 import com.server.edu.election.rpc.BaseresServiceInvoker;
 import com.server.edu.election.rpc.CultureSerivceInvoker;
 import org.apache.commons.lang3.StringUtils;
@@ -127,6 +128,8 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     @Override
     public void load(ElecContextBk context)
     {
+
+
         // select course_id, passed from course_grade where student_id_ = ? and status = 'PUBLISHED'
         // 1. 查询学生课程成绩(包括已完成)
         StudentInfoCache studentInfo = context.getStudentInfo();
@@ -190,11 +193,30 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     private void loadScore(ElecContextBk context, StudentInfoCache studentInfo,
         String studentId, Student stu)
     {
+        List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentId);
+        Map<String, String> compulsoryMap = new HashMap<>();
+        Map<String, String> labelMap = new HashMap<>();
+        if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+            for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                String compulsory = elcCourseTakeVo.getCompulsory();
+                String label = elcCourseTakeVo.getLabel();
+                if (StringUtils.isNotBlank(compulsory)) {
+                    compulsoryMap.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    labelMap.put(elcCourseTakeVo.getCourseCode(), label);
+                }
+            }
+        }
         ElecRequest request = context.getRequest();
         Long requesCalendarId = request.getCalendarId();
         List<StudentScoreVo> stuScoreBest =
             ScoreServiceInvoker.findStuScoreBest(studentId);
         BeanUtils.copyProperties(stu, studentInfo);
+        String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
+        if(StringUtils.isEmpty(campus)){
+            campus = stu.getCampus();
+        }
+        studentInfo.setCampus(campus);
+
         //如果是选下学期的课程，获得当前学期正在修读的课程
         Long currentCalendarId = BaseresServiceInvoker.getCurrentCalendar();/* 当前学期学年 */
         if(currentCalendarId.longValue() < requesCalendarId.longValue() ){
@@ -237,9 +259,16 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 {
                     lesson.setFaculty(tClass.getFaculty());
                 }
-                
+
                 c.setCourse(lesson);
-                
+                String label = labelMap.get(studentScore.getCourseCode());
+                String compulsory = compulsoryMap.get(studentScore.getCourseCode());
+                c.setCompulsory(compulsory);
+                if(StringUtils.isNotEmpty(label)){
+                    c.setLabel(label);
+                    String labelName = elcCourseTakeDao.getLabelName(label);
+                    c.setLabelName(labelName);
+                }
                 c.setScore(studentScore.getTotalMarkScore());
                 c.setExcellent(studentScore.isBestScore());
                 c.setIsPass(studentScore.getIsPass());
@@ -250,14 +279,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 List<ClassTimeUnit> times = this.concatTime(collect, lesson);
                 lesson.setTimes(times);
                 
-//                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
-//                { // 已通过的课程
+                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
+                { // 已通过的课程
                     completedCourses.add(c);
-//                }
-//                else
-//                { // 未通过的课程
-//                    failedCourse.add(c);
-//                }
+                }
+                else
+                { // 未通过的课程
+                    failedCourse.add(c);
+                }
             }
         }
     }
@@ -273,6 +302,19 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
     private void loadScoreTemp(ElecContextBk context, StudentInfoCache studentInfo,
         String studentId, Student stu,List<ElcCouSubsVo> list)
     {
+        List<ElcCourseTakeVo> elcCourseTakeVos = elcCourseTakeDao.findCompulsory(studentId);
+        Map<String, String> compulsoryMap = new HashMap<>();
+        Map<String, String> labelMap = new HashMap<>();
+        if (CollectionUtil.isNotEmpty(elcCourseTakeVos)) {
+            for (ElcCourseTakeVo elcCourseTakeVo : elcCourseTakeVos) {
+                String compulsory = elcCourseTakeVo.getCompulsory();
+                String label = elcCourseTakeVo.getLabel();
+                if (StringUtils.isNotBlank(compulsory)) {
+                    compulsoryMap.put(elcCourseTakeVo.getCourseCode(), compulsory);
+                    labelMap.put(elcCourseTakeVo.getCourseCode(), label);
+                }
+            }
+        }
 //        List<ScoreStudentResultVo> stuScore = ScoreServiceInvoker.findStuScore(studentId);
         ElecRequest request = context.getRequest();
         Long requesCalendarId = request.getCalendarId();
@@ -282,6 +324,12 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
 //    	dto.setCalendarId(context.getCalendarId());
     	List<ScoreStudentResultVo> stuScore = bkStudentScoreService.getAllStudentScoreList(dto);
         BeanUtils.copyProperties(stu, studentInfo);
+        String campus = studentDao.getStudentCampus(request.getCalendarId(),stu.getGrade(),stu.getProfession());
+        if(StringUtils.isEmpty(campus)){
+            campus = stu.getCampus();
+        }
+        studentInfo.setCampus(campus);
+
         Set<CompletedCourse> unFinishedCourses = context.getUnFinishedCourses();
 
         //如果是选下学期的课程，获得当前学期正在修读的课程
@@ -354,6 +402,15 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                         teachClassIds.add(teachClassId);
                     }
                 }
+                String label = labelMap.get(studentScore.getCourseCode());
+                String compulsory = compulsoryMap.get(studentScore.getCourseCode());
+                c.setCompulsory(compulsory);
+                if(StringUtils.isNotEmpty(label)){
+                    c.setLabel(label);
+                    String labelName = elcCourseTakeDao.getLabelName(label);
+                    c.setLabelName(labelName);
+                }
+
                 c.setCourse(lesson);
                 c.setScore(studentScore.getFinalScore());
                 boolean excellent = false;
@@ -366,14 +423,14 @@ public class BKCourseGradeLoad extends DataProLoad<ElecContextBk>
                 c.setCheat(
                     StringUtils.isBlank(studentScore.getTotalMarkScore()));
                 
-//                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
-//                { // 已通过的课程
+                if (Objects.equals(studentScore.getIsPass(), Constants.ONE))
+                { // 已通过的课程
                     completedCourses.add(c);
-//                }
-//                else
-//                { // 未通过的课程
-//                    failedCourse.add(c);
-//                }
+                }
+                else
+                { // 未通过的课程
+                    failedCourse.add(c);
+                }
             }
             
             Map<Long, List<ClassTimeUnit>> collect = groupByTime(teachClassIds);

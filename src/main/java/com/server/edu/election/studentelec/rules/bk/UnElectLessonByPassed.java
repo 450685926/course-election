@@ -132,14 +132,16 @@ public class UnElectLessonByPassed extends AbstractElecRuleExceutorBk
                 if (CollectionUtil.isNotEmpty(completedCourses)) {
                     if (elcCouSubs == null) {
                         list = completedCourses.stream()
-                                .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode()))
+                                .filter(temp -> courseCode.equals(temp.getCourse().getCourseCode())
+                                        && temp.getIsPass() == 1)
                                 .collect(Collectors.toList());
                     } else {
                         String origsCourseCode = elcCouSubs.getOrigsCourseCode();
                         // 判断被替代的课程是否已通过或该课程是否已通过
                         list = completedCourses.stream()
                                 .filter(temp ->
-                                        (origsCourseCode.equals(temp.getCourse().getCourseCode()) || courseCode.equals(temp.getCourse().getCourseCode())))
+                                        (origsCourseCode.equals(temp.getCourse().getCourseCode()) || courseCode.equals(temp.getCourse().getCourseCode()))
+                                                && temp.getIsPass() == 1)
                                 .collect(Collectors.toList());
                     }
 
