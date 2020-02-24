@@ -2672,6 +2672,14 @@
         order by CREATED_AT_ DESC, t1.STUDENT_ID_
 
     </select>
+     <select id="findElcCourseTake" resultType="com.server.edu.election.vo.ElcCourseTakeVo">
+      SELECT
+            t.*
+      FROM `elc_course_takes_t_${index}` t WHERE COURSE_CODE_ =#{courseCode}
+      and STUDENT_ID_ =#{studentId}
+      and CALENDAR_ID_ =#{calendarId}
+     
+     </select>
 
 
     <select id="ListRebuildCourseNumber" parameterType="com.server.edu.election.dto.RebuildCourseDto" resultType="com.server.edu.election.vo.StudentVo">

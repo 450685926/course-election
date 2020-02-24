@@ -241,7 +241,8 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 				LOG.info("---------------getCulturePlanCourseCodeByStudentId--------------"+courseCodes.size());
 				list2 = list2.stream().filter(vo->!courseCodes.contains(vo.getCourseCode())).collect(Collectors.toList());
 			}
-			pageInfo=new PageInfo<ElcMutualApplyVo>(list2);
+//			pageInfo=new PageInfo<ElcMutualApplyVo>(list2);
+			pageInfo.setList(list2);
 			
 		}else {
 			// 研究生可申请的互选课程为: 研究生培养计划中“补修课”与本科生管理员维护的互选课程取交集
@@ -277,10 +278,12 @@ public class ElcMutualApplyServiceImpl implements ElcMutualApplyService {
 				
 				// 补修课与互选维护课程取交集
 				list2 = list2.stream().filter(vo->courseCodeBXK.contains(vo.getCourseCode())).collect(Collectors.toList());
-				pageInfo = new PageInfo<ElcMutualApplyVo>(list2);
+//				pageInfo = new PageInfo<ElcMutualApplyVo>(list2);
+				pageInfo.setList(list2);
 			}else {
 				list = new ArrayList<ElcMutualApplyVo>();
-				pageInfo = new PageInfo<ElcMutualApplyVo>(list);
+//				pageInfo = new PageInfo<ElcMutualApplyVo>(list);
+				pageInfo.setList(list);
 			}
 		}
 		
